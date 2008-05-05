@@ -4,8 +4,8 @@
 " Home:         http://code.google.com/p/vimwiki/
 " Author:       Maxim Kim
 " Filenames:    *.wiki
-" Last Change:  (04.05.2008 17:45)
-" Version:      0.1
+" Last Change:  (05.05.2008 19:30)
+" Version:      0.2
 
 if exists("b:did_ftplugin")
   finish
@@ -35,12 +35,16 @@ function! s:default(varname,value)
   endif
 endfunction
 
+"" Could be redefined by users
 call s:default('index',"")
 call s:default('home',"")
 call s:default('upper','A-ZА-Я')
 call s:default('lower','a-zа-я')
 call s:default('other','0-9_')
 call s:default('ext','.wiki')
+call s:default('smartCR',1)
+call s:default('stripsym','_')
+
 call s:default('history',[])
 
 let upp = g:vimwiki_upper
@@ -74,6 +78,7 @@ function! s:SearchWord(wikiRx,cmd)
     let &hls = hl
 endfunction
 
+
 function! s:WikiNextWord()
     call s:SearchWord(s:wiki_word, 'n')
 endfunction
@@ -104,27 +109,44 @@ function! s:WikiGetWordAtCursor(wikiRX)
     endif
 endf
 
-function! s:WikiStripWord(word)
+function! s:WikiStripWord(word, sym)
+    function! s:WikiStripWordHelper(word, sym)
+        return substitute(a:word, '[<>|?*/\:"]', a:sym, 'g')
+    endfunction
+
     let result = a:word
     if strpart(a:word, 0, 2) == "[["
-        let result = strpart(a:word, 2, strlen(a:word)-4)
+        let result = s:WikiStripWordHelper(strpart(a:word, 2, strlen(a:word)-4), a:sym)
     endif
     return result
 endfunction
 
 
+" Check if word is link to a non-wiki file.
+" The easiest way is to check if it has extension like .txt or .html
+function! s:WikiLinkToNonWikiFile(word)
+    if a:word =~ '\..\{1,4}$'
+        return 1
+    endif
+    return 0
+endfunction
+
 if !exists('*s:WikiFollowWord')
     function! s:WikiFollowWord()
-        let word = s:WikiStripWord(s:WikiGetWordAtCursor(s:wiki_word))
+        let word = s:WikiStripWord(s:WikiGetWordAtCursor(s:wiki_word), g:vimwiki_stripsym)
         " insert doesn't work properly inside :if. Check :help :if.
         if word == ""
             execute "normal! \n"
             return
         endif
-        " history is [['WikiWord.wiki', 11], ['AnotherWikiWord', 3] ... etc]
-        " where numbers are column positions we should return when coming back.
-        call insert(g:vimwiki_history, [expand('%:p'), col('.')])
-        execute ":e ".g:vimwiki_home.word.g:vimwiki_ext
+        if s:WikiLinkToNonWikiFile(word)
+            execute ":e ".word
+        else
+            " history is [['WikiWord.wiki', 11], ['AnotherWikiWord', 3] ... etc]
+            " where numbers are column positions we should return when coming back.
+            call insert(g:vimwiki_history, [expand('%:p'), col('.')])
+            execute ":e ".g:vimwiki_home.word.g:vimwiki_ext
+        endif
     endfunction
 
     function! s:WikiGoBackWord()
@@ -138,30 +160,40 @@ if !exists('*s:WikiFollowWord')
 endif
 
 function! s:WikiNewLine()
-    let prevline = getline(line('.')-1)
-
-    if prevline =~ '^\s*\*'
-        let curline = substitute(getline('.'),'^\s\+',"","g")
-        if prevline =~ '^\s*\*\s*$'
-            " there should be easier way ...
-            execute 'normal kA '."\<ESC>".'"_dF*JX'
-            return
+    function! WikiAutoListItemInsert(listSym)
+        let sym = escape(a:listSym, '*')
+        let prevline = getline(line('.')-1)
+        if prevline =~ '^\s*'.sym
+            let curline = substitute(getline('.'),'^\s\+',"","g")
+            if prevline =~ '^\s*'.sym.'\s*$'
+                " there should be easier way ...
+                execute 'normal kA '."\<ESC>".'"_dF'.a:listSym.'JX'
+                return 1
+            endif
+            let ind = indent(line('.')-1)
+            call setline(line('.'), strpart(prevline, 0, ind).a:listSym.' '.curline)
+            call cursor(line('.'), ind+3)
+            return 1
         endif
-        call setline(line('.'), '* '.curline)
-        execute "normal =="
-        let ind = indent(line('.')) + 3
-        call cursor(line('.'), ind)
+        return 0
+    endfunction
+
+    if WikiAutoListItemInsert('*')
+        return
+    endif
+
+    if WikiAutoListItemInsert('#')
         return
     endif
 
     " delete <space>
-    execute 'normal X'
+    execute 'normal x'
 endfunction
 
 
 " Functions }}}
 
-"" Keybindings
+"" Keybindings {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nmap <buffer> <Up>   gk
 nmap <buffer> k      gk
@@ -182,4 +214,7 @@ nmap <buffer> <BS> :call <SID>WikiGoBackWord()<CR>
 nmap <buffer> <TAB> :call <SID>WikiNextWord()<CR>
 nmap <buffer> <S-TAB> :call <SID>WikiPrevWord()<CR>
 
-inoremap <CR> <CR> <C-O>:call <SID>WikiNewLine()<CR>
+if g:vimwiki_smartCR
+    inoremap <CR> <CR> <C-O>:call <SID>WikiNewLine()<CR>
+endif
+" Keybindings }}}
