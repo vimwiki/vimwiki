@@ -104,6 +104,6 @@ hi def link wikiCitation              Constant
 
 hi def link wikiSingleLineProperty    Identifier
 
-let b:current_syntax="VimWiki"
+let b:current_syntax="vimwiki"
 
 " vim:tw=0:
