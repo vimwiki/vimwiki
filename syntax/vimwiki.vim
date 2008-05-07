@@ -4,8 +4,8 @@
 " Home:         http://code.google.com/p/vimwiki/
 " Author:       Maxim Kim
 " Filenames:    *.wiki
-" Last Change:  (05.05.2008 19:30)
-" Version:      0.2
+" Last Change:  (07.05.2008 19:25)
+" Version:      0.2.2
 " Based on FlexWiki
 
 " Quit if syntax file is already loaded
@@ -50,9 +50,6 @@ syntax match wikiEmoticons      /\((.)\|:[()|$@]\|:-[DOPS()\]|$@]\|;)\|:'(\)/
 " Aggregate all the regular text highlighting into wikiText
 syntax cluster wikiText contains=wikiItalic,wikiBold,wikiCode,wikiDelText,wikiSuperScript,wikiSubScript,wikiLink,wikiWord,wikiEmoticons
 
-" Treat all other lines that start with spaces as PRE-formatted text.
-syntax match wikiPre            /^[ \t]\+.*$/ contains=@wikiText
-
 " Header levels, 1-6
 syntax match wikiH1             /\(^!\{1}.*$\|^\s*=\{1}.*=\{1}\s*$\)/
 syntax match wikiH2             /\(^!\{2}.*$\|^\s*=\{2}.*=\{2}\s*$\)/
@@ -72,7 +69,8 @@ syntax match wikiTable          /||/
 " highlight only bullets and digits.
 syntax match wikiList           /^\s\+\(\*\|[1-9]\+0*\.\|#\)/
 
-
+" Treat all other lines that start with spaces as PRE-formatted text.
+syntax match wikiPre            /^\s\+[^[:blank:]*#].*$/
 
 
 " Link FlexWiki syntax items to colors

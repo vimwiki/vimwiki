@@ -4,8 +4,8 @@
 " Home:         http://code.google.com/p/vimwiki/
 " Author:       Maxim Kim
 " Filenames:    *.wiki
-" Last Change:  (05.05.2008 19:30)
-" Version:      0.2
+" Last Change:  (07.05.2008 19:25)
+" Version:      0.2.2
 
 if exists("b:did_ftplugin")
   finish
@@ -132,7 +132,14 @@ function! s:WikiLinkToNonWikiFile(word)
 endfunction
 
 if !exists('*s:WikiFollowWord')
-    function! s:WikiFollowWord()
+    function! s:WikiFollowWord(split)
+        if a:split == "split"
+            let cmd = ":split "
+        elseif a:split == "vsplit"
+            let cmd = ":vsplit "
+        else
+            let cmd = ":e "
+        endif
         let word = s:WikiStripWord(s:WikiGetWordAtCursor(s:wiki_word), g:vimwiki_stripsym)
         " insert doesn't work properly inside :if. Check :help :if.
         if word == ""
@@ -140,12 +147,12 @@ if !exists('*s:WikiFollowWord')
             return
         endif
         if s:WikiLinkToNonWikiFile(word)
-            execute ":e ".word
+            execute cmd.word
         else
             " history is [['WikiWord.wiki', 11], ['AnotherWikiWord', 3] ... etc]
             " where numbers are column positions we should return when coming back.
             call insert(g:vimwiki_history, [expand('%:p'), col('.')])
-            execute ":e ".g:vimwiki_home.word.g:vimwiki_ext
+            execute cmd.g:vimwiki_home.word.g:vimwiki_ext
         endif
     endfunction
 
@@ -208,7 +215,9 @@ vmap <buffer> j      gj
 imap <buffer> <Down>   <C-o>gj
 imap <buffer> <Up>     <C-o>gk
 
-nmap <buffer> <CR> :call <SID>WikiFollowWord()<CR>
+nmap <buffer> <CR> :call <SID>WikiFollowWord('nosplit')<CR>
+nmap <buffer> <S-CR> :call <SID>WikiFollowWord('split')<CR>
+nmap <buffer> <C-CR> :call <SID>WikiFollowWord('vsplit')<CR>
 nmap <buffer> <BS> :call <SID>WikiGoBackWord()<CR>
 
 nmap <buffer> <TAB> :call <SID>WikiNextWord()<CR>
