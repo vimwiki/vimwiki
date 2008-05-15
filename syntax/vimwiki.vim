@@ -1,12 +1,10 @@
 " Vim syntax file
 " Language:     Wiki
-" Maintainer:   Maxim Kim (habamax at gmail dot com)
+" Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
-" Author:       Maxim Kim
 " Filenames:    *.wiki
-" Last Change:  (07.05.2008 19:25)
-" Version:      0.2.2
-" Based on FlexWiki
+" Last Change:  (14.05.2008 17:25)
+" Version:      0.3pre
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -15,10 +13,20 @@ elseif exists("b:current_syntax")
     finish
 endif
 
-" A WikiWord (unqualifiedWikiName)
-execute 'syntax match wikiWord /'.g:vimwiki_word1.'/'
-" A [bracketed wiki word]
-execute 'syntax match wikiWord /'.g:vimwiki_word2.'/'
+"" use max highlighting - could be quite slow if there are too many wikifiles
+if g:vimwiki_maxhi
+    " Every WikiWord is nonexistent
+    execute 'syntax match wikiNoExistsWord /'.g:vimwiki_word1.'/'
+    execute 'syntax match wikiNoExistsWord /'.g:vimwiki_word2.'/'
+    " till we find them in g:vimwiki_home
+    call WikiHighlightWords()
+else
+    " A WikiWord (unqualifiedWikiName)
+    execute 'syntax match wikiWord /'.g:vimwiki_word1.'/'
+    " A [[bracketed wiki word]]
+    execute 'syntax match wikiWord /'.g:vimwiki_word2.'/'
+endif
+
 
 " text: "this is a link (optional tooltip)":http://www.microsoft.com
 " TODO: check URL syntax against RFC
@@ -69,9 +77,12 @@ syntax match wikiTable          /||/
 " highlight only bullets and digits.
 syntax match wikiList           /^\s\+\(\*\|[1-9]\+0*\.\|#\)/
 
+syntax match wikiTodo           /\(TODO:\|DONE:\|FIXME:\|FIXED:\)/ 
+
 " Treat all other lines that start with spaces as PRE-formatted text.
 syntax match wikiPre            /^\s\+[^[:blank:]*#].*$/
 
+syntax region wikiPre start=/^{{{\s*$/ end=/^}}}\s*$/
 
 " Link FlexWiki syntax items to colors
 hi def link wikiH1                    Title
@@ -87,6 +98,7 @@ hi def wikiItalic                     term=italic cterm=italic gui=italic
 
 hi def link wikiCode                  PreProc
 hi def link wikiWord                  Underlined
+hi def link wikiNoExistsWord          Error
 
 hi def link wikiEscape                Todo
 hi def link wikiPre                   PreProc
@@ -99,8 +111,7 @@ hi def link wikiInsText               Constant
 hi def link wikiSuperScript           Constant
 hi def link wikiSubScript             Constant
 hi def link wikiCitation              Constant
-
-hi def link wikiSingleLineProperty    Identifier
+hi def link wikiTodo                  Todo
 
 let b:current_syntax="vimwiki"
 
