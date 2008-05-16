@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (14.05.2008 17:24)
-" Version:      0.3 pre
+" Last Change:  (16.05.2008 14:28)
+" Version:      0.3.1
 
 
 if exists("loaded_vimwiki") || &cp
@@ -47,6 +47,9 @@ let g:vimwiki_word2 = '\[\[['.upp.low.oth.'[:punct:][:space:]]\{-}\]\]'
 
 let s:wiki_word = '\<'.g:vimwiki_word1.'\>\|'.g:vimwiki_word2
 let s:wiki_badsymbols = '[<>|?*/\:"]'
+
+"" need it to rename
+let s:wiki_current_word = g:vimwiki_index
 
 execute 'autocmd! BufNewFile,BufReadPost,BufEnter *'.g:vimwiki_ext.' set ft=vimwiki'
 
@@ -226,6 +229,7 @@ function! WikiRenameWord() "{{{
     let wwtorename = expand('%:r')
     let isOldWordComplex = 0
     if wwtorename !~ g:vimwiki_word1
+        let wwtorename = substitute(wwtorename,  g:vimwiki_stripsym, s:wiki_badsymbols, "g")
         let isOldWordComplex = 1
     endif
 
@@ -303,7 +307,8 @@ function! WikiRenameWord() "{{{
     endwhile
 
     "" DONE: after renaming GUI caption is a bit corrupted?
-    "" FIXME: buffers menu is also not in the "normal" state, howto Refresh menu?
+    "" FIXED: buffers menu is also not in the "normal" state, howto Refresh menu?
+    execute "emenu Buffers.Refresh\ menu"
 
 endfunction "}}}
 

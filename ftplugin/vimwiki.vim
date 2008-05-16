@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (14.05.2008 17:25)
-" Version:      0.3pre
+" Last Change:  (16.05.2008 14:28)
+" Version:      0.3.1
 
 if exists("b:did_ftplugin")
   finish
@@ -52,7 +52,15 @@ imap <buffer> <Up>     <C-o>gk
 nmap <silent><buffer> <CR> :call WikiFollowWord('nosplit')<CR>
 nmap <silent><buffer> <S-CR> :call WikiFollowWord('split')<CR>
 nmap <silent><buffer> <C-CR> :call WikiFollowWord('vsplit')<CR>
+
+nmap <buffer> <S-LeftMouse> <NOP>
+nmap <buffer> <C-LeftMouse> <NOP>
+noremap <silent><buffer> <2-LeftMouse> :call WikiFollowWord('nosplit')<CR>
+noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:call WikiFollowWord('split')<CR>
+noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:call WikiFollowWord('vsplit')<CR>
+
 nmap <silent><buffer> <BS> :call WikiGoBackWord()<CR>
+nmap <silent><buffer> <RightMouse><LeftMouse> :call WikiGoBackWord()<CR>
 
 nmap <silent><buffer> <TAB> :call WikiNextWord()<CR>
 nmap <silent><buffer> <S-TAB> :call WikiPrevWord()<CR>

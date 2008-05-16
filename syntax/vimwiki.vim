@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (14.05.2008 17:25)
-" Version:      0.3pre
+" Last Change:  (16.05.2008 14:28)
+" Version:      0.3.1
 
 " Quit if syntax file is already loaded
 if version < 600
