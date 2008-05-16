@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (16.05.2008 14:28)
-" Version:      0.3.1
+" Last Change:  (16.05.2008 17:14)
+" Version:      0.3.2
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -83,6 +83,7 @@ syntax match wikiTodo           /\(TODO:\|DONE:\|FIXME:\|FIXED:\)/
 syntax match wikiPre            /^\s\+[^[:blank:]*#].*$/
 
 syntax region wikiPre start=/^{{{\s*$/ end=/^}}}\s*$/
+syntax sync match wikiPreSync grouphere wikiPre /^{{{\s*$/
 
 " Link FlexWiki syntax items to colors
 hi def link wikiH1                    Title

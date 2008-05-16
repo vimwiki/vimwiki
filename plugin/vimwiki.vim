@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (16.05.2008 14:28)
-" Version:      0.3.1
+" Last Change:  (16.05.2008 18:29)
+" Version:      0.3.2
 
 
 if exists("loaded_vimwiki") || &cp
@@ -48,9 +48,6 @@ let g:vimwiki_word2 = '\[\[['.upp.low.oth.'[:punct:][:space:]]\{-}\]\]'
 let s:wiki_word = '\<'.g:vimwiki_word1.'\>\|'.g:vimwiki_word2
 let s:wiki_badsymbols = '[<>|?*/\:"]'
 
-"" need it to rename
-let s:wiki_current_word = g:vimwiki_index
-
 execute 'autocmd! BufNewFile,BufReadPost,BufEnter *'.g:vimwiki_ext.' set ft=vimwiki'
 
 
@@ -61,6 +58,10 @@ function! s:msg(message)"{{{
     echomsg 'vimwiki: '.a:message
     echohl None
 endfunction"}}}
+
+function! s:editfile(command, filename)
+    execute a:command.' '.escape(a:filename, '% ')
+endfunction
 
 function! s:SearchWord(wikiRx,cmd)"{{{
     let hl = &hls
@@ -153,10 +154,12 @@ function! WikiFollowWord(split)"{{{
         return
     endif
     if s:WikiIsLinkToNonWikiFile(word)
-        execute cmd.word
+        " execute cmd.word
+        call s:editfile(cmd, word)
     else
         call insert(g:vimwiki_history, [expand('%:p'), col('.')])
-        execute cmd.g:vimwiki_home.word.g:vimwiki_ext
+        call s:editfile(cmd, g:vimwiki_home.word.g:vimwiki_ext)
+        " execute cmd.g:vimwiki_home.word.g:vimwiki_ext
     endif
 endfunction"}}}
 
@@ -197,7 +200,11 @@ function! WikiNewLine() "{{{
     endif
 
     " delete <space>
-    execute 'normal x'
+    if getline('.') =~ '^\s\+$'
+        execute 'normal x'
+    else
+        execute 'normal X'
+    endif
 endfunction "}}}
 
 "" file system funcs
@@ -270,7 +277,8 @@ function! WikiRenameWord() "{{{
     try
         call rename(expand('%'), newFileName)
         bd
-        execute 'e '.newFileName
+        "function call doesn't work
+        call s:editfile('e', newFileName)
     catch /.*/
         call s:msg('Cannot rename "'.expand('%:r').'" to "'.newFileName.'"')
         return
@@ -332,5 +340,16 @@ function! WikiGoHome()"{{{
 endfunction"}}}
 
 " Functions }}}
+
+"" Commands {{{
+command WikiRenameWord call WikiRenameWord()
+command WikiDeleteWord call WikiDeleteWord()
+command WikiGoHome call WikiGoHome()
+command WikiGoBackWord call WikiGoBackWord()
+command -nargs=1 WikiFollowWord call WikiFollowWord(<f-args>)
+command WikiNextWord call WikiNextWord()
+command WikiPrevWord call WikiPrevWord()
+
+"" Commands }}}
 
 nmap <silent><unique> <Leader>ww :call WikiGoHome()<CR>
