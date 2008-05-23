@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (16.05.2008 18:29)
-" Version:      0.3.2
+" Last Change:  (23.05.2008 16:38)
+" Version:      0.3.3
 
 
 if exists("loaded_vimwiki") || &cp
@@ -32,6 +32,7 @@ call s:default('maxhi','1')
 call s:default('other','0-9_')
 call s:default('smartCR',1)
 call s:default('stripsym','_')
+" call s:default('addheading','1')
 
 call s:default('history',[])
 
@@ -59,8 +60,22 @@ function! s:msg(message)"{{{
     echohl None
 endfunction"}}}
 
+function! s:getfilename(filename)
+    let word = substitute(a:filename, '\'.g:vimwiki_ext, "", "g")
+    let word = substitute(word, '.*[/\\]', "", "g")
+    return word
+endfunction
+
+
 function! s:editfile(command, filename)
-    execute a:command.' '.escape(a:filename, '% ')
+    let fname = escape(a:filename, '% ')
+    execute a:command.' '.fname
+    
+    " if fname is new
+    " if g:vimwiki_addheading!=0 && glob(fname) == ''
+        " execute 'normal I! '.s:getfilename(fname)
+        " update
+    " endif
 endfunction
 
 function! s:SearchWord(wikiRx,cmd)"{{{
@@ -122,7 +137,7 @@ endfunction"}}}
 " Check if word is link to a non-wiki file.
 " The easiest way is to check if it has extension like .txt or .html
 function! s:WikiIsLinkToNonWikiFile(word)"{{{
-    if a:word =~ '\..\{1,4}$'
+    if a:word =~ '\.\w\{1,4}$'
         return 1
     endif
     return 0
@@ -139,7 +154,7 @@ function! s:GetHistoryColumn(historyItem)
 endfunction
 "2}}}
 
-function! WikiFollowWord(split)"{{{
+function! WikiFollowWord(split) "{{{
     if a:split == "split"
         let cmd = ":split "
     elseif a:split == "vsplit"
@@ -154,12 +169,10 @@ function! WikiFollowWord(split)"{{{
         return
     endif
     if s:WikiIsLinkToNonWikiFile(word)
-        " execute cmd.word
         call s:editfile(cmd, word)
     else
         call insert(g:vimwiki_history, [expand('%:p'), col('.')])
         call s:editfile(cmd, g:vimwiki_home.word.g:vimwiki_ext)
-        " execute cmd.g:vimwiki_home.word.g:vimwiki_ext
     endif
 endfunction"}}}
 
@@ -172,10 +185,17 @@ function! WikiGoBackWord() "{{{
     endif
 endfunction "}}}
 
-function! WikiNewLine() "{{{
-    function! s:WikiAutoListItemInsert(listSym)
+"" direction == checkup - use previous line for checking
+"" direction == checkdown - use next line for checking
+function! WikiNewLine(direction) "{{{
+    function! s:WikiAutoListItemInsert(listSym, dir)
         let sym = escape(a:listSym, '*')
-        let prevline = getline(line('.')-1)
+        if a:dir=='checkup'
+            let linenum = line('.')-1
+        else
+            let linenum = line('.')+1
+        end
+        let prevline = getline(linenum)
         if prevline =~ '^\s\+'.sym
             let curline = substitute(getline('.'),'^\s\+',"","g")
             if prevline =~ '^\s*'.sym.'\s*$'
@@ -183,7 +203,7 @@ function! WikiNewLine() "{{{
                 execute 'normal kA '."\<ESC>".'"_dF'.a:listSym.'JX'
                 return 1
             endif
-            let ind = indent(line('.')-1)
+            let ind = indent(linenum)
             call setline(line('.'), strpart(prevline, 0, ind).a:listSym.' '.curline)
             call cursor(line('.'), ind+3)
             return 1
@@ -191,11 +211,11 @@ function! WikiNewLine() "{{{
         return 0
     endfunction
 
-    if s:WikiAutoListItemInsert('*')
+    if s:WikiAutoListItemInsert('*', a:direction)
         return
     endif
 
-    if s:WikiAutoListItemInsert('#')
+    if s:WikiAutoListItemInsert('#', a:direction)
         return
     endif
 
@@ -216,8 +236,14 @@ function! WikiDeleteWord()"{{{
     endif
     let fname = expand('%:p')
     " call WikiGoBackWord()
-    call delete(fname)
-    execute "bwipeout ".escape(fname, " ")
+    try
+        call delete(fname)
+    catch /.*/
+        call s:msg('Cannot delete "'.expand('%:r').'"!')
+        return
+    endtry
+    execute "bdelete! ".escape(fname, " ")
+    
     " delete from g:vimwiki_history list
     call filter (g:vimwiki_history, 's:GetHistoryWord(v:val) != fname')
     " as we got back to previous WikiWord - delete it from history - as much
@@ -308,7 +334,7 @@ function! WikiRenameWord() "{{{
     while bcount<=bufnr("$")
         if bufexists(bcount)
             if index(openbuffers, bufname(bcount)) == -1
-                execute 'silent bwipeout '.escape(bufname(bcount), " ")
+                execute 'silent bdelete '.escape(bufname(bcount), " ")
             end
         endif
         let bcount = bcount + 1
@@ -320,7 +346,7 @@ function! WikiRenameWord() "{{{
 
 endfunction "}}}
 
-function! WikiHighlightWords()"{{{
+function! WikiHighlightWords() "{{{
     let wikies = glob(g:vimwiki_home.'*')
     let wikies = substitute(wikies, '\'.g:vimwiki_ext, "", "g")
     let g:vimwiki_wikiwords = split(wikies, '\n')
@@ -332,7 +358,7 @@ function! WikiHighlightWords()"{{{
             execute 'syntax match wikiWord /\[\['.substitute(word,  g:vimwiki_stripsym, s:wiki_badsymbols, "g").'\]\]/'
         endif
     endfor
-endfunction    "}}}
+endfunction "}}}
 
 function! WikiGoHome()"{{{
     execute ':e '.g:vimwiki_home.g:vimwiki_index.g:vimwiki_ext
@@ -353,3 +379,4 @@ command WikiPrevWord call WikiPrevWord()
 "" Commands }}}
 
 nmap <silent><unique> <Leader>ww :call WikiGoHome()<CR>
+nmap <silent><unique> <Leader>wh :execute "edit ".g:vimwiki_home."."<CR>

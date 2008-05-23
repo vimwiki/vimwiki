@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (16.05.2008 17:14)
-" Version:      0.3.2
+" Last Change:  (22.05.2008 11:40)
+" Version:      0.3.3
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -33,7 +33,9 @@ endif
 syntax match wikiLink           `\("[^"(]\+\((\([^)]\+\))\)\?":\)\?\(https\?\|ftp\|gopher\|telnet\|file\|notes\|ms-help\):\(\(\(//\)\|\(\\\\\)\)\+[A-Za-z0-9:#@%/;$~_?+-=.&\-\\\\]*\)`
 
 " text: *strong*
-syntax match wikiBold           /\(^\|\W\)\zs\*\([^ ].\{-}\)\*/
+" syntax match wikiBold           /\(^\|\W\)\zs\*\([^ ].\{-}\)\*/
+" syntax match wikiBold           /\(^\|\W\)\zs\*.\{-}\*/
+syntax match wikiBold           /\*.\{-}\*/
 
 " text: _emphasis_
 syntax match wikiItalic         /_.\{-}_/

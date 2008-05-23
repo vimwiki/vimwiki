@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (16.05.2008 14:28)
-" Version:      0.3.1
+" Last Change:  (20.05.2008 09:50)
+" Version:      0.3.3
 
 if exists("b:did_ftplugin")
   finish
@@ -60,6 +60,8 @@ noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:call WikiFollowWord('split'
 noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:call WikiFollowWord('vsplit')<CR>
 
 nmap <silent><buffer> <BS> :call WikiGoBackWord()<CR>
+"<BS> mapping doesn't work in vim console
+nmap <silent><buffer> <C-h> :call WikiGoBackWord()<CR>
 nmap <silent><buffer> <RightMouse><LeftMouse> :call WikiGoBackWord()<CR>
 
 nmap <silent><buffer> <TAB> :call WikiNextWord()<CR>
@@ -69,6 +71,8 @@ nmap <silent><buffer> <Leader>wd :call WikiDeleteWord()<CR>
 nmap <silent><buffer> <Leader>wr :call WikiRenameWord()<CR>
 
 if g:vimwiki_smartCR==1
-    inoremap <silent><buffer><CR> <CR><Space><C-O>:call WikiNewLine()<CR>
+    inoremap <silent><buffer><CR> <CR><Space><C-O>:call WikiNewLine('checkup')<CR>
+    noremap <silent><buffer>o o<Space><C-O>:call WikiNewLine('checkup')<CR>
+    noremap <silent><buffer>O O<Space><C-O>:call WikiNewLine('checkdown')<CR>
 endif
 " Keybindings }}}
