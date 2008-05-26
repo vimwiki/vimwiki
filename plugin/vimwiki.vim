@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (23.05.2008 16:38)
-" Version:      0.3.3
+" Last Change:  (26.05.2008 10:55)
+" Version:      0.3.4
 
 
 if exists("loaded_vimwiki") || &cp
@@ -348,9 +348,14 @@ endfunction "}}}
 
 function! WikiHighlightWords() "{{{
     let wikies = glob(g:vimwiki_home.'*')
+    "" remove .wiki extensions
     let wikies = substitute(wikies, '\'.g:vimwiki_ext, "", "g")
     let g:vimwiki_wikiwords = split(wikies, '\n')
+    "" remove paths
     call map(g:vimwiki_wikiwords, 'substitute(v:val, ''.*[/\\]'', "", "g")')
+    "" remove backup files (.wiki~)
+    call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
+
     for word in g:vimwiki_wikiwords
         if word =~ g:vimwiki_word1 && !s:WikiIsLinkToNonWikiFile(word)
             execute 'syntax match wikiWord /\<'.word.'\>/'
