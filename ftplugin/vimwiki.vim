@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (20.05.2008 09:50)
-" Version:      0.3.3
+" Last Change:  (02.06.2008 12:58)
+" Version:      0.4
 
 if exists("b:did_ftplugin")
   finish
@@ -34,7 +34,7 @@ if g:vimwiki_smartCR>=2
     setlocal formatoptions=ctnqro
 endif
 
-"" Keybindings {{{
+"" keybindings {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nmap <buffer> <Up>   gk
 nmap <buffer> k      gk
@@ -49,30 +49,38 @@ vmap <buffer> j      gj
 imap <buffer> <Down>   <C-o>gj
 imap <buffer> <Up>     <C-o>gk
 
-nmap <silent><buffer> <CR> :call WikiFollowWord('nosplit')<CR>
-nmap <silent><buffer> <S-CR> :call WikiFollowWord('split')<CR>
-nmap <silent><buffer> <C-CR> :call WikiFollowWord('vsplit')<CR>
+nmap <silent><buffer> <CR> :call vimwiki#WikiFollowWord('nosplit')<CR>
+nmap <silent><buffer> <S-CR> :call vimwiki#WikiFollowWord('split')<CR>
+nmap <silent><buffer> <C-CR> :call vimwiki#WikiFollowWord('vsplit')<CR>
 
 nmap <buffer> <S-LeftMouse> <NOP>
 nmap <buffer> <C-LeftMouse> <NOP>
-noremap <silent><buffer> <2-LeftMouse> :call WikiFollowWord('nosplit')<CR>
-noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:call WikiFollowWord('split')<CR>
-noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:call WikiFollowWord('vsplit')<CR>
+noremap <silent><buffer> <2-LeftMouse> :call vimwiki#WikiFollowWord('nosplit')<CR>
+noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:call vimwiki#WikiFollowWord('split')<CR>
+noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:call vimwiki#WikiFollowWord('vsplit')<CR>
 
-nmap <silent><buffer> <BS> :call WikiGoBackWord()<CR>
+nmap <silent><buffer> <BS> :call vimwiki#WikiGoBackWord()<CR>
 "<BS> mapping doesn't work in vim console
-nmap <silent><buffer> <C-h> :call WikiGoBackWord()<CR>
-nmap <silent><buffer> <RightMouse><LeftMouse> :call WikiGoBackWord()<CR>
+nmap <silent><buffer> <C-h> :call vimwiki#WikiGoBackWord()<CR>
+nmap <silent><buffer> <RightMouse><LeftMouse> :call vimwiki#WikiGoBackWord()<CR>
 
-nmap <silent><buffer> <TAB> :call WikiNextWord()<CR>
-nmap <silent><buffer> <S-TAB> :call WikiPrevWord()<CR>
+nmap <silent><buffer> <TAB> :call vimwiki#WikiNextWord()<CR>
+nmap <silent><buffer> <S-TAB> :call vimwiki#WikiPrevWord()<CR>
 
-nmap <silent><buffer> <Leader>wd :call WikiDeleteWord()<CR>
-nmap <silent><buffer> <Leader>wr :call WikiRenameWord()<CR>
+nmap <silent><buffer> <Leader>wd :call vimwiki#WikiDeleteWord()<CR>
+nmap <silent><buffer> <Leader>wr :call vimwiki#WikiRenameWord()<CR>
 
 if g:vimwiki_smartCR==1
-    inoremap <silent><buffer><CR> <CR><Space><C-O>:call WikiNewLine('checkup')<CR>
-    noremap <silent><buffer>o o<Space><C-O>:call WikiNewLine('checkup')<CR>
-    noremap <silent><buffer>O O<Space><C-O>:call WikiNewLine('checkdown')<CR>
+    inoremap <silent><buffer><CR> <CR><Space><C-O>:call vimwiki#WikiNewLine('checkup')<CR>
+    noremap <silent><buffer>o o<Space><C-O>:call vimwiki#WikiNewLine('checkup')<CR>
+    noremap <silent><buffer>O O<Space><C-O>:call vimwiki#WikiNewLine('checkdown')<CR>
 endif
-" Keybindings }}}
+" keybindings }}}
+
+"" commands {{{2
+" command! -nargs=1 Wiki2HTML call WikiExportHTML(expand(<f-args>))
+command! Wiki2HTML call vimwiki#Wiki2HTML(g:vimwiki_home_html, expand('%'))
+command! WikiAll2HTML call vimwiki#WikiAll2HTML(g:vimwiki_home_html)
+
+"" commands 2}}}
+

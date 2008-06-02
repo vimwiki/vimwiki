@@ -3,8 +3,8 @@
 " Author:       Maxim Kim (habamax at gmail dot com)
 " Home:         http://code.google.com/p/vimwiki/
 " Filenames:    *.wiki
-" Last Change:  (22.05.2008 11:40)
-" Version:      0.3.3
+" Last Change:  (02.06.2008 12:58)
+" Version:      0.4
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -19,7 +19,7 @@ if g:vimwiki_maxhi
     execute 'syntax match wikiNoExistsWord /'.g:vimwiki_word1.'/'
     execute 'syntax match wikiNoExistsWord /'.g:vimwiki_word2.'/'
     " till we find them in g:vimwiki_home
-    call WikiHighlightWords()
+    call vimwiki#WikiHighlightWords()
 else
     " A WikiWord (unqualifiedWikiName)
     execute 'syntax match wikiWord /'.g:vimwiki_word1.'/'
