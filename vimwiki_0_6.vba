@@ -2,15 +2,14 @@
 UseVimball
 finish
 autoload/vimwiki.vim	[[[1
-932
+959
 " VimWiki plugin file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 19.01.2009 23:43
-" Version:     0.5.3
-
+" Last Change: 04.02.2009 12:30
+" Version:     0.6
 if exists("g:loaded_vimwiki_auto") || &cp
   finish
 endif
@@ -401,7 +400,7 @@ function! vimwiki#WikiAll2HTML(path) "{{{
     call vimwiki#Wiki2HTML(a:path, wikifile)
   endfor
   call s:WikiCreateDefaultCSS(g:vimwiki_home_html)
-  echomsg 'Wikifiles converted.'
+  echomsg 'Done!'
 
   let &more = setting_more
 endfunction "}}}
@@ -432,24 +431,53 @@ function! vimwiki#Wiki2HTML(path, wikifile) "{{{
   endfunction "}}}
 
   function! s:HTMLHeader(title, charset) "{{{
-    let lines=[]
-    call add(lines, "")
-    call add(lines, '<html>')
-    call add(lines, '<head>')
-    call add(lines, '<link rel="Stylesheet" type="text/css" href="style.css" />')
-    call add(lines, '<title>'.a:title.'</title>')
-    call add(lines, '<meta http-equiv="Content-Type" content="text/html; charset='.a:charset.'" />')
-    call add(lines, '</head>')
-    call add(lines, '<body>')
-    return lines
+      let lines=[]
+
+      " globals are bad, but...
+      if g:vimwiki_html_header != ""
+          try
+              let lines = readfile(g:vimwiki_html_header)
+              call map(lines, 'substitute(v:val, "%title%", "'. a:title .'", "g")')
+              return lines
+          catch /E484/
+              call s:msg("Header template ". g:vimwiki_html_header. " does not exist!")
+          endtry
+      endif
+
+      " if no g:vimwiki_html_header set up or error while reading template
+      " file -- use default header.
+      call add(lines, "")
+      call add(lines, '<html>')
+      call add(lines, '<head>')
+      call add(lines, '<link rel="Stylesheet" type="text/css" href="style.css" />')
+      call add(lines, '<title>'.a:title.'</title>')
+      call add(lines, '<meta http-equiv="Content-Type" content="text/html; charset='.a:charset.'" />')
+      call add(lines, '</head>')
+      call add(lines, '<body>')
+
+      return lines
   endfunction "}}}
 
   function! s:HTMLFooter() "{{{
-    let lines=[]
-    call add(lines, "")
-    call add(lines, '</body>')
-    call add(lines, '</html>')
-    return lines
+      let lines=[]
+
+      " globals are bad, but...
+      if g:vimwiki_html_footer != ""
+          try
+              let lines = readfile(g:vimwiki_html_footer)
+              return lines
+          catch /E484/
+              call s:msg("Footer template ". g:vimwiki_html_footer. " does not exist!")
+          endtry
+      endif
+
+      " if no g:vimwiki_html_footer set up or error while reading template
+      " file -- use default footer.
+      call add(lines, "")
+      call add(lines, '</body>')
+      call add(lines, '</html>')
+
+      return lines
   endfunction "}}}
 
   function! s:closeCode(code, ldest) "{{{
@@ -483,7 +511,6 @@ function! vimwiki#Wiki2HTML(path, wikifile) "{{{
     endwhile
   endfunction! "}}}
 
-  " TODO: сделать так, чтобы {{{WikiWord}}} нормально отрабатывал
   function! s:processCode(line, code) "{{{
     let lines = []
     let code = a:code
@@ -936,7 +963,7 @@ endfunction "}}}
 
 " 2}}}
 doc/vimwiki.txt	[[[1
-607
+645
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -950,7 +977,7 @@ doc/vimwiki.txt	[[[1
 
                             Let the help begins ...~
 
-                               Version: 0.5.3 ~
+                               Version: 0.6 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -1002,7 +1029,7 @@ Notice that ProjectGutenberg, MyUrgentTasks, MusicILike and MusicIHate
 highlighted as errors. These WikiWords (WikiWord or WikiPage --
 capitalized word connected with other capitalized words) do not exist yet.
 
-Place cursor on ProjectGutenberg and press Enter. Now you are in 
+Place cursor on ProjectGutenberg and press Enter. Now you are in
 ProjectGutenberg. Edit and save it, then press Backspace to return
 to previous WikiPage. You should see the difference in highlighting now.
 
@@ -1031,7 +1058,7 @@ There are global and local mappings in vimwiki.
         Open vimwiki's main file.
         To redefine: >
         :map <Leader>w <Plug>VimwikiGoHome
-< 
+<
 See also|:VimwikiGoHome|
 
 <Leader>wt or <Plug>VimwikiTabGoHome
@@ -1070,7 +1097,7 @@ Normal mode (Keyboard):~
 <S-Tab>                 Find previous WikiWord
                         Maps to|:VimwikiPrevWord|.
 
-<Leader>wd              Delete WikiWord you are in. 
+<Leader>wd              Delete WikiWord you are in.
                         Maps to|:VimwikiDeleteWord|.
 
 <Leader>wr              Rename WikiWord you are in.
@@ -1306,6 +1333,38 @@ Set up directory for wiki files converted to HTML: >
     let g:vimwiki_home_html = '~/my wiki/html/'
 
 ------------------------------------------------------------------------------
+Default: ""                                            *g:vimwiki_html_header*
+Values: path to a header template
+
+Set up file name for html header template: >
+    let g:vimwiki_html_header = '~/my wiki/html/header.html'
+
+This header.html could look like: >
+    <html>
+    <head>
+        <link rel="Stylesheet" type="text/css" href="style.css" />
+        <title>%title%</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <div class="contents">
+
+where %title% is replaced by a wiki page name.
+
+------------------------------------------------------------------------------
+Default: ""                                            *g:vimwiki_html_footer*
+Values: path to a footer template
+
+Set up file name for html header template: >
+    let g:vimwiki_html_footer = '~/my wiki/html/footer.html'
+
+This footer.html could look like: >
+        </div>
+    </body>
+    </html>
+
+
+------------------------------------------------------------------------------
 Default: "index"                                             *g:vimwiki_index*
 Values: filename without extension
 
@@ -1438,100 +1497,106 @@ Vim plugins website: http://www.Vim.org/scripts/script.php?script_id=2226
 ==============================================================================
 9. Changelog                                               *vimwiki-changelog*
 
+0.6
+    * [new] Header and footer templates. See|g:vimwiki_html_header| and
+      |g:vimwiki_html_footer|.
+    * [fix] |:Vimwiki2HTML| does not recognize ~ as part of a valid path.
+
 0.5.3
-  * [fix] Fixed |:VimwikiRenameWord|. Error when g:vimwiki_home had
-    whitespaces in path.
-  * [fix] |:VimwikiSplitWord| and |:VimwikiVSplitWord| didn't work.
+    * [fix] Fixed |:VimwikiRenameWord|. Error when g:vimwiki_home had
+      whitespaces in path.
+    * [fix] |:VimwikiSplitWord| and |:VimwikiVSplitWord| didn't work.
 
 0.5.2
-  * [new] Added |:VimwikiGoHome|, |:VimwikiTabGoHome| and
-   |:VimwikiExploreHome| commands.
-  * [new] Added <Leader>wt mapping to open vimwiki index file in a new tab.
-  * [new] Added g:vimwiki_gohome option that controls how|:VimwikiGoHome|
-    works when current buffer is changed. (Thanks Timur Zaripov)
-  * [fix] Fixed |:VimwikiRenameWord|. Very bad behaviour when autochdir isn't
-    set up.
-  * [fix] Fixed commands :Wiki2HTML and :WikiAll2HTML to be available only for
-    vimwiki buffers.
-  * [fix] Renamed :Wiki2HTML and :WikiAll2HTML to |:Vimwiki2HTML| and
-   |:VimwikiAll2HTML| commands.
-  * [fix] Help file corrections.
+    * [new] Added |:VimwikiGoHome|, |:VimwikiTabGoHome| and
+    |:VimwikiExploreHome| commands.
+    * [new] Added <Leader>wt mapping to open vimwiki index file in a new tab.
+    * [new] Added g:vimwiki_gohome option that controls how|:VimwikiGoHome|
+      works when current buffer is changed. (Thanks Timur Zaripov)
+    * [fix] Fixed |:VimwikiRenameWord|. Very bad behaviour when autochdir
+      isn't set up.
+    * [fix] Fixed commands :Wiki2HTML and :WikiAll2HTML to be available only
+      for vimwiki buffers.
+    * [fix] Renamed :Wiki2HTML and :WikiAll2HTML to |:Vimwiki2HTML| and
+      |:VimwikiAll2HTML| commands.
+    * [fix] Help file corrections.
 
 0.5.1
-  * [new] This help is created.
-  * [new] Now you can fold headers.
-  * [new] <Plug>VimwikiGoHome and <Plug>VimwikiExploreHome were added.
-  * [fix] Bug with {{{HelloWikiWord}}} export to HTML is fixed.
-  * [del] Sync option removed from: Syntax highlighting for preformatted text
-    {{{ }}}.
+    * [new] This help is created.
+    * [new] Now you can fold headers.
+    * [new] <Plug>VimwikiGoHome and <Plug>VimwikiExploreHome were added.
+    * [fix] Bug with {{{HelloWikiWord}}} export to HTML is fixed.
+    * [del] Sync option removed from: Syntax highlighting for preformatted
+      text {{{ }}}.
 
 0.5
-  * [new] vimwiki default markup to HTML conversion improved.
-  * [new] Added basic GoogleWiki and MediaWiki markup languages.
-  * [new] Chinese [[complex wiki words]].
+    * [new] vimwiki default markup to HTML conversion improved.
+    * [new] Added basic GoogleWiki and MediaWiki markup languages.
+    * [new] Chinese [[complex wiki words]].
 
 0.4
-  * [new] vimwiki=>HTML converter in plain Vim language.
-  * [new] Plugin autoload.
+    * [new] vimwiki=>HTML converter in plain Vim language.
+    * [new] Plugin autoload.
 
 0.3.4
-  * [fix] Backup files (.wiki~) caused a bunch of errors while opening wiki
-    files.
+    * [fix] Backup files (.wiki~) caused a bunch of errors while opening wiki
+      files.
 
 0.3.3
-  * FIXED: [[wiki word with dots at the end...]] didn't work.
-  * [new] Added error handling for delete wiki word function.
-  * [new] Added keybindings o and O for list items when g:vimwiki_smartCR=1.
-  * [new] Added keybinding <Leader>wh to visit wiki home directory.
+    * FIXED: [[wiki word with dots at the end...]] didn't work.
+    * [new] Added error handling for delete wiki word function.
+    * [new] Added keybindings o and O for list items when g:vimwiki_smartCR=1.
+    * [new] Added keybinding <Leader>wh to visit wiki home directory.
 
 0.3.2
-  * [fix] Renaming -- error if complex wiki word contains %.
-  * [fix] Syntax highlighting for preformatted text {{{ }}}. Sync option
-    added.
-  * [fix] smartCR bug fix.
+    * [fix] Renaming -- error if complex wiki word contains %.
+    * [fix] Syntax highlighting for preformatted text {{{ }}}. Sync option
+      added.
+    * [fix] smartCR bug fix.
 
 0.3.1
-  * [fix] Renaming -- [[hello world?]] to [[hello? world]] links are not
-    updated.
-  * [fix] Buffers menu is a bit awkward after renaming.
-  * [new] Use mouse to follow links. Left double-click to follow WikiWord,
-    Rightclick then Leftclick to go back.
+    * [fix] Renaming -- [[hello world?]] to [[hello? world]] links are not
+      updated.
+    * [fix] Buffers menu is a bit awkward after renaming.
+    * [new] Use mouse to follow links. Left double-click to follow WikiWord,
+      Rightclick then Leftclick to go back.
 
 0.3
-  * [new] Highlight non-existent WikiWords.
-  * [new] Delete current WikiWord (<Leader>wd).
-  * [new] g:vimwiki_smartCR=2 => use Vim comments (see :h comments :h
-    formatoptions) feature to deal with list items. (thx -- Dmitry Alexandrov)
-  * [new] Highlight TODO:, DONE:, FIXED:, FIXME:.
-  * [new] Rename current WikiWord -- be careful on Windows you cannot rename
-    wikiword to WikiWord. After renaming update all links to that renamed
-    WikiWord.
-  * [fix] Bug -- do not duplicate WikiWords in wiki history.
-  * [fix] after renaming [[wiki word]] twice buffers are not deleted.
-  * [fix] when renaming from [[wiki word]] to WikiWord result is [[WikiWord]]
-  * [fix] more than one complex words on one line is bugging each other when
-    try go to one of them. [[bla bla bla]] [[dodo dodo dodo]] becomes 
-    bla bla bla]] [[dodo dodo dodo.
+    * [new] Highlight non-existent WikiWords.
+    * [new] Delete current WikiWord (<Leader>wd).
+    * [new] g:vimwiki_smartCR=2 => use Vim comments (see :h comments :h
+      formatoptions) feature to deal with list items. (thx -- Dmitry
+      Alexandrov)
+    * [new] Highlight TODO:, DONE:, FIXED:, FIXME:.
+    * [new] Rename current WikiWord -- be careful on Windows you cannot rename
+      wikiword to WikiWord. After renaming update all links to that renamed
+      WikiWord.
+    * [fix] Bug -- do not duplicate WikiWords in wiki history.
+    * [fix] After renaming [[wiki word]] twice buffers are not deleted.
+    * [fix] Renaming from [[wiki word]] to WikiWord result is [[WikiWord]]
+    * [fix] More than one complex words on one line is bugging each other when
+      try go to one of them. [[bla bla bla]] [[dodo dodo dodo]] becomes
+      bla bla bla]] [[dodo dodo dodo.
 
 
 0.2.2
-  * [new] Added keybinding <S-CR> -- split WikiWord
-  * [new] Added keybinding <C-CR> -- vertical split WikiWord
+    * [new] Added keybinding <S-CR> -- split WikiWord
+    * [new] Added keybinding <C-CR> -- vertical split WikiWord
 
 0.2.1
-  * [new] Install on Linux now works.
+    * [new] Install on Linux now works.
 
 0.2
-  * [new] Added part of Google's Wiki syntax.
-  * [new] Added auto insert # with ENTER.
-  * [new] On/Off auto insert bullet with ENTER.
-  * [new] Strip [[complex wiki name]] from symbols that cannot be used in file
-    names.
-  * [new] Links to non-wiki files. Non wiki files are files with extensions ie
-    [[hello world.txt]] or [[my homesite.html]]
+    * [new] Added part of Google's Wiki syntax.
+    * [new] Added auto insert # with ENTER.
+    * [new] On/Off auto insert bullet with ENTER.
+    * [new] Strip [[complex wiki name]] from symbols that cannot be used in
+      file names.
+    * [new] Links to non-wiki files. Non wiki files are files with extensions
+      ie [[hello world.txt]] or [[my homesite.html]]
 
 0.1
-  * First public version.
+    * First public version.
 
 ==============================================================================
 10. License                                                   *vimwiki-license*
@@ -1545,15 +1610,14 @@ it's free enough to suit your needs.
 
  vim:tw=78:ts=8:ft=help:fdm=marker:
 ftplugin/vimwiki.vim	[[[1
-98
+97
 " Vim filetype plugin file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:21
-" Version:     0.5.3
-
+" Last Change: 29.01.2009 22:43
+" Version:     0.6
 if exists("b:did_ftplugin")
   finish
 endif
@@ -1588,8 +1652,8 @@ setlocal fdm=syntax
 setlocal commentstring=<!--%s-->
 
 "" commands {{{2
-command! -buffer Vimwiki2HTML call vimwiki#Wiki2HTML(g:vimwiki_home_html, expand('%'))
-command! -buffer VimwikiAll2HTML call vimwiki#WikiAll2HTML(g:vimwiki_home_html)
+command! -buffer Vimwiki2HTML call vimwiki#Wiki2HTML(expand(g:vimwiki_home_html), expand('%'))
+command! -buffer VimwikiAll2HTML call vimwiki#WikiAll2HTML(expand(g:vimwiki_home_html))
 
 command! -buffer VimwikiNextWord call vimwiki#WikiNextWord()
 command! -buffer VimwikiPrevWord call vimwiki#WikiPrevWord()
@@ -1645,15 +1709,14 @@ if g:vimwiki_smartCR==1
 endif
 " keybindings }}}
 plugin/vimwiki.vim	[[[1
-75
+79
 " VimWiki plugin file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:22
-" Version:     0.5.3
-
+" Last Change: 04.02.2009 12:26
+" Version:     0.6
 
 if exists("loaded_vimwiki") || &cp
   finish
@@ -1679,13 +1742,18 @@ call s:default('other','0-9_')
 call s:default('maxhi','1')
 call s:default('stripsym','_')
 call s:default('smartCR',1)
-call s:default('home_html',g:vimwiki_home."html/")
 call s:default('syntax','default')
 call s:default('gohome','split')
+call s:default('home_html',g:vimwiki_home."html/")
+call s:default('html_header',"")
+call s:default('html_footer',"")
 
 call s:default('history',[])
 
 let g:vimwiki_home = expand(g:vimwiki_home)
+let g:vimwiki_home_html = expand(g:vimwiki_home_html)
+let g:vimwiki_html_header = expand(g:vimwiki_html_header)
+let g:vimwiki_html_footer = expand(g:vimwiki_html_footer)
 
 let upp = g:vimwiki_upper
 let low = g:vimwiki_lower
@@ -1722,15 +1790,14 @@ endif
 noremap <unique><script> <Plug>VimwikiExploreHome :VimwikiExploreHome<CR>
 
 syntax/vimwiki.vim	[[[1
-122
+121
 " Vim syntax file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:22
-" Version:     0.5.3
-
+" Last Change: 29.01.2009 10:27
+" Version:     0.6
 " Quit if syntax file is already loaded
 if version < 600
   syntax clear
@@ -1834,7 +1901,7 @@ hi def link wikiNoExistsWord          Error
 
 hi def link wikiPre                   PreProc
 hi def link wikiLink                  Underlined
-hi def link wikiList                  Type
+hi def link wikiList                  Operator
 hi def link wikiTable                 PreProc
 hi def link wikiEmoticons             Constant
 hi def link wikiDelText               Comment
@@ -1846,15 +1913,14 @@ hi def link wikiTodo                  Todo
 let b:current_syntax="vimwiki"
 
 syntax/vimwiki_default.vim	[[[1
-66
+65
 " Vim syntax file
 " Language:    Wiki (vimwiki default)
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:22
-" Version:     0.5.3
-
+" Last Change: 20.01.2009 19:47
+" Version:     0.6
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
 let g:vimwiki_rxBold = '\(^\|\s\+\|[[:punct:]]\)\zs\*[^*`]\+\*\ze\([[:punct:]]\|\s\+\|$\)'
@@ -1914,15 +1980,14 @@ let g:vimwiki_rxFoldHeadingEnd = '\n\+\ze!'
 
 " vim:tw=0:
 syntax/vimwiki_google.vim	[[[1
-65
+64
 " Vim syntax file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:22
-" Version:     0.5.3
-
+" Last Change: 20.01.2009 19:47
+" Version:     0.6
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
 let g:vimwiki_rxBold = '\(^\|\s\+\|[[:punct:]]\)\zs\*[^*`]\+\*\ze\([[:punct:]]\|\s\+\|$\)'
@@ -1981,15 +2046,14 @@ let g:vimwiki_rxFoldHeadingEnd = '\n\ze=\+[^=]\+='
 
 " vim:tw=0:
 syntax/vimwiki_media.vim	[[[1
-60
+59
 " Vim syntax file
 " Language:    Wiki (MediaWiki)
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 20.01.2009 11:22
-" Version:     0.5.3
-
+" Last Change: 20.01.2009 19:47
+" Version:     0.6
 " text: '''strong'''
 let g:vimwiki_rxBold = "'''[^']\\+'''"
 
