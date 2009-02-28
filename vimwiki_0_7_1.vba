@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-669
+671
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,7 +13,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.7.0 ~
+                               Version: 0.7.1 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -105,12 +105,6 @@ See also|:VimwikiGoHome|
 <
 See also|:VimwikiTabGoHome|
 
-<Leader>wh or <Plug>VimwikiExploreHome
-        Open vimwiki's home directory.
-        To redefine: >
-        :map <Leader>h <Plug>VimwikiExploreHome
-<
-See also|:VimwikiExploreHome|
 
 ------------------------------------------------------------------------------
 3.1. Local mappings                                   *vimwiki-local-mappings*
@@ -142,6 +136,9 @@ Normal mode (Keyboard):~
 
 <C-Space>               Toggle list item on/off (checked/unchecked)
                         Maps to|:VimwikiGTDToggleItem|.
+                        To redefine: >
+                        map <leader>tt <Plug>VimwikiToggleListItem
+<
                         See |vimwiki-gtd|.
 
 Normal mode (Mouse): ~
@@ -164,9 +161,6 @@ Note: <2-LeftMouse> is just left double click.
 
 *:VimwikiTabGoHome*
     Open vimwiki's main file in a new tab.
-
-*:VimwikiExploreHome*
-    Open vimwiki's home directory.
 
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
@@ -537,6 +531,14 @@ Vim plugins website: http://www.Vim.org/scripts/script.php?script_id=2226
 ==============================================================================
 10. Changelog                                              *vimwiki-changelog*
 
+0.7.1
+    * [new] <Plug>VimwikiToggleListItem added to be able to remap <C-Space> to
+      anything user prefers more.
+    * [fix] Toggleable list items do not work with MediaWiki markup.
+    * [fix] Changing g:vimwiki_home_html to path with ~ while vimwiki is
+      loaded gives errors for HTML export.
+    * [del] Command :VimwikiExploreHome.
+
 0.7.0
     * [new] GTD stuff -- toggleable list items. See |vimwiki-gtd|.
     * [fix] Headers do not fold inner headers. (Thanks Brett Stahlman)
@@ -679,8 +681,8 @@ syntax\vimwiki.vim	[[[1
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-19 10:12
-" Version:     0.7.0
+" Last Change: 2009-02-25 09:59
+" Version:     0.7.1
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -810,8 +812,8 @@ syntax\vimwiki_default.vim	[[[1
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-19 10:16
-" Version:     0.7.0
+" Last Change: 2009-02-25 09:59
+" Version:     0.7.1
 
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
@@ -888,8 +890,8 @@ syntax\vimwiki_google.vim	[[[1
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-19 11:27
-" Version:     0.7.0
+" Last Change: 2009-02-25 09:59
+" Version:     0.7.1
 
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
@@ -968,8 +970,8 @@ syntax\vimwiki_media.vim	[[[1
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-19 10:42
-" Version:     0.7.0
+" Last Change: 2009-02-25 10:00
+" Version:     0.7.1
 
 " text: '''strong'''
 let g:vimwiki_rxBold = "'''[^']\\+'''"
@@ -1045,8 +1047,8 @@ autoload\vimwiki.vim	[[[1
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-20 15:59
-" Version:     0.6.3
+" Last Change: 2009-02-25 10:40
+" Version:     0.7.1
 
 if exists("g:loaded_vimwiki_auto") || &cp
   finish
@@ -1067,12 +1069,12 @@ function! s:get_file_name_only(filename) "{{{
   return word
 endfunction "}}}
 
-function! s:editfile(command, filename) "{{{
+function! s:edit_file(command, filename) "{{{
   let fname = escape(a:filename, '% ')
   execute a:command.' '.fname
 endfunction "}}}
 
-function! s:SearchWord(wikiRx,cmd) "{{{
+function! s:search_word(wikiRx,cmd) "{{{
   let hl = &hls
   let lasts = @/
   let @/ = a:wikiRx
@@ -1086,7 +1088,7 @@ function! s:SearchWord(wikiRx,cmd) "{{{
   let &hls = hl
 endfunction "}}}
 
-function! s:WikiGetWordAtCursor(wikiRX) "{{{
+function! s:get_word_at_cursor(wikiRX) "{{{
   let col = col('.') - 1
   let line = getline('.')
   let ebeg = -1
@@ -1108,8 +1110,8 @@ function! s:WikiGetWordAtCursor(wikiRX) "{{{
   endif
 endf "}}}
 
-function! s:WikiStripWord(word, sym) "{{{
-  function! s:WikiStripWordHelper(word, sym)
+function! s:strip_word(word, sym) "{{{
+  function! s:strip_word_helper(word, sym)
     return substitute(a:word, s:wiki_badsymbols, a:sym, 'g')
   endfunction
 
@@ -1119,12 +1121,12 @@ function! s:WikiStripWord(word, sym) "{{{
     let w = strpart(a:word, 2, strlen(a:word)-4)
     " we want "link" from [[link|link desc]]
     let w = split(w, "|")[0]
-    let result = s:WikiStripWordHelper(w, a:sym)
+    let result = s:strip_word_helper(w, a:sym)
   endif
   return result
 endfunction "}}}
 
-function! s:WikiIsLinkToNonWikiFile(word) "{{{
+function! s:is_link_to_non_wiki_file(word) "{{{
   " Check if word is link to a non-wiki file.
   " The easiest way is to check if it has extension like .txt or .html
   if a:word =~ '\.\w\{1,4}$'
@@ -1136,20 +1138,20 @@ endfunction "}}}
 " WikiWord history helper functions {{{
 " history is [['WikiWord.wiki', 11], ['AnotherWikiWord', 3] ... etc]
 " where numbers are column positions we should return to when coming back.
-function! s:GetHistoryWord(historyItem)
+function! s:get_history_word(historyItem)
   return get(a:historyItem, 0)
 endfunction
-function! s:GetHistoryColumn(historyItem)
+function! s:get_history_column(historyItem)
   return get(a:historyItem, 1)
 endfunction
 "}}}
 
 function! vimwiki#WikiNextWord() "{{{
-  call s:SearchWord(g:vimwiki_rxWikiWord, 'n')
+  call s:search_word(g:vimwiki_rxWikiWord, 'n')
 endfunction "}}}
 
 function! vimwiki#WikiPrevWord() "{{{
-  call s:SearchWord(g:vimwiki_rxWikiWord, 'N')
+  call s:search_word(g:vimwiki_rxWikiWord, 'N')
 endfunction "}}}
 
 function! vimwiki#WikiFollowWord(split) "{{{
@@ -1160,17 +1162,17 @@ function! vimwiki#WikiFollowWord(split) "{{{
   else
     let cmd = ":e "
   endif
-  let word = s:WikiStripWord(s:WikiGetWordAtCursor(g:vimwiki_rxWikiWord), g:vimwiki_stripsym)
+  let word = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord), g:vimwiki_stripsym)
   " insert doesn't work properly inside :if. Check :help :if.
   if word == ""
     execute "normal! \n"
     return
   endif
-  if s:WikiIsLinkToNonWikiFile(word)
-    call s:editfile(cmd, word)
+  if s:is_link_to_non_wiki_file(word)
+    call s:edit_file(cmd, word)
   else
     call insert(g:vimwiki_history, [expand('%:p'), col('.')])
-    call s:editfile(cmd, g:vimwiki_home.word.g:vimwiki_ext)
+    call s:edit_file(cmd, g:vimwiki_home.word.g:vimwiki_ext)
   endif
 endfunction "}}}
 
@@ -1178,8 +1180,8 @@ function! vimwiki#WikiGoBackWord() "{{{
   if !empty(g:vimwiki_history)
     let word = remove(g:vimwiki_history, 0)
     " go back to saved WikiWord
-    execute ":e ".substitute(s:GetHistoryWord(word),'\s','\\\0','g')
-    call cursor(line('.'), s:GetHistoryColumn(word))
+    execute ":e ".substitute(s:get_history_word(word),'\s','\\\0','g')
+    call cursor(line('.'), s:get_history_column(word))
   endif
 endfunction "}}}
 
@@ -1194,7 +1196,7 @@ function! vimwiki#WikiHighlightWords() "{{{
   call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
 
   for word in g:vimwiki_wikiwords
-    if word =~ g:vimwiki_word1 && !s:WikiIsLinkToNonWikiFile(word)
+    if word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
       execute 'syntax match wikiWord /\<'.word.'\>/'
       execute 'syntax match wikiWord /\[\[\<'.substitute(word,  g:vimwiki_stripsym, s:wiki_badsymbols, "g").'\>\(|\+.*\)*\]\]/'
     else
@@ -1236,12 +1238,12 @@ function! vimwiki#WikiDeleteWord() "{{{
   execute "bdelete! ".escape(fname, " ")
 
   " delete from g:vimwiki_history list
-  call filter (g:vimwiki_history, 's:GetHistoryWord(v:val) != fname')
+  call filter (g:vimwiki_history, 's:get_history_word(v:val) != fname')
   " as we got back to previous WikiWord - delete it from history - as much
   " as possible
   let hword = ""
-  while !empty(g:vimwiki_history) && hword == s:GetHistoryWord(g:vimwiki_history[0])
-    let hword = s:GetHistoryWord(remove(g:vimwiki_history, 0))
+  while !empty(g:vimwiki_history) && hword == s:get_history_word(g:vimwiki_history[0])
+    let hword = s:get_history_word(remove(g:vimwiki_history, 0))
   endwhile
 
   " reread buffer => deleted WikiWord should appear as non-existent
@@ -1274,7 +1276,7 @@ function! vimwiki#WikiRenameWord() "{{{
     call s:msg('Cannot rename to an empty filename!')
     return
   endif
-  if s:WikiIsLinkToNonWikiFile(newWord)
+  if s:is_link_to_non_wiki_file(newWord)
     call s:msg('Cannot rename to a filename with extension (ie .txt .html)!')
     return
   endif
@@ -1283,7 +1285,7 @@ function! vimwiki#WikiRenameWord() "{{{
     " if newWord is 'complex wiki word' then add [[]]
     let newWord = '[['.newWord.']]'
   endif
-  let newFileName = s:WikiStripWord(newWord, g:vimwiki_stripsym).g:vimwiki_ext
+  let newFileName = s:strip_word(newWord, g:vimwiki_stripsym).g:vimwiki_ext
 
   " do not rename if word with such name exists
   let fname = glob(g:vimwiki_home.newFileName)
@@ -1336,7 +1338,7 @@ function! vimwiki#WikiRenameWord() "{{{
     let bcount = bcount + 1
   endwhile
 
-  call s:editfile('e', g:vimwiki_home.newFileName)
+  call s:edit_file('e', g:vimwiki_home.newFileName)
 
   "" DONE: after renaming GUI caption is a bit corrupted?
   "" FIXED: buffers menu is also not in the "normal" state, howto Refresh menu?
@@ -1346,18 +1348,21 @@ function! vimwiki#WikiRenameWord() "{{{
   echomsg wwtorename." is renamed to ".newWord
 endfunction "}}}
 autoload\vimwiki_gtd.vim	[[[1
-157
+184
 " Vim autoload plugin file
 " GTD (Getting Things Done) related stuff here.
 " Language:    Wiki
 " Author:      Maxim Kim <habamax@gmail.com>
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-18 18:00
-" Version:     0.7.0
+" Last Change: 2009-02-25 09:56
+" Version:     0.7.1
 
 " used in various checks
-let s:rx_list_item = '^\s\+\(\*\|#\)\s*\zs\[.\?\]'
+let s:rx_list_item = '\('.
+      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+      \ '\)'.
+      \ '\s*\zs\[.\?\]'
 let s:rx_li_box = '\[.\?\]'
 let s:rx_li_unchecked = '\[\s\?\]'
 " used in substitutes
@@ -1393,18 +1398,22 @@ function! s:is_list_item(lnum)
   return getline(a:lnum) =~ s:rx_list_item
 endfunction
 
+function! s:get_li_pos(lnum)
+ return stridx(getline(a:lnum), '[')
+endfunction
+
 " Returns: list of line numbers of parent and all its child items.
 function! s:get_child_items(lnum)
   let result = []
   let lnum = a:lnum
-  let parent_indent = indent(lnum)
+  let parent_pos = s:get_li_pos(lnum)
 
   " add parent
   call add(result, lnum)
   let lnum += 1
 
   while s:is_list_item(lnum) &&
-        \ indent(lnum) > parent_indent &&
+        \ s:get_li_pos(lnum) > parent_pos &&
         \ lnum <= line('$')
 
     call add(result, lnum)
@@ -1414,17 +1423,37 @@ function! s:get_child_items(lnum)
   return result
 endfunction
 
+" function! s:get_child_items(lnum)
+  " let result = []
+  " let lnum = a:lnum
+  " let parent_indent = indent(lnum)
+
+  " add parent
+  " call add(result, lnum)
+  " let lnum += 1
+
+  " while s:is_list_item(lnum) &&
+        " \ indent(lnum) > parent_indent &&
+        " \ lnum <= line('$')
+
+    " call add(result, lnum)
+    " let lnum += 1
+  " endwhile
+
+  " return result
+" endfunction
+
 " Returns: list of line numbers of all items of the same level.
 function! s:get_sibling_items(lnum)
   let result = []
   let lnum = a:lnum
-  let ind = indent(lnum)
+  let ind = s:get_li_pos(lnum)
 
   while s:is_list_item(lnum) &&
-        \ indent(lnum) >= ind &&
+        \ s:get_li_pos(lnum) >= ind &&
         \ lnum <= line('$')
 
-    if  indent(lnum) == ind
+    if s:get_li_pos(lnum) == ind
       call add(result, lnum)
     endif
     let lnum += 1
@@ -1432,10 +1461,10 @@ function! s:get_sibling_items(lnum)
 
   let lnum = a:lnum - 1
   while s:is_list_item(lnum) &&
-        \ indent(lnum) >= ind &&
+        \ s:get_li_pos(lnum) >= ind &&
         \ lnum >= 0
 
-    if  indent(lnum) == ind
+    if s:get_li_pos(lnum) == ind
       call add(result, lnum)
     endif
     let lnum -= 1
@@ -1447,10 +1476,10 @@ endfunction
 " Returns: line number of the parent of lnum item
 function! s:get_parent_item(lnum)
   let lnum = a:lnum
-  let ind = indent(lnum)
+  let ind = s:get_li_pos(lnum)
 
   while s:is_list_item(lnum) &&
-        \ indent(lnum) >= ind &&
+        \ s:get_li_pos(lnum) >= ind &&
         \ lnum >= 0
     let lnum -= 1
   endwhile
@@ -1505,14 +1534,14 @@ function! vimwiki_gtd#GTDToggleItem()
   endwhile
 endfunction
 autoload\vimwiki_html.vim	[[[1
-684
+687
 " VimWiki plugin file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-20 23:42
-" Version:     0.7.0
+" Last Change: 2009-02-26 17:36
+" Version:     0.7.1
 
 if exists("g:loaded_vimwiki_html_auto") || &cp
   finish
@@ -1538,7 +1567,8 @@ function! s:syntax_supported() " {{{
 endfunction " }}}
 
 function! s:create_default_CSS(path) " {{{
-  if glob(a:path.'style.css') == ""
+  let path = expand(a:path)
+  if glob(path.'style.css') == ""
     let lines = ['body {margin: 1em 5em 1em 5em; font-size: 100%; line-height: 1.5;}']
     call add(lines, 'h1 {font-size: 2.0em;}')
     call add(lines, 'h2 {font-size: 1.4em;}')
@@ -1558,7 +1588,7 @@ function! s:create_default_CSS(path) " {{{
     call add(lines, '.todo {font-weight: bold; text-decoration: underline; color: #FF0000;}')
     call add(lines, '.strike {text-decoration: line-through;}')
 
-    call writefile(lines, a:path.'style.css')
+    call writefile(lines, path.'style.css')
     echomsg "Default style.css is created."
   endif
 endfunction "}}}
@@ -1596,7 +1626,7 @@ function! s:get_html_header(title, charset) "{{{
   " globals are bad, but...
   if g:vimwiki_html_header != ""
     try
-      let lines = readfile(g:vimwiki_html_header)
+      let lines = readfile(expand(g:vimwiki_html_header))
       call map(lines, 'substitute(v:val, "%title%", "'. a:title .'", "g")')
       return lines
     catch /E484/
@@ -1623,7 +1653,7 @@ function! s:get_html_footer() "{{{
   " globals are bad, but...
   if g:vimwiki_html_footer != ""
     try
-      let lines = readfile(g:vimwiki_html_footer)
+      let lines = readfile(expand(g:vimwiki_html_footer))
       return lines
     catch /E484/
       call s:msg("Footer template ". g:vimwiki_html_footer. " does not exist!")
@@ -2120,7 +2150,8 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
     return
   endif
 
-  if !isdirectory(a:path)
+  let path = expand(a:path)
+  if !isdirectory(path)
     call s:msg('Please create '.a:path.' directory first!')
     return
   endif
@@ -2163,7 +2194,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
   "" make html file.
   let wwFileNameOnly = s:get_file_name_only(a:wikifile)
-  call writefile(ldest, a:path.wwFileNameOnly.'.html')
+  call writefile(ldest, path.wwFileNameOnly.'.html')
 endfunction "}}}
 
 function! vimwiki_html#WikiAll2HTML(path) "{{{
@@ -2172,7 +2203,8 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
     return
   endif
 
-  if !isdirectory(a:path)
+  let path = expand(a:path)
+  if !isdirectory(path)
     call s:msg('Please create '.a:path.' directory first!')
     return
   endif
@@ -2183,22 +2215,22 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
   let wikifiles = split(glob(g:vimwiki_home.'*'.g:vimwiki_ext), '\n')
   for wikifile in wikifiles
     echomsg 'Processing '.wikifile
-    call vimwiki_html#Wiki2HTML(a:path, wikifile)
+    call vimwiki_html#Wiki2HTML(path, wikifile)
   endfor
-  call s:create_default_CSS(g:vimwiki_home_html)
+  call s:create_default_CSS(path)
   echomsg 'Done!'
 
   let &more = setting_more
 endfunction "}}}
 ftplugin\vimwiki.vim	[[[1
-96
+100
 " Vim filetype plugin file
 " Language:    Wiki
 " Author:      Maxim Kim <habamax@gmail.com>
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-18 10:27
-" Version:     0.7.0
+" Last Change: 2009-02-26 18:55
+" Version:     0.7.1
 
 if exists("b:did_ftplugin")
   finish
@@ -2225,7 +2257,7 @@ setlocal isfname-=[,]
 " for list items, and list items with checkboxes
 setlocal comments=b:*\ [\ ],b:*[\ ],b:*\ [],b:*[],b:*\ [x],b:*[x]
 setlocal comments+=b:#\ [\ ],b:#[\ ],b:#\ [],b:#[],b:#\ [x],b:#[x]
-setlocal comments+=b:*,b:#
+setlocal comments+=n:*,n:#
 setlocal formatoptions=ctnqro
 
 " folding for Headers using syntax fold method.
@@ -2285,18 +2317,22 @@ nmap <silent><buffer> <S-TAB> :VimwikiPrevWord<CR>
 nmap <silent><buffer> <Leader>wd :VimwikiDeleteWord<CR>
 nmap <silent><buffer> <Leader>wr :VimwikiRenameWord<CR>
 
-nmap <silent><buffer> <C-Space> :VimwikiGTDToggleItem<CR>
+if !hasmapto('<Plug>VimwikiToggleListItem')
+  nmap <silent> <C-Space> <Plug>VimwikiToggleListItem
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiToggleListItem :VimwikiGTDToggleItem<CR>
 
 " keybindings }}}
 plugin\vimwiki.vim	[[[1
-77
+64
 " VimWiki plugin file
 " Language:    Wiki
 " Author:      Maxim Kim (habamax at gmail dot com)
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-18 10:02
-" Version:     0.7.0
+" Last Change: 2009-02-26 17:56
+" Version:     0.7.1
 
 if exists("loaded_vimwiki") || &cp
   finish
@@ -2329,11 +2365,6 @@ call s:default('html_footer',"")
 
 call s:default('history',[])
 
-let g:vimwiki_home = expand(g:vimwiki_home)
-let g:vimwiki_home_html = expand(g:vimwiki_home_html)
-let g:vimwiki_html_header = expand(g:vimwiki_html_header)
-let g:vimwiki_html_footer = expand(g:vimwiki_html_footer)
-
 let upp = g:vimwiki_upper
 let low = g:vimwiki_lower
 let oth = g:vimwiki_other
@@ -2347,10 +2378,8 @@ let g:vimwiki_rxWikiWord = g:vimwiki_word1.'\|'.g:vimwiki_word2
 
 execute 'autocmd! BufNewFile,BufReadPost,BufEnter *'.g:vimwiki_ext.' set ft=vimwiki'
 
-
 command! VimwikiGoHome call vimwiki#WikiGoHome()
 command! VimwikiTabGoHome tabedit <bar> call vimwiki#WikiGoHome()
-command! VimwikiExploreHome execute "Explore ".g:vimwiki_home
 
 if !hasmapto('<Plug>VimwikiGoHome')
   map <silent><unique> <Leader>ww <Plug>VimwikiGoHome
@@ -2361,12 +2390,6 @@ if !hasmapto('<Plug>VimwikiTabGoHome')
   map <silent><unique> <Leader>wt <Plug>VimwikiTabGoHome
 endif
 noremap <unique><script> <Plug>VimwikiTabGoHome :VimwikiTabGoHome<CR>
-
-if !hasmapto('<Plug>VimwikiExploreHome')
-  map <silent><unique> <Leader>wh <Plug>VimwikiExploreHome
-endif
-noremap <unique><script> <Plug>VimwikiExploreHome :VimwikiExploreHome<CR>
-
 indent\vimwiki.vim	[[[1
 53
 " Vimwiki indent file
@@ -2374,8 +2397,8 @@ indent\vimwiki.vim	[[[1
 " Author:      Maxim Kim <habamax@gmail.com>
 " Home:        http://code.google.com/p/vimwiki/
 " Filenames:   *.wiki
-" Last Change: 2009-02-17 20:07
-" Version:     0.7.0
+" Last Change: 2009-02-25 09:59
+" Version:     0.7.1
 
 " Only load this indent file when no other was loaded.
 if exists("b:did_indent")
