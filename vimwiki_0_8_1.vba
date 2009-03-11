@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-766
+835
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,12 +13,12 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.8.0 ~
+                               Version: 0.8.1 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
 
-  1. Intro ...................................|vimwiki|
+  1. Quick start .............................|vimwiki|
   2. Prerequisites ...........................|vimwiki-prerequisites|
   3. Mappings ................................|vimwiki-mappings|
     3.1. Global mappings .....................|vimwiki-global-mappings|
@@ -34,7 +34,7 @@ CONTENTS                                                    *vimwiki-contents*
     5.5. Lists ...............................|vimwiki-syntax-lists|
     5.6. Tables ..............................|vimwiki-syntax-tables|
     5.7. Preformatted text ...................|vimwiki-syntax-preformatted|
-  6. Folding .................................|vimwiki-folding|
+  6. Folding/Outline .........................|vimwiki-folding|
   7. Getting Things Done (GTD)................|vimwiki-gtd|
   8. Options .................................|vimwiki-options|
   9. Help ....................................|vimwiki-help|
@@ -45,11 +45,11 @@ CONTENTS                                                    *vimwiki-contents*
 
 
 ==============================================================================
-1. Intro                                                             *vimwiki*
+1. Quick start                                                       *vimwiki*
 
-Vimwiki being a personal wiki for Vim allows you to organize text information
-using hyper links. To do a quick start press <Leader>ww (this is usually \ww)
-to go to your index wiki file. By default it is located in: >
+Vimwiki is a personal wiki for Vim. Using it you can organize text files with
+hyperlinks. To do a quick start press <Leader>ww (this is usually \ww) to go
+to your index wiki file. By default it is located in: >
   ~/vimwiki/index.wiki
 You do not have to create it manually -- vimwiki can make it for you.
 
@@ -97,7 +97,7 @@ There are global and local mappings in vimwiki.
         2<Leader>ww opens second wiki from |g:vimwiki_list|.
         3<Leader>ww opens third wiki from |g:vimwiki_list|.
         etc.
-        To redefine: >
+        To remap: >
         :map <Leader>w <Plug>VimwikiGoHome
 <
 See also|:VimwikiGoHome|
@@ -109,14 +109,14 @@ See also|:VimwikiGoHome|
         2<Leader>ww tabopens second wiki from |g:vimwiki_list|.
         3<Leader>ww tabopens third wiki from |g:vimwiki_list|.
         etc.
-        To redefine: >
+        To remap: >
         :map <Leader>t <Plug>VimwikiTabGoHome
 <
 See also|:VimwikiTabGoHome|
 
 <Leader>ws or <Plug>VimwikiUISelect
         List and select available wikies.
-        To redefine: >
+        To remap: >
         :map <Leader>wq <Plug>VimwikiUISelect
 <
 See also|:VimwikiUISelect|
@@ -128,36 +128,53 @@ See also|:VimwikiUISelect|
 Normal mode (Keyboard):~
 <CR>                    Follow/Create WikiWord.
                         Maps to|:VimwikiFollowWord|.
-
+                        To remap: >
+                        :map <Leader>wf <Plug>VimwikiFollowWord
+<
 <S-CR>                  Split and follow/create WikiWord
                         Maps to|:VimwikiSplitWord|.
-
+                        To remap: >
+                        :map <Leader>we <Plug>VimwikiSplitWord
+<
 <C-CR>                  Vertical split and follow/create WikiWord
                         Maps to|:VimwikiVSplitWord|.
-
+                        To remap: >
+                        :map <Leader>wq <Plug>VimwikiVSplitWord
+<
 <Backspace>             Go back to previous WikiWord
                         Maps to|:VimwikiGoBackWord|.
-
+                        To remap: >
+                        :map <Leader>wb <Plug>VimwikiGoBackWord
+<
 <Tab>                   Find next WikiWord
                         Maps to|:VimwikiNextWord|.
-
+                        To remap: >
+                        :map <Leader>wn <Plug>VimwikiNextWord
+<
 <S-Tab>                 Find previous WikiWord
                         Maps to|:VimwikiPrevWord|.
-
+                        To remap: >
+                        :map <Leader>wp <Plug>VimwikiPrevWord
+<
 <Leader>wd              Delete WikiWord you are in.
                         Maps to|:VimwikiDeleteWord|.
-
+                        To remap: >
+                        :map <Leader>dd <Plug>VimwikiDeleteWord
+<
 <Leader>wr              Rename WikiWord you are in.
                         Maps to|:VimwikiRenameWord|.
-
+                        To remap: >
+                        :map <Leader>rr <Plug>VimwikiRenameWord
+<
 <C-Space>               Toggle list item on/off (checked/unchecked)
                         Maps to|:VimwikiGTDToggleItem|.
-                        To redefine: >
-                        map <leader>tt <Plug>VimwikiToggleListItem
+                        To remap: >
+                        :map <leader>tt <Plug>VimwikiToggleListItem
 <
                         See |vimwiki-gtd|.
 
 Normal mode (Mouse): ~
+Works only if |g:vimwiki_use_mouse| is set to 1.
 <2-LeftMouse>           Follow/Create WikiWord
 <S-2-LeftMouse>         Split and follow/create WikiWord
 <C-2-LeftMouse>         Vertical split and follow/create WikiWord
@@ -374,13 +391,45 @@ It could be started from column 0.
 
 
 ==============================================================================
-6. Folding                                                   *vimwiki-folding*
+6. Folding/Outline                                           *vimwiki-folding*
 
-Vimwiki has headers folding -- 6 levels.
-Just enable vim's folding with: >
+Vimwiki can fold or outline headers and list items.
+Enable folding with the following command: >
   :set foldenable
 >
-Then hit |zM| and contents of each header would be folded away.
+Example:
+! My current task
+  * [ ] Do stuff 1
+    * [ ] Do substuff 1.1
+    * [ ] Do substuff 1.2
+      * [ ] Do substuff 1.2.1
+      * [ ] Do substuff 1.2.2
+    * [ ] Do substuff 1.3
+  * [ ] Do stuff 2
+  * [ ] Do stuff 3
+
+Hit |zM| :
+! My current task [8] --------------------------------------~
+
+Hit |zr| :
+! My current task~
+  * [ ] Do stuff 1 [5] --------------------------------------~
+  * [ ] Do stuff 2~
+  * [ ] Do stuff 3~
+
+Hit |zr| one more time:
+! My current task~
+  * [ ] Do stuff 1~
+    * [ ] Do substuff 1.1~
+    * [ ] Do substuff 1.2 [2] -------------------------------~
+    * [ ] Do substuff 1.3~
+  * [ ] Do stuff 2~
+  * [ ] Do stuff 3~
+
+NOTE: Whether you use default or google syntax, folding on list items should
+work properly only if all of them are indented using current |shiftwidth|.
+For MediaWiki * or # should be in the first column.
+
 
 ==============================================================================
 7. Getting Things Done (GTD)                                     *vimwiki-gtd*
@@ -553,14 +602,14 @@ Values: Upper letters (ranges)
 This affects WikiWord detection.
 By default WikiWord detection uses English and Russian letters.
 You can set up your own: >
-    let g:vimwiki_upper="A-Z"
+  let g:vimwiki_upper="A-Z"
 
 ------------------------------------------------------------------------------
 Default: "a-zа-я"                                            *g:vimwiki_lower*
 Values: Lower letters ranges
 
 See |g:vimwiki_upper|: >
-    let g:vimwiki_lower="a-z"
+  let g:vimwiki_lower="a-z"
 
 ------------------------------------------------------------------------------
 Default: "_"                                              *g:vimwiki_stripsym*
@@ -570,6 +619,15 @@ Change strip symbol -- in Windows you cannot use /*?<>:" in file names so
 vimwiki replaces them with symbol given below: (_ is default): >
     let g:vimwiki_stripsym = '_'
 
+------------------------------------------------------------------------------
+Default: 0                                               *g:vimwiki_use_mouse*
+Values: 0, 1
+
+Use local mouse mappings from|vimwiki-local-mappings|: >
+  let g:vimwiki_use_mouse = 1
+
+Do not use it: >
+  let g:vimwiki_use_mouse = 0
 
 ==============================================================================
 9. Help                                                         *vimwiki-help*
@@ -603,7 +661,7 @@ I live in Moscow and you may believe me -- there are no polar bears (no brown
 too) here in the streets.
 
 I do not do programming for a living. So don't blame me for an ugly
-ineffective code. Send me a better code instead. :)
+ineffective code. Send me a better one instead. :)
 
 Many thanks to all of you for voting vimwiki up on www.vim.org. I do vimwiki
 in my spare time I could use to dance argentine tango with beautiful women.
@@ -617,6 +675,17 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 12. Changelog                                              *vimwiki-changelog*
+
+0.8.1
+  * [new] Vimwiki's foldmethod changed from syntax to expr. Foldtext is
+    changed to be nicer with folded list items.
+  * [new] Fold/outline list items.
+  * [new] It is possible now to edit wiki files in arbitrary directories which
+    is not in g:vimwiki_list's paths. New WikiWords are created in the path of
+    the current WikiWord.
+  * [new] User can remap Vimwiki's built in mappings.
+  * [new] Added |g:vimwiki_use_mouse|. It is off by default.
+  * [fix] Removed <C-h> mapping.
 
 0.8.0
   * [new] Multiple wikies support. A lot of options have been changed, see 
@@ -770,7 +839,7 @@ it's free enough to suit your needs.
 
  vim:tw=78:ts=8:ft=help
 syntax\vimwiki.vim	[[[1
-128
+108
 " Vimwiki syntax file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -828,12 +897,12 @@ execute 'syntax match wikiCode /'.g:vimwiki_rxCode.'/'
 syntax cluster wikiText contains=wikiItalic,wikiBold,wikiCode,wikiDelText,wikiSuperScript,wikiSubScript,wikiWord,wikiEmoticons
 
 " Header levels, 1-6
-execute 'syntax match wikiH1 /'.g:vimwiki_rxH1.'/'
-execute 'syntax match wikiH2 /'.g:vimwiki_rxH2.'/'
-execute 'syntax match wikiH3 /'.g:vimwiki_rxH3.'/'
-execute 'syntax match wikiH4 /'.g:vimwiki_rxH4.'/'
-execute 'syntax match wikiH5 /'.g:vimwiki_rxH5.'/'
-execute 'syntax match wikiH6 /'.g:vimwiki_rxH6.'/'
+execute 'syntax match wikiHeader /'.g:vimwiki_rxHeader.'/'
+" execute 'syntax match wikiH2 /'.g:vimwiki_rxH2.'/'
+" execute 'syntax match wikiH3 /'.g:vimwiki_rxH3.'/'
+" execute 'syntax match wikiH4 /'.g:vimwiki_rxH4.'/'
+" execute 'syntax match wikiH5 /'.g:vimwiki_rxH5.'/'
+" execute 'syntax match wikiH6 /'.g:vimwiki_rxH6.'/'
 
 " <hr> horizontal rule
 execute 'syntax match wikiHR /'.g:vimwiki_rxHR.'/'
@@ -850,32 +919,12 @@ execute 'syntax match wikiPre /'.g:vimwiki_rxPre1.'/'
 
 execute 'syntax region wikiPre start=/'.g:vimwiki_rxPreStart.'/ end=/'.g:vimwiki_rxPreEnd.'/'
 
-" Folding
-execute 'syntax region wikiH1Folding start=/'.g:vimwiki_rxFoldH1Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH1End.'/me=s-1 transparent fold'
-execute 'syntax region wikiH2Folding start=/'.g:vimwiki_rxFoldH2Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH2End.'/me=s-1 transparent fold'
-execute 'syntax region wikiH3Folding start=/'.g:vimwiki_rxFoldH3Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH3End.'/me=s-1 transparent fold'
-execute 'syntax region wikiH4Folding start=/'.g:vimwiki_rxFoldH4Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH4End.'/me=s-1 transparent fold'
-execute 'syntax region wikiH5Folding start=/'.g:vimwiki_rxFoldH5Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH5End.'/me=s-1 transparent fold'
-execute 'syntax region wikiH6Folding start=/'.g:vimwiki_rxFoldH6Start.
-      \ '/ end=/'.g:vimwiki_rxFoldH6End.'/me=s-1 transparent fold'
-
 " List item checkbox
 syntax match wikiCheckBox /\[.\?\]/
 execute 'syntax match wikiCheckBoxDone /'.g:vimwiki_rxListBullet.'\s*\[x\].*$/'
 execute 'syntax match wikiCheckBoxDone /'.g:vimwiki_rxListNumber.'\s*\[x\].*$/'
 
-hi def link wikiH1                    Title
-hi def link wikiH2                    wikiH1
-hi def link wikiH3                    wikiH2
-hi def link wikiH4                    wikiH3
-hi def link wikiH5                    wikiH4
-hi def link wikiH6                    wikiH5
-hi def link wikiHR                    wikiH6
+hi def link wikiHeader                    Title
 
 hi def wikiBold                       term=bold cterm=bold gui=bold
 hi def wikiItalic                     term=italic cterm=italic gui=italic
@@ -900,7 +949,7 @@ hi def link wikiTodo                  Todo
 
 let b:current_syntax="vimwiki"
 syntax\vimwiki_default.vim	[[[1
-73
+60
 " Vimwiki syntax file
 " Default syntax
 " Author: Maxim Kim <habamax@gmail.com>
@@ -936,6 +985,12 @@ let g:vimwiki_rxH3 = '^!\{3}.*$'
 let g:vimwiki_rxH4 = '^!\{4}.*$'
 let g:vimwiki_rxH5 = '^!\{5}.*$'
 let g:vimwiki_rxH6 = '^!\{6}.*$'
+let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
+      \ '\('.g:vimwiki_rxH2.'\)\|'.
+      \ '\('.g:vimwiki_rxH3.'\)\|'.
+      \ '\('.g:vimwiki_rxH4.'\)\|'.
+      \ '\('.g:vimwiki_rxH5.'\)\|'.
+      \ '\('.g:vimwiki_rxH6.'\)'
 
 " <hr>, horizontal rule
 let g:vimwiki_rxHR = '^----.*$'
@@ -954,28 +1009,9 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 let g:vimwiki_rxPreStart = '{{{'
 let g:vimwiki_rxPreEnd = '}}}'
 
-" Header's folding
-let g:vimwiki_rxFoldH1Start = '^![^!]\+.*'
-let g:vimwiki_rxFoldH1End = '^![^!]\+.*'
-
-let g:vimwiki_rxFoldH2Start = '^!![^!]\+.*'
-let g:vimwiki_rxFoldH2End = '^!!\{,1}[^!]\+.*'
-
-let g:vimwiki_rxFoldH3Start = '^!!![^!]\+.*'
-let g:vimwiki_rxFoldH3End = '^!!\{,2}[^!]\+.*'
-
-let g:vimwiki_rxFoldH4Start = '^!!!![^!]\+.*'
-let g:vimwiki_rxFoldH4End = '^!!\{,3}[^!]\+.*'
-
-let g:vimwiki_rxFoldH5Start = '^!!!!![^!]\+.*'
-let g:vimwiki_rxFoldH5End = '^!!\{,4}[^!]\+.*'
-
-let g:vimwiki_rxFoldH6Start = '^!!!!!![^!]\+.*'
-let g:vimwiki_rxFoldH6End = '^!!\{,5}[^!]\+.*'
-
 " vim:tw=0:
 syntax\vimwiki_google.vim	[[[1
-75
+62
 " Vimwiki syntax file
 " GoogleWiki syntax
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1011,6 +1047,12 @@ let g:vimwiki_rxH3 = '^\s*=\{3}.*=\{3}\s*$'
 let g:vimwiki_rxH4 = '^\s*=\{4}.*=\{4}\s*$'
 let g:vimwiki_rxH5 = '^\s*=\{5}.*=\{5}\s*$'
 let g:vimwiki_rxH6 = '^\s*=\{6}.*=\{6}\s*$'
+let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
+      \ '\('.g:vimwiki_rxH2.'\)\|'.
+      \ '\('.g:vimwiki_rxH3.'\)\|'.
+      \ '\('.g:vimwiki_rxH4.'\)\|'.
+      \ '\('.g:vimwiki_rxH5.'\)\|'.
+      \ '\('.g:vimwiki_rxH6.'\)'
 
 " <hr>, horizontal rule
 let g:vimwiki_rxHR = '^----.*$'
@@ -1031,28 +1073,9 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 let g:vimwiki_rxPreStart = '{{{'
 let g:vimwiki_rxPreEnd = '}}}'
 
-" Header's folding
-let g:vimwiki_rxFoldH1Start = '^=[^=]\+.*=\s*$'
-let g:vimwiki_rxFoldH1End = '^=[^=]\+=\s*$'
-
-let g:vimwiki_rxFoldH2Start = '^==[^=]\+.*==\s*$'
-let g:vimwiki_rxFoldH2End = '^==\{,1}[^=]\+.*==\{,1}\s*$'
-
-let g:vimwiki_rxFoldH3Start = '^===[^=]\+.*===\s*$'
-let g:vimwiki_rxFoldH3End = '^==\{,2}[^=]\+.*==\{,2}\s*$'
-
-let g:vimwiki_rxFoldH4Start = '^====[^=]\+.*====\s*$'
-let g:vimwiki_rxFoldH4End = '^==\{,3}[^=]\+.*==\{,4}\s*$'
-
-let g:vimwiki_rxFoldH5Start = '^=====[^=]\+.*=====\s*$'
-let g:vimwiki_rxFoldH5End = '^==\{,4}[^=]\+.*==\{,4}\s*$'
-
-let g:vimwiki_rxFoldH6Start = '^======[^=]\+.*======\s*$'
-let g:vimwiki_rxFoldH6End = '^==\{,5}[^=]\+.*==\{,5}\s*$'
-
 " vim:tw=0:
 syntax\vimwiki_media.vim	[[[1
-72
+59
 " Vimwiki syntax file
 " MediaWiki syntax
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1086,6 +1109,12 @@ let g:vimwiki_rxH3 = '^\s*=\{3}.\+=\{3}\s*$'
 let g:vimwiki_rxH4 = '^\s*=\{4}.\+=\{4}\s*$'
 let g:vimwiki_rxH5 = '^\s*=\{5}.\+=\{5}\s*$'
 let g:vimwiki_rxH6 = '^\s*=\{6}.\+=\{6}\s*$'
+let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
+      \ '\('.g:vimwiki_rxH2.'\)\|'.
+      \ '\('.g:vimwiki_rxH3.'\)\|'.
+      \ '\('.g:vimwiki_rxH4.'\)\|'.
+      \ '\('.g:vimwiki_rxH5.'\)\|'.
+      \ '\('.g:vimwiki_rxH6.'\)'
 
 " <hr>, horizontal rule
 let g:vimwiki_rxHR = '^----.*$'
@@ -1104,25 +1133,6 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 " Preformatted text
 let g:vimwiki_rxPreStart = '<pre>'
 let g:vimwiki_rxPreEnd = '<\/pre>'
-
-" Header's folding
-let g:vimwiki_rxFoldH1Start = '^=[^=]\+.*=\s*$'
-let g:vimwiki_rxFoldH1End = '^=[^=]\+=\s*$'
-
-let g:vimwiki_rxFoldH2Start = '^==[^=]\+.*==\s*$'
-let g:vimwiki_rxFoldH2End = '^==\{,1}[^=]\+.*==\{,1}\s*$'
-
-let g:vimwiki_rxFoldH3Start = '^===[^=]\+.*===\s*$'
-let g:vimwiki_rxFoldH3End = '^==\{,2}[^=]\+.*==\{,2}\s*$'
-
-let g:vimwiki_rxFoldH4Start = '^====[^=]\+.*====\s*$'
-let g:vimwiki_rxFoldH4End = '^==\{,3}[^=]\+.*==\{,4}\s*$'
-
-let g:vimwiki_rxFoldH5Start = '^=====[^=]\+.*=====\s*$'
-let g:vimwiki_rxFoldH5End = '^==\{,4}[^=]\+.*==\{,4}\s*$'
-
-let g:vimwiki_rxFoldH6Start = '^======[^=]\+.*======\s*$'
-let g:vimwiki_rxFoldH6End = '^==\{,5}[^=]\+.*==\{,5}\s*$'
 
 " vim:tw=78:
 autoload\vimwiki_gtd.vim	[[[1
@@ -1144,7 +1154,7 @@ let s:rx_list_item = '\('.
       \ '\s*\zs\[.\?\]'
 let s:rx_li_box = '\[.\?\]'
 let s:rx_li_unchecked = '\[\s\?\]'
-" used in substitutes
+" used in substitutions
 let s:rx_li_check = '\[x\]'
 let s:rx_li_uncheck = '\[ \]'
 
@@ -1292,7 +1302,7 @@ function! vimwiki_gtd#GTDToggleItem()"{{{
   endwhile
 endfunction"}}}
 autoload\vimwiki_html.vim	[[[1
-679
+686
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1303,8 +1313,8 @@ if exists("g:loaded_vimwiki_html_auto") || &cp
 endif
 let g:loaded_vimwiki_html_auto = 1
 
-" I do not want to redefine these functions. Really. I do not want them to be
-" global too.
+" TODO: move the next 2 functions into vimwiki#msg and
+" vimwiki#get_file_name_only.
 function! s:msg(message) "{{{
   echohl WarningMsg
   echomsg 'vimwiki: '.a:message
@@ -1527,7 +1537,14 @@ function! s:process_tag_list(line, lists) "{{{
         call add(lines, item[0])
       endwhile
     endif
-    call add(lines, '<li>'.substitute(a:line, lstRegExp, '', '').'</li>')
+    " apply strikethrough for checked list items
+    if a:line =~ '^\s\+\(\*\|#\)\s*\[x]'
+      call add(lines, '<li><span class="strike">'.
+            \ substitute(a:line, lstRegExp, '', '').
+            \ '</span></li>')
+    else
+      call add(lines, '<li>'.substitute(a:line, lstRegExp, '', '').'</li>')
+    endif
   else
     while len(a:lists)
       let item = remove(a:lists, -1)
@@ -2313,7 +2330,7 @@ function! vimwiki#WikiUISelect()"{{{
   call vimwiki#WikiGoHome(r)
 endfunction"}}}
 ftplugin\vimwiki.vim	[[[1
-96
+210
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2329,7 +2346,10 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Reset the following options to undo this plugin.
-let b:undo_ftplugin = "setl tw< wrap< lbr< sua< isf< awa< com< fo< fdt< fdm< fde< commentstring<"
+let b:undo_ftplugin = "setlocal textwidth< wrap< linebreak< ".
+      \ "suffixesadd< isfname< autowriteall< comments< ".
+      \ "formatoptions< foldtext< ".
+      \ "foldmethod< foldexpr< commentstring< "
 
 setlocal textwidth=0
 setlocal wrap
@@ -2337,7 +2357,7 @@ setlocal linebreak
 setlocal autowriteall
 
 " for gf
-execute 'setlocal suffixesadd=.'.VimwikiGet('ext')
+execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 
 " for list items, and list items with checkboxes
@@ -2346,12 +2366,90 @@ setlocal comments+=b:#\ [\ ],b:#[\ ],b:#\ [],b:#[],b:#\ [x],b:#[x]
 setlocal comments+=n:*,n:#
 setlocal formatoptions=ctnqro
 
-" folding for Headers using syntax fold method.
-setlocal fdm=syntax
+
+" folding for Headers using expr fold method.
+setlocal fdm=expr
+setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+function! VimwikiFoldLevel(lnum) "{{{
+  let s:rx_list_item = '\('.
+        \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+        \ '\)'
+  let pline = getline(a:lnum - 1)
+  let line = getline(a:lnum)
+  let nline = getline(a:lnum + 1)
+
+  " Header folding...
+  if line =~ g:vimwiki_rxHeader
+    return s:count_first_sym(line)
+  endif
+  if nline =~ g:vimwiki_rxHeader
+    return '<'.s:count_first_sym(nline)
+  endif
+
+  " List item folding...
+  let pnum = a:lnum - 1
+  let nnum = a:lnum + 1
+
+  if line =~ s:rx_list_item &&
+        \ nline =~ s:rx_list_item
+    if VimwikiGet('syntax') == 'media'
+      return s:get_level_media(a:lnum, nnum)
+    else
+      return s:get_level(a:lnum, nnum)
+    endif
+  elseif line =~ s:rx_list_item
+    if VimwikiGet('syntax') == 'media'
+      return s:get_level_media(a:lnum, pnum)
+    else
+      return s:get_level(a:lnum, pnum)
+    endif
+  endif
+
+  return -1
+endfunction "}}}
+
+function! s:get_level(lnum, nnum) "{{{
+  let level = ((indent(a:nnum) - indent(a:lnum)) / &sw)
+  if level > 0
+    return "a".level
+  elseif level < 0
+    return "s".abs(level)
+  else
+    return "="
+  endif
+endfunction "}}}
+
+" Special case: MediaWiki list items level do not use indents.
+function! s:get_level_media(lnum, nnum) "{{{
+  let level = s:count_first_sym(getline(a:nnum)) - 
+        \ s:count_first_sym(getline(a:lnum))
+  if level > 0
+    return "a".level
+  elseif level < 0
+    return "s".abs(level)
+  else
+    return "="
+  endif
+endfunction "}}}
+
+function! s:count_first_sym(line) "{{{
+  let idx = 0
+  while a:line[idx] == a:line[0] && idx < len(a:line)
+    let idx += 1
+  endwhile
+  return idx
+endfunction "}}}
+
+
+setlocal foldtext=VimwikiFoldText()
+function! VimwikiFoldText() "{{{
+  let line = getline(v:foldstart)
+  return line.' ['.(v:foldend - v:foldstart).'] '
+endfunction "}}}
 
 setlocal commentstring=<!--%s-->
 
-"" commands {{{2
+"" commands {{{
 command! -buffer Vimwiki2HTML call vimwiki_html#Wiki2HTML(expand(VimwikiGet('path_html')), expand('%'))
 command! -buffer VimwikiAll2HTML call vimwiki_html#WikiAll2HTML(expand(VimwikiGet('path_html')))
 
@@ -2365,7 +2463,7 @@ command! -buffer VimwikiSplitWord call vimwiki#WikiFollowWord('split')
 command! -buffer VimwikiVSplitWord call vimwiki#WikiFollowWord('vsplit')
 
 command! -buffer VimwikiGTDToggleItem call vimwiki_gtd#GTDToggleItem()
-"" commands 2}}}
+"" commands }}}
 
 "" keybindings {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2379,39 +2477,72 @@ nmap <buffer> j      gj
 vmap <buffer> <Down> gj
 vmap <buffer> j      gj
 
-imap <buffer> <Down>   <C-o>gj
-imap <buffer> <Up>     <C-o>gk
+if g:vimwiki_use_mouse
+  nmap <buffer> <S-LeftMouse> <NOP>
+  nmap <buffer> <C-LeftMouse> <NOP>
+  noremap <silent><buffer> <2-LeftMouse> :VimwikiFollowWord<CR>
+  noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:VimwikiSplitWord<CR>
+  noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:VimwikiVSplitWord<CR>
+  noremap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackWord<CR>
+endif
 
-nmap <silent><buffer> <CR> :VimwikiFollowWord<CR>
-nmap <silent><buffer> <S-CR> :VimwikiSplitWord<CR>
-nmap <silent><buffer> <C-CR> :VimwikiVSplitWord<CR>
+if !hasmapto('<Plug>VimwikiFollowWord')
+  nmap <silent><buffer> <CR> <Plug>VimwikiFollowWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiFollowWord :VimwikiFollowWord<CR>
 
-nmap <buffer> <S-LeftMouse> <NOP>
-nmap <buffer> <C-LeftMouse> <NOP>
-noremap <silent><buffer> <2-LeftMouse> :VimwikiFollowWord<CR>
-noremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:VimwikiSplitWord<CR>
-noremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:VimwikiVSplitWord<CR>
+if !hasmapto('<Plug>VimwikiSplitWord')
+  nmap <silent><buffer> <S-CR> <Plug>VimwikiSplitWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiSplitWord :VimwikiSplitWord<CR>
 
-nmap <silent><buffer> <BS> :VimwikiGoBackWord<CR>
-"<BS> mapping doesn't work in vim console
-nmap <silent><buffer> <C-h> :VimwikiGoBackWord<CR>
-nmap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackWord<CR>
+if !hasmapto('<Plug>VimwikiVSplitWord')
+  nmap <silent><buffer> <C-CR> <Plug>VimwikiVSplitWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiVSplitWord :VimwikiVSplitWord<CR>
 
-nmap <silent><buffer> <TAB> :VimwikiNextWord<CR>
-nmap <silent><buffer> <S-TAB> :VimwikiPrevWord<CR>
+if !hasmapto('<Plug>VimwikiGoBackWord')
+  nmap <silent><buffer> <BS> <Plug>VimwikiGoBackWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiGoBackWord :VimwikiGoBackWord<CR>
 
-nmap <silent><buffer> <Leader>wd :VimwikiDeleteWord<CR>
-nmap <silent><buffer> <Leader>wr :VimwikiRenameWord<CR>
+if !hasmapto('<Plug>VimwikiNextWord')
+  nmap <silent><buffer> <TAB> <Plug>VimwikiNextWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiNextWord :VimwikiNextWord<CR>
+
+if !hasmapto('<Plug>VimwikiPrevWord')
+  nmap <silent><buffer> <S-TAB> <Plug>VimwikiPrevWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiPrevWord :VimwikiPrevWord<CR>
+
+if !hasmapto('<Plug>VimwikiDeleteWord')
+  nmap <silent><buffer> <Leader>wd <Plug>VimwikiDeleteWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiDeleteWord :VimwikiDeleteWord<CR>
+
+if !hasmapto('<Plug>VimwikiRenameWord')
+  nmap <silent><buffer> <Leader>wr <Plug>VimwikiRenameWord
+endif
+noremap <silent><script><buffer> 
+      \ <Plug>VimwikiRenameWord :VimwikiRenameWord<CR>
 
 if !hasmapto('<Plug>VimwikiToggleListItem')
-  nmap <silent> <C-Space> <Plug>VimwikiToggleListItem
+  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
 endif
 noremap <silent><script><buffer> 
       \ <Plug>VimwikiToggleListItem :VimwikiGTDToggleItem<CR>
 
 " keybindings }}}
 plugin\vimwiki.vim	[[[1
-150
+177
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2447,8 +2578,9 @@ let s:vimwiki_defaults.history = []
 "" default parameters for all wikies"{{{
 call s:default('upper', 'A-ZА-Я')
 call s:default('lower', 'a-zа-я')
-call s:default('other', '0-9_')
+call s:default('other', '0-9')
 call s:default('stripsym', '_')
+call s:default('use_mouse', 0)
 call s:default('current_idx', 0)
 call s:default('list', [s:vimwiki_defaults])
 "}}}
@@ -2493,20 +2625,46 @@ function! VimwikiSet(option, value, ...) "{{{
   let g:vimwiki_list[idx][a:option] = a:value
 endfunction "}}}
 
+function! s:find_wiki(path) "{{{
+  let idx = 0
+  while idx < len(g:vimwiki_list)
+    let path = expand(VimwikiGet('path', idx))
+    if path[:-2] == a:path
+      return idx
+    endif
+    let idx += 1
+  endwhile
+  return -1
+endfunction "}}}
+
 function! s:setup_buffer_leave()"{{{
   if !exists("b:vimwiki_idx")
     let b:vimwiki_idx=g:vimwiki_current_idx
   endif
 endfunction"}}}
 
-function! s:setup_buffer_enter()"{{{
+function! s:setup_buffer_enter() "{{{
   if exists("b:vimwiki_idx")
     let g:vimwiki_current_idx = b:vimwiki_idx
   else
+    " Find what wiki current buffer belongs to.
+    " If wiki does not exist in g:vimwiki_list -- add new wiki there with
+    " buffer's path and ext.
+    " Else set g:vimwiki_current_idx to that wiki index.
+    let path = expand('%:p:h')
+    let ext = '.'.expand('%:e')
+    let idx = s:find_wiki(path)
+    if idx == -1
+      call add(g:vimwiki_list, {'path': path, 'ext': ext})
+      let g:vimwiki_current_idx = len(g:vimwiki_list) - 1
+    else
+      let g:vimwiki_current_idx = idx
+    endif
+
     let b:vimwiki_idx = g:vimwiki_current_idx
   endif
   setlocal ft=vimwiki
-endfunction"}}}
+endfunction "}}}
 
 let upp = g:vimwiki_upper
 let low = g:vimwiki_lower
