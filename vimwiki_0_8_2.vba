@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-835
+872
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,7 +13,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.8.1 ~
+                               Version: 0.8.2 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -34,6 +34,7 @@ CONTENTS                                                    *vimwiki-contents*
     5.5. Lists ...............................|vimwiki-syntax-lists|
     5.6. Tables ..............................|vimwiki-syntax-tables|
     5.7. Preformatted text ...................|vimwiki-syntax-preformatted|
+    5.8. Comments ............................|vimwiki-syntax-comment|
   6. Folding/Outline .........................|vimwiki-folding|
   7. Getting Things Done (GTD)................|vimwiki-gtd|
   8. Options .................................|vimwiki-options|
@@ -47,15 +48,15 @@ CONTENTS                                                    *vimwiki-contents*
 ==============================================================================
 1. Quick start                                                       *vimwiki*
 
-Vimwiki is a personal wiki for Vim. Using it you can organize text files with
-hyperlinks. To do a quick start press <Leader>ww (this is usually \ww) to go
-to your index wiki file. By default it is located in: >
+Vimwiki being a personal wiki for Vim allows you to organize text information
+using hyper links. To do a quick start press <Leader>ww (this is usually \ww)
+to go to your index wiki file. By default it is located in: >
   ~/vimwiki/index.wiki
 You do not have to create it manually -- vimwiki can make it for you.
 
 Feed it with the following example (copy&paste without and between ---) :
 ---
-! My knowledge base
+= My knowledge base =
   * MyUrgentTasks -- things to be done _yesterday_!!!
   * ProjectGutenberg -- good books are power.
   * MusicILike, MusicIHate.
@@ -245,9 +246,8 @@ and create html directory there.
 5. Wiki syntax                                                *vimwiki-syntax*
 
 There are a lot of different wikies out there. Most of them have their own
-syntax and vimwiki is not an exception here. Default vimwiki's syntax is quite
-similar to what google's wiki has. With the noticeable difference in headings
-markup.
+syntax and vimwiki is not an exception here. Default vimwiki's syntax is a
+subset of google's wiki syntax markup.
 
 As for MediaWiki's syntax -- it is not that convenient for non English
 (Russian in my case :)) keyboard layouts to emphasize text as it uses a lot
@@ -255,8 +255,8 @@ of '''''' to do it. You have to switch layouts every time you want some bold
 non English text. This is the answer to "Why not MediaWiki?"
 
 Nevertheless, there is MediaWiki syntax file included in the distribution (it
-doesn't have all the fancy stuff original MediaWiki syntax has though). As the
-Google's one. See |vimwiki-option-syntax|.
+doesn't have all the fancy stuff original MediaWiki syntax has though).
+See |vimwiki-option-syntax|.
 
 
 ------------------------------------------------------------------------------
@@ -303,18 +303,38 @@ Path to image (ie. images/pabloymoira.jpg) is relative to
 
 ------------------------------------------------------------------------------
 5.3. Headers                                          *vimwiki-syntax-headers*
+
+= Header level 1 =~
+== Header level 2 ==~
+=== Header level 3 ===
+==== Header level 4 ====
+===== Header level 5 ====
+====== Header level 6 =====
+
+Note: before vimwiki 0.8.2, header's markup syntax used exclamation marks:
 ! Header level 1
 !! Header level 2
-!!! Header level 3
-!!!! Header level 4
-!!!!! Header level 5
-!!!!!! Header level 6
+etc...
+
+If you upgrade from pre 0.8.2 you might find the next commands useful.
+BACKUP FIRST!
+To easily change headers from !Header to =Header= in your wiki files use the
+next commands (\ww first to open your wiki index file): >
+ :args .wiki
+ :argdo %s/^\(!\+\)\([^!].*$\)/\=substitute(submatch(1),'!','=','g').submatch(2).substitute(submatch(1),'!','=','g')
+<
 
 ------------------------------------------------------------------------------
 5.4. Paragraphs                                    *vimwiki-syntax-paragraphs*
 
-Every line started from column 0 (zero) is a paragraph if it is not a list,
-table or preformatted text.
+Paragraph is group of lines started from column 1 (no indentation). Paragraphs
+divided by a blank line:
+
+This is first paragraph
+with two lines.
+
+This is a second paragraph with
+two lines.  
 
 ------------------------------------------------------------------------------
 5.5. Lists                                              *vimwiki-syntax-lists*
@@ -390,6 +410,14 @@ Or use {{{ and }}} to define pre:
 It could be started from column 0.
 
 
+------------------------------------------------------------------------------
+5.8. Comments                                        *vimwiki-syntax-comments*
+
+Text between <!-- and --> is a comment.
+Ex: >
+ <!-- this text would not be in HTML -->
+<
+
 ==============================================================================
 6. Folding/Outline                                           *vimwiki-folding*
 
@@ -398,7 +426,7 @@ Enable folding with the following command: >
   :set foldenable
 >
 Example:
-! My current task
+= My current task =
   * [ ] Do stuff 1
     * [ ] Do substuff 1.1
     * [ ] Do substuff 1.2
@@ -409,16 +437,16 @@ Example:
   * [ ] Do stuff 3
 
 Hit |zM| :
-! My current task [8] --------------------------------------~
+= My current task = [8] --------------------------------------~
 
 Hit |zr| :
-! My current task~
+= My current task =~
   * [ ] Do stuff 1 [5] --------------------------------------~
   * [ ] Do stuff 2~
   * [ ] Do stuff 3~
 
 Hit |zr| one more time:
-! My current task~
+= My current task =~
   * [ ] Do stuff 1~
     * [ ] Do substuff 1.1~
     * [ ] Do substuff 1.2 [2] -------------------------------~
@@ -426,8 +454,8 @@ Hit |zr| one more time:
   * [ ] Do stuff 2~
   * [ ] Do stuff 3~
 
-NOTE: Whether you use default or google syntax, folding on list items should
-work properly only if all of them are indented using current |shiftwidth|.
+NOTE: Whether you use default syntax, folding on list items should work
+properly only if all of them are indented using current |shiftwidth|.
 For MediaWiki * or # should be in the first column.
 
 
@@ -438,7 +466,7 @@ That is not really a GTD :). But vimwiki can handle "projects" that are just
 lists of items you can check/uncheck.
 
 Consider the following example:
-!!! Toggleable list of items
+= Toggleable list of items =
   * [x] Toggle list item on/off.
     * [x] Simple toggling between [ ] and [x].
     * [x] All list's subitems should be toggled on/off appropriately.
@@ -524,17 +552,14 @@ Extension of wiki files: >
 <
                                                        *vimwiki-option-syntax*
 Key             Default value     Values~
-syntax          default           default, google, media      
+syntax          default           default, media      
 Description~
 Wiki syntax.
-You can use different markup languages (currently default vimwiki, google and
+You can use different markup languages (currently default vimwiki and
 MediaWiki) but only vimwiki's default markup could be converted to HTML at the
 moment.
 To use MediaWiki's wiki markup: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'syntax': 'media'}]
-
-To use google's wiki markup: >
-  let g:vimwiki_list = [{'path': '~/my_site/', 'syntax': 'google'}]
 
 
 <
@@ -675,6 +700,18 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 12. Changelog                                              *vimwiki-changelog*
+
+0.8.2
+  * [del] Removed google syntax file.
+  * [new] Default vimwiki syntax is a subset of google's one. Header's has
+    been changed from !Header to =Header=. It is easier to maintain only 2
+    syntaxes. See |vimwiki-syntax-headers|.
+  * [new] Multiline paragraphs -- less longlines.
+  * [new] Comments. See |vimwiki-syntax-comments|.
+  * [del] Removed setlocal textwidth = 0 from ftplugin.
+  * [fix] New regexps for bold, italic, bolditalic.
+  * [fix] The last item in List sometimes fold-in incorrectly.
+  * [fix] Minor tweaks on default css.
 
 0.8.1
   * [new] Vimwiki's foldmethod changed from syntax to expr. Foldtext is
@@ -839,10 +876,11 @@ it's free enough to suit your needs.
 
  vim:tw=78:ts=8:ft=help
 syntax\vimwiki.vim	[[[1
-108
+110
 " Vimwiki syntax file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
+" vim:tw=78:
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -865,7 +903,6 @@ else
   execute 'syntax match wikiWord /'.g:vimwiki_word2.'/'
 endif
 
-
 let g:vimwiki_rxWeblink = '\("[^"(]\+\((\([^)]\+\))\)\?":\)\?\(https\?\|ftp\|gopher\|telnet\|file\|notes\|ms-help\):\(\(\(//\)\|\(\\\\\)\)\+[A-Za-z0-9:#@%/;$~_?+=.&\\\-]*\)'
 execute 'syntax match wikiLink `'.g:vimwiki_rxWeblink.'`'
 
@@ -885,6 +922,8 @@ execute 'syntax match wikiItalic /'.g:vimwiki_rxItalic.'/'
 
 execute 'syntax match wikiBoldItalic /'.g:vimwiki_rxBoldItalic.'/'
 
+execute 'syntax match wikiItalicBold /'.g:vimwiki_rxItalicBold.'/'
+
 execute 'syntax match wikiDelText /'.g:vimwiki_rxDelText.'/'
 
 execute 'syntax match wikiSuperScript /'.g:vimwiki_rxSuperScript.'/'
@@ -894,15 +933,10 @@ execute 'syntax match wikiSubScript /'.g:vimwiki_rxSubScript.'/'
 execute 'syntax match wikiCode /'.g:vimwiki_rxCode.'/'
 
 " Aggregate all the regular text highlighting into wikiText
-syntax cluster wikiText contains=wikiItalic,wikiBold,wikiCode,wikiDelText,wikiSuperScript,wikiSubScript,wikiWord,wikiEmoticons
+" syntax cluster wikiText contains=wikiItalic,wikiBold,wikiCode,wikiDelText,wikiSuperScript,wikiSubScript,wikiWord,wikiEmoticons
 
 " Header levels, 1-6
 execute 'syntax match wikiHeader /'.g:vimwiki_rxHeader.'/'
-" execute 'syntax match wikiH2 /'.g:vimwiki_rxH2.'/'
-" execute 'syntax match wikiH3 /'.g:vimwiki_rxH3.'/'
-" execute 'syntax match wikiH4 /'.g:vimwiki_rxH4.'/'
-" execute 'syntax match wikiH5 /'.g:vimwiki_rxH5.'/'
-" execute 'syntax match wikiH6 /'.g:vimwiki_rxH6.'/'
 
 " <hr> horizontal rule
 execute 'syntax match wikiHR /'.g:vimwiki_rxHR.'/'
@@ -915,20 +949,24 @@ execute 'syntax match wikiList /'.g:vimwiki_rxListBullet.'/'
 execute 'syntax match wikiList /'.g:vimwiki_rxListNumber.'/'
 
 " Treat all other lines that start with spaces as PRE-formatted text.
-execute 'syntax match wikiPre /'.g:vimwiki_rxPre1.'/'
+execute 'syntax match wikiPre /'.g:vimwiki_rxPre1.'/ contains=wikiComment'
 
-execute 'syntax region wikiPre start=/'.g:vimwiki_rxPreStart.'/ end=/'.g:vimwiki_rxPreEnd.'/'
+execute 'syntax region wikiPre start=/'.g:vimwiki_rxPreStart.'/ end=/'.g:vimwiki_rxPreEnd.'/ contains=wikiComment'
 
 " List item checkbox
 syntax match wikiCheckBox /\[.\?\]/
 execute 'syntax match wikiCheckBoxDone /'.g:vimwiki_rxListBullet.'\s*\[x\].*$/'
 execute 'syntax match wikiCheckBoxDone /'.g:vimwiki_rxListNumber.'\s*\[x\].*$/'
 
-hi def link wikiHeader                    Title
+syntax region wikiComment start='<!--' end='-->'
+
+
+hi def link wikiHeader                Title
 
 hi def wikiBold                       term=bold cterm=bold gui=bold
 hi def wikiItalic                     term=italic cterm=italic gui=italic
 hi def wikiBoldItalic                 term=bold cterm=bold gui=bold,italic
+hi def link wikiItalicBold            wikiBoldItalic
 
 hi def link wikiCode                  PreProc
 hi def link wikiWord                  Underlined
@@ -941,30 +979,42 @@ hi def link wikiCheckBox              wikiList
 hi def link wikiCheckBoxDone          Comment
 hi def link wikiTable                 PreProc
 hi def link wikiEmoticons             Constant
-hi def link wikiDelText               Comment
+hi def link wikiDelText               Constant
 hi def link wikiInsText               Constant
 hi def link wikiSuperScript           Constant
 hi def link wikiSubScript             Constant
 hi def link wikiTodo                  Todo
+hi def link wikiComment               Comment
 
 let b:current_syntax="vimwiki"
 syntax\vimwiki_default.vim	[[[1
-60
+69
 " Vimwiki syntax file
 " Default syntax
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
+" vim:tw=78:
 
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
-let g:vimwiki_rxBold = '\(^\|\s\+\|[[:punct:]]\)\zs\*[^*`]\+\*\ze\([[:punct:]]\|\s\+\|$\)'
+let g:vimwiki_rxBold = '\(^\|\s\|[[:punct:]]\)\zs\*[^*`[:space:]]'.
+      \'[^*`]\+'.
+      \'[^*`[:space:]]\*\ze\([[:punct:]]\|\s\|$\)'
 
 " text: _emphasis_
 " let g:vimwiki_rxItalic = '_[^_]\+_'
-let g:vimwiki_rxItalic = '\(^\|\s\+\|[[:punct:]]\)\zs_[^_`]\+_\ze\([[:punct:]]\|\s\+\|$\)'
+let g:vimwiki_rxItalic = '\(^\|\s\|[[:punct:]]\)\zs_[^_`[:space:]]'.
+      \'[^_`]\+'.
+      \'[^_`[:space:]]_\ze\([[:punct:]]\|\s\|$\)'
 
-" text: *_strong italic_* or _*italic strong*_
-let g:vimwiki_rxBoldItalic = '\(^\|\s\+\|[[:punct:]]\)\zs\(\*_[^*_`]\+_\*\)\|\(_\*[^*_`]\+\*_\)\ze\([[:punct:]]\|\s\+\|$\)'
+" text: *_bold italic_* or _*italic bold*_
+let g:vimwiki_rxBoldItalic = '\(^\|\s\|[[:punct:]]\)\zs\*_[^*_`[:space:]]'.
+      \'[^*_`]\+'.
+      \'[^*_`[:space:]]_\*\ze\([[:punct:]]\|\s\|$\)'
+
+let g:vimwiki_rxItalicBold = '\(^\|\s\|[[:punct:]]\)\zs_\*[^*_`[:space:]]'.
+      \'[^*_`]\+'.
+      \'[^*_`[:space:]]\*_\ze\([[:punct:]]\|\s\|$\)'
 
 " text: `code`
 let g:vimwiki_rxCode = '`[^`]\+`'
@@ -979,12 +1029,12 @@ let g:vimwiki_rxSuperScript = '\^[^^`]\+\^'
 let g:vimwiki_rxSubScript = ',,[^,`]\+,,'
 
 " Header levels, 1-6
-let g:vimwiki_rxH1 = '^!\{1}.*$'
-let g:vimwiki_rxH2 = '^!\{2}.*$'
-let g:vimwiki_rxH3 = '^!\{3}.*$'
-let g:vimwiki_rxH4 = '^!\{4}.*$'
-let g:vimwiki_rxH5 = '^!\{5}.*$'
-let g:vimwiki_rxH6 = '^!\{6}.*$'
+let g:vimwiki_rxH1 = '^\s*=\{1}[^=]\+.*[^=]\+=\{1}\s*$'
+let g:vimwiki_rxH2 = '^\s*=\{2}[^=]\+.*[^=]\+=\{2}\s*$'
+let g:vimwiki_rxH3 = '^\s*=\{3}[^=]\+.*[^=]\+=\{3}\s*$'
+let g:vimwiki_rxH4 = '^\s*=\{4}[^=]\+.*[^=]\+=\{4}\s*$'
+let g:vimwiki_rxH5 = '^\s*=\{5}[^=]\+.*[^=]\+=\{5}\s*$'
+let g:vimwiki_rxH6 = '^\s*=\{6}[^=]\+.*[^=]\+=\{6}\s*$'
 let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
       \ '\('.g:vimwiki_rxH2.'\)\|'.
       \ '\('.g:vimwiki_rxH3.'\)\|'.
@@ -1008,78 +1058,13 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 " Preformatted text
 let g:vimwiki_rxPreStart = '{{{'
 let g:vimwiki_rxPreEnd = '}}}'
-
-" vim:tw=0:
-syntax\vimwiki_google.vim	[[[1
-62
-" Vimwiki syntax file
-" GoogleWiki syntax
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
-
-" text: *strong*
-" let g:vimwiki_rxBold = '\*[^*]\+\*'
-let g:vimwiki_rxBold = '\(^\|\s\+\|[[:punct:]]\)\zs\*[^*`]\+\*\ze\([[:punct:]]\|\s\+\|$\)'
-
-" text: _emphasis_
-" let g:vimwiki_rxItalic = '_[^_]\+_'
-let g:vimwiki_rxItalic = '\(^\|\s\+\|[[:punct:]]\)\zs_[^_`]\+_\ze\([[:punct:]]\|\s\+\|$\)'
-
-" text: *_strong italic_* or _*italic strong*_
-let g:vimwiki_rxBoldItalic = '\(^\|\s\+\|[[:punct:]]\)\zs\(\*_[^*_`]\+_\*\)\|\(_\*[^*_`]\+\*_\)\ze\([[:punct:]]\|\s\+\|$\)'
-
-" text: `code`
-let g:vimwiki_rxCode = '`[^`]\+`'
-
-" text: ~~deleted text~~
-let g:vimwiki_rxDelText = '\~\~[^~`]\+\~\~'
-
-" text: ^superscript^
-let g:vimwiki_rxSuperScript = '\^[^^`]\+\^'
-
-" text: ,,subscript,,
-let g:vimwiki_rxSubScript = ',,[^,`]\+,,'
-
-" Header levels, 1-6
-let g:vimwiki_rxH1 = '^\s*=\{1}.*=\{1}\s*$'
-let g:vimwiki_rxH2 = '^\s*=\{2}.*=\{2}\s*$'
-let g:vimwiki_rxH3 = '^\s*=\{3}.*=\{3}\s*$'
-let g:vimwiki_rxH4 = '^\s*=\{4}.*=\{4}\s*$'
-let g:vimwiki_rxH5 = '^\s*=\{5}.*=\{5}\s*$'
-let g:vimwiki_rxH6 = '^\s*=\{6}.*=\{6}\s*$'
-let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
-      \ '\('.g:vimwiki_rxH2.'\)\|'.
-      \ '\('.g:vimwiki_rxH3.'\)\|'.
-      \ '\('.g:vimwiki_rxH4.'\)\|'.
-      \ '\('.g:vimwiki_rxH5.'\)\|'.
-      \ '\('.g:vimwiki_rxH6.'\)'
-
-" <hr>, horizontal rule
-let g:vimwiki_rxHR = '^----.*$'
-
-" Tables. Each line starts and ends with '||'; each cell is separated by '||'
-let g:vimwiki_rxTable = '||'
-
-" Bulleted list items start with whitespace(s), then '*'
-" syntax match wikiList           /^\s\+\(\*\|[1-9]\+0*\.\).*$/   contains=@wikiText
-" highlight only bullets and digits.
-let g:vimwiki_rxListBullet = '^\s\+\*'
-let g:vimwiki_rxListNumber = '^\s\+#'
-
-" Treat all other lines that start with spaces as PRE-formatted text.
-let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
-
-" Preformatted text
-let g:vimwiki_rxPreStart = '{{{'
-let g:vimwiki_rxPreEnd = '}}}'
-
-" vim:tw=0:
 syntax\vimwiki_media.vim	[[[1
 59
 " Vimwiki syntax file
 " MediaWiki syntax
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
+" vim:tw=78:
 
 " text: '''strong'''
 let g:vimwiki_rxBold = "'''[^']\\+'''"
@@ -1089,6 +1074,7 @@ let g:vimwiki_rxItalic = "''[^']\\+''"
 
 " text: '''''strong italic'''''
 let g:vimwiki_rxBoldItalic = "'''''[^']\\+'''''"
+let g:vimwiki_rxItalicBold = g:vimwiki_rxBoldItalic
 
 " text: `code`
 let g:vimwiki_rxCode = '`[^`]\+`'
@@ -1103,12 +1089,12 @@ let g:vimwiki_rxSuperScript = '\^[^^]\+\^'
 let g:vimwiki_rxSubScript = ',,[^,]\+,,'
 
 " Header levels, 1-6
-let g:vimwiki_rxH1 = '^\s*=\{1}.\+=\{1}\s*$'
-let g:vimwiki_rxH2 = '^\s*=\{2}.\+=\{2}\s*$'
-let g:vimwiki_rxH3 = '^\s*=\{3}.\+=\{3}\s*$'
-let g:vimwiki_rxH4 = '^\s*=\{4}.\+=\{4}\s*$'
-let g:vimwiki_rxH5 = '^\s*=\{5}.\+=\{5}\s*$'
-let g:vimwiki_rxH6 = '^\s*=\{6}.\+=\{6}\s*$'
+let g:vimwiki_rxH1 = '^\s*=\{1}[^=]\+.*[^=]\+=\{1}\s*$'
+let g:vimwiki_rxH2 = '^\s*=\{2}[^=]\+.*[^=]\+=\{2}\s*$'
+let g:vimwiki_rxH3 = '^\s*=\{3}[^=]\+.*[^=]\+=\{3}\s*$'
+let g:vimwiki_rxH4 = '^\s*=\{4}[^=]\+.*[^=]\+=\{4}\s*$'
+let g:vimwiki_rxH5 = '^\s*=\{5}[^=]\+.*[^=]\+=\{5}\s*$'
+let g:vimwiki_rxH6 = '^\s*=\{6}[^=]\+.*[^=]\+=\{6}\s*$'
 let g:vimwiki_rxHeader = '\('.g:vimwiki_rxH1.'\)\|'.
       \ '\('.g:vimwiki_rxH2.'\)\|'.
       \ '\('.g:vimwiki_rxH3.'\)\|'.
@@ -1133,8 +1119,6 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 " Preformatted text
 let g:vimwiki_rxPreStart = '<pre>'
 let g:vimwiki_rxPreEnd = '<\/pre>'
-
-" vim:tw=78:
 autoload\vimwiki_gtd.vim	[[[1
 164
 " Vimwiki autoload plugin file
@@ -1302,7 +1286,7 @@ function! vimwiki_gtd#GTDToggleItem()"{{{
   endwhile
 endfunction"}}}
 autoload\vimwiki_html.vim	[[[1
-686
+767
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1334,23 +1318,27 @@ endfunction " }}}
 function! s:create_default_CSS(path) " {{{
   let path = expand(a:path)
   if glob(path.'style.css') == ""
-    let lines = ['body {margin: 1em 5em 1em 5em; font-size: 100%; line-height: 1.5;}']
+    let lines = []
+    call add(lines, 'body {margin: 1em 5em 1em 5em; font-size: 100%; line-height: 1.5;}')
     call add(lines, 'h1 {font-size: 2.0em;}')
-    call add(lines, 'h2 {font-size: 1.4em;}')
-    call add(lines, 'h3 {font-size: 1.0em;}')
-    call add(lines, 'h4 {font-size: 0.8em;}')
-    call add(lines, 'h5 {font-size: 0.7em;}')
-    call add(lines, 'h6 {font-size: 0.6em;}')
+    call add(lines, 'h2 {font-size: 1.6em;}')
+    call add(lines, 'h3 {font-size: 1.2em;}')
+    call add(lines, 'h4 {font-size: 1.2em;}')
+    call add(lines, 'h5 {font-size: 1.1em;}')
+    call add(lines, 'h6 {font-size: 1.1em;}')
     call add(lines, 'h1, h2, h3, h4, h5, h6 {margin: 1.2em auto 0.6em;}')
     call add(lines, 'h1 {border-bottom: 1px solid #3366cc; text-align: left; padding: 0em 1em 0em 0em;}')
-    call add(lines, 'h3 {background: #e5ecf9; border-top: 1px solid #3366cc; padding: 0em 0.3em 0em 0.5em;}')
+    call add(lines, 'h3 {background: #e5ecf9; border-top: 1px solid #3366cc; padding: 0em 0.1em 0em 0.1em;}')
+    call add(lines, 'h4 {color: #333333;}')
+    call add(lines, 'h5 {color: #555555;}')
+    call add(lines, 'h6 {color: #777777;}')
     call add(lines, 'p, ul, ol, pre {margin: 0.6em auto;}')
     call add(lines, 'ul {margin-left: 2em; padding-left: 0.5em;}')
     call add(lines, 'img {border: none;}')
     call add(lines, 'pre {border-left: 1px solid #ccc; margin-left: 2em; padding-left: 0.5em;}')
     call add(lines, 'td {border: 1px solid #ccc; padding: 0.3em;}')
     call add(lines, 'hr {border: none; border-top: 1px solid #ccc; width: 100%;}')
-    call add(lines, '.todo {font-weight: bold; text-decoration: underline; color: #FF0000;}')
+    call add(lines, '.todo {font-weight: bold; background-color: #f0ece8; color: #a03020;}')
     call add(lines, '.strike {text-decoration: line-through;}')
 
     call writefile(lines, path.'style.css')
@@ -1448,6 +1436,14 @@ function! s:close_tag_pre(pre, ldest) "{{{
     return 0
   endif
   return a:pre
+endfunction "}}}
+
+function! s:close_tag_para(para, ldest) "{{{
+  if a:para
+    call insert(a:ldest, "</p>")
+    return 0
+  endif
+  return a:para
 endfunction "}}}
 
 function! s:close_tag_table(table, ldest) "{{{
@@ -1554,35 +1550,47 @@ function! s:process_tag_list(line, lists) "{{{
   return [processed, lines]
 endfunction "}}}
 
-function! s:process_tag_p(line) "{{{
+function! s:process_tag_para(line, para) "{{{
   let lines = []
+  let para = a:para
+  let processed = 0
   if a:line =~ '^\S'
-    call add(lines, '<p>'.a:line.'</p>')
-    return [1, lines]
+    if !para
+      call add(lines, "<p>")
+      let para = 1
+    endif
+    let processed = 1
+    call add(lines, a:line)
+  elseif para && a:line =~ '^\s*$'
+    call add(lines, "</p>")
+    let para = 0
   endif
-  return [0, lines]
+  return [processed, lines, para]
 endfunction "}}}
 
 function! s:process_tag_h(line) "{{{
   let line = a:line
   let processed = 0
-  if a:line =~ '^!\{6}.*$'
-    let line = '<h6>'.strpart(a:line, 6).'</h6>'
-    let processed = 1
-  elseif a:line =~ '^!\{5}.*$'
-    let line = '<h5>'.strpart(a:line, 5).'</h5>'
-    let processed = 1
-  elseif a:line =~ '^!\{4}.*$'
-    let line = '<h4>'.strpart(a:line, 4).'</h4>'
-    let processed = 1
-  elseif a:line =~ '^!\{3}.*$'
-    let line = '<h3>'.strpart(a:line, 3).'</h3>'
-    let processed = 1
-  elseif a:line =~ '^!\{2}.*$'
-    let line = '<h2>'.strpart(a:line, 2).'</h2>'
-    let processed = 1
-  elseif a:line =~ '^!\{1}.*$'
-    let line = '<h1>'.strpart(a:line, 1).'</h1>'
+  let h_level = 0
+  if a:line =~ g:vimwiki_rxH6
+    let h_level = 6
+  elseif a:line =~ g:vimwiki_rxH5
+    let h_level = 5
+  elseif a:line =~ g:vimwiki_rxH4
+    let h_level = 4
+  elseif a:line =~ g:vimwiki_rxH3
+    let h_level = 3
+  elseif a:line =~ g:vimwiki_rxH2
+    let h_level = 2
+  elseif a:line =~ g:vimwiki_rxH1
+    let h_level = 1
+  endif
+  if h_level > 0
+    " rtrim
+    let line = substitute(a:line, '\s\+$', '', 'g')
+    let line = '<h'.h_level.'>'.
+          \ strpart(line, h_level, len(line) - h_level * 2).
+          \'</h'.h_level.'>'
     let processed = 1
   endif
   return [processed, line]
@@ -1642,6 +1650,7 @@ function! s:process_tags(line) "{{{
   let line = s:make_tag(line, g:vimwiki_rxWikiWord, '', '', 0, 's:make_wikiword_link')
   let line = s:make_tag(line, g:vimwiki_rxItalic, '<em>', '</em>')
   let line = s:make_tag(line, g:vimwiki_rxBold, '<strong>', '</strong>')
+  " let line = s:make_tag(line, g:vimwiki_rxItalic, '<em>', '</em>')
   let line = s:make_tag(line, g:vimwiki_rxTodo, '<span class="todo">', '</span>', 0)
   let line = s:make_tag(line, g:vimwiki_rxDelText, '<span class="strike">', '</span>', 2)
   let line = s:make_tag(line, g:vimwiki_rxSuperScript, '<sup><small>', '</small></sup>', 1)
@@ -1801,7 +1810,8 @@ function! s:make_barebone_link(entag) "{{{
   return line
 endfunction "}}}
 
-function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
+function! s:get_html_from_wiki_line(line, para, pre, code, table, lists) " {{{
+  let para = a:para
   let pre = a:pre
   let code = a:code
   let table = a:table
@@ -1824,6 +1834,9 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
     if processed && pre
       let pre = s:close_tag_pre(pre, lines)
     endif
+    if processed && para
+      let para = s:close_tag_para(para, lines)
+    endif
     call extend(res_lines, lines)
   endif
 
@@ -1838,6 +1851,9 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
     endif
     if processed && code
       let code = s:close_tag_code(code, lines)
+    endif
+    if processed && para
+      let para = s:close_tag_para(para, lines)
     endif
 
     call extend(res_lines, lines)
@@ -1854,6 +1870,9 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
     endif
     if processed && table
       let table = s:close_tag_table(table, lines)
+    endif
+    if processed && para
+      let para = s:close_tag_para(para, lines)
     endif
 
     call map(lines, 's:process_tags(v:val)')
@@ -1892,9 +1911,10 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
 
   "" P
   if !processed
-    let line = s:process_tags(line)
-
-    let [processed, lines] = s:process_tag_p(line)
+    let [processed, lines, para] = s:process_tag_para(line, para)
+    if processed && len(lists)
+      call s:close_tag_list(lists, lines)
+    endif
     if processed && pre
       let pre = s:close_tag_pre(pre, res_lines)
     endif
@@ -1904,6 +1924,9 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
     if processed && table
       let table = s:close_tag_table(table, res_lines)
     endif
+
+    call map(lines, 's:process_tags(v:val)')
+
     call extend(res_lines, lines)
   endif
 
@@ -1912,9 +1935,48 @@ function! s:get_html_from_wiki_line(line, pre, code, table, lists) " {{{
     call add(res_lines, line)
   endif
 
-  return [res_lines, pre, code, table, lists]
+  return [res_lines, para, pre, code, table, lists]
 
 endfunction " }}}
+
+function! s:remove_comments(lines) "{{{
+  let res = []
+  let multiline_comment = 0
+
+  let idx = 0
+  while idx < len(a:lines)
+    let line = a:lines[idx]
+    let idx += 1
+
+    if multiline_comment
+      let col = matchend(line, '-->',)
+      if col != -1
+        let multiline_comment = 0 
+        let line = strpart(line, col)
+      else
+        continue
+      endif
+    endif
+
+    if !multiline_comment && line =~ '<!--.*-->'
+      let line = substitute(line, '<!--.*-->', '', 'g')
+      if line =~ '^\s*$'
+        continue
+      endif
+    endif
+
+    if !multiline_comment
+      let col = match(line, '<!--',)
+      if col != -1
+        let multiline_comment = 1 
+        let line = strpart(line, 1, col - 1)
+      endif
+    endif
+
+    call add(res, line)
+  endwhile
+  return res
+endfunction "}}}
 
 function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
@@ -1926,9 +1988,11 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   let path = expand(a:path)
   call vimwiki#mkdir(path)
 
-  let lsource=readfile(a:wikifile)
+  let lsource = s:remove_comments(readfile(a:wikifile))
   let ldest = s:get_html_header(s:get_file_name_only(a:wikifile), &encoding)
 
+
+  let para = 0
   let pre = 0
   let code = 0
   let table = 0
@@ -1936,8 +2000,8 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
   for line in lsource
     let oldpre = pre
-    let [lines, pre, code, table, lists] = s:get_html_from_wiki_line(line,
-          \ pre, code, table, lists)
+    let [lines, para, pre, code, table, lists] = 
+          \ s:get_html_from_wiki_line(line, para, pre, code, table, lists)
 
     " A dirty hack: There could be a lot of empty strings before
     " s:process_tag_pre find out `pre` is over. So we should delete
@@ -1955,6 +2019,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   "" close opened tags if any
   let lines = []
   call s:close_tag_pre(pre, lines)
+  call s:close_tag_para(para, lines)
   call s:close_tag_code(code, lines)
   call s:close_tag_list(lists, lines)
   call s:close_tag_table(table, lines)
@@ -2330,7 +2395,7 @@ function! vimwiki#WikiUISelect()"{{{
   call vimwiki#WikiGoHome(r)
 endfunction"}}}
 ftplugin\vimwiki.vim	[[[1
-210
+221
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2346,12 +2411,11 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Reset the following options to undo this plugin.
-let b:undo_ftplugin = "setlocal textwidth< wrap< linebreak< ".
+let b:undo_ftplugin = "setlocal wrap< linebreak< ".
       \ "suffixesadd< isfname< autowriteall< comments< ".
       \ "formatoptions< foldtext< ".
       \ "foldmethod< foldexpr< commentstring< "
 
-setlocal textwidth=0
 setlocal wrap
 setlocal linebreak
 setlocal autowriteall
@@ -2371,16 +2435,29 @@ setlocal formatoptions=ctnqro
 setlocal fdm=expr
 setlocal foldexpr=VimwikiFoldLevel(v:lnum)
 function! VimwikiFoldLevel(lnum) "{{{
-  let s:rx_list_item = '\('.
-        \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-        \ '\)'
-  let pline = getline(a:lnum - 1)
   let line = getline(a:lnum)
   let nline = getline(a:lnum + 1)
 
+  " if a:lnum == 1
+    " return 'a1'
+  " elseif a:lnum == 3
+    " return 's1'
+  " elseif a:lnum == 4
+    " return 'a1'
+  " elseif a:lnum == 6
+    " return 's1'
+  " elseif a:lnum == 7
+    " return 'a1'
+  " elseif a:lnum == 8
+    " return 's1'
+  " elseif a:lnum == 9
+    " return 'a1'
+  " endif
+  " return '-1'
+
   " Header folding...
   if line =~ g:vimwiki_rxHeader
-    return s:count_first_sym(line)
+    return '>'.s:count_first_sym(line)
   endif
   if nline =~ g:vimwiki_rxHeader
     return '<'.s:count_first_sym(nline)
@@ -2390,25 +2467,24 @@ function! VimwikiFoldLevel(lnum) "{{{
   let pnum = a:lnum - 1
   let nnum = a:lnum + 1
 
-  if line =~ s:rx_list_item &&
-        \ nline =~ s:rx_list_item
+  let rx_list_item = '\('.
+        \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+        \ '\)'
+  if line =~ rx_list_item &&
+        \ nline =~ rx_list_item
     if VimwikiGet('syntax') == 'media'
-      return s:get_level_media(a:lnum, nnum)
+      return s:get_li_level_media(a:lnum, nnum)
     else
-      return s:get_level(a:lnum, nnum)
+      return s:get_li_level(a:lnum, nnum)
     endif
-  elseif line =~ s:rx_list_item
-    if VimwikiGet('syntax') == 'media'
-      return s:get_level_media(a:lnum, pnum)
-    else
-      return s:get_level(a:lnum, pnum)
-    endif
+  elseif line =~ rx_list_item
+    return "="
   endif
 
   return -1
 endfunction "}}}
 
-function! s:get_level(lnum, nnum) "{{{
+function! s:get_li_level(lnum, nnum) "{{{
   let level = ((indent(a:nnum) - indent(a:lnum)) / &sw)
   if level > 0
     return "a".level
@@ -2420,7 +2496,7 @@ function! s:get_level(lnum, nnum) "{{{
 endfunction "}}}
 
 " Special case: MediaWiki list items level do not use indents.
-function! s:get_level_media(lnum, nnum) "{{{
+function! s:get_li_level_media(lnum, nnum) "{{{
   let level = s:count_first_sym(getline(a:nnum)) - 
         \ s:count_first_sym(getline(a:lnum))
   if level > 0
