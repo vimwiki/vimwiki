@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-872
+890
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,7 +13,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.8.2 ~
+                               Version: 0.8.3 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -308,8 +308,8 @@ Path to image (ie. images/pabloymoira.jpg) is relative to
 == Header level 2 ==~
 === Header level 3 ===
 ==== Header level 4 ====
-===== Header level 5 ====
-====== Header level 6 =====
+===== Header level 5 =====
+====== Header level 6 ======
 
 Note: before vimwiki 0.8.2, header's markup syntax used exclamation marks:
 ! Header level 1
@@ -637,6 +637,16 @@ See |g:vimwiki_upper|: >
   let g:vimwiki_lower="a-z"
 
 ------------------------------------------------------------------------------
+Default: 1                                           *g:vimwiki_auto_checkbox*
+Values: 0, 1
+
+Press <C-Space> (|:VimwikiGTDToggleItem|) on a list item without checkbox to
+create it: >
+  * List item
+result: >
+  * [ ] List item
+
+------------------------------------------------------------------------------
 Default: "_"                                              *g:vimwiki_stripsym*
 Values: symbol
 
@@ -686,7 +696,7 @@ I live in Moscow and you may believe me -- there are no polar bears (no brown
 too) here in the streets.
 
 I do not do programming for a living. So don't blame me for an ugly
-ineffective code. Send me a better one instead. :)
+ineffective code.
 
 Many thanks to all of you for voting vimwiki up on www.vim.org. I do vimwiki
 in my spare time I could use to dance argentine tango with beautiful women.
@@ -700,6 +710,14 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 12. Changelog                                              *vimwiki-changelog*
+
+0.8.3
+  * [new] <C-Space> on a list item creates checkbox.
+  * [fix] With * in the first column, <CR> shouldn't insert more * (default
+    syntax).
+  * [fix] With MediaWiki's ** [ ], <CR> should insert it on the next line.
+  * [fix] HTML export should use 'fileencoding' instead of 'encoding'.
+  * [fix] Code cleanup.
 
 0.8.2
   * [del] Removed google syntax file.
@@ -1120,7 +1138,7 @@ let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
 let g:vimwiki_rxPreStart = '<pre>'
 let g:vimwiki_rxPreEnd = '<\/pre>'
 autoload\vimwiki_gtd.vim	[[[1
-164
+180
 " Vimwiki autoload plugin file
 " GTD (Getting Things Done) related stuff here.
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1134,8 +1152,8 @@ let g:loaded_vimwiki_gtd_auto = 1
 " used in various checks
 let s:rx_list_item = '\('.
       \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-      \ '\)'.
-      \ '\s*\zs\[.\?\]'
+      \ '\)'
+let s:rx_cb_list_item = s:rx_list_item.'\s*\zs\[.\?\]'
 let s:rx_li_box = '\[.\?\]'
 let s:rx_li_unchecked = '\[\s\?\]'
 " used in substitutions
@@ -1158,11 +1176,16 @@ endfunction"}}}
 function! s:get_state(lnum)"{{{
   let state = 1
   let line = getline(a:lnum)
-  let opt = matchstr(line, s:rx_list_item)
+  let opt = matchstr(line, s:rx_cb_list_item)
   if opt =~ s:rx_li_unchecked
     let state = 0
   endif
   return state
+endfunction"}}}
+
+" Returns: 1 if line is list item, 0 otherwise
+function! s:is_cb_list_item(lnum)"{{{
+  return getline(a:lnum) =~ s:rx_cb_list_item
 endfunction"}}}
 
 " Returns: 1 if line is list item, 0 otherwise
@@ -1184,7 +1207,7 @@ function! s:get_child_items(lnum)"{{{
   call add(result, lnum)
   let lnum += 1
 
-  while s:is_list_item(lnum) &&
+  while s:is_cb_list_item(lnum) &&
         \ s:get_li_pos(lnum) > parent_pos &&
         \ lnum <= line('$')
 
@@ -1201,7 +1224,7 @@ function! s:get_sibling_items(lnum)"{{{
   let lnum = a:lnum
   let ind = s:get_li_pos(lnum)
 
-  while s:is_list_item(lnum) &&
+  while s:is_cb_list_item(lnum) &&
         \ s:get_li_pos(lnum) >= ind &&
         \ lnum <= line('$')
 
@@ -1212,7 +1235,7 @@ function! s:get_sibling_items(lnum)"{{{
   endwhile
 
   let lnum = a:lnum - 1
-  while s:is_list_item(lnum) &&
+  while s:is_cb_list_item(lnum) &&
         \ s:get_li_pos(lnum) >= ind &&
         \ lnum >= 0
 
@@ -1230,25 +1253,36 @@ function! s:get_parent_item(lnum)"{{{
   let lnum = a:lnum
   let ind = s:get_li_pos(lnum)
 
-  while s:is_list_item(lnum) &&
+  while s:is_cb_list_item(lnum) &&
         \ s:get_li_pos(lnum) >= ind &&
         \ lnum >= 0
     let lnum -= 1
   endwhile
 
-  if s:is_list_item(lnum)
+  if s:is_cb_list_item(lnum)
     return lnum
   else
     return a:lnum
   endif
 endfunction"}}}
 
+function s:create_cb_list_item(lnum) "{{{
+  let line = getline(a:lnum)
+  let m = matchstr(line, s:rx_list_item)
+  if m != ''
+    let line = m.' [ ]'.strpart(line, len(m))
+    call setline(a:lnum, line)
+  endif
+endfunction "}}}
+
 " Toggle list item between [ ] and [x]
-" Returns: 1 if toggled to [x]
-"          0 if toggled to [ ]
 function! vimwiki_gtd#GTDToggleItem()"{{{
   let current_lnum = line('.')
-  if !s:is_list_item(current_lnum)
+
+  if !s:is_cb_list_item(current_lnum)
+    if g:vimwiki_auto_checkbox
+      call s:create_cb_list_item(current_lnum)
+    endif
     return
   endif
 
@@ -1266,7 +1300,7 @@ function! vimwiki_gtd#GTDToggleItem()"{{{
   endif
 
   let c_lnum = current_lnum
-  while s:is_list_item(c_lnum)
+  while s:is_cb_list_item(c_lnum)
     let all_items_checked = 1
     for lnum in s:get_sibling_items(c_lnum)
       if s:get_state(lnum) != 1
@@ -1286,7 +1320,7 @@ function! vimwiki_gtd#GTDToggleItem()"{{{
   endwhile
 endfunction"}}}
 autoload\vimwiki_html.vim	[[[1
-767
+768
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1989,7 +2023,8 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   call vimwiki#mkdir(path)
 
   let lsource = s:remove_comments(readfile(a:wikifile))
-  let ldest = s:get_html_header(s:get_file_name_only(a:wikifile), &encoding)
+  let ldest = s:get_html_header(s:get_file_name_only(a:wikifile),
+        \ &fileencoding)
 
 
   let para = 0
@@ -2395,7 +2430,7 @@ function! vimwiki#WikiUISelect()"{{{
   call vimwiki#WikiGoHome(r)
 endfunction"}}}
 ftplugin\vimwiki.vim	[[[1
-221
+195
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2425,9 +2460,15 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 
 " for list items, and list items with checkboxes
-setlocal comments=b:*\ [\ ],b:*[\ ],b:*\ [],b:*[],b:*\ [x],b:*[x]
-setlocal comments+=b:#\ [\ ],b:#[\ ],b:#\ [],b:#[],b:#\ [x],b:#[x]
-setlocal comments+=n:*,n:#
+if VimwikiGet('syntax') == 'default'
+  setlocal comments=b:\ *\ [\ ],b:\ *[\ ],b:\ *\ [],b:\ *[],b:\ *\ [x],b:\ *[x]
+  setlocal comments+=b:\ #\ [\ ],b:\ #[\ ],b:\ #\ [],b:\ #[],b:\ #\ [x],b:\ #[x]
+  setlocal comments+=b:\ *,b:\ #
+else
+  setlocal comments=n:*\ [\ ],n:*[\ ],n:*\ [],n:*[],n:*\ [x],n:*[x]
+  setlocal comments+=n:#\ [\ ],n:#[\ ],n:#\ [],n:#[],n:#\ [x],n:#[x]
+  setlocal comments+=n:*,n:#
+endif
 setlocal formatoptions=ctnqro
 
 
@@ -2438,33 +2479,13 @@ function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
   let nline = getline(a:lnum + 1)
 
-  " if a:lnum == 1
-    " return 'a1'
-  " elseif a:lnum == 3
-    " return 's1'
-  " elseif a:lnum == 4
-    " return 'a1'
-  " elseif a:lnum == 6
-    " return 's1'
-  " elseif a:lnum == 7
-    " return 'a1'
-  " elseif a:lnum == 8
-    " return 's1'
-  " elseif a:lnum == 9
-    " return 'a1'
-  " endif
-  " return '-1'
-
   " Header folding...
   if line =~ g:vimwiki_rxHeader
-    return '>'.s:count_first_sym(line)
-  endif
-  if nline =~ g:vimwiki_rxHeader
-    return '<'.s:count_first_sym(nline)
+    let n = s:count_first_sym(line)
+    return '>' . n
   endif
 
   " List item folding...
-  let pnum = a:lnum - 1
   let nnum = a:lnum + 1
 
   let rx_list_item = '\('.
@@ -2477,11 +2498,9 @@ function! VimwikiFoldLevel(lnum) "{{{
     else
       return s:get_li_level(a:lnum, nnum)
     endif
-  elseif line =~ rx_list_item
-    return "="
   endif
 
-  return -1
+  return '='
 endfunction "}}}
 
 function! s:get_li_level(lnum, nnum) "{{{
@@ -2543,16 +2562,6 @@ command! -buffer VimwikiGTDToggleItem call vimwiki_gtd#GTDToggleItem()
 
 "" keybindings {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nmap <buffer> <Up>   gk
-nmap <buffer> k      gk
-vmap <buffer> <Up>   gk
-vmap <buffer> k      gk
-
-nmap <buffer> <Down> gj
-nmap <buffer> j      gj
-vmap <buffer> <Down> gj
-vmap <buffer> j      gj
-
 if g:vimwiki_use_mouse
   nmap <buffer> <S-LeftMouse> <NOP>
   nmap <buffer> <C-LeftMouse> <NOP>
@@ -2618,7 +2627,7 @@ noremap <silent><script><buffer>
 
 " keybindings }}}
 plugin\vimwiki.vim	[[[1
-177
+178
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2656,6 +2665,7 @@ call s:default('upper', 'A-ZА-Я')
 call s:default('lower', 'a-zа-я')
 call s:default('other', '0-9')
 call s:default('stripsym', '_')
+call s:default('auto_checkbox', 1)
 call s:default('use_mouse', 0)
 call s:default('current_idx', 0)
 call s:default('list', [s:vimwiki_defaults])
