@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-948
+970
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,7 +13,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.8.4 ~
+                               Version: 0.9.1 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -402,6 +402,19 @@ For example:
 ||1940   ||-2                 ||40                  ||
 
 
+For HTML, contents of table cell could be aligned to the right, left and
+center:
+
+|| Center || Center || Center ||
+||Left    || Center ||   Right||
+||   Right||Left    || Center ||
+|| Center ||   Right||Left    ||
+
+No spaces on the left side -- left alignment.
+No spaces on the right side -- right alignment.
+Spaces on the left and on the right -- center alignment.
+
+
 ------------------------------------------------------------------------------
 5.7. Preformatted text                           *vimwiki-syntax-preformatted*
 
@@ -751,6 +764,17 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 ==============================================================================
 12. Changelog                                              *vimwiki-changelog*
 
+0.9.1
+  * [new] HTML Table cell text alignment, see |vimwiki-syntax-tables|
+  * [new] Wikipage history simplified. Each vimwiki buffer now holds
+    b:vimwiki_prev_word which is list of [PrevWord, getpos()].
+  * [new] If highlight for groups wikiHeader1..wikiHeader6 exist (defined in
+    a colorscheme) -- use it. Otherwise use Title highlight for all Headers.
+  * [fix] Warn only once if 'html_header' or 'html_footer' does not exist.
+  * [fix] Wrong folding for the text after the last nested list item.
+  * [fix] Bold and Italic aren't highlighted in tables without spaces 
+    between || and * or _. ||*bold*||_asdf_ || (Thanks Brett Stahlman)
+
 0.9.0
   * [new] You can add classes to 'pre' tag -- |vimwiki-syntax-preformatted|.
     This might be useful for coloring some programming code with external js
@@ -761,9 +785,7 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
   * [new] New implementation of |:VimwikiRenameWord|. CAUTION: It was tested
     on 2 computers only, backup your wiki before use it. Email me if it
     doesn't work for you.
-  * [new] HTML: convert [ ] to html checkboxes.
-  * [new] Default CSS: gray out checked items. 
-  * [fix] Less than 3 characters are not highlighted in Bold and Italic.
+  * [fix] Less than 3 symbols are not highlighted in Bold and Italic.
   * [fix] Added vimwiki autocmd group to avoid clashes with user defined
     autocmds.
   * [fix] Pressing ESC while |:VimwikiUISelect| opens current wiki index file.
@@ -952,11 +974,11 @@ it's free enough to suit your needs.
 
  vim:tw=78:ts=8:ft=help
 syntax\vimwiki.vim	[[[1
-111
+128
 " Vimwiki syntax file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
-" vim:tw=78:
+" vim:tw=79:
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -992,6 +1014,9 @@ execute 'syntax match wikiTodo /'. g:vimwiki_rxTodo .'/'
 " Load concrete Wiki syntax
 execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 
+" Tables
+execute 'syntax match wikiTable /'.g:vimwiki_rxTable.'/'
+
 execute 'syntax match wikiBold /'.g:vimwiki_rxBold.'/'
 
 execute 'syntax match wikiItalic /'.g:vimwiki_rxItalic.'/'
@@ -1011,14 +1036,8 @@ execute 'syntax match wikiCode /'.g:vimwiki_rxCode.'/'
 " Aggregate all the regular text highlighting into wikiText
 " syntax cluster wikiText contains=wikiItalic,wikiBold,wikiCode,wikiDelText,wikiSuperScript,wikiSubScript,wikiWord,wikiEmoticons
 
-" Header levels, 1-6
-execute 'syntax match wikiHeader /'.g:vimwiki_rxHeader.'/'
-
 " <hr> horizontal rule
 execute 'syntax match wikiHR /'.g:vimwiki_rxHR.'/'
-
-" Tables
-execute 'syntax match wikiTable /'.g:vimwiki_rxTable.'/'
 
 " List items
 execute 'syntax match wikiList /'.g:vimwiki_rxListBullet.'/'
@@ -1037,31 +1056,51 @@ execute 'syntax match wikiCheckBoxDone /'.g:vimwiki_rxListNumber.'\s*\[x\].*$/'
 
 syntax region wikiComment start='<!--' end='-->'
 
+if !vimwiki#hl_exists("wikiHeader1")
+  execute 'syntax match wikiHeader /'.g:vimwiki_rxHeader.'/'
+else
+  " Header levels, 1-6
+  execute 'syntax match wikiHeader1 /'.g:vimwiki_rxH1.'/'
+  execute 'syntax match wikiHeader2 /'.g:vimwiki_rxH2.'/'
+  execute 'syntax match wikiHeader3 /'.g:vimwiki_rxH3.'/'
+  execute 'syntax match wikiHeader4 /'.g:vimwiki_rxH4.'/'
+  execute 'syntax match wikiHeader5 /'.g:vimwiki_rxH5.'/'
+  execute 'syntax match wikiHeader6 /'.g:vimwiki_rxH6.'/'
+endif
 
-hi def link wikiHeader                Title
+if !vimwiki#hl_exists("wikiHeader1")
+  hi def link wikiHeader Title
+else
+  hi def link wikiHeader1 Title
+  hi def link wikiHeader2 Title
+  hi def link wikiHeader3 Title
+  hi def link wikiHeader4 Title
+  hi def link wikiHeader5 Title
+  hi def link wikiHeader6 Title
+endif
 
-hi def wikiBold                       term=bold cterm=bold gui=bold
-hi def wikiItalic                     term=italic cterm=italic gui=italic
-hi def wikiBoldItalic                 term=bold cterm=bold gui=bold,italic
-hi def link wikiItalicBold            wikiBoldItalic
+hi def wikiBold term=bold cterm=bold gui=bold
+hi def wikiItalic term=italic cterm=italic gui=italic
+hi def wikiBoldItalic term=bold cterm=bold gui=bold,italic
+hi def link wikiItalicBold wikiBoldItalic
 
-hi def link wikiCode                  PreProc
-hi def link wikiWord                  Underlined
-hi def link wikiNoExistsWord          Error
+hi def link wikiCode PreProc
+hi def link wikiWord Underlined
+hi def link wikiNoExistsWord Error
 
-hi def link wikiPre                   PreProc
-hi def link wikiLink                  Underlined
-hi def link wikiList                  Operator
-hi def link wikiCheckBox              wikiList
-hi def link wikiCheckBoxDone          Comment
-hi def link wikiTable                 PreProc
-hi def link wikiEmoticons             Constant
-hi def link wikiDelText               Constant
-hi def link wikiInsText               Constant
-hi def link wikiSuperScript           Constant
-hi def link wikiSubScript             Constant
-hi def link wikiTodo                  Todo
-hi def link wikiComment               Comment
+hi def link wikiPre PreProc
+hi def link wikiLink Underlined
+hi def link wikiList Operator
+hi def link wikiCheckBox wikiList
+hi def link wikiCheckBoxDone Comment
+hi def link wikiTable PreProc
+hi def link wikiEmoticons Constant
+hi def link wikiDelText Constant
+hi def link wikiInsText Constant
+hi def link wikiSuperScript Constant
+hi def link wikiSubScript Constant
+hi def link wikiTodo Todo
+hi def link wikiComment Comment
 
 let b:current_syntax="vimwiki"
 syntax\vimwiki_default.vim	[[[1
@@ -1074,32 +1113,32 @@ syntax\vimwiki_default.vim	[[[1
 
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
-let g:vimwiki_rxBold = '\%(^\|\s\|[[:punct:]]\)\zs'.
+let g:vimwiki_rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\*'.
       \'\([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`]\)'.
       \'\*'.
-      \'\ze\%([[:punct:]]\|\s\|$\)'
+      \'\%([[:punct:]]\|\s\|$\)\@='
 
 " text: _emphasis_
 " let g:vimwiki_rxItalic = '_[^_]\+_'
-let g:vimwiki_rxItalic = '\%(^\|\s\|[[:punct:]]\)\zs'.
+let g:vimwiki_rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'_'.
       \'\([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`]\)'.
       \'_'.
-      \'\ze\%([[:punct:]]\|\s\|$\)'
+      \'\%([[:punct:]]\|\s\|$\)\@='
 
 " text: *_bold italic_* or _*italic bold*_
-let g:vimwiki_rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\zs'.
+let g:vimwiki_rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\*_'.
       \'\([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`]\)'.
       \'_\*'.
-      \'\ze\%([[:punct:]]\|\s\|$\)'
+      \'\%([[:punct:]]\|\s\|$\)\@='
 
-let g:vimwiki_rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\zs'.
+let g:vimwiki_rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'_\*'.
       \'\([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`]\)'.
       \'\*_'.
-      \'\ze\%([[:punct:]]\|\s\|$\)'
+      \'\%([[:punct:]]\|\s\|$\)\@='
 
 " text: `code`
 let g:vimwiki_rxCode = '`[^`]\+`'
@@ -1399,17 +1438,22 @@ function! vimwiki_gtd#GTDToggleItem()"{{{
   endwhile
 endfunction"}}}
 autoload\vimwiki_html.vim	[[[1
-844
+859
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
 
+" Load only once {{{
 if exists("g:loaded_vimwiki_html_auto") || &cp
   finish
 endif
 let g:loaded_vimwiki_html_auto = 1
-
+"}}}
+" Warn if html header or html footer do not exist only once. {{{
+let s:warn_html_header = 0
+let s:warn_html_footer = 0
+"}}}
 " TODO: move the next 2 functions into vimwiki#msg and
 " vimwiki#get_file_name_only.
 function! s:msg(message) "{{{
@@ -1432,21 +1476,18 @@ function! s:create_default_CSS(path) " {{{
   let path = expand(a:path)
   if glob(path.'style.css') == ""
     let lines = []
-    call add(lines, 'body {margin: 1em 5em 1em 5em; font-size: 100%; line-height: 1.5;}')
-    call add(lines, 'h1 {font-size: 2.0em;}')
-    call add(lines, 'h2 {font-size: 1.6em;}')
-    call add(lines, 'h3 {font-size: 1.2em;}')
-    call add(lines, 'h4 {font-size: 1.2em;}')
-    call add(lines, 'h5 {font-size: 1.1em;}')
-    call add(lines, 'h6 {font-size: 1.1em;}')
-    call add(lines, 'h1, h2, h3, h4, h5, h6 {margin: 1.2em auto 0.6em;}')
-    call add(lines, 'h1 {border-bottom: 1px solid #3366cc; text-align: left; padding: 0em 1em 0em 0em;}')
-    call add(lines, 'h3 {background: #e5ecf9; border-top: 1px solid #3366cc; padding: 0em 0.1em 0em 0.1em;}')
-    call add(lines, 'h4 {color: #333333;}')
-    call add(lines, 'h5 {color: #555555;}')
-    call add(lines, 'h6 {color: #777777;}')
-    call add(lines, 'p, pre {margin: 0.6em auto;}')
-    call add(lines, 'ul, ol, dl, li {margin: 0.3em auto;}')
+
+    call add(lines, 'body {margin: 1em 2em 1em 2em; font-size: 100%; line-height: 130%;}')
+    call add(lines, 'h1, h2, h3, h4, h5, h6 {margin-top: 1.5em; margin-bottom: 0.5em;}')
+    call add(lines, 'h1 {font-size: 2.0em; color: #3366aa;}')
+    call add(lines, 'h2 {font-size: 1.6em; color: #335588;}')
+    call add(lines, 'h3 {font-size: 1.2em; color: #224466;}')
+    call add(lines, 'h4 {font-size: 1.2em; color: #113344;}')
+    call add(lines, 'h5 {font-size: 1.1em; color: #112233;}')
+    call add(lines, 'h6 {font-size: 1.1em; color: #111111;}')
+    call add(lines, 'p, pre, table, ul, ol, dl {margin-top: 1em; margin-bottom: 1em;}')
+    call add(lines, 'ul ul, ul ol, ol ol, ol ul {margin-top: 0.5em; margin-bottom: 0.5em;}')
+    call add(lines, 'li {margin: 0.3em auto;}')
     call add(lines, 'ul {margin-left: 2em; padding-left: 0.5em;}')
     call add(lines, 'dt {font-weight: bold;}')
     call add(lines, 'img {border: none;}')
@@ -1455,6 +1496,9 @@ function! s:create_default_CSS(path) " {{{
     call add(lines, 'hr {border: none; border-top: 1px solid #ccc; width: 100%;}')
     call add(lines, '.todo {font-weight: bold; background-color: #f0ece8; color: #a03020;}')
     call add(lines, '.strike {text-decoration: line-through; color: #777777;}')
+    call add(lines, '.justleft {text-align: left;}')
+    call add(lines, '.justright {text-align: right;}')
+    call add(lines, '.justcenter {text-align: center;}')
 
     call writefile(lines, path.'style.css')
     echomsg "Default style.css is created."
@@ -1491,12 +1535,13 @@ endfunction "}}}
 function! s:get_html_header(title, charset) "{{{
   let lines=[]
 
-  if VimwikiGet('html_header') != ""
+  if VimwikiGet('html_header') != "" && !s:warn_html_header
     try
       let lines = readfile(expand(VimwikiGet('html_header')))
       call map(lines, 'substitute(v:val, "%title%", "'. a:title .'", "g")')
       return lines
     catch /E484/
+      let s:warn_html_header = 1
       call s:msg("Header template ". VimwikiGet('html_header'). " does not exist!")
     endtry
   endif
@@ -1517,11 +1562,12 @@ endfunction "}}}
 function! s:get_html_footer() "{{{
   let lines=[]
 
-  if VimwikiGet('html_footer') != ""
+  if VimwikiGet('html_footer') != "" && !s:warn_html_footer
     try
       let lines = readfile(expand(VimwikiGet('html_footer')))
       return lines
     catch /E484/
+      let s:warn_html_footer = 1
       call s:msg("Footer template ". VimwikiGet('html_footer'). " does not exist!")
     endtry
   endif
@@ -1791,8 +1837,16 @@ function! s:process_tag_table(line, table) "{{{
         let pos2 = len(a:line)
       endif
       let line = strpart(a:line, pos1+2, pos2-pos1-2)
-      if line != ''
-        call add(lines, "<td>".line."</td>")
+      if line == ''
+        continue
+      endif
+      if strpart(line, 0, 1) == ' ' && 
+            \ strpart(line, len(line) - 1, 1) == ' '
+        call add(lines, '<td class="justcenter">'.line.'</td>')
+      elseif strpart(line, 0, 1) == ' '
+        call add(lines, '<td class="justright">'.line.'</td>')
+      else
+        call add(lines, '<td class="justleft">'.line.'</td>')
       endif
     endwhile
     call add(lines, "</tr>")
@@ -2245,7 +2299,7 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
   let &more = setting_more
 endfunction "}}}
 autoload\vimwiki.vim	[[[1
-386
+375
 " Vimwiki autoload plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2365,7 +2419,7 @@ function! vimwiki#mkdir(path) "{{{
 endfunction "}}}
 
 function! s:update_wiki_link(fname, old, new) " {{{
-  echomsg "Updating links in ".a:fname
+  echo "Updating links in ".a:fname
   let has_updates = 0
   let dest = []
   for line in readfile(a:fname)
@@ -2391,17 +2445,36 @@ endfunction " }}}
 
 " }}}
 
-" HISTORY helper functions {{{
-" history is [['WikiWord.wiki', getpos('.')], 
-"             ['AnotherWikiWord', getpos('.')] ... etc]
-" where numbers are row and column positions we should return to when coming back.
-function! s:get_history_word(historyItem)
-  return get(a:historyItem, 0)
-endfunction
+" SYNTAX highlight {{{
+function! vimwiki#WikiHighlightWords() "{{{
+  let wikies = glob(VimwikiGet('path').'*'.VimwikiGet('ext'))
+  "" remove .wiki extensions
+  let wikies = substitute(wikies, '\'.VimwikiGet('ext'), "", "g")
+  let g:vimwiki_wikiwords = split(wikies, '\n')
+  "" remove paths
+  call map(g:vimwiki_wikiwords, 'substitute(v:val, ''.*[/\\]'', "", "g")')
+  "" remove backup files (.wiki~)
+  call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
 
-function! s:get_history_pos(historyItem)
-  return get(a:historyItem, 1)
-endfunction
+  for word in g:vimwiki_wikiwords
+    if word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
+      execute 'syntax match wikiWord /\%(^\|[^!]\)\zs\<'.word.'\>/'
+    endif
+    execute 'syntax match wikiWord /\[\[\<'.substitute(word,  g:vimwiki_stripsym, s:wiki_badsymbols, "g").'\>\%(|\+.*\)*\]\]/'
+  endfor
+  execute 'syntax match wikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
+endfunction "}}}
+
+function! vimwiki#hl_exists(hl)"{{{
+  if !hlexists(a:hl)
+    return 0
+  endif
+  redir => hlstatus
+  exe "silent hi" a:hl
+  redir END
+  return (hlstatus !~ "cleared")
+endfunc 
+"}}}
 "}}}
 
 " WIKI functions {{{
@@ -2430,37 +2503,19 @@ function! vimwiki#WikiFollowWord(split) "{{{
   if s:is_link_to_non_wiki_file(word)
     call s:edit_file(cmd, word)
   else
-    call insert(VimwikiGet('history'), [expand('%:p'), getpos('.')])
+    let vimwiki_prev_word = [expand('%:p'), getpos('.')]
     call s:edit_file(cmd, VimwikiGet('path').word.VimwikiGet('ext'))
+    let b:vimwiki_prev_word = vimwiki_prev_word
   endif
 endfunction "}}}
 
 function! vimwiki#WikiGoBackWord() "{{{
-  if !empty(VimwikiGet('history'))
-    let item = remove(VimwikiGet('history'), 0)
+  if exists("b:vimwiki_prev_word")
     " go back to saved WikiWord
-    execute ":e ".substitute(s:get_history_word(item), '\s', '\\\0', 'g')
-    call setpos('.', s:get_history_pos(item))
+    let prev_word = b:vimwiki_prev_word
+    execute ":e ".substitute(prev_word[0], '\s', '\\\0', 'g')
+    call setpos('.', prev_word[1])
   endif
-endfunction "}}}
-
-function! vimwiki#WikiHighlightWords() "{{{
-  let wikies = glob(VimwikiGet('path').'*'.VimwikiGet('ext'))
-  "" remove .wiki extensions
-  let wikies = substitute(wikies, '\'.VimwikiGet('ext'), "", "g")
-  let g:vimwiki_wikiwords = split(wikies, '\n')
-  "" remove paths
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, ''.*[/\\]'', "", "g")')
-  "" remove backup files (.wiki~)
-  call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
-
-  for word in g:vimwiki_wikiwords
-    if word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
-      execute 'syntax match wikiWord /\%(^\|[^!]\)\zs\<'.word.'\>/'
-    endif
-    execute 'syntax match wikiWord /\[\[\<'.substitute(word,  g:vimwiki_stripsym, s:wiki_badsymbols, "g").'\>\%(|\+.*\)*\]\]/'
-  endfor
-  execute 'syntax match wikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
 endfunction "}}}
 
 function! vimwiki#WikiGoHome(index) "{{{
@@ -2477,7 +2532,6 @@ function! vimwiki#WikiGoHome(index) "{{{
     " Find out what is the reason and how to avoid it. Is it dangerous?
     echomsg "Unknown error!"
   endtry
-  call VimwikiSet('history', [])
 endfunction "}}}
 
 function! vimwiki#WikiDeleteWord() "{{{
@@ -2495,16 +2549,6 @@ function! vimwiki#WikiDeleteWord() "{{{
     return
   endtry
   execute "bdelete! ".escape(fname, " ")
-
-  " delete from g:vimwiki_history list
-  call filter (VimwikiGet('history'), 's:get_history_word(v:val) != fname')
-  " as we got back to previous WikiWord - delete it from history - as much
-  " as possible
-  let hword = ""
-  while !empty(VimwikiGet('history')) && 
-        \ hword == s:get_history_word(VimwikiGet('history')[0])
-    let hword = s:get_history_word(remove(VimwikiGet('history'), 0))
-  endwhile
 
   " reread buffer => deleted WikiWord should appear as non-existent
   if expand('%:p') != ""
@@ -2602,7 +2646,6 @@ function! vimwiki#WikiRenameWord() "{{{
   setlocal nomore
 
   " update links
-  echomsg "Updating links to ".newWord."..."
   if isOldWordComplex
     call s:update_wiki_links('\[\['.wwtorename.'\]\]', newWord)
   else
@@ -2633,7 +2676,7 @@ endfunction"}}}
 
 " }}}
 ftplugin\vimwiki.vim	[[[1
-196
+201
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2697,39 +2740,44 @@ function! VimwikiFoldLevel(lnum) "{{{
   let rx_list_item = '\('.
         \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
         \ '\)'
-  if line =~ rx_list_item &&
-        \ nline =~ rx_list_item
-    if VimwikiGet('syntax') == 'media'
-      return s:get_li_level_media(a:lnum, nnum)
-    else
-      return s:get_li_level(a:lnum, nnum)
-    endif
+  if line =~ rx_list_item && nline =~ rx_list_item
+    return s:get_li_level(a:lnum, nnum)
+  " list is over, remove foldlevel
+  elseif line =~ rx_list_item && nline !~ rx_list_item
+    return s:get_li_level_last(a:lnum)
   endif
 
   return '='
 endfunction "}}}
 
 function! s:get_li_level(lnum, nnum) "{{{
-  let level = ((indent(a:nnum) - indent(a:lnum)) / &sw)
-  if level > 0
-    return "a".level
-  elseif level < 0
-    return "s".abs(level)
+  if VimwikiGet('syntax') == 'media'
+    let level = s:count_first_sym(getline(a:nnum)) - 
+          \ s:count_first_sym(getline(a:lnum))
+    if level > 0
+      return "a".level
+    elseif level < 0
+      return "s".abs(level)
+    else
+      return "="
+    endif
   else
-    return "="
+    let level = ((indent(a:nnum) - indent(a:lnum)) / &sw)
+    if level > 0
+      return "a".level
+    elseif level < 0
+      return "s".abs(level)
+    else
+      return "="
+    endif
   endif
 endfunction "}}}
 
-" Special case: MediaWiki list items level do not use indents.
-function! s:get_li_level_media(lnum, nnum) "{{{
-  let level = s:count_first_sym(getline(a:nnum)) - 
-        \ s:count_first_sym(getline(a:lnum))
-  if level > 0
-    return "a".level
-  elseif level < 0
-    return "s".abs(level)
+function! s:get_li_level_last(lnum) "{{{
+  if VimwikiGet('syntax') == 'media'
+    return "s".(s:count_first_sym(getline(a:lnum)) - 1)
   else
-    return "="
+    return "s".(indent(a:lnum) / &sw - 1)
   endif
 endfunction "}}}
 
@@ -2831,7 +2879,7 @@ noremap <silent><script><buffer>
 
 " KEYBINDINGS }}}
 plugin\vimwiki.vim	[[[1
-193
+197
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2889,6 +2937,7 @@ function! s:setup_buffer_enter() "{{{
 
     let b:vimwiki_idx = g:vimwiki_current_idx
   endif
+
   if &filetype != 'vimwiki'
     setlocal ft=vimwiki
   else
@@ -2908,7 +2957,6 @@ let s:vimwiki_defaults.syntax = 'default'
 let s:vimwiki_defaults.gohome = 'split'
 let s:vimwiki_defaults.html_header = ''
 let s:vimwiki_defaults.html_footer = ''
-let s:vimwiki_defaults.history = []
 "}}}
 
 " DEFAULT options {{{
@@ -2994,6 +3042,10 @@ augroup vimwiki
   for ext in keys(extensions)
     execute 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
     execute 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
+
+    " ColorScheme could have or could have not a wikiHeader1..wikiHeader6
+    " highlight groups. We need to refresh syntax after colorscheme change.
+    execute 'autocmd ColorScheme *'.ext.' set syntax=vimwiki'
   endfor
 augroup END
 "}}}
