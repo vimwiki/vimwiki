@@ -2,7 +2,7 @@
 UseVimball
 finish
 doc\vimwiki.txt	[[[1
-1078
+1082
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -13,7 +13,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.9.2 ~
+                               Version: 0.9.2a ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -858,6 +858,10 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 12. Changelog                                              *vimwiki-changelog*
+
+0.9.2a
+  * [fix] Installation on Linux doesn't work. (Dos line endings in
+    vimwiki_lst.vim).
 
 0.9.2
   * [new] Option 'folding' added to turn folding on/off.
