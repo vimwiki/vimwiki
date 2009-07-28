@@ -2,7 +2,7 @@
 UseVimball
 finish
 autoload\vimwiki.vim	[[[1
-462
+554
 " Vimwiki autoload plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -12,23 +12,75 @@ if exists("g:loaded_vimwiki_auto") || &cp
 endif
 let g:loaded_vimwiki_auto = 1
 
-let s:wiki_badsymbols = '[<>|?*/\:"]'
+if has("win32")
+  let s:os_sep = '\'
+else
+  let s:os_sep = '/'
+endif
 
+let s:wiki_badsymbols = '[<>|?*:"]'
 " MISC helper functions {{{
+
+" This function is double defined.
+" TODO: refactor common functions into new module.
+function! s:chomp_slash(str)"{{{
+  return substitute(a:str, '[/\\]\+$', '', '')
+endfunction"}}}
+
+function! vimwiki#mkdir(path) "{{{
+  let path = expand(a:path)
+  if !isdirectory(path) && exists("*mkdir")
+    let path = s:chomp_slash(path)
+    call mkdir(path, "p")
+  endif
+endfunction
+" }}}
+function! vimwiki#safe_link(string) "{{{
+  return substitute(a:string, s:wiki_badsymbols, g:vimwiki_stripsym, 'g')
+endfunction
+"}}}
+function! vimwiki#unsafe_link(string) "{{{
+  return substitute(a:string, g:vimwiki_stripsym, s:wiki_badsymbols, 'g')
+endfunction
+"}}}
+function! vimwiki#subdir(path, filename)"{{{
+  let path = expand(a:path)
+  let filename = expand(a:filename)
+  let idx = 0
+  while path[idx] == filename[idx]
+    let idx = idx + 1
+  endwhile
+
+  let p = split(strpart(filename, idx), '[/\\]')
+  let res = join(p[:-2], s:os_sep)
+  if len(res) > 0
+    let res = res.s:os_sep
+  endif
+  return res
+endfunction"}}}
+function! vimwiki#current_subdir()"{{{
+  return vimwiki#subdir(VimwikiGet('path'), expand('%:p'))
+endfunction"}}}
 function! s:msg(message) "{{{
   echohl WarningMsg
   echomsg 'vimwiki: '.a:message
   echohl None
 endfunction
 " }}}
-function! s:get_file_name_only(filename) "{{{
-  let word = substitute(a:filename, '\'.VimwikiGet('ext'), "", "g")
-  let word = substitute(word, '.*[/\\]', "", "g")
-  return word
+function! s:filename(link) "{{{
+  return split(a:link, '|')[0]
+endfunction
+" }}}
+function! s:is_wiki_word(str) "{{{
+  if a:str =~ g:vimwiki_word1 && a:str !~ '[[:space:]\\/]'
+    return 1
+  endif
+  return 0
 endfunction
 " }}}
 function! s:edit_file(command, filename) "{{{
   let fname = escape(a:filename, '% ')
+  call vimwiki#mkdir(fnamemodify(a:filename, ":p:h"))
   execute a:command.' '.fname
 endfunction
 " }}}
@@ -60,18 +112,14 @@ function! s:get_word_at_cursor(wikiRX) "{{{
     return ""
   endif
 endf "}}}
-function! s:strip_word(word, sym) "{{{
-  function! s:strip_word_helper(word, sym)
-    return substitute(a:word, s:wiki_badsymbols, a:sym, 'g')
-  endfunction
-
+function! s:strip_word(word) "{{{
   let result = a:word
   if strpart(a:word, 0, 2) == "[["
     " get rid of [[ and ]]
     let w = strpart(a:word, 2, strlen(a:word)-4)
     " we want "link" from [[link|link desc]]
     let w = split(w, "|")[0]
-    let result = s:strip_word_helper(w, a:sym)
+    let result = vimwiki#safe_link(w)
   endif
   return result
 endfunction
@@ -109,17 +157,6 @@ function! s:wiki_select(wnum)"{{{
   let g:vimwiki_current_idx = a:wnum - 1
 endfunction
 " }}}
-function! vimwiki#mkdir(path) "{{{
-  " TODO: add exception handling...
-  let path = expand(a:path)
-  if !isdirectory(path) && exists("*mkdir")
-    if path[-1:] == '/' || path[-1:] == '\'
-      let path = path[:-2]
-    endif
-    call mkdir(path, "p")
-  endif
-endfunction
-" }}}
 function! s:update_wiki_link(fname, old, new) " {{{
   echo "Updating links in ".a:fname
   let has_updates = 0
@@ -138,11 +175,54 @@ function! s:update_wiki_link(fname, old, new) " {{{
   endif
 endfunction
 " }}}
-function! s:update_wiki_links(old, new) " {{{
-  let files = split(glob(VimwikiGet('path').'*'.VimwikiGet('ext')), '\n')
+function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
+  let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
+  let new_fname = a:new_fname
+
+  if !s:is_wiki_word(new_fname)
+    let new_fname = '[['.new_fname.']]'
+  endif
+  if !s:is_wiki_word(old_fname)
+    let old_fname = '\[\['.vimwiki#unsafe_link(old_fname).'\%(|.*\)\?\]\]'
+  else
+    let old_fname = '\<'.old_fname.'\>'
+  endif
+  let files = split(glob(VimwikiGet('path').a:dir.'*'.VimwikiGet('ext')), '\n')
   for fname in files
-    call s:update_wiki_link(fname, a:old, a:new)
+    call s:update_wiki_link(fname, old_fname, new_fname)
   endfor
+endfunction
+" }}}
+function! s:update_wiki_links(old_fname, new_fname) " {{{
+  let old_fname = fnamemodify(a:old_fname, ":t:r")
+  let new_fname = fnamemodify(a:new_fname, ":t:r")
+
+  let subdirs = split(a:old_fname, '[/\\]')[: -2]
+
+  " TODO: Use Dictionary here...
+  let dirs_keys = ['']
+  let dirs_vals = ['']
+  if len(subdirs) > 0
+    let dirs_keys = ['']
+    let dirs_vals = [join(subdirs, '/').'/']
+    let idx = 0
+    while idx < len(subdirs) - 1
+      call add(dirs_keys, join(subdirs[: idx], '/').'/')
+      call add(dirs_vals, join(subdirs[idx+1 :], '/').'/')
+      let idx = idx + 1
+    endwhile
+    call add(dirs_keys,join(subdirs, '/').'/')
+    call add(dirs_vals, '')
+  endif
+
+  let idx = 0
+  while idx < len(dirs_keys)
+    let dir = dirs_keys[idx]
+    let new_dir = dirs_vals[idx]
+    call s:update_wiki_links_dir(dir,
+          \ new_dir.old_fname, new_dir.new_fname)
+    let idx = idx + 1
+  endwhile
 endfunction
 " }}}
 function! s:get_wiki_buffers() "{{{
@@ -171,21 +251,33 @@ endfunction
 " }}}
 " SYNTAX highlight {{{
 function! vimwiki#WikiHighlightWords() "{{{
-  let wikies = glob(VimwikiGet('path').'*'.VimwikiGet('ext'))
-  "" remove .wiki extensions
+  " search all wiki files in 'path' and its subdirs.
+  let subdir = vimwiki#current_subdir()
+  let wikies = glob(VimwikiGet('path').subdir.'**/*'.VimwikiGet('ext'))
+
+  " remove .wiki extensions
   let wikies = substitute(wikies, '\'.VimwikiGet('ext'), "", "g")
   let g:vimwiki_wikiwords = split(wikies, '\n')
-  "" remove paths
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, ''.*[/\\]'', "", "g")')
-  "" remove backup files (.wiki~)
+
+  " remove backup files (.wiki~)
   call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
+
+  " remove paths
+  let rem_path = escape(expand(VimwikiGet('path')).subdir, '\')
+  call map(g:vimwiki_wikiwords, 'substitute(v:val, rem_path, "", "g")')
+
+  " Links with subdirs should be highlighted for linux and windows separators
+  " Change \ or / to [/\\]
+  let os_p = '[/\\]'
+  let os_p2 = escape(os_p, '\')
+  call map(g:vimwiki_wikiwords, 'substitute(v:val, os_p, os_p2, "g")')
 
   for word in g:vimwiki_wikiwords
     if word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
       execute 'syntax match wikiWord /\%(^\|[^!]\)\zs\<'.word.'\>/'
     endif
     execute 'syntax match wikiWord /\[\[\<'.
-          \ substitute(word, g:vimwiki_stripsym, s:wiki_badsymbols, "g").
+          \ vimwiki#unsafe_link(word).
           \ '\>\%(|\+.*\)*\]\]/'
   endfor
   execute 'syntax match wikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
@@ -220,8 +312,7 @@ function! vimwiki#WikiFollowWord(split) "{{{
   else
     let cmd = ":e "
   endif
-  let word = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord),
-        \                                      g:vimwiki_stripsym)
+  let word = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord))
   " insert doesn't work properly inside :if. Check :help :if.
   if word == ""
     execute "normal! \n"
@@ -231,7 +322,8 @@ function! vimwiki#WikiFollowWord(split) "{{{
     call s:edit_file(cmd, word)
   else
     let vimwiki_prev_word = [expand('%:p'), getpos('.')]
-    call s:edit_file(cmd, VimwikiGet('path').word.VimwikiGet('ext'))
+    let subdir = vimwiki#current_subdir()
+    call s:edit_file(cmd, VimwikiGet('path').subdir.word.VimwikiGet('ext'))
     let b:vimwiki_prev_word = vimwiki_prev_word
   endif
 endfunction
@@ -288,13 +380,8 @@ endfunction
 "}}}
 function! vimwiki#WikiRenameWord() "{{{
   "" Rename WikiWord, update all links to renamed WikiWord
-  let wwtorename = expand('%:t:r')
-  let isOldWordComplex = 0
-  if wwtorename !~ g:vimwiki_word1
-    let wwtorename = substitute(wwtorename, g:vimwiki_stripsym,
-          \ s:wiki_badsymbols, "g")
-    let isOldWordComplex = 1
-  endif
+  let subdir = vimwiki#current_subdir()
+  let old_fname = subdir.expand('%:t')
 
   " there is no file (new one maybe)
   if glob(expand('%:p')) == ''
@@ -307,39 +394,46 @@ function! vimwiki#WikiRenameWord() "{{{
   if val!='y'
     return
   endif
-  let newWord = input('Enter new name: ', "")
-  " check newWord - it should be 'good', not empty
-  if substitute(newWord, '\s', '', 'g') == ''
+
+  let new_link = input('Enter new name: ', "")
+
+  if new_link =~ '[/\\]'
+    " It is actually doable but I do not have free time to do it.
+    call s:msg('Cannot rename to a filename with path!')
+    return
+  endif
+
+  let new_link = subdir.new_link
+
+  " check new_fname - it should be 'good', not empty
+  if substitute(new_link, '\s', '', 'g') == ''
     call s:msg('Cannot rename to an empty filename!')
     return
   endif
-  if s:is_link_to_non_wiki_file(newWord)
+  if s:is_link_to_non_wiki_file(new_link)
     call s:msg('Cannot rename to a filename with extension (ie .txt .html)!')
     return
   endif
 
-  if newWord !~ g:vimwiki_word1
-    " if newWord is 'complex wiki word' then add [[]]
-    let newWord = '[['.newWord.']]'
-  endif
-  let newFileName = s:strip_word(newWord, g:vimwiki_stripsym).VimwikiGet('ext')
+  let new_link = s:strip_word(new_link)
+  let new_fname = VimwikiGet('path').s:filename(new_link).VimwikiGet('ext')
 
   " do not rename if word with such name exists
-  let fname = glob(VimwikiGet('path').newFileName)
+  let fname = glob(new_fname)
   if fname != ''
-    call s:msg('Cannot rename to "'.newFileName.
+    call s:msg('Cannot rename to "'.new_fname.
           \ '". File with that name exist!')
     return
   endif
   " rename WikiWord file
   try
-    echomsg "Renaming ".expand('%:t:r')." to ".newFileName
-    let res = rename(expand('%:p'), expand(VimwikiGet('path').newFileName))
+    echomsg "Renaming ".VimwikiGet('path').old_fname." to ".new_fname
+    let res = rename(expand('%:p'), expand(new_fname))
     if res != 0
       throw "Cannot rename!"
     end
   catch /.*/
-    call s:msg('Cannot rename "'.expand('%:t:r').'" to "'.newFileName.'"')
+    call s:msg('Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"')
     return
   endtry
 
@@ -367,11 +461,8 @@ function! vimwiki#WikiRenameWord() "{{{
   setlocal nomore
 
   " update links
-  if isOldWordComplex
-    call s:update_wiki_links('\[\['.wwtorename.'\]\]', newWord)
-  else
-    call s:update_wiki_links('\<'.wwtorename.'\>', newWord)
-  endif
+  " XXX: doesn't work for [[link|desc link]]
+  call s:update_wiki_links(old_fname, new_link)
 
   " restore wiki buffers
   for bitem in blist
@@ -380,10 +471,11 @@ function! vimwiki#WikiRenameWord() "{{{
     endif
   endfor
 
-  call s:open_wiki_buffer([VimwikiGet('path').newFileName, cur_buffer[1]])
+  call s:open_wiki_buffer([new_fname,
+        \ cur_buffer[1]])
   " execute 'bwipeout '.escape(cur_buffer[0], ' ')
 
-  echomsg wwtorename." is renamed to ".newWord
+  echomsg old_fname." is renamed to ".new_fname
 
   let &more = setting_more
 endfunction
@@ -465,8 +557,197 @@ endfunction
 " }}}
 
 " }}}
+autoload\vimwiki_lst.vim	[[[1
+187
+" Vimwiki autoload plugin file
+" Todo lists related stuff here.
+" Author: Maxim Kim <habamax@gmail.com>
+" Home: http://code.google.com/p/vimwiki/
+
+if exists("g:loaded_vimwiki_list_auto") || &cp
+  finish
+endif
+let g:loaded_vimwiki_lst_auto = 1
+
+" Script variables {{{
+" used in various checks
+let s:rx_list_item = '\('.
+      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+      \ '\)'
+let s:rx_cb_list_item = s:rx_list_item.'\s*\zs\[.\?\]'
+let s:rx_li_box = '\[.\?\]'
+let s:rx_li_unchecked = '\[\s\?\]'
+" used in substitutions
+let s:rx_li_check = '\[x\]'
+let s:rx_li_uncheck = '\[ \]'
+" }}}
+
+" Script functions {{{
+" Set state of the list item on line number "lnum" to [ ] or [x]
+function! s:set_state(lnum, on_off)"{{{
+  let line = getline(a:lnum)
+  if a:on_off
+    let state = s:rx_li_check
+  else
+    let state = s:rx_li_uncheck
+  endif
+  let line = substitute(line, s:rx_li_box, state, '')
+  call setline(a:lnum, line)
+endfunction"}}}
+
+" Get state of the list item on line number "lnum"
+function! s:get_state(lnum)"{{{
+  let state = 1
+  let line = getline(a:lnum)
+  let opt = matchstr(line, s:rx_cb_list_item)
+  if opt =~ s:rx_li_unchecked
+    let state = 0
+  endif
+  return state
+endfunction"}}}
+
+" Returns 1 if line is list item, 0 otherwise
+function! s:is_cb_list_item(lnum)"{{{
+  return getline(a:lnum) =~ s:rx_cb_list_item
+endfunction"}}}
+
+" Returns 1 if line is list item, 0 otherwise
+function! s:is_list_item(lnum)"{{{
+  return getline(a:lnum) =~ s:rx_list_item
+endfunction"}}}
+
+" Returns char column of checkbox. Used in parent/child checks.
+function! s:get_li_pos(lnum) "{{{
+  return stridx(getline(a:lnum), '[')
+endfunction "}}}
+
+" Returns list of line numbers of parent and all its child items.
+function! s:get_child_items(lnum)"{{{
+  let result = []
+  let lnum = a:lnum
+  let parent_pos = s:get_li_pos(lnum)
+
+  " add parent
+  call add(result, lnum)
+  let lnum += 1
+
+  while s:is_cb_list_item(lnum) &&
+        \ s:get_li_pos(lnum) > parent_pos &&
+        \ lnum <= line('$')
+
+    call add(result, lnum)
+    let lnum += 1
+  endwhile
+
+  return result
+endfunction"}}}
+
+" Returns list of line numbers of all items of the same level.
+function! s:get_sibling_items(lnum)"{{{
+  let result = []
+  let lnum = a:lnum
+  let ind = s:get_li_pos(lnum)
+
+  while s:is_cb_list_item(lnum) &&
+        \ s:get_li_pos(lnum) >= ind &&
+        \ lnum <= line('$')
+
+    if s:get_li_pos(lnum) == ind
+      call add(result, lnum)
+    endif
+    let lnum += 1
+  endwhile
+
+  let lnum = a:lnum - 1
+  while s:is_cb_list_item(lnum) &&
+        \ s:get_li_pos(lnum) >= ind &&
+        \ lnum >= 0
+
+    if s:get_li_pos(lnum) == ind
+      call add(result, lnum)
+    endif
+    let lnum -= 1
+  endwhile
+
+  return result
+endfunction"}}}
+
+" Returns line number of the parent of lnum item
+function! s:get_parent_item(lnum)"{{{
+  let lnum = a:lnum
+  let ind = s:get_li_pos(lnum)
+
+  while s:is_cb_list_item(lnum) &&
+        \ s:get_li_pos(lnum) >= ind &&
+        \ lnum >= 0
+    let lnum -= 1
+  endwhile
+
+  if s:is_cb_list_item(lnum)
+    return lnum
+  else
+    return a:lnum
+  endif
+endfunction"}}}
+
+" Creates checkbox in a list item.
+function s:create_cb_list_item(lnum) "{{{
+  let line = getline(a:lnum)
+  let m = matchstr(line, s:rx_list_item)
+  if m != ''
+    let line = m.' [ ]'.strpart(line, len(m))
+    call setline(a:lnum, line)
+  endif
+endfunction "}}}
+
+" Script functions }}}
+
+" Toggle list item between [ ] and [x]
+function! vimwiki_lst#ToggleListItem()"{{{
+  let current_lnum = line('.')
+
+  if !s:is_cb_list_item(current_lnum)
+    if g:vimwiki_auto_checkbox
+      call s:create_cb_list_item(current_lnum)
+    endif
+    return
+  endif
+
+  let current_state = s:get_state(current_lnum)
+  if  current_state == 0
+    for lnum in s:get_child_items(current_lnum)
+      call s:set_state(lnum, 1)
+      let new_state = 1
+    endfor
+  else
+    for lnum in s:get_child_items(current_lnum)
+      call s:set_state(lnum, 0)
+      let new_state = 0
+    endfor
+  endif
+
+  let c_lnum = current_lnum
+  while s:is_cb_list_item(c_lnum)
+    let all_items_checked = 1
+    for lnum in s:get_sibling_items(c_lnum)
+      if s:get_state(lnum) != 1
+        let all_items_checked = 0
+        break
+      endif
+    endfor
+
+    let parent_lnum = s:get_parent_item(c_lnum)
+    if parent_lnum == c_lnum
+      break
+    endif
+    call s:set_state(parent_lnum, all_items_checked)
+
+
+    let c_lnum = parent_lnum
+  endwhile
+endfunction"}}}
 autoload\vimwiki_html.vim	[[[1
-894
+914
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
@@ -478,22 +759,20 @@ if exists("g:loaded_vimwiki_html_auto") || &cp
 endif
 let g:loaded_vimwiki_html_auto = 1
 "}}}
+
 " Warn if html header or html footer do not exist only once. {{{
 let s:warn_html_header = 0
 let s:warn_html_footer = 0
 "}}}
 " TODO: move the next 2 functions into vimwiki#msg and
-" vimwiki#get_file_name_only.
 function! s:msg(message) "{{{
   echohl WarningMsg
   echomsg 'vimwiki: '.a:message
   echohl None
 endfunction "}}}
 
-function! s:get_file_name_only(filename) "{{{
-  let word = substitute(a:filename, '\'.VimwikiGet('ext'), "", "g")
-  let word = substitute(word, '.*[/\\]', "", "g")
-  return word
+function! s:root_path(subdir) "{{{
+  return repeat('../', len(split(a:subdir, '[/\\]')))
 endfunction "}}}
 
 function! s:syntax_supported() " {{{
@@ -507,14 +786,14 @@ function! s:create_default_CSS(path) " {{{
     call vimwiki#mkdir(fnamemodify(css_full_name, ':p:h'))
     let lines = []
 
-    call add(lines, 'body {margin: 1em 2em 1em 2em; font-size: 100%; line-height: 130%;}')
-    call add(lines, 'h1, h2, h3, h4, h5, h6 {margin-top: 1.5em; margin-bottom: 0.5em;}')
+    call add(lines, 'body {font-family: Arial, sans-serif; margin: 1em 2em 1em 2em; font-size: 100%; line-height: 130%;}')
+    call add(lines, 'h1, h2, h3, h4, h5, h6 {font-family: Trebuchet MS, serif; margin-top: 1.5em; margin-bottom: 0.5em;}')
     call add(lines, 'h1 {font-size: 2.0em; color: #3366aa;}')
     call add(lines, 'h2 {font-size: 1.6em; color: #335588;}')
     call add(lines, 'h3 {font-size: 1.2em; color: #224466;}')
-    call add(lines, 'h4 {font-size: 1.2em; color: #113344;}')
-    call add(lines, 'h5 {font-size: 1.1em; color: #112233;}')
-    call add(lines, 'h6 {font-size: 1.1em; color: #111111;}')
+    call add(lines, 'h4 {font-size: 1.1em; color: #113344;}')
+    call add(lines, 'h5 {font-size: 1.0em; color: #112233;}')
+    call add(lines, 'h6 {font-size: 1.0em; color: #111111;}')
     call add(lines, 'p, pre, table, ul, ol, dl {margin-top: 1em; margin-bottom: 1em;}')
     call add(lines, 'ul ul, ul ol, ol ol, ol ul {margin-top: 0.5em; margin-bottom: 0.5em;}')
     call add(lines, 'li {margin: 0.3em auto;}')
@@ -562,13 +841,24 @@ function! s:is_non_wiki_link(lnk) "{{{
   return 0
 endfunction "}}}
 
-function! s:get_html_header(title, charset) "{{{
+function! s:has_abs_path(fname) "{{{
+  if a:fname =~ '\(^.:\)\|\(^/\)'
+    return 1
+  endif
+  return 0
+endfunction "}}}
+
+function! s:get_html_header(wikifile, subdir, charset) "{{{
   let lines=[]
+
+  let title = fnamemodify(a:wikifile, ":t:r")
 
   if VimwikiGet('html_header') != "" && !s:warn_html_header
     try
       let lines = readfile(expand(VimwikiGet('html_header')))
-      call map(lines, 'substitute(v:val, "%title%", "'. a:title .'", "g")')
+      call map(lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
+      call map(lines, 'substitute(v:val, "%root_path%", "'.
+            \ s:root_path(a:subdir) .'", "g")')
       return lines
     catch /E484/
       let s:warn_html_header = 1
@@ -577,13 +867,20 @@ function! s:get_html_header(title, charset) "{{{
     endtry
   endif
 
+  let css_name = expand(VimwikiGet('css_name'))
+  let css_name = substitute(css_name, '\', '/', 'g')
+  if !s:has_abs_path(css_name)
+    " Relative css file for deep links: [[dir1/dir2/dir3/filename]]
+    let css_name = s:root_path(a:subdir).css_name
+  endif
+
   " if no VimwikiGet('html_header') set up or error while reading template
   " file -- use default header.
   call add(lines, '<html>')
   call add(lines, '<head>')
   call add(lines, '<link rel="Stylesheet" type="text/css" href="'.
-        \ VimwikiGet('css_name').'" />')
-  call add(lines, '<title>'.a:title.'</title>')
+        \ css_name.'" />')
+  call add(lines, '<title>'.title.'</title>')
   call add(lines, '<meta http-equiv="Content-Type" content="text/html;'.
         \ ' charset='.a:charset.'" />')
   call add(lines, '</head>')
@@ -1051,7 +1348,8 @@ function! s:make_internal_link(entag) "{{{
       if s:is_non_wiki_link(link_parts[0])
         let line = '<a href="'.link_parts[0].'">'.link_parts[1].'</a>'
       else
-        let line = '<a href="'.link_parts[0].'.html">'.link_parts[1].'</a>'
+        let line = '<a href="'.vimwiki#safe_link(link_parts[0]).
+              \ '.html">'.link_parts[1].'</a>'
       endif
     elseif s:is_img_link(link_parts[0])
       let line = '<img src="'.link_parts[0].'" alt="'.
@@ -1063,7 +1361,8 @@ function! s:make_internal_link(entag) "{{{
     elseif s:is_non_wiki_link(link_parts[0])
       let line = '<a href="'.a:entag.'">'.a:entag.'</a>'
     else
-      let line = '<a href="'.a:entag.'.html">'.a:entag.'</a>'
+      let line = '<a href="'.vimwiki#safe_link(a:entag).
+            \ '.html">'.a:entag.'</a>'
     endif
   endif
 
@@ -1288,12 +1587,14 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
     return
   endif
 
-  let path = expand(a:path)
+  let wikifile = fnamemodify(a:wikifile, ":p")
+  let subdir = vimwiki#subdir(VimwikiGet('path'), wikifile)
+
+  let path = expand(a:path).subdir
   call vimwiki#mkdir(path)
 
-  let lsource = s:remove_comments(readfile(a:wikifile))
-  let ldest = s:get_html_header(s:get_file_name_only(a:wikifile),
-        \ &fileencoding)
+  let lsource = s:remove_comments(readfile(wikifile))
+  let ldest = s:get_html_header(wikifile, subdir, &fileencoding)
 
 
   let para = 0
@@ -1335,7 +1636,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   call extend(ldest, s:get_html_footer())
 
   "" make html file.
-  let wwFileNameOnly = s:get_file_name_only(a:wikifile)
+  let wwFileNameOnly = fnamemodify(wikifile, ":t:r")
   call writefile(ldest, path.wwFileNameOnly.'.html')
 endfunction "}}}
 
@@ -1351,7 +1652,7 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
   let setting_more = &more
   setlocal nomore
 
-  let wikifiles = split(glob(VimwikiGet('path').'*'.VimwikiGet('ext')), '\n')
+  let wikifiles = split(glob(VimwikiGet('path').'**/*'.VimwikiGet('ext')), '\n')
   for wikifile in wikifiles
     echomsg 'Processing '.wikifile
     call vimwiki_html#Wiki2HTML(path, wikifile)
@@ -1361,197 +1662,8 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
 
   let &more = setting_more
 endfunction "}}}
-autoload\vimwiki_lst.vim	[[[1
-187
-" Vimwiki autoload plugin file
-" Todo lists related stuff here.
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
-
-if exists("g:loaded_vimwiki_list_auto") || &cp
-  finish
-endif
-let g:loaded_vimwiki_lst_auto = 1
-
-" Script variables {{{
-" used in various checks
-let s:rx_list_item = '\('.
-      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-      \ '\)'
-let s:rx_cb_list_item = s:rx_list_item.'\s*\zs\[.\?\]'
-let s:rx_li_box = '\[.\?\]'
-let s:rx_li_unchecked = '\[\s\?\]'
-" used in substitutions
-let s:rx_li_check = '\[x\]'
-let s:rx_li_uncheck = '\[ \]'
-" }}}
-
-" Script functions {{{
-" Set state of the list item on line number "lnum" to [ ] or [x]
-function! s:set_state(lnum, on_off)"{{{
-  let line = getline(a:lnum)
-  if a:on_off
-    let state = s:rx_li_check
-  else
-    let state = s:rx_li_uncheck
-  endif
-  let line = substitute(line, s:rx_li_box, state, '')
-  call setline(a:lnum, line)
-endfunction"}}}
-
-" Get state of the list item on line number "lnum"
-function! s:get_state(lnum)"{{{
-  let state = 1
-  let line = getline(a:lnum)
-  let opt = matchstr(line, s:rx_cb_list_item)
-  if opt =~ s:rx_li_unchecked
-    let state = 0
-  endif
-  return state
-endfunction"}}}
-
-" Returns 1 if line is list item, 0 otherwise
-function! s:is_cb_list_item(lnum)"{{{
-  return getline(a:lnum) =~ s:rx_cb_list_item
-endfunction"}}}
-
-" Returns 1 if line is list item, 0 otherwise
-function! s:is_list_item(lnum)"{{{
-  return getline(a:lnum) =~ s:rx_list_item
-endfunction"}}}
-
-" Returns char column of checkbox. Used in parent/child checks.
-function! s:get_li_pos(lnum) "{{{
-  return stridx(getline(a:lnum), '[')
-endfunction "}}}
-
-" Returns list of line numbers of parent and all its child items.
-function! s:get_child_items(lnum)"{{{
-  let result = []
-  let lnum = a:lnum
-  let parent_pos = s:get_li_pos(lnum)
-
-  " add parent
-  call add(result, lnum)
-  let lnum += 1
-
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) > parent_pos &&
-        \ lnum <= line('$')
-
-    call add(result, lnum)
-    let lnum += 1
-  endwhile
-
-  return result
-endfunction"}}}
-
-" Returns list of line numbers of all items of the same level.
-function! s:get_sibling_items(lnum)"{{{
-  let result = []
-  let lnum = a:lnum
-  let ind = s:get_li_pos(lnum)
-
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum <= line('$')
-
-    if s:get_li_pos(lnum) == ind
-      call add(result, lnum)
-    endif
-    let lnum += 1
-  endwhile
-
-  let lnum = a:lnum - 1
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum >= 0
-
-    if s:get_li_pos(lnum) == ind
-      call add(result, lnum)
-    endif
-    let lnum -= 1
-  endwhile
-
-  return result
-endfunction"}}}
-
-" Returns line number of the parent of lnum item
-function! s:get_parent_item(lnum)"{{{
-  let lnum = a:lnum
-  let ind = s:get_li_pos(lnum)
-
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum >= 0
-    let lnum -= 1
-  endwhile
-
-  if s:is_cb_list_item(lnum)
-    return lnum
-  else
-    return a:lnum
-  endif
-endfunction"}}}
-
-" Creates checkbox in a list item.
-function s:create_cb_list_item(lnum) "{{{
-  let line = getline(a:lnum)
-  let m = matchstr(line, s:rx_list_item)
-  if m != ''
-    let line = m.' [ ]'.strpart(line, len(m))
-    call setline(a:lnum, line)
-  endif
-endfunction "}}}
-
-" Script functions }}}
-
-" Toggle list item between [ ] and [x]
-function! vimwiki_lst#ToggleListItem()"{{{
-  let current_lnum = line('.')
-
-  if !s:is_cb_list_item(current_lnum)
-    if g:vimwiki_auto_checkbox
-      call s:create_cb_list_item(current_lnum)
-    endif
-    return
-  endif
-
-  let current_state = s:get_state(current_lnum)
-  if  current_state == 0
-    for lnum in s:get_child_items(current_lnum)
-      call s:set_state(lnum, 1)
-      let new_state = 1
-    endfor
-  else
-    for lnum in s:get_child_items(current_lnum)
-      call s:set_state(lnum, 0)
-      let new_state = 0
-    endfor
-  endif
-
-  let c_lnum = current_lnum
-  while s:is_cb_list_item(c_lnum)
-    let all_items_checked = 1
-    for lnum in s:get_sibling_items(c_lnum)
-      if s:get_state(lnum) != 1
-        let all_items_checked = 0
-        break
-      endif
-    endfor
-
-    let parent_lnum = s:get_parent_item(c_lnum)
-    if parent_lnum == c_lnum
-      break
-    endif
-    call s:set_state(parent_lnum, all_items_checked)
-
-
-    let c_lnum = parent_lnum
-  endwhile
-endfunction"}}}
 doc\vimwiki.txt	[[[1
-1097
+1114
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -1562,7 +1674,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.9.3 ~
+                               Version: 0.9.4 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -2242,14 +2354,18 @@ Set up file name for html header template: >
 This header.tpl could look like: >
     <html>
     <head>
-        <link rel="Stylesheet" type="text/css" href="style.css" />
+        <link rel="Stylesheet" type="text/css" href="%root_path%style.css" />
         <title>%title%</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     </head>
     <body>
         <div class="contents">
 
-where %title% is replaced by a wiki page name.
+where
+  %title% is replaced by a wiki page name
+  %root_path% is replaced by a count of ../ for pages buried in subdirs:
+    if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
+    %root_path% is replaced by '../../../'.
 
 
 *vimwiki-option-html_footer*
@@ -2365,7 +2481,7 @@ Default: 0
 ------------------------------------------------------------------------------
 *g:vimwiki_fold_empty_lines*
 
-Fold or not empty lines between folded headers.
+Fold or do not fold empty lines between folded headers.
 
 Value           Description~
 0               Do not fold in empty lines.
@@ -2403,6 +2519,19 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 11. Changelog                                              *vimwiki-changelog*
+
+0.9.4
+  * [new] Links with directories: [[dir_name/Link|Text]]. Thanks Jie Wu.
+  * [new] Added %root_path% template variable to get relative root dir of
+    path_html. See |vimwiki-option-html_header|.
+  * [fix] Indent incorrect for vim without "float" compile option. Thanks
+    Julian Kooij.
+  * [fix] Convert to html doesn't work right with links like [[foo::bar]].
+  * [fix] Rename wikiword doesn't work right when rename WikiWord to
+    [[WikiWord blablabla]].
+  * [fix] Renaming of links with description doesn't work.
+  * [fix] Weblinks with commas are not highlighted.
+  * [misc] Some changes in default css file.
 
 0.9.3
   * [new] g:vimwiki_menu option is a string which is menu path. So one can use
@@ -2650,7 +2779,7 @@ it's free enough to suit your needs.
 
  vim:tw=78:ts=8:ft=help
 ftplugin\vimwiki.vim	[[[1
-212
+219
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2668,16 +2797,20 @@ let b:undo_ftplugin = "setlocal wrap< linebreak< ".
       \ "formatoptions< foldtext< ".
       \ "foldmethod< foldexpr< commentstring< "
 " UNDO }}}
+
 " MISC STUFF {{{
+
 setlocal wrap
 setlocal linebreak
 setlocal autowriteall
 setlocal commentstring=<!--%s-->
 " MISC }}}
+
 " GOTO FILE: gf {{{
 execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
+
 " COMMENTS: autocreate list items {{{
 " for list items, and list items with checkboxes
 if VimwikiGet('syntax') == 'default'
@@ -2691,6 +2824,7 @@ else
 endif
 setlocal formatoptions=ctnqro
 " COMMENTS }}}
+
 " FOLDING for headers and list items using expr fold method. {{{
 if VimwikiGet('folding')
   setlocal fdm=expr
@@ -2768,6 +2902,7 @@ function! VimwikiFoldText() "{{{
 endfunction "}}}
 
 " FOLDING }}}
+
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
       \ call vimwiki_html#Wiki2HTML(expand(VimwikiGet('path_html')),
@@ -2786,6 +2921,7 @@ command! -buffer VimwikiVSplitWord call vimwiki#WikiFollowWord('vsplit')
 
 command! -buffer VimwikiToggleListItem call vimwiki_lst#ToggleListItem()
 " COMMANDS }}}
+
 " KEYBINDINGS {{{
 if g:vimwiki_use_mouse
   nmap <buffer> <S-LeftMouse> <NOP>
@@ -2864,7 +3000,7 @@ nmap <silent><buffer> - :call vimwiki#RemoveHeaderLevel()<CR>
 
 " KEYBINDINGS }}}
 indent\vimwiki.vim	[[[1
-49
+55
 " Vimwiki indent file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2904,8 +3040,14 @@ function GetVimwikiIndent(lnum)
       return &sw
     endif
 
-    let mul = round(lst_indent*1.0/&sw)
-    let ind = float2nr(mul * &sw)
+    if has("float")
+      let mul = round(lst_indent * 1.0 / &sw)
+      let ind = float2nr(mul * &sw)
+    else
+      let mul = lst_indent / &sw
+      let ind = mul * &sw
+    endif
+
     return ind
   endif
 
@@ -2915,7 +3057,7 @@ endfunction
 
 " vim:sw=2
 plugin\vimwiki.vim	[[[1
-227
+241
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -2935,11 +3077,25 @@ function! s:default(varname, value) "{{{
   endif
 endfunction "}}}
 
+function! Str_common_part(str1, str2)"{{{
+  let idx = 0
+  let minlen = min([len(a:str1), len(a:str2)])
+  while (idx < minlen) && (a:str1[idx] == a:str2[idx])
+    let idx = idx + 1
+  endwhile
+
+  return strpart(a:str1, 0, idx)
+endfunction"}}}
+
+function! s:chomp_slash(str)"{{{
+  return substitute(a:str, '[/\\]\+$', '', '')
+endfunction"}}}
+
 function! s:find_wiki(path) "{{{
   let idx = 0
   while idx < len(g:vimwiki_list)
-    let path = expand(VimwikiGet('path', idx))
-    if path[:-2] == a:path
+    let path = s:chomp_slash(expand(VimwikiGet('path', idx)))
+    if Str_common_part(path, a:path) == path
       return idx
     endif
     let idx += 1
@@ -3173,7 +3329,7 @@ endif
 
 let g:vimwiki_rxWeblink = '\%("[^"(]\+\((\([^)]\+\))\)\?":\)\?'.
       \'\%(https\?\|ftp\|gopher\|telnet\|file\|notes\|ms-help\):'.
-      \'\%(\%(\%(//\)\|\%(\\\\\)\)\+[A-Za-z0-9:#@%/;$~()_?+=.&\\\-]*\)'
+      \'\%(\%(\%(//\)\|\%(\\\\\)\)\+[A-Za-z0-9:#@%/;,$~()_?+=.&\\\-]*\)'
 execute 'syntax match wikiLink `'.g:vimwiki_rxWeblink.'`'
 
 " Emoticons: must come after the Textilisms, as later rules take precedence
