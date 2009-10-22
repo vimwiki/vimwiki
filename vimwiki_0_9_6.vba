@@ -2,7 +2,7 @@
 UseVimball
 finish
 syntax\vimwiki.vim	[[[1
-139
+127
 " Vimwiki syntax file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -71,18 +71,6 @@ execute 'syntax match wikiList /'.g:vimwiki_rxListBullet.'/'
 execute 'syntax match wikiList /'.g:vimwiki_rxListNumber.'/'
 execute 'syntax match wikiList /'.g:vimwiki_rxListDefine.'/'
 
-" XXX: Think of removing this highlighting.
-"==============================================================================
-"
-" Treat all other lines that start with spaces as PRE-formatted text.
-execute 'syntax match wikiPre /'.g:vimwiki_rxPre1.'/ contains=wikiComment'
-" syntax region wikiPre start=/\%(^\s\+[*#].*$\)\@<!\s\+[^[:blank:]*#].*$/
-      " \ end=/^\%([^[:blank:]]\|\s*[*#]\)\@=/ contains=wikiComment
-
-" syntax region wikiPre start=/^\s\+[^[:blank:]*#].*$/
-      " \ end=/^\%([^[:blank:]]\|\s*[*#]\)\@=/ contains=wikiComment
-"==============================================================================
-
 execute 'syntax region wikiPre start=/'.g:vimwiki_rxPreStart.
       \ '/ end=/'.g:vimwiki_rxPreEnd.'/ contains=wikiComment'
 
@@ -143,7 +131,7 @@ hi def link wikiComment Comment
 
 let b:current_syntax="vimwiki"
 syntax\vimwiki_default.vim	[[[1
-79
+76
 " Vimwiki syntax file
 " Default syntax
 " Author: Maxim Kim <habamax@gmail.com>
@@ -217,14 +205,11 @@ let g:vimwiki_rxListNumber = '^\s\+#'
 
 let g:vimwiki_rxListDefine = '::\(\s\|$\)'
 
-" Treat all other lines that start with spaces as PRE-formatted text.
-let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
-
 " Preformatted text
 let g:vimwiki_rxPreStart = '{{{'
 let g:vimwiki_rxPreEnd = '}}}'
 syntax\vimwiki_media.vim	[[[1
-61
+58
 " Vimwiki syntax file
 " MediaWiki syntax
 " Author: Maxim Kim <habamax@gmail.com>
@@ -280,14 +265,11 @@ let g:vimwiki_rxListNumber = '^\s*#\+'
 
 let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
 
-" Treat all other lines that start with spaces as PRE-formatted text.
-let g:vimwiki_rxPre1 = '^\s\+[^[:blank:]*#].*$'
-
 " Preformatted text
 let g:vimwiki_rxPreStart = '<pre>'
 let g:vimwiki_rxPreEnd = '<\/pre>'
 ftplugin\vimwiki.vim	[[[1
-222
+277
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -325,22 +307,23 @@ if VimwikiGet('syntax') == 'default'
   setl comments=b:\ *\ [\ ],b:\ *[\ ],b:\ *\ [],b:\ *[],b:\ *\ [x],b:\ *[x]
   setl comments+=b:\ #\ [\ ],b:\ #[\ ],b:\ #\ [],b:\ #[],b:\ #\ [x],b:\ #[x]
   setl comments+=b:\ *,b:\ #
+  setl formatlistpat=^\\s\\+[*#]\\s*
 else
   setl comments=n:*\ [\ ],n:*[\ ],n:*\ [],n:*[],n:*\ [x],n:*[x]
   setl comments+=n:#\ [\ ],n:#[\ ],n:#\ [],n:#[],n:#\ [x],n:#[x]
   setl comments+=n:*,n:#
 endif
-setlocal formatoptions=ctnqro
+setlocal formatoptions=tnro
 " COMMENTS }}}
 
 " FOLDING for headers and list items using expr fold method. {{{
-if VimwikiGet('folding')
+if g:vimwiki_folding == 1
   setlocal fdm=expr
 endif
 setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+
 function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
-  let nline = getline(a:lnum + 1)
 
   " Header folding...
   if line =~ g:vimwiki_rxHeader
@@ -357,49 +340,102 @@ function! VimwikiFoldLevel(lnum) "{{{
   endif
 
   " List item folding...
-  let nnum = a:lnum + 1
+  if g:vimwiki_fold_lists
+    let rx_list_item = '\('.
+          \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+          \ '\)'
 
-  let rx_list_item = '\('.
-        \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-        \ '\)'
-  if line =~ rx_list_item && nline =~ rx_list_item
-    return s:get_li_level(a:lnum, nnum)
-  " list is over, remove foldlevel
-  elseif line =~ rx_list_item && nline !~ rx_list_item
-    return s:get_li_level_last(a:lnum)
+    if line =~ rx_list_item
+      let [nnum, nline] = s:find_next_item(rx_list_item, a:lnum)
+      if nline =~ rx_list_item
+        let level = s:get_li_level(a:lnum, nnum)
+        if !(level < 0 && (nnum - a:lnum) > 1)
+          return s:fold_marker(level)
+        endif
+      elseif nnum - a:lnum == 1
+        " last single-lined list item in a list
+        let level = s:get_li_level_last(a:lnum)
+        return s:fold_marker(level)
+      endif
+    else
+      let [pnum, pline] = s:find_prev_item(rx_list_item, a:lnum)
+      if pline =~ rx_list_item
+        if getline(a:lnum + 1) =~ rx_list_item
+          let level = s:get_li_level(pnum, a:lnum + 1)
+          if level < 0
+            return s:fold_marker(level)
+          endif
+        endif
+
+        let [nnum, nline] = s:find_next_item(rx_list_item, pnum)
+        if nline !~ rx_list_item && nnum-a:lnum == 1
+          " last multi-lined list item in a list
+          let level = s:get_li_level_last(pnum)
+          return s:fold_marker(level)
+        endif
+
+      endif
+    endif
+
   endif
 
   return '='
 endfunction "}}}
 
+function! s:fold_marker(level) "{{{
+  if a:level > 0
+    return "a".a:level
+  elseif a:level < 0
+    return "s".abs(a:level)
+  else
+    return "="
+  endif
+endfunction "}}}
+
+function! s:find_next_item(rx_item, lnum) "{{{
+  let lnum = a:lnum + 1
+
+  while lnum <= line('$')
+    if getline(lnum) =~ a:rx_item
+          \ || getline(lnum) =~ '^\S'
+          \ || indent(lnum) <= indent(a:lnum)
+      break
+    endif
+    let lnum += 1
+  endwhile
+
+  return [lnum, getline(lnum)]
+endfunction "}}}
+
+function! s:find_prev_item(rx_item, lnum) "{{{
+  let lnum = a:lnum - 1
+
+  while lnum > 1
+    if getline(lnum) =~ a:rx_item
+          \ || getline(lnum) =~ '^\S'
+      break
+    endif
+    let lnum -= 1
+  endwhile
+
+  return [lnum, getline(lnum)]
+endfunction "}}}
+
 function! s:get_li_level(lnum, nnum) "{{{
   if VimwikiGet('syntax') == 'media'
-    let level = s:count_first_sym(getline(a:nnum)) -
-          \ s:count_first_sym(getline(a:lnum))
-    if level > 0
-      return "a".level
-    elseif level < 0
-      return "s".abs(level)
-    else
-      return "="
-    endif
+    let level = vimwiki#count_first_sym(getline(a:nnum)) -
+          \ vimwiki#count_first_sym(getline(a:lnum))
   else
     let level = ((indent(a:nnum) - indent(a:lnum)) / &sw)
-    if level > 0
-      return "a".level
-    elseif level < 0
-      return "s".abs(level)
-    else
-      return "="
-    endif
   endif
+  return level
 endfunction "}}}
 
 function! s:get_li_level_last(lnum) "{{{
   if VimwikiGet('syntax') == 'media'
-    return "s".(s:count_first_sym(getline(a:lnum)) - 1)
+    return -(vimwiki#count_first_sym(getline(a:lnum)) - 1)
   else
-    return "s".(indent(a:lnum) / &sw - 1)
+    return -(indent(a:lnum) / &sw - 1)
   endif
 endfunction "}}}
 
@@ -497,6 +533,7 @@ endif
 noremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 
+
 " Text objects {{{
 omap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0)<CR>
 vmap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0)<CR>
@@ -511,7 +548,7 @@ nmap <silent><buffer> - :call vimwiki#RemoveHeaderLevel()<CR>
 
 " KEYBINDINGS }}}
 plugin\vimwiki.vim	[[[1
-285
+287
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -675,7 +712,6 @@ let s:vimwiki_defaults.path_html = '~/vimwiki_html/'
 let s:vimwiki_defaults.css_name = 'style.css'
 let s:vimwiki_defaults.index = 'index'
 let s:vimwiki_defaults.ext = '.wiki'
-let s:vimwiki_defaults.folding = 1
 let s:vimwiki_defaults.maxhi = 1
 let s:vimwiki_defaults.syntax = 'default'
 let s:vimwiki_defaults.gohome = 'split'
@@ -693,10 +729,12 @@ else
 endif
 call s:default('other', '0-9')
 call s:default('stripsym', '_')
-call s:default('auto_listitem', 1)
+call s:default('badsyms', '')
 call s:default('auto_checkbox', 1)
 call s:default('use_mouse', 0)
+call s:default('folding', 1)
 call s:default('fold_empty_lines', 0)
+call s:default('fold_lists', 1)
 call s:default('menu', 'Vimwiki')
 call s:default('current_idx', 0)
 call s:default('list', [s:vimwiki_defaults])
@@ -704,6 +742,7 @@ call s:default('global_ext', 1)
 call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('camel_case', 1)
+call s:default('list_ignore_newline', 1)
 
 let upp = g:vimwiki_upper
 let low = g:vimwiki_lower
@@ -798,7 +837,7 @@ endif
 
 let &cpo = s:old_cpo
 autoload\vimwiki.vim	[[[1
-603
+610
 " Vimwiki autoload plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -814,7 +853,7 @@ else
   let s:os_sep = '/'
 endif
 
-let s:wiki_badsymbols = '['.g:vimwiki_stripsym.'<>|?*:"]'
+let s:badsymbols = '['.g:vimwiki_badsyms.g:vimwiki_stripsym.'<>|?*:"]'
 " MISC helper functions {{{
 
 " This function is double defined.
@@ -833,12 +872,12 @@ endfunction
 " }}}
 
 function! vimwiki#safe_link(string) "{{{
-  return substitute(a:string, s:wiki_badsymbols, g:vimwiki_stripsym, 'g')
+  return substitute(a:string, s:badsymbols, g:vimwiki_stripsym, 'g')
 endfunction
 "}}}
 
 function! vimwiki#unsafe_link(string) "{{{
-  return substitute(a:string, g:vimwiki_stripsym, s:wiki_badsymbols, 'g')
+  return substitute(a:string, g:vimwiki_stripsym, s:badsymbols, 'g')
 endfunction
 "}}}
 
@@ -870,13 +909,13 @@ endfunction
 " }}}
 
 function! s:filename(link) "{{{
+  let result = vimwiki#safe_link(a:link)
   if a:link =~ '|'
-    return split(a:link, '|')[0]
+    let result = vimwiki#safe_link(split(a:link, '|')[0])
   elseif a:link =~ ']['
-    return split(a:link, '][')[0]
-  else
-    return a:link
+    let result = vimwiki#safe_link(split(a:link, '][')[0])
   endif
+  return result
 endfunction
 " }}}
 
@@ -1020,9 +1059,16 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
 endfunction
 " }}}
 
+function! s:tail_name(fname)
+  let result = substitute(a:fname, ":", "__colon__", "g")
+  let result = fnamemodify(result, ":t:r")
+  let result = substitute(result, "__colon__", ":", "g")
+  return result
+endfunction
+
 function! s:update_wiki_links(old_fname, new_fname) " {{{
-  let old_fname = fnamemodify(a:old_fname, ":t:r")
-  let new_fname = fnamemodify(a:new_fname, ":t:r")
+  let old_fname = s:tail_name(a:old_fname)
+  let new_fname = s:tail_name(a:new_fname)
 
   let subdirs = split(a:old_fname, '[/\\]')[: -2]
 
@@ -1403,7 +1449,7 @@ endfunction
 
 " }}}
 autoload\vimwiki_html.vim	[[[1
-938
+961
 " Vimwiki autoload plugin file
 " Export to HTML
 " Author: Maxim Kim <habamax@gmail.com>
@@ -1450,13 +1496,14 @@ function! s:create_default_CSS(path) " {{{
     call add(lines, 'h4 {font-size: 1.1em; color: #113344;}')
     call add(lines, 'h5 {font-size: 1.0em; color: #112233;}')
     call add(lines, 'h6 {font-size: 1.0em; color: #111111;}')
-    call add(lines, 'p, pre, table, ul, ol, dl {margin-top: 1em; margin-bottom: 1em;}')
+    call add(lines, 'p, pre, blockquote, table, ul, ol, dl {margin-top: 1em; margin-bottom: 1em;}')
     call add(lines, 'ul ul, ul ol, ol ol, ol ul {margin-top: 0.5em; margin-bottom: 0.5em;}')
     call add(lines, 'li {margin: 0.3em auto;}')
     call add(lines, 'ul {margin-left: 2em; padding-left: 0.5em;}')
     call add(lines, 'dt {font-weight: bold;}')
     call add(lines, 'img {border: none;}')
     call add(lines, 'pre {border-left: 1px solid #ccc; margin-left: 2em; padding-left: 0.5em;}')
+    call add(lines, 'blockquote {padding: 0.4em; background-color: #f6f5eb;}')
     call add(lines, 'td {border: 1px solid #ccc; padding: 0.3em;}')
     call add(lines, 'hr {border: none; border-top: 1px solid #ccc; width: 100%;}')
     call add(lines, '.todo {font-weight: bold; background-color: #f0ece8; color: #a03020;}')
@@ -1491,7 +1538,8 @@ function! s:is_img_link(lnk) "{{{
 endfunction "}}}
 
 function! s:is_non_wiki_link(lnk) "{{{
-  if a:lnk =~ '.\+\..\+$'
+  " TODO: Add more file extensions here
+  if a:lnk =~ '.\+\.\%(pdf\|txt\|doc\|rtf\|xls\)$'
     return 1
   endif
   return 0
@@ -1568,20 +1616,20 @@ function! s:get_html_footer() "{{{
   return lines
 endfunction "}}}
 
-function! s:close_tag_code(code, ldest) "{{{
-  if a:code
+function! s:close_tag_pre(pre, ldest) "{{{
+  if a:pre
     call insert(a:ldest, "</pre></code>")
     return 0
   endif
-  return a:code
+  return a:pre
 endfunction "}}}
 
-function! s:close_tag_pre(pre, ldest) "{{{
-  if a:pre
-    call insert(a:ldest, "</pre>")
+function! s:close_tag_quote(quote, ldest) "{{{
+  if a:quote
+    call insert(a:ldest, "</blockquote>")
     return 0
   endif
-  return a:pre
+  return a:quote
 endfunction "}}}
 
 function! s:close_tag_para(para, ldest) "{{{
@@ -1615,11 +1663,11 @@ function! s:close_tag_def_list(deflist, ldest) "{{{
   return a:deflist
 endfunction! "}}}
 
-function! s:process_tag_pre_cl(line, code) "{{{
+function! s:process_tag_pre(line, pre) "{{{
   let lines = []
-  let code = a:code
+  let pre = a:pre
   let processed = 0
-  if !code && a:line =~ '{{{[^\(}}}\)]*\s*$'
+  if !pre && a:line =~ '{{{[^\(}}}\)]*\s*$'
     let class = matchstr(a:line, '{{{\zs.*$')
     let class = substitute(class, '\s\+$', '', 'g')
     if class != ""
@@ -1627,42 +1675,43 @@ function! s:process_tag_pre_cl(line, code) "{{{
     else
       call add(lines, "<pre>")
     endif
-    let code = 1
+    let pre = 1
     let processed = 1
-  elseif code && a:line =~ '^}}}\s*$'
-    let code = 0
-    call add(lines, "</pre>")
-    let processed = 1
-  elseif code
-    let processed = 1
-    call add(lines, a:line)
-  endif
-  return [processed, lines, code]
-endfunction "}}}
-
-function! s:process_tag_pre(line, pre) "{{{
-  let lines = []
-  let pre = a:pre
-  let processed = 0
-  if a:line =~ '^\s\+[^[:blank:]*#]'
-    if !pre
-      call add(lines, "<pre>")
-      let pre = 1
-    endif
-    let processed = 1
-    call add(lines, a:line)
-  elseif pre && a:line =~ '^\s*$'
-    let processed = 1
-    call add(lines, a:line)
-  elseif pre
-    call add(lines, "</pre>")
+  elseif pre && a:line =~ '^}}}\s*$'
     let pre = 0
+    call add(lines, "</pre>")
+    let processed = 1
+  elseif pre
+    let processed = 1
+    call add(lines, a:line)
   endif
   return [processed, lines, pre]
 endfunction "}}}
 
+function! s:process_tag_quote(line, quote) "{{{
+  let lines = []
+  let quote = a:quote
+  let processed = 0
+  if a:line =~ '^\s\{4,}[^[:blank:]*#]'
+    if !quote
+      call add(lines, "<blockquote>")
+      let quote = 1
+    endif
+    let processed = 1
+    call add(lines, substitute(a:line, '^\s*', '', ''))
+  elseif quote && a:line =~ '^\s*$'
+    let processed = 1
+    call add(lines, a:line)
+  elseif quote
+    call add(lines, "</blockquote>")
+    let quote = 0
+  endif
+  return [processed, lines, quote]
+endfunction "}}}
+
 function! s:process_tag_list(line, lists) "{{{
-  function! s:add_strike(line, st_tag, en_tag)
+
+  function! s:add_strike(line, st_tag, en_tag) "{{{
     let st_tag = a:st_tag
     let en_tag = a:en_tag
     " apply strikethrough for checked list items
@@ -1671,9 +1720,9 @@ function! s:process_tag_list(line, lists) "{{{
       let en_tag = '</span>'.a:en_tag
     endif
     return [st_tag, en_tag]
-  endfunction
+  endfunction "}}}
 
-  function! s:add_checkbox(line, rx_list, st_tag, en_tag)
+  function! s:add_checkbox(line, rx_list, st_tag, en_tag) "{{{
     let st_tag = a:st_tag
     let en_tag = a:en_tag
 
@@ -1686,50 +1735,71 @@ function! s:process_tag_list(line, lists) "{{{
       endif
     endif
     return [st_tag, en_tag]
-  endfunction
+  endfunction "}}}
 
   let lines = []
-  let lstSym = ''
-  let lstTagOpen = ''
-  let lstTagClose = ''
-  let lstRegExp = ''
   let processed = 0
+
   if a:line =~ '^\s\+\*'
     let lstSym = '*'
     let lstTagOpen = '<ul>'
     let lstTagClose = '</ul>'
-    let lstRegExp = '^\s\+\*'
-    let processed = 1
+    let lstRegExp = '^\s\+\*\s*'
   elseif a:line =~ '^\s\+#'
     let lstSym = '#'
     let lstTagOpen = '<ol>'
     let lstTagClose = '</ol>'
-    let lstRegExp = '^\s\+#'
-    let processed = 1
+    let lstRegExp = '^\s\+#\s*'
+  else
+    let lstSym = ''
+    let lstTagOpen = ''
+    let lstTagClose = ''
+    let lstRegExp = ''
   endif
 
-  let cnt = len(a:lists)
+  let in_list = (len(a:lists) > 0)
   if lstSym != ''
     " To get proper indent level 'retab' the line -- change all tabs
     " to spaces*tabstop
     let line = substitute(a:line, '\t', repeat(' ', &tabstop), 'g')
     let indent = stridx(line, lstSym)
 
-    if !cnt || (cnt && indent > a:lists[-1][1])
+    let checkbox = '\s*\[\(.\?\)]\s*'
+    let [st_tag, en_tag] = s:add_strike(line, '<li>', '</li>')
+    let [st_tag, en_tag] = s:add_checkbox(line,
+          \ lstRegExp.checkbox, st_tag, en_tag)
+
+    if !in_list
       call add(a:lists, [lstTagClose, indent])
       call add(lines, lstTagOpen)
-    elseif (cnt && indent < a:lists[-1][1])
+    elseif (in_list && indent > a:lists[-1][1])
+      let item = remove(a:lists, -1)
+      call add(lines, item[0])
+
+      call add(a:lists, [lstTagClose, indent])
+      call add(lines, lstTagOpen)
+    elseif (in_list && indent < a:lists[-1][1])
       while len(a:lists) && indent < a:lists[-1][1]
         let item = remove(a:lists, -1)
         call add(lines, item[0])
       endwhile
+    elseif in_list
+      let item = remove(a:lists, -1)
+      call add(lines, item[0])
     endif
-    let checkbox = '\s*\[\(.\?\)]'
-    let [st_tag, en_tag] = s:add_strike(a:line, '<li>', '</li>')
-    let [st_tag, en_tag] = s:add_checkbox(a:line, lstRegExp.checkbox, st_tag, en_tag)
-    call add(lines, st_tag.
-          \ substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', '').
-          \ en_tag)
+
+    call add(a:lists, [en_tag, indent])
+    call add(lines, st_tag)
+    call add(lines,
+          \ substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
+    let processed = 1
+  elseif in_list > 0 && a:line =~ '^\s\+\S\+'
+    if g:vimwiki_list_ignore_newline
+      call add(lines, a:line)
+    else
+      call add(lines, '<br />'.a:line)
+    endif
+    let processed = 1
   else
     while len(a:lists)
       let item = remove(a:lists, -1)
@@ -2045,7 +2115,6 @@ function! s:make_internal_link(entag) "{{{
             \ '.html">'.a:entag.'</a>'
     endif
   endif
-
   return line
 endfunction "}}}
 
@@ -2072,11 +2141,11 @@ function! s:make_barebone_link(entag) "{{{
   return line
 endfunction "}}}
 
-function! s:get_html_from_wiki_line(line, para, pre, code,
+function! s:get_html_from_wiki_line(line, para, quote, pre,
       \ table, lists, deflist) " {{{
   let para = a:para
+  let quote = a:quote
   let pre = a:pre
-  let code = a:code
   let table = a:table
   let lists = a:lists
   let deflist = a:deflist
@@ -2086,9 +2155,9 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
   let line = s:safe_html(a:line)
 
   let processed = 0
-  "" Code
+  "" pre
   if !processed
-    let [processed, lines, code] = s:process_tag_pre_cl(line, code)
+    let [processed, lines, pre] = s:process_tag_pre(line, pre)
     if processed && len(lists)
       call s:close_tag_list(lists, lines)
     endif
@@ -2098,8 +2167,8 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     if processed && deflist
       let deflist = s:close_tag_def_list(deflist, lines)
     endif
-    if processed && pre
-      let pre = s:close_tag_pre(pre, lines)
+    if processed && quote
+      let quote = s:close_tag_quote(quote, lines)
     endif
     if processed && para
       let para = s:close_tag_para(para, lines)
@@ -2110,11 +2179,11 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
   "" list
   if !processed
     let [processed, lines] = s:process_tag_list(line, lists)
+    if processed && quote
+      let quote = s:close_tag_quote(quote, lines)
+    endif
     if processed && pre
       let pre = s:close_tag_pre(pre, lines)
-    endif
-    if processed && code
-      let code = s:close_tag_code(code, lines)
     endif
     if processed && table
       let table = s:close_tag_table(table, lines)
@@ -2131,9 +2200,9 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     call extend(res_lines, lines)
   endif
 
-  "" Pre
+  "" quote
   if !processed
-    let [processed, lines, pre] = s:process_tag_pre(line, pre)
+    let [processed, lines, quote] = s:process_tag_quote(line, quote)
     if processed && len(lists)
       call s:close_tag_list(lists, lines)
     endif
@@ -2143,8 +2212,8 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     if processed && table
       let table = s:close_tag_table(table, lines)
     endif
-    if processed && code
-      let code = s:close_tag_code(code, lines)
+    if processed && pre
+      let pre = s:close_tag_pre(pre, lines)
     endif
     if processed && para
       let para = s:close_tag_para(para, lines)
@@ -2176,7 +2245,7 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     if processed
       call s:close_tag_list(lists, res_lines)
       let table = s:close_tag_table(table, res_lines)
-      let code = s:close_tag_code(code, res_lines)
+      let pre = s:close_tag_pre(pre, res_lines)
       call add(res_lines, line)
     endif
   endif
@@ -2186,7 +2255,7 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     if processed
       call s:close_tag_list(lists, res_lines)
       let table = s:close_tag_table(table, res_lines)
-      let code = s:close_tag_code(code, res_lines)
+      let pre = s:close_tag_pre(pre, res_lines)
       call add(res_lines, line)
     endif
   endif
@@ -2197,11 +2266,11 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     if processed && len(lists)
       call s:close_tag_list(lists, lines)
     endif
+    if processed && quote
+      let quote = s:close_tag_quote(quote, res_lines)
+    endif
     if processed && pre
       let pre = s:close_tag_pre(pre, res_lines)
-    endif
-    if processed && code
-      let code = s:close_tag_code(code, res_lines)
     endif
     if processed && table
       let table = s:close_tag_table(table, res_lines)
@@ -2217,7 +2286,7 @@ function! s:get_html_from_wiki_line(line, para, pre, code,
     call add(res_lines, line)
   endif
 
-  return [res_lines, para, pre, code, table, lists, deflist]
+  return [res_lines, para, quote, pre, table, lists, deflist]
 
 endfunction " }}}
 
@@ -2278,22 +2347,22 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
 
   let para = 0
+  let quote = 0
   let pre = 0
-  let code = 0
   let table = 0
   let deflist = 0
   let lists = []
 
   for line in lsource
-    let oldpre = pre
-    let [lines, para, pre, code, table, lists, deflist] =
-          \ s:get_html_from_wiki_line(line, para, pre, code,
+    let oldquote = quote
+    let [lines, para, quote, pre, table, lists, deflist] =
+          \ s:get_html_from_wiki_line(line, para, quote, pre,
           \ table, lists, deflist)
 
     " A dirty hack: There could be a lot of empty strings before
-    " s:process_tag_pre find out `pre` is over. So we should delete
+    " s:process_tag_quote find out `pre` is over. So we should delete
     " them all. Think of the way to refactor it out.
-    if (oldpre != pre) && ldest[-1] =~ '^\s*$'
+    if (oldquote != quote) && ldest[-1] =~ '^\s*$'
       call s:remove_blank_lines(ldest)
     endif
 
@@ -2305,9 +2374,9 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   "" process end of file
   "" close opened tags if any
   let lines = []
-  call s:close_tag_pre(pre, lines)
+  call s:close_tag_quote(quote, lines)
   call s:close_tag_para(para, lines)
-  call s:close_tag_code(code, lines)
+  call s:close_tag_pre(pre, lines)
   call s:close_tag_list(lists, lines)
   call s:close_tag_def_list(deflist, lines)
   call s:close_tag_table(table, lines)
@@ -2343,7 +2412,7 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
   let &more = setting_more
 endfunction "}}}
 autoload\vimwiki_lst.vim	[[[1
-187
+280
 " Vimwiki autoload plugin file
 " Todo lists related stuff here.
 " Author: Maxim Kim <habamax@gmail.com>
@@ -2355,51 +2424,131 @@ endif
 let g:loaded_vimwiki_lst_auto = 1
 
 " Script variables {{{
-" used in various checks
-let s:rx_list_item = '\('.
-      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-      \ '\)'
-let s:rx_cb_list_item = s:rx_list_item.'\s*\zs\[.\?\]'
 let s:rx_li_box = '\[.\?\]'
-let s:rx_li_unchecked = '\[\s\?\]'
-" used in substitutions
-let s:rx_li_check = '\[x\]'
-let s:rx_li_uncheck = '\[ \]'
+" for substitutions
+let s:rx_li_100 = '\[x\]'
+let s:rx_li_0 = '\[ \]'
+let s:rx_li_67_99 = '\[o\]'
+let s:rx_li_34_66 = '\[:\]'
+let s:rx_li_1_33 = '\[\.\]'
 " }}}
 
 " Script functions {{{
-" Set state of the list item on line number "lnum" to [ ] or [x]
-function! s:set_state(lnum, on_off)"{{{
-  let line = getline(a:lnum)
-  if a:on_off
-    let state = s:rx_li_check
+
+" Get regexp of the list item.
+function! s:rx_list_item() "{{{
+  return '\('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)'
+endfunction "}}}
+
+" Get regexp of the list item with checkbox.
+function! s:rx_cb_list_item() "{{{
+  return s:rx_list_item().'\s*\zs\[.\?\]'
+endfunction "}}}
+
+" Get level of the list item.
+function! s:get_level(lnum) "{{{
+  if VimwikiGet('syntax') == 'media'
+    let level = vimwiki#count_first_sym(getline(a:lnum))
   else
-    let state = s:rx_li_uncheck
+    let level = indent(a:lnum)
+  endif
+  return level
+endfunction "}}}
+
+" Get previous list item.
+" Returns: line number or 0.
+function! s:prev_list_item(lnum) "{{{
+  let c_lnum = a:lnum - 1
+  while c_lnum >= 1
+    let line = getline(c_lnum)
+    if line =~ s:rx_list_item()
+      return c_lnum
+    endif
+    if line =~ '^\s*$'
+      return 0
+    endif
+    let c_lnum -= 1
+  endwhile
+  return 0
+endfunction "}}}
+
+" Get next list item.
+" Returns: line number or 0.
+function! s:next_list_item(lnum) "{{{
+  let c_lnum = a:lnum + 1
+  while c_lnum <= line('$')
+    let line = getline(c_lnum)
+    if line =~ s:rx_list_item()
+      return c_lnum
+    endif
+    if line =~ '^\s*$'
+      return 0
+    endif
+    let c_lnum += 1
+  endwhile
+  return 0
+endfunction "}}}
+
+" Set state of the list item on line number "lnum" to [ ] or [x]
+function! s:set_state(lnum, rate) "{{{
+  let line = getline(a:lnum)
+  if a:rate == 100
+    let state = s:rx_li_100
+  elseif a:rate == 0
+    let state = s:rx_li_0
+  elseif a:rate >= 67
+    let state = s:rx_li_67_99
+  elseif a:rate >= 34
+    let state = s:rx_li_34_66
+  else
+    let state = s:rx_li_1_33
   endif
   let line = substitute(line, s:rx_li_box, state, '')
   call setline(a:lnum, line)
-endfunction"}}}
+endfunction "}}}
 
 " Get state of the list item on line number "lnum"
-function! s:get_state(lnum)"{{{
-  let state = 1
+function! s:get_state(lnum) "{{{
+  let state = 0
   let line = getline(a:lnum)
-  let opt = matchstr(line, s:rx_cb_list_item)
-  if opt =~ s:rx_li_unchecked
+  let opt = matchstr(line, s:rx_cb_list_item())
+  if opt =~ s:rx_li_100
+    let state = 100
+  elseif opt =~ s:rx_li_0
     let state = 0
+  elseif opt =~ s:rx_li_1_33
+    let state = 25
+  elseif opt =~ s:rx_li_34_66
+    let state = 50
+  elseif opt =~ s:rx_li_67_99
+    let state = 75
   endif
   return state
-endfunction"}}}
+endfunction "}}}
 
-" Returns 1 if line is list item, 0 otherwise
-function! s:is_cb_list_item(lnum)"{{{
-  return getline(a:lnum) =~ s:rx_cb_list_item
-endfunction"}}}
+" Returns 1 if there is checkbox on a list item, 0 otherwise.
+function! s:is_cb_list_item(lnum) "{{{
+  return getline(a:lnum) =~ s:rx_cb_list_item()
+endfunction "}}}
 
-" Returns 1 if line is list item, 0 otherwise
-function! s:is_list_item(lnum)"{{{
-  return getline(a:lnum) =~ s:rx_list_item
-endfunction"}}}
+" Returns start line number of list item, 0 if it is not a list.
+function! s:is_list_item(lnum) "{{{
+  let c_lnum = a:lnum
+  while c_lnum >= 1
+    let line = getline(c_lnum)
+    if line =~ s:rx_list_item()
+      return c_lnum
+    endif
+    if line =~ '^\s*$'
+      return 0
+    endif
+    if indent(c_lnum) > indent(a:lnum)
+      return 0
+    endif
+    let c_lnum -= 1
+  endwhile
+  return 0
+endfunction "}}}
 
 " Returns char column of checkbox. Used in parent/child checks.
 function! s:get_li_pos(lnum) "{{{
@@ -2407,65 +2556,59 @@ function! s:get_li_pos(lnum) "{{{
 endfunction "}}}
 
 " Returns list of line numbers of parent and all its child items.
-function! s:get_child_items(lnum)"{{{
+function! s:get_child_items(lnum) "{{{
   let result = []
   let lnum = a:lnum
-  let parent_pos = s:get_li_pos(lnum)
+  let p_pos = s:get_level(lnum)
 
   " add parent
   call add(result, lnum)
-  let lnum += 1
 
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) > parent_pos &&
-        \ lnum <= line('$')
-
+  let lnum = s:next_list_item(lnum)
+  while lnum != 0 && s:is_list_item(lnum) && s:get_level(lnum) > p_pos
     call add(result, lnum)
-    let lnum += 1
+    let lnum = s:next_list_item(lnum)
   endwhile
 
   return result
-endfunction"}}}
+endfunction "}}}
 
 " Returns list of line numbers of all items of the same level.
-function! s:get_sibling_items(lnum)"{{{
+function! s:get_sibling_items(lnum) "{{{
   let result = []
   let lnum = a:lnum
-  let ind = s:get_li_pos(lnum)
+  let ind = s:get_level(lnum)
 
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum <= line('$')
+  while s:get_level(lnum) >= ind &&
+        \ lnum != 0
 
-    if s:get_li_pos(lnum) == ind
+    if s:get_level(lnum) == ind && s:is_cb_list_item(lnum)
       call add(result, lnum)
     endif
-    let lnum += 1
+    let lnum = s:next_list_item(lnum)
   endwhile
 
-  let lnum = a:lnum - 1
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum >= 0
+  let lnum = s:prev_list_item(a:lnum)
+  while s:get_level(lnum) >= ind &&
+        \ lnum != 0
 
-    if s:get_li_pos(lnum) == ind
+    if s:get_level(lnum) == ind && s:is_cb_list_item(lnum)
       call add(result, lnum)
     endif
-    let lnum -= 1
+    let lnum = s:prev_list_item(lnum)
   endwhile
 
   return result
-endfunction"}}}
+endfunction "}}}
 
 " Returns line number of the parent of lnum item
-function! s:get_parent_item(lnum)"{{{
+function! s:get_parent_item(lnum) "{{{
   let lnum = a:lnum
-  let ind = s:get_li_pos(lnum)
+  let ind = s:get_level(lnum)
 
-  while s:is_cb_list_item(lnum) &&
-        \ s:get_li_pos(lnum) >= ind &&
-        \ lnum >= 0
-    let lnum -= 1
+  let lnum = s:prev_list_item(lnum)
+  while lnum != 0 && s:is_list_item(lnum) && s:get_level(lnum) >= ind
+    let lnum = s:prev_list_item(lnum)
   endwhile
 
   if s:is_cb_list_item(lnum)
@@ -2473,66 +2616,85 @@ function! s:get_parent_item(lnum)"{{{
   else
     return a:lnum
   endif
-endfunction"}}}
+endfunction "}}}
 
 " Creates checkbox in a list item.
-function s:create_cb_list_item(lnum) "{{{
+function! s:create_cb_list_item(lnum) "{{{
   let line = getline(a:lnum)
-  let m = matchstr(line, s:rx_list_item)
+  let m = matchstr(line, s:rx_list_item())
   if m != ''
     let line = m.' [ ]'.strpart(line, len(m))
     call setline(a:lnum, line)
   endif
 endfunction "}}}
 
-" Script functions }}}
+" Tells if all of the sibling list items are checked or not.
+function! s:all_siblings_checked(lnum) "{{{
+  let result = 0
+  let cnt = 0
+  let siblings = s:get_sibling_items(a:lnum)
+  for lnum in siblings
+    let cnt += s:get_state(lnum)/100.0
+  endfor
+  let result = (cnt*100.0)/len(siblings)
+  return result
+endfunction "}}}
 
-" Toggle list item between [ ] and [x]
-function! vimwiki_lst#ToggleListItem()"{{{
-  let current_lnum = line('.')
-
-  if !s:is_cb_list_item(current_lnum)
+" Creates checkbox on a list item if there is no one.
+function! s:TLI_create_checkbox(lnum) "{{{
+  if a:lnum && !s:is_cb_list_item(a:lnum)
     if g:vimwiki_auto_checkbox
-      call s:create_cb_list_item(current_lnum)
+      call s:create_cb_list_item(a:lnum)
     endif
-    return
+    return 1
   endif
+  return 0
+endfunction "}}}
 
-  let current_state = s:get_state(current_lnum)
-  if  current_state == 0
-    for lnum in s:get_child_items(current_lnum)
-      call s:set_state(lnum, 1)
-      let new_state = 1
-    endfor
+" Switch state of the child list items.
+function! s:TLI_switch_child_state(lnum) "{{{
+  let current_state = s:get_state(a:lnum)
+  if current_state == 100
+    let new_state = 0
   else
-    for lnum in s:get_child_items(current_lnum)
-      call s:set_state(lnum, 0)
-      let new_state = 0
-    endfor
+    let new_state = 100
   endif
+  for lnum in s:get_child_items(a:lnum)
+    call s:set_state(lnum, new_state)
+  endfor
+endfunction "}}}
 
-  let c_lnum = current_lnum
+" Switch state of the parent list items.
+function! s:TLI_switch_parent_state(lnum) "{{{
+  let c_lnum = a:lnum
   while s:is_cb_list_item(c_lnum)
-    let all_items_checked = 1
-    for lnum in s:get_sibling_items(c_lnum)
-      if s:get_state(lnum) != 1
-        let all_items_checked = 0
-        break
-      endif
-    endfor
-
     let parent_lnum = s:get_parent_item(c_lnum)
     if parent_lnum == c_lnum
       break
     endif
-    call s:set_state(parent_lnum, all_items_checked)
-
+    call s:set_state(parent_lnum, s:all_siblings_checked(c_lnum))
 
     let c_lnum = parent_lnum
   endwhile
-endfunction"}}}
+endfunction "}}}
+
+" Script functions }}}
+
+" Toggle list item between [ ] and [x]
+function! vimwiki_lst#ToggleListItem() "{{{
+  let current_lnum = line('.')
+  let li_lnum = s:is_list_item(current_lnum)
+
+  if !s:TLI_create_checkbox(li_lnum)
+    call s:TLI_switch_child_state(li_lnum)
+  endif
+
+  call s:TLI_switch_parent_state(li_lnum)
+
+endfunction "}}}
+
 doc\vimwiki.txt	[[[1
-1208
+1314
 *vimwiki.txt*  A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
@@ -2543,7 +2705,7 @@ doc\vimwiki.txt	[[[1
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.9.5 ~
+                               Version: 0.9.6 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -2565,7 +2727,8 @@ CONTENTS                                                    *vimwiki-contents*
     5.5. Lists ...............................|vimwiki-syntax-lists|
     5.6. Tables ..............................|vimwiki-syntax-tables|
     5.7. Preformatted text ...................|vimwiki-syntax-preformatted|
-    5.8. Comments ............................|vimwiki-syntax-comment|
+    5.8. Blockquotes .........................|vimwiki-syntax-blockquotes|
+    5.9. Comments ............................|vimwiki-syntax-comments|
   6. Folding/Outline .........................|vimwiki-folding|
   7. Todo lists...............................|vimwiki-todo-lists|
   8. Options .................................|vimwiki-options|
@@ -2904,6 +3067,7 @@ in html: >
 
 = Header level 1 =~
 By default all headers are highlighted using |hl-Title| highlight group.
+
 == Header level 2 ==~
 You can set up different colors for each header level: >
   :hi wikiHeader1 guifg=#FF0000
@@ -2913,7 +3077,10 @@ You can set up different colors for each header level: >
   :hi wikiHeader5 guifg=#00FFFF
   :hi wikiHeader6 guifg=#FFFF00
 Set up colors for all 6 header levels or none at all.
+
 === Header level 3 ===~
+Check |g:vimwiki_hl_headers|.
+
 ==== Header level 4 ====~
 ===== Header level 5 =====~
 ====== Header level 6 ======~
@@ -2974,6 +3141,16 @@ It is possible to mix bulleted and numbered lists: >
     # Numbered list sub item 1
     # Numbered list sub item 2
 
+Multiline list items: >
+  * Bulleted list item 1
+    List item 1 continued line.
+    List item 1 next continued line.
+  * Bulleted list item 2
+    * Bulleted list sub item 1
+      List sub item 1 continued line.
+      List sub item 1 next continued line.
+    * Bulleted list sub item 2
+    * etc.
 
 Definition lists: >
 Term 1:: Definition 1
@@ -3014,21 +3191,7 @@ Spaces on the left and on the right -- center alignment.
 ------------------------------------------------------------------------------
 5.7. Preformatted text                           *vimwiki-syntax-preformatted*
 
-If the line started from whitespace and is not a list it is "preformatted" text.
-For example: >
-
-  Tyger! Tyger! burning bright
-   In the forests of the night,
-    What immortal hand or eye
-     Could frame thy fearful symmetry?
-  In what distant deeps or skies
-   Burnt the fire of thine eyes?
-    On what wings dare he aspire?
-     What the hand dare sieze the fire?
-  ...
-  ...
-
-Or use {{{ and }}} to define pre:
+Use {{{ and }}} to define block of preformatted text:
 {{{ >
   Tyger! Tyger! burning bright
    In the forests of the night,
@@ -3058,9 +3221,17 @@ Result of HTML export: >
 This might be useful for coloring some programming code with external js tools
 like google syntax highlighter.
 
+------------------------------------------------------------------------------
+5.8. Blockquotes                                  *vimwiki-syntax-blockquotes*
+
+Text started with 4 or more spaces is a blockquote.
+
+    This would be a blockquote in vimwiki. It is not highlighted in vim but
+    could be styled by css in html. Blockquotes are usually used to quote a
+    long piece of text from another source.
 
 ------------------------------------------------------------------------------
-5.8. Comments                                        *vimwiki-syntax-comments*
+5.9. Comments                                        *vimwiki-syntax-comments*
 
 Text between <!-- and --> is a comment.
 Ex: >
@@ -3105,7 +3276,7 @@ NOTE: Whether you use default syntax, folding on list items should work
 properly only if all of them are indented using current |shiftwidth|.
 For MediaWiki * or # should be in the first column.
 
-To turn folding on/off checkout |vimwiki-option-folding|.
+To turn folding on/off check |g:vimwiki-folding|.
 
 ==============================================================================
 7. Todo lists                                             *vimwiki-todo-lists*
@@ -3113,7 +3284,7 @@ To turn folding on/off checkout |vimwiki-option-folding|.
 You can have todo lists -- lists of items you can check/uncheck.
 
 Consider the following example:
-= Toggleable list of items =
+= Toggleable list of todo items =
   * [x] Toggle list item on/off.
     * [x] Simple toggling between [ ] and [x].
     * [x] All list's subitems should be toggled on/off appropriately.
@@ -3123,8 +3294,39 @@ Consider the following example:
   * [x] Add highlighting to list item boxes
   * [x] Add [ ] to the next created with o, O and <CR> list item.
 
+
 Pressing <C-Space> on the first list item will toggle it and all of it's child
-items.
+items:
+= Toggleable list of todo items =
+  * [ ] Toggle list item on/off.
+    * [ ] Simple toggling between [ ] and [x].
+    * [ ] All list's subitems should be toggled on/off appropriately.
+    * [ ] Toggle child subitems only if current line is list item
+    * [ ] Parent list item should be toggled depending on it's child items.
+  * [x] Make numbered list items toggleable too
+  * [x] Add highlighting to list item boxes
+  * [x] Add [ ] to the next created with o, O and <CR> list item.
+
+Pressing <C-Space> on the third list item will toggle it and all of it's
+parent items:
+= Toggleable list of todo items =
+  * [.] Toggle list item on/off.
+    * [ ] Simple toggling between [ ] and [x].
+    * [x] All list's subitems should be toggled on/off appropriately.
+    * [ ] Toggle child subitems only if current line is list item
+    * [ ] Parent list item should be toggled depending on it's child items.
+  * [ ] Make numbered list items toggleable too
+  * [ ] Add highlighting to list item boxes
+  * [ ] Add [ ] to the next created with o, O and <CR> list item.
+
+Parent items could be toggled by its child items. Symbol inside [ ] depends on
+percentage of toggled child items: >
+    [ ] -- 0%
+    [.] -- 1-33%
+    [:] -- 34-66%
+    [o] -- 67-99%
+    [x] -- 100%
+
 
 ==============================================================================
 8. Options                                                   *vimwiki-options*
@@ -3194,16 +3396,6 @@ Extension of wiki files: >
                        \ 'index': 'main', 'ext': '.document'}]
 
 <
-*vimwiki-option-folding*
-Key             Default value     Values~
-folding         1                 0, 1
-Description~
-Enable/disable vimwiki's folding/outline. Folding in vimwiki is using 'expr'
-foldmethod which is very flexible but really slow.
-To turn it off set it to 0 as in example below: >
-  let g:vimwiki_list = [{'path': '~/articles/', 'folding': 0}]
-<
-
 *vimwiki-option-syntax*
 Key             Default value     Values~
 syntax          default           default, media
@@ -3378,7 +3570,23 @@ Default: 'Vimwiki'
 
 Change strip symbol -- in Windows you cannot use /*?<>:" in file names so
 vimwiki replaces them with neutral symbol (_ is default): >
+    let g:vimwiki_stripsym = '_'
+
+You can change it to a <space> for example: >
     let g:vimwiki_stripsym = ' '
+
+------------------------------------------------------------------------------
+*g:vimwiki_badsyms*
+
+Consider you do not like spaces or in filenames (as some vimwiki users do).
+In that case you can set up bad symbols that would be converted to
+|g:vimwiki_stripsym|: >
+    let g:vimwiki_badsyms = ' '
+
+Now files for all [[links with spaces]] would be created like
+'links_with_spaces'.
+
+This option is a complement one to |g:vimwiki_stripsym|.
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*
@@ -3388,6 +3596,29 @@ Use local mouse mappings from |vimwiki-local-mappings|.
 Value           Description~
 0               Do not use mouse mappings.
 1               Use mouse mappings.
+
+Default: 0
+
+------------------------------------------------------------------------------
+*g:vimwiki_folding*
+
+Enable/disable vimwiki's folding/outline. Folding in vimwiki is using 'expr'
+foldmethod which is very flexible but really slow.
+
+Value           Description~
+0               Disable folding.
+1               Enable folding.
+
+Default: 1
+
+------------------------------------------------------------------------------
+*g:vimwiki_fold_lists*
+
+Enable/disable folding of list subitems.
+
+Value           Description~
+0               Disable list subitem's folding.
+1               Enable list subitem's folding.
 
 Default: 0
 
@@ -3410,6 +3641,18 @@ If you do not want WikiWord to be a link this setting is just for you.
 Value           Description~
 0               Do not make links from CamelCased words.
 1               Make links from CamelCased words.
+
+Default: 1
+
+------------------------------------------------------------------------------
+*g:vimwiki_list_ignore_newline*
+
+This is HTML related.
+Convert newlines to <BR />s in multiline list items.
+
+Value           Description~
+0               Newlines in a list item are converted to <BR />s.
+1               Ignore newlines.
 
 Default: 1
 
@@ -3445,272 +3688,297 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 ==============================================================================
 11. Changelog                                              *vimwiki-changelog*
 
+0.9.6
+    * NEW: You can have multiline list items. See |vimwiki-syntax-lists|.
+    * NEW: You can ignore newlines in multiline list items when do export to
+      html. See |g:vimwiki_list_ignore_newline| option.
+    * NEW: Different checkbox symbols [.], [:], [o] are added. See
+      |vimwiki-todo-lists|.
+    * NEW: Now there is no longer syntax of preformatted text that is started
+      by a whitespace.
+    * NEW: Blockquotes. See |vimwiki-syntax-blockquote|.
+    * NEW: Per wiki folding option (vimwiki-option-folding) is removed. Global
+      |g:vimwiki_folding| and |g:vimwiki_fold_lists| are added.
+    * NEW: Due to being quite slow folding of list items is off by default.
+      Use |g:vimwiki_fold_lists| to turn it on.
+    * NEW: If you want replace some symbols in a wikifilename use
+      |g:vimwiki_badsyms| option (Andreas Baldeau).
+    * FIX: Command |:VimwikiToggleListItem| doesn't work for one of the two
+      wikies opened at the same time with different syntaxes.
+    * FIX: Command |:VimwikiToggleListItem| do not switch parent checkboxes if
+      there are non-checkbox list items available.
+    * FIX: Issue 24: Link error in html when write [[one.two.three]].
+    * FIX: Rename WikiWord to something with a colon (:) does nasty things.
+    * FIX: Command |:VimwikiToggleListItem| do not switch right if there are
+      list items without checkboxes in the list.
+
 0.9.5
-  * [new] Added |g:vimwiki_global_ext| to control creation of temporary wikies
-    in a dirs that are not listed in |g:vimwiki_list|.
-  * [new] Added |g:vimwiki_hl_headers| to highlight headers with different
-    predefined colors.
-  * [new] Checked [x] items are not highlighted with Comment syntax group by
-    default. Use |g:vimwiki_hl_cb_checked| to turn it on.
-  * [new] Added new syntax for links: [[link address][link description]].
-  * [new] Added <C-@> allias of <C-Space> mapping for *nix systems.
-  * [new] Added |g:vimwiki_camel_case|. Set it to 0 if you do not want
-    CamelCased WikiWords to be linkified.
-  * [fix] Links with g:vimwiki_stripsym (default '_') [[My_Link|Text]]
-    are not highlighted when created.
-  * [fix] indent/vimwiki.vim is obsolete. If you upgrade from previous
-    versions remove it. It causes wrong list indentation if noexpandtab is
-    set.
-  * [fix] If tabs and spaces are used to indent list items html export gives
-    error. Thanks Klaus Ethgen for report.
-  * [fix] Some html export fixes.
+    * NEW: Added |g:vimwiki_global_ext| to control creation of temporary
+      wikies in dirs that are not listed in |g:vimwiki_list|.
+    * NEW: Added |g:vimwiki_hl_headers| to highlight headers with different
+      predefined colors.
+    * NEW: Checked [x] items are not highlighted with Comment syntax group by
+      default. Use |g:vimwiki_hl_cb_checked| to turn it on.
+    * NEW: Added new syntax for links: [[link address][link description]].
+    * NEW: Added <C-@> allias of <C-Space> mapping for *nix systems.
+    * NEW: Added |g:vimwiki_camel_case|. Set it to 0 if you do not want
+      CamelCased WikiWords to be linkified.
+    * FIX: Links with g:vimwiki_stripsym (default '_') [[My_Link|Text]] are
+      not highlighted when created.
+    * FIX: indent/vimwiki.vim is obsolete. If you upgrade from previous
+      versions remove it. It causes wrong list indentation if noexpandtab is
+      set.
+    * FIX: If tabs and spaces are used to indent list items html export gives
+      error. Thanks Klaus Ethgen for report.
+    * FIX: Some html export fixes.
 
 0.9.4
-  * [new] Links with directories: [[dir1/dir2/Link|Text]]. Thanks Jie Wu.
-  * [new] Added %root_path% template variable to get relative root dir of
-    path_html. See |vimwiki-option-html_header|.
-  * [fix] Indent is incorrect for vim without "float" compile option. Thanks
-    Julian Kooij.
-  * [fix] Convert to html doesn't work right with links like [[foo::bar]].
-  * [fix] Rename wikiword doesn't work right when rename WikiWord to
-    [[WikiWord blablabla]].
-  * [fix] Renaming of links with description doesn't work.
-  * [fix] Weblinks with commas are not highlighted.
-  * [misc] Some changes in default css file.
+    * NEW: Links with directories: [[dir1/dir2/Link|Text]]. Thanks Jie Wu.
+    * NEW: Added %root_path% template variable to get relative root dir of
+      path_html. See |vimwiki-option-html_header|.
+    * FIX: Indent is incorrect for vim without "float" compile option. Thanks
+      Julian Kooij.
+    * FIX: Convert to html doesn't work right with links like [[foo::bar]].
+    * FIX: Rename wikiword doesn't work right when rename WikiWord to
+      [[WikiWord blablabla]].
+    * FIX: Renaming of links with description doesn't work.
+    * FIX: Weblinks with commas are not highlighted.
+    * MISC: Some changes in default css file.
 
 0.9.3
-  * [new] g:vimwiki_menu option is a string which is menu path. So one can use
-    let g:vimwiki_menu = 'Plugin.Vimwiki' to set the menu to the right place.
-  * [new] g:vimwiki_fold_empty_lines -- don't or do fold in empty lines
-    between headers. See |g:vimwiki_fold_empty_lines|
-  * [fix] Encoding error when running vimwiki in Windows XP Japanese.
-    Thanks KarasAya.
+    * NEW: g:vimwiki_menu option is a string which is menu path. So one can
+      use let g:vimwiki_menu = 'Plugin.Vimwiki' to set the menu to the right
+      place.
+    * NEW: g:vimwiki_fold_empty_lines -- don't or do fold in empty lines
+      between headers. See |g:vimwiki_fold_empty_lines|
+    * FIX: Encoding error when running vimwiki in Windows XP Japanese.
+      Thanks KarasAya.
 
 0.9.2c
-  * [fix] Regression: Export HTML link error with [[Link|Text]].
+    * FIX: Regression: Export HTML link error with [[Link|Text]].
 
 0.9.2b
-  * [fix] Installation on Linux doesn't work. (Dos line endings in Vimball
-    archive file).
-  * [fix] Clear out FlexWiki ftplugin's setup. Now you don't have to hack
-    filetype.vim to get rid of unexpected ':setlocal bomb' from FlexWiki's
-    ftplugin.
-  * [fix] When write done: it will show another done: in html file.
+    * FIX: Installation on Linux doesn't work. (Dos line endings in Vimball
+      archive file).
+    * FIX: Clear out FlexWiki ftplugin's setup. Now you don't have to hack
+      filetype.vim to get rid of unexpected ':setlocal bomb' from FlexWiki's
+      ftplugin.
+    * FIX: When write done: it will show another done: in html file.
 
 0.9.2a
-  * [fix] Installation on Linux doesn't work. (Dos line endings in
-    autoload/vimwiki_lst.vim and indent/vimwiki.vim).
+    * FIX: Installation on Linux doesn't work. (Dos line endings in
+      autoload/vimwiki_lst.vim and indent/vimwiki.vim).
 
 0.9.2
-  * [new] Option 'folding' added to turn folding on/off.
-  * [new] Header text object. See |vimwiki-text-objects|.
-  * [new] Add/remove Header levels with '=' and '-'. See |vimwiki_=|.
-  * [new] Vimwiki GUI menu to select available wikies. See |g:vimwiki_menu|.
-  * [new] You can specify the name of your css file now. See
-    |vimwiki-option-css_name|
-  * [new] You can add styles to image links, see |vimwiki-syntax-links|.
-  * [fix] History doesn't work after |VimwikiRenameWord|.
-  * [fix] Some of wikipedia links are not correctly highlighted. Links with
-    parentheses.
-  * [misc] Renamed vimwiki_gtd to vimwiki_lst.
+    * NEW: Option 'folding' added to turn folding on/off.
+    * NEW: Header text object. See |vimwiki-text-objects|.
+    * NEW: Add/remove Header levels with '=' and '-'. See |vimwiki_=|.
+    * NEW: Vimwiki GUI menu to select available wikies. See |g:vimwiki_menu|.
+    * NEW: You can specify the name of your css file now. See
+      |vimwiki-option-css_name|
+    * NEW: You can add styles to image links, see |vimwiki-syntax-links|.
+    * FIX: History doesn't work after |VimwikiRenameWord|.
+    * FIX: Some of wikipedia links are not correctly highlighted. Links with
+      parentheses.
+    * MISC: Renamed vimwiki_gtd to vimwiki_lst.
 
 0.9.1
-  * [new] HTML Table cell text alignment, see |vimwiki-syntax-tables|
-  * [new] Wikipage history simplified. Each vimwiki buffer now holds
-    b:vimwiki_prev_word which is list of [PrevWord, getpos()].
-  * [new] If highlight for groups wikiHeader1..wikiHeader6 exist (defined in
-    a colorscheme) -- use it. Otherwise use Title highlight for all Headers.
-  * [fix] Warn only once if 'html_header' or 'html_footer' does not exist.
-  * [fix] Wrong folding for the text after the last nested list item.
-  * [fix] Bold and Italic aren't highlighted in tables without spaces
-    between || and * or _. ||*bold*||_asdf_ || (Thanks Brett Stahlman)
+    * NEW: HTML Table cell text alignment, see |vimwiki-syntax-tables|
+    * NEW: Wikipage history simplified. Each vimwiki buffer now holds
+      b:vimwiki_prev_word which is list of [PrevWord, getpos()].
+    * NEW: If highlight for groups wikiHeader1..wikiHeader6 exist (defined in
+      a colorscheme) -- use it. Otherwise use Title highlight for all Headers.
+    * FIX: Warn only once if 'html_header' or 'html_footer' does not exist.
+    * FIX: Wrong folding for the text after the last nested list item.
+    * FIX: Bold and Italic aren't highlighted in tables without spaces
+      between || and * or _. ||*bold*||_asdf_ || (Thanks Brett Stahlman)
 
 0.9.0
-  * [new] You can add classes to 'pre' tag -- |vimwiki-syntax-preformatted|.
-    This might be useful for coloring some programming code with external js
-    tools like google syntax highlighter.
-  * [new] !WikiPage is not highlighted. It is just a plain word WikiPage in
-    HTML, without exclamation mark
-  * [new] Definition lists, see |vimwiki-syntax-lists|.
-  * [new] New implementation of |:VimwikiRenameWord|. CAUTION: It was tested
-    on 2 computers only, backup your wiki before use it. Email me if it
-    doesn't work for you.
-  * [fix] Less than 3 symbols are not highlighted in Bold and Italic.
-  * [fix] Added vimwiki autocmd group to avoid clashes with user defined
-    autocmds.
-  * [fix] Pressing ESC while |:VimwikiUISelect| opens current wiki index file.
-    Should cancel wiki selection.
+    * NEW: You can add classes to 'pre' tag -- |vimwiki-syntax-preformatted|.
+      This might be useful for coloring some programming code with external js
+      tools like google syntax highlighter.
+    * NEW: !WikiPage is not highlighted. It is just a plain word WikiPage in
+      HTML, without exclamation mark
+    * NEW: Definition lists, see |vimwiki-syntax-lists|.
+    * NEW: New implementation of |:VimwikiRenameWord|. CAUTION: It was tested
+      on 2 computers only, backup your wiki before use it. Email me if it
+      doesn't work for you.
+    * FIX: Less than 3 symbols are not highlighted in Bold and Italic.
+    * FIX: Added vimwiki autocmd group to avoid clashes with user defined
+      autocmds.
+    * FIX: Pressing ESC while |:VimwikiUISelect| opens current wiki index
+      file.  Should cancel wiki selection.
 
 0.8.3
-  * [new] <C-Space> on a list item creates checkbox.
-  * [fix] With * in the first column, <CR> shouldn't insert more * (default
-    syntax).
-  * [fix] With MediaWiki's ** [ ], <CR> should insert it on the next line.
-  * [fix] HTML export should use 'fileencoding' instead of 'encoding'.
-  * [fix] Code cleanup.
+    * NEW: <C-Space> on a list item creates checkbox.
+    * FIX: With * in the first column, <CR> shouldn't insert more * (default
+      syntax).
+    * FIX: With MediaWiki's ** [ ], <CR> should insert it on the next line.
+    * FIX: HTML export should use 'fileencoding' instead of 'encoding'.
+    * FIX: Code cleanup.
 
 0.8.2
-  * [del] Removed google syntax file.
-  * [new] Default vimwiki syntax is a subset of google's one. Header's has
-    been changed from !Header to =Header=. It is easier to maintain only 2
-    syntaxes. See |vimwiki-syntax-headers|.
-  * [new] Multiline paragraphs -- less longlines.
-  * [new] Comments. See |vimwiki-syntax-comments|.
-  * [del] Removed setlocal textwidth = 0 from ftplugin.
-  * [fix] New regexps for bold, italic, bolditalic.
-  * [fix] The last item in List sometimes fold-in incorrectly.
-  * [fix] Minor tweaks on default css.
+    * DEL: Removed google syntax file.
+    * NEW: Default vimwiki syntax is a subset of google's one. Header's has
+      been changed from !Header to =Header=. It is easier to maintain only 2
+      syntaxes. See |vimwiki-syntax-headers|.
+    * NEW: Multiline paragraphs -- less longlines.
+    * NEW: Comments. See |vimwiki-syntax-comments|.
+    * DEL: Removed setlocal textwidth = 0 from ftplugin.
+    * FIX: New regexps for bold, italic, bolditalic.
+    * FIX: The last item in List sometimes fold-in incorrectly.
+    * FIX: Minor tweaks on default css.
 
 0.8.1
-  * [new] Vimwiki's foldmethod changed from syntax to expr. Foldtext is
-    changed to be nicer with folded list items.
-  * [new] Fold/outline list items.
-  * [new] It is possible now to edit wiki files in arbitrary directories which
-    is not in g:vimwiki_list's paths. New WikiWords are created in the path of
-    the current WikiWord.
-  * [new] User can remap Vimwiki's built in mappings.
-  * [new] Added |g:vimwiki_use_mouse|. It is off by default.
-  * [fix] Removed <C-h> mapping.
+    * NEW: Vimwiki's foldmethod changed from syntax to expr. Foldtext is
+      changed to be nicer with folded list items.
+    * NEW: Fold/outline list items.
+    * NEW: It is possible now to edit wiki files in arbitrary directories
+      which is not in g:vimwiki_list's paths. New WikiWords are created in the
+      path of the current WikiWord.
+    * NEW: User can remap Vimwiki's built in mappings.
+    * NEW: Added |g:vimwiki_use_mouse|. It is off by default.
+    * FIX: Removed <C-h> mapping.
 
 0.8.0
-  * [new] Multiple wikies support. A lot of options have been changed, see
-    |vimwiki-options|
-  * [new] Auto create directories.
-  * [new] Checked list item highlighted as comment.
-  * [fix] Multiple 'set ft=vimwiki' for each buffer disabled. Vimwiki should
-    load its buffers a bit faster now.
+    * NEW: Multiple wikies support. A lot of options have been changed, see
+      |vimwiki-options|
+    * NEW: Auto create directories.
+    * NEW: Checked list item highlighted as comment.
+    * FIX: Multiple 'set ft=vimwiki' for each buffer disabled. Vimwiki should
+      load its buffers a bit faster now.
 
 0.7.1
-  * [new] <Plug>VimwikiToggleListItem added to be able to remap <C-Space> to
-    anything user prefers more.
-  * [fix] Toggleable list items do not work with MediaWiki markup.
-  * [fix] Changing g:vimwiki_home_html to path with ~ while vimwiki is
-    loaded gives errors for HTML export.
-  * [del] Command :VimwikiExploreHome.
+    * NEW: <Plug>VimwikiToggleListItem added to be able to remap <C-Space> to
+      anything user prefers more.
+    * FIX: Toggleable list items do not work with MediaWiki markup.
+    * FIX: Changing g:vimwiki_home_html to path with ~ while vimwiki is
+      loaded gives errors for HTML export.
+    * DEL: Command :VimwikiExploreHome.
 
 0.7.0
-  * [new] GTD stuff -- toggleable list items. See |vimwiki-todo-lists|.
-  * [fix] Headers do not fold inner headers. (Thanks Brett Stahlman)
-  * [fix] Remove last blank lines from preformatted text at the end of file.
-  * [del] Removed g:vimwiki_smartCR option.
+    * NEW: GTD stuff -- toggleable list items. See |vimwiki-todo-lists|.
+    * FIX: Headers do not fold inner headers. (Thanks Brett Stahlman)
+    * FIX: Remove last blank lines from preformatted text at the end of file.
+    * DEL: Removed g:vimwiki_smartCR option.
 
 0.6.2
-  * [new] [[link|description]] is available now.
-  * [fix] Barebone links (ie: http://bla-bla-bla.org/h.pl?id=98) get extra
-    escaping of ? and friends so they become invalid in HTML.
-  * [fix] In linux going to [[wiki with whitespaces]] and then pressing BS
-    to go back to prev wikipage produce error. (Thanks Brendon Bensel for
-    the fix)
-  * [fix] Remove setlocal encoding and fileformat from vimwiki ftplugin.
-  * [fix] Some tweaks on default style.css
+    * NEW: [[link|description]] is available now.
+    * FIX: Barebone links (ie: http://bla-bla-bla.org/h.pl?id=98) get extra
+      escaping of ? and friends so they become invalid in HTML.
+    * FIX: In linux going to [[wiki with whitespaces]] and then pressing BS
+      to go back to prev wikipage produce error. (Thanks Brendon Bensel for
+      the fix)
+    * FIX: Remove setlocal encoding and fileformat from vimwiki ftplugin.
+    * FIX: Some tweaks on default style.css
 
 0.6.1
-  * [fix] [blablabla bla] shouldn't be converted to a link.
-  * [fix] Remove extra annoing empty strings from PRE tag made from
-    whitespaces in HTML export.
-  * [fix] Moved functions related to HTML converting to new autoload module
-    to increase a bit vimwiki startup time.
+    * FIX: [blablabla bla] shouldn't be converted to a link.
+    * FIX: Remove extra annoing empty strings from PRE tag made from
+      whitespaces in HTML export.
+    * FIX: Moved functions related to HTML converting to new autoload module
+      to increase a bit vimwiki startup time.
 
 0.6
-  * [new] Header and footer templates. See|g:vimwiki_html_header| and
-    |g:vimwiki_html_footer|.
-  * [fix] |:Vimwiki2HTML| does not recognize ~ as part of a valid path.
+    * NEW: Header and footer templates. See|g:vimwiki_html_header| and
+      |g:vimwiki_html_footer|.
+    * FIX: |:Vimwiki2HTML| does not recognize ~ as part of a valid path.
 
 0.5.3
-  * [fix] Fixed |:VimwikiRenameWord|. Error when g:vimwiki_home had
-    whitespaces in path.
-  * [fix] |:VimwikiSplitWord| and |:VimwikiVSplitWord| didn't work.
+    * FIX: Fixed |:VimwikiRenameWord|. Error when g:vimwiki_home had
+      whitespaces in path.
+    * FIX: |:VimwikiSplitWord| and |:VimwikiVSplitWord| didn't work.
 
 0.5.2
-  * [new] Added |:VimwikiGoHome|, |:VimwikiTabGoHome| and
-  |:VimwikiExploreHome| commands.
-  * [new] Added <Leader>wt mapping to open vimwiki index file in a new tab.
-  * [new] Added g:vimwiki_gohome option that controls how|:VimwikiGoHome|
-    works when current buffer is changed. (Thanks Timur Zaripov)
-  * [fix] Fixed |:VimwikiRenameWord|. Very bad behaviour when autochdir
-    isn't set up.
-  * [fix] Fixed commands :Wiki2HTML and :WikiAll2HTML to be available only
-    for vimwiki buffers.
-  * [fix] Renamed :Wiki2HTML and :WikiAll2HTML to |:Vimwiki2HTML| and
-    |:VimwikiAll2HTML| commands.
-  * [fix] Help file corrections.
+    * NEW: Added |:VimwikiGoHome|, |:VimwikiTabGoHome| and
+      |:VimwikiExploreHome| commands.
+    * NEW: Added <Leader>wt mapping to open vimwiki index file in a new tab.
+    * NEW: Added g:vimwiki_gohome option that controls how|:VimwikiGoHome|
+      works when current buffer is changed. (Thanks Timur Zaripov)
+    * FIX: Fixed |:VimwikiRenameWord|. Very bad behaviour when autochdir
+      isn't set up.
+    * FIX: Fixed commands :Wiki2HTML and :WikiAll2HTML to be available only
+      for vimwiki buffers.
+    * FIX: Renamed :Wiki2HTML and :WikiAll2HTML to |:Vimwiki2HTML| and
+      |:VimwikiAll2HTML| commands.
+    * FIX: Help file corrections.
 
 0.5.1
-  * [new] This help is created.
-  * [new] Now you can fold headers.
-  * [new] <Plug>VimwikiGoHome and <Plug>VimwikiExploreHome were added.
-  * [fix] Bug with {{{HelloWikiWord}}} export to HTML is fixed.
-  * [del] Sync option removed from: Syntax highlighting for preformatted
-    text {{{ }}}.
+    * NEW: This help is created.
+    * NEW: Now you can fold headers.
+    * NEW: <Plug>VimwikiGoHome and <Plug>VimwikiExploreHome were added.
+    * FIX: Bug with {{{HelloWikiWord}}} export to HTML is fixed.
+    * DEL: Sync option removed from: Syntax highlighting for preformatted
+      text {{{ }}}.
 
 0.5
-  * [new] vimwiki default markup to HTML conversion improved.
-  * [new] Added basic GoogleWiki and MediaWiki markup languages.
-  * [new] Chinese [[complex wiki words]].
+    * NEW: vimwiki default markup to HTML conversion improved.
+    * NEW: Added basic GoogleWiki and MediaWiki markup languages.
+    * NEW: Chinese [[complex wiki words]].
 
 0.4
-  * [new] vimwiki=>HTML converter in plain Vim language.
-  * [new] Plugin autoload.
+    * NEW: vimwiki=>HTML converter in plain Vim language.
+    * NEW: Plugin autoload.
 
 0.3.4
-  * [fix] Backup files (.wiki~) caused a bunch of errors while opening wiki
-    files.
+    * FIX: Backup files (.wiki~) caused a bunch of errors while opening wiki
+      files.
 
 0.3.3
-  * FIXED: [[wiki word with dots at the end...]] didn't work.
-  * [new] Added error handling for delete wiki word function.
-  * [new] Added keybindings o and O for list items when g:vimwiki_smartCR=1.
-  * [new] Added keybinding <Leader>wh to visit wiki home directory.
+    * FIX: [[wiki word with dots at the end...]] didn't work.
+    * NEW: Added error handling for delete wiki word function.
+    * NEW: Added keybindings o and O for list items when g:vimwiki_smartCR=1.
+    * NEW: Added keybinding <Leader>wh to visit wiki home directory.
 
 0.3.2
-  * [fix] Renaming -- error if complex wiki word contains %.
-  * [fix] Syntax highlighting for preformatted text {{{ }}}. Sync option
-    added.
-  * [fix] smartCR bug fix.
+    * FIX: Renaming -- error if complex wiki word contains %.
+    * FIX: Syntax highlighting for preformatted text {{{ }}}. Sync option
+      added.
+    * FIX: smartCR bug fix.
 
 0.3.1
-  * [fix] Renaming -- [[hello world?]] to [[hello? world]] links are not
-    updated.
-  * [fix] Buffers menu is a bit awkward after renaming.
-  * [new] Use mouse to follow links. Left double-click to follow WikiWord,
-    Rightclick then Leftclick to go back.
+    * FIX: Renaming -- [[hello world?]] to [[hello? world]] links are not
+      updated.
+    * FIX: Buffers menu is a bit awkward after renaming.
+    * NEW: Use mouse to follow links. Left double-click to follow WikiWord,
+      Rightclick then Leftclick to go back.
 
 0.3
-  * [new] Highlight non-existent WikiWords.
-  * [new] Delete current WikiWord (<Leader>wd).
-  * [new] g:vimwiki_smartCR=2 => use Vim comments (see :h comments :h
-    formatoptions) feature to deal with list items. (thx -- Dmitry
-    Alexandrov)
-  * [new] Highlight TODO:, DONE:, FIXED:, FIXME:.
-  * [new] Rename current WikiWord -- be careful on Windows you cannot rename
-    wikiword to WikiWord. After renaming update all links to that renamed
-    WikiWord.
-  * [fix] Bug -- do not duplicate WikiWords in wiki history.
-  * [fix] After renaming [[wiki word]] twice buffers are not deleted.
-  * [fix] Renaming from [[wiki word]] to WikiWord result is [[WikiWord]]
-  * [fix] More than one complex words on one line is bugging each other when
-    try go to one of them. [[bla bla bla]] [[dodo dodo dodo]] becomes
-    bla bla bla]] [[dodo dodo dodo.
+    * NEW: Highlight non-existent WikiWords.
+    * NEW: Delete current WikiWord (<Leader>wd).
+    * NEW: g:vimwiki_smartCR=2 => use Vim comments (see :h comments :h
+      formatoptions) feature to deal with list items. (thx -- Dmitry
+      Alexandrov)
+    * NEW: Highlight TODO:, DONE:, FIXED:, FIXME:.
+    * NEW: Rename current WikiWord -- be careful on Windows you cannot rename
+      wikiword to WikiWord. After renaming update all links to that renamed
+      WikiWord.
+    * FIX: Bug -- do not duplicate WikiWords in wiki history.
+    * FIX: After renaming [[wiki word]] twice buffers are not deleted.
+    * FIX: Renaming from [[wiki word]] to WikiWord result is [[WikiWord]]
+    * FIX: More than one complex words on one line is bugging each other when
+      try go to one of them. [[bla bla bla]] [[dodo dodo dodo]] becomes bla
+      bla bla]] [[dodo dodo dodo.
 
 
 0.2.2
-  * [new] Added keybinding <S-CR> -- split WikiWord
-  * [new] Added keybinding <C-CR> -- vertical split WikiWord
+    * NEW: Added keybinding <S-CR> -- split WikiWord
+    * NEW: Added keybinding <C-CR> -- vertical split WikiWord
 
 0.2.1
-  * [new] Install on Linux now works.
+    * NEW: Install on Linux now works.
 
 0.2
-  * [new] Added part of Google's Wiki syntax.
-  * [new] Added auto insert # with ENTER.
-  * [new] On/Off auto insert bullet with ENTER.
-  * [new] Strip [[complex wiki name]] from symbols that cannot be used in
-    file names.
-  * [new] Links to non-wiki files. Non wiki files are files with extensions
-    ie [[hello world.txt]] or [[my homesite.html]]
+    * NEW: Added part of Google's Wiki syntax.
+    * NEW: Added auto insert # with ENTER.
+    * NEW: On/Off auto insert bullet with ENTER.
+    * NEW: Strip [[complex wiki name]] from symbols that cannot be used in
+      file names.
+    * NEW: Links to non-wiki files. Non wiki files are files with extensions
+      ie [[hello world.txt]] or [[my homesite.html]]
 
 0.1
-  * First public version.
+    * First public version.
 
 ==============================================================================
 12. License                                                   *vimwiki-license*
