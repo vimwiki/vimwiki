@@ -8,7 +8,7 @@
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.9.8 ~
+                               Version: 0.9.801 ~
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -47,7 +47,7 @@ CONTENTS                                                    *vimwiki-contents*
 1. Intro                                                             *vimwiki*
 
 Vimwiki is a personal wiki for Vim -- a number of linked text files that have
-it's own syntax highlighting.
+their own syntax highlighting.
 
 With vimwiki you can
     - organize notes and ideas
@@ -626,7 +626,7 @@ For MediaWiki * or # should be in the first column.
 To turn folding on/off check |g:vimwiki_folding|.
 
 ==============================================================================
-7. Placeholders                                           *vimwiki-todo-lists*
+7. Placeholders                                         *vimwiki-placeholders*
 
 ------------------------------------------------------------------------------
 7.1. Table of Contents               *vimwiki-toc* *vimwiki-table-of-contents*
