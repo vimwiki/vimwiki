@@ -32,14 +32,21 @@ execute 'syntax match VimwikiLink `'.g:vimwiki_rxWeblink.'`'
 " Emoticons
 syntax match VimwikiEmoticons /\%((.)\|:[()|$@]\|:-[DOPS()\]|$@]\|;)\|:'(\)/
 
-let g:vimwiki_rxTodo = '\C\%(TODO:\|DONE:\|FIXME:\|FIXED:\|XXX:\)'
+let g:vimwiki_rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
 execute 'syntax match VimwikiTodo /'. g:vimwiki_rxTodo .'/'
 
 " Load concrete Wiki syntax
 execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 
 " Tables
-execute 'syntax match VimwikiTable /'.g:vimwiki_rxTable.'/'
+" execute 'syntax match VimwikiTable /'.g:vimwiki_rxTable.'/'
+syntax match VimwikiTableRow /\s*|.\+|\s*/
+      \ transparent contains=VimwikiCellSeparator,VimwikiWord,
+      \ VimwikiNoExistsWord,VimwikiEmoticons,VimwikiTodo,
+      \ VimwikiBold,VimwikiItalic,VimwikiBoldItalic,VimwikiItalicBold,
+      \ VimwikiDelText,VimwikiSuperScript,VimwikiSubScript,VimwikiCode
+syntax match VimwikiCellSeparator
+      \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " List items
 execute 'syntax match VimwikiList /'.g:vimwiki_rxListBullet.'/'
@@ -80,15 +87,15 @@ endif
 syntax region VimwikiComment start='<!--' end='-->'
 
 if !vimwiki#hl_exists("VimwikiHeader1")
-  execute 'syntax match VimwikiHeader /'.g:vimwiki_rxHeader.'/'
+  execute 'syntax match VimwikiHeader /'.g:vimwiki_rxHeader.'/ contains=VimwikiTodo'
 else
   " Header levels, 1-6
-  execute 'syntax match VimwikiHeader1 /'.g:vimwiki_rxH1.'/'
-  execute 'syntax match VimwikiHeader2 /'.g:vimwiki_rxH2.'/'
-  execute 'syntax match VimwikiHeader3 /'.g:vimwiki_rxH3.'/'
-  execute 'syntax match VimwikiHeader4 /'.g:vimwiki_rxH4.'/'
-  execute 'syntax match VimwikiHeader5 /'.g:vimwiki_rxH5.'/'
-  execute 'syntax match VimwikiHeader6 /'.g:vimwiki_rxH6.'/'
+  execute 'syntax match VimwikiHeader1 /'.g:vimwiki_rxH1.'/ contains=VimwikiTodo'
+  execute 'syntax match VimwikiHeader2 /'.g:vimwiki_rxH2.'/ contains=VimwikiTodo'
+  execute 'syntax match VimwikiHeader3 /'.g:vimwiki_rxH3.'/ contains=VimwikiTodo'
+  execute 'syntax match VimwikiHeader4 /'.g:vimwiki_rxH4.'/ contains=VimwikiTodo'
+  execute 'syntax match VimwikiHeader5 /'.g:vimwiki_rxH5.'/ contains=VimwikiTodo'
+  execute 'syntax match VimwikiHeader6 /'.g:vimwiki_rxH6.'/ contains=VimwikiTodo'
 endif
 
 " group names "{{{
@@ -117,13 +124,14 @@ hi def link VimwikiLink Underlined
 hi def link VimwikiList Function
 hi def link VimwikiCheckBox VimwikiList
 hi def link VimwikiCheckBoxDone Comment
-hi def link VimwikiTable PreProc
 hi def link VimwikiEmoticons Character
 hi def link VimwikiDelText Constant
 hi def link VimwikiSuperScript Number
 hi def link VimwikiSubScript Number
 hi def link VimwikiTodo Todo
 hi def link VimwikiComment Comment
+
+hi def link VimwikiCellSeparator SpecialKey
 "}}}
 
 let b:current_syntax="vimwiki"

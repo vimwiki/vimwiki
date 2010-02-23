@@ -3,6 +3,8 @@
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
 
+" XXX: This file should be refactored!
+
 " Load only once {{{
 if exists("g:loaded_vimwiki_html_auto") || &cp
   finish
@@ -32,7 +34,7 @@ function! s:remove_blank_lines(lines) " {{{
 endfunction "}}}
 
 function! s:is_web_link(lnk) "{{{
-  if a:lnk =~ '^\%(https://\|http://\|www.\|ftp://\)'
+  if a:lnk =~ '^\%(https://\|http://\|www.\|ftp://\|file://\)'
     return 1
   endif
   return 0
@@ -83,7 +85,8 @@ function! s:create_default_CSS(path) " {{{
     call add(lines, 'img {border: none;}')
     call add(lines, 'pre {border-left: 1px solid #ccc; margin-left: 2em; padding-left: 0.5em;}')
     call add(lines, 'blockquote {padding: 0.4em; background-color: #f6f5eb;}')
-    call add(lines, 'td {border: 1px solid #ccc; padding: 0.3em;}')
+    call add(lines, 'th, td {border: 1px solid #ccc; padding: 0.3em;}')
+    call add(lines, 'th {background-color: #f0f0f0;}')
     call add(lines, 'hr {border: none; border-top: 1px solid #ccc; width: 100%;}')
     call add(lines, 'del {text-decoration: line-through; color: #777777;}')
     call add(lines, '.toc li {list-style-type: none;}')
@@ -515,9 +518,9 @@ function! s:close_tag_para(para, ldest) "{{{
 endfunction "}}}
 
 function! s:close_tag_table(table, ldest) "{{{
-  if a:table
+  if len(a:table)
     call insert(a:ldest, "</table>")
-    return 0
+    return []
   endif
   return a:table
 endfunction "}}}
@@ -774,45 +777,54 @@ function! s:process_tag_hr(line) "{{{
 endfunction "}}}
 
 function! s:process_tag_table(line, table) "{{{
+  " XXX: This should be refactored!!!
   let table = a:table
   let lines = []
   let processed = 0
-  if a:line =~ '^||.\+||.*'
-    if !table
-      call add(lines, "<table>")
-      let table = 1
+
+  if a:line =~ '^\s*|[-+]\+|\s*$' && len(table)
+    call add(table, [])
+    let processed = 1
+  elseif a:line =~ '^\s*|.\+|\s*$'
+    if empty(table)
+      let table = [[]]
+    else
+      call add(table, [])
     endif
     let processed = 1
 
-    call add(lines, "<tr>")
-    let pos1 = 0
-    let pos2 = 0
-    let done = 0
-    while !done
-      let pos1 = stridx(a:line, '||', pos2)
-      let pos2 = stridx(a:line, '||', pos1+2)
-      if pos1==-1 || pos2==-1
-        let done = 1
-        let pos2 = len(a:line)
-      endif
-      let line = strpart(a:line, pos1+2, pos2-pos1-2)
-      if line == ''
-        continue
-      endif
-      if strpart(line, 0, 1) == ' ' &&
-            \ strpart(line, len(line) - 1, 1) == ' '
-        call add(lines, '<td class="justcenter">'.line.'</td>')
-      elseif strpart(line, 0, 1) == ' '
-        call add(lines, '<td class="justright">'.line.'</td>')
-      else
-        call add(lines, '<td class="justleft">'.line.'</td>')
-      endif
-    endwhile
-    call add(lines, "</tr>")
+    call extend(table[-1], split(a:line, '\s*|\s*'))
 
-  elseif table
+  elseif len(table)
+    call add(lines, "<table>")
+
+    let head = 0
+    for idx in range(len(table))
+      if empty(table[idx])
+        let head = idx
+        break
+      endif
+    endfor
+    if head > 0
+      for row in table[: head-1]
+        call add(lines, '<tr>')
+        call extend(lines, map(row, '"<th>".v:val."</th>"'))
+        call add(lines, '</tr>')
+      endfor
+      for row in table[head+1 :]
+        call add(lines, '<tr>')
+        call extend(lines, map(row, '"<td>".v:val."</td>"'))
+        call add(lines, '</tr>')
+      endfor
+    else
+      for row in table
+        call add(lines, '<tr>')
+        call extend(lines, map(row, '"<td>".v:val."</td>"'))
+        call add(lines, '</tr>')
+      endfor
+    endif
     call add(lines, "</table>")
-    let table = 0
+    let table = []
   endif
   return [processed, lines, table]
 endfunction "}}}
@@ -820,12 +832,12 @@ endfunction "}}}
 "}}}
 
 " WIKI2HTML "{{{
-function! s:wiki2html(line, state) " {{{
+function! s:parse_line(line, state) " {{{
   let state = {}
   let state.para = a:state.para
   let state.quote = a:state.quote
   let state.pre = a:state.pre
-  let state.table = a:state.table
+  let state.table = a:state.table[:]
   let state.lists = a:state.lists[:]
   let state.deflist = a:state.deflist
   let state.placeholder = a:state.placeholder
@@ -838,7 +850,7 @@ function! s:wiki2html(line, state) " {{{
 
   let processed = 0
 
-  " toc -- placeholder
+  " toc -- placeholder "{{{
   if !processed
     if line =~ '^\s*%toc'
       let processed = 1
@@ -846,14 +858,15 @@ function! s:wiki2html(line, state) " {{{
       let state.placeholder = ['toc', param]
     endif
   endif
+  "}}}
 
-  " pres
+  " pres "{{{
   if !processed
     let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
-    if processed && state.table
+    if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, lines)
     endif
     if processed && state.deflist
@@ -867,8 +880,9 @@ function! s:wiki2html(line, state) " {{{
     endif
     call extend(res_lines, lines)
   endif
+  "}}}
 
-  " lists
+  " lists "{{{
   if !processed
     let [processed, lines] = s:process_tag_list(line, state.lists)
     if processed && state.quote
@@ -877,7 +891,7 @@ function! s:wiki2html(line, state) " {{{
     if processed && state.pre
       let state.pre = s:close_tag_pre(state.pre, lines)
     endif
-    if processed && state.table
+    if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, lines)
     endif
     if processed && state.deflist
@@ -891,8 +905,9 @@ function! s:wiki2html(line, state) " {{{
 
     call extend(res_lines, lines)
   endif
+  "}}}
 
-  " headers
+  " headers "{{{
   if !processed
     let [processed, line, h_level, h_text, h_id] = s:process_tag_h(line, state.toc_id)
     if processed
@@ -900,6 +915,9 @@ function! s:wiki2html(line, state) " {{{
       let state.table = s:close_tag_table(state.table, res_lines)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.quote = s:close_tag_quote(state.quote, res_lines)
+
+      let line = s:make_tag(line, g:vimwiki_rxTodo, 's:tag_todo')
+
       call add(res_lines, line)
 
       " gather information for table of contents
@@ -907,8 +925,9 @@ function! s:wiki2html(line, state) " {{{
       let state.toc_id += 1
     endif
   endif
+  "}}}
 
-  " quotes
+  " quotes "{{{
   if !processed
     let [processed, lines, state.quote] = s:process_tag_quote(line, state.quote)
     if processed && len(state.lists)
@@ -917,7 +936,7 @@ function! s:wiki2html(line, state) " {{{
     if processed && state.deflist
       let state.deflist = s:close_tag_def_list(state.deflist, lines)
     endif
-    if processed && state.table
+    if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, lines)
     endif
     if processed && state.pre
@@ -931,17 +950,9 @@ function! s:wiki2html(line, state) " {{{
 
     call extend(res_lines, lines)
   endif
+  "}}}
 
-  " definition lists
-  if !processed
-    let [processed, lines, state.deflist] = s:process_tag_def_list(line, state.deflist)
-
-    call map(lines, 's:process_inline_tags(v:val)')
-
-    call extend(res_lines, lines)
-  endif
-
-  " tables
+  " tables "{{{
   if !processed
     let [processed, lines, state.table] = s:process_tag_table(line, state.table)
 
@@ -949,8 +960,9 @@ function! s:wiki2html(line, state) " {{{
 
     call extend(res_lines, lines)
   endif
+  "}}}
 
-  " horizontal lines
+  " horizontal rules "{{{
   if !processed
     let [processed, line] = s:process_tag_hr(line)
     if processed
@@ -960,8 +972,19 @@ function! s:wiki2html(line, state) " {{{
       call add(res_lines, line)
     endif
   endif
+  "}}}
 
-  "" P
+  " definition lists "{{{
+  if !processed
+    let [processed, lines, state.deflist] = s:process_tag_def_list(line, state.deflist)
+
+    call map(lines, 's:process_inline_tags(v:val)')
+
+    call extend(res_lines, lines)
+  endif
+  "}}}
+
+  "" P "{{{
   if !processed
     let [processed, lines, state.para] = s:process_tag_para(line, state.para)
     if processed && len(state.lists)
@@ -973,7 +996,7 @@ function! s:wiki2html(line, state) " {{{
     if processed && state.pre
       let state.pre = s:close_tag_pre(state.pre, res_lines)
     endif
-    if processed && state.table
+    if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, res_lines)
     endif
 
@@ -981,6 +1004,7 @@ function! s:wiki2html(line, state) " {{{
 
     call extend(res_lines, lines)
   endif
+  "}}}
 
   "" add the rest
   if !processed
@@ -1015,7 +1039,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   let state.para = 0
   let state.quote = 0
   let state.pre = 0
-  let state.table = 0
+  let state.table = []
   let state.deflist = 0
   let state.lists = []
   let state.placeholder = []
@@ -1024,7 +1048,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
   for line in lsource
     let oldquote = state.quote
-    let [lines, state] = s:wiki2html(line, state)
+    let [lines, state] = s:parse_line(line, state)
 
     " Hack: There could be a lot of empty strings before s:process_tag_quote
     " find out `quote` is over. So we should delete them all. Think of the way

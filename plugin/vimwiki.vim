@@ -48,6 +48,11 @@ function! s:setup_buffer_leave()"{{{
   if &filetype == 'vimwiki' && !exists("b:vimwiki_idx")
     let b:vimwiki_idx = g:vimwiki_current_idx
   endif
+
+  " Set up menu
+  if g:vimwiki_menu != ""
+    exe 'nmenu disable '.g:vimwiki_menu.'.Table'
+  endif
 endfunction"}}}
 
 function! s:setup_buffer_enter() "{{{
@@ -94,6 +99,11 @@ function! s:setup_buffer_enter() "{{{
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
+  endif
+
+  " Set up menu
+  if g:vimwiki_menu != ""
+    exe 'nmenu enable '.g:vimwiki_menu.'.Table'
   endif
 endfunction "}}}
 
@@ -197,6 +207,18 @@ let s:vimwiki_defaults.gohome = 'split'
 let s:vimwiki_defaults.html_header = ''
 let s:vimwiki_defaults.html_footer = ''
 let s:vimwiki_defaults.nested_syntaxes = {}
+let s:vimwiki_defaults.auto_export = 0
+
+" diary
+let s:vimwiki_defaults.diary_rel_path = 'diary/'
+let s:vimwiki_defaults.diary_index = 'diary'
+let s:vimwiki_defaults.diary_header = 'Diary'
+
+" Do not change this! Will wait till vim would be more datetime awareable.
+let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
+
+let s:vimwiki_defaults.diary_link_count = 4
+
 "}}}
 
 " DEFAULT options {{{
@@ -218,7 +240,7 @@ call s:default('fold_trailing_empty_lines', 0)
 call s:default('fold_lists', 0)
 call s:default('menu', 'Vimwiki')
 call s:default('global_ext', 1)
-call s:default('hl_headers', 0)
+call s:default('hl_headers', 1)
 call s:default('hl_cb_checked', 0)
 call s:default('camel_case', 1)
 call s:default('list_ignore_newline', 1)
@@ -239,6 +261,10 @@ else
         \  'konqueror',
         \ ])
 endif
+
+call s:default('use_calendar', 1)
+call s:default('table_auto_fmt', 1)
+call s:default('w32_dir_enc', '')
 
 call s:default('current_idx', 0)
 
@@ -263,7 +289,7 @@ let g:vimwiki_rxWeblink = '\%("[^"(]\+\((\([^)]\+\))\)\?":\)\?'.
       \'\%(\%(\%(//\)\|\%(\\\\\)\)\+[A-Za-z0-9:#@%/;,$~()_?+=.&\\\-]*\)'
 "}}}
 
-" FILETYPE setup for all known wiki extensions {{{
+" AUTOCOMMANDS for all known wiki extensions {{{
 " Getting all extensions that different wikies could have
 let extensions = {}
 for wiki in g:vimwiki_list
@@ -282,12 +308,21 @@ augroup end
 augroup vimwiki
   autocmd!
   for ext in keys(extensions)
-    execute 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
-    execute 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
+    exe 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
+    exe 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
 
-    " ColorScheme could have or could have not a VimwikiHeader1..VimwikiHeader6
-    " highlight groups. We need to refresh syntax after colorscheme change.
-    execute 'autocmd ColorScheme *'.ext.' call s:setup_colors() | set syntax=vimwiki'
+    " ColorScheme could have or could have not a
+    " VimwikiHeader1..VimwikiHeader6 highlight groups. We need to refresh
+    " syntax after colorscheme change.
+    exe 'autocmd ColorScheme *'.ext.' call s:setup_colors()'.
+          \ ' | set syntax=vimwiki'
+
+    " Format tables when exit from insert mode. Do not use textwidth to
+    " autowrap tables.
+    if g:vimwiki_table_auto_fmt
+      exe 'autocmd InsertLeave *'.ext.' call vimwiki_tbl#format(line("."))'
+      exe 'autocmd InsertEnter *'.ext.' call vimwiki_tbl#reset_tw(line("."))'
+    endif
   endfor
 augroup END
 "}}}
@@ -298,6 +333,11 @@ command! -count VimwikiGoHome
       \ call vimwiki#WikiGoHome(v:count1)
 command! -count VimwikiTabGoHome tabedit <bar>
       \ call vimwiki#WikiGoHome(v:count1)
+
+command! -count VimwikiMakeDiaryNote
+      \ call vimwiki_diary#make_note(v:count1)
+command! -count VimwikiTabMakeDiaryNote tabedit <bar>
+      \ call vimwiki_diary#make_note(v:count1)
 "}}}
 
 " MAPPINGS {{{
@@ -316,21 +356,50 @@ if !hasmapto('<Plug>VimwikiUISelect')
 endif
 noremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
 
+if !hasmapto('<Plug>VimwikiMakeDiaryNote')
+  map <silent><unique> <Leader>w<Leader>w <Plug>VimwikiMakeDiaryNote
+endif
+noremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
+
+if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
+  map <silent><unique> <Leader>w<Leader>t <Plug>VimwikiTabMakeDiaryNote
+endif
+noremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
+      \ :VimwikiTabMakeDiaryNote<CR>
+
 "}}}
 
 " MENU {{{
-function! s:build_menu(path)
+function! s:build_menu(topmenu)
   let idx = 0
   while idx < len(g:vimwiki_list)
-    execute 'menu '.a:path.'.'.VimwikiGet('path', idx).
+    let norm_path = fnamemodify(VimwikiGet('path', idx), ':h:t')
+    let norm_path = escape(norm_path, '\ ')
+    execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#WikiGoHome('.(idx + 1).')<CR>'
+    execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
+          \ ' :call vimwiki_diary#make_note('.(idx + 1).')<CR>'
     let idx += 1
   endwhile
 endfunction
 
+function! s:build_table_menu(topmenu)
+  exe 'menu '.a:topmenu.'.-Sep- :'
+  exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
+  exe 'nmenu '.a:topmenu.'.Table.Format<tab>gqq gqq'
+  exe 'nmenu disable '.a:topmenu.'.Table'
+endfunction
+
 if !empty(g:vimwiki_menu)
   call s:build_menu(g:vimwiki_menu)
+  call s:build_table_menu(g:vimwiki_menu)
 endif
 " }}}
+
+" CALENDAR Hook "{{{
+if g:vimwiki_use_calendar
+  let g:calendar_action = 'vimwiki_diary#calendar_action'
+endif
+"}}}
 
 let &cpo = s:old_cpo

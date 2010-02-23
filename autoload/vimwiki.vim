@@ -23,10 +23,17 @@ function! s:chomp_slash(str) "{{{
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction "}}}
 
+function! s:is_windows()
+  return has("win32") || has("win64") || has("win95") || has("win16")
+endfunction
+
 function! vimwiki#mkdir(path) "{{{
   let path = expand(a:path)
   if !isdirectory(path) && exists("*mkdir")
     let path = s:chomp_slash(path)
+    if s:is_windows() && !empty(g:vimwiki_w32_dir_enc)
+      let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
+    endif
     call mkdir(path, "p")
   endif
 endfunction
@@ -61,6 +68,25 @@ endfunction"}}}
 function! vimwiki#current_subdir()"{{{
   return vimwiki#subdir(VimwikiGet('path'), expand('%:p'))
 endfunction"}}}
+
+function! vimwiki#open_link(cmd, link, ...) "{{{
+  if s:is_link_to_non_wiki_file(a:link)
+    call s:edit_file(a:cmd, a:link)
+  else
+    if a:0
+      let vimwiki_prev_link = [a:1, []]
+    elseif &ft == 'vimwiki'
+      let vimwiki_prev_link = [expand('%:p'), getpos('.')]
+    endif
+
+    call s:edit_file(a:cmd, VimwikiGet('path').a:link.VimwikiGet('ext'))
+
+    if exists('vimwiki_prev_link')
+      let b:vimwiki_prev_link = vimwiki_prev_link
+    endif
+  endif
+endfunction
+" }}}
 
 function! s:filename(link) "{{{
   let result = vimwiki#safe_link(a:link)
@@ -165,11 +191,13 @@ function! s:print_wiki_list() "{{{
 endfunction
 " }}}
 
-function! s:wiki_select(wnum)"{{{
+function! vimwiki#select(wnum)"{{{
   if a:wnum < 1 || a:wnum > len(g:vimwiki_list)
     return
   endif
-  let b:vimwiki_idx = g:vimwiki_current_idx
+  if &ft == 'vimwiki'
+    let b:vimwiki_idx = g:vimwiki_current_idx
+  endif
   let g:vimwiki_current_idx = a:wnum - 1
 endfunction
 " }}}
@@ -260,7 +288,7 @@ function! s:get_wiki_buffers() "{{{
     if bufexists(bcount)
       let bname = fnamemodify(bufname(bcount), ":p")
       if bname =~ VimwikiGet('ext')."$"
-        let bitem = [bname, getbufvar(bname, "vimwiki_prev_word")]
+        let bitem = [bname, getbufvar(bname, "vimwiki_prev_link")]
         call add(blist, bitem)
       endif
     endif
@@ -273,7 +301,7 @@ endfunction
 function! s:open_wiki_buffer(item) "{{{
   call s:edit_file('e', a:item[0])
   if !empty(a:item[1])
-    call setbufvar(a:item[0], "vimwiki_prev_word", a:item[1])
+    call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
   endif
 endfunction
 " }}}
@@ -388,8 +416,8 @@ function! vimwiki#WikiFollowWord(split) "{{{
     let cmd = ":e "
   endif
 
-  let word = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord))
-  if word == ""
+  let link = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord))
+  if link == ""
     let weblink = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWeblink))
     if weblink != ""
       call VimwikiWeblinkHandler(weblink)
@@ -399,21 +427,16 @@ function! vimwiki#WikiFollowWord(split) "{{{
     return
   endif
 
-  if s:is_link_to_non_wiki_file(word)
-    call s:edit_file(cmd, word)
-  else
-    let vimwiki_prev_word = [expand('%:p'), getpos('.')]
-    let subdir = vimwiki#current_subdir()
-    call s:edit_file(cmd, VimwikiGet('path').subdir.word.VimwikiGet('ext'))
-    let b:vimwiki_prev_word = vimwiki_prev_word
-  endif
+  let subdir = vimwiki#current_subdir()
+  call vimwiki#open_link(cmd, subdir.link)
+
 endfunction
 " }}}
 
 function! vimwiki#WikiGoBackWord() "{{{
-  if exists("b:vimwiki_prev_word")
+  if exists("b:vimwiki_prev_link")
     " go back to saved WikiWord
-    let prev_word = b:vimwiki_prev_word
+    let prev_word = b:vimwiki_prev_link
     execute ":e ".substitute(prev_word[0], '\s', '\\\0', 'g')
     call setpos('.', prev_word[1])
   endif
@@ -421,7 +444,7 @@ endfunction
 " }}}
 
 function! vimwiki#WikiGoHome(index) "{{{
-  call s:wiki_select(a:index)
+  call vimwiki#select(a:index)
   call vimwiki#mkdir(VimwikiGet('path'))
 
   try
@@ -523,7 +546,7 @@ function! vimwiki#WikiRenameWord() "{{{
   let &buftype="nofile"
 
   let cur_buffer = [expand('%:p'),
-        \getbufvar(expand('%:p'), "vimwiki_prev_word")]
+        \getbufvar(expand('%:p'), "vimwiki_prev_link")]
 
   let blist = s:get_wiki_buffers()
 

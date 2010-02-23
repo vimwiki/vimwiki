@@ -9,7 +9,7 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
 " UNDO list {{{
 " Reset the following options to undo this plugin.
-let b:undo_ftplugin = "setlocal wrap< linebreak< ".
+let b:undo_ftplugin = "setlocal ".
       \ "suffixesadd< isfname< comments< ".
       \ "autowriteall< ".
       \ "formatoptions< foldtext< ".
@@ -18,8 +18,6 @@ let b:undo_ftplugin = "setlocal wrap< linebreak< ".
 
 " MISC STUFF {{{
 
-setlocal wrap
-setlocal linebreak
 setlocal autowriteall
 setlocal commentstring=<!--%s-->
 " MISC }}}
@@ -39,9 +37,9 @@ else
 endif
 setlocal formatoptions=tnro
 
-inoremap <expr> <CR> vimwiki_lst#insertCR()
-nnoremap o :call vimwiki_lst#insertOo('o')<CR>a
-nnoremap O :call vimwiki_lst#insertOo('O')<CR>a
+inoremap <buffer> <expr> <CR> vimwiki_lst#insertCR()
+nnoremap <buffer> o :call vimwiki_lst#insertOo('o')<CR>a
+nnoremap <buffer> O :call vimwiki_lst#insertOo('O')<CR>a
 
 " COMMENTS }}}
 
@@ -213,6 +211,11 @@ exe 'command! -buffer -nargs=* VimwikiSearch vimgrep <args> '.
 exe 'command! -buffer -nargs=* VWS vimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
+" table commands
+command! -buffer -nargs=* VimwikiTable call vimwiki_tbl#create(<f-args>)
+command! -buffer VimwikiTableAlignQ call vimwiki_tbl#align_or_cmd('gqq')
+command! -buffer VimwikiTableAlignW call vimwiki_tbl#align_or_cmd('gww')
+
 " COMMANDS }}}
 
 " KEYBINDINGS {{{
@@ -284,6 +287,16 @@ noremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 
 
+" Table mappings
+if g:vimwiki_table_auto_fmt
+  inoremap <expr> <buffer> <CR> vimwiki_tbl#kbd_cr()
+  inoremap <expr> <buffer> <Tab> vimwiki_tbl#kbd_tab()
+endif
+
+nnoremap <buffer> gqq :VimwikiTableAlignQ<CR>
+nnoremap <buffer> gww :VimwikiTableAlignW<CR>
+
+
 " Text objects {{{
 omap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 0)<CR>
 vmap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 1)<CR>
@@ -297,3 +310,13 @@ nmap <silent><buffer> - :call vimwiki#RemoveHeaderLevel()<CR>
 " }}}
 
 " KEYBINDINGS }}}
+
+" AUTOCOMMANDS {{{
+if VimwikiGet('auto_export')
+  " Automatically generate HTML on page write.
+  augroup vimwiki
+    au BufWritePost <buffer> Vimwiki2HTML
+  augroup END
+endif
+
+" AUTOCOMMANDS }}}

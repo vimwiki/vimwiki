@@ -1,4 +1,4 @@
-*vimwiki.txt*  A Personal Wiki for Vim
+*vimwiki.txt*   A Personal Wiki for Vim
 
      __  __  ______            __      __  ______   __  __   ______     ~
     /\ \/\ \/\__  _\   /'\_/`\/\ \  __/\ \/\__  _\ /\ \/\ \ /\__  _\    ~
@@ -8,39 +8,41 @@
        \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
         `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
 
-                               Version: 0.9.801 ~
+                               Version: 0.9.9
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
 
-  1. Intro ...................................|vimwiki|
-  2. Prerequisites ...........................|vimwiki-prerequisites|
-  3. Mappings ................................|vimwiki-mappings|
-    3.1. Global mappings .....................|vimwiki-global-mappings|
-    3.2. Local mappings ......................|vimwiki-local-mappings|
-    3.3. Text objects ........................|vimwiki-text-objects|
-  4. Commands ................................|vimwiki-commands|
-    4.1. Global commands .....................|vimwiki-global-commands|
-    4.2. Local commands ......................|vimwiki-local-commands|
-  5. Wiki syntax .............................|vimwiki-syntax|
-    5.1. Typefaces ...........................|vimwiki-syntax-typefaces|
-    5.2. Links ...............................|vimwiki-syntax-links|
-    5.3. Headers .............................|vimwiki-syntax-headers|
-    5.4. Paragraphs...........................|vimwiki-syntax-paragraphs|
-    5.5. Lists ...............................|vimwiki-syntax-lists|
-    5.6. Tables ..............................|vimwiki-syntax-tables|
-    5.7. Preformatted text ...................|vimwiki-syntax-preformatted|
-    5.8. Blockquotes .........................|vimwiki-syntax-blockquotes|
-    5.9. Comments ............................|vimwiki-syntax-comments|
-  6. Folding/Outline .........................|vimwiki-folding|
-  7. Placeholders ............................|vimwiki-placeholders|
-    7.1 Table of Contents ....................|vimwiki-table-of-contents|
-  8. Todo lists...............................|vimwiki-todo-lists|
-  9. Options .................................|vimwiki-options|
-  10. Help ...................................|vimwiki-help|
-  11. Author .................................|vimwiki-author|
-  12. Changelog ..............................|vimwiki-changelog|
-  13. License ................................|vimwiki-license|
+    1. Intro                         |vimwiki|
+    2. Prerequisites                 |vimwiki-prerequisites|
+    3. Mappings                      |vimwiki-mappings|
+        3.1. Global mappings         |vimwiki-global-mappings|
+        3.2. Local mappings          |vimwiki-local-mappings|
+        3.3. Text objects            |vimwiki-text-objects|
+    4. Commands                      |vimwiki-commands|
+        4.1. Global commands         |vimwiki-global-commands|
+        4.2. Local commands          |vimwiki-local-commands|
+    5. Wiki syntax                   |vimwiki-syntax|
+        5.1. Typefaces               |vimwiki-syntax-typefaces|
+        5.2. Links                   |vimwiki-syntax-links|
+        5.3. Headers                 |vimwiki-syntax-headers|
+        5.4. Paragraphs              |vimwiki-syntax-paragraphs|
+        5.5. Lists                   |vimwiki-syntax-lists|
+        5.6. Tables                  |vimwiki-syntax-tables|
+        5.7. Preformatted text       |vimwiki-syntax-preformatted|
+        5.8. Blockquotes             |vimwiki-syntax-blockquotes|
+        5.9. Comments                |vimwiki-syntax-comments|
+    6. Folding/Outline               |vimwiki-folding|
+    7. Placeholders                  |vimwiki-placeholders|
+        7.1 Table of Contents        |vimwiki-table-of-contents|
+    8. Todo lists                    |vimwiki-todo-lists|
+    9. Tables                        |vimwiki-tables|
+    10. Diary                        |vimwiki-diary|
+    11. Options                      |vimwiki-options|
+    12. Help                         |vimwiki-help|
+    13. Author                       |vimwiki-author|
+    14. Changelog                    |vimwiki-changelog|
+    15. License                      |vimwiki-license|
 
 
 ==============================================================================
@@ -49,10 +51,10 @@ CONTENTS                                                    *vimwiki-contents*
 Vimwiki is a personal wiki for Vim -- a number of linked text files that have
 their own syntax highlighting.
 
-With vimwiki you can
-    - organize notes and ideas
-    - manage todo-lists
-    - write documentation
+With vimwiki you can:
+    - organize notes and ideas;
+    - manage todo-lists;
+    - write documentation.
 
 To do a quick start press <Leader>ww (this is usually \ww) to go to your index
 wiki file. By default it is located in: >
@@ -71,8 +73,8 @@ errors. These are links in CamelCase form that do not exists yet. (CamelCase
 form -- capitalized word connected with other capitalized words)
 
 Place cursor on ProjectGutenberg and press <Enter>. Now you are in
-ProjectGutenberg. Edit and save it, then press Backspace to return to parent
-wiki page. You should see the difference now -- ProjectGutenberg is
+ProjectGutenberg. Edit and save it, then press Backspace to return to previous
+wiki file. You should see the difference now -- ProjectGutenberg is
 highlighted as a link.
 
 
@@ -95,8 +97,9 @@ There are global and local mappings in vimwiki.
 ------------------------------------------------------------------------------
 3.1. Global mappings                                 *vimwiki-global-mappings*
 
-<Leader>ww or <Plug>VimwikiGoHome
+[count]<Leader>ww or <Plug>VimwikiGoHome
         Open index file of the [count]'s wiki.
+
         <Leader>ww opens first wiki from |g:vimwiki_list|.
         1<Leader>ww as above opens first wiki from |g:vimwiki_list|.
         2<Leader>ww opens second wiki from |g:vimwiki_list|.
@@ -107,8 +110,10 @@ There are global and local mappings in vimwiki.
 <
 See also|:VimwikiGoHome|
 
-<Leader>wt or <Plug>VimwikiTabGoHome
+
+[count]<Leader>wt or <Plug>VimwikiTabGoHome
         Open index file of the [count]'s wiki in a new tab.
+
         <Leader>wt tabopens first wiki from |g:vimwiki_list|.
         1<Leader>wt as above tabopens first wiki from |g:vimwiki_list|.
         2<Leader>wt tabopens second wiki from |g:vimwiki_list|.
@@ -119,6 +124,7 @@ See also|:VimwikiGoHome|
 <
 See also|:VimwikiTabGoHome|
 
+
 <Leader>ws or <Plug>VimwikiUISelect
         List and select available wikies.
         To remap: >
@@ -127,10 +133,46 @@ See also|:VimwikiTabGoHome|
 See also|:VimwikiUISelect|
 
 
-------------------------------------------------------------------------------
-3.2. Local mappings                                   *vimwiki-local-mappings*
+[count]<Leader>w<Leader>w or <Plug>VimwikiMakeDiaryNote
+        Open diary wiki-file for today of the [count]'s wiki.
 
-Normal mode (Keyboard):~
+        <Leader>w<Leader>w opens diary wiki-file for today in the first wiki
+        from |g:vimwiki_list|.
+        1<Leader>w<Leader>w as above opens diary wiki-file for today in the
+        first wiki from |g:vimwiki_list|.
+        2<Leader>w<Leader>w opens diary wiki-file for today in the second wiki
+        from |g:vimwiki_list|.
+        3<Leader>w<Leader>w opens diary wiki-file for today in the third wiki
+        from |g:vimwiki_list|.
+        etc.
+        To remap: >
+        :map <Leader>d <Plug>VimwikiMakeDiaryNote
+<
+See also|:VimwikiMakeDiaryNote|
+
+
+[count]<Leader>w<Leader>t or <Plug>VimwikiTabMakeDiaryNote
+        Open diary wiki-file for today of the [count]'s wiki in a new tab.
+
+        <Leader>w<Leader>t tabopens diary wiki-file for today in the first
+        wiki from |g:vimwiki_list|.
+        1<Leader>w<Leader>t as above tabopens diary wiki-file for today in the
+        first wiki from |g:vimwiki_list|.
+        2<Leader>w<Leader>t tabopens diary wiki-file for today in the second
+        wiki from |g:vimwiki_list|.
+        3<Leader>w<Leader>t tabopens diary wiki-file for today in the third
+        wiki from |g:vimwiki_list|.
+        etc.
+        To remap: >
+        :map <Leader>dt <Plug>VimwikiTabMakeDiaryNote
+<
+See also|:VimwikiTabMakeDiaryNote|
+
+
+------------------------------------------------------------------------------
+3.2. Local mappings
+
+NORMAL MODE                                           *vimwiki-local-mappings*
                         *vimwiki_<CR>*
 <CR>                    Follow/Create WikiWord.
                         Maps to|:VimwikiFollowWord|.
@@ -194,14 +236,38 @@ Normal mode (Keyboard):~
                         *vimwiki_-*
 -                       Remove header level.
 
-Normal mode (Mouse): ~
+
+                        *vimwiki_gqq*  *vimwiki_gww*
+gqq                     Format table. If you did some changes to a table
+ or                     without swapping insert/normal modes this command
+gww                     reformat it.
+
+
+
+
 Works only if |g:vimwiki_use_mouse| is set to 1.
 <2-LeftMouse>           Follow/Create WikiWord
+
 <S-2-LeftMouse>         Split and follow/create WikiWord
+
 <C-2-LeftMouse>         Vertical split and follow/create WikiWord
+
 <RightMouse><LeftMouse> Go back to previous WikiWord
 
 Note: <2-LeftMouse> is just left double click.
+
+
+
+INSERT MODE                                           *vimwiki-table-mappings*
+                        *vimwiki_i_<CR>*
+<CR>                    Goto table cell down to the current, create new row if
+                        on the last one.
+
+                        *vimwiki_i_<Tab>*
+<Tab>                   Goto next table cell, create new row if on the last
+                        cell.
+
+
 
 ------------------------------------------------------------------------------
 3.3. Text objects                                       *vimwiki-text-objects*
@@ -210,7 +276,7 @@ ah                      A Header with leading empty lines.
 ih                      Inner Header without leading empty lines.
 
 You can 'vah' to select a header with its contents or 'dah' to delete it or
-'yah' to yank it or 'cah' to change it. ;)
+'yah' to yank it or 'cah' to change it.
 
 
 ==============================================================================
@@ -228,46 +294,73 @@ You can 'vah' to select a header with its contents or 'dah' to delete it or
 *:VimwikiUISelect*
     Open index file of the selected wiki.
 
+*:VimwikiMakeDiaryNote*
+    Open diary wiki-file for today of the current wiki.
+
+*:VimwikiTabMakeDiaryNote*
+    Open diary wiki-file for today of the current wiki in a new tab.
+
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
 
 *:VimwikiFollowWord*
     Follow/create WikiWord.
 
+
 *:VimwikiGoBackWord*
     Go back to previous WikiWord you come from.
+
 
 *:VimwikiSplitWord*
     Split and follow/create WikiWord.
 
+
 *:VimwikiVSplitWord*
     Vertical split and follow/create WikiWord.
+
 
 *:VimwikiNextWord*
     Find next WikiWord.
 
+
 *:VimwikiPrevWord*
     Find previous WikiWord.
+
 
 *:VimwikiDeleteWord*
     Delete WikiWord you are in.
 
+
 *:VimwikiRenameWord*
     Rename WikiWord you are in.
+
 
 *:Vimwiki2HTML*
     Convert current WikiPage to HTML.
 
+
 *:VimwikiAll2HTML*
     Convert all WikiPages to HTML.
+
 
 *:VimwikiToggleListItem*
     Toggle list item on/off (checked/unchecked)
     See |vimwiki-todo-lists|.
 
+
 *:VimwikiSearch* /pattern/
 *:VWS* /pattern/
     Search for /pattern/ in current wiki.
+
+
+*:VimwikiTable*
+    Create a table with 5 cols and 2 rows.
+
+    :VimwikiTable cols rows
+    Create a table with a given cols and rows
+
+    :VimwikiTable cols
+    Create a table with a given cols and 2 rows
 
 
 ==============================================================================
@@ -506,30 +599,31 @@ Term 2::
 ------------------------------------------------------------------------------
 5.6. Tables                                            *vimwiki-syntax-tables*
 
-Tables are created by entering the content of each cell separated by ||
+Tables are created by entering the content of each cell separated by |
 delimiters. You can insert other inline wiki syntax in table cells, including
 typeface formatting and links.
-For example:
+For example: >
 
-||*Year*s||*Temperature (low)*||*Temperature (high)*||
-||1900   ||-10                ||25                  ||
-||1910   ||-15                ||30                  ||
-||1920   ||-10                ||32                  ||
-||1930   ||_N/A_              ||_N/A_               ||
-||1940   ||-2                 ||40                  ||
+ | Year | Temperature (low) | Temperature (high) |
+ |------+-------------------+--------------------|
+ | 1900 | -10               | 25                 |
+ | 1910 | -15               | 30                 |
+ | 1920 | -10               | 32                 |
+ | 1930 | _N/A_             | _N/A_              |
+ | 1940 | -2                | 40                 |
+>
+
+In html the following part >
+ | Year | Temperature (low) | Temperature (high) |
+ |------+-------------------+--------------------|
+>
+is higlighted as a table header.
 
 
-For HTML, contents of table cell could be aligned to the right, left and
-center:
+See |vimwiki-tables| for more details on how to manage tables.
 
-|| Center || Center || Center ||
-||Left    || Center ||   Right||
-||   Right||Left    || Center ||
-|| Center ||   Right||Left    ||
-
-No spaces on the left side -- left alignment.
-No spaces on the right side -- right alignment.
-Spaces on the left and on the right -- center alignment.
+Note: You can not use [[link|description]] type of links in tables. Use
+[[link][description]] instead.
 
 
 ------------------------------------------------------------------------------
@@ -697,8 +791,89 @@ percentage of toggled child items(see also |g:vimwiki_listsyms|): >
 
 It is possible to toggle several list items using visual mode.
 
+
 ==============================================================================
-9. Options                                                   *vimwiki-options*
+9. Tables                                                     *vimwiki-tables*
+
+Use :VimwikiTable command to create default table with 5 columns and 2 rows: >
+
+ |   |   |   |   |   |
+ |---+---+---+---+---|
+ |   |   |   |   |   |
+<
+
+Tables are auto-formattable. Let's add some text into first cell: >
+
+ | First Name  |   |   |   |   |
+ |---+---+---+---+---|
+ |   |   |   |   |   |
+<
+
+Whenever you press <TAB>, <CR> or leave Insert mode table is formatted: >
+
+ | First Name |   |   |   |   |
+ |------------+---+---+---+---|
+ |            |   |   |   |   |
+<
+
+You can easily create nice looking text tables, just press <TAB> and enter new
+values: >
+
+ | First Name | Last Name  | Age | City     | e-mail               |
+ |------------+------------+-----+----------+----------------------|
+ | Vladislav  | Pokrishkin | 31  | Moscow   | vlad_pok@smail.com   |
+ | James      | Esfandiary | 27  | Istanbul | esfandiary@tmail.com |
+<
+
+
+
+==============================================================================
+10. Diary                                                      *vimwiki-diary*
+
+Diary helps you make daily notes. You can really easy add information into
+vimwiki that should be sorted out later. Just hit <Leader>w<Leader>w to create
+new daily note with name based on current date. The link to this newly created
+file is added to a diary wiki file.
+
+Usage example with default settings: >
+  Consider today is 2010-01-27.
+
+  Hit \w\w .
+  ~/vimwiki/diary.wiki is created.
+
+  2 following lines are added to ~/vimwiki/diary/diary.wiki :
+  = Diary =
+  | [[2010-01-27]] |
+
+  ~/vimwiki/diary/2010-01-27.wiki is created.
+  You are ready to add your information there.
+  -------------------------------------------
+
+  On the next day.
+  Hit \w\w .
+
+  The first line after = Diary = is changed in ~/vimwiki/diary/diary.wiki :
+  = Diary =
+  | [[2010-01-28]] | [[2010-01-27]] |
+
+  ~/vimwiki/diary/2010-01-28.wiki is created.
+  You are ready to add your information there.
+>
+
+By default there are 4 links on the line. All links are sorted by their dates.
+
+Calendar integration                                        *vimwiki-calendar*
+------------------------------------------------------------------------------
+If you have Calendar.vim installed you can use it to create diary notes.
+Just open calendar with :Calendar and tap <Enter> on the date. Wiki file would
+be created in default wiki's diary.
+
+Get it from http://www.vim.org/scripts/script.php?script_id=52
+
+
+
+==============================================================================
+11. Options                                                  *vimwiki-options*
 
 There are global and per wiki(local) options available to tune vimwiki.
 All global options are set using the following template: >
@@ -733,10 +908,12 @@ Empty |Dictionary| in the g:vimwiki_list is the wiki with default options: >
 <
 
 
-Per wiki options
+PER WIKI OPTIONS                                       *viwmiki-local-options*
+
+
 
 *vimwiki-option-path*
----------------------
+------------------------------------------------------------------------------
 Key             Default value~
 path            ~/vimwiki/
 
@@ -746,7 +923,7 @@ Wiki files location: >
 <
 
 *vimwiki-option-path_html*
---------------------------
+------------------------------------------------------------------------------
 Key             Default value~
 path_html       ~/vimwiki_html/
 
@@ -760,9 +937,20 @@ If you omit this option path_html would be path - '/' + '_html/': >
 
 ie, path_html = '~/okidoki_html/'
 
+*vimwiki-option-auto_export*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+auto_export     0                 0, 1
+
+Description~
+Set this option to 1 to automatically generate HTML file when corresponding
+wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_export': 1}]
+
+This will keep you HTML files up to date.
 
 *vimwiki-option-index*
-----------------------
+------------------------------------------------------------------------------
 Key             Default value~
 index           index
 
@@ -774,7 +962,7 @@ NOTE: Do not add extension.
 
 
 *vimwiki-option-ext*
---------------------
+------------------------------------------------------------------------------
 Key             Default value~
 ext             .wiki
 
@@ -785,7 +973,7 @@ Extension of wiki files: >
 
 <
 *vimwiki-option-syntax*
------------------------
+------------------------------------------------------------------------------
 Key             Default value     Values~
 syntax          default           default, media
 
@@ -799,7 +987,7 @@ To use MediaWiki's wiki markup: >
 <
 
 *vimwiki-option-html_header*
-----------------------------
+------------------------------------------------------------------------------
 Key             Default value~
 html_header
 
@@ -826,7 +1014,7 @@ where
 
 
 *vimwiki-option-html_footer*
-----------------------------
+------------------------------------------------------------------------------
 Key             Default value~
 html_footer
 
@@ -842,7 +1030,7 @@ This footer.tpl could look like: >
 <
 
 *vimwiki-option-css_name*
--------------------------
+------------------------------------------------------------------------------
 Key             Default value~
 css_name        style.css
 
@@ -857,7 +1045,7 @@ or even >
 <
 
 *vimwiki-option-gohome*
------------------------
+------------------------------------------------------------------------------
 Key             Default value     Values~
 gohome          split             split, vsplit, tabe
 
@@ -871,7 +1059,7 @@ Ex: >
 <
 
 *vimwiki-option-maxhi*
-----------------------
+------------------------------------------------------------------------------
 Key             Default value     Values~
 maxhi           1                 0, 1
 
@@ -884,7 +1072,7 @@ This disables filesystem checks for WikiWords.
 
 
 *vimwiki-option-nested_syntaxes*
---------------------------------
+------------------------------------------------------------------------------
 Key             Default value     Values~
 nested_syntaxes {}                pairs of highlight keyword and vim filetype
 
@@ -927,7 +1115,51 @@ or in: >
 
 
 
-Global options
+*vimwiki-option-diary_rel_path*
+------------------------------------------------------------------------------
+Key             Default value~
+diary_rel_path  diary/
+
+Description~
+Related to |vimwiki-option-path| path for diary wiki-files.
+
+
+*vimwiki-option-diary_index*
+------------------------------------------------------------------------------
+Key             Default value~
+diary_index     diary
+
+Description~
+Name of wiki-file that holds all links to dated wiki-files.
+
+
+*vimwiki-option-diary_header*
+------------------------------------------------------------------------------
+Key             Default value~
+diary_header    Diary
+
+Description~
+Name of the header in |vimwiki-option-diary_index| where links to dated
+wiki-files are located.
+
+
+*vimwiki-option-diary_link_count*
+------------------------------------------------------------------------------
+Key               Default value~
+diary_link_count  4
+
+Description~
+Number of maximum dated links placed on one line.
+Ex:
+= Diary =
+|| [[2010-01-30]] || [[2010-01-29]] || [[2010-01-28]] || [[2010-01-27]] ||
+|| [[2010-01-26]] || [[2010-01-25]] ||
+
+
+
+
+GLOBAL OPTIONS                                        *viwmiki-global-options*
+
 Use: >
     let g:option_name=option_value
 to set them.
@@ -942,7 +1174,7 @@ Value           Description~
 0               Use |hl-Title| or  VimwikiHeader1-VimwikiHeader6 (if defined
                 in a colorscheme)
 
-Default: 0
+Default: 1
 
 
 ------------------------------------------------------------------------------
@@ -1116,6 +1348,19 @@ Value           Description~
 Default: 1
 
 ------------------------------------------------------------------------------
+*g:vimwiki_use_calendar*
+
+Create new or open existing diary wiki-file for the date selected in Calendar.
+See |vimwiki-calendar|.
+
+Value           Description~
+0               Do not use calendar.
+1               Use calendar.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_browsers* *VimwikiWeblinkHandler*
 
 You can open external weblinks in a webbrowser. Webbrowsers are listed in
@@ -1136,8 +1381,37 @@ or redefine VimwikiWeblinkHandler function: >
   endfunction
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_table_auto_fmt*
+
+Turn on/off table auto-formatting.
+
+Value           Description~
+0               Do not auto-format tables.
+1               Auto-format tables.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_w32_dir_enc*
+
+Convert directory name from current |encoding| into 'g:vimwiki_w32_dir_enc'
+before it is created.
+
+If have 'enc=utf-8' and you set up >
+    let g:vimwiki_w32_dir_enc = 'cp1251'
+<
+then following the next link with <CR>: >
+    [[привет/мир]]
+>
+would convert utf-8 'привет' to cp1251 and create directory with that name.
+
+Default value: ''
+
+
 ==============================================================================
-10. Help                                                        *vimwiki-help*
+12. Help                                                        *vimwiki-help*
 
 As you could see I am not native English speaker (not a writer as well).
 Please send me correct phrases instead of that incorrect stuff I have used
@@ -1146,7 +1420,7 @@ here.
 Any help is really appreciated!
 
 ==============================================================================
-11. Author                                                    *vimwiki-author*
+13. Author                                                    *vimwiki-author*
 
 I live in Moscow and you may believe me -- there are no polar bears (no brown
 too) here in the streets.
@@ -1165,7 +1439,30 @@ Vimwiki's website: http://code.google.com/p/vimwiki/
 Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
-12. Changelog                                              *vimwiki-changelog*
+14. Changelog                                              *vimwiki-changelog*
+
+0.9.9~
+    * NEW: Diary. Help in making daily notes. See |vimwiki-diary|. Now you can
+      really easy add information into vimwiki that should be sorted out
+      later.
+    * NEW: Tables are redesigned. Syntax is changed. Now they are
+      auto-formattable. You can navigate them with <tab> and <cr> in insert
+      mode. See |vimwiki-syntax-tables| and |vimwiki-tables| for more details.
+    * NEW: Keyword STARTED: is added.
+    * NEW: Words TODO:, DONE:, STARTED:, XXX:, FIXME:, FIXED: are highlighed
+      inside headers.
+    * FIX: Export to html external links with 'file://' protocol. Ex:
+      [file:///home/user1/book.pdf my book].
+    * FIX: Menu is corrupted if wiki's path contains spaces.
+    * FIX: Settings |wrap| and |linebreak| are removed from ftplugin. Add them
+      into your personal settings file `.vim/after/ftplugin/vimwiki.vim` if
+      needed.
+    * NEW: Headers are highlighted in different colors by default.
+      See |g:vimwiki_hl_headers| to turn it off.
+    * FIX: Issue 40: Links with russian subdirs don't work.
+    * NEW: It is now possible to generate HTML files automatically on page
+      save. See |vimwiki-option-auto_export|.
+
 
 0.9.8~
     * NEW: Rename |g:vimwiki_fold_empty_lines| to
@@ -1517,12 +1814,12 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
     * First public version.
 
 ==============================================================================
-13. License                                                  *vimwiki-license*
+15. License                                                  *vimwiki-license*
 
 The MIT Licence
 http://www.opensource.org/licenses/mit-license.php
 
-Copyright (c) 2009 Maxim Kim
+Copyright (c) 2010 Maxim Kim
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
