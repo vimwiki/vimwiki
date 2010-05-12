@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki filetype plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -40,6 +41,19 @@ setlocal formatoptions=tnro
 inoremap <buffer> <expr> <CR> vimwiki_lst#insertCR()
 nnoremap <buffer> o :call vimwiki_lst#insertOo('o')<CR>a
 nnoremap <buffer> O :call vimwiki_lst#insertOo('O')<CR>a
+
+if !empty(&langmap)
+  " Valid only if langmap is a comma separated pairs of chars
+  let l_o = matchstr(&langmap, '\C,\zs.\zeo,')
+  if l_o
+    exe 'nnoremap <buffer> '.l_o.' :call vimwiki_lst#insertOo("o")<CR>a'
+  endif
+
+  let l_O = matchstr(&langmap, '\C,\zs.\zeO,')
+  if l_O
+    exe 'nnoremap <buffer> '.l_O.' :call vimwiki_lst#insertOo("O")<CR>a'
+  endif
+endif
 
 " COMMENTS }}}
 
@@ -205,6 +219,8 @@ command! -buffer VimwikiVSplitWord call vimwiki#WikiFollowWord('vsplit')
 
 command! -buffer -range VimwikiToggleListItem call vimwiki_lst#ToggleListItem(<line1>, <line2>)
 
+command! -buffer VimwikiGenerateLinks call vimwiki#generate_links()
+
 exe 'command! -buffer -nargs=* VimwikiSearch vimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
@@ -215,6 +231,8 @@ exe 'command! -buffer -nargs=* VWS vimgrep <args> '.
 command! -buffer -nargs=* VimwikiTable call vimwiki_tbl#create(<f-args>)
 command! -buffer VimwikiTableAlignQ call vimwiki_tbl#align_or_cmd('gqq')
 command! -buffer VimwikiTableAlignW call vimwiki_tbl#align_or_cmd('gww')
+command! -buffer VimwikiTableMoveColumnLeft call vimwiki_tbl#move_column_left()
+command! -buffer VimwikiTableMoveColumnRight call vimwiki_tbl#move_column_right()
 
 " COMMANDS }}}
 
@@ -291,21 +309,39 @@ noremap <silent><script><buffer>
 if g:vimwiki_table_auto_fmt
   inoremap <expr> <buffer> <CR> vimwiki_tbl#kbd_cr()
   inoremap <expr> <buffer> <Tab> vimwiki_tbl#kbd_tab()
+  inoremap <expr> <buffer> <S-Tab> vimwiki_tbl#kbd_shift_tab()
 endif
 
 nnoremap <buffer> gqq :VimwikiTableAlignQ<CR>
 nnoremap <buffer> gww :VimwikiTableAlignW<CR>
+nnoremap <buffer> <A-Left> :VimwikiTableMoveColumnLeft<CR>
+nnoremap <buffer> <A-Right> :VimwikiTableMoveColumnRight<CR>
+
+" Misc mappings
+inoremap <buffer> <S-CR> <br /><CR>
 
 
 " Text objects {{{
-omap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 0)<CR>
-vmap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 1)<CR>
+onoremap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 0)<CR>
+vnoremap <silent><buffer> ah :<C-U>call vimwiki#TO_header(0, 1)<CR>
 
-omap <silent><buffer> ih :<C-U>call vimwiki#TO_header(1, 0)<CR>
-vmap <silent><buffer> ih :<C-U>call vimwiki#TO_header(1, 1)<CR>
+onoremap <silent><buffer> ih :<C-U>call vimwiki#TO_header(1, 0)<CR>
+vnoremap <silent><buffer> ih :<C-U>call vimwiki#TO_header(1, 1)<CR>
 
-nmap <silent><buffer> = :call vimwiki#AddHeaderLevel()<CR>
-nmap <silent><buffer> - :call vimwiki#RemoveHeaderLevel()<CR>
+onoremap <silent><buffer> a\ :<C-U>call vimwiki#TO_table_cell(0, 0)<CR>
+vnoremap <silent><buffer> a\ :<C-U>call vimwiki#TO_table_cell(0, 1)<CR>
+
+onoremap <silent><buffer> i\ :<C-U>call vimwiki#TO_table_cell(1, 0)<CR>
+vnoremap <silent><buffer> i\ :<C-U>call vimwiki#TO_table_cell(1, 1)<CR>
+
+onoremap <silent><buffer> ac :<C-U>call vimwiki#TO_table_col(0, 0)<CR>
+vnoremap <silent><buffer> ac :<C-U>call vimwiki#TO_table_col(0, 1)<CR>
+
+onoremap <silent><buffer> ic :<C-U>call vimwiki#TO_table_col(1, 0)<CR>
+vnoremap <silent><buffer> ic :<C-U>call vimwiki#TO_table_col(1, 1)<CR>
+
+noremap <silent><buffer> = :call vimwiki#AddHeaderLevel()<CR>
+noremap <silent><buffer> - :call vimwiki#RemoveHeaderLevel()<CR>
 
 " }}}
 

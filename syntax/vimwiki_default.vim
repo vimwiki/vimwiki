@@ -1,14 +1,14 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
 " Default syntax
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
-" vim:tw=78:
 
 " text: *strong*
 " let g:vimwiki_rxBold = '\*[^*]\+\*'
 let g:vimwiki_rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\*'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`]\)'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
       \'\*'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
@@ -16,20 +16,20 @@ let g:vimwiki_rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
 " let g:vimwiki_rxItalic = '_[^_]\+_'
 let g:vimwiki_rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'_'.
-      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`]\)'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
       \'_'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
 " text: *_bold italic_* or _*italic bold*_
 let g:vimwiki_rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\*_'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`]\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
       \'_\*'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
 let g:vimwiki_rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'_\*'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`]\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
       \'\*_'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 

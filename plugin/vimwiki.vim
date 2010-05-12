@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -18,25 +19,22 @@ function! s:default(varname, value) "{{{
   endif
 endfunction "}}}
 
-function! Str_common_part(str1, str2)"{{{
+" return longest common prefix of 2 given strings.
+" 'Hello world', 'Hello worm' => 'Hello wor'
+function! s:str_common_pfx(str1, str2) "{{{
   let idx = 0
   let minlen = min([len(a:str1), len(a:str2)])
-  while (idx < minlen) && (a:str1[idx] == a:str2[idx])
+  while (idx < minlen) && (a:str1[idx] ==? a:str2[idx])
     let idx = idx + 1
   endwhile
-
   return strpart(a:str1, 0, idx)
-endfunction"}}}
-
-function! s:chomp_slash(str)"{{{
-  return substitute(a:str, '[/\\]\+$', '', '')
-endfunction"}}}
+endfunction "}}}
 
 function! s:find_wiki(path) "{{{
   let idx = 0
   while idx < len(g:vimwiki_list)
-    let path = s:chomp_slash(expand(VimwikiGet('path', idx)))
-    if Str_common_part(path, a:path) == path
+    let path = vimwiki#chomp_slash(expand(VimwikiGet('path', idx)))
+    if s:str_common_pfx(path, a:path) == path
       return idx
     endif
     let idx += 1
@@ -214,7 +212,7 @@ let s:vimwiki_defaults.diary_rel_path = 'diary/'
 let s:vimwiki_defaults.diary_index = 'diary'
 let s:vimwiki_defaults.diary_header = 'Diary'
 
-" Do not change this! Will wait till vim would be more datetime awareable.
+" Do not change this! Will wait till vim become more datetime awareable.
 let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
 
 let s:vimwiki_defaults.diary_link_count = 4
@@ -265,6 +263,11 @@ endif
 call s:default('use_calendar', 1)
 call s:default('table_auto_fmt', 1)
 call s:default('w32_dir_enc', '')
+call s:default('CJK_length', 0)
+call s:default('dir_link', '')
+
+call s:default('html_header_numbering', 0)
+call s:default('html_header_numbering_sym', '')
 
 call s:default('current_idx', 0)
 
@@ -275,14 +278,17 @@ let nup = low.oth
 let nlo = upp.oth
 let any = upp.nup
 
-let g:vimwiki_word1 = '\C\<['.upp.']['.nlo.']*['.
-      \ low.']['.nup.']*['.upp.']['.any.']*\>'
-let g:vimwiki_word2 = '\[\[[^\]]\+\]\]'
-let g:vimwiki_word3 = '\[\[[^\]]\+\]\[[^\]]\+\]\]'
+let wword = '\C\<['.upp.']['.nlo.']*['.low.']['.nup.']*['.upp.']['.any.']*\>'
+let g:vimwiki_rxWikiWord = '!\@<!'.wword
+let g:vimwiki_rxNoWikiWord = '!'.wword
+
+let g:vimwiki_rxWikiLink1 = '\[\[[^\]]\+\]\]'
+let g:vimwiki_rxWikiLink2 = '\[\[[^\]]\+\]\[[^\]]\+\]\]'
 if g:vimwiki_camel_case
-  let g:vimwiki_rxWikiWord = g:vimwiki_word1.'\|'.g:vimwiki_word2.'\|'.g:vimwiki_word3
+  let g:vimwiki_rxWikiLink = g:vimwiki_rxWikiWord.'\|'.
+        \ g:vimwiki_rxWikiLink1.'\|'.g:vimwiki_rxWikiLink2
 else
-  let g:vimwiki_rxWikiWord = g:vimwiki_word2.'\|'.g:vimwiki_word3
+  let g:vimwiki_rxWikiLink = g:vimwiki_rxWikiLink1.'\|'.g:vimwiki_rxWikiLink2
 endif
 let g:vimwiki_rxWeblink = '\%("[^"(]\+\((\([^)]\+\))\)\?":\)\?'.
       \'\%(https\?\|ftp\|gopher\|telnet\|file\|notes\|ms-help\):'.
@@ -387,6 +393,8 @@ function! s:build_table_menu(topmenu)
   exe 'menu '.a:topmenu.'.-Sep- :'
   exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
   exe 'nmenu '.a:topmenu.'.Table.Format<tab>gqq gqq'
+  exe 'nmenu '.a:topmenu.'.Table.Move\ column\ left<tab><A-Left> :VimwikiTableMoveColumnLeft<CR>'
+  exe 'nmenu '.a:topmenu.'.Table.Move\ column\ right<tab><A-Right> :VimwikiTableMoveColumnRight<CR>'
   exe 'nmenu disable '.a:topmenu.'.Table'
 endfunction
 
@@ -399,6 +407,7 @@ endif
 " CALENDAR Hook "{{{
 if g:vimwiki_use_calendar
   let g:calendar_action = 'vimwiki_diary#calendar_action'
+  let g:calendar_sign = 'vimwiki_diary#calendar_sign'
 endif
 "}}}
 

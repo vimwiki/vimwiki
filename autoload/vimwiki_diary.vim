@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Desc: Handle diary notes
 " Author: Maxim Kim <habamax@gmail.com>
@@ -85,10 +86,10 @@ endfunction "}}}
 
 function! s:get_links() "{{{
   let rx = '\d\{4}-\d\d-\d\d'
-  let s_links = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*.wiki')
+  let s_links = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').
+        \ '*'.VimwikiGet('ext'))
 
-  "let s_links = substitute(s_links, '\'.VimwikiGet('ext'), "", "g")
-  let s_links = substitute(s_links, '\.wiki', "", "g")
+  let s_links = substitute(s_links, '\'.VimwikiGet('ext'), "", "g")
   let links = split(s_links, '\n')
 
   " remove backup files (.wiki~)
@@ -191,7 +192,7 @@ function! vimwiki_diary#make_note(index, ...) "{{{
   call vimwiki#open_link(':e ', link, s:diary_index())
 endfunction "}}}
 
-" Calendar.vim callback.
+" Calendar.vim callback and sign functions.
 function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
@@ -214,3 +215,10 @@ function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
   call vimwiki_diary#make_note(1, link)
 endfunction
 
+function vimwiki_diary#calendar_sign(day, month, year) "{{{
+  let day = s:prefix_zero(a:day)
+  let month = s:prefix_zero(a:month)
+  let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').
+        \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
+  return filereadable(expand(sfile))
+endfunction "}}}

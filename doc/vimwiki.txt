@@ -1,14 +1,15 @@
 *vimwiki.txt*   A Personal Wiki for Vim
 
-     __  __  ______            __      __  ______   __  __   ______     ~
-    /\ \/\ \/\__  _\   /'\_/`\/\ \  __/\ \/\__  _\ /\ \/\ \ /\__  _\    ~
-    \ \ \ \ \/_/\ \/  /\      \ \ \/\ \ \ \/_/\ \/ \ \ \/'/'\/_/\ \/    ~
-     \ \ \ \ \ \ \ \  \ \ \__\ \ \ \ \ \ \ \ \ \ \  \ \ , <    \ \ \    ~
-      \ \ \_/ \ \_\ \__\ \ \_/\ \ \ \_/ \_\ \ \_\ \__\ \ \\`\   \_\ \__ ~
-       \ `\___/ /\_____\\ \_\\ \_\ `\___x___/ /\_____\\ \_\ \_\ /\_____\~
-        `\/__/  \/_____/ \/_/ \/_/'\/__//__/  \/_____/ \/_/\/_/ \/_____/~
+             __   __  ___   __   __  _     _  ___   ___   _  ___             ~
+            |  | |  ||   | |  |_|  || | _ | ||   | |   | | ||   |            ~
+            |  |_|  ||   | |       || || || ||   | |   |_| ||   |            ~
+            |       ||   | |       ||       ||   | |      _||   |            ~
+            |       ||   | |       ||       ||   | |     |_ |   |            ~
+             |     | |   | | ||_|| ||   _   ||   | |    _  ||   |            ~
+              |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
-                               Version: 0.9.9
+
+                               Version: 1.0
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -34,13 +35,12 @@ CONTENTS                                                    *vimwiki-contents*
         5.9. Comments                |vimwiki-syntax-comments|
     6. Folding/Outline               |vimwiki-folding|
     7. Placeholders                  |vimwiki-placeholders|
-        7.1 Table of Contents        |vimwiki-table-of-contents|
     8. Todo lists                    |vimwiki-todo-lists|
     9. Tables                        |vimwiki-tables|
     10. Diary                        |vimwiki-diary|
     11. Options                      |vimwiki-options|
     12. Help                         |vimwiki-help|
-    13. Author                       |vimwiki-author|
+    13. Developers                   |vimwiki-developers|
     14. Changelog                    |vimwiki-changelog|
     15. License                      |vimwiki-license|
 
@@ -242,6 +242,13 @@ gqq                     Format table. If you did some changes to a table
  or                     without swapping insert/normal modes this command
 gww                     reformat it.
 
+                        *vimwiki_<A-Left>*
+<A-Left>                Move current table column to the left.
+                        See |:VimwikiTableMoveColumnLeft|
+
+                        *vimwiki_<A-Right>*
+<A-Right>               Move current table column to the right.
+                        See |:VimwikiTableMoveColumnRight|
 
 
 
@@ -267,6 +274,8 @@ INSERT MODE                                           *vimwiki-table-mappings*
 <Tab>                   Goto next table cell, create new row if on the last
                         cell.
 
+                        *vimwiki_i_<S-CR>*
+<S-CR>                  Insert <br /> and a newline.
 
 
 ------------------------------------------------------------------------------
@@ -278,6 +287,10 @@ ih                      Inner Header without leading empty lines.
 You can 'vah' to select a header with its contents or 'dah' to delete it or
 'yah' to yank it or 'cah' to change it.
 
+a\                      A cell in a table.
+i\                      Inner cell in a table.
+ac                      A column in a table.
+ic                      Inner column in a table.
 
 ==============================================================================
 4. Commands                                                 *vimwiki-commands*
@@ -362,6 +375,37 @@ You can 'vah' to select a header with its contents or 'dah' to delete it or
     :VimwikiTable cols
     Create a table with a given cols and 2 rows
 
+*:VimwikiTableMoveColumnLeft* , *:VimwikiTableMoveColumnRight*
+    Move current column to the left or to the right:
+    Example: >
+
+    | head1  | head2  | head3  | head4  | head5  |
+    |--------+--------+--------+--------+--------|
+    | value1 | value2 | value3 | value4 | value5 |
+
+
+    Cursor is on 'head1'.
+    :VimwikiTableMoveColumnRight
+
+    | head2  | head1  | head3  | head4  | head5  |
+    |--------+--------+--------+--------+--------|
+    | value2 | value1 | value3 | value4 | value5 |
+
+    Cursor is on 'head3'.
+    :VimwikiTableMoveColumnLeft
+
+    | head2  | head3  | head1  | head4  | head5  |
+    |--------+--------+--------+--------+--------|
+    | value2 | value3 | value1 | value4 | value5 |
+<
+
+    Commands are mapped to <A-Left> and <A-Right> respectively.
+
+
+*:VimwikiGenerateLinks*
+    Insert all available links into current buffer.
+
+
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
@@ -370,13 +414,8 @@ There are a lot of different wikies out there. Most of them have their own
 syntax and vimwiki is not an exception here. Default vimwiki's syntax is a
 subset of google's wiki syntax markup.
 
-As for MediaWiki's syntax -- it is not that convenient for non English
-(Russian in my case :)) keyboard layouts to emphasize text as it uses a lot
-of '''''' to do it. You have to switch layouts every time you want some bold
-non English text. This is the answer to "Why not MediaWiki?"
-
-Nevertheless, there is MediaWiki syntax file included in the distribution (it
-doesn't have all the fancy stuff original MediaWiki syntax has though).
+There is MediaWiki syntax file included in the distribution (it doesn't have
+all the fancy stuff original MediaWiki syntax has though).
 See |vimwiki-option-syntax|.
 
 
@@ -500,18 +539,6 @@ You can center your headers in html by placing spaces before the first '=':
 
 
 
-Note: before vimwiki 0.8.2, header's markup syntax used exclamation marks:
-! Header level 1
-!! Header level 2
-etc...
-
-If you upgrade from pre 0.8.2 you might find the next commands useful.
-To change headers from !Header to =Header= in your wiki files do: >
- :args .wiki
- :argdo %s/^\(!\+\)\([^!].*$\)/\=substitute(submatch(1),'!','=','g').submatch(2).substitute(submatch(1),'!','=','g')
-
-Note: BACKUP FIRST!
-
 ------------------------------------------------------------------------------
 5.4. Paragraphs                                    *vimwiki-syntax-paragraphs*
 
@@ -619,6 +646,7 @@ In html the following part >
 >
 is higlighted as a table header.
 
+If you indent table then it would be centered in html.
 
 See |vimwiki-tables| for more details on how to manage tables.
 
@@ -723,7 +751,7 @@ To turn folding on/off check |g:vimwiki_folding|.
 7. Placeholders                                         *vimwiki-placeholders*
 
 ------------------------------------------------------------------------------
-7.1. Table of Contents               *vimwiki-toc* *vimwiki-table-of-contents*
+%toc Table of Contents               *vimwiki-toc* *vimwiki-table-of-contents*
 
 You can add 'table of contents' to your html page generated from wiki one.
 Just place >
@@ -738,6 +766,16 @@ You can also add caption to your 'toc': >
 or >
 
 %toc Whatever
+
+
+------------------------------------------------------------------------------
+%nohtml                                                       *vimwiki-nohtml*
+
+If you do not want a wiki page to be converted to html, place:
+
+%nohtml
+
+into it.
 
 
 ==============================================================================
@@ -825,6 +863,8 @@ values: >
  | James      | Esfandiary | 27  | Istanbul | esfandiary@tmail.com |
 <
 
+To indent table indent the first row. Then format it with 'gqq'.
+
 
 
 ==============================================================================
@@ -870,6 +910,8 @@ be created in default wiki's diary.
 
 Get it from http://www.vim.org/scripts/script.php?script_id=52
 
+See |g:vimwiki_use_calendar| option to turn it off/on.
+
 
 
 ==============================================================================
@@ -907,6 +949,20 @@ Empty |Dictionary| in the g:vimwiki_list is the wiki with default options: >
 
 <
 
+You can also create wikis as a separate |Dictionary|s. >
+
+    let wiki_1 = {}
+    let wiki_1.path = '~/my_docs/'
+    let wiki_1.html_header = '~/public_html/header.tpl'
+    let wiki_1.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
+
+    let wiki_2 = {}
+    let wiki_2.path = '~/project_docs/'
+    let wiki_2.index = 'main'
+
+    let g:vimwiki_list = [wiki_1, wiki_2]
+
+<
 
 PER WIKI OPTIONS                                       *viwmiki-local-options*
 
@@ -1079,11 +1135,11 @@ nested_syntaxes {}                pairs of highlight keyword and vim filetype
 Description~
 You can make preformatted text to be highlighted with a different syntaxes
 available for vim.
-For example the following setup: >
+For example the following setup in your vimrc: >
   let wiki = {}
-  let wiki.path = '~/my_site/'
+  let wiki.path = '~/my_wiki/'
   let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
-  let vimwiki_list = [wiki]
+  let g:vimwiki_list = [wiki]
 
 would give you python and c++ highlighting in: >
  {{{class="brush: python"
@@ -1152,8 +1208,8 @@ Description~
 Number of maximum dated links placed on one line.
 Ex:
 = Diary =
-|| [[2010-01-30]] || [[2010-01-29]] || [[2010-01-28]] || [[2010-01-27]] ||
-|| [[2010-01-26]] || [[2010-01-25]] ||
+| [[2010-01-30]] | [[2010-01-29]] | [[2010-01-28]] | [[2010-01-27]] |
+| [[2010-01-26]] | [[2010-01-25]] |
 
 
 
@@ -1399,7 +1455,7 @@ Default: 1
 Convert directory name from current |encoding| into 'g:vimwiki_w32_dir_enc'
 before it is created.
 
-If have 'enc=utf-8' and you set up >
+If you have 'enc=utf-8' and set up >
     let g:vimwiki_w32_dir_enc = 'cp1251'
 <
 then following the next link with <CR>: >
@@ -1407,39 +1463,183 @@ then following the next link with <CR>: >
 >
 would convert utf-8 'привет' to cp1251 and create directory with that name.
 
-Default value: ''
+Default: ''
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_CJK_length*
+
+Use special method to calculate correct length of the strings with double wide
+characters. (To align table cells properly)
+
+Value           Description~
+0               Do not use it.
+1               Use it.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_dir_link*
+
+This option is about what to do with links to directories -- [[directory/]],
+[[papers/]], etc.
+
+Value           Description~
+''              Open 'directory/' using standard netrw plugin.
+'index'         Open 'directory/index.wiki', create if needed.
+'main'          Open 'directory/main.wiki', create if needed.
+etc.
+
+Default: '' (empty string)
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_html_header_numbering*
+
+Set this option if you want headers to be auto numbered in html.
+
+ex: >
+    1 Header1
+    1.1 Header2
+    1.2 Header2
+    1.2.1 Header3
+    1.2.2 Header3
+    1.3 Header2
+    2 Header1
+    3 Header1
+etc.
+
+Value           Description~
+0               Header numbering is off.
+1               Header numbering is on. Headers are numbered starting from
+                header level 1.
+2               Header numbering is on. Headers are numbered starting from
+                header level 2.
+etc.
+Example when g:vimwiki_html_header_numbering = 2: >
+    Header1
+    1 Header2
+    2 Header2
+    2.1 Header3
+    2.1.1 Header4
+    2.1.2 Header4
+    2.2 Header3
+    3 Header2
+    4 Header2
+etc.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_html_header_numbering_sym*
+
+Ending symbol for |g:vimwiki_html_header_numbering|.
+
+Value           Description~
+'.'             Dot would be added to the end of header's number.
+')'             Closing bracket would be added to the end of header's number.
+etc.
+
+With
+    let g:vimwiki_html_header_numbering = '.'
+headers would look like: >
+    1. Header1
+    1.1. Header2
+    1.2. Header2
+    1.2.1. Header3
+    1.2.2. Header3
+    1.3. Header2
+    2. Header1
+    3. Header1
+
+
+Default: '' (empty)
 
 
 ==============================================================================
 12. Help                                                        *vimwiki-help*
 
-As you could see I am not native English speaker (not a writer as well).
-Please send me correct phrases instead of that incorrect stuff I have used
-here.
+Your help in making vimwiki better is really appreciated!
+Any help. Would it be spell correction or code snippet to patch -- everything
+is welcomed.
 
-Any help is really appreciated!
+Issues could be filled in at http://code.google.com/p/vimwiki/issues .
+
 
 ==============================================================================
-13. Author                                                    *vimwiki-author*
+13. Developers                                            *vimwiki-developers*
 
-I live in Moscow and you may believe me -- there are no polar bears (no brown
-too) here in the streets.
+    - Maxim Kim <habamax@gmail.com>
+      Original author.
+    - Mikhail Trishchenkov <kriomant(at)gmail.com>
+      Joined in at Dec 2009.
 
-I do not do programming for a living. So don't blame me for an ugly
-ineffective code. Improvements are welcome.
+Vimwiki's website: http://code.google.com/p/vimwiki/
+Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
+
+... afterword
 
 Many thanks to all of you for voting vimwiki up on www.vim.org. I do vimwiki
 in my spare time I could use to dance argentine tango with beautiful women.
 Your votes are kind of a good replacement. ;)
 
 Sincerely yours,
-Maxim Kim <habamax@gmail.com>.
+Maxim Kim.
 
-Vimwiki's website: http://code.google.com/p/vimwiki/
-Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 14. Changelog                                              *vimwiki-changelog*
+
+1.0~
+    * NEW: Issue 41: Table cell and column text objects. See
+      |vimwiki-text-objects|.
+    * NEW: Issue 42: Commands to move table columns left and right. See
+      |:VimwikiTableMoveColumnLeft| and |:VimwikiTableMoveColumnRight|.
+    * NEW: Issue 44: <S-Tab> should move cursor to the previous table cell.
+    * NEW: Issue 45: It should be possible to indent tables. Indented tables
+      are centered in html.
+    * NEW: Issue 46: Do not htmlize some wiki pages (blacklist). New
+      placeholder is added: %nohtml. See |vimwiki-nohtml|.
+    * FIX: Issue 47: Lists aren't HTMLized properly.
+    * FIX: Issue 48: With autochdir it is impossible to have path_html such as
+      'd:\vimwiki\html\'
+    * FIX: Issue 49: Table is not HTMLized properly at the end of wiki page.
+    * FIX: Issue 50: Inline formatting is not performed in table cells.
+    * FIX: Issue 51: Cannot insert '-' (minus) into table cells of the first
+      column.
+    * FIX: Issue 52: Table cell width is incorrect when double wide characters
+      are used (ie. Chinese). Check |g:vimwiki_CJK_length|.
+    * NEW: Issue 53: Wiki markup can not nested. (Use links and inline markup
+      in Headers).
+    * NEW: Issue 54: Highlight for placeholders.
+    * NEW: Issue 56: Directory indexes. See |g:vimwiki_dir_link| option and
+      |:VimwikiGenerateLinks| command.
+    * NEW: Issue 58: Html new lines with <br />. Could be inserted with <S-CR>
+      in insert mode.
+    * FIX: Issue 59: List item's text can't be started from *.
+    * NEW: Issue 60: Links inside completed gtd-items.
+    * NEW: Issue 61: Headers numbering. See |g:vimwiki_html_header_numbering|
+      and |g:vimwiki_html_header_numbering_sym| options.
+    * FIX: Issue 63: Table cannot have leading empty cells in html.
+    * FIX: Issue 65: Table separator is not htmlized right if on top of the
+      table.
+    * FIX: Issue 66: Table empty cells are very small in html.
+    * FIX: Issue 67: Wrong html conversion of multilined list item with bold
+      text on the start of next line.
+    * FIX: Issue 68: auto-indent problem with langmap.
+    * FIX: Issue 73: Link navigation by Tab. "Escaped" wiki-word should be
+      skipped for navigation with <tab>.
+    * FIX: Issue 75: `code` syntax doesn't display correctly in toc.
+    * FIX: Issue 77: Diary index only showing link to today's diary entry
+      file for extensions other than '.wiki'.
+    * FIX: Issue 79: Further calendar.vim integration -- add sign to calendar
+      date if it has corresponding diary page.
+    * FIX: Issue 80: Debian Lenny GUI Vim 7.2 has problems with toggling inner
+      todo list items.
+    * FIX: Issue 81: Don't convert WikiWord as a link in html when
+      `let g:vimwiki_camel_case = 0`
 
 0.9.9~
     * NEW: Diary. Help in making daily notes. See |vimwiki-diary|. Now you can
@@ -1819,7 +2019,7 @@ Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
 The MIT Licence
 http://www.opensource.org/licenses/mit-license.php
 
-Copyright (c) 2010 Maxim Kim
+Copyright (c) 2008-2010 Maxim Kim
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

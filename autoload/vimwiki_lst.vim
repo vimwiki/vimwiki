@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Todo lists related stuff here.
 " Author: Maxim Kim <habamax@gmail.com>
@@ -237,9 +238,9 @@ function! s:all_siblings_checked(lnum) "{{{
   let cnt = 0
   let siblings = s:get_sibling_items(a:lnum)
   for lnum in siblings
-    let cnt += s:get_state(lnum)/100.0
+    let cnt += s:get_state(lnum)
   endfor
-  let result = (cnt*100.0)/len(siblings)
+  let result = cnt/len(siblings)
   return result
 endfunction "}}}
 

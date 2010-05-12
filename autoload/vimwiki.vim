@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -17,20 +18,14 @@ let s:badsymbols = '['.g:vimwiki_badsyms.g:vimwiki_stripsym.'<>|?*:"]'
 
 " MISC helper functions {{{
 
-" This function is double defined.
-" TODO: refactor common functions into new module.
-function! s:chomp_slash(str) "{{{
+function! vimwiki#chomp_slash(str) "{{{
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction "}}}
-
-function! s:is_windows()
-  return has("win32") || has("win64") || has("win95") || has("win16")
-endfunction
 
 function! vimwiki#mkdir(path) "{{{
   let path = expand(a:path)
   if !isdirectory(path) && exists("*mkdir")
-    let path = s:chomp_slash(path)
+    let path = vimwiki#chomp_slash(path)
     if s:is_windows() && !empty(g:vimwiki_w32_dir_enc)
       let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
     endif
@@ -53,7 +48,7 @@ function! vimwiki#subdir(path, filename)"{{{
   let path = expand(a:path)
   let filename = expand(a:filename)
   let idx = 0
-  while path[idx] == filename[idx]
+  while path[idx] ==? filename[idx]
     let idx = idx + 1
   endwhile
 
@@ -79,7 +74,18 @@ function! vimwiki#open_link(cmd, link, ...) "{{{
       let vimwiki_prev_link = [expand('%:p'), getpos('.')]
     endif
 
-    call s:edit_file(a:cmd, VimwikiGet('path').a:link.VimwikiGet('ext'))
+    if vimwiki#is_link_to_dir(a:link)
+      if g:vimwiki_dir_link == ''
+        call s:edit_file(a:cmd, VimwikiGet('path').a:link)
+      else
+        call s:edit_file(a:cmd,
+              \ VimwikiGet('path').a:link.
+              \ g:vimwiki_dir_link.
+              \ VimwikiGet('ext'))
+      endif
+    else
+      call s:edit_file(a:cmd, VimwikiGet('path').a:link.VimwikiGet('ext'))
+    endif
 
     if exists('vimwiki_prev_link')
       let b:vimwiki_prev_link = vimwiki_prev_link
@@ -87,6 +93,71 @@ function! vimwiki#open_link(cmd, link, ...) "{{{
   endif
 endfunction
 " }}}
+
+function! vimwiki#select(wnum)"{{{
+  if a:wnum < 1 || a:wnum > len(g:vimwiki_list)
+    return
+  endif
+  if &ft == 'vimwiki'
+    let b:vimwiki_idx = g:vimwiki_current_idx
+  endif
+  let g:vimwiki_current_idx = a:wnum - 1
+endfunction
+" }}}
+
+function! vimwiki#generate_links()"{{{
+  let links = s:get_links('*'.VimwikiGet('ext'))
+
+  " We don't want link to itself.
+  let cur_link = expand('%:t:r')
+  call filter(links, 'v:val != cur_link')
+
+  if len(links)
+    call append(line('$'), '= Generated Links =')
+  endif
+
+  call sort(links)
+
+  for link in links
+    if s:is_wiki_word(link)
+      call append(line('$'), '- '.link)
+    else
+      call append(line('$'), '- [['.link.']]')
+    endif
+  endfor
+endfunction " }}}
+
+function! s:is_windows() "{{{
+  return has("win32") || has("win64") || has("win95") || has("win16")
+endfunction "}}}
+
+function! s:get_links(pat) "{{{
+  " search all wiki files in 'path' and its subdirs.
+  let subdir = vimwiki#current_subdir()
+  let globlinks = glob(VimwikiGet('path').subdir.'**/'.a:pat)
+
+  " remove .wiki extensions
+  let globlinks = substitute(globlinks, '\'.VimwikiGet('ext'), "", "g")
+  let links = split(globlinks, '\n')
+
+  " remove backup files (.wiki~)
+  call filter(links, 'v:val !~ ''.*\~$''')
+
+  " remove paths
+  let rem_path = escape(expand(VimwikiGet('path')).subdir, '\')
+  call map(links, 'substitute(v:val, rem_path, "", "g")')
+
+  " Remove trailing slashes.
+  call map(links, 'substitute(v:val, "[/\\\\]*$", "", "g")')
+
+  return links
+endfunction "}}}
+
+" Builtin cursor doesn't work right with unicode characters.
+function! s:cursor(lnum, cnum) "{{{
+    exe a:lnum
+    exe 'normal! 0'.a:cnum.'|'
+endfunction "}}}
 
 function! s:filename(link) "{{{
   let result = vimwiki#safe_link(a:link)
@@ -100,7 +171,7 @@ endfunction
 " }}}
 
 function! s:is_wiki_word(str) "{{{
-  if a:str =~ g:vimwiki_word1 && a:str !~ '[[:space:]\\/]'
+  if a:str =~ g:vimwiki_rxWikiWord && a:str !~ '[[:space:]\\/]'
     return 1
   endif
   return 0
@@ -164,10 +235,20 @@ function! s:strip_word(word) "{{{
 endfunction
 " }}}
 
-function! s:is_link_to_non_wiki_file(word) "{{{
-  " Check if word is link to a non-wiki file.
+function! s:is_link_to_non_wiki_file(link) "{{{
+  " Check if link is to a non-wiki file.
   " The easiest way is to check if it has extension like .txt or .html
-  if a:word =~ '\.\w\{1,4}$'
+  if a:link =~ '\.\w\{1,4}$'
+    return 1
+  endif
+  return 0
+endfunction
+" }}}
+
+function! vimwiki#is_link_to_dir(link) "{{{
+  " Check if link is to a directory.
+  " It should be ended with \ or /.
+  if a:link =~ '.\+[/\\]$'
     return 1
   endif
   return 0
@@ -188,17 +269,6 @@ function! s:print_wiki_list() "{{{
     let idx += 1
   endwhile
   echohl None
-endfunction
-" }}}
-
-function! vimwiki#select(wnum)"{{{
-  if a:wnum < 1 || a:wnum > len(g:vimwiki_list)
-    return
-  endif
-  if &ft == 'vimwiki'
-    let b:vimwiki_idx = g:vimwiki_current_idx
-  endif
-  let g:vimwiki_current_idx = a:wnum - 1
 endfunction
 " }}}
 
@@ -309,42 +379,38 @@ endfunction
 " }}}
 
 " SYNTAX highlight {{{
-function! vimwiki#WikiHighlightWords() "{{{
-  " search all wiki files in 'path' and its subdirs.
-  let subdir = vimwiki#current_subdir()
-  let wikies = glob(VimwikiGet('path').subdir.'**/*'.VimwikiGet('ext'))
-
-  " remove .wiki extensions
-  let wikies = substitute(wikies, '\'.VimwikiGet('ext'), "", "g")
-  let g:vimwiki_wikiwords = split(wikies, '\n')
-
-  " remove backup files (.wiki~)
-  call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
-
-  " remove paths
-  let rem_path = escape(expand(VimwikiGet('path')).subdir, '\')
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, rem_path, "", "g")')
+function! vimwiki#WikiHighlightLinks() "{{{
+  let links = s:get_links('*'.VimwikiGet('ext'))
 
   " Links with subdirs should be highlighted for linux and windows separators
   " Change \ or / to [/\\]
   let os_p = '[/\\]'
   let os_p2 = escape(os_p, '\')
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, os_p, os_p2, "g")')
+  call map(links, 'substitute(v:val, os_p, os_p2, "g")')
 
-  for word in g:vimwiki_wikiwords
+  for link in links
     if g:vimwiki_camel_case &&
-          \ word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
-      execute 'syntax match VimwikiWord /\%(^\|[^!]\)\@<=\<'.word.'\>/'
+          \ link =~ g:vimwiki_rxWikiWord && !s:is_link_to_non_wiki_file(link)
+      execute 'syntax match VimwikiLink /!\@<!\<'.link.'\>/'
     endif
-    execute 'syntax match VimwikiWord /\[\[\<'.
-          \ vimwiki#unsafe_link(word).
+    execute 'syntax match VimwikiLink /\[\[\<'.
+          \ vimwiki#unsafe_link(link).
           \ '\>\%(|\+.*\)*\]\]/'
-    execute 'syntax match VimwikiWord /\[\[\<'.
-          \ vimwiki#unsafe_link(word).
+    execute 'syntax match VimwikiLink /\[\[\<'.
+          \ vimwiki#unsafe_link(link).
           \ '\>\]\[.\+\]\]/'
   endfor
-  execute 'syntax match VimwikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
-  execute 'syntax match VimwikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\]\[.\+\]\]/'
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%(jpg\|png\|gif\)\]\[.\+\]\]/'
+
+  " highlight dirs
+  let dirs = s:get_links('*/')
+  call map(dirs, 'substitute(v:val, os_p, os_p2, "g")')
+  for dir in dirs
+    execute 'syntax match VimwikiLink /\[\[\<'.
+          \ vimwiki#unsafe_link(dir).
+          \ '\>[/\\]*\%(|\+.*\)*\]\]/'
+  endfor
 endfunction
 " }}}
 
@@ -398,12 +464,12 @@ endfunction "}}}
 
 " WIKI functions {{{
 function! vimwiki#WikiNextWord() "{{{
-  call s:search_word(g:vimwiki_rxWikiWord.'\|'.g:vimwiki_rxWeblink, '')
+  call s:search_word(g:vimwiki_rxWikiLink.'\|'.g:vimwiki_rxWeblink, '')
 endfunction
 " }}}
 
 function! vimwiki#WikiPrevWord() "{{{
-  call s:search_word(g:vimwiki_rxWikiWord.'\|'.g:vimwiki_rxWeblink, 'b')
+  call s:search_word(g:vimwiki_rxWikiLink.'\|'.g:vimwiki_rxWeblink, 'b')
 endfunction
 " }}}
 
@@ -416,7 +482,7 @@ function! vimwiki#WikiFollowWord(split) "{{{
     let cmd = ":e "
   endif
 
-  let link = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord))
+  let link = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiLink))
   if link == ""
     let weblink = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWeblink))
     if weblink != ""
@@ -601,7 +667,7 @@ endfunction
 " TEXT OBJECTS functions {{{
 
 function! vimwiki#TO_header(inner, visual) "{{{
-  if !search('^\(=\+\)[^=]\+\1\s*$', 'bcW')
+  if !search('^\(=\+\).\+\1\s*$', 'bcW')
     return
   endif
 
@@ -618,7 +684,7 @@ function! vimwiki#TO_header(inner, visual) "{{{
   if a:visual && is_header_selected
     if level > 1
       let level -= 1
-      call search('^\(=\{'.level.'\}\)[^=]\+\1\s*$', 'bcW')
+      call search('^\(=\{'.level.'\}\).\+\1\s*$', 'bcW')
     else
       let advance = 1
     endif
@@ -630,7 +696,7 @@ function! vimwiki#TO_header(inner, visual) "{{{
     call cursor(sel_end + advance, 0)
   endif
 
-  if search('^\(=\{1,'.level.'}\)[^=]\+\1\s*$', 'W')
+  if search('^\(=\{1,'.level.'}\).\+\1\s*$', 'W')
     call cursor(line('.') - 1, 0)
   else
     call cursor(line('$'), 0)
@@ -642,6 +708,184 @@ function! vimwiki#TO_header(inner, visual) "{{{
   endif
 endfunction
 "}}}
+
+function! vimwiki#TO_table_cell(inner, visual) "{{{
+  if col('.') == col('$')-1
+    return
+  endif
+
+  if a:visual
+    normal! `>
+    let sel_end = getpos('.')
+    normal! `<
+    let sel_start = getpos('.')
+
+    let firsttime = sel_start == sel_end
+
+    if firsttime
+      if !search('|\|\(-+-\)', 'cb', line('.'))
+        return
+      endif
+      if getline('.')[virtcol('.')] == '+'
+        normal! l
+      endif
+      if a:inner
+        normal! 2l
+      endif
+      let sel_start = getpos('.')
+    endif
+
+    normal! `>
+    call search('|\|\(-+-\)', '', line('.'))
+    if getline('.')[virtcol('.')] == '+'
+      normal! l
+    endif
+    if a:inner
+      if firsttime || abs(sel_end[2] - getpos('.')[2]) != 2
+        normal! 2h
+      endif
+    endif
+    let sel_end = getpos('.')
+
+    call setpos('.', sel_start)
+    exe "normal! \<C-v>"
+    call setpos('.', sel_end)
+
+    " XXX: WORKAROUND.
+    " if blockwise selection is ended at | character then pressing j to extend
+    " selection furhter fails. But if we shake the cursor left and right then
+    " it works.
+    normal! hl
+  else
+    if !search('|\|\(-+-\)', 'cb', line('.'))
+      return
+    endif
+    if a:inner
+      normal! 2l
+    endif
+    normal! v
+    call search('|\|\(-+-\)', '', line('.'))
+    if !a:inner && getline('.')[virtcol('.')-1] == '|'
+      normal! h
+    elseif a:inner
+      normal! 2h
+    endif
+  endif
+endfunction "}}}
+
+function! vimwiki#TO_table_col(inner, visual) "{{{
+  let t_rows = vimwiki_tbl#get_rows(line('.'))
+  if empty(t_rows)
+    return
+  endif
+
+  " TODO: refactor it!
+  if a:visual
+    normal! `>
+    let sel_end = getpos('.')
+    normal! `<
+    let sel_start = getpos('.')
+
+    let firsttime = sel_start == sel_end
+
+    if firsttime
+      " place cursor to the top row of the table
+      call s:cursor(t_rows[0][0], virtcol('.'))
+      " do not accept the match at cursor position if cursor is next to column
+      " separator of the table separator (^ is a cursor):
+      " |-----^-+-------|
+      " | bla   | bla   |
+      " |-------+-------|
+      " or it will select wrong column.
+      if strpart(getline('.'), virtcol('.')-1) =~ '^-+'
+        let s_flag = 'b'
+      else
+        let s_flag = 'cb'
+      endif
+      " search the column separator backwards
+      if !search('|\|\(-+-\)', s_flag, line('.'))
+        return
+      endif
+      " -+- column separator is matched --> move cursor to the + sign
+      if getline('.')[virtcol('.')] == '+'
+        normal! l
+      endif
+      " inner selection --> reduce selection
+      if a:inner
+        normal! 2l
+      endif
+      let sel_start = getpos('.')
+    endif
+
+    normal! `>
+    if !firsttime && getline('.')[virtcol('.')] == '|'
+      normal! l
+    elseif a:inner && getline('.')[virtcol('.')+1] =~ '[|+]'
+      normal! 2l
+    endif
+    " search for the next column separator
+    call search('|\|\(-+-\)', '', line('.'))
+    " Outer selection selects a column without border on the right. So we move
+    " our cursor left if the previous search finds | border, not -+-.
+    if getline('.')[virtcol('.')] != '+'
+      normal! h
+    endif
+    if a:inner
+      " reduce selection a bit more if inner.
+      normal! h
+    endif
+    " expand selection to the bottom line of the table
+    call s:cursor(t_rows[-1][0], virtcol('.'))
+    let sel_end = getpos('.')
+
+    call setpos('.', sel_start)
+    exe "normal! \<C-v>"
+    call setpos('.', sel_end)
+
+  else
+    " place cursor to the top row of the table
+    call s:cursor(t_rows[0][0], virtcol('.'))
+    " do not accept the match at cursor position if cursor is next to column
+    " separator of the table separator (^ is a cursor):
+    " |-----^-+-------|
+    " | bla   | bla   |
+    " |-------+-------|
+    " or it will select wrong column.
+    if strpart(getline('.'), virtcol('.')-1) =~ '^-+'
+      let s_flag = 'b'
+    else
+      let s_flag = 'cb'
+    endif
+    " search the column separator backwards
+    if !search('|\|\(-+-\)', s_flag, line('.'))
+      return
+    endif
+    " -+- column separator is matched --> move cursor to the + sign
+    if getline('.')[virtcol('.')] == '+'
+      normal! l
+    endif
+    " inner selection --> reduce selection
+    if a:inner
+      normal! 2l
+    endif
+
+    exe "normal! \<C-V>"
+
+    " search for the next column separator
+    call search('|\|\(-+-\)', '', line('.'))
+    " Outer selection selects a column without border on the right. So we move
+    " our cursor left if the previous search finds | border, not -+-.
+    if getline('.')[virtcol('.')] != '+'
+      normal! h
+    endif
+    " reduce selection a bit more if inner.
+    if a:inner
+      normal! h
+    endif
+    " expand selection to the bottom line of the table
+    call s:cursor(t_rows[-1][0], virtcol('.'))
+  endif
+endfunction "}}}
 
 function! vimwiki#count_first_sym(line) "{{{
   let first_sym = matchstr(a:line, '\S')
