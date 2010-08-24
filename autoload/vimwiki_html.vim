@@ -48,14 +48,6 @@ function! s:is_img_link(lnk) "{{{
   return 0
 endfunction "}}}
 
-function! s:is_non_wiki_link(lnk) "{{{
-  " TODO: Add more file extensions here
-  if a:lnk =~ '.\+\.\%(pdf\|txt\|doc\|rtf\|xls\)$'
-    return 1
-  endif
-  return 0
-endfunction "}}}
-
 function! s:has_abs_path(fname) "{{{
   if a:fname =~ '\(^.:\)\|\(^/\)'
     return 1
@@ -102,15 +94,13 @@ function! s:create_default_CSS(path) " {{{
   endif
 endfunction "}}}
 
-function! s:get_html_header(wikifile, subdir, charset) "{{{
+function! s:get_html_header(title, subdir, charset) "{{{
   let lines=[]
-
-  let title = fnamemodify(a:wikifile, ":t:r")
 
   if VimwikiGet('html_header') != "" && !s:warn_html_header
     try
       let lines = readfile(expand(VimwikiGet('html_header')))
-      call map(lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
+      call map(lines, 'substitute(v:val, "%title%", "'. a:title .'", "g")')
       call map(lines, 'substitute(v:val, "%root_path%", "'.
             \ s:root_path(a:subdir) .'", "g")')
       return lines
@@ -134,7 +124,7 @@ function! s:get_html_header(wikifile, subdir, charset) "{{{
   call add(lines, '<head>')
   call add(lines, '<link rel="Stylesheet" type="text/css" href="'.
         \ css_name.'" />')
-  call add(lines, '<title>'.title.'</title>')
+  call add(lines, '<title>'.a:title.'</title>')
   call add(lines, '<meta http-equiv="Content-Type" content="text/html;'.
         \ ' charset='.a:charset.'" />')
   call add(lines, '</head>')
@@ -171,11 +161,13 @@ function! s:safe_html(line) "{{{
 
   let line = substitute(a:line, '&', '\&amp;', 'g')
 
-  " let line = substitute(line, '<', '\&lt;', 'g')
-  " let line = substitute(line, '>', '\&gt;', 'g')
-  " XXX: I believe there should be a much nicer way to do it.
-  let line = substitute(line, '<\(br\|hr\)\@!', '\&lt;', 'g')
-  let line = substitute(line, '\(\(br\|hr\)\s*/\?\)\@<!>', '\&gt;', 'g')
+  let tags = join(split(g:vimwiki_valid_html_tags, '\s*,\s*'), '\|')
+  let line = substitute(line,'<\%(/\?\%('
+        \.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!',
+        \'\&lt;', 'g')
+  let line = substitute(line,'\%(</\?\%('
+        \.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>',
+        \'\&gt;', 'g')
   return line
 endfunction "}}}
 
@@ -299,21 +291,34 @@ function! s:get_html_toc(toc_list) "{{{
   return toc
 endfunction "}}}
 
-" insert placeholder's contents into dest.
-function! s:process_placeholders(dest, placeholders, type, ins_content) "{{{
+" insert toc into dest.
+function! s:process_toc(dest, placeholders, toc) "{{{
   if !empty(a:placeholders)
     for [placeholder, row, idx] in a:placeholders
       let [type, param] = placeholder
-      if type == a:type
-        let ins_content = a:ins_content[:]
+      if type == 'toc'
+        let toc = a:toc[:]
         if !empty(param)
-          call insert(ins_content, '<h1>'.param.'</h1>')
+          call insert(toc, '<h1>'.param.'</h1>')
         endif
-        let shift = idx * len(ins_content)
-        call extend(a:dest, ins_content, row + shift)
+        let shift = idx * len(toc)
+        call extend(a:dest, toc, row + shift)
       endif
     endfor
   endif
+endfunction "}}}
+
+" get title.
+function! s:process_title(placeholders, default_title) "{{{
+  if !empty(a:placeholders)
+    for [placeholder, row, idx] in a:placeholders
+      let [type, param] = placeholder
+      if type == 'title' && !empty(param)
+        return param
+      endif
+    endfor
+  endif
+  return a:default_title
 endfunction "}}}
 
 "}}}
@@ -371,7 +376,7 @@ function! s:tag_internal_link(value) "{{{
     if s:is_img_link(a:caption)
       let link = '<a href="'.a:src.'"><img src="'.a:caption.'"'.style_str.' />'.
             \ '</a>'
-    elseif s:is_non_wiki_link(a:src)
+    elseif vimwiki#is_non_wiki_link(a:src)
       let link = '<a href="'.a:src.'">'.a:caption.'</a>'
     elseif s:is_img_link(a:src)
       let link = '<img src="'.a:src.'" alt="'.a:caption.'"'. style_str.' />'
@@ -592,8 +597,8 @@ endfunction " }}}
 
 " BLOCK TAGS {{{
 function! s:close_tag_pre(pre, ldest) "{{{
-  if a:pre
-    call insert(a:ldest, "</pre></code>")
+  if a:pre[0]
+    call insert(a:ldest, "</pre>")
     return 0
   endif
   return a:pre
@@ -671,8 +676,8 @@ endfunction "}}}
 
 function! s:close_tag_list(lists, ldest) "{{{
   while len(a:lists)
-    let item = remove(a:lists, -1)
-    call add(a:ldest, item[0])
+    let item = remove(a:lists, 0)
+    call insert(a:ldest, item[0])
   endwhile
 endfunction! "}}}
 
@@ -685,10 +690,11 @@ function! s:close_tag_def_list(deflist, ldest) "{{{
 endfunction! "}}}
 
 function! s:process_tag_pre(line, pre) "{{{
+  " pre is the list of [is_in_pre, indent_of_pre]
   let lines = []
   let pre = a:pre
   let processed = 0
-  if !pre && a:line =~ '{{{[^\(}}}\)]*\s*$'
+  if !pre[0] && a:line =~ '^\s*{{{[^\(}}}\)]*\s*$'
     let class = matchstr(a:line, '{{{\zs.*$')
     let class = substitute(class, '\s\+$', '', 'g')
     if class != ""
@@ -696,15 +702,15 @@ function! s:process_tag_pre(line, pre) "{{{
     else
       call add(lines, "<pre>")
     endif
-    let pre = 1
+    let pre = [1, len(matchstr(a:line, '^\s*\ze{{{'))]
     let processed = 1
-  elseif pre && a:line =~ '^}}}\s*$'
-    let pre = 0
+  elseif pre[0] && a:line =~ '^\s*}}}\s*$'
+    let pre = [0, 0]
     call add(lines, "</pre>")
     let processed = 1
-  elseif pre
+  elseif pre[0]
     let processed = 1
-    call add(lines, a:line)
+    call add(lines, substitute(a:line, '^\s\{'.pre[1].'}', '', ''))
   endif
   return [processed, lines, pre]
 endfunction "}}}
@@ -713,7 +719,6 @@ function! s:process_tag_quote(line, quote) "{{{
   let lines = []
   let quote = a:quote
   let processed = 0
-  " if a:line =~ '^\s\{4,}[^[:blank:]*#]'
   if a:line =~ '^\s\{4,}\S'
     if !quote
       call add(lines, "<blockquote>")
@@ -721,9 +726,6 @@ function! s:process_tag_quote(line, quote) "{{{
     endif
     let processed = 1
     call add(lines, substitute(a:line, '^\s*', '', ''))
-  elseif quote && a:line =~ '^\s*$'
-    let processed = 1
-    call add(lines, a:line)
   elseif quote
     call add(lines, "</blockquote>")
     let quote = 0
@@ -987,12 +989,14 @@ endfunction "}}}
 
 "}}}
 
+" }}}
+
 " WIKI2HTML "{{{
 function! s:parse_line(line, state) " {{{
   let state = {}
   let state.para = a:state.para
   let state.quote = a:state.quote
-  let state.pre = a:state.pre
+  let state.pre = a:state.pre[:]
   let state.table = a:state.table[:]
   let state.lists = a:state.lists[:]
   let state.deflist = a:state.deflist
@@ -1014,6 +1018,15 @@ function! s:parse_line(line, state) " {{{
     endif
   endif
 
+  " title -- placeholder
+  if !processed
+    if line =~ '^\s*%title'
+      let processed = 1
+      let param = matchstr(line, '^\s*%title\s\zs.*')
+      let state.placeholder = ['title', param]
+    endif
+  endif
+
   " toc -- placeholder "{{{
   if !processed
     if line =~ '^\s*%toc'
@@ -1027,9 +1040,10 @@ function! s:parse_line(line, state) " {{{
   " pres "{{{
   if !processed
     let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
-    if processed && len(state.lists)
-      call s:close_tag_list(state.lists, lines)
-    endif
+    " pre is just fine to be in the list -- do not close list item here.
+    " if processed && len(state.lists)
+      " call s:close_tag_list(state.lists, lines)
+    " endif
     if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, lines)
     endif
@@ -1052,7 +1066,7 @@ function! s:parse_line(line, state) " {{{
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, lines)
     endif
-    if processed && state.pre
+    if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, lines)
     endif
     if processed && len(state.table)
@@ -1109,7 +1123,7 @@ function! s:parse_line(line, state) " {{{
     if processed && len(state.table)
       let state.table = s:close_tag_table(state.table, lines)
     endif
-    if processed && state.pre
+    if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, lines)
     endif
     if processed && state.para
@@ -1153,7 +1167,7 @@ function! s:parse_line(line, state) " {{{
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, res_lines)
     endif
-    if processed && state.pre
+    if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, res_lines)
     endif
     if processed && len(state.table)
@@ -1186,7 +1200,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   let subdir = vimwiki#subdir(VimwikiGet('path'), wikifile)
 
   let lsource = s:remove_comments(readfile(wikifile))
-  let ldest = s:get_html_header(wikifile, subdir, &fileencoding)
+  let ldest = []
 
   let path = expand(a:path).subdir
   call vimwiki#mkdir(path)
@@ -1201,7 +1215,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
   let state = {}
   let state.para = 0
   let state.quote = 0
-  let state.pre = 0
+  let state.pre = [0, 0] " [in_pre, indent_pre]
   let state.table = []
   let state.deflist = 0
   let state.lists = []
@@ -1236,8 +1250,7 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
 
   if !nohtml
     let toc = s:get_html_toc(state.toc)
-    call s:process_placeholders(ldest, placeholders, 'toc', toc)
-
+    call s:process_toc(ldest, placeholders, toc)
     call s:remove_blank_lines(ldest)
 
     "" process end of file
@@ -1251,6 +1264,8 @@ function! vimwiki_html#Wiki2HTML(path, wikifile) "{{{
     call s:close_tag_table(state.table, lines)
     call extend(ldest, lines)
 
+    let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
+    call extend(ldest, s:get_html_header(title, subdir, &fileencoding), 0)
     call extend(ldest, s:get_html_footer())
 
     "" make html file.
@@ -1266,9 +1281,12 @@ function! vimwiki_html#WikiAll2HTML(path) "{{{
   endif
 
   echomsg 'Saving vimwiki files...'
+  let save_eventignore = &eventignore
+  let &eventignore = "all"
   let cur_buf = bufname('%')
   bufdo call s:save_vimwiki_buffer()
   exe 'buffer '.cur_buf
+  let &eventignore = save_eventignore
 
   let path = expand(a:path)
   call vimwiki#mkdir(path)

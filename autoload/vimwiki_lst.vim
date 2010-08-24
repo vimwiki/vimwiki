@@ -40,7 +40,6 @@ endfunction "}}}
 
 " Get regexp of the list item with checkbox.
 function! s:rx_cb_list_item() "{{{
-  " return s:rx_list_item().'\s*\zs\[.\?\]'
   return s:rx_list_item().'\s*\zs\[.\?\]'
 endfunction "}}}
 
@@ -182,9 +181,7 @@ function! s:get_sibling_items(lnum) "{{{
   let lnum = a:lnum
   let ind = s:get_level(lnum)
 
-  while s:get_level(lnum) >= ind &&
-        \ lnum != 0
-
+  while lnum != 0 && s:get_level(lnum) >= ind
     if s:get_level(lnum) == ind && s:is_cb_list_item(lnum)
       call add(result, lnum)
     endif
@@ -192,9 +189,7 @@ function! s:get_sibling_items(lnum) "{{{
   endwhile
 
   let lnum = s:prev_list_item(a:lnum)
-  while s:get_level(lnum) >= ind &&
-        \ lnum != 0
-
+  while lnum != 0 && s:get_level(lnum) >= ind
     if s:get_level(lnum) == ind && s:is_cb_list_item(lnum)
       call add(result, lnum)
     endif
@@ -227,7 +222,7 @@ function! s:create_cb_list_item(lnum) "{{{
   let m = matchstr(line, s:rx_list_item())
   if m != ''
     let li_content = substitute(strpart(line, len(m)), '^\s*', '', '')
-    let line = m.'[ ] '.li_content
+    let line = substitute(m, '\s*$', ' ', '').'[ ] '.li_content
     call setline(a:lnum, line)
   endif
 endfunction "}}}
@@ -321,7 +316,7 @@ function! vimwiki_lst#ToggleListItem(line1, line2) "{{{
 
 endfunction "}}}
 
-function! vimwiki_lst#insertCR() "{{{
+function! vimwiki_lst#kbd_cr() "{{{
   " This function is heavily relies on proper 'set comments' option.
   let cr = "\<CR>"
   if getline('.') =~ s:rx_cb_list_item()
@@ -330,7 +325,7 @@ function! vimwiki_lst#insertCR() "{{{
   return cr
 endfunction "}}}
 
-function! vimwiki_lst#insertOo(cmd) "{{{
+function! vimwiki_lst#kbd_oO(cmd) "{{{
   " cmd should be 'o' or 'O'
 
   let beg_lnum = foldclosed('.')
@@ -343,11 +338,13 @@ function! vimwiki_lst#insertOo(cmd) "{{{
     let lnum = line('.')
   endif
 
+    " let line = substitute(m, '\s*$', ' ', '').'[ ] '.li_content
+  let m = matchstr(line, s:rx_list_item())
   let res = ''
   if line =~ s:rx_cb_list_item()
-    let res = matchstr(line, s:rx_list_item()).'[ ] '
+    let res = substitute(m, '\s*$', ' ', '').'[ ] '
   elseif line =~ s:rx_list_item()
-    let res = matchstr(line, s:rx_list_item())
+    let res = substitute(m, '\s*$', ' ', '')
   elseif &autoindent || &smartindent
     let res = matchstr(line, '^\s*')
   endif

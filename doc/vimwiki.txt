@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 1.0
+                               Version: 1.1
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -97,7 +97,7 @@ There are global and local mappings in vimwiki.
 ------------------------------------------------------------------------------
 3.1. Global mappings                                 *vimwiki-global-mappings*
 
-[count]<Leader>ww or <Plug>VimwikiGoHome
+[count]<Leader>ww or <Plug>VimwikiIndex
         Open index file of the [count]'s wiki.
 
         <Leader>ww opens first wiki from |g:vimwiki_list|.
@@ -106,12 +106,12 @@ There are global and local mappings in vimwiki.
         3<Leader>ww opens third wiki from |g:vimwiki_list|.
         etc.
         To remap: >
-        :map <Leader>w <Plug>VimwikiGoHome
+        :map <Leader>w <Plug>VimwikiIndex
 <
-See also|:VimwikiGoHome|
+See also |:VimwikiIndex|
 
 
-[count]<Leader>wt or <Plug>VimwikiTabGoHome
+[count]<Leader>wt or <Plug>VimwikiTabIndex
         Open index file of the [count]'s wiki in a new tab.
 
         <Leader>wt tabopens first wiki from |g:vimwiki_list|.
@@ -120,9 +120,9 @@ See also|:VimwikiGoHome|
         3<Leader>wt tabopens third wiki from |g:vimwiki_list|.
         etc.
         To remap: >
-        :map <Leader>t <Plug>VimwikiTabGoHome
+        :map <Leader>t <Plug>VimwikiTabIndex
 <
-See also|:VimwikiTabGoHome|
+See also |:VimwikiTabIndex|
 
 
 <Leader>ws or <Plug>VimwikiUISelect
@@ -174,56 +174,56 @@ See also|:VimwikiTabMakeDiaryNote|
 
 NORMAL MODE                                           *vimwiki-local-mappings*
                         *vimwiki_<CR>*
-<CR>                    Follow/Create WikiWord.
-                        Maps to|:VimwikiFollowWord|.
+<CR>                    Follow/Create wiki link.
+                        Maps to |:VimwikiFollowLink|.
                         To remap: >
-                        :map <Leader>wf <Plug>VimwikiFollowWord
+                        :map <Leader>wf <Plug>VimwikiFollowLink
 <
                         *vimwiki_<S-CR>*
-<S-CR>                  Split and follow/create WikiWord
-                        Maps to|:VimwikiSplitWord|.
+<S-CR>                  Split and follow/create wiki link.
+                        Maps to |:VimwikiSplitLink|.
                         To remap: >
-                        :map <Leader>we <Plug>VimwikiSplitWord
+                        :map <Leader>we <Plug>VimwikiSplitLink
 <
                         *vimwiki_<C-CR>*
-<C-CR>                  Vertical split and follow/create WikiWord
-                        Maps to|:VimwikiVSplitWord|.
+<C-CR>                  Vertical split and follow/create wiki link.
+                        Maps to |:VimwikiVSplitLink|.
                         To remap: >
-                        :map <Leader>wq <Plug>VimwikiVSplitWord
+                        :map <Leader>wq <Plug>VimwikiVSplitLink
 <
                         *vimwiki_<Backspace>*
-<Backspace>             Go back to previous WikiWord
-                        Maps to|:VimwikiGoBackWord|.
+<Backspace>             Go back to previous wiki link
+                        Maps to |:VimwikiGoBackLink|.
                         To remap: >
-                        :map <Leader>wb <Plug>VimwikiGoBackWord
+                        :map <Leader>wb <Plug>VimwikiGoBackLink
 <
                         *vimwiki_<Tab>*
-<Tab>                   Find next WikiWord
-                        Maps to|:VimwikiNextWord|.
+<Tab>                   Find next wiki link.
+                        Maps to |:VimwikiNextLink|.
                         To remap: >
-                        :map <Leader>wn <Plug>VimwikiNextWord
+                        :map <Leader>wn <Plug>VimwikiNextLink
 <
                         *vimwiki_<S-Tab>*
-<S-Tab>                 Find previous WikiWord
-                        Maps to|:VimwikiPrevWord|.
+<S-Tab>                 Find previous wiki link.
+                        Maps to |:VimwikiPrevLink|.
                         To remap: >
-                        :map <Leader>wp <Plug>VimwikiPrevWord
+                        :map <Leader>wp <Plug>VimwikiPrevLink
 <
                         *vimwiki_<Leader>wd*
-<Leader>wd              Delete WikiWord you are in.
-                        Maps to|:VimwikiDeleteWord|.
+<Leader>wd              Delete wiki link you are in.
+                        Maps to |:VimwikiDeleteLink|.
                         To remap: >
-                        :map <Leader>dd <Plug>VimwikiDeleteWord
+                        :map <Leader>dd <Plug>VimwikiDeleteLink
 <
                         *vimwiki_<Leader>wr*
-<Leader>wr              Rename WikiWord you are in.
-                        Maps to|:VimwikiRenameWord|.
+<Leader>wr              Rename wiki link you are in.
+                        Maps to |:VimwikiRenameLink|.
                         To remap: >
-                        :map <Leader>rr <Plug>VimwikiRenameWord
+                        :map <Leader>rr <Plug>VimwikiRenameLink
 <
                         *vimwiki_<C-Space>*
 <C-Space>               Toggle list item on/off (checked/unchecked)
-                        Maps to|:VimwikiToggleListItem|.
+                        Maps to |:VimwikiToggleListItem|.
                         To remap: >
                         :map <leader>tt <Plug>VimwikiToggleListItem
 <                       See |vimwiki-todo-lists|.
@@ -250,16 +250,23 @@ gww                     reformat it.
 <A-Right>               Move current table column to the right.
                         See |:VimwikiTableMoveColumnRight|
 
+                        *vimwiki_<C-Up>*
+<C-Up>                  Open previous day diary link if available.
+                        See |:VimwikiDiaryPrevDay|
+
+                        *vimwiki_<C-Down>*
+<C-Down>                Open next day diary link if available.
+                        See |:VimwikiDiaryNextDay|
 
 
 Works only if |g:vimwiki_use_mouse| is set to 1.
-<2-LeftMouse>           Follow/Create WikiWord
+<2-LeftMouse>           Follow/Create wiki link.
 
-<S-2-LeftMouse>         Split and follow/create WikiWord
+<S-2-LeftMouse>         Split and follow/create wiki link.
 
-<C-2-LeftMouse>         Vertical split and follow/create WikiWord
+<C-2-LeftMouse>         Vertical split and follow/create wiki link.
 
-<RightMouse><LeftMouse> Go back to previous WikiWord
+<RightMouse><LeftMouse> Go back to previous wiki link.
 
 Note: <2-LeftMouse> is just left double click.
 
@@ -298,10 +305,10 @@ ic                      Inner column in a table.
 ------------------------------------------------------------------------------
 4.1. Global Commands                                 *vimwiki-global-commands*
 
-*:VimwikiGoHome*
+*:VimwikiIndex*
     Open index file of the current wiki.
 
-*:VimwikiTabGoHome*
+*:VimwikiTabIndex*
     Open index file of the current wiki in a new tab.
 
 *:VimwikiUISelect*
@@ -316,36 +323,40 @@ ic                      Inner column in a table.
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
 
-*:VimwikiFollowWord*
-    Follow/create WikiWord.
+*:VimwikiFollowLink*
+    Follow/create wiki link..
 
 
-*:VimwikiGoBackWord*
-    Go back to previous WikiWord you come from.
+*:VimwikiGoBackLink*
+    Go back to previous wiki link. you come from.
 
 
-*:VimwikiSplitWord*
-    Split and follow/create WikiWord.
+*:VimwikiSplitLink*
+    Split and follow/create wiki link..
 
 
-*:VimwikiVSplitWord*
-    Vertical split and follow/create WikiWord.
+*:VimwikiVSplitLink*
+    Vertical split and follow/create wiki link..
 
 
-*:VimwikiNextWord*
-    Find next WikiWord.
+*:VimwikiNextLink*
+    Find next wiki link..
 
 
-*:VimwikiPrevWord*
-    Find previous WikiWord.
+*:VimwikiPrevLink*
+    Find previous wiki link..
+
+*:VimwikiGoto*
+    Goto link provided by an argument. For example: >
+        :VimwikiGoto HelloWorld
+<   opens opens/creates HelloWorld wiki page.
+
+*:VimwikiDeleteLink*
+    Delete wiki link. you are in.
 
 
-*:VimwikiDeleteWord*
-    Delete WikiWord you are in.
-
-
-*:VimwikiRenameWord*
-    Rename WikiWord you are in.
+*:VimwikiRenameLink*
+    Rename wiki link. you are in.
 
 
 *:Vimwiki2HTML*
@@ -405,6 +416,13 @@ ic                      Inner column in a table.
 *:VimwikiGenerateLinks*
     Insert all available links into current buffer.
 
+*:VimwikiDiaryNextDay*
+    Open next day diary link if available.
+    Mapped to <C-Down>.
+
+*:VimwikiDiaryPrevDay*
+    Open previous day diary link if available.
+    Mapped to <C-Up>.
 
 
 ==============================================================================
@@ -769,6 +787,18 @@ or >
 
 
 ------------------------------------------------------------------------------
+%title Title of the page                                       *vimwiki-title*
+
+When you htmlize your wiki page you have default title which is the filename
+of the page.
+Place >
+
+%title My books
+
+into your wiki page if you want another title.
+
+
+------------------------------------------------------------------------------
 %nohtml                                                       *vimwiki-nohtml*
 
 If you do not want a wiki page to be converted to html, place:
@@ -1063,7 +1093,7 @@ This header.tpl could look like: >
         <div class="contents">
 
 where
-  %title% is replaced by a wiki page name
+  %title% is replaced by a wiki page name or by a |vimwiki-title|
   %root_path% is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
     %root_path% is replaced by '../../../'.
@@ -1100,19 +1130,6 @@ or even >
           \ 'css_name': 'css/main.css'}]
 <
 
-*vimwiki-option-gohome*
-------------------------------------------------------------------------------
-Key             Default value     Values~
-gohome          split             split, vsplit, tabe
-
-Description~
-This option controls the way |:VimwikiGoHome| command works.
-For instance you have 'No write since last change' buffer. After <Leader>ww
-(or :VimwikiGoHome) vimwiki index file will be splitted with it. Or vertically
-splitted. Or opened in a new tab.
-Ex: >
-  let g:vimwiki_list = [{'path': '~/my_site/', 'gohome': 'vsplit'}]
-<
 
 *vimwiki-option-maxhi*
 ------------------------------------------------------------------------------
@@ -1120,11 +1137,11 @@ Key             Default value     Values~
 maxhi           1                 0, 1
 
 Description~
-Non-existent WikiWord highlighting could be quite slow and if you don't want
+Non-existent wiki links highlighting could be quite slow and if you don't want
 it set maxhi to 0: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'maxhi': 0}]
 
-This disables filesystem checks for WikiWords.
+This disables filesystem checks for wiki links.
 
 
 *vimwiki-option-nested_syntaxes*
@@ -1478,6 +1495,9 @@ Value           Description~
 
 Default: 0
 
+Note: Vim73 has new function |strdisplaywidth|, so for Vim73 users this option
+is obsolete.
+
 
 ------------------------------------------------------------------------------
 *g:vimwiki_dir_link*
@@ -1558,6 +1578,42 @@ headers would look like: >
 Default: '' (empty)
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_file_exts*
+
+Comma separated list of file extensions.
+
+Consider you have the following link: [[my_script.php][my script]].
+If there is 'php' extension in g:vimwiki_file_exts this link would be htmlized
+to <a href="my_script.php">my script</a>.
+Otherwise it would be <a href="my_script.php.html">my script</a> (note .html)
+
+
+Default: 'pdf,txt,doc,rtf,xls,php,zip,rar,7z,html,gz'
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_valid_html_tags*
+
+Comma separated list of html tags that can be used in vimwiki.
+
+Default: 'b,i,s,u,sub,sup,kbd,br,hr'
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_conceallevel*
+
+In vim73 |conceallevel| is local to window, thus if you open viwmiki buffer in
+a new tab or window, it would be set to default value.
+
+Vimwiki sets |conceallevel| to g:vimwiki_conceallevel everytime vimwiki buffer
+is entered.
+
+Default: 3
+
+
+
+
 ==============================================================================
 12. Help                                                        *vimwiki-help*
 
@@ -1591,6 +1647,45 @@ Maxim Kim.
 
 ==============================================================================
 14. Changelog                                              *vimwiki-changelog*
+
+1.1~
+    * NEW: Issue 57: Make it possible to have pre block inside list item.
+    * NEW: Issue 82: Add quick goto command. See |:VimwikiGoto|.
+    * NEW: Issue 83: Quick switch in diary. See |:VimwikiDiaryNextDay| and
+      |:VimwikiDiaryPrevDay| commands.
+    * FIX: Issue 84: Vimwiki rename removed the WikiWord display name.
+    * FIX: Issue 85: Errors if you have '~' subdirectory in a wiki directory.
+    * FIX: Issue 86: Existed links '[[WikiLink1|Alias1]] | [[WikiLink2]]' are
+      highlighted as a single link.
+    * FIX: Issue 88: Underline text. See |g:vimwiki_valid_html_tags|.
+    * FIX: Issue 92: Wikies in a subdir could be renamed to an empty file.
+    * FIX: Issue 93: Use alias name in html title. See |vimwiki-title|.
+    * FIX: Issue 94: Relative links to PHP files are broken. See
+      |g:vimwiki_file_exts| for details.
+    * FIX: Issue 96: Closing bracket at the end of weblink shouldn't be a part
+      of that link.
+    * FIX: Issue 97: Error opening weblink in a browser if it has # inside.
+    * FIX: Issue 99: Vim is not responing while opening arbitrary wiki file.
+    * FIX: Issue 100: Additional content on diary index page could be
+      corrupted.
+    * NEW: Issue 101: Customized HTML tags. See |g:vimwiki_valid_html_tags|
+    * NEW: Issue 102: Conceal feature usage. See |g:vimwiki_conceallevel|.
+    * FIX: Issue 103: Always highlight links to non-wiki files as existed.
+    * FIX: Issue 104: vimwiki#nested_syntax needs 'keepend' to avoid contained
+      language syntax eat needed '}}}'.
+    * FIX: Issue 105: <i_CR> on a todo list item with [ ] doesn't create new
+      todo list item.
+    * FIX: Issue 106: With MediaWiki syntax <C-Space> on a child todo list
+      item produce errors.
+    * FIX: Issue 107: With MediaWiki syntax <C-Space> on a list item creates
+      todo list item without space between * and [ ].
+    * FIX: Issue 110: Syntax highlighting doesn't work for indented codeblock.
+    * FIX: Issue 115: Nested Perl syntax highlighting differs from regular
+      one.
+    * MISC: Many vimwiki commands were renamed from Vimwiki.*Word to
+      Vimwiki.*Link. VimwikiGoHome is renamed to VimwikiIndex,
+      VimwikiTabGoHome to VimwikiTabIndex.
+    * MISC: vimwiki-option-gohome is removed.
 
 1.0~
     * NEW: Issue 41: Table cell and column text objects. See

@@ -19,6 +19,12 @@ let s:textwidth = &tw
 
 " Misc functions {{{
 function! s:wide_len(str) "{{{
+  " vim73 has new function that gives correct string width.
+  if exists("*strdisplaywidth")
+    return strdisplaywidth(a:str)
+  endif
+
+  " get str display width in vim ver < 7.2
   if !g:vimwiki_CJK_length
     let ret = strlen(substitute(a:str, '.', 'x', 'g'))
   else

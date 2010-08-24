@@ -62,7 +62,7 @@ function! s:get_diary_range(lines, header) "{{{
     let idx += 1
   endfor
 
-  let ln_end = idx - 1
+  let ln_end = idx
   return [ln_start, ln_end]
 endfunction "}}}
 
@@ -99,8 +99,22 @@ function! s:get_links() "{{{
   call map(links, 'fnamemodify(v:val, ":t")')
 
   call filter(links, 'v:val =~ "'.escape(rx, '\').'"')
-  call map(links, '"[[".v:val."]]"')
   return links
+endfunction "}}}
+
+function! s:get_position_links(link) "{{{
+  let idx = -1
+  let links = []
+  if a:link =~ '\d\{4}-\d\d-\d\d'
+    let links = s:get_links()
+    " include 'today' into links
+    if index(links, s:diary_date_link()) == -1
+      call add(links, s:diary_date_link())
+    endif
+    call sort(links)
+    let idx = index(links, a:link)
+  endif
+  return [idx, links]
 endfunction "}}}
 
 function! s:format_links(links) "{{{
@@ -137,6 +151,7 @@ function! s:add_link(page, header, link) "{{{
     if ln_start == -1
       call insert(lines, '= '.a:header.' =')
       let ln_start = 1
+      let ln_end = 1
     endif
 
     " removing 'old' links
@@ -148,6 +163,7 @@ function! s:add_link(page, header, link) "{{{
 
     " get all diary links from filesystem
     let links = s:get_links()
+    call map(links, '"[[".v:val."]]"')
 
     " add current link
     if index(links, link) == -1
@@ -192,7 +208,7 @@ function! vimwiki_diary#make_note(index, ...) "{{{
   call vimwiki#open_link(':e ', link, s:diary_index())
 endfunction "}}}
 
-" Calendar.vim callback and sign functions.
+" Calendar.vim callback function.
 function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
@@ -213,12 +229,53 @@ function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
 
   " Create diary note for a selected date in default wiki.
   call vimwiki_diary#make_note(1, link)
-endfunction
+endfunction "}}}
 
+" Calendar.vim sign function.
 function vimwiki_diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').
         \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
   return filereadable(expand(sfile))
+endfunction "}}}
+
+function! vimwiki_diary#goto_next_day() "{{{
+  let link = ''
+  let [idx, links] = s:get_position_links(expand('%:t:r'))
+
+  if idx == (len(links) - 1)
+    return
+  endif
+
+  if idx != -1 && idx < len(links) - 1
+    let link = VimwikiGet('diary_rel_path').links[idx+1]
+  else
+    " goto today
+    let link = VimwikiGet('diary_rel_path').s:diary_date_link()
+  endif
+
+  if len(link)
+    call vimwiki#open_link(':e ', link)
+  endif
+endfunction "}}}
+
+function! vimwiki_diary#goto_prev_day() "{{{
+  let link = ''
+  let [idx, links] = s:get_position_links(expand('%:t:r'))
+
+  if idx == 0
+    return
+  endif
+
+  if idx > 0
+    let link = VimwikiGet('diary_rel_path').links[idx-1]
+  else
+    " goto today
+    let link = VimwikiGet('diary_rel_path').s:diary_date_link()
+  endif
+
+  if len(link)
+    call vimwiki#open_link(':e ', link)
+  endif
 endfunction "}}}
