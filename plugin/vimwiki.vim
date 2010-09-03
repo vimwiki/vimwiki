@@ -299,7 +299,7 @@ augroup vimwiki
   for ext in keys(extensions)
     exe 'autocmd BufEnter *'.ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'
-    exe 'autocmd BufNewFile,BufRead, *'.ext.' setf vimwiki'
+    exe 'autocmd BufNewFile,BufRead, *'.ext.' setlocal filetype=vimwiki'
 
     " ColorScheme could have or could have not a
     " VimwikiHeader1..VimwikiHeader6 highlight groups. We need to refresh
@@ -364,7 +364,7 @@ function! s:build_menu(topmenu)
   let idx = 0
   while idx < len(g:vimwiki_list)
     let norm_path = fnamemodify(VimwikiGet('path', idx), ':h:t')
-    let norm_path = escape(norm_path, '\ ')
+    let norm_path = escape(norm_path, '\ \.')
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#goto_index('.(idx + 1).')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.

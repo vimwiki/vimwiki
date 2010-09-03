@@ -546,7 +546,10 @@ endfunction "}}}
 
 function vimwiki#get_hl_param(hgroup, hparam) "{{{
   redir => hlstatus
-  exe "silent hi ".a:hgroup
+  try
+    exe "silent hi ".a:hgroup
+  catch /E411/
+  endtry
   redir END
   return matchstr(hlstatus, a:hparam.'\s*=\s*\zs\S\+')
 endfunction "}}}
