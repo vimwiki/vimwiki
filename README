@@ -5,8 +5,7 @@ A Personal Wiki For Vim Plugin
 Screenshots are available on http://code.google.com/p/vimwiki/ 
 There are also zipped vimwiki files there in case you do not like vimball archives.
 
-Vimwiki quick reference card http://habamax.ru/myvim/data/vimwikiqrc.pdf by J.A.J. Pater.
-Thx Gager Jacob for the update.
+Vimwiki quick reference card http://vimwiki.googlecode.com/hg/misc/Vimwiki1.1.1QR.pdf.
 
 
 Prerequisites
@@ -42,8 +41,8 @@ Feed it with the following example:
     * ScratchPad -- various temporary stuff.
 
 
-Notice that ProjectGutenberg, MyUrgentTasks and ScratchPad highlighted as
-errors. These are links in CamelCase form that do not exists yet. (CamelCase
+Notice that !ProjectGutenberg, !MyUrgentTasks and !ScratchPad curly underlined. 
+These are links in CamelCase form that do not exists yet. (CamelCase
 form -- capitalized word connected with other capitalized words)
 
 Place cursor on ProjectGutenberg and press <Enter>. Now you are in

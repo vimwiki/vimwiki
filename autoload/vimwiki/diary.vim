@@ -197,19 +197,24 @@ function! s:make_date_link(...) "{{{
   return VimwikiGet('diary_rel_path').link
 endfunction "}}}
 
-function! vimwiki_diary#make_note(index, ...) "{{{
-  call vimwiki#select(a:index)
-  call vimwiki#mkdir(VimwikiGet('path').VimwikiGet('diary_rel_path'))
+function! vimwiki#diary#make_note(index, ...) "{{{
+  call vimwiki#base#select(a:index)
+  call vimwiki#base#mkdir(VimwikiGet('path').VimwikiGet('diary_rel_path'))
   if a:0
     let link = s:make_date_link(a:1)
   else
     let link = s:make_date_link()
   endif
-  call vimwiki#open_link(':e ', link, s:diary_index())
+  call vimwiki#base#open_link(':e ', link, s:diary_index())
+endfunction "}}}
+
+function! vimwiki#diary#goto_index(index) "{{{
+  call vimwiki#base#select(a:index)
+  call vimwiki#base#edit_file(':e', s:diary_index())
 endfunction "}}}
 
 " Calendar.vim callback function.
-function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
+function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
 
@@ -228,11 +233,11 @@ function! vimwiki_diary#calendar_action(day, month, year, week, dir) "{{{
   endif
 
   " Create diary note for a selected date in default wiki.
-  call vimwiki_diary#make_note(1, link)
+  call vimwiki#diary#make_note(1, link)
 endfunction "}}}
 
 " Calendar.vim sign function.
-function vimwiki_diary#calendar_sign(day, month, year) "{{{
+function vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').
@@ -240,7 +245,7 @@ function vimwiki_diary#calendar_sign(day, month, year) "{{{
   return filereadable(expand(sfile))
 endfunction "}}}
 
-function! vimwiki_diary#goto_next_day() "{{{
+function! vimwiki#diary#goto_next_day() "{{{
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -256,11 +261,11 @@ function! vimwiki_diary#goto_next_day() "{{{
   endif
 
   if len(link)
-    call vimwiki#open_link(':e ', link)
+    call vimwiki#base#open_link(':e ', link)
   endif
 endfunction "}}}
 
-function! vimwiki_diary#goto_prev_day() "{{{
+function! vimwiki#diary#goto_prev_day() "{{{
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -276,6 +281,6 @@ function! vimwiki_diary#goto_prev_day() "{{{
   endif
 
   if len(link)
-    call vimwiki#open_link(':e ', link)
+    call vimwiki#base#open_link(':e ', link)
   endif
 endfunction "}}}

@@ -299,7 +299,7 @@ endfunction "}}}
 " Keyboard functions "{{{
 function! s:kbd_create_new_row(cols, goto_first) "{{{
   let cmd = "\<ESC>o".s:create_empty_row(a:cols)
-  let cmd .= "\<ESC>:call vimwiki_tbl#format(line('.'))\<CR>"
+  let cmd .= "\<ESC>:call vimwiki#tbl#format(line('.'))\<CR>"
   if a:goto_first
     let cmd .= "\<ESC>0:call search('|', 'c', line('.'))\<CR>la"
   else
@@ -341,7 +341,7 @@ endfunction "}}}
 "}}}
 
 " Global functions {{{
-function! vimwiki_tbl#kbd_cr() "{{{
+function! vimwiki#tbl#kbd_cr() "{{{
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return "\<CR>"
@@ -355,7 +355,7 @@ function! vimwiki_tbl#kbd_cr() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki_tbl#kbd_tab() "{{{
+function! vimwiki#tbl#kbd_tab() "{{{
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return "\<Tab>"
@@ -369,7 +369,7 @@ function! vimwiki_tbl#kbd_tab() "{{{
   return s:kbd_goto_next_col(last)
 endfunction "}}}
 
-function! vimwiki_tbl#kbd_shift_tab() "{{{
+function! vimwiki#tbl#kbd_shift_tab() "{{{
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return "\<S-Tab>"
@@ -382,7 +382,7 @@ function! vimwiki_tbl#kbd_shift_tab() "{{{
   return s:kbd_goto_prev_col(first)
 endfunction "}}}
 
-function! vimwiki_tbl#format(lnum, ...) "{{{
+function! vimwiki#tbl#format(lnum, ...) "{{{
   let line = getline(a:lnum)
   if !s:is_table(line)
     return
@@ -406,7 +406,7 @@ function! vimwiki_tbl#format(lnum, ...) "{{{
   let &tw = s:textwidth
 endfunction "}}}
 
-function! vimwiki_tbl#create(...) "{{{
+function! vimwiki#tbl#create(...) "{{{
   if a:0 > 1
     let cols = a:1
     let rows = a:2
@@ -441,15 +441,15 @@ function! vimwiki_tbl#create(...) "{{{
   call append(line('.'), lines)
 endfunction "}}}
 
-function! vimwiki_tbl#align_or_cmd(cmd) "{{{
+function! vimwiki#tbl#align_or_cmd(cmd) "{{{
   if s:is_table(getline('.'))
-    call vimwiki_tbl#format(line('.'))
+    call vimwiki#tbl#format(line('.'))
   else
     exe 'normal! '.a:cmd
   endif
 endfunction "}}}
 
-function! vimwiki_tbl#reset_tw(lnum) "{{{
+function! vimwiki#tbl#reset_tw(lnum) "{{{
   let line = getline(a:lnum)
   if !s:is_table(line)
     return
@@ -461,7 +461,7 @@ endfunction "}}}
 
 " TODO: move_column_left and move_column_right are good candidates to be
 " refactored.
-function! vimwiki_tbl#move_column_left() "{{{
+function! vimwiki#tbl#move_column_left() "{{{
   if !s:is_table(getline('.'))
     return
   endif
@@ -472,7 +472,7 @@ function! vimwiki_tbl#move_column_left() "{{{
   endif
 
   if cur_col > 0
-    call vimwiki_tbl#format(line('.'), cur_col-1, cur_col)
+    call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
     call cursor(line('.'), 1)
     if !s:is_separator(getline('.'))
       call search('\%(|[^|]\+\)\{'.(cur_col-1).'}| .', 'eW')
@@ -482,7 +482,7 @@ function! vimwiki_tbl#move_column_left() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki_tbl#move_column_right() "{{{
+function! vimwiki#tbl#move_column_right() "{{{
   if !s:is_table(getline('.'))
     return
   endif
@@ -493,7 +493,7 @@ function! vimwiki_tbl#move_column_right() "{{{
   endif
 
   if cur_col < s:col_count(line('.'))-1
-    call vimwiki_tbl#format(line('.'), cur_col, cur_col+1)
+    call vimwiki#tbl#format(line('.'), cur_col, cur_col+1)
     call cursor(line('.'), 1)
     if !s:is_separator(getline('.'))
       call search('\%(|[^|]\+\)\{'.(cur_col+1).'}| .', 'eW')
@@ -503,7 +503,7 @@ function! vimwiki_tbl#move_column_right() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki_tbl#get_rows(lnum) "{{{
+function! vimwiki#tbl#get_rows(lnum) "{{{
   return s:get_rows(a:lnum)
 endfunction "}}}
 

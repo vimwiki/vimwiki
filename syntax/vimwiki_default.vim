@@ -81,3 +81,5 @@ let g:vimwiki_rxListDefine = '::\(\s\|$\)'
 " Preformatted text
 let g:vimwiki_rxPreStart = '{{{'
 let g:vimwiki_rxPreEnd = '}}}'
+
+let g:vimwiki_rxComment = '^\s*%%.*$'

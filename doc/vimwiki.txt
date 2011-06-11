@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 1.1.1
+                               Version: 1.2
 
 ==============================================================================
 CONTENTS                                                    *vimwiki-contents*
@@ -33,6 +33,7 @@ CONTENTS                                                    *vimwiki-contents*
         5.7. Preformatted text       |vimwiki-syntax-preformatted|
         5.8. Blockquotes             |vimwiki-syntax-blockquotes|
         5.9. Comments                |vimwiki-syntax-comments|
+        5.10. Horizontal line        |vimwiki-syntax-hr|
     6. Folding/Outline               |vimwiki-folding|
     7. Placeholders                  |vimwiki-placeholders|
     8. Todo lists                    |vimwiki-todo-lists|
@@ -68,7 +69,7 @@ Feed it with the following example:
     * ScratchPad -- various temporary stuff.
 
 
-Notice that ProjectGutenberg, MyUrgentTasks and ScratchPad highlighted as
+Notice that ProjectGutenberg, MyUrgentTasks and ScratchPad are highlighted as
 errors. These are links in CamelCase form that do not exists yet. (CamelCase
 form -- capitalized word connected with other capitalized words)
 
@@ -100,10 +101,10 @@ There are global and local mappings in vimwiki.
 [count]<Leader>ww or <Plug>VimwikiIndex
         Open index file of the [count]'s wiki.
 
-        <Leader>ww opens first wiki from |g:vimwiki_list|.
-        1<Leader>ww as above opens first wiki from |g:vimwiki_list|.
-        2<Leader>ww opens second wiki from |g:vimwiki_list|.
-        3<Leader>ww opens third wiki from |g:vimwiki_list|.
+        <Leader>ww opens the first wiki from |g:vimwiki_list|.
+        1<Leader>ww as above, opens the first wiki from |g:vimwiki_list|.
+        2<Leader>ww opens the second wiki from |g:vimwiki_list|.
+        3<Leader>ww opens the third wiki from |g:vimwiki_list|.
         etc.
         To remap: >
         :map <Leader>w <Plug>VimwikiIndex
@@ -114,10 +115,10 @@ See also |:VimwikiIndex|
 [count]<Leader>wt or <Plug>VimwikiTabIndex
         Open index file of the [count]'s wiki in a new tab.
 
-        <Leader>wt tabopens first wiki from |g:vimwiki_list|.
-        1<Leader>wt as above tabopens first wiki from |g:vimwiki_list|.
-        2<Leader>wt tabopens second wiki from |g:vimwiki_list|.
-        3<Leader>wt tabopens third wiki from |g:vimwiki_list|.
+        <Leader>wt tabopens the first wiki from |g:vimwiki_list|.
+        1<Leader>wt as above tabopens the first wiki from |g:vimwiki_list|.
+        2<Leader>wt tabopens the second wiki from |g:vimwiki_list|.
+        3<Leader>wt tabopens the third wiki from |g:vimwiki_list|.
         etc.
         To remap: >
         :map <Leader>t <Plug>VimwikiTabIndex
@@ -130,7 +131,22 @@ See also |:VimwikiTabIndex|
         To remap: >
         :map <Leader>wq <Plug>VimwikiUISelect
 <
-See also|:VimwikiUISelect|
+See also |:VimwikiUISelect|
+
+
+[count]<Leader>wi or <Plug>VimwikiDiaryIndex
+        Open diary index file of the [count]'s wiki.
+
+        <Leader>wi opens diary index file of the first wiki from
+        |g:vimwiki_list|.
+        1<Leader>wi the same as above.
+        2<Leader>wi opens diary index file of the second wiki from
+        |g:vimwiki_list|.
+        etc.
+        To remap: >
+        :map <Leader>i <Plug>VimwikiDiaryIndex
+
+See also |:VimwikiDiaryIndex|
 
 
 [count]<Leader>w<Leader>w or <Plug>VimwikiMakeDiaryNote
@@ -148,7 +164,7 @@ See also|:VimwikiUISelect|
         To remap: >
         :map <Leader>d <Plug>VimwikiMakeDiaryNote
 <
-See also|:VimwikiMakeDiaryNote|
+See also |:VimwikiMakeDiaryNote|
 
 
 [count]<Leader>w<Leader>t or <Plug>VimwikiTabMakeDiaryNote
@@ -166,57 +182,81 @@ See also|:VimwikiMakeDiaryNote|
         To remap: >
         :map <Leader>dt <Plug>VimwikiTabMakeDiaryNote
 <
-See also|:VimwikiTabMakeDiaryNote|
+See also |:VimwikiTabMakeDiaryNote|
 
 
 ------------------------------------------------------------------------------
 3.2. Local mappings
 
 NORMAL MODE                                           *vimwiki-local-mappings*
+                        *vimwiki_<Leader>wh*
+<Leader>wh              Convert current wiki page to HTML.
+                        Maps to |:Vimwiki2HTML|
+                        To remap: >
+                        :map <Leader>wc <Plug>Vimwiki2HTML
+<
+                        *vimwiki_<Leader>whh*
+<Leader>whh             Convert current wiki page to HTML and open it in
+                        webbrowser.
+                        Maps to |:Vimwiki2HTML|
+                        To remap: >
+                        :map <Leader>wcc <Plug>Vimwiki2HTMLBrowse
+<
                         *vimwiki_<CR>*
-<CR>                    Follow/Create wiki link.
+<CR>                    Follow wiki link (create target wiki page if needed).
                         Maps to |:VimwikiFollowLink|.
                         To remap: >
                         :map <Leader>wf <Plug>VimwikiFollowLink
 <
                         *vimwiki_<S-CR>*
-<S-CR>                  Split and follow/create wiki link.
+<S-CR>                  Split and follow (create target wiki page if needed).
+                        May not work in some terminals. Remapping could help.
                         Maps to |:VimwikiSplitLink|.
                         To remap: >
                         :map <Leader>we <Plug>VimwikiSplitLink
 <
                         *vimwiki_<C-CR>*
-<C-CR>                  Vertical split and follow/create wiki link.
+<C-CR>                  Vertical split and follow (create target wiki page if
+                        needed).
+                        May not work in some terminals. Remapping could help.
                         Maps to |:VimwikiVSplitLink|.
                         To remap: >
                         :map <Leader>wq <Plug>VimwikiVSplitLink
 <
+                        *vimwiki_<C-S-CR>*    *vimwiki_<D-CR>*
+<C-S-CR>, <D-CR>        Follow wiki link (create target wiki page if needed),
+                        opening in a new tab.
+                        May not work in some terminals. Remapping could help.
+                        Maps to |:VimwikiTabnewLink|.
+                        To remap: >
+                        :map <Leader>wt <Plug>VimwikiTabnewLink
+<
                         *vimwiki_<Backspace>*
-<Backspace>             Go back to previous wiki link
+<Backspace>             Go back to previous wiki page.
                         Maps to |:VimwikiGoBackLink|.
                         To remap: >
                         :map <Leader>wb <Plug>VimwikiGoBackLink
 <
                         *vimwiki_<Tab>*
-<Tab>                   Find next wiki link.
+<Tab>                   Find next link on the current page.
                         Maps to |:VimwikiNextLink|.
                         To remap: >
                         :map <Leader>wn <Plug>VimwikiNextLink
 <
                         *vimwiki_<S-Tab>*
-<S-Tab>                 Find previous wiki link.
+<S-Tab>                 Find previous link on the current page.
                         Maps to |:VimwikiPrevLink|.
                         To remap: >
                         :map <Leader>wp <Plug>VimwikiPrevLink
 <
                         *vimwiki_<Leader>wd*
-<Leader>wd              Delete wiki link you are in.
+<Leader>wd              Delete wiki page you are in.
                         Maps to |:VimwikiDeleteLink|.
                         To remap: >
                         :map <Leader>dd <Plug>VimwikiDeleteLink
 <
                         *vimwiki_<Leader>wr*
-<Leader>wr              Rename wiki link you are in.
+<Leader>wr              Rename wiki page you are in.
                         Maps to |:VimwikiRenameLink|.
                         To remap: >
                         :map <Leader>rr <Plug>VimwikiRenameLink
@@ -238,35 +278,41 @@ NORMAL MODE                                           *vimwiki-local-mappings*
 
 
                         *vimwiki_gqq*  *vimwiki_gww*
-gqq                     Format table. If you did some changes to a table
+gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
-gww                     reformat it.
+gww                     will reformat it.
 
                         *vimwiki_<A-Left>*
 <A-Left>                Move current table column to the left.
                         See |:VimwikiTableMoveColumnLeft|
-
+                        To remap: >
+                        :map <Leader>wtl <Plug>VimwikiTableMoveColumnLeft
+<
                         *vimwiki_<A-Right>*
 <A-Right>               Move current table column to the right.
                         See |:VimwikiTableMoveColumnRight|
-
+                        To remap: >
+                        :map <Leader>wtr <Plug>VimwikiTableMoveColumnRight
+<
                         *vimwiki_<C-Up>*
-<C-Up>                  Open previous day diary link if available.
+<C-Up>                  Open the previous day's diary link if available.
                         See |:VimwikiDiaryPrevDay|
 
                         *vimwiki_<C-Down>*
-<C-Down>                Open next day diary link if available.
+<C-Down>                Open the next day's diary link if available.
                         See |:VimwikiDiaryNextDay|
 
 
 Works only if |g:vimwiki_use_mouse| is set to 1.
-<2-LeftMouse>           Follow/Create wiki link.
+<2-LeftMouse>           Follow wiki link (create target wiki page if needed).
 
-<S-2-LeftMouse>         Split and follow/create wiki link.
+<S-2-LeftMouse>         Split and follow wiki link (create target wiki page if
+                        needed).
 
-<C-2-LeftMouse>         Vertical split and follow/create wiki link.
+<C-2-LeftMouse>         Vertical split and follow wiki link (create target
+                        wiki page if needed).
 
-<RightMouse><LeftMouse> Go back to previous wiki link.
+<RightMouse><LeftMouse> Go back to previous wiki page.
 
 Note: <2-LeftMouse> is just left double click.
 
@@ -274,12 +320,12 @@ Note: <2-LeftMouse> is just left double click.
 
 INSERT MODE                                           *vimwiki-table-mappings*
                         *vimwiki_i_<CR>*
-<CR>                    Goto table cell down to the current, create new row if
-                        on the last one.
+<CR>                    Go to the table cell beneath the current one, create
+                        a new row if on the last one.
 
                         *vimwiki_i_<Tab>*
-<Tab>                   Goto next table cell, create new row if on the last
-                        cell.
+<Tab>                   Go to the next table cell, create a new row if on the
+                        last cell.
 
                         *vimwiki_i_<S-CR>*
 <S-CR>                  Insert <br /> and a newline.
@@ -288,16 +334,18 @@ INSERT MODE                                           *vimwiki-table-mappings*
 ------------------------------------------------------------------------------
 3.3. Text objects                                       *vimwiki-text-objects*
 
-ah                      A Header with leading empty lines.
-ih                      Inner Header without leading empty lines.
+ah                      A section segment (the area between two consecutive
+                        headings) including trailing empty lines.
+ih                      A section segment without trailing empty lines.
 
-You can 'vah' to select a header with its contents or 'dah' to delete it or
-'yah' to yank it or 'cah' to change it.
+You can 'vah' to select a section segment with its contents or 'dah' to delete
+it or 'yah' to yank it or 'cah' to change it.
 
 a\                      A cell in a table.
-i\                      Inner cell in a table.
+i\                      An inner cell in a table.
 ac                      A column in a table.
-ic                      Inner column in a table.
+ic                      An inner column in a table.
+
 
 ==============================================================================
 4. Commands                                                 *vimwiki-commands*
@@ -314,37 +362,39 @@ ic                      Inner column in a table.
 *:VimwikiUISelect*
     Open index file of the selected wiki.
 
+*:VimwikiDiaryIndex*
+    Open diary index file of the current wiki.
+
 *:VimwikiMakeDiaryNote*
     Open diary wiki-file for today of the current wiki.
 
 *:VimwikiTabMakeDiaryNote*
     Open diary wiki-file for today of the current wiki in a new tab.
 
+
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
 
 *:VimwikiFollowLink*
-    Follow/create wiki link..
-
+    Follow wiki link (create target wiki page if needed).
 
 *:VimwikiGoBackLink*
-    Go back to previous wiki link. you come from.
-
+    Go back to the wiki page you came from.
 
 *:VimwikiSplitLink*
-    Split and follow/create wiki link..
-
+    Split and follow wiki link (create target wiki page if needed).
 
 *:VimwikiVSplitLink*
-    Vertical split and follow/create wiki link..
+    Vertical split and follow wiki link (create target wiki page if needed).
 
+*:VimwikiTabnewLink*
+    Follow wiki link in a new tab (create target wiki page if needed).
 
 *:VimwikiNextLink*
-    Find next wiki link..
-
+    Find next link on the current page.
 
 *:VimwikiPrevLink*
-    Find previous wiki link..
+    Find previous link on the current page.
 
 *:VimwikiGoto*
     Goto link provided by an argument. For example: >
@@ -352,41 +402,41 @@ ic                      Inner column in a table.
 <   opens opens/creates HelloWorld wiki page.
 
 *:VimwikiDeleteLink*
-    Delete wiki link. you are in.
-
+    Delete the wiki page that you are in.
 
 *:VimwikiRenameLink*
-    Rename wiki link. you are in.
-
+    Rename the wiki page that you are in.
 
 *:Vimwiki2HTML*
-    Convert current WikiPage to HTML.
+    Convert current wiki page to HTML.
 
+*:Vimwiki2HTMLBrowse*
+    Convert current wiki page to HTML and open in in webbrowser.
 
 *:VimwikiAll2HTML*
-    Convert all WikiPages to HTML.
-
+    Convert all wiki pages to HTML.
 
 *:VimwikiToggleListItem*
     Toggle list item on/off (checked/unchecked)
     See |vimwiki-todo-lists|.
 
-
 *:VimwikiSearch* /pattern/
 *:VWS* /pattern/
     Search for /pattern/ in all files of current wiki.
-    To display next match use |:cnext| command.
-    To display previous match use |:cprevious| command.
+    To display all matches use |:lopen| command.
+    To display next match use |:lnext| command.
+    To display previous match use |:lprevious| command.
 
 
 *:VimwikiTable*
     Create a table with 5 cols and 2 rows.
 
     :VimwikiTable cols rows
-    Create a table with a given cols and rows
+    Create a table with the given cols and rows
 
     :VimwikiTable cols
-    Create a table with a given cols and 2 rows
+    Create a table with the given cols and 2 rows
+
 
 *:VimwikiTableMoveColumnLeft* , *:VimwikiTableMoveColumnRight*
     Move current column to the left or to the right:
@@ -442,7 +492,7 @@ See |vimwiki-option-syntax|.
 ------------------------------------------------------------------------------
 5.1. Typefaces                                      *vimwiki-syntax-typefaces*
 
-There are a few typefaces that gives you a bit of control on how your
+There are a few typefaces that gives you a bit of control over how your
 text should be decorated: >
   *bold text*
   _italic text_
@@ -451,6 +501,7 @@ text should be decorated: >
   super^script^
   sub,,script,,
 
+
 ------------------------------------------------------------------------------
 5.2. Links                                              *vimwiki-syntax-links*
 
@@ -458,8 +509,8 @@ Internal links~
 WikiWords: >
   CapitalizedWordsConnected
 
-You can limit linking of WikiWords by adding an exclamation mark in front of
-it: >
+You can prevent linking of WikiWords by adding an exclamation mark in front of
+them: >
   !CapitalizedWordsConnected
 
 Or disable it completely with |g:vimwiki_camel_case|.
@@ -471,53 +522,54 @@ or: >
 or: >
   [[This is a link source][Description of the link]]
 
-
 External links~
 Plain link: >
  http://code.google.com/p/vimwiki
+ mailto:habamax@gmail.com
+ ftp://vim.org
 
 Link with description: >
  [http://habamax.ru/blog habamax home page]
-
+ [mailto:habamax@gmail.com Drop a line to Maxim Kim]
 
 Images and image links~
-Image link is the link with one of jpg, png or gif endings.
+An image link is a link to a file with a jpg, png or gif extension.
 Plain image link: >
  http://someaddr.com/picture.jpg
-in html: >
+in HTML: >
  <img src="http://someaddr.com/picture.jpg" />
 
 Link to a local image: >
  [[images/pabloymoira.jpg]]
-in html: >
+in HTML: >
  <img src="images/pabloymoira.jpg" />
 Path to image (ie. images/pabloymoira.jpg) is relative to
 |vimwiki-option-path_html|.
 
 Double bracketed link to an image: >
  [[http://habamax.ru/blog/wp-content/uploads/2009/01/2740254sm.jpg]]
-in html: >
+in HTML: >
  <img src="http://habamax.ru/ ... /.jpg" />
 
 Double bracketed link to an image with description text: >
  [[http://habamax.ru/blog/wp-content/uploads/2009/01/2740254sm.jpg|dance]]
-in html: >
+in HTML: >
  <a href="http://habamax.ru/ ... /.jpg">dance</a>
 
 Double bracketed link to an image with alternate text: >
  [[http://habamax.ru/blog/wp-content/uploads/2009/01/2740254sm.jpg|dance|]]
-in html: >
+in HTML: >
  <img src="http://habamax.ru/ ... /.jpg" alt="dance"/>
 
 Double bracketed link to an image with alternate text and some style: >
  [[http://helloworld.com/blabla.jpg|cool stuff|width:150px; height: 120px;]]
-in html: >
+in HTML: >
  <img src="http://helloworld.com/ ... /.jpg" alt="cool stuff"
  style="width:150px; height:120px"/>
 
 Double bracketed link to an image without alternate text and some style: >
  [[http://helloworld.com/blabla.jpg||width:150px; height: 120px;]]
-in html: >
+in HTML: >
  <img src="http://helloworld.com/ ... /.jpg" alt=""
  style="width:150px; height:120px"/>
 
@@ -525,7 +577,7 @@ Thumbnail link: >
  [http://someaddr.com/bigpicture.jpg http://someaddr.com/thumbnail.jpg]
 or >
  [[http://someaddr.com/bigpicture.jpg|http://someaddr.com/thumbnail.jpg]]
-in html: >
+in HTML: >
  <a href="http://someaddr.com/ ... /.jpg">
   <img src="http://../thumbnail.jpg /></a>
 
@@ -547,29 +599,27 @@ You can set up different colors for each header level: >
 Set up colors for all 6 header levels or none at all.
 
 === Header level 3 ===~
-Check |g:vimwiki_hl_headers|.
-
 ==== Header level 4 ====~
 ===== Header level 5 =====~
 ====== Header level 6 ======~
 
 
-You can center your headers in html by placing spaces before the first '=':
+You can center your headers in HTML by placing spaces before the first '=':
                      = Centered Header L1 =~
-
 
 
 ------------------------------------------------------------------------------
 5.4. Paragraphs                                    *vimwiki-syntax-paragraphs*
 
-Paragraph is group of lines started from column 1 (no indentation). Paragraphs
-divided by a blank line:
+A paragraph is a group of lines starting in column 1 (no indentation).
+Paragraphs are separated by a blank line:
 
 This is first paragraph
 with two lines.
 
 This is a second paragraph with
 two lines.
+
 
 ------------------------------------------------------------------------------
 5.5. Lists                                              *vimwiki-syntax-lists*
@@ -623,7 +673,7 @@ It is possible to mix bulleted and numbered lists: >
     # Numbered list sub item 1
     # Numbered list sub item 2
 
-Note that space after *, - or # is essential.
+Note that a space after *, - or # is essential.
 
 Multiline list items: >
   * Bulleted list item 1
@@ -639,8 +689,8 @@ Multiline list items: >
 Definition lists: >
 Term 1:: Definition 1
 Term 2::
-::Definition 2
-::Definition 3
+:: Definition 2
+:: Definition 3
 
 
 ------------------------------------------------------------------------------
@@ -660,13 +710,23 @@ For example: >
  | 1940 | -2                | 40                 |
 >
 
-In html the following part >
+In HTML the following part >
  | Year | Temperature (low) | Temperature (high) |
  |------+-------------------+--------------------|
 >
 is higlighted as a table header.
 
-If you indent table then it would be centered in html.
+If you indent a table then it will be centered in HTML.
+
+If you set > in a cell, the cell spans the left column.
+If you set \/ in a cell, the cell spans the above row.
+For example: >
+
+ | a  | b  | c | d |
+ | \/ | e  | > | f |
+ | \/ | \/ | > | g |
+ | h  | >  | > | > |
+>
 
 See |vimwiki-tables| for more details on how to manage tables.
 
@@ -677,7 +737,7 @@ Note: You can not use [[link|description]] type of links in tables. Use
 ------------------------------------------------------------------------------
 5.7. Preformatted text                           *vimwiki-syntax-preformatted*
 
-Use {{{ and }}} to define block of preformatted text:
+Use {{{ and }}} to define a block of preformatted text:
 {{{ >
   Tyger! Tyger! burning bright
    In the forests of the night,
@@ -704,11 +764,12 @@ Result of HTML export: >
          print("Hello {0} number {1}".format(world, x))
  </pre>
 
-This might be useful for coloring some programming code with external js tools
-like google syntax highlighter.
+This might be useful for coloring program code with external js tools
+such as google's syntax highlighter.
 
 You can setup vimwiki to highlight code snippets in preformatted text.
 See |vimwiki-option-nested_syntaxes|
+
 
 ------------------------------------------------------------------------------
 5.8. Blockquotes                                  *vimwiki-syntax-blockquotes*
@@ -716,16 +777,26 @@ See |vimwiki-option-nested_syntaxes|
 Text started with 4 or more spaces is a blockquote.
 
     This would be a blockquote in vimwiki. It is not highlighted in vim but
-    could be styled by css in html. Blockquotes are usually used to quote a
+    could be styled by CSS in HTML. Blockquotes are usually used to quote a
     long piece of text from another source.
+
 
 ------------------------------------------------------------------------------
 5.9. Comments                                        *vimwiki-syntax-comments*
 
-Text between <!-- and --> is a comment.
-Ex: >
- <!-- this text would not be in HTML -->
+Text line started with %% is a comment.
+E.g.: >
+ %% this text would not be in HTML
 <
+
+
+------------------------------------------------------------------------------
+5.10. Horizontal line                                      *vimwiki-syntax-hr*
+
+4 or more dashes at the start of the line is a 'horizontal line' (<hr />): >
+ ----
+<
+
 
 ==============================================================================
 6. Folding/Outline                                           *vimwiki-folding*
@@ -761,11 +832,12 @@ Hit |zr| one more time:
   * [ ] Do stuff 2~
   * [ ] Do stuff 3~
 
-NOTE: Whether you use default syntax, folding on list items should work
+NOTE:If you use default vimwiki syntax, folding on list items will work
 properly only if all of them are indented using current |shiftwidth|.
-For MediaWiki * or # should be in the first column.
+For MediaWiki, * or # should be in the first column.
 
 To turn folding on/off check |g:vimwiki_folding|.
+
 
 ==============================================================================
 7. Placeholders                                         *vimwiki-placeholders*
@@ -773,13 +845,13 @@ To turn folding on/off check |g:vimwiki_folding|.
 ------------------------------------------------------------------------------
 %toc Table of Contents               *vimwiki-toc* *vimwiki-table-of-contents*
 
-You can add 'table of contents' to your html page generated from wiki one.
+You can add 'table of contents' to your HTML page generated from wiki one.
 Just place >
 
 %toc
 
 into your wiki page.
-You can also add caption to your 'toc': >
+You can also add a caption to your 'toc': >
 
 %toc Table of Contents
 
@@ -791,9 +863,8 @@ or >
 ------------------------------------------------------------------------------
 %title Title of the page                                       *vimwiki-title*
 
-When you htmlize your wiki page you have default title which is the filename
-of the page.
-Place >
+When you htmlize your wiki page, the default title is the filename of the
+page. Place >
 
 %title My books
 
@@ -803,11 +874,23 @@ into your wiki page if you want another title.
 ------------------------------------------------------------------------------
 %nohtml                                                       *vimwiki-nohtml*
 
-If you do not want a wiki page to be converted to html, place:
+If you do not want a wiki page to be converted to HTML, place:
 
 %nohtml
 
 into it.
+
+
+------------------------------------------------------------------------------
+%template                                                   *vimwiki-template*
+
+To apply a concrete HTML template to a wiki page, place:
+
+%template name
+
+into it.
+
+See |vimwiki-option-template_path| for details.
 
 
 ==============================================================================
@@ -826,33 +909,33 @@ Consider the following example:
   * [X] Add highlighting to list item boxes
   * [X] Add [ ] to the next created with o, O and <CR> list item.
 
-
-Pressing <C-Space> on the first list item will toggle it and all of it's child
+Pressing <C-Space> on the first list item will toggle it and all of its child
 items:
 = Toggleable list of todo items =
   * [ ] Toggle list item on/off.
     * [ ] Simple toggling between [ ] and [X].
-    * [ ] All list's subitems should be toggled on/off appropriately.
-    * [ ] Toggle child subitems only if current line is list item
-    * [ ] Parent list item should be toggled depending on it's child items.
-  * [X] Make numbered list items toggleable too
-  * [X] Add highlighting to list item boxes
-  * [X] Add [ ] to the next created with o, O and <CR> list item.
+    * [ ] All of a list's subitems should be toggled on/off appropriately.
+    * [ ] Toggle child subitems only if the current line is a list item.
+    * [ ] Parent list item should be toggled depending on their child items.
+  * [X] Make numbered list items toggleable too.
+  * [X] Add highlighting to list item boxes.
+  * [X] Add [ ] to the next list item created using o, O or <CR>.
 
-Pressing <C-Space> on the third list item will toggle it and all of it's
+Pressing <C-Space> on the third list item will toggle it and adjust all of its
 parent items:
 = Toggleable list of todo items =
   * [.] Toggle list item on/off.
     * [ ] Simple toggling between [ ] and [X].
-    * [X] All list's subitems should be toggled on/off appropriately.
-    * [ ] Toggle child subitems only if current line is list item
+    * [X] All of a list's subitems should be toggled on/off appropriately.
+    * [ ] Toggle child subitems only if current line is list item.
     * [ ] Parent list item should be toggled depending on it's child items.
-  * [ ] Make numbered list items toggleable too
-  * [ ] Add highlighting to list item boxes
-  * [ ] Add [ ] to the next created with o, O and <CR> list item.
+  * [ ] Make numbered list items toggleable too.
+  * [ ] Add highlighting to list item boxes.
+  * [ ] Add [ ] to the next list item created using o, O or <CR>.
 
-Parent items could be toggled by its child items. Symbol inside [ ] depends on
-percentage of toggled child items(see also |g:vimwiki_listsyms|): >
+Parent items could be changed when their child items change. The symbol
+between [ ] depends on the percentage of toggled child items (see also
+|g:vimwiki_listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -865,7 +948,8 @@ It is possible to toggle several list items using visual mode.
 ==============================================================================
 9. Tables                                                     *vimwiki-tables*
 
-Use :VimwikiTable command to create default table with 5 columns and 2 rows: >
+Use the  :VimwikiTable command to create a default table with 5 columns and 2
+rows: >
 
  |   |   |   |   |   |
  |---+---+---+---+---|
@@ -879,14 +963,14 @@ Tables are auto-formattable. Let's add some text into first cell: >
  |   |   |   |   |   |
 <
 
-Whenever you press <TAB>, <CR> or leave Insert mode table is formatted: >
+Whenever you press <TAB>, <CR> or leave Insert mode, the table is formatted: >
 
  | First Name |   |   |   |   |
  |------------+---+---+---+---|
  |            |   |   |   |   |
 <
 
-You can easily create nice looking text tables, just press <TAB> and enter new
+You can easily create nice-looking text tables, just press <TAB> and enter new
 values: >
 
  | First Name | Last Name  | Age | City     | e-mail               |
@@ -898,11 +982,10 @@ values: >
 To indent table indent the first row. Then format it with 'gqq'.
 
 
-
 ==============================================================================
 10. Diary                                                      *vimwiki-diary*
 
-Diary helps you make daily notes. You can really easy add information into
+The diary helps you make daily notes. You can easily add information into
 vimwiki that should be sorted out later. Just hit <Leader>w<Leader>w to create
 new daily note with name based on current date. The link to this newly created
 file is added to a diary wiki file.
@@ -937,30 +1020,29 @@ By default there are 4 links on the line. All links are sorted by their dates.
 Calendar integration                                        *vimwiki-calendar*
 ------------------------------------------------------------------------------
 If you have Calendar.vim installed you can use it to create diary notes.
-Just open calendar with :Calendar and tap <Enter> on the date. Wiki file would
-be created in default wiki's diary.
+Just open calendar with :Calendar and tap <Enter> on the date. A wiki file
+will be created in the default wiki's diary.
 
 Get it from http://www.vim.org/scripts/script.php?script_id=52
 
 See |g:vimwiki_use_calendar| option to turn it off/on.
 
 
-
 ==============================================================================
 11. Options                                                  *vimwiki-options*
 
-There are global and per wiki(local) options available to tune vimwiki.
-All global options are set using the following template: >
+There are global and per-wiki (local) options available to tune vimwiki.
+All global options are set using the following pattern: >
     let g:option_name=option_value
 
-All per wiki options are |Dictionary|'s pairs in a list of wikies
-(dictionaries). See |g:vimwiki_list| option for more details.
+All per-wiki options are dictionaries (see |Dictionary|) in a list of wikies.
+See |g:vimwiki_list| option for more details.
 
 ------------------------------------------------------------------------------
 *g:vimwiki_list* *vimwiki-multiple-wikies*
 
 Each item in g:vimwiki_list is a |Dictionary| that holds all customization
-available for a wiki represented by that item. It is in form of >
+available for a wiki represented by that item. It is in the form: >
   {'option1': 'value1', 'option2: 'value2', ...}
 
 Consider the following example: >
@@ -972,20 +1054,20 @@ It gives us one wiki located at ~/my_site/ that could be htmlized to
 The next example: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'path_html': '~/public_html/'},
             \ {'path': '~/my_docs/', 'ext': '.mdox'}]
-gives us 2 wikies, first wiki as in previous example, second one is located in
-~/my_docs/ and its files have .mdox extension.
+gives us 2 wikies, the first wiki as in the previous example, and the second
+one located in ~/my_docs/, with files that have the .mdox extension.
 
-Empty |Dictionary| in the g:vimwiki_list is the wiki with default options: >
+An empty |Dictionary| in g:vimwiki_list is the wiki with default options: >
   let g:vimwiki_list = [{},
             \ {'path': '~/my_docs/', 'ext': '.mdox'}]
 
 <
 
-You can also create wikis as a separate |Dictionary|s. >
+You can also create wikis as separate |Dictionary|s. >
 
     let wiki_1 = {}
     let wiki_1.path = '~/my_docs/'
-    let wiki_1.html_header = '~/public_html/header.tpl'
+    let wiki_1.html_template = '~/public_html/template.tpl'
     let wiki_1.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
 
     let wiki_2 = {}
@@ -997,7 +1079,6 @@ You can also create wikis as a separate |Dictionary|s. >
 <
 
 PER WIKI OPTIONS                                       *viwmiki-local-options*
-
 
 
 *vimwiki-option-path*
@@ -1016,14 +1097,15 @@ Key             Default value~
 path_html       ~/vimwiki_html/
 
 Description~
-HTML files converted from wiki files location: >
+Location of HTML files converted from wiki files: >
   let g:vimwiki_list = [{'path': '~/my_site/',
                        \ 'path_html': '~/my_site_html/'}]
 
-If you omit this option path_html would be path - '/' + '_html/': >
+If you omit this option, the value of path_html would be set to the value of
+path with the trailing slash ('/') removed and '_html' added; i.e. for: >
   let g:vimwiki_list = [{'path': '~/okidoki/'}]
 
-ie, path_html = '~/okidoki_html/'
+path_html will be set to '~/okidoki_html/'.
 
 *vimwiki-option-auto_export*
 ------------------------------------------------------------------------------
@@ -1031,11 +1113,11 @@ Key             Default value     Values~
 auto_export     0                 0, 1
 
 Description~
-Set this option to 1 to automatically generate HTML file when corresponding
-wiki page is saved: >
+Set this option to 1 to automatically generate the HTML file when the
+corresponding wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_export': 1}]
 
-This will keep you HTML files up to date.
+This will keep your HTML files up to date.
 
 *vimwiki-option-index*
 ------------------------------------------------------------------------------
@@ -1046,7 +1128,7 @@ Description~
 Name of wiki index file: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'index': 'main'}]
 
-NOTE: Do not add extension.
+NOTE: Do not include the extension.
 
 
 *vimwiki-option-ext*
@@ -1068,23 +1150,32 @@ syntax          default           default, media
 Description~
 Wiki syntax.
 You can use different markup languages (currently default vimwiki and
-MediaWiki) but only vimwiki's default markup could be converted to HTML at the
+MediaWiki), but only vimwiki's default markup will be converted to HTML at the
 moment.
 To use MediaWiki's wiki markup: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'syntax': 'media'}]
 <
 
-*vimwiki-option-html_header*
+*vimwiki-option-template_path*
 ------------------------------------------------------------------------------
-Key             Default value~
-html_header
+Key                 Default value~
+template_path       ~/vimwiki/templates/
 
 Description~
-Set up file name for html header template: >
+Setup path for HTML templates: >
   let g:vimwiki_list = [{'path': '~/my_site/',
-          \ 'html_header': '~/public_html/header.tpl'}]
+          \ 'template_path': '~/public_html/templates/',
+          \ 'template_default': 'def_template',
+          \ 'template_ext': '.html'}]
 
-This header.tpl could look like: >
+There could be a bunch of templates: >
+    def_template.html
+    index.html
+    bio.html
+    person.html
+etc.
+
+Each template could look like: >
     <html>
     <head>
         <link rel="Stylesheet" type="text/css" href="%root_path%style.css" />
@@ -1092,7 +1183,11 @@ This header.tpl could look like: >
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     </head>
     <body>
-        <div class="contents">
+        <div class="content">
+        %content%
+        </div>
+    </body>
+    </html>
 
 where
   %title% is replaced by a wiki page name or by a |vimwiki-title|
@@ -1100,22 +1195,37 @@ where
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
     %root_path% is replaced by '../../../'.
 
+  %content% is replaced by a wiki file content.
 
-*vimwiki-option-html_footer*
+
+The default template will be applied to all wiki pages unless a page specifies
+a template. Consider you have wiki page named 'Maxim.wiki' and you want apply
+'person.html' template to it. Just add: >
+ %template person
+to that page.
+
+
+*vimwiki-option-template_default*
 ------------------------------------------------------------------------------
-Key             Default value~
-html_footer
+Key                 Default value~
+template_default    default
 
 Description~
-Set up file name for html footer template: >
-  let g:vimwiki_list = [{'path': '~/my_site/',
-          \ 'html_footer': '~/public_html/footer.tpl'}]
+Setup default template name (without extension).
 
-This footer.tpl could look like: >
-        </div>
-    </body>
-    </html>
-<
+See |vimwiki-option-template_path| for details.
+
+
+*vimwiki-option-template_ext*
+------------------------------------------------------------------------------
+Key                 Default value~
+template_ext        .html
+
+Description~
+Setup template filename extension.
+
+See |vimwiki-option-template_path| for details.
+
 
 *vimwiki-option-css_name*
 ------------------------------------------------------------------------------
@@ -1123,7 +1233,7 @@ Key             Default value~
 css_name        style.css
 
 Description~
-Set up css file name: >
+Setup CSS file name: >
   let g:vimwiki_list = [{'path': '~/my_pages/',
           \ 'css_name': 'main.css'}]
 <
@@ -1139,8 +1249,8 @@ Key             Default value     Values~
 maxhi           1                 0, 1
 
 Description~
-Non-existent wiki links highlighting could be quite slow and if you don't want
-it set maxhi to 0: >
+Non-existent wiki links highlighting can be quite slow. If you don't want it,
+set maxhi to 0: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'maxhi': 0}]
 
 This disables filesystem checks for wiki links.
@@ -1152,7 +1262,7 @@ Key             Default value     Values~
 nested_syntaxes {}                pairs of highlight keyword and vim filetype
 
 Description~
-You can make preformatted text to be highlighted with a different syntaxes
+You can configure preformatted text to be highlighted with any syntax
 available for vim.
 For example the following setup in your vimrc: >
   let wiki = {}
@@ -1160,7 +1270,7 @@ For example the following setup in your vimrc: >
   let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
   let g:vimwiki_list = [wiki]
 
-would give you python and c++ highlighting in: >
+would give you Python and C++ highlighting in: >
  {{{class="brush: python"
  for i in range(1, 5):
      print(i)
@@ -1187,7 +1297,6 @@ or in: >
  for i in range(1, 5):
      print(i)
  }}}
-
 
 
 *vimwiki-option-diary_rel_path*
@@ -1239,25 +1348,24 @@ Use: >
     let g:option_name=option_value
 to set them.
 
-------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 *g:vimwiki_hl_headers*
 
 Highlight headers with =Reddish=, ==Greenish==, ===Blueish=== colors.
 
 Value           Description~
-1               Use predefined colors to highlight different header levels.
-0               Use |hl-Title| or  VimwikiHeader1-VimwikiHeader6 (if defined
-                in a colorscheme)
-
-Default: 1
+1               Use VimwikiHeader1-VimwikiHeader6 group colors to highlight
+                different header levels.
+0               Use |hl-Title| color for headers.
+Default: 0
 
 
 ------------------------------------------------------------------------------
 *g:vimwiki_hl_cb_checked*
 
-Checked list items could be highlighted with a color:
+Checked list items can be highlighted with a color:
 
-  * [X] the whole line could be highlighted with the option set to 1.
+  * [X] the whole line can be highlighted with the option set to 1.
   * [ ] I wish vim could use strikethru.
 
 Value           Description~
@@ -1270,12 +1378,20 @@ Default: 0
 ------------------------------------------------------------------------------
 *g:vimwiki_global_ext* *vimwiki-temporary-wiki*
 
-If a file with a registered wiki extension is opened in a dir that is not
-listed in |g:vimwiki_list| then:
+If a file with a registered wiki extension is opened in a directory that is
+not listed in |g:vimwiki_list| then:
 
 Value           Description~
 1               make a temporary wiki in that dir.
-0               don't make temporary wiki it that dir.
+0               don't make temporary wiki in that dir.
+
+A temporary wiki is created to scan the filesystem for available links to
+highlight.
+
+Consider your wiki extension is .txt then you can >
+    let g:vimwiki_global_ext = 0
+to make it local to vimwiki paths listed in g:vimwiki_list. So other text
+files wouldn't be treated as wiki pages.
 
 Default: 1
 
@@ -1293,7 +1409,7 @@ You can set up your own: >
 ------------------------------------------------------------------------------
 *g:vimwiki_auto_checkbox*
 
-if on, creates checkbox while toggling list item.
+If on, creates checkbox while toggling list item.
 
 Value           Description~
 0               Do not create checkbox.
@@ -1301,11 +1417,11 @@ Value           Description~
 
 Default: 1
 
-Ex:
+E.g.:
 Press <C-Space> (|:VimwikiToggleListItem|) on a list item without checkbox to
 create it: >
   * List item
-result: >
+Result: >
   * [ ] List item
 
 
@@ -1322,21 +1438,23 @@ etc.
 
 Default: 'Vimwiki'
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_stripsym*
 
-Change strip symbol -- in Windows you cannot use /*?<>:" in file names so
-vimwiki replaces them with neutral symbol (_ is default): >
+Change strip symbol -- in Windows you cannot use /*?<>:" in filenames, so
+vimwiki replaces them with a neutral symbol (_ is default): >
     let g:vimwiki_stripsym = '_'
 
 You can change it to a <space> for example: >
     let g:vimwiki_stripsym = ' '
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_badsyms*
 
-Consider you do not like spaces in filenames (as some vimwiki users do).
-In that case you can set up bad symbols that would be converted to
+If you do not like spaces in filenames (as some vimwiki users do), you can set
+up bad symbols to include spaces, so that they are also converted:
 |g:vimwiki_stripsym|: >
     let g:vimwiki_badsyms = ' '
 
@@ -1344,6 +1462,7 @@ Now files for all [[links with spaces]] would be created like
 'links_with_spaces'.
 
 This option is a complement one to |g:vimwiki_stripsym|.
+
 
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
@@ -1353,6 +1472,7 @@ Default value is ' .oOX'.
 
 g:vimwiki_listsyms[0] is for 0% done items.
 g:vimwiki_listsyms[4] is for 100% done items.
+
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*
@@ -1365,17 +1485,19 @@ Value           Description~
 
 Default: 0
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_folding*
 
-Enable/disable vimwiki's folding/outline. Folding in vimwiki is using 'expr'
-foldmethod which is very flexible but really slow.
+Enable/disable vimwiki's folding/outline functionality. Folding in vimwiki
+uses the 'expr' foldmethod which is very flexible but really slow.
 
 Value           Description~
 0               Disable folding.
 1               Enable folding.
 
 Default: 0
+
 
 ------------------------------------------------------------------------------
 *g:vimwiki_fold_lists*
@@ -1388,21 +1510,23 @@ Value           Description~
 
 Default: 0
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_fold_trailing_empty_lines*
 
 Fold or do not fold empty lines between folded headers.
 
 Value           Description~
-0               Fold only one empty line. The rest empty lines are unfolded.
+0               Fold only one empty line. Leave the rest of the empty lines.
 1               Fold in all empty lines.
 
 Default: 0
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_camel_case*
 
-If you do not want WikiWord to be a link this setting is just for you.
+If you do not want WikiWord to be a link, this setting is just for you.
 
 Value           Description~
 0               Do not make links from CamelCased words.
@@ -1410,17 +1534,19 @@ Value           Description~
 
 Default: 1
 
+
 ------------------------------------------------------------------------------
 *g:vimwiki_list_ignore_newline*
 
 This is HTML related.
-Convert newlines to <BR />s in multiline list items.
+Convert newlines to <br />s in multiline list items.
 
 Value           Description~
-0               Newlines in a list item are converted to <BR />s.
+0               Newlines in a list item are converted to <br />s.
 1               Ignore newlines.
 
 Default: 1
+
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_calendar*
@@ -1444,9 +1570,9 @@ You can open external weblinks in a webbrowser. Webbrowsers are listed in
 For win32 it is: chrome, opera, firefox and explorer.
 For other OSes it is: opera, firefox and konqueror.
 
-The first available browser from the list is used to open weblink.
-If you have opera and firefox and want weblinks to be opened in the latter
-just: >
+The first available browser from the list is used to open the weblink.
+If you have opera and firefox and want weblinks to be opened in the latter,
+just specify: >
  let g:vimwiki_browsers=['C:\Program Files\Firefox\firefox.exe']
 
 or redefine VimwikiWeblinkHandler function: >
@@ -1488,8 +1614,8 @@ Default: ''
 ------------------------------------------------------------------------------
 *g:vimwiki_CJK_length*
 
-Use special method to calculate correct length of the strings with double wide
-characters. (To align table cells properly)
+Use special method to calculate correct length of the strings with double-wide
+characters (to align table cells properly).
 
 Value           Description~
 0               Do not use it.
@@ -1497,8 +1623,8 @@ Value           Description~
 
 Default: 0
 
-Note: Vim73 has new function |strdisplaywidth|, so for Vim73 users this option
-is obsolete.
+Note: Vim73 has a new function |strdisplaywidth|, so for Vim73 users this
+option is obsolete.
 
 
 ------------------------------------------------------------------------------
@@ -1519,9 +1645,9 @@ Default: '' (empty string)
 ------------------------------------------------------------------------------
 *g:vimwiki_html_header_numbering*
 
-Set this option if you want headers to be auto numbered in html.
+Set this option if you want headers to be auto-numbered in HTML.
 
-ex: >
+E.g.: >
     1 Header1
     1.1 Header2
     1.2 Header2
@@ -1560,8 +1686,8 @@ Default: 0
 Ending symbol for |g:vimwiki_html_header_numbering|.
 
 Value           Description~
-'.'             Dot would be added to the end of header's number.
-')'             Closing bracket would be added to the end of header's number.
+'.'             Dot will be added after a header's number.
+')'             Closing bracket will be added after a header's number.
 etc.
 
 With
@@ -1583,11 +1709,11 @@ Default: '' (empty)
 ------------------------------------------------------------------------------
 *g:vimwiki_file_exts*
 
-Comma separated list of file extensions.
+Comma-separated list of file extensions.
 
 Consider you have the following link: [[my_script.php][my script]].
-If there is 'php' extension in g:vimwiki_file_exts this link would be htmlized
-to <a href="my_script.php">my script</a>.
+If there is a 'php' extension in g:vimwiki_file_exts, this link would be
+htmlized to <a href="my_script.php">my script</a>.
 Otherwise it would be <a href="my_script.php.html">my script</a> (note .html)
 
 
@@ -1597,9 +1723,24 @@ Default: 'pdf,txt,doc,rtf,xls,php,zip,rar,7z,html,gz'
 ------------------------------------------------------------------------------
 *g:vimwiki_valid_html_tags*
 
-Comma separated list of html tags that can be used in vimwiki.
+Comma-separated list of HTML tags that can be used in vimwiki.
 
 Default: 'b,i,s,u,sub,sup,kbd,br,hr'
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_user_htmls*
+
+Comma-separated list of HTML files that have no corresponding wiki files and
+should not be deleted after |:VimwikiAll2HTML|.
+
+Default: ''
+
+Example:
+Consider you have 404.html and search.html in your vimwiki 'path_html'.
+With: >
+    let g:vimwiki_user_htmls = '404.html,search.html'
+they would not be deleted after |:VimwikiAll2HTML|.
 
 
 ------------------------------------------------------------------------------
@@ -1614,41 +1755,92 @@ is entered.
 Default: 3
 
 
-
-
 ==============================================================================
 12. Help                                                        *vimwiki-help*
 
 Your help in making vimwiki better is really appreciated!
-Any help. Would it be spell correction or code snippet to patch -- everything
-is welcomed.
+Any help, whether it is a spelling correction or a code snippet to patch --
+everything is welcomed.
 
-Issues could be filled in at http://code.google.com/p/vimwiki/issues .
+Issues can be filed at http://code.google.com/p/vimwiki/issues .
 
 
 ==============================================================================
 13. Developers                                            *vimwiki-developers*
 
-    - Maxim Kim <habamax@gmail.com>
-      Original author.
-    - Mikhail Trishchenkov <kriomant(at)gmail.com>
-      Joined in at Dec 2009.
+    - Maxim Kim <habamax@gmail.com> as original author.
+    - See the http://code.google.com/p/vimwiki/people/list for the others.
 
-Vimwiki's website: http://code.google.com/p/vimwiki/
-Vim plugins website: http://www.vim.org/scripts/script.php?script_id=2226
-
-... afterword
-
-Many thanks to all of you for voting vimwiki up on www.vim.org. I do vimwiki
-in my spare time I could use to dance argentine tango with beautiful women.
-Your votes are kind of a good replacement. ;)
-
-Sincerely yours,
-Maxim Kim.
+Web: http://code.google.com/p/vimwiki/
+Mail-List: https://groups.google.com/forum/#!forum/vimwiki
+Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
 ==============================================================================
 14. Changelog                                              *vimwiki-changelog*
+
+1.2~
+    * Issue 70: Table spanning cell support.
+    * Issue 72: Do not convert again for unchanged file. |:VimwikiAll2HTML|
+      converts only changed wiki files.
+    * Issue 117: |VimwikiDiaryIndex| command that opens diary index wiki page.
+    * Issue 120: Links in headers are not highlighted in vimwiki but are
+      highlighted in HTML.
+    * Issue 138: Added possibility to remap table-column move bindings. See
+      |:VimwikiTableMoveColumnLeft| and |:VimwikiTableMoveColumnRight|
+      commands. For remap instructions see |vimwiki_<A-Left>|
+      and |vimwiki_<A-Right>|.
+    * Issue 125: Problem with 'o' command given while at the of the file.
+    * Issue 131: FileType is not set up when GUIEnter autocommand is used in
+      vimrc. Use 'nested' in 'au GUIEnter * nested VimwikiIndex'
+    * Issue 132: Link to perl (or any non-wiki) file in vimwiki subdirectory
+      doesn't work as intended.
+    * Issue 135: %title and %toc used together cause TOC to appear in an
+      unexpected place in HTML.
+    * Issue 139: |:VimwikiTabnewLink| command is added.
+    * Fix of g:vimwiki_stripsym = '' (i.e. an empty string) -- it removes bad
+      symbols from filenames.
+    * Issue 145: With modeline 'set ft=vimwiki' links are not correctly
+      highlighted when open wiki files.
+    * Issue 146: Filetype difficulty with ".txt" as a vimwiki extension.
+    * Issue 148: There are no mailto links.
+    * Issue 151: Use location list instead of quickfix list for :VimwikiSearch
+      command result. Use :lopen instead of :copen, :lnext instead of :cnext
+      etc.
+    * Issue 152: Add the list of HTML files that would not be deleted after
+      |:VimwikiAll2HTML|.
+    * Issue 153: Delete HTML files that has no corresponding wiki ones with
+      |:VimwikiAll2HTML|.
+    * Issue 156: Add multiple HTML templates. See
+      |vimwiki-option-template_path|. Options html_header and html_footer are
+      no longer exist.
+    * Issue 173: When virtualedit=all option is enabled the 'o' command behave
+      strange.
+    * Issue 178: Problem with alike wikie's paths.
+    * Issue 182: Browser command does not quote url.
+    * Issue 183: Spelling error highlighting is not possible with nested
+      syntaxes.
+    * Issue 184: Wrong foldlevel in some cases.
+    * Issue 195: Page renaming issue.
+    * Issue 196: vim: modeline bug -- syn=vim doesn't work.
+    * Issue 199: Generated HTML for sublists is invalid.
+    * Issue 200: Generated HTML for todo lists does not show completion status
+      the fix relies on CSS, thus your old stylesheets need to be updated!;
+      may not work in obsolete browsers or font-deficient systems.
+    * Issue 205: Block code: highlighting differs from processing. Inline code
+      block {{{ ... }}} is removed. Use `...` instead.
+    * Issue 208: Default highlight colors are problematic in many
+      colorschemes. Headers are highlighted as |hl-Title| by default, use
+      |g:vimwiki_hl_headers| to restore previous default Red, Green, Blue or
+      custom header colors. Some other changes in highlighting.
+    * Issue 209: Wild comments slow down html generation. Comments are
+      changed, use %% to comment out entire line.
+    * Issue 210: HTML: para enclose header.
+    * Issue 214: External links containing Chinese characters get trimmed.
+    * Issue 218: Command to generate HTML file and open it in webbrowser. See
+      |:Vimwiki2HTMLBrowse|(bind to <leader>whh)
+    * NEW: Added <Leader>wh mapping to call |:Vimwiki2HTML|
+
 
 1.1.1~
     * FIX: Issue 122: Dot character in vimwiki's directory path isn't escaped.
@@ -1667,7 +1859,7 @@ Maxim Kim.
       highlighted as a single link.
     * FIX: Issue 88: Underline text. See |g:vimwiki_valid_html_tags|.
     * FIX: Issue 92: Wikies in a subdir could be renamed to an empty file.
-    * FIX: Issue 93: Use alias name in html title. See |vimwiki-title|.
+    * FIX: Issue 93: Use alias name in HTML title. See |vimwiki-title|.
     * FIX: Issue 94: Relative links to PHP files are broken. See
       |g:vimwiki_file_exts| for details.
     * FIX: Issue 96: Closing bracket at the end of weblink shouldn't be a part
@@ -1702,7 +1894,7 @@ Maxim Kim.
       |:VimwikiTableMoveColumnLeft| and |:VimwikiTableMoveColumnRight|.
     * NEW: Issue 44: <S-Tab> should move cursor to the previous table cell.
     * NEW: Issue 45: It should be possible to indent tables. Indented tables
-      are centered in html.
+      are centered in HTML.
     * NEW: Issue 46: Do not htmlize some wiki pages (blacklist). New
       placeholder is added: %nohtml. See |vimwiki-nohtml|.
     * FIX: Issue 47: Lists aren't HTMLized properly.
@@ -1725,11 +1917,11 @@ Maxim Kim.
     * NEW: Issue 60: Links inside completed gtd-items.
     * NEW: Issue 61: Headers numbering. See |g:vimwiki_html_header_numbering|
       and |g:vimwiki_html_header_numbering_sym| options.
-    * FIX: Issue 63: Table cannot have leading empty cells in html.
+    * FIX: Issue 63: Table cannot have leading empty cells in HTML.
     * FIX: Issue 65: Table separator is not htmlized right if on top of the
       table.
-    * FIX: Issue 66: Table empty cells are very small in html.
-    * FIX: Issue 67: Wrong html conversion of multilined list item with bold
+    * FIX: Issue 66: Table empty cells are very small in HTML.
+    * FIX: Issue 67: Wrong HTML conversion of multilined list item with bold
       text on the start of next line.
     * FIX: Issue 68: auto-indent problem with langmap.
     * FIX: Issue 73: Link navigation by Tab. "Escaped" wiki-word should be
@@ -1741,7 +1933,7 @@ Maxim Kim.
       date if it has corresponding diary page.
     * FIX: Issue 80: Debian Lenny GUI Vim 7.2 has problems with toggling inner
       todo list items.
-    * FIX: Issue 81: Don't convert WikiWord as a link in html when
+    * FIX: Issue 81: Don't convert WikiWord as a link in HTML when
       `let g:vimwiki_camel_case = 0`
 
 0.9.9~
@@ -1754,7 +1946,7 @@ Maxim Kim.
     * NEW: Keyword STARTED: is added.
     * NEW: Words TODO:, DONE:, STARTED:, XXX:, FIXME:, FIXED: are highlighed
       inside headers.
-    * FIX: Export to html external links with 'file://' protocol. Ex:
+    * FIX: Export to HTML external links with 'file://' protocol. Ex:
       [file:///home/user1/book.pdf my book].
     * FIX: Menu is corrupted if wiki's path contains spaces.
     * FIX: Settings |wrap| and |linebreak| are removed from ftplugin. Add them
@@ -1780,10 +1972,10 @@ Maxim Kim.
     * NEW: Speed up vimwiki's folding a bit. Should lag a bit less in a long
       todo lists.
     * NEW: Centered headers. Start header with at least one space to make it
-      html centered.
-    * NEW: Change in default css: header's colors.
+      HTML centered.
+    * NEW: Change in default CSS: header's colors.
     * NEW: Vimwiki is aware of |GetLatestVimScripts| now.
-    * FIX: Use <del> tag instead of custom <span class="strike"> in html.
+    * FIX: Use <del> tag instead of custom <span class="strike"> in HTML.
     * FIX: There are no text styling in htmlized quoted text.
     * FIX: set default value of g:vimwiki_fold_lists to 0 as written in this
       help.
@@ -1813,8 +2005,8 @@ Maxim Kim.
       (in VISUAL and in VISUAL LINE modes)
     * NEW: Issue 26: Highlight code snippets in vimwiki's pre. See
       |vimwiki-option-nested_syntaxes|. Thanks kriomant.
-    * NEW: Issue 27: Automatic garbage deletion from html directory.
-    * NEW: Save all open vimwiki buffers before export to html.
+    * NEW: Issue 27: Automatic garbage deletion from HTML directory.
+    * NEW: Save all open vimwiki buffers before export to HTML.
     * NEW: Issue 29: Custom :Search command.
     * NEW: Header text objects are now expandable in VISUAL mode. Tap 'vah' to
       select a header. Tap again 'ah' to expand selection further. Thanks Andy
@@ -1822,12 +2014,12 @@ Maxim Kim.
     * FIX: Folding settings are reset to vim defaults in a new tab (think of
       \wt) so you cannot hide things in folds.
     * FIX: https links in form of [https://hello.world.com] are not exported
-      into html. Thanks Saurabh Sarpal for the patch.
+      into HTML. Thanks Saurabh Sarpal for the patch.
 
 0.9.6~
     * NEW: You can have multiline list items. See |vimwiki-syntax-lists|.
     * NEW: You can ignore newlines in multiline list items when do export to
-      html. See |g:vimwiki_list_ignore_newline| option.
+      HTML. See |g:vimwiki_list_ignore_newline| option.
     * NEW: Different checkbox symbols [.], [:], [o] are added. See
       |vimwiki-todo-lists|.
     * NEW: Now there is no longer syntax of preformatted text that is started
@@ -1843,7 +2035,7 @@ Maxim Kim.
       wikies opened at the same time with different syntaxes.
     * FIX: Command |:VimwikiToggleListItem| do not switch parent checkboxes if
       there are non-checkbox list items available.
-    * FIX: Issue 24: Link error in html when write [[one.two.three]].
+    * FIX: Issue 24: Link error in HTML when write [[one.two.three]].
     * FIX: Rename WikiWord to something with a colon (:) does nasty things.
     * FIX: Command |:VimwikiToggleListItem| do not switch right if there are
       list items without checkboxes in the list.
@@ -1864,9 +2056,9 @@ Maxim Kim.
     * FIX: indent/vimwiki.vim is obsolete. If you upgrade from previous
       versions remove it. It causes wrong list indentation if noexpandtab is
       set.
-    * FIX: If tabs and spaces are used to indent list items html export gives
+    * FIX: If tabs and spaces are used to indent list items HTML export gives
       error. Thanks Klaus Ethgen for report.
-    * FIX: Some html export fixes.
+    * FIX: Some HTML export fixes.
 
 0.9.4~
     * NEW: Links with directories: [[dir1/dir2/Link|Text]]. Thanks Jie Wu.
@@ -1874,12 +2066,12 @@ Maxim Kim.
       path_html. See |vimwiki-option-html_header|.
     * FIX: Indent is incorrect for vim without "float" compile option. Thanks
       Julian Kooij.
-    * FIX: Convert to html doesn't work right with links like [[foo::bar]].
+    * FIX: Convert to HTML doesn't work right with links like [[foo::bar]].
     * FIX: Rename wikiword doesn't work right when rename WikiWord to
       [[WikiWord blablabla]].
     * FIX: Renaming of links with description doesn't work.
     * FIX: Weblinks with commas are not highlighted.
-    * MISC: Some changes in default css file.
+    * MISC: Some changes in default CSS file.
 
 0.9.3~
     * NEW: g:vimwiki_menu option is a string which is menu path. So one can
@@ -1899,7 +2091,7 @@ Maxim Kim.
     * FIX: Clear out FlexWiki ftplugin's setup. Now you don't have to hack
       filetype.vim to get rid of unexpected ':setlocal bomb' from FlexWiki's
       ftplugin.
-    * FIX: When write done: it will show another done: in html file.
+    * FIX: When write done: it will show another done: in HTML file.
 
 0.9.2a~
     * FIX: Installation on Linux doesn't work. (Dos line endings in
@@ -1910,7 +2102,7 @@ Maxim Kim.
     * NEW: Header text object. See |vimwiki-text-objects|.
     * NEW: Add/remove Header levels with '=' and '-'. See |vimwiki_=|.
     * NEW: Vimwiki GUI menu to select available wikies. See |g:vimwiki_menu|.
-    * NEW: You can specify the name of your css file now. See
+    * NEW: You can specify the name of your CSS file now. See
       |vimwiki-option-css_name|
     * NEW: You can add styles to image links, see |vimwiki-syntax-links|.
     * FIX: History doesn't work after |VimwikiRenameWord|.
@@ -1963,7 +2155,7 @@ Maxim Kim.
     * DEL: Removed setlocal textwidth = 0 from ftplugin.
     * FIX: New regexps for bold, italic, bolditalic.
     * FIX: The last item in List sometimes fold-in incorrectly.
-    * FIX: Minor tweaks on default css.
+    * FIX: Minor tweaks on default CSS.
 
 0.8.1~
     * NEW: Vimwiki's foldmethod changed from syntax to expr. Foldtext is
