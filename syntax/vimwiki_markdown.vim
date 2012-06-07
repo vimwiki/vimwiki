@@ -61,8 +61,8 @@ let g:vimwiki_rxSubScript = ',,[^,`]\+,,'
 let g:vimwiki_char_subscript = ',,'
 
 " generic headers
-let g:vimwiki_rxH = '='
-let g:vimwiki_symH = 1
+let g:vimwiki_rxH = '#'
+let g:vimwiki_symH = 0
 
 
 
@@ -72,15 +72,15 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
-" List items start with optional whitespace(s) then '* ' or '# '
-let g:vimwiki_rxListBullet = '^\s*[*-]\s'
-let g:vimwiki_rxListNumber = '^\s*#\s'
+" List items start with optional whitespace(s) then '* ' or '1. ', '2. ', etc.
+let g:vimwiki_rxListBullet = '^\s*[*+-]\s'
+let g:vimwiki_rxListNumber = '^\s*[0-9]\+\.\s'
 
-let g:vimwiki_rxListDefine = '::\(\s\|$\)'
+let g:vimwiki_rxListDefine = '::\%(\s\|$\)'
 
 " Preformatted text
-let g:vimwiki_rxPreStart = '{{{'
-let g:vimwiki_rxPreEnd = '}}}'
+let g:vimwiki_rxPreStart = '```'
+let g:vimwiki_rxPreEnd = '```'
 
 " Math block
 let g:vimwiki_rxMathStart = '{{\$'

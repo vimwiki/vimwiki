@@ -15,22 +15,34 @@ let s:rx_li_box = '\[.\?\]'
 
 " Script functions {{{
 
+" Get unicode string symbol at index
+function! s:str_idx(str, idx) "{{{
+  " Unfortunatly vimscript cannot get symbol at index in unicode string such as
+  " '✗○◐●✓'
+  return matchstr(a:str, '\%'.a:idx.'v.')
+endfunction "}}}
+
 " Get checkbox regexp
 function! s:rx_li_symbol(rate) "{{{
   let result = ''
   if a:rate == 100
-    let result = g:vimwiki_listsyms[4]
+    let result = s:str_idx(g:vimwiki_listsyms, 5)
   elseif a:rate == 0
-    let result = g:vimwiki_listsyms[0]
+    let result = s:str_idx(g:vimwiki_listsyms, 1)
   elseif a:rate >= 67
-    let result = g:vimwiki_listsyms[3]
+    let result = s:str_idx(g:vimwiki_listsyms, 4)
   elseif a:rate >= 34
-    let result = g:vimwiki_listsyms[2]
+    let result = s:str_idx(g:vimwiki_listsyms, 3)
   else
-    let result = g:vimwiki_listsyms[1]
+    let result = s:str_idx(g:vimwiki_listsyms, 2)
   endif
 
   return '\['.result.'\]'
+endfunction "}}}
+
+" Get blank checkbox
+function! s:blank_checkbox() "{{{
+  return '['.s:str_idx(g:vimwiki_listsyms, 1).'] '
 endfunction "}}}
 
 " Get regexp of the list item.
@@ -46,7 +58,7 @@ endfunction "}}}
 " Get level of the list item.
 function! s:get_level(lnum) "{{{
   if VimwikiGet('syntax') == 'media'
-    let level = vimwiki#base#count_first_sym(getline(a:lnum))
+    let level = vimwiki#u#count_first_sym(getline(a:lnum))
   else
     let level = indent(a:lnum)
   endif
@@ -222,7 +234,7 @@ function! s:create_cb_list_item(lnum) "{{{
   let m = matchstr(line, s:rx_list_item())
   if m != ''
     let li_content = substitute(strpart(line, len(m)), '^\s*', '', '')
-    let line = substitute(m, '\s*$', ' ', '').'[ ] '.li_content
+    let line = substitute(m, '\s*$', ' ', '').s:blank_checkbox().li_content
     call setline(a:lnum, line)
   endif
 endfunction "}}}
@@ -320,7 +332,7 @@ function! vimwiki#lst#kbd_cr() "{{{
   " This function is heavily relies on proper 'set comments' option.
   let cr = "\<CR>"
   if getline('.') =~ s:rx_cb_list_item()
-    let cr .= '[ ] '
+    let cr .= s:blank_checkbox()
   endif
   return cr
 endfunction "}}}
@@ -341,11 +353,10 @@ function! vimwiki#lst#kbd_oO(cmd) "{{{
       let lnum = line('.')
     endif
 
-      " let line = substitute(m, '\s*$', ' ', '').'[ ] '.li_content
     let m = matchstr(line, s:rx_list_item())
     let res = ''
     if line =~ s:rx_cb_list_item()
-      let res = substitute(m, '\s*$', ' ', '').'[ ] '
+      let res = substitute(m, '\s*$', ' ', '').s:blank_checkbox()
     elseif line =~ s:rx_list_item()
       let res = substitute(m, '\s*$', ' ', '')
     elseif &autoindent || &smartindent
@@ -367,3 +378,178 @@ function! vimwiki#lst#kbd_oO(cmd) "{{{
 
 endfunction "}}}
 
+function! vimwiki#lst#default_symbol() "{{{
+  " TODO: initialize default symbol from syntax/vimwiki_xxx.vim
+  if VimwikiGet('syntax') == 'default'
+    return '-'
+  else
+    return '*'
+  endif
+endfunction "}}}
+
+function vimwiki#lst#get_list_margin() "{{{
+  if VimwikiGet('list_margin') < 0
+    return &sw
+  else
+    return VimwikiGet('list_margin')
+  endif
+endfunction "}}}
+
+function s:get_list_sw() "{{{
+  if VimwikiGet('syntax') == 'media'
+    return 1
+  else
+    return &sw
+  endif
+endfunction  "}}}
+
+function s:get_list_nesting_level(lnum) "{{{
+  if VimwikiGet('syntax') == 'media'
+    if getline(a:lnum) !~ s:rx_list_item()
+      let level = 0
+    else
+      let level = vimwiki#u#count_first_sym(getline(a:lnum)) - 1
+      let level = level < 0 ? 0 : level
+    endif
+  else
+    let level = indent(a:lnum)
+  endif
+  return level
+endfunction  "}}}
+
+function s:get_list_indent(lnum) "{{{
+  if VimwikiGet('syntax') == 'media'
+    return indent(a:lnum)
+  else
+    return 0
+  endif
+endfunction  "}}}
+
+function! s:compose_list_item(n_indent, n_nesting, sym_nest, sym_bullet, li_content, ...) "{{{
+  if a:0
+    let sep = a:1
+  else
+    let sep = ''
+  endif
+  let li_indent = repeat(' ', max([0,a:n_indent])).sep
+  let li_nesting = repeat(a:sym_nest, max([0,a:n_nesting])).sep
+  if len(a:sym_bullet) > 0
+    let li_bullet = a:sym_bullet.' '.sep
+  else
+    let li_bullet = ''.sep
+  endif
+  return li_indent.li_nesting.li_bullet.a:li_content
+endfunction "}}}
+
+function s:compose_cb_bullet(prev_cb_bullet, sym) "{{{
+  return a:sym.matchstr(a:prev_cb_bullet, '\S*\zs\s\+.*')
+endfunction "}}}
+
+function! vimwiki#lst#change_level(...) "{{{
+  let default_sym = vimwiki#lst#default_symbol()
+  let cmd = '>>'
+  let sym = default_sym
+
+  " parse argument
+  if a:0
+    if a:1 != '<<' && a:1 != '>>'
+      let cmd = '--'
+      let sym = a:1
+    else
+      let cmd = a:1
+    endif
+  endif
+  " is symbol valid
+  if sym.' ' !~ s:rx_cb_list_item() && sym.' ' !~ s:rx_list_item()
+    return
+  endif
+
+  " parsing setup
+  let lnum = line('.')
+  let line = getline('.')
+
+  let list_margin = vimwiki#lst#get_list_margin()
+  let list_sw = s:get_list_sw()
+  let n_nesting = s:get_list_nesting_level(lnum)
+  let n_indent = s:get_list_indent(lnum)
+
+  " remove indent and nesting
+  let li_bullet_and_content = strpart(line, n_nesting + n_indent)
+
+  " list bullet and checkbox
+  let cb_bullet = matchstr(li_bullet_and_content, s:rx_list_item()).
+        \ matchstr(li_bullet_and_content, s:rx_cb_list_item())
+
+  " XXX: it could be not unicode proof --> if checkboxes are set up with unicode syms
+  " content
+  let li_content = strpart(li_bullet_and_content, len(cb_bullet))
+
+  " trim
+  let cb_bullet = vimwiki#u#trim(cb_bullet)
+  let li_content = vimwiki#u#trim(li_content)
+
+  " nesting symbol
+  if VimwikiGet('syntax') == 'media'
+    if len(cb_bullet) > 0
+      let sym_nest = cb_bullet[0]
+    else
+      let sym_nest = sym
+    endif
+  else
+    let sym_nest = ' '
+  endif
+
+  if g:vimwiki_debug
+    echomsg "PARSE: Sw [".list_sw."]"
+    echomsg s:compose_list_item(n_indent, n_nesting, sym_nest, cb_bullet, li_content, '|')
+  endif
+
+  " change level
+  if cmd == '--'
+    let cb_bullet = s:compose_cb_bullet(cb_bullet, sym)
+    if VimwikiGet('syntax') == 'media'
+      let sym_nest = sym
+    endif
+  elseif cmd == '>>'
+    if cb_bullet == ''
+      let cb_bullet = sym
+    else
+      let n_nesting = n_nesting + list_sw
+    endif
+  elseif cmd == '<<'
+    let n_nesting = n_nesting - list_sw
+    if VimwikiGet('syntax') == 'media'
+      if n_nesting < 0
+        let cb_bullet = ''
+      endif
+    else
+      if n_nesting < list_margin
+        let cb_bullet = ''
+      endif
+    endif
+  endif
+
+  let n_nesting = max([0, n_nesting])
+
+  if g:vimwiki_debug
+    echomsg "SHIFT:"
+    echomsg s:compose_list_item(n_indent, n_nesting, sym_nest, cb_bullet, li_content, '|')
+  endif
+
+  " XXX: this is the code that adds the initial indent
+  let add_nesting = VimwikiGet('syntax') != 'media'
+  if n_indent + n_nesting*(add_nesting) < list_margin
+    let n_indent = list_margin - n_nesting*(add_nesting)
+  endif
+
+  if g:vimwiki_debug
+    echomsg "INDENT:"
+    echomsg s:compose_list_item(n_indent, n_nesting, sym_nest, cb_bullet, li_content, '|')
+  endif
+
+  let line = s:compose_list_item(n_indent, n_nesting, sym_nest, cb_bullet, li_content)
+
+  " replace
+  call setline(lnum, line)
+  call cursor(lnum, match(line, '\S') + 1)
+endfunction "}}}
