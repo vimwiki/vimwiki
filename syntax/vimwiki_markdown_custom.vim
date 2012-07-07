@@ -101,7 +101,6 @@ let g:vimwiki_rxWikiLinkMatchDescr = ''.
     \ g:vimwiki_rxWikiLink1MatchDescr
 " }}}
 
-
 " LINKS: setup of wikiincl regexps {{{
 " }}}
 
@@ -182,6 +181,15 @@ let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
 " }}}
 
 
+" LINKS: setup wikilink1 reference link definitions {{{
+let g:vimwiki_rxMkdRef = '\['.g:vimwiki_rxWikiLinkDescr.']:\%(\s\+\|\n\)'.
+      \ g:vimwiki_rxWeblink0
+let g:vimwiki_rxMkdRefMatchDescr = '\[\zs'.g:vimwiki_rxWikiLinkDescr.'\ze]:\%(\s\+\|\n\)'.
+      \ g:vimwiki_rxWeblink0
+let g:vimwiki_rxMkdRefMatchUrl = '\['.g:vimwiki_rxWikiLinkDescr.']:\%(\s\+\|\n\)\zs'.
+      \ g:vimwiki_rxWeblink0.'\ze'
+" }}}
+
 " }}} end of Links
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature {{{
@@ -214,6 +222,11 @@ function! s:wrap_wikilink1_rx(target) "{{{
         \ g:vimwiki_rxWikiLink1InvalidSuffix
 endfunction "}}}
 
+function! s:existing_mkd_refs() "{{{
+  call vimwiki#markdown_base#reset_mkd_refs()
+  return "\n".join(keys(vimwiki#markdown_base#get_reflinks()), "\n")."\n"
+endfunction "}}}
+
 function! s:highlight_existing_links() "{{{
   " Wikilink1
   " Conditional highlighting that depends on the existence of a wiki file or
@@ -222,8 +235,11 @@ function! s:highlight_existing_links() "{{{
   let safe_links = vimwiki#base#file_pattern(b:existing_wikifiles)
   " Wikilink1 Dirs set up upon BufEnter (see plugin/...)
   let safe_dirs = vimwiki#base#file_pattern(b:existing_wikidirs)
+  " Ref links are cached
+  let safe_reflinks = vimwiki#base#file_pattern(s:existing_mkd_refs())
 
-  " match [URL]
+
+  " match [URL][]
   let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template1,
         \ safe_links, g:vimwiki_rxWikiLink1Descr, '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
@@ -232,13 +248,22 @@ function! s:highlight_existing_links() "{{{
         \ safe_links, g:vimwiki_rxWikiLink1Descr, '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
 
-  " match [DIRURL]
+  " match [DIRURL][]
   let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template1,
         \ safe_dirs, g:vimwiki_rxWikiLink1Descr, '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
   " match [DESCRIPTION][DIRURL]
   let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template2,
         \ safe_dirs, g:vimwiki_rxWikiLink1Descr, '')
+  call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
+
+  " match [MKDREF][]
+  let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template1,
+        \ safe_reflinks, g:vimwiki_rxWikiLink1Descr, '')
+  call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
+  " match [DESCRIPTION][MKDREF]
+  let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template2,
+        \ safe_reflinks, g:vimwiki_rxWikiLink1Descr, '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
 endfunction "}}}
 

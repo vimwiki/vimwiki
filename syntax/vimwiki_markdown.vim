@@ -83,7 +83,7 @@ let g:vimwiki_rxPreStart = '```'
 let g:vimwiki_rxPreEnd = '```'
 
 " Math block
-let g:vimwiki_rxMathStart = '{{\$'
-let g:vimwiki_rxMathEnd = '}}\$'
+let g:vimwiki_rxMathStart = '\$\$'
+let g:vimwiki_rxMathEnd = '\$\$'
 
 let g:vimwiki_rxComment = '^\s*%%.*$'

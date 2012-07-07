@@ -300,8 +300,10 @@ endfor
 " }}}
 
 " concealed chars " {{{
+let cchar = ''
 if exists("+conceallevel")
   syntax conceal on
+  let cchar = ' cchar=~ '
 endif
 
 syntax spell toplevel
@@ -329,9 +331,9 @@ execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclPrefix1.'/'.options
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclSuffix1.'/'.options
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
-execute 'syn match VimwikiLinkRest contained `\%(///\=[^/ \t]\+/\)\zs\S\{'
+execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\{'
         \.g:vimwiki_url_mingain.',}\ze\%([/#?]\w\|\S\{'
-        \.g:vimwiki_url_maxsave.'}\)` cchar=~ '.options
+        \.g:vimwiki_url_maxsave.'}\)`'.cchar.options
 
 execute 'syn match VimwikiEqInChar contained /'.g:vimwiki_char_eqin.'/'
 execute 'syn match VimwikiBoldChar contained /'.g:vimwiki_char_bold.'/'
@@ -586,12 +588,13 @@ if !empty(nested)
           \ '^\s*'.g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
           \ hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
           \ '^\s*'.g:vimwiki_rxPreEnd, 'VimwikiPre')
-"    call vimwiki#base#nested_syntax(vim_syntax,
-"          \ '^\s*{{\$\%(.*[[:blank:][:punct:]]\)\?'.
-"          \ hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
-"          \ '^\s*}}\$', 'VimwikiMath')
   endfor
 endif
+" LaTeX
+call vimwiki#base#nested_syntax('tex',
+      \ '^\s*'.g:vimwiki_rxMathStart.'\%(.*[[:blank:][:punct:]]\)\?'.
+      \ '\%([[:blank:][:punct:]].*\)\?',
+      \ '^\s*'.g:vimwiki_rxMathEnd, 'VimwikiMath')
 "}}}
 
 let timeend = vimwiki#u#time(starttime)  "XXX

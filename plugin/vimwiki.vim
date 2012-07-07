@@ -195,7 +195,10 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding == 1 && &fdm != 'expr'
+  if g:vimwiki_folding == 2 && &fdm != 'expr'
+    " User-defined fold-expression, and fold-text
+  endif
+  if g:vimwiki_folding == 1
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
@@ -293,6 +296,19 @@ function! VimwikiSet(option, value, ...) "{{{
   else
     let b:vimwiki_list = {}
     let b:vimwiki_list[a:option] = a:value
+  endif
+
+endfunction "}}}
+
+" Clear option for current wiki or if third parameter exists for
+"   wiki with a given index.
+" Currently, only works if option was previously saved in the buffer local
+"   dictionary, that acts as a cache.
+function! VimwikiClear(option, ...) "{{{
+  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
+
+  if exists('b:vimwiki_list') && has_key(b:vimwiki_list, a:option)
+    call remove(b:vimwiki_list, a:option)
   endif
 
 endfunction "}}}
@@ -415,19 +431,7 @@ call s:default('rxSchemeUrlMatchUrl', rxSchemes.':\zs.*\ze')
 "}}}
 
 " AUTOCOMMANDS for all known wiki extensions {{{
-" Getting all extensions that different wikis could have
-let extensions = {}
-for wiki in g:vimwiki_list
-  if has_key(wiki, 'ext')
-    let extensions[wiki.ext] = 1
-  else
-    let extensions['.wiki'] = 1
-  endif
-endfor
-" append map g:vimwiki_ext2syntax
-for ext in keys(g:vimwiki_ext2syntax)
-  let extensions[ext] = 1
-endfor
+let extensions = vimwiki#base#get_known_extensions()
 
 augroup filetypedetect
   " clear FlexWiki's stuff
@@ -436,7 +440,7 @@ augroup end
 
 augroup vimwiki
   autocmd!
-  for ext in keys(extensions)
+  for ext in extensions
     exe 'autocmd BufEnter *'.ext.' call s:setup_buffer_reenter()'
     exe 'autocmd BufWinEnter *'.ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.ext.' call s:setup_buffer_leave()'

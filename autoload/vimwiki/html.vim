@@ -422,6 +422,13 @@ function! s:tag_wikiincl(value) "{{{
     if g:vimwiki_debug > 1
       echom '{{idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.'}}'
     endif
+
+    " Issue 343: Image transclusions: schemeless links have .html appended.
+    " If link is schemeless pass it as it is
+    if scheme == ''
+      let url = lnk
+    endif
+
     let url = escape(url, '#')
     let line = vimwiki#html#linkify_image(url, descr, verbatim_str)
     return line
