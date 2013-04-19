@@ -69,6 +69,8 @@ function! s:setup_buffer_leave() "{{{
     echom "  Setup_buffer_leave g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
 
+  let &autowriteall = s:vimwiki_autowriteall
+
   " Set up menu
   if g:vimwiki_menu != ""
     exe 'nmenu disable '.g:vimwiki_menu.'.Table'
@@ -195,12 +197,16 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding == 2 && &fdm != 'expr'
-    " User-defined fold-expression, and fold-text
-  endif
-  if g:vimwiki_folding == 1
+  if g:vimwiki_folding == 'expr'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+    setlocal foldtext=VimwikiFoldText()
+  elseif g:vimwiki_folding == 'list' || g:vimwiki_folding == 'lists'
+    setlocal fdm=expr
+    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
+    setlocal foldtext=VimwikiFoldText()
+  elseif g:vimwiki_folding == 'syntax'
+    setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
   endif
 
@@ -228,6 +234,10 @@ function! s:setup_buffer_reenter() "{{{
   if g:vimwiki_debug ==3
     echom "  Setup_buffer_reenter g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
+  if !exists("s:vimwiki_autowriteall")
+    let s:vimwiki_autowriteall = &autowriteall
+  endif
+  let &autowriteall = g:vimwiki_autowriteall
 endfunction "}}}
 
 function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
@@ -238,7 +248,7 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   hi def VimwikiUnderline gui=underline
   if g:vimwiki_hl_headers == 1
     for i in range(1,6)
-      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold'
+      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold' 
     endfor
   endif
 endfunction "}}}
@@ -288,7 +298,7 @@ endfunction "}}}
 function! VimwikiSet(option, value, ...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
 
-  if has_key(s:vimwiki_defaults, a:option) ||
+  if has_key(s:vimwiki_defaults, a:option) || 
         \ has_key(g:vimwiki_list[idx], a:option)
     let g:vimwiki_list[idx][a:option] = a:value
   elseif exists('b:vimwiki_list')
@@ -372,12 +382,10 @@ let s:vimwiki_defaults.list_margin = -1
 call s:default('list', [s:vimwiki_defaults])
 call s:default('auto_checkbox', 1)
 call s:default('use_mouse', 0)
-call s:default('folding', 0)
-call s:default('fold_trailing_empty_lines', 0)
-call s:default('fold_lists', 0)
+call s:default('folding', '')
 call s:default('menu', 'Vimwiki')
 call s:default('global_ext', 1)
-call s:default('ext2syntax', {'.md': 'markdown'}) " syntax map keyed on extension
+call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
@@ -390,17 +398,17 @@ call s:default('CJK_length', 0)
 call s:default('dir_link', '')
 call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
 call s:default('user_htmls', '')
+call s:default('autowriteall', 1)
 
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')
 call s:default('conceallevel', 2)
-call s:default('url_mingain', 12)
 call s:default('url_maxsave', 15)
 call s:default('debug', 0)
 
-call s:default('diary_months',
+call s:default('diary_months', 
       \ {
-      \ 1: 'January', 2: 'February', 3: 'March',
+      \ 1: 'January', 2: 'February', 3: 'March', 
       \ 4: 'April', 5: 'May', 6: 'June',
       \ 7: 'July', 8: 'August', 9: 'September',
       \ 10: 'October', 11: 'November', 12: 'December'
@@ -418,9 +426,9 @@ call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
         \ 'rsync,imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp')
 call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
 
-let rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'.
-      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'.
+let rxSchemes = '\%('. 
+      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
+      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'. 
       \ join(split(g:vimwiki_web_schemes2, '\s*,\s*'), '\|').
       \ '\)'
 

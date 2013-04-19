@@ -183,7 +183,7 @@ function! s:get_child_items(lnum) "{{{
     call add(result, lnum)
     let lnum = s:next_list_item(lnum)
   endwhile
-
+  
   return result
 endfunction "}}}
 
@@ -207,7 +207,7 @@ function! s:get_sibling_items(lnum) "{{{
     endif
     let lnum = s:prev_list_item(lnum)
   endwhile
-
+  
   return result
 endfunction "}}}
 
@@ -407,12 +407,12 @@ function s:get_list_nesting_level(lnum) "{{{
   if VimwikiGet('syntax') == 'media'
     if getline(a:lnum) !~ s:rx_list_item()
       let level = 0
-    else
+    else 
       let level = vimwiki#u#count_first_sym(getline(a:lnum)) - 1
       let level = level < 0 ? 0 : level
     endif
   else
-    let level = indent(a:lnum)
+    let level = indent(a:lnum)   
   endif
   return level
 endfunction  "}}}
@@ -477,7 +477,7 @@ function! vimwiki#lst#change_level(...) "{{{
   let li_bullet_and_content = strpart(line, n_nesting + n_indent)
 
   " list bullet and checkbox
-  let cb_bullet = matchstr(li_bullet_and_content, s:rx_list_item()).
+  let cb_bullet = matchstr(li_bullet_and_content, s:rx_list_item()). 
         \ matchstr(li_bullet_and_content, s:rx_cb_list_item())
 
   " XXX: it could be not unicode proof --> if checkboxes are set up with unicode syms
@@ -505,18 +505,18 @@ function! vimwiki#lst#change_level(...) "{{{
   endif
 
   " change level
-  if cmd == '--'
+  if cmd == '--' 
     let cb_bullet = s:compose_cb_bullet(cb_bullet, sym)
     if VimwikiGet('syntax') == 'media'
       let sym_nest = sym
     endif
-  elseif cmd == '>>'
+  elseif cmd == '>>' 
     if cb_bullet == ''
       let cb_bullet = sym
     else
       let n_nesting = n_nesting + list_sw
     endif
-  elseif cmd == '<<'
+  elseif cmd == '<<' 
     let n_nesting = n_nesting - list_sw
     if VimwikiGet('syntax') == 'media'
       if n_nesting < 0

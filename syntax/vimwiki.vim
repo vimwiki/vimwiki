@@ -49,6 +49,9 @@ execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 " -------------------------------------------------------------------------
 let time0 = vimwiki#u#time(starttime)  "XXX
 
+let g:vimwiki_rxListItem = '\('.
+      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
+      \ '\)'
 
 " LINKS: setup of larger regexes {{{
 
@@ -57,15 +60,15 @@ let g:vimwiki_rxWikiLinkPrefix = '[['
 let g:vimwiki_rxWikiLinkSuffix = ']]'
 let g:vimwiki_rxWikiLinkSeparator = '|'
 " [[URL]]
-let g:vimwiki_WikiLinkTemplate1 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'.
+let g:vimwiki_WikiLinkTemplate1 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'. 
       \ g:vimwiki_rxWikiLinkSuffix
 " [[URL|DESCRIPTION]]
-let g:vimwiki_WikiLinkTemplate2 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'.
+let g:vimwiki_WikiLinkTemplate2 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'. 
       \ g:vimwiki_rxWikiLinkSeparator. '__LinkDescription__'.
       \ g:vimwiki_rxWikiLinkSuffix
 "
 let magic_chars = '.*[]\^$'
-let valid_chars = '[^\\]'
+let valid_chars = '[^\\\]]'
 
 let g:vimwiki_rxWikiLinkPrefix = escape(g:vimwiki_rxWikiLinkPrefix, magic_chars)
 let g:vimwiki_rxWikiLinkSuffix = escape(g:vimwiki_rxWikiLinkSuffix, magic_chars)
@@ -104,12 +107,14 @@ let g:vimwiki_rxWikiInclSuffix = '}}'
 let g:vimwiki_rxWikiInclSeparator = '|'
 "
 " '{{__LinkUrl__}}'
-let g:vimwiki_WikiInclTemplate1 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'.
+let g:vimwiki_WikiInclTemplate1 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'. 
       \ g:vimwiki_rxWikiInclSuffix
 " '{{__LinkUrl____LinkDescription__}}'
-let g:vimwiki_WikiInclTemplate2 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'.
+let g:vimwiki_WikiInclTemplate2 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'. 
       \ '__LinkDescription__'.
       \ g:vimwiki_rxWikiInclSuffix
+
+let valid_chars = '[^\\\}]'
 
 let g:vimwiki_rxWikiInclPrefix = escape(g:vimwiki_rxWikiInclPrefix, magic_chars)
 let g:vimwiki_rxWikiInclSuffix = escape(g:vimwiki_rxWikiInclSuffix, magic_chars)
@@ -122,7 +127,7 @@ let g:vimwiki_rxWikiInclArgs = '\%('. g:vimwiki_rxWikiInclSeparator. g:vimwiki_r
 " *. {{URL}[{...}]}  - i.e.  {{URL}}, {{URL|ARG1}}, {{URL|ARG1|ARG2}}, etc.
 " *a) match {{URL}[{...}]}
 let g:vimwiki_rxWikiIncl = g:vimwiki_rxWikiInclPrefix.
-      \ g:vimwiki_rxWikiInclUrl.
+      \ g:vimwiki_rxWikiInclUrl. 
       \ g:vimwiki_rxWikiInclArgs. g:vimwiki_rxWikiInclSuffix
 " *b) match URL within {{URL}[{...}]}
 let g:vimwiki_rxWikiInclMatchUrl = g:vimwiki_rxWikiInclPrefix.
@@ -138,7 +143,7 @@ let g:vimwiki_rxWikiInclSuffix1 = g:vimwiki_rxWikiInclArgs.
 " }}}
 
 " LINKS: Setup weblink regexps {{{
-" 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
+" 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L)) 
 " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
       " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
 " Maxim:
@@ -155,7 +160,7 @@ let g:vimwiki_rxWeblinkMatchDescr = ''
 
 
 " LINKS: Setup anylink regexps {{{
-let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
+let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'. 
       \ g:vimwiki_rxWikiIncl.'\|'.g:vimwiki_rxWeblink
 " }}}
 
@@ -249,8 +254,8 @@ call s:add_target_syntax_ON(g:vimwiki_rxWeblink, 'VimwikiLink')
 
 " WikiLink
 " All remaining schemes are highlighted automatically
-let rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'.
+let rxSchemes = '\%('. 
+      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
       \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').
       \ '\):'
 
@@ -281,6 +286,8 @@ if g:vimwiki_symH
   for i in range(1,6)
     let g:vimwiki_rxH{i}_Template = repeat(g:vimwiki_rxH, i).' __Header__ '.repeat(g:vimwiki_rxH, i)
     let g:vimwiki_rxH{i} = '^\s*'.g:vimwiki_rxH.'\{'.i.'}[^'.g:vimwiki_rxH.'].*[^'.g:vimwiki_rxH.']'.g:vimwiki_rxH.'\{'.i.'}\s*$'
+    let g:vimwiki_rxH{i}_Start = '^\s*'.g:vimwiki_rxH.'\{'.i.'}[^'.g:vimwiki_rxH.'].*[^'.g:vimwiki_rxH.']'.g:vimwiki_rxH.'\{'.i.'}\s*$'
+    let g:vimwiki_rxH{i}_End = '^\s*'.g:vimwiki_rxH.'\{1,'.i.'}[^'.g:vimwiki_rxH.'].*[^'.g:vimwiki_rxH.']'.g:vimwiki_rxH.'\{1,'.i.'}\s*$'
   endfor
   let g:vimwiki_rxHeader = '^\s*\('.g:vimwiki_rxH.'\{1,6}\)\zs[^'.g:vimwiki_rxH.'].*[^'.g:vimwiki_rxH.']\ze\1\s*$'
 else
@@ -288,6 +295,8 @@ else
   for i in range(1,6)
     let g:vimwiki_rxH{i}_Template = repeat(g:vimwiki_rxH, i).' __Header__'
     let g:vimwiki_rxH{i} = '^\s*'.g:vimwiki_rxH.'\{'.i.'}[^'.g:vimwiki_rxH.'].*$'
+    let g:vimwiki_rxH{i}_Start = '^\s*'.g:vimwiki_rxH.'\{'.i.'}[^'.g:vimwiki_rxH.'].*$'
+    let g:vimwiki_rxH{i}_End = '^\s*'.g:vimwiki_rxH.'\{1,'.i.'}[^'.g:vimwiki_rxH.'].*$'
   endfor
   let g:vimwiki_rxHeader = '^\s*\('.g:vimwiki_rxH.'\{1,6}\)\zs[^'.g:vimwiki_rxH.'].*\ze$'
 endif
@@ -295,29 +304,53 @@ endif
 " Header levels, 1-6
 for i in range(1,6)
   execute 'syntax match VimwikiHeader'.i.' /'.g:vimwiki_rxH{i}.'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,@Spell'
+  execute 'syntax region VimwikiH'.i.'Folding start=/'.g:vimwiki_rxH{i}_Start.
+        \ '/ end=/'.g:vimwiki_rxH{i}_End.'/me=s-1 transparent fold'
 endfor
+
 
 " }}}
 
-" concealed chars " {{{
-let cchar = ''
-if exists("+conceallevel")
-  syntax conceal on
-  let cchar = ' cchar=~ '
-endif
+" possibly concealed chars " {{{
+let conceal = exists("+conceallevel") ? ' conceal' : ''
 
-syntax spell toplevel
+execute 'syn match VimwikiEqInChar contained /'.g:vimwiki_char_eqin.'/'.conceal
+execute 'syn match VimwikiBoldChar contained /'.g:vimwiki_char_bold.'/'.conceal
+execute 'syn match VimwikiItalicChar contained /'.g:vimwiki_char_italic.'/'.conceal
+execute 'syn match VimwikiBoldItalicChar contained /'.g:vimwiki_char_bolditalic.'/'.conceal
+execute 'syn match VimwikiItalicBoldChar contained /'.g:vimwiki_char_italicbold.'/'.conceal
+execute 'syn match VimwikiCodeChar contained /'.g:vimwiki_char_code.'/'.conceal
+execute 'syn match VimwikiDelTextChar contained /'.g:vimwiki_char_deltext.'/'.conceal
+execute 'syn match VimwikiSuperScript contained /'.g:vimwiki_char_superscript.'/'.conceal
+execute 'syn match VimwikiSubScript contained /'.g:vimwiki_char_subscript.'/'.conceal
+" }}}
 
+" concealed link parts " {{{
 if g:vimwiki_debug > 1
-  echom 'WikiLink Prefix: '.g:vimwiki_rxWikiLinkPrefix1
-  echom 'WikiLink Suffix: '.g:vimwiki_rxWikiLinkSuffix1
+  echom 'WikiLink Prefix: '.g:vimwiki_rxWikiLinkPrefix
+  echom 'WikiLink Suffix: '.g:vimwiki_rxWikiLinkSuffix
+  echom 'WikiLink Prefix1: '.g:vimwiki_rxWikiLinkPrefix1
+  echom 'WikiLink Suffix1: '.g:vimwiki_rxWikiLinkSuffix1
   echom 'WikiIncl Prefix: '.g:vimwiki_rxWikiInclPrefix1
   echom 'WikiIncl Suffix: '.g:vimwiki_rxWikiInclSuffix1
 endif
 
+" define the conceal attribute for links only if Vim is new enough to handle it
+" and the user has g:vimwiki_url_maxsave > 0
+
+let options = ' contained transparent contains=NONE'
+"
+" A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
+" VimwikiLinkRest group is left undefined if link shortening is not desired
+if exists("+conceallevel") && g:vimwiki_url_maxsave > 0
+  let options .= conceal
+  execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
+        \.'\%([/#?]\w\|\S\{'.g:vimwiki_url_maxsave.'}\)`'.' cchar=~'.options
+endif
+
 " VimwikiLinkChar is for syntax markers (and also URL when a description
 " is present) and may be concealed
-let options = ' contained transparent contains=NONE'
+
 " conceal wikilinks
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiLinkPrefix.'/'.options
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiLinkSuffix.'/'.options
@@ -329,24 +362,6 @@ execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclPrefix.'/'.options
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclSuffix.'/'.options
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclPrefix1.'/'.options
 execute 'syn match VimwikiLinkChar /'.g:vimwiki_rxWikiInclSuffix1.'/'.options
-
-" A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
-execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\{'
-        \.g:vimwiki_url_mingain.',}\ze\%([/#?]\w\|\S\{'
-        \.g:vimwiki_url_maxsave.'}\)`'.cchar.options
-
-execute 'syn match VimwikiEqInChar contained /'.g:vimwiki_char_eqin.'/'
-execute 'syn match VimwikiBoldChar contained /'.g:vimwiki_char_bold.'/'
-execute 'syn match VimwikiItalicChar contained /'.g:vimwiki_char_italic.'/'
-execute 'syn match VimwikiBoldItalicChar contained /'.g:vimwiki_char_bolditalic.'/'
-execute 'syn match VimwikiItalicBoldChar contained /'.g:vimwiki_char_italicbold.'/'
-execute 'syn match VimwikiCodeChar contained /'.g:vimwiki_char_code.'/'
-execute 'syn match VimwikiDelTextChar contained /'.g:vimwiki_char_deltext.'/'
-execute 'syn match VimwikiSuperScript contained /'.g:vimwiki_char_superscript.'/'
-execute 'syn match VimwikiSubScript contained /'.g:vimwiki_char_subscript.'/'
-if exists("+conceallevel")
-  syntax conceal off
-endif
 " }}}
 
 " non concealed chars " {{{
@@ -371,7 +386,7 @@ execute 'syntax match VimwikiTodo /'. g:vimwiki_rxTodo .'/'
 " main syntax groups {{{
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiNoExistsLinkT,
@@ -387,7 +402,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
                            \ @Spell
-syntax match VimwikiCellSeparator
+syntax match VimwikiCellSeparator 
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " List items
@@ -476,20 +491,21 @@ if g:vimwiki_hl_headers == 0
     execute 'hi def link VimwikiHeader'.i.' Title'
   endfor
 else
-  " default colors when headers of different levels are highlighted differently
+  " default colors when headers of different levels are highlighted differently 
   " not making it yet another option; needed by ColorScheme autocommand
   let g:vimwiki_hcolor_guifg_light = ['#aa5858','#507030','#1030a0','#103040','#505050','#636363']
   let g:vimwiki_hcolor_ctermfg_light = ['DarkRed','DarkGreen','DarkBlue','Black','Black','Black']
   let g:vimwiki_hcolor_guifg_dark = ['#e08090','#80e090','#6090e0','#c0c0f0','#e0e0f0','#f0f0f0']
   let g:vimwiki_hcolor_ctermfg_dark = ['Red','Green','Blue','White','White','White']
   for i in range(1,6)
-    execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold'
+    execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold' 
   endfor
 endif
 "}}}
 
 
-" syntax group highlighting "{{{
+
+" syntax group highlighting "{{{ 
 
 hi def link VimwikiMarkers Normal
 
@@ -578,24 +594,28 @@ hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
 " -------------------------------------------------------------------------
 
+" FIXME it now does not make sense to pretend there is a single syntax "vimwiki"
 let b:current_syntax="vimwiki"
 
 " EMBEDDED syntax setup "{{{
 let nested = VimwikiGet('nested_syntaxes')
 if !empty(nested)
   for [hl_syntax, vim_syntax] in items(nested)
-    call vimwiki#base#nested_syntax(vim_syntax,
+    call vimwiki#base#nested_syntax(vim_syntax, 
           \ '^\s*'.g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
           \ hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
           \ '^\s*'.g:vimwiki_rxPreEnd, 'VimwikiPre')
   endfor
 endif
 " LaTeX
-call vimwiki#base#nested_syntax('tex',
+call vimwiki#base#nested_syntax('tex', 
       \ '^\s*'.g:vimwiki_rxMathStart.'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ '^\s*'.g:vimwiki_rxMathEnd, 'VimwikiMath')
 "}}}
+
+
+syntax spell toplevel
 
 let timeend = vimwiki#u#time(starttime)  "XXX
 call VimwikiLog_extend('timing',['syntax:scans',timescans],['syntax:regexloaded',time0],['syntax:beforeHLexisting',time01],['syntax:afterHLexisting',time02],['syntax:end',timeend])

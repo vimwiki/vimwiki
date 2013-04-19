@@ -12,18 +12,16 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 " Reset the following options to undo this plugin.
 let b:undo_ftplugin = "setlocal ".
       \ "suffixesadd< isfname< comments< ".
-      \ "autowriteall< ".
       \ "formatoptions< foldtext< ".
       \ "foldmethod< foldexpr< commentstring< "
 " UNDO }}}
 
 " MISC STUFF {{{
 
-setlocal autowriteall
 setlocal commentstring=%%%s
 
 if g:vimwiki_conceallevel && exists("+conceallevel")
-  let &conceallevel = g:vimwiki_conceallevel
+  let &l:conceallevel = g:vimwiki_conceallevel
 endif
 
 " MISC }}}
@@ -63,56 +61,8 @@ endif
 " COMMENTS }}}
 
 " FOLDING for headers and list items using expr fold method. {{{
-function! VimwikiFoldLevel(lnum) "{{{
-  let line = getline(a:lnum)
 
-  " Header folding...
-  if line =~ g:vimwiki_rxHeader
-    let n = vimwiki#u#count_first_sym(line)
-    return '>'.n
-  endif
-
-  let base_level = s:get_base_level(a:lnum)
-
-  " List item folding...
-  if g:vimwiki_fold_lists
-    let nnline = getline(a:lnum + 1)
-
-    let rx_list_item = '\('.
-          \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-          \ '\)'
-
-
-    if line =~ rx_list_item
-      let [nnum, nline] = s:find_forward(rx_list_item, a:lnum)
-      let level = s:get_li_level(a:lnum)
-      let leveln = s:get_li_level(nnum)
-      let adj = s:get_li_level(s:get_start_list(rx_list_item, a:lnum))
-
-      if leveln > level
-        return ">".(base_level+leveln-adj)
-      " check if multilined list item
-      elseif (nnum-a:lnum) > 1
-            \ && nline =~ rx_list_item && nnline !~ '^\s*$'
-        return ">".(base_level+level+1-adj)
-      else
-        return (base_level+level-adj)
-      endif
-    else
-      " process multilined list items
-      let [pnum, pline] = s:find_backward(rx_list_item, a:lnum)
-      if pline =~ rx_list_item
-        if indent(a:lnum) >= indent(pnum) && line !~ '^\s*$'
-          let level = s:get_li_level(pnum)
-          let adj = s:get_li_level(s:get_start_list(rx_list_item, pnum))
-          return (base_level+level+1-adj)
-        endif
-      endif
-    endif
-  endif
-
-  return base_level
-endfunction "}}}
+" Folding list items using expr fold method. {{{
 
 function! s:get_base_level(lnum) "{{{
   let lnum = a:lnum - 1
@@ -177,23 +127,137 @@ function! s:get_start_list(rx_item, lnum) "{{{
   return 0
 endfunction "}}}
 
-function! VimwikiFoldText() "{{{
-  let line = substitute(getline(v:foldstart), '\t',
-        \ repeat(' ', &tabstop), 'g')
-  return line.' ['.(v:foldend - v:foldstart).']'
+function! VimwikiFoldListLevel(lnum) "{{{
+  let line = getline(a:lnum)
+
+  "" XXX Disabled: Header/section folding...
+  "if line =~ g:vimwiki_rxHeader
+  "  return '>'.vimwiki#u#count_first_sym(line)
+  "endif
+
+  "let nnline = getline(a:lnum+1)
+
+  "" Unnecessary?
+  "if nnline =~ g:vimwiki_rxHeader
+  "  return '<'.vimwiki#u#count_first_sym(nnline)
+  "endif
+  "" Very slow when called on every single line!
+  "let base_level = s:get_base_level(a:lnum)
+
+  "FIXME does not work correctly
+  let base_level = 0
+
+  if line =~ g:vimwiki_rxListItem
+    let [nnum, nline] = s:find_forward(g:vimwiki_rxListItem, a:lnum)
+    let level = s:get_li_level(a:lnum)
+    let leveln = s:get_li_level(nnum)
+    let adj = s:get_li_level(s:get_start_list(g:vimwiki_rxListItem, a:lnum))
+
+    if leveln > level
+      return ">".(base_level+leveln-adj)
+    " check if multilined list item
+    elseif (nnum-a:lnum) > 1
+          \ && (nline =~ g:vimwiki_rxListItem || nnline !~ '^\s*$')
+      return ">".(base_level+level+1-adj)
+    else
+      return (base_level+level-adj)
+    endif
+  else
+    " process multilined list items
+    let [pnum, pline] = s:find_backward(g:vimwiki_rxListItem, a:lnum)
+    if pline =~ g:vimwiki_rxListItem
+      if indent(a:lnum) >= indent(pnum) && line !~ '^\s*$'
+        let level = s:get_li_level(pnum)
+        let adj = s:get_li_level(s:get_start_list(g:vimwiki_rxListItem, pnum))
+        return (base_level+level+1-adj)
+      endif
+    endif
+  endif
+
+  return base_level
+endfunction "}}}
+" Folding list items }}}
+
+" Folding sections and code blocks using expr fold method. {{{
+function! VimwikiFoldLevel(lnum) "{{{
+  let line = getline(a:lnum)
+
+  " Header/section folding...
+  if line =~ g:vimwiki_rxHeader
+    return '>'.vimwiki#u#count_first_sym(line)
+  " Code block folding...
+  elseif line =~ '^\s*'.g:vimwiki_rxPreStart
+    return 'a1'
+  elseif line =~ '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+    return 's1'
+  else
+    return "="
+  endif
+
 endfunction "}}}
 
+" Constants used by VimwikiFoldText {{{
+" use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
+let s:ellipsis = (&enc ==? 'utf-8') ? "\u2026" : "..."
+let s:ell_len = strlen(s:ellipsis)
+let s:newline = (&enc ==? 'utf-8') ? "\u21b2 " : "  "
+let s:tolerance = 5
+" }}}
+
+function! s:shorten_text_simple(text, len) "{{{ unused
+  let spare_len = a:len - len(a:text)
+  return (spare_len>=0) ? [a:text,spare_len] : [a:text[0:a:len].s:ellipsis, -1]
+endfunction "}}}
+
+" s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
+" for long enough "text", the string's length is within s:tolerance of "len"
+" (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
+function! s:shorten_text(text, len) "{{{ returns [string, spare]
+  let spare_len = a:len - strlen(a:text)
+  if (spare_len + s:tolerance >= 0)
+    return [a:text, spare_len]
+  endif
+  " try to break on a space; assumes a:len-s:ell_len >= s:tolerance
+  let newlen = a:len - s:ell_len
+  let idx = strridx(a:text, ' ', newlen + s:tolerance)
+  let break_idx = (idx + s:tolerance >= newlen) ? idx : newlen
+  return [a:text[0:break_idx].s:ellipsis, newlen - break_idx]
+endfunction "}}}
+
+function! VimwikiFoldText() "{{{
+  let line = getline(v:foldstart)
+  let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
+  let fold_len = v:foldend - v:foldstart + 1
+  let len_text = ' ['.fold_len.'] '
+  if line !~ '^\s*'.g:vimwiki_rxPreStart
+    let [main_text, spare_len] = s:shorten_text(main_text, 50)
+    return main_text.len_text
+  else
+    " fold-text for code blocks: use one or two of the starting lines
+    let [main_text, spare_len] = s:shorten_text(main_text, 24)
+    let line1 = substitute(getline(v:foldstart+1), '^\s*', ' ', '')
+    let [content_text, spare_len] = s:shorten_text(line1, spare_len+20)
+    if spare_len > s:tolerance && fold_len > 3
+      let line2 = substitute(getline(v:foldstart+2), '^\s*', s:newline, '')
+      let [more_text, spare_len] = s:shorten_text(line2, spare_len+12)
+      let content_text .= more_text
+    endif
+    return main_text.len_text.content_text
+  endif
+endfunction "}}}
+
+" Folding sections and code blocks }}}
 " FOLDING }}}
 
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
-      \ silent w <bar>
+      \ silent w <bar> 
       \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
       \<bar>
       \ if res != '' | echo 'Vimwiki: HTML conversion is done.' | endif
 command! -buffer Vimwiki2HTMLBrowse
-      \ silent w <bar>
+      \ silent w <bar> 
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))
@@ -455,7 +519,7 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 if VimwikiGet('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
-    au BufWritePost <buffer>
+    au BufWritePost <buffer> 
       \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
   augroup END

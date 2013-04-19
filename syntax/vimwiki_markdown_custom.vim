@@ -35,10 +35,10 @@ let g:vimwiki_rxWikiLink1Suffix = ']'
 let g:vimwiki_rxWikiLink1Separator = ']['
 
 " [URL][]
-let g:vimwiki_WikiLink1Template1 = g:vimwiki_rxWikiLink1Prefix . '__LinkUrl__'.
+let g:vimwiki_WikiLink1Template1 = g:vimwiki_rxWikiLink1Prefix . '__LinkUrl__'. 
       \ g:vimwiki_rxWikiLink1Separator. g:vimwiki_rxWikiLink1Suffix
 " [DESCRIPTION][URL]
-let g:vimwiki_WikiLink1Template2 = g:vimwiki_rxWikiLink1Prefix . '__LinkDescription__'.
+let g:vimwiki_WikiLink1Template2 = g:vimwiki_rxWikiLink1Prefix . '__LinkDescription__'. 
     \ g:vimwiki_rxWikiLink1Separator. '__LinkUrl__'.
     \ g:vimwiki_rxWikiLink1Suffix
 "
@@ -108,7 +108,7 @@ let g:vimwiki_rxWikiLinkMatchDescr = ''.
 " }}}
 
 " LINKS: Setup weblink0 regexps {{{
-" 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
+" 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L)) 
 let g:vimwiki_rxWeblink0 = g:vimwiki_rxWeblink
 " 0a) match URL within URL
 let g:vimwiki_rxWeblinkMatchUrl0 = g:vimwiki_rxWeblinkMatchUrl
@@ -121,7 +121,7 @@ let g:vimwiki_rxWeblink1Prefix = '['
 let g:vimwiki_rxWeblink1Suffix = ')'
 let g:vimwiki_rxWeblink1Separator = ']('
 " [DESCRIPTION](URL)
-let g:vimwiki_Weblink1Template = g:vimwiki_rxWeblink1Prefix . '__LinkDescription__'.
+let g:vimwiki_Weblink1Template = g:vimwiki_rxWeblink1Prefix . '__LinkDescription__'. 
       \ g:vimwiki_rxWeblink1Separator. '__LinkUrl__'.
       \ g:vimwiki_rxWeblink1Suffix
 
@@ -135,7 +135,7 @@ let g:vimwiki_rxWeblink1Url = valid_chars.'\{-}'
 let g:vimwiki_rxWeblink1Descr = valid_chars.'\{-}'
 
 "
-" " 2012-02-04 TODO not starting with [[ or ][ ?  ... prefix = '[\[\]]\@<!\['
+" " 2012-02-04 TODO not starting with [[ or ][ ?  ... prefix = '[\[\]]\@<!\[' 
 " 1. [DESCRIPTION](URL)
 " 1a) match [DESCRIPTION](URL)
 let g:vimwiki_rxWeblink1 = g:vimwiki_rxWeblink1Prefix.
@@ -176,7 +176,7 @@ let g:vimwiki_rxWeblinkMatchDescr = ''.
 
 
 " LINKS: Setup anylink regexps {{{
-let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
+let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'. 
       \ g:vimwiki_rxWikiIncl.'\|'.g:vimwiki_rxWeblink
 " }}}
 
@@ -289,8 +289,8 @@ call s:add_target_syntax_ON(g:vimwiki_rxWeblink1, 'VimwikiWeblink1')
 
 " WikiLink
 " All remaining schemes are highlighted automatically
-let rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'.
+let rxSchemes = '\%('. 
+      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
       \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').
       \ '\):'
 
@@ -352,7 +352,7 @@ endif
 " main syntax groups {{{
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiWeblink1T,
@@ -377,7 +377,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
 "}}}
 
 
-" syntax group highlighting "{{{
+" syntax group highlighting "{{{ 
 hi def link VimwikiWeblink1 VimwikiLink
 hi def link VimwikiWeblink1T VimwikiLink
 

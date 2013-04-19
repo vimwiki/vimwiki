@@ -21,7 +21,7 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
-  "
+  " 
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
     let descr = matchstr(matchline, g:vimwiki_rxMkdRefMatchDescr)
@@ -108,7 +108,7 @@ endfunction " }}}
 " vimwiki#base#find_prev_link
 
 " vimwiki#base#follow_link
-function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at cursor and pass
+function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
   " to VimwikiLinkHandler, or failing that, the default open_link handler
   " echom "markdown_base#follow_link"
 
@@ -153,7 +153,7 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
 
     if a:0 > 0
       execute "normal! ".a:1
-    else
+    else		
       call vimwiki#base#normalize_link(0)
     endif
   endif
@@ -210,7 +210,7 @@ function! s:normalize_link_syntax_n() " {{{
     endif
     return
   endif
-
+  
   " try WikiLink1: replace with WikiLink0
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
   if !empty(lnk)
@@ -223,7 +223,7 @@ function! s:normalize_link_syntax_n() " {{{
     endif
     return
   endif
-
+  
   " try Weblink
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
   if !empty(lnk)
