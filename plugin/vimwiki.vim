@@ -208,6 +208,9 @@ function! s:setup_buffer_enter() "{{{
   elseif g:vimwiki_folding == 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
+  else
+    setlocal fdm=manual
+    exe "normal zE"
   endif
 
   " And conceal level too.
