@@ -11,7 +11,7 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 " UNDO list {{{
 " Reset the following options to undo this plugin.
 let b:undo_ftplugin = "setlocal ".
-      \ "suffixesadd< isfname< comments< ".
+      \ "suffixesadd< isfname< formatlistpat< ".
       \ "formatoptions< foldtext< ".
       \ "foldmethod< foldexpr< commentstring< "
 " UNDO }}}
@@ -32,29 +32,69 @@ setlocal isfname-=[,]
 " gf}}}
 
 " Autocreate list items {{{
-" for list items, and list items with checkboxes
-setlocal formatoptions+=tnro
-setlocal formatoptions-=cq
+" for bulleted and numbered list items, and list items with checkboxes
+setlocal autoindent
+setlocal nosmartindent
+setlocal nocindent
+setlocal comments=""
+setlocal formatoptions-=c
+setlocal formatoptions-=r
+setlocal formatoptions-=o
+setlocal formatoptions-=2
+setlocal formatoptions+=n
+
+
 if VimwikiGet('syntax') == 'default'
-  setl comments=b:*,b:#,b:-
-  setl formatlistpat=^\\s*[*#-]\\s*
+  "1 means multiple bullets, like * ** ***
+  let g:vimwiki_bullet_points = { '-':0, '*':1, '#':1 , '◆':1}
+  let g:vimwiki_bullet_numbers = ['1iIaA', '.)]']
+  "this should contain at least one element
+  "it is used for i_<C-A> among other things
+  let g:vimwiki_list_markers = ['-', '#', '◆', '1.', 'i)', 'a)']
 elseif VimwikiGet('syntax') == 'markdown'
-  setlocal comments=fb:*,fb:-,fb:+,nb:> commentstring=\ >\ %s
-  setlocal formatlistpat=^\\s*\\d\\+\\.\\s\\+\\\|^[-*+]\\s\\+j
-else
-  setl comments=n:*,n:#
+  let g:vimwiki_bullet_points = { '-':0, '*':0, '+':0 }
+  let g:vimwiki_bullet_numbers = ['1', '.']
+  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
+else "media
+  "better leave this as it is, because media syntax is special
+  let g:vimwiki_bullet_points = { '*':1, '#':1 }
+  let g:vimwiki_bullet_numbers = ['', '']
+  let g:vimwiki_list_markers = ['*', '#']
 endif
+
+let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_points), 'vimwiki#u#escape(v:val) . repeat("\\+", g:vimwiki_bullet_points[v:val])') , '\|')
+
+"create regex for numbered list
+if g:vimwiki_bullet_numbers[0] == ''
+  "regex that matches nothing
+  let g:vimwiki_rxListNumber = '$^'
+else
+  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,3}', 'A': '\u\{1,3}'}
+  let g:vimwiki_rxListNumber = '\C\%(' . join( map(split(g:vimwiki_bullet_numbers[0], '.\zs'), "s:char_to_rx[v:val]"), '\|').'\)'
+  let g:vimwiki_rxListNumber .= '['.vimwiki#u#escape(g:vimwiki_bullet_numbers[1]).']'
+endif
+
+if VimwikiGet('syntax') == 'default' || VimwikiGet('syntax') == 'markdown'
+  let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+else
+  let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|^\s.*\)\)*'
+endif
+
+"Create 'formatlistpat'
+let &formatlistpat = vimwiki#lst#get_list_item_rx(1)
+
+
 
 if !empty(&langmap)
   " Valid only if langmap is a comma separated pairs of chars
   let l_o = matchstr(&langmap, '\C,\zs.\zeo,')
   if l_o
-    exe 'nnoremap <buffer> '.l_o.' :call vimwiki#lst#kbd_oO("o")<CR>a'
+    exe 'nnoremap <buffer> '.l_o.' :call vimwiki#lst#kbd_o()<CR>a'
   endif
 
   let l_O = matchstr(&langmap, '\C,\zs.\zeO,')
   if l_O
-    exe 'nnoremap <buffer> '.l_O.' :call vimwiki#lst#kbd_oO("O")<CR>a'
+    exe 'nnoremap <buffer> '.l_O.' :call vimwiki#lst#kbd_O()<CR>a'
   endif
 endif
 
@@ -277,7 +317,7 @@ command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(
 
 command! -buffer VimwikiTabnewLink call vimwiki#base#follow_link('tabnew')
 
-command! -buffer -range VimwikiToggleListItem call vimwiki#lst#ToggleListItem(<line1>, <line2>)
+command! -buffer -range VimwikiToggleCheckbox call vimwiki#lst#toggle_cb(<line1>, <line2>)
 
 command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links()
 
@@ -294,7 +334,12 @@ command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
 
 
 " list commands
-command! -buffer -nargs=* VimwikiListChangeLevel call vimwiki#lst#change_level(<f-args>)
+command! -buffer -range -nargs=1 VimwikiListChangeMarker call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>)
+command! -buffer -nargs=1 VimwikiListChangeMarkerInList call vimwiki#lst#change_marker_in_list(<f-args>)
+command! -buffer -nargs=+ VimwikiListLineBreak call <SID>CR(<f-args>)
+command! -buffer -range -nargs=1 VimwikiListIncreaseLvl call vimwiki#lst#change_level(<line1>, <line2>, 'increase', <f-args>)
+command! -buffer -range -nargs=1 VimwikiListDecreaseLvl call vimwiki#lst#change_level(<line1>, <line2>, 'decrease', <f-args>)
+command! -buffer -range VimwikiListRemoveCB call vimwiki#lst#remove_cb(<line1>, <line2>)
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)
@@ -405,15 +450,18 @@ endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
 
-if !hasmapto('<Plug>VimwikiToggleListItem')
-  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
-  vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
+if !hasmapto('<Plug>VimwikiToggleCheckbox')
+  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
+  vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
   if has("unix")
-    nmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
+    nmap <silent><buffer> <C-@> <Plug>VimwikiToggleCheckbox
+    vmap <silent><buffer> <C-@> <Plug>VimwikiToggleCheckbox
   endif
 endif
 nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
+      \ <Plug>VimwikiToggleCheckbox :VimwikiToggleCheckbox<CR>
+vnoremap <silent><script><buffer>
+      \ <Plug>VimwikiToggleCheckbox :VimwikiToggleCheckbox<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryNextDay')
   nmap <silent><buffer> <C-Down> <Plug>VimwikiDiaryNextDay
@@ -427,42 +475,67 @@ endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiDiaryPrevDay :VimwikiDiaryPrevDay<CR>
 
-function! s:CR() "{{{
-  let res = vimwiki#lst#kbd_cr()
-  if res == "\<CR>" && g:vimwiki_table_mappings
+function! s:CR(normal, just_mrkr) "{{{
+  if g:vimwiki_table_mappings
     let res = vimwiki#tbl#kbd_cr()
+    if res != ""
+      exe "normal! " . res . "\<Right>"
+      return
+    endif
   endif
-  return res
+  call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction "}}}
 
-" List and Table <CR> mapping
-inoremap <buffer> <expr> <CR> <SID>CR()
-
 " List mappings
-nnoremap <buffer> o :<C-U>call vimwiki#lst#kbd_oO('o')<CR>
-nnoremap <buffer> O :<C-U>call vimwiki#lst#kbd_oO('O')<CR>
-nnoremap <buffer> gll :VimwikiListChangeLevel <<<CR>
-nnoremap <buffer> glm :VimwikiListChangeLevel >><CR>
-nnoremap <buffer> gl* :VimwikiListChangeLevel *<CR>
-nnoremap <buffer> gl8 :VimwikiListChangeLevel *<CR>
-if VimwikiGet('syntax') == 'default'
-  nnoremap <buffer> gl- :VimwikiListChangeLevel -<CR>
-  nnoremap <buffer> gl# :VimwikiListChangeLevel #<CR>
-  nnoremap <buffer> gl3 :VimwikiListChangeLevel #<CR>
-elseif VimwikiGet('syntax') == 'markdown'
-  nnoremap <buffer> gl- :VimwikiListChangeLevel -<CR>
-  nnoremap <buffer> gl1 :VimwikiListChangeLevel 1.<CR>
-elseif VimwikiGet('syntax') == 'media'
-  nnoremap <buffer> gl# :VimwikiListChangeLevel #<CR>
-  nnoremap <buffer> gl3 :VimwikiListChangeLevel #<CR>
-endif
+inoremap <buffer> <CR> <Esc>:VimwikiListLineBreak 1 5<CR>
+inoremap <buffer> <S-CR> <Esc>:VimwikiListLineBreak 2 2<CR>
+nnoremap <silent> <buffer> o :call vimwiki#lst#kbd_o()<CR>
+nnoremap <silent> <buffer> O :call vimwiki#lst#kbd_O()<CR>
+map <silent> <buffer> glh :VimwikiListDecreaseLvl 0<CR>
+map <silent> <buffer> gll :VimwikiListIncreaseLvl 0<CR>
+map <silent> <buffer> gLh :VimwikiListDecreaseLvl 1<CR>
+map <silent> <buffer> gLl :VimwikiListIncreaseLvl 1<CR>
+map <silent> <buffer> gLH glH
+map <silent> <buffer> gLL gLl
+inoremap <buffer> <C-D> <C-O>:VimwikiListDecreaseLvl 0<CR>
+inoremap <buffer> <C-T> <C-O>:VimwikiListIncreaseLvl 0<CR>
+inoremap <buffer> <C-A> <C-O>:VimwikiListChangeMarker next<CR>
+inoremap <buffer> <C-S> <C-O>:VimwikiListChangeMarker prev<CR>
+nmap <silent> <buffer> glr :call vimwiki#lst#adjust_numbered_list()<CR>
+nmap <silent> <buffer> gLr :call vimwiki#lst#adjust_whole_buffer()<CR>
+nmap <silent> <buffer> gLR gLr
+noremap <silent> <buffer> gl<Space> :VimwikiListRemoveCB<CR>
+map <silent> <buffer> gL<Space> :call vimwiki#lst#remove_cb_in_list()<CR>
+inoremap <silent> <buffer> <C-B> <Esc>:call vimwiki#lst#toggle_list_item()<CR>
+
+for s:k in keys(g:vimwiki_bullet_points)
+  exe 'noremap <silent> <buffer> gl'.s:k.' :VimwikiListChangeMarker '.s:k.'<CR>'
+  exe 'noremap <silent> <buffer> gL'.s:k.' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
+endfor
+for s:a in split(g:vimwiki_bullet_numbers[0], '.\zs')
+  let chars = split(g:vimwiki_bullet_numbers[1], '.\zs')
+  if len(chars) == 0
+    exe 'noremap <silent> <buffer> gl'.s:a.' :VimwikiListChangeMarker '.s:a.'<CR>'
+    exe 'noremap <silent> <buffer> gL'.s:a.' :VimwikiListChangeMarkerInList '.s:a.'<CR>'
+  elseif len(chars) == 1
+    exe 'noremap <silent> <buffer> gl'.s:a.' :VimwikiListChangeMarker '.s:a.chars[0].'<CR>'
+    exe 'noremap <silent> <buffer> gL'.s:a.' :VimwikiListChangeMarkerInList '.s:a.chars[0].'<CR>'
+  else
+    for s:b in chars
+      exe 'noremap <silent> <buffer> gl'.s:a.s:b.' :VimwikiListChangeMarker '.s:a.s:b.'<CR>'
+      exe 'noremap <silent> <buffer> gL'.s:a.s:b.' :VimwikiListChangeMarkerInList '.s:a.s:b.'<CR>'
+    endfor
+  endif
+endfor
 
 
-" Table mappings
-if g:vimwiki_table_mappings
-  inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
-  inoremap <expr> <buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
-endif
+"Table mappings
+ if g:vimwiki_table_mappings
+   inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
+   inoremap <expr> <buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
+ endif
+
+
 
 nnoremap <buffer> gqq :VimwikiTableAlignQ<CR>
 nnoremap <buffer> gww :VimwikiTableAlignW<CR>

@@ -49,9 +49,6 @@ execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 " -------------------------------------------------------------------------
 let time0 = vimwiki#u#time(starttime)  "XXX
 
-let g:vimwiki_rxListItem = '\('.
-      \ g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.
-      \ '\)'
 
 " LINKS: setup of larger regexes {{{
 
@@ -67,12 +64,11 @@ let g:vimwiki_WikiLinkTemplate2 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'.
       \ g:vimwiki_rxWikiLinkSeparator. '__LinkDescription__'.
       \ g:vimwiki_rxWikiLinkSuffix
 "
-let magic_chars = '.*[]\^$'
 let valid_chars = '[^\\\]]'
 
-let g:vimwiki_rxWikiLinkPrefix = escape(g:vimwiki_rxWikiLinkPrefix, magic_chars)
-let g:vimwiki_rxWikiLinkSuffix = escape(g:vimwiki_rxWikiLinkSuffix, magic_chars)
-let g:vimwiki_rxWikiLinkSeparator = escape(g:vimwiki_rxWikiLinkSeparator, magic_chars)
+let g:vimwiki_rxWikiLinkPrefix = vimwiki#u#escape(g:vimwiki_rxWikiLinkPrefix)
+let g:vimwiki_rxWikiLinkSuffix = vimwiki#u#escape(g:vimwiki_rxWikiLinkSuffix)
+let g:vimwiki_rxWikiLinkSeparator = vimwiki#u#escape(g:vimwiki_rxWikiLinkSeparator)
 let g:vimwiki_rxWikiLinkUrl = valid_chars.'\{-}'
 let g:vimwiki_rxWikiLinkDescr = valid_chars.'\{-}'
 
@@ -116,9 +112,9 @@ let g:vimwiki_WikiInclTemplate2 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'.
 
 let valid_chars = '[^\\\}]'
 
-let g:vimwiki_rxWikiInclPrefix = escape(g:vimwiki_rxWikiInclPrefix, magic_chars)
-let g:vimwiki_rxWikiInclSuffix = escape(g:vimwiki_rxWikiInclSuffix, magic_chars)
-let g:vimwiki_rxWikiInclSeparator = escape(g:vimwiki_rxWikiInclSeparator, magic_chars)
+let g:vimwiki_rxWikiInclPrefix = vimwiki#u#escape(g:vimwiki_rxWikiInclPrefix)
+let g:vimwiki_rxWikiInclSuffix = vimwiki#u#escape(g:vimwiki_rxWikiInclSuffix)
+let g:vimwiki_rxWikiInclSeparator = vimwiki#u#escape(g:vimwiki_rxWikiInclSeparator)
 let g:vimwiki_rxWikiInclUrl = valid_chars.'\{-}'
 let g:vimwiki_rxWikiInclArg = valid_chars.'\{-}'
 let g:vimwiki_rxWikiInclArgs = '\%('. g:vimwiki_rxWikiInclSeparator. g:vimwiki_rxWikiInclArg. '\)'.'\{-}'
@@ -406,23 +402,18 @@ syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " List items
-execute 'syntax match VimwikiList /'.g:vimwiki_rxListBullet.'/'
-execute 'syntax match VimwikiList /'.g:vimwiki_rxListNumber.'/'
+execute 'syntax match VimwikiList /'.vimwiki#lst#get_list_item_rx(0).'/'
 execute 'syntax match VimwikiList /'.g:vimwiki_rxListDefine.'/'
-" List item checkbox
-"syntax match VimwikiCheckBox /\[.\?\]/
-let g:vimwiki_rxCheckBox = '\s*\[['.g:vimwiki_listsyms.']\?\]\s'
-" Todo lists have a checkbox
-execute 'syntax match VimwikiListTodo /'.g:vimwiki_rxListBullet.g:vimwiki_rxCheckBox.'/'
-execute 'syntax match VimwikiListTodo /'.g:vimwiki_rxListNumber.g:vimwiki_rxCheckBox.'/'
-if g:vimwiki_hl_cb_checked
-  execute 'syntax match VimwikiCheckBoxDone /'.
-        \ g:vimwiki_rxListBullet.'\s*\['.g:vimwiki_listsyms[4].'\]\s.*$/'.
-        \ ' contains=VimwikiNoExistsLink,VimwikiLink'
-  execute 'syntax match VimwikiCheckBoxDone /'.
-        \ g:vimwiki_rxListNumber.'\s*\['.g:vimwiki_listsyms[4].'\]\s.*$/'.
-        \ ' contains=VimwikiNoExistsLink,VimwikiLink'
+execute 'syntax match VimwikiListTodo /'.vimwiki#lst#get_list_item_rx(1).'/'
+
+if g:vimwiki_hl_cb_checked == 1
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#lst#get_list_item_rx(0).'\s*\['.g:vimwiki_listsyms[4].'\]\s.*$/ '.
+        \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+
+elseif g:vimwiki_hl_cb_checked == 2
+  execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemAndChildren.'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 endif
+
 
 execute 'syntax match VimwikiEqIn /'.g:vimwiki_rxEqIn.'/ contains=VimwikiEqInChar'
 execute 'syntax match VimwikiEqInT /'.g:vimwiki_rxEqIn.'/ contained contains=VimwikiEqInCharT'

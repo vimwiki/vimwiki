@@ -1702,14 +1702,23 @@ Default: 0
 Checked list items can be highlighted with a color:
 
   * [X] the whole line can be highlighted with the option set to 1.
+    * this line is highlighted as well with the option set to 2
   * [ ] I wish vim could use strikethru.
 
 Value           Description~
-1               Highlight checked [X] check box with |group-name| "Comment".
-0               Don't.
+0               Don't highlight anything.
+1               Highlight checked [X] list item with |group-name| "Comment".
+2               Highlight checked [X] list item and all its child items.
 
 Default: 0
 
+Note: Option 2 does not work perfectly. Specifically, it might break on
+preformatted text or if you mix tabs and spaces for indenting, and indented
+headers will erroneously be highlighted.
+Furthermore, if your list is long, Vim's highlight can break. Consider putting
+>
+ au BufEnter file.wiki :syntax sync fromstart
+in your .vimrc
 
 ------------------------------------------------------------------------------
 *g:vimwiki_global_ext*
@@ -1786,12 +1795,15 @@ Default: 'Vimwiki'
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
 
-String of 5 symbols for list items with checkboxes.
-Default value is ' .oOX'.
+List of 5 symbols for list items with checkboxes.
+Default value is [' ', '.', 'o', 'O', 'X'].
 
 g:vimwiki_listsyms[0] is for 0% done items.
 g:vimwiki_listsyms[4] is for 100% done items.
 
+You can set it to some more fancy symbols like this:
+
+   let g:vimwiki_listsyms = ['✗', '○', '◐', '●', '✓']
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*

@@ -447,7 +447,7 @@ endfunction "}}}
 function! vimwiki#tbl#kbd_cr() "{{{
   let lnum = line('.')
   if !s:is_table(getline(lnum))
-    return "\<CR>"
+    return ""
   endif
 
   if s:is_separator(getline(lnum+1)) || !s:is_table(getline(lnum+1))
@@ -507,9 +507,14 @@ function! vimwiki#tbl#format(lnum, ...) "{{{
   endif
 
   let indent = s:get_indent(a:lnum)
+  if &expandtab
+    let indentstring = repeat(' ', indent)
+  else
+    let indentstring = repeat('	', indent / &tabstop) . repeat(' ', indent % &tabstop)
+  endif
 
   for [lnum, row] in s:get_aligned_rows(a:lnum, col1, col2)
-    let row = repeat(' ', indent).row
+    let row = indentstring.row
     call setline(lnum, row)
   endfor
   

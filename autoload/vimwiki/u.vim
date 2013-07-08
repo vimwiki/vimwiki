@@ -75,3 +75,6 @@ function! vimwiki#u#path_common_pfx(path1, path2) "{{{
   endif
 endfunction "}}}
 
+function! vimwiki#u#escape(string) "{{{
+  return escape(a:string, '.*[]\^$')
+endfunction "}}}

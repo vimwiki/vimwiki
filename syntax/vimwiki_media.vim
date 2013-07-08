@@ -53,11 +53,6 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
-" Bulleted list items start with whitespace(s), then '*'
-" highlight only bullets and digits.
-let g:vimwiki_rxListBullet = '^\s*\*\+\s\%([^*]*$\)\@='
-let g:vimwiki_rxListNumber = '^\s*#\+\s'
-
 let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
 
 " Preformatted text
