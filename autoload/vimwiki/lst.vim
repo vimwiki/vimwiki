@@ -981,17 +981,13 @@ function! s:get_a_neighbor_item(item) "{{{
 endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
-function! s:adjust_mrkr(item, look_above_and_below) "{{{
+function! s:adjust_mrkr(item) "{{{
   if a:item.type == 0 || VimwikiGet('syntax') == 'media'
     return
   endif
 
   let new_mrkr = a:item.mrkr
-  if a:look_above_and_below
-    let neighbor_item = s:get_a_neighbor_item(a:item)
-  else
-    let neighbor_item = s:get_prev_list_item(a:item, 1)
-  endif
+  let neighbor_item = s:get_a_neighbor_item(a:item)
   if neighbor_item.type != 0
     let new_mrkr = neighbor_item.mrkr
   endif
@@ -1042,7 +1038,9 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
     let cur_ln = s:get_next_line(cur_ln, 1)
   endwhile
 
-  call s:adjust_mrkr(from_item, (a:from_line == a:to_line))
+  if a:from_line == a:to_line
+    call s:adjust_mrkr(from_item)
+  endif
   call s:update_state(old_parent)
   let from_item = s:get_item(from_item.lnum)
   if s:get_rate(from_item) < 100
@@ -1054,6 +1052,7 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   if more_than_one_level_concerned
     call vimwiki#lst#adjust_whole_buffer()
   else
+    call s:adjust_numbered_list(from_item, 0, 0)
     call s:adjust_numbered_list(to_be_adjusted, 0, 0)
   endif
 endfunction "}}}
