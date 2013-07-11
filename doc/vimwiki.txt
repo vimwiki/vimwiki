@@ -308,11 +308,11 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         the cursor over a word or link, or in visual mode with
                         the selected text .
 
-                        *vimwiki_glm*
-glm                     Increase the indent of a single-line list item.
-
                         *vimwiki_gll*
-gll                     Decrease the indent of a single-line list item.
+gll                     Increase the indent of a single-line list item.
+
+                        *vimwiki_glh*
+glh                     Decrease the indent of a single-line list item.
 
                         *vimwiki_glstar* *vimwiki_gl8*
 gl* or gl8              Switch or insert a "*" symbol.  Only available in
