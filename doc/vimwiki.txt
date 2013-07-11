@@ -280,13 +280,6 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>rr <Plug>VimwikiRenameLink
 <
-                        *vimwiki_<C-Space>*
-<C-Space>               Toggle list item on/off (checked/unchecked)
-                        Maps to |:VimwikiToggleListItem|.
-                        To remap: >
-                        :nmap <leader>tt <Plug>VimwikiToggleListItem
-<                       See |vimwiki-todo-lists|.
-
                         *vimwiki_=*
 =                       Add header level. Create if needed.
                         There is nothing to indent with '==' command in
@@ -308,18 +301,34 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         the cursor over a word or link, or in visual mode with
                         the selected text .
 
+                        *vimwiki_<C-Space>*
+<C-Space>               Toggle list item on/off (checked/unchecked)
+                        Maps to |:VimwikiToggleListItem|.
+                        To remap: >
+                        :nmap <leader>tt <Plug>VimwikiToggleListItem
+<                       See |vimwiki-todo-lists|.
+
+                        *vimwiki_gl<Space>*
+gl<Space>               Remove checkbox from list item.
+
+                        *vimwiki_gL<Space>*
+gL<Space>               Remove checkboxes from all sibling list items.
+
                         *vimwiki_gll*
 gll                     Increase the indent of a single-line list item.
 
                         *vimwiki_glh*
 glh                     Decrease the indent of a single-line list item.
 
-                        *vimwiki_glstar* *vimwiki_gl8*
-gl* or gl8              Switch or insert a "*" symbol.  Only available in
+                        *vimwiki_glr*
+glr                     Renumber list items.
+
+                        *vimwiki_glstar*
+gl*                     Switch or insert a "*" symbol.  Only available in
                         supported syntaxes.
 
-                        *vimwiki_gl#* *vimwiki_gl3*
-gl# or gl3              Switch or insert a "#" symbol.  Only available in
+                        *vimwiki_gl#*
+gl#                     Switch or insert a "#" symbol.  Only available in
                         supported syntaxes.
 
                         *vimwiki_gl-*
@@ -327,7 +336,7 @@ gl-                     Switch or insert a "-" symbol.  Only available in
                         supported syntaxes.
 
                         *vimwiki_gl1*
-gl1                     Switch or insert a "1." symbol.  Only available in
+gl1.                    Switch or insert a "1." symbol.  Only available in
                         supported syntaxes.
 
                         *vimwiki_gqq*  *vimwiki_gww*
