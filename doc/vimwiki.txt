@@ -314,30 +314,37 @@ gl<Space>               Remove checkbox from list item.
                         *vimwiki_gL<Space>*
 gL<Space>               Remove checkboxes from all sibling list items.
 
-                        *vimwiki_gll*
-gll                     Increase the indent of a single-line list item.
+                        *vimwiki_gll* *vimwiki_gLl*
+gll                     Increase the level of a list item.
+gLl                     Increase the level of a list item and all child items.
 
-                        *vimwiki_glh*
-glh                     Decrease the indent of a single-line list item.
+                        *vimwiki_glh* *vimwiki_gLh*
+glh                     Decrease the level of a list item.
+gLh                     Decrease the level of a list item and all child items.
 
-                        *vimwiki_glr*
-glr                     Renumber list items.
+                        *vimwiki_glr* *vimwiki_gLr*
+glr                     Renumber list items for the current list.
+gLr                     Renumber list items for the whole buffer.
 
-                        *vimwiki_glstar*
-gl*                     Switch or insert a "*" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_glstar* *vimwiki_glstar*
+gl*                     Make a list item out of normal line or change ther marker
+                        for the current item.
+gL*                     Change the marker of the current list to *.
 
-                        *vimwiki_gl#*
-gl#                     Switch or insert a "#" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_gl#* *vimwiki_gL#*
+gl#                     Make a list item out of normal line or change ther marker
+                        for the current item.
+gL#                     Change the marker of the current list to #.
 
-                        *vimwiki_gl-*
-gl-                     Switch or insert a "-" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_gl-* *vimwiki_gL-*
+gl-                     Make a list item out of normal line or change ther marker
+                        for the current item.
+gL-                     Change the marker of the current list to -.
 
-                        *vimwiki_gl1*
-gl1.                    Switch or insert a "1." symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_gl1* *vimwiki_gL1*
+gl1.                    Make a list item out of normal line or change ther marker
+                        for the current item.
+gL1.                    Change the marker of the current list to 1..
 
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
@@ -381,14 +388,46 @@ Note: <2-LeftMouse> is just left double click.
 
 
 INSERT MODE                                           *vimwiki-table-mappings*
-                        *vimwiki_i_<CR>*
+                        *vimwiki_i_<CR>_table*
 <CR>                    Go to the table cell beneath the current one, create
                         a new row if on the last one.
-                        
-                        *vimwiki_i_<Tab>*
+
+                        *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
                         last cell.
 See |g:vimwiki_table_mappings| to turn them off.
+
+INSERT MODE                                            *vimwiki-list-mappings*
+                        *vimwiki_i_<CR>_list*
+<CR>                    In a list item, insert a new bullet or number in the
+                        next line, numbers are incremented.
+                        In an empty list item, delete the item marker. This is
+                        useful to end a list, you simple press <CR> twice.
+
+                        *vimwiki_i_<S-CR>_list*
+<S-CR>                  Does not insert a new list item, useful to create
+                        multilined list items.
+
+                        *vimwiki_i_<C-T>_list*
+<C-T>                   Increase the level of a list item.
+
+                        *vimwiki_i_<C-D>_list*
+<C-D>                   Decrease the level of a list item.
+
+XXX: should not use <C-A> we override default increase number.
+
+                        *vimwiki_i_<C-A>_list*
+<C-A>                   Change the marker of the current list item to the next
+                        available. From * to - to # to 1. to a).
+
+XXX: this hangs vim
+                        *vimwiki_i_<C-S>_list*
+<C-S>                   Change the marker of the current list item to the prev
+                        available. From * to a) to 1. to # to -.
+
+XXX: Propose another mapping here.
+                        *vimwiki_i_<C-B>_list*
+<C-B>                   Create/remove a marker from a list item.
 
 
 ------------------------------------------------------------------------------
