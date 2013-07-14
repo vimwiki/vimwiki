@@ -49,7 +49,6 @@ execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 " -------------------------------------------------------------------------
 let time0 = vimwiki#u#time(starttime)  "XXX
 
-
 " LINKS: setup of larger regexes {{{
 
 " LINKS: setup wikilink regexps {{{
@@ -275,7 +274,6 @@ call s:add_target_syntax_ON(target, 'VimwikiLink')
 
 " }}}
 
-
 " generic headers "{{{
 if g:vimwiki_symH
   "" symmetric
@@ -378,6 +376,28 @@ execute 'syn match VimwikiSubScriptT contained /'.g:vimwiki_char_subscript.'/'
 let g:vimwiki_rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
 execute 'syntax match VimwikiTodo /'. g:vimwiki_rxTodo .'/'
 " }}}
+
+" Lists "{{{
+let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_points), 'vimwiki#u#escape(v:val) . repeat("\\+", g:vimwiki_bullet_points[v:val])') , '\|')
+
+"create regex for numbered list
+if g:vimwiki_bullet_numbers[0] == ''
+  "regex that matches nothing
+  let g:vimwiki_rxListNumber = '$^'
+else
+  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,3}', 'A': '\u\{1,3}'}
+  let g:vimwiki_rxListNumber = '\C\%(' . join( map(split(g:vimwiki_bullet_numbers[0], '.\zs'), "s:char_to_rx[v:val]"), '\|').'\)'
+  let g:vimwiki_rxListNumber .= '['.vimwiki#u#escape(g:vimwiki_bullet_numbers[1]).']'
+endif
+
+" XXX: Should this be in corresponding syntax file?
+if VimwikiGet('syntax') == 'default' || VimwikiGet('syntax') == 'markdown'
+  let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+else
+  let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|^\s.*\)\)*'
+endif
+
+"}}}
 
 " main syntax groups {{{
 
@@ -493,8 +513,6 @@ else
   endfor
 endif
 "}}}
-
-
 
 " syntax group highlighting "{{{ 
 

@@ -44,45 +44,9 @@ setlocal formatoptions-=2
 setlocal formatoptions+=n
 
 
-if VimwikiGet('syntax') == 'default'
-  "1 means multiple bullets, like * ** ***
-  let g:vimwiki_bullet_points = { '-':0, '*':1, '#':1 , '◆':1}
-  let g:vimwiki_bullet_numbers = ['1iIaA', '.)]']
-  "this should contain at least one element
-  "it is used for i_<C-A> among other things
-  let g:vimwiki_list_markers = ['-', '#', '◆', '1.', 'i)', 'a)']
-elseif VimwikiGet('syntax') == 'markdown'
-  let g:vimwiki_bullet_points = { '-':0, '*':0, '+':0 }
-  let g:vimwiki_bullet_numbers = ['1', '.']
-  let g:vimwiki_list_markers = ['-', '*', '+', '1.']
-else "media
-  "better leave this as it is, because media syntax is special
-  let g:vimwiki_bullet_points = { '*':1, '#':1 }
-  let g:vimwiki_bullet_numbers = ['', '']
-  let g:vimwiki_list_markers = ['*', '#']
-endif
-
-let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_points), 'vimwiki#u#escape(v:val) . repeat("\\+", g:vimwiki_bullet_points[v:val])') , '\|')
-
-"create regex for numbered list
-if g:vimwiki_bullet_numbers[0] == ''
-  "regex that matches nothing
-  let g:vimwiki_rxListNumber = '$^'
-else
-  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,3}', 'A': '\u\{1,3}'}
-  let g:vimwiki_rxListNumber = '\C\%(' . join( map(split(g:vimwiki_bullet_numbers[0], '.\zs'), "s:char_to_rx[v:val]"), '\|').'\)'
-  let g:vimwiki_rxListNumber .= '['.vimwiki#u#escape(g:vimwiki_bullet_numbers[1]).']'
-endif
-
-if VimwikiGet('syntax') == 'default' || VimwikiGet('syntax') == 'markdown'
-  let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
-else
-  let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|^\s.*\)\)*'
-endif
 
 "Create 'formatlistpat'
 let &formatlistpat = vimwiki#lst#get_list_item_rx(1)
-
 
 
 if !empty(&langmap)

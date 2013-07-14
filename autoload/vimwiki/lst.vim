@@ -992,6 +992,14 @@ function! s:adjust_mrkr(item) "{{{
     let new_mrkr = neighbor_item.mrkr
   endif
 
+  "if possible, set e.g. *** if parent has ** as marker
+  if neighbor_item.type == 0 && a:item.type == 1 && has_key(g:vimwiki_bullet_points, s:first_char(a:item.mrkr)) && g:vimwiki_bullet_points[s:first_char(a:item.mrkr)] == 1
+    let parent_item = s:get_parent(a:item)
+    if parent_item.type == 1 && s:first_char(parent_item.mrkr) == s:first_char(a:item.mrkr)
+      let new_mrkr = repeat(s:first_char(parent_item.mrkr), s:string_length(parent_item.mrkr)+1)
+    endif
+  endif 
+
   call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, new_mrkr)
   call s:adjust_numbered_list(a:item, 0, 1)
 endfunction "}}}

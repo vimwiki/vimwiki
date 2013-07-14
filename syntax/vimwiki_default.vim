@@ -72,6 +72,13 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
+" Lists
+"1 means multiple bullets, like * ** ***
+let g:vimwiki_bullet_points = { '-':0, '*':0, '#':0 , '◆':0}
+let g:vimwiki_bullet_numbers = ['1iIaA', '.)]']
+"this should contain at least one element
+"it is used for i_<C-A> among other things
+let g:vimwiki_list_markers = ['-', '#', '◆', '1.', 'i)', 'a)']
 let g:vimwiki_rxListDefine = '::\(\s\|$\)'
 
 " Preformatted text

@@ -53,6 +53,10 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
+" Lists
+let g:vimwiki_bullet_points = { '*':1, '#':1 }
+let g:vimwiki_bullet_numbers = ['', '']
+let g:vimwiki_list_markers = ['*', '#']
 let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
 
 " Preformatted text
