@@ -402,7 +402,7 @@ INSERT MODE                                            *vimwiki-list-mappings*
 <CR>                    In a list item, insert a new bullet or number in the
                         next line, numbers are incremented.
                         In an empty list item, delete the item marker. This is
-                        useful to end a list, you simple press <CR> twice.
+                        useful to end a list, you simply press <CR> twice.
 
                         *vimwiki_i_<S-CR>_list*
 <S-CR>                  Does not insert a new list item, useful to create
