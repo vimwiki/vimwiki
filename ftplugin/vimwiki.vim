@@ -463,14 +463,14 @@ map <silent> <buffer> gLH glH
 map <silent> <buffer> gLL gLl
 inoremap <buffer> <C-D> <C-O>:VimwikiListDecreaseLvl 0<CR>
 inoremap <buffer> <C-T> <C-O>:VimwikiListIncreaseLvl 0<CR>
-inoremap <buffer> <C-A> <C-O>:VimwikiListChangeMarker next<CR>
-inoremap <buffer> <C-S> <C-O>:VimwikiListChangeMarker prev<CR>
+inoremap <buffer> <C-L><C-J> <C-O>:VimwikiListChangeMarker next<CR>
+inoremap <buffer> <C-L><C-K> <C-O>:VimwikiListChangeMarker prev<CR>
 nmap <silent> <buffer> glr :call vimwiki#lst#adjust_numbered_list()<CR>
 nmap <silent> <buffer> gLr :call vimwiki#lst#adjust_whole_buffer()<CR>
 nmap <silent> <buffer> gLR gLr
 noremap <silent> <buffer> gl<Space> :VimwikiListRemoveCB<CR>
 map <silent> <buffer> gL<Space> :call vimwiki#lst#remove_cb_in_list()<CR>
-inoremap <silent> <buffer> <C-B> <Esc>:call vimwiki#lst#toggle_list_item()<CR>
+inoremap <silent> <buffer> <C-L><C-M> <Esc>:call vimwiki#lst#toggle_list_item()<CR>
 
 for s:k in keys(g:vimwiki_bullet_points)
   exe 'noremap <silent> <buffer> gl'.s:k.' :VimwikiListChangeMarker '.s:k.'<CR>'

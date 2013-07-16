@@ -414,20 +414,16 @@ INSERT MODE                                            *vimwiki-list-mappings*
                         *vimwiki_i_<C-D>_list*
 <C-D>                   Decrease the level of a list item.
 
-XXX: should not use <C-A> we override default increase number.
-
-                        *vimwiki_i_<C-A>_list*
-<C-A>                   Change the marker of the current list item to the next
+                        *vimwiki_i_<C-L>_<C-J>_list*
+<C-L><C-J>              Change the marker of the current list item to the next
                         available. From * to - to # to 1. to a).
 
-XXX: this hangs vim
-                        *vimwiki_i_<C-S>_list*
-<C-S>                   Change the marker of the current list item to the prev
+                        *vimwiki_i_<C-L>_<C-K>_list*
+<C-L><C-K>              Change the marker of the current list item to the prev
                         available. From * to a) to 1. to # to -.
 
-XXX: Propose another mapping here.
-                        *vimwiki_i_<C-B>_list*
-<C-B>                   Create/remove a marker from a list item.
+                        *vimwiki_i_<C-L>_<C-M>_list*
+<C-L><C-M>              Create/remove a marker from a list item.
 
 
 ------------------------------------------------------------------------------
