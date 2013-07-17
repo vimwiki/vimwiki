@@ -377,28 +377,6 @@ let g:vimwiki_rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
 execute 'syntax match VimwikiTodo /'. g:vimwiki_rxTodo .'/'
 " }}}
 
-" Lists "{{{
-let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_points), 'vimwiki#u#escape(v:val) . repeat("\\+", g:vimwiki_bullet_points[v:val])') , '\|')
-
-"create regex for numbered list
-if g:vimwiki_bullet_numbers[0] == ''
-  "regex that matches nothing
-  let g:vimwiki_rxListNumber = '$^'
-else
-  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,3}', 'A': '\u\{1,3}'}
-  let g:vimwiki_rxListNumber = '\C\%(' . join( map(split(g:vimwiki_bullet_numbers[0], '.\zs'), "s:char_to_rx[v:val]"), '\|').'\)'
-  let g:vimwiki_rxListNumber .= '['.vimwiki#u#escape(g:vimwiki_bullet_numbers[1]).']'
-endif
-
-" XXX: Should this be in corresponding syntax file?
-if VimwikiGet('syntax') == 'default' || VimwikiGet('syntax') == 'markdown'
-  let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
-else
-  let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|^\s.*\)\)*'
-endif
-
-"}}}
-
 " main syntax groups {{{
 
 " Tables
@@ -422,14 +400,16 @@ syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 " List items
-execute 'syntax match VimwikiList /'.vimwiki#lst#get_list_item_rx(0).'/'
+let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
+let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.join(g:vimwiki_listsyms, '').']\)\]\s\)\?'
+
+execute 'syntax match VimwikiList /'.g:vimwiki_rxListItemWithoutCB.'/'
 execute 'syntax match VimwikiList /'.g:vimwiki_rxListDefine.'/'
-execute 'syntax match VimwikiListTodo /'.vimwiki#lst#get_list_item_rx(1).'/'
+execute 'syntax match VimwikiListTodo /'.g:vimwiki_rxListItem.'/'
 
 if g:vimwiki_hl_cb_checked == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#lst#get_list_item_rx(0).'\s*\['.g:vimwiki_listsyms[4].'\]\s.*$/ '.
+  execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemWithoutCB.'\s*\['.g:vimwiki_listsyms[4].'\]\s.*$/ '.
         \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
-
 elseif g:vimwiki_hl_cb_checked == 2
   execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemAndChildren.'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 endif
@@ -551,7 +531,6 @@ hi def link VimwikiLinkT VimwikiLink
 
 hi def link VimwikiList Identifier
 hi def link VimwikiListTodo VimwikiList
-"hi def link VimwikiCheckBox VimwikiList
 hi def link VimwikiCheckBoxDone Comment
 hi def link VimwikiEmoticons Character
 hi def link VimwikiHR Identifier

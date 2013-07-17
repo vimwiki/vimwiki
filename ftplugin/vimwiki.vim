@@ -7,6 +7,7 @@ if exists("b:did_ftplugin")
   finish
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
+execute 'runtime! syntax/vimwiki.vim'
 
 " UNDO list {{{
 " Reset the following options to undo this plugin.
@@ -44,9 +45,8 @@ setlocal formatoptions-=2
 setlocal formatoptions+=n
 
 
-
 "Create 'formatlistpat'
-let &formatlistpat = vimwiki#lst#get_list_item_rx(1)
+let &formatlistpat = g:vimwiki_rxListItem
 
 
 if !empty(&langmap)
@@ -472,24 +472,14 @@ noremap <silent> <buffer> gl<Space> :VimwikiListRemoveCB<CR>
 map <silent> <buffer> gL<Space> :call vimwiki#lst#remove_cb_in_list()<CR>
 inoremap <silent> <buffer> <C-L><C-M> <Esc>:call vimwiki#lst#toggle_list_item()<CR>
 
-for s:k in keys(g:vimwiki_bullet_points)
-  exe 'noremap <silent> <buffer> gl'.s:k.' :VimwikiListChangeMarker '.s:k.'<CR>'
-  exe 'noremap <silent> <buffer> gL'.s:k.' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
+for s:k in keys(g:vimwiki_bullet_types)
+  let s:char = (s:k == '•' ? '.' : s:k)
+  exe 'noremap <silent> <buffer> gl'.s:char.' :VimwikiListChangeMarker '.s:k.'<CR>'
+  exe 'noremap <silent> <buffer> gL'.s:char.' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
 endfor
-for s:a in split(g:vimwiki_bullet_numbers[0], '.\zs')
-  let chars = split(g:vimwiki_bullet_numbers[1], '.\zs')
-  if len(chars) == 0
-    exe 'noremap <silent> <buffer> gl'.s:a.' :VimwikiListChangeMarker '.s:a.'<CR>'
-    exe 'noremap <silent> <buffer> gL'.s:a.' :VimwikiListChangeMarkerInList '.s:a.'<CR>'
-  elseif len(chars) == 1
-    exe 'noremap <silent> <buffer> gl'.s:a.' :VimwikiListChangeMarker '.s:a.chars[0].'<CR>'
-    exe 'noremap <silent> <buffer> gL'.s:a.' :VimwikiListChangeMarkerInList '.s:a.chars[0].'<CR>'
-  else
-    for s:b in chars
-      exe 'noremap <silent> <buffer> gl'.s:a.s:b.' :VimwikiListChangeMarker '.s:a.s:b.'<CR>'
-      exe 'noremap <silent> <buffer> gL'.s:a.s:b.' :VimwikiListChangeMarkerInList '.s:a.s:b.'<CR>'
-    endfor
-  endif
+for s:k in g:vimwiki_number_types
+  exe 'noremap <silent> <buffer> gl'.s:k[0].' :VimwikiListChangeMarker '.s:k.'<CR>'
+  exe 'noremap <silent> <buffer> gL'.s:k[0].' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
 endfor
 
 

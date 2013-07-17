@@ -327,24 +327,54 @@ glr                     Renumber list items for the current list.
 gLr                     Renumber list items for the whole buffer.
 
                         *vimwiki_glstar* *vimwiki_glstar*
-gl*                     Make a list item out of normal line or change ther marker
-                        for the current item.
+gl*                     Make a list item out of normal line or change the marker
+                        of the current item to *.
 gL*                     Change the marker of the current list to *.
 
                         *vimwiki_gl#* *vimwiki_gL#*
-gl#                     Make a list item out of normal line or change ther marker
-                        for the current item.
+gl#                     Make a list item out of normal line or change the marker
+                        of the current item to #.
 gL#                     Change the marker of the current list to #.
 
                         *vimwiki_gl-* *vimwiki_gL-*
-gl-                     Make a list item out of normal line or change ther marker
-                        for the current item.
+gl-                     Make a list item out of normal line or change the marker
+                        of the current item to -.
 gL-                     Change the marker of the current list to -.
 
+                        *vimwiki_gl.* *vimwiki_gL.*
+gl.                     Make a list item out of normal line or change the marker
+                        of the current item to •.
+gL.                     Change the marker of the current list to •.
+
                         *vimwiki_gl1* *vimwiki_gL1*
-gl1.                    Make a list item out of normal line or change ther marker
-                        for the current item.
-gL1.                    Change the marker of the current list to 1..
+gl1                     Make a list item out of normal line or change the marker
+                        of the current item to 1., the numbering is adjusted
+                        according to the surrounding list items.
+gL1                     Change the marker of the current list to 1. 2. 3. ...
+
+                        *vimwiki_gla* *vimwiki_gLa*
+gla                     Make a list item out of normal line or change the marker
+                        of the current item to a), the numbering is adjusted
+                        according to the surrounding list items.
+gLa                     Change the marker of the current list to a) b) c) ...
+
+                        *vimwiki_glA* *vimwiki_gLA*
+glA                     Make a list item out of normal line or change the marker
+                        of the current item to A), the numbering is adjusted
+                        according to the surrounding list items.
+gLA                     Change the marker of the current list to A) B) C) ...
+
+                        *vimwiki_gli* *vimwiki_gLi*
+gli                     Make a list item out of normal line or change the marker
+                        of the current item to i), the numbering is adjusted
+                        according to the surrounding list items.
+gLi                     Change the marker of the current list to i) ii) iii) ...
+
+                        *vimwiki_glI* *vimwiki_gLI*
+glI                     Make a list item out of normal line or change the marker
+                        of the current item to I), the numbering is adjusted
+                        according to the surrounding list items.
+gLI                     Change the marker of the current list to I) II) III) ...
 
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table

@@ -54,10 +54,12 @@ let g:vimwiki_rxHR = '^-----*$'
 let g:vimwiki_rxTableSep = '|'
 
 " Lists
-let g:vimwiki_bullet_points = { '*':1, '#':1 }
-let g:vimwiki_bullet_numbers = ['', '']
+let g:vimwiki_bullet_types = { '*':1, '#':1 }
+let g:vimwiki_number_types = []
 let g:vimwiki_list_markers = ['*', '#']
 let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
+call vimwiki#lst#setup_marker_infos()
+let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|^\s.*\)\)*'
 
 " Preformatted text
 let g:vimwiki_rxPreStart = '<pre>'

@@ -54,21 +54,31 @@ function! s:increment_a(value) "{{{
 endfunction "}}}
 
 function! s:increment_I(value) "{{{
-  let subst_list = [ ['XLVIII$', 'IL'], ['VIII$', 'IX'], ['III$', 'IV'], ['DCCCXCIX$', 'CM'], ['CCCXCIX$', 'CD'], ['LXXXIX$', 'XC'], ['XXXIX$', 'XL'], ['\(I\{1,2\}\)$', '\1I'], ['CDXCIX$', 'D'], ['CMXCIX$', 'M'], ['XCIX$', 'C'], ['I\([VXLCDM]\)$', '\1'], ['\([VXLCDM]\)$', '\1I'] ]
+  let subst_list = [ ['XLVIII$', 'IL'], ['VIII$', 'IX'], ['III$', 'IV'],
+        \ ['DCCCXCIX$', 'CM'], ['CCCXCIX$', 'CD'], ['LXXXIX$', 'XC'],
+        \ ['XXXIX$', 'XL'], ['\(I\{1,2\}\)$', '\1I'], ['CDXCIX$', 'D'],
+        \ ['CMXCIX$', 'M'], ['XCIX$', 'C'], ['I\([VXLCDM]\)$', '\1'],
+        \ ['\([VXLCDM]\)$', '\1I'] ]
   for [regex, subst] in subst_list
     if a:value =~# regex
       return substitute(a:value, regex, subst, '')
     endif
   endfor
+  return ''
 endfunction "}}}
 
 function! s:increment_i(value) "{{{
-  let subst_list = [ ['xlviii$', 'il'], ['viii$', 'ix'], ['iii$', 'iv'], ['dcccxcix$', 'cm'], ['cccxcix$', 'cd'], ['lxxxix$', 'xc'], ['xxxix$', 'xl'], ['\(i\{1,2\}\)$', '\1i'], ['cdxcix$', 'd'], ['cmxcix$', 'm'], ['xcix$', 'c'], ['i\([vxlcdm]\)$', '\1'], ['\([vxlcdm]\)$', '\1i'] ]
+  let subst_list = [ ['xlviii$', 'il'], ['viii$', 'ix'], ['iii$', 'iv'],
+        \ ['dcccxcix$', 'cm'], ['cccxcix$', 'cd'], ['lxxxix$', 'xc'],
+        \ ['xxxix$', 'xl'], ['\(i\{1,2\}\)$', '\1i'], ['cdxcix$', 'd'],
+        \ ['cmxcix$', 'm'], ['xcix$', 'c'], ['i\([vxlcdm]\)$', '\1'],
+        \ ['\([vxlcdm]\)$', '\1i'] ]
   for [regex, subst] in subst_list
     if a:value =~# regex
       return substitute(a:value, regex, subst, '')
     endif
   endfor
+  return ''
 endfunction "}}}
 
 " incrementation functions for the various kinds of numbers }}}
@@ -93,7 +103,7 @@ function! s:get_item(lnum) "{{{
     let item.type = 0
     return item
   endif
-  let matches = matchlist(getline(a:lnum), vimwiki#lst#get_list_item_rx(1))
+  let matches = matchlist(getline(a:lnum), g:vimwiki_rxListItem)
   if matches == [] || (matches[1] == '' && matches[2] == '') || (matches[1] != '' && matches[2] != '')
     let item.type = 0
     return item
@@ -112,15 +122,13 @@ function! s:get_item(lnum) "{{{
   return item
 endfunction "}}}
 
-
 "Returns: level of the line
 "0 is the 'highest' level
 function! s:get_level(lnum) "{{{
   if VimwikiGet('syntax') != 'media'
     let level = getline(a:lnum) !~ '^\s*$' ? indent(a:lnum) : 0
   else
-    let rx_markers = '^[' . vimwiki#u#escape(join(keys(g:vimwiki_bullet_points), "")) . ']\+'
-    let level = s:string_length(matchstr(getline(a:lnum), rx_markers)) - 1
+    let level = vimwiki#u#count_first_sym(a:lnum) - 1
     if level < 0
       let level = (indent(a:lnum) == 0) ? 0 : 9999
     endif
@@ -128,19 +136,12 @@ function! s:get_level(lnum) "{{{
   return level
 endfunction "}}}
 
-"XXX does not distinguish between letters and romanian numerals
-"Should be no problem as long as the user doesn't mix them
 function! s:regexp_of_marker(item) "{{{
   if a:item.type == 1
     return vimwiki#u#escape(a:item.mrkr)
   elseif a:item.type == 2
-    for ki in ['d', 'u', 'l']
-      let mats = matchstr(a:item.mrkr, '\'.ki.'\+['.vimwiki#u#escape(g:vimwiki_bullet_numbers[1]).']')
-      if mats != ''
-        let [_, divisor] = s:get_chars_and_divisor(mats)
-        return '\'.ki.'\+'.vimwiki#u#escape(divisor)
-      endif
-    endfor
+    let kind = s:guess_kind_of_numbered_item(a:item)
+    return s:char_to_rx[kind] . vimwiki#u#escape(a:item.mrkr[-1:])
   else
     return ''
   endif
@@ -164,14 +165,16 @@ endfunction "}}}
 
 function! s:get_next_or_prev_list_item(item, direction, until, all) "{{{
   let org_lvl = s:get_level(a:item.lnum)
-  let org_regex = s:regexp_of_marker(a:item)
+  if !a:all
+    let org_regex = s:regexp_of_marker(a:item)
+  endif
   let cur_ln = s:get_next_prev_line(a:item.lnum, a:direction)
   while cur_ln != a:until
     let cur_lvl = s:get_level(cur_ln)
     let cur_linecontent = getline(cur_ln)
 
     if cur_lvl == org_lvl
-      if a:all == 1 || cur_linecontent =~# '^\s*'.org_regex.'\s'
+      if a:all || cur_linecontent =~# '^\s*'.org_regex.'\s'
         return s:get_item(cur_ln)
       else
         return s:empty_item()
@@ -189,39 +192,33 @@ function! s:first_char(string) "{{{
   return matchstr(a:string, '^.')
 endfunction "}}}
 
-"Returns: 'bla)' -> ['bla', ')']
-" must be that complicated, because
-" 'bla)'[:-2] wouldn't work for multibyte chars
-function! s:get_chars_and_divisor(string) "{{{
-  return matchlist(a:string, '^\(.\+\)\(.\)$')[1:2]
-endfunction "}}}
-
 "Returns: 1, a, i, A, I or ''
 "If in doubt if alphanumeric character or romanian
 "numeral, peek in the previous line
 function! s:guess_kind_of_numbered_item(item) "{{{
   if a:item.type != 2 | return '' | endif
-  let kinds = split(g:vimwiki_bullet_numbers[0], '.\zs')
-  let [chars, divisor] = s:get_chars_and_divisor(a:item.mrkr)
+  let number_chars = a:item.mrkr[:-2]
+  let divisor = a:item.mrkr[-1:]
 
-  if chars =~ '\d\+'
+  if number_chars =~ '\d\+'
     return '1'
   endif
-  if chars =~# '\l\+'
-    if chars !~# '^[ivxlcdm]\+' || index(kinds, 'i') == -1
+  if number_chars =~# '\l\+'
+    if number_chars !~# '^[ivxlcdm]\+' || index(s:number_kinds, 'i') == -1
       return 'a'
     else
 
-      let item_above = s:get_prev_list_item(a:item, 0)
+      let item_above = s:get_prev_list_item(a:item, 1)
       if item_above.type != 0
-        let [chars_above, div_above] = s:get_chars_and_divisor(item_above.mrkr)
-        if index(kinds, 'a') == -1 || (div_above !=# divisor && chars =~# 'i\+') || s:increment_i(chars_above) ==# chars
+        if index(s:number_kinds, 'a') == -1 ||
+              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
+              \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
           return 'i'
         else
           return 'a'
         endif
       else
-        if chars =~# 'i\+' || index(kinds, 'a') == -1
+        if number_chars =~# 'i\+' || index(s:number_kinds, 'a') == -1
           return 'i'
         else
           return 'a'
@@ -230,21 +227,22 @@ function! s:guess_kind_of_numbered_item(item) "{{{
 
     endif
   endif
-  if chars =~# '\u\+'
-    if chars !~# '^[IVXLCDM]\+' || index(kinds, 'I') == -1
+  if number_chars =~# '\u\+'
+    if number_chars !~# '^[IVXLCDM]\+' || index(s:number_kinds, 'I') == -1
       return 'A'
     else
 
-      let item_above = s:get_prev_list_item(a:item, 0)
+      let item_above = s:get_prev_list_item(a:item, 1)
       if item_above.type != 0
-        let [chars_above, div_above] = s:get_chars_and_divisor(item_above.mrkr)
-        if index(kinds, 'A') == -1 || (div_above !=# divisor && chars =~# 'I\+') || s:increment_i(chars_above) ==# chars
+        if index(s:number_kinds, 'A') == -1 ||
+              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
+              \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
           return 'I'
         else
           return 'A'
         endif
       else
-        if chars =~# 'I\+' || index(kinds, 'A') == -1
+        if number_chars =~# 'I\+' || index(s:number_kinds, 'A') == -1
           return 'I'
         else
           return 'A'
@@ -386,8 +384,7 @@ function! s:adjust_numbered_list_below(item, recursive) "{{{
     endif
 
     if cur_item.type == 2
-      let [chars, divisor] = s:get_chars_and_divisor(cur_item.mrkr)
-      let new_val = s:increment_{kind}(chars) . divisor
+      let new_val = s:increment_{kind}(cur_item.mrkr[:-2]) . cur_item.mrkr[-1:]
       call s:substitute_string_in_line(next_item.lnum, next_item.mrkr, new_val)
       let next_item.mrkr = new_val
     endif
@@ -429,8 +426,7 @@ function! s:adjust_numbered_list(item, all, recursive) "{{{
 
   while 1
     if first_item.type == 2
-      let [_, divisor] = s:get_chars_and_divisor(first_item.mrkr)
-      let new_mrkr = s:guess_kind_of_numbered_item(first_item) . divisor
+      let new_mrkr = s:guess_kind_of_numbered_item(first_item) . first_item.mrkr[-1:]
       call s:substitute_string_in_line(first_item.lnum, first_item.mrkr, new_mrkr)
       let first_item.mrkr = new_mrkr
     endif
@@ -636,26 +632,26 @@ endfunction "}}}
 "Returns: the column where the text of a line starts (possible list item
 "markers and checkboxes are skipped)
 function! s:text_begin(lnum) "{{{
-  return s:string_length(matchstr(getline(a:lnum), vimwiki#lst#get_list_item_rx(1)))
+  return s:string_length(matchstr(getline(a:lnum), g:vimwiki_rxListItem))
 endfunction "}}}
 
-if exists("*strdisplaywidth")
-  fu! s:string_length(str)
+if exists("*strdisplaywidth") "{{{
+  function! s:string_length(str)
     return strdisplaywidth(a:str)
-  endfu
+  endfunction
 else
-  fu! s:string_length(str)
+  function! s:string_length(str)
     return strlen(substitute(a:str, '.', 'x', 'g'))
-  endfu
-endif
+  endfunction
+endif "}}}
 
 "Returns: 2 if there is a marker and text
 " 1 for a marker and no text
 " 0 for no marker at all (empty line or only text)
 function! s:line_has_marker(lnum) "{{{
-  if getline(a:lnum) =~# vimwiki#lst#get_list_item_rx(1).'\s*$'
+  if getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*$'
     return 1
-  elseif getline(a:lnum) =~# vimwiki#lst#get_list_item_rx(1).'\s*\S'
+  elseif getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*\S'
     return 2
   else
     return 0
@@ -742,8 +738,7 @@ function! s:get_idx_list_markers(item) "{{{
   if a:item.type == 1
     let m = s:first_char(a:item.mrkr)
   else
-    let [_, divisor] = s:get_chars_and_divisor(a:item.mrkr)
-    let m = s:guess_kind_of_numbered_item(a:item) . divisor
+    let m = s:guess_kind_of_numbered_item(a:item) . a:item.mrkr[-1:]
   endif
   return index(g:vimwiki_list_markers, m)
 endfunction "}}}
@@ -795,7 +790,7 @@ function! vimwiki#lst#change_marker(line1, line2, new_mrkr) "{{{
     endif
 
     "handle markers like ***
-    if has_key(g:vimwiki_bullet_points, s:first_char(new_mrkr)) && g:vimwiki_bullet_points[s:first_char(new_mrkr)] == 1
+    if index(s:multiple_bullet_chars, s:first_char(new_mrkr)) > -1
       "use *** if the item above has *** too
       let item_above = s:get_prev_list_item(cur_item, 1)
       if item_above.type == 1 && s:first_char(item_above.mrkr) == s:first_char(new_mrkr)
@@ -807,7 +802,7 @@ function! vimwiki#lst#change_marker(line1, line2, new_mrkr) "{{{
           let new_mrkr = item_below.mrkr
         else
           "if the old is ### and the new is * use ***
-          if cur_item.type == 1 && has_key(g:vimwiki_bullet_points, s:first_char(cur_item.mrkr)) && g:vimwiki_bullet_points[s:first_char(cur_item.mrkr)] == 1
+          if cur_item.type == 1 && index(s:multiple_bullet_chars, s:first_char(cur_item.mrkr)) > -1
             let new_mrkr = repeat(new_mrkr, s:string_length(cur_item.mrkr))
           else
             "use *** if the parent item has **
@@ -915,7 +910,8 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 && g:vimwiki_bullet_points[s:first_char(a:item.mrkr)]
+  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum, s:first_char(a:item.mrkr), '')
       let removed_indent = -1
@@ -935,7 +931,8 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_space = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 && g:vimwiki_bullet_points[s:first_char(a:item.mrkr)]
+  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr . s:first_char(a:item.mrkr))
     let additional_indent = 1
   else
@@ -955,7 +952,8 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if VimwikiGet('syntax') == 'media' && item.type == 1 && g:vimwiki_bullet_points[s:first_char(item.mrkr)]
+  if VimwikiGet('syntax') == 'media' && item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr, item.mrkr . s:first_char(item.mrkr))
     elseif a:indent_by < 0
@@ -993,12 +991,13 @@ function! s:adjust_mrkr(item) "{{{
   endif
 
   "if possible, set e.g. *** if parent has ** as marker
-  if neighbor_item.type == 0 && a:item.type == 1 && has_key(g:vimwiki_bullet_points, s:first_char(a:item.mrkr)) && g:vimwiki_bullet_points[s:first_char(a:item.mrkr)] == 1
+  if neighbor_item.type == 0 && a:item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     let parent_item = s:get_parent(a:item)
     if parent_item.type == 1 && s:first_char(parent_item.mrkr) == s:first_char(a:item.mrkr)
       let new_mrkr = repeat(s:first_char(parent_item.mrkr), s:string_length(parent_item.mrkr)+1)
     endif
-  endif 
+  endif
 
   call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, new_mrkr)
   call s:adjust_numbered_list(a:item, 0, 1)
@@ -1280,12 +1279,36 @@ function! vimwiki#lst#get_list_margin() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki#lst#get_list_item_rx(with_cb) "{{{
-  let rx_without_cb = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)'
-  if a:with_cb
-    return rx_without_cb . '\s\+\%(\[\(['.join(g:vimwiki_listsyms, '').']\)\]\s\)\?'
-  else
-    return rx_without_cb . '\s'
-  endif
-endfunction "}}}
+function! vimwiki#lst#setup_marker_infos()
+  let s:multiple_bullet_chars = []
+  for i in keys(g:vimwiki_bullet_types)
+    if g:vimwiki_bullet_types[i] == 1
+      call add(s:multiple_bullet_chars, i)
+    endif
+  endfor
 
+  let s:number_kinds = []
+  for i in g:vimwiki_number_types
+    call add(s:number_kinds, i[0])
+  endfor
+
+  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
+
+  "create regexp for bulleted list items
+  let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_types),
+        \ 'vimwiki#u#escape(v:val) . repeat("\\+", g:vimwiki_bullet_types[v:val])') , '\|')
+
+  "create regex for numbered list items
+  if !empty(g:vimwiki_number_types)
+    let g:vimwiki_rxListNumber = '\C\%('
+    for type in g:vimwiki_number_types[:-2]
+      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] . vimwiki#u#escape(type[1]) . '\|'
+    endfor
+    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]] .
+          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
+  else
+    "regex that matches nothing
+    let g:vimwiki_rxListNumber = '$^'
+  endif
+
+endfunction
