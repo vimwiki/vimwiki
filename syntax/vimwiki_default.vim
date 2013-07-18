@@ -80,8 +80,10 @@ let g:vimwiki_number_types = ['1)', '1.', 'i)', 'I)', 'a)', 'A)']
 "it is used for i_<C-L><C-J> among other things
 let g:vimwiki_list_markers = ['-', '•', '1.', '*', 'I)', 'a)']
 let g:vimwiki_rxListDefine = '::\(\s\|$\)'
-
 call vimwiki#lst#setup_marker_infos()
+
+let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
+let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.join(g:vimwiki_listsyms, '').']\)\]\s\)\?'
 let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
 
 " Preformatted text

@@ -9,6 +9,7 @@ if version < 600
 elseif exists("b:current_syntax")
   finish
 endif
+
 "TODO do nothing if ...? (?)
 let starttime = reltime()  " start the clock
 if VimwikiGet('maxhi')
@@ -43,10 +44,8 @@ let g:vimwiki_rxWeblinkUrl = g:vimwiki_rxWebProtocols .
 
 " }}}
 
-" -------------------------------------------------------------------------
-" Load concrete Wiki syntax: sets regexes and templates for headers and links
-execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
-" -------------------------------------------------------------------------
+call vimwiki#u#reload_regexes()
+
 let time0 = vimwiki#u#time(starttime)  "XXX
 
 " LINKS: setup of larger regexes {{{
@@ -399,10 +398,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
 syntax match VimwikiCellSeparator 
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
-" List items
-let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
-let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.join(g:vimwiki_listsyms, '').']\)\]\s\)\?'
-
+" Lists
 execute 'syntax match VimwikiList /'.g:vimwiki_rxListItemWithoutCB.'/'
 execute 'syntax match VimwikiList /'.g:vimwiki_rxListDefine.'/'
 execute 'syntax match VimwikiListTodo /'.g:vimwiki_rxListItem.'/'
@@ -577,10 +573,8 @@ hi def link VimwikiLinkCharT VimwikiLinkT
 hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 "}}}
 
-" -------------------------------------------------------------------------
 " Load syntax-specific functionality
-execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
-" -------------------------------------------------------------------------
+call vimwiki#u#reload_regexes_custom()
 
 " FIXME it now does not make sense to pretend there is a single syntax "vimwiki"
 let b:current_syntax="vimwiki"

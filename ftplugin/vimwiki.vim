@@ -7,7 +7,8 @@ if exists("b:did_ftplugin")
   finish
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
-execute 'runtime! syntax/vimwiki.vim'
+
+call vimwiki#u#reload_regexes()
 
 " UNDO list {{{
 " Reset the following options to undo this plugin.
