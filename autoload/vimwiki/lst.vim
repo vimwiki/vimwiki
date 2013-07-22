@@ -140,8 +140,12 @@ function! s:regexp_of_marker(item) "{{{
   if a:item.type == 1
     return vimwiki#u#escape(a:item.mrkr)
   elseif a:item.type == 2
-    let kind = s:guess_kind_of_numbered_item(a:item)
-    return s:char_to_rx[kind] . vimwiki#u#escape(a:item.mrkr[-1:])
+    for ki in ['d', 'u', 'l']
+      let match = matchstr(a:item.mrkr, '\'.ki.'\+['.s:number_divisors.']')
+      if match != ''
+        return '\'.ki.'\+'.vimwiki#u#escape(match[-1:])
+      endif
+    endfor
   else
     return ''
   endif
@@ -236,7 +240,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
       if item_above.type != 0
         if index(s:number_kinds, 'A') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
-              \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
+              \ s:increment_I(item_above.mrkr[:-2]) ==# number_chars
           return 'I'
         else
           return 'A'
@@ -255,16 +259,29 @@ endfunction "}}}
 
 
 function! s:get_first_item_in_list(item, all) "{{{
-  let first_item = a:item
+  let cur_item = a:item
   while 1
-    let prev_item = s:get_prev_list_item(first_item, a:all)
+    let prev_item = s:get_prev_list_item(cur_item, a:all)
     if prev_item.type == 0
       break
     else
-      let first_item = prev_item
+      let cur_item = prev_item
     endif
   endwhile
-  return first_item
+  return cur_item
+endfunction "}}}
+
+function! s:get_last_item_in_list(item, all) "{{{
+  let cur_item = a:item
+  while 1
+    let next_item = s:get_next_list_item(cur_item, a:all)
+    if next_item.type == 0
+      break
+    else
+      let cur_item = next_item
+    endif
+  endwhile
+  return cur_item
 endfunction "}}}
 
 "Returns: lnum+1 in most cases, but skips blank lines and preformatted text
@@ -881,19 +898,16 @@ endfunction "}}}
 
 
 function! vimwiki#lst#change_marker_in_list(new_mrkr) "{{{
-  let first_item = s:get_first_item_in_list(s:get_corresponding_item(line('.')), 0)
-  if first_item.type == 0 | return | endif
+  let cur_item = s:get_corresponding_item(line('.'))
+  let first_item = s:get_first_item_in_list(cur_item, 0)
+  let last_item = s:get_last_item_in_list(cur_item, 0)
+  if first_item.type == 0 || last_item.type == 0 | return | endif
   let first_item_line = first_item.lnum
 
   let cur_item = first_item
-  while 1
-    let next_item = s:get_next_list_item(cur_item, 0)
+  while cur_item.type != 0 && cur_item.lnum <= last_item.lnum
     call s:set_new_mrkr(cur_item, a:new_mrkr)
-    if next_item.type == 0
-      break
-    else
-      let cur_item = next_item
-    endif
+    let cur_item = s:get_next_list_item(cur_item, 1)
   endwhile
 
   call s:adjust_numbered_list(s:get_item(first_item_line), 0, 0)
@@ -1288,8 +1302,10 @@ function! vimwiki#lst#setup_marker_infos()
   endfor
 
   let s:number_kinds = []
+  let s:number_divisors = ""
   for i in g:vimwiki_number_types
     call add(s:number_kinds, i[0])
+    let s:number_divisors .= vimwiki#u#escape(i[1])
   endfor
 
   let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+', 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
