@@ -1157,20 +1157,19 @@ function! s:create_marker(lnum) "{{{
   endif
 endfunction "}}}
 
-"XXX: this is a bit messy
-function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
-  let lnum = line('.')
-  let has_bp = s:line_has_marker(lnum)
-
-  "special behaviour if there is only a marker with no text
-  if (has_bp == 1 && a:just_mrkr == 2) || (has_bp != 0 && virtcol('.') < s:text_begin(lnum))
-    "insert new Mark but remove Mark in old line
-    call append(lnum-1, '')
+function! s:cr_on_empty_list_item(lnum, behavior)
+  if a:behavior == 1
+    "just make a new list item
+    normal! gi
+    call s:clone_marker_from_to(a:lnum, a:lnum+1)
+  elseif a:behavior == 2
+    "insert new marker but remove marker in old line
+    call append(a:lnum-1, '')
     startinsert!
     return
-  elseif has_bp == 1 && a:just_mrkr == 3
+  elseif a:behavior == 3
     "list is finished, but cursor stays in current line
-    let item = s:get_item(lnum)
+    let item = s:get_item(a:lnum)
     let neighbor_item = s:get_a_neighbor_item(item)
     let child_item = s:get_first_child(item)
     let parent_item = (item.cb != '') ? s:get_parent(item) : s:empty_item()
@@ -1180,9 +1179,9 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
     call s:update_state(parent_item)
     startinsert
     return
-  elseif has_bp == 1 && a:just_mrkr == 4
+  elseif a:behavior == 4
     "list is finished, but cursor goes to next line
-    let item = s:get_item(lnum)
+    let item = s:get_item(a:lnum)
     let neighbor_item = s:get_a_neighbor_item(item)
     let child_item = s:get_first_child(item)
     let parent_item = (item.cb != '') ? s:get_parent(item) : s:empty_item()
@@ -1192,13 +1191,13 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
     call s:update_state(parent_item)
     startinsert
     return
-  elseif has_bp == 1 && a:just_mrkr == 5
+  elseif a:behavior == 5
     "successively decrease level
-    if s:get_level(lnum) > 0
-      call s:change_level(lnum, lnum, 'decrease', 0)
+    if s:get_level(a:lnum) > 0
+      call s:change_level(a:lnum, a:lnum, 'decrease', 0)
       startinsert!
     else
-      let item = s:get_item(lnum)
+      let item = s:get_item(a:lnum)
       let neighbor_item = s:get_a_neighbor_item(item)
       let child_item = s:get_first_child(item)
       let parent_item = (item.cb != '') ? s:get_parent(item) : s:empty_item()
@@ -1210,36 +1209,59 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
     endif
     return
   endif
+endfunction
 
+function! s:cr_on_empty_line(lnum, behavior)
+  if a:behavior == 2 || a:behavior == 3
+    normal! gi
+    call s:create_marker(a:lnum+1)
+  elseif a:behavior == 1 || a:behavior == 4
+    normal! gix
+  endif
+endfunction
+
+function! s:cr_on_list_item(lnum, behavior, cur_col)
+  if a:behavior == 2 || a:behavior == 4 || (a:cur_col == 0 && getline(a:lnum) =~ '\s$')
+    " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
+    normal! gi
+    let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
+    call s:indent_multiline(prev_line, a:lnum+1)
+
+  elseif a:behavior == 1 || a:behavior == 3
+    "the ultimate feature of this script: make new marker on <CR>
+    normal! gi
+    call s:clone_marker_from_to(a:lnum, a:lnum+1)
+    "tiny sweet extra feature: indent next line if current line ends with :
+    if getline(a:lnum) =~ ':$'
+      call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
+    endif
+  endif
+endfunction
+
+function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
+  let lnum = line('.')
+  let has_bp = s:line_has_marker(lnum)
+
+  if has_bp != 0 && virtcol('.') < s:text_begin(lnum)
+    call append(lnum-1, '')
+    startinsert!
+    return
+  endif
+
+  if has_bp == 1
+    call s:cr_on_empty_list_item(lnum, a:just_mrkr)
+    return
+  endif
 
   let cur_col = col("$") - col("'^")
 
-
-  if has_bp == 0 && (a:normal == 2 || a:normal == 3)
-    normal! gi
-    call s:create_marker(lnum+1)
-  endif
-
   if has_bp == 0
-    normal! gix
+    call s:cr_on_empty_line(lnum, a:normal)
   endif
 
-  "make multilined list item
-  if (has_bp == 2 && (a:normal == 2 || a:normal == 4 || (cur_col == 0 && getline(lnum) =~ '\s$'))) " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
-    normal! gi
-    let prev_line = s:get_corresponding_item(s:get_prev_line(lnum+1))
-    call s:indent_multiline(prev_line, lnum+1)
-
-    "the ultimate feature of this script: make new marker on <CR>
-  elseif (has_bp == 2 && (a:normal == 1 || a:normal == 3)) || (has_bp == 1 && a:just_mrkr == 1)
-    normal! gi
-    call s:clone_marker_from_to(lnum, lnum+1)
-    "tiny sweet extra feature: indent next line if current line ends with :
-    if getline(lnum) =~ ':$'
-      call s:change_level(lnum+1, lnum+1, 'increase', 0)
-    endif
+  if has_bp == 2
+    call s:cr_on_list_item(lnum, a:normal, cur_col)
   endif
-
 
   call cursor(lnum+1, col("$") - cur_col)
   if cur_col == 0
