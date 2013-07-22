@@ -212,7 +212,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
       return 'a'
     else
 
-      let item_above = s:get_prev_list_item(a:item, 1)
+      let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
         if index(s:number_kinds, 'a') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
@@ -236,7 +236,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
       return 'A'
     else
 
-      let item_above = s:get_prev_list_item(a:item, 1)
+      let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
         if index(s:number_kinds, 'A') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
