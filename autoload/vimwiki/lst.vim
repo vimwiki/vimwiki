@@ -1020,7 +1020,10 @@ endfunction "}}}
 "changes lvl of lines in selection
 function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0 | return | endif
+  if from_item.type == 0
+    execute a:from_line.','.a:to_line. (a:direction == 'increase' ? '>' : '<')
+    return
+  endif
   if a:from_line == a:to_line
     if a:plus_children
       let to_line = s:get_last_line_of_item_incl_children(from_item)
