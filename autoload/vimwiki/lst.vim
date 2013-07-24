@@ -546,8 +546,8 @@ function! s:update_state(item) "{{{
     return
   endif
 
-  let sum_siblings = 0
-  let count_siblings = 0
+  let sum_children_rate = 0
+  let count_children_with_cb = 0
 
   let child_item = s:get_first_child(a:item)
 
@@ -556,18 +556,20 @@ function! s:update_state(item) "{{{
       break
     endif
     if child_item.cb != ''
-      let count_siblings += 1
-      let sum_siblings += s:get_rate(child_item)
+      let count_children_with_cb += 1
+      let sum_children_rate += s:get_rate(child_item)
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
 
-  let new_rate = count_siblings > 0 ? sum_siblings / count_siblings : 0
+  if count_children_with_cb > 0
+    let new_rate = sum_children_rate / count_children_with_cb
 
-  "set state and set the parents states recursively
-  let state_changed = s:set_state(a:item, new_rate)
-  if state_changed
-    call s:update_state(s:get_parent(a:item))
+    "set state and set the parents states recursively
+    let state_changed = s:set_state(a:item, new_rate)
+    if state_changed
+      call s:update_state(s:get_parent(a:item))
+    endif
   endif
 endfunction "}}}
 
