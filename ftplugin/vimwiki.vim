@@ -65,80 +65,14 @@ endif
 
 " COMMENTS }}}
 
-" FOLDING for headers and list items using expr fold method. {{{
-
-" Folding list items using expr fold method. {{{
-
-function! s:get_base_level(lnum) "{{{
-  let lnum = a:lnum - 1
-  while lnum > 0
-    if getline(lnum) =~ g:vimwiki_rxHeader
-      return vimwiki#u#count_first_sym(getline(lnum))
-    endif
-    let lnum -= 1
-  endwhile
-  return 0
-endfunction "}}}
-
-function! s:find_forward(rx_item, lnum) "{{{
-  let lnum = a:lnum + 1
-
-  while lnum <= line('$')
-    let line = getline(lnum)
-    if line =~ a:rx_item
-          \ || line =~ '^\S'
-          \ || line =~ g:vimwiki_rxHeader
-      break
-    endif
-    let lnum += 1
-  endwhile
-
-  return [lnum, getline(lnum)]
-endfunction "}}}
-
-function! s:find_backward(rx_item, lnum) "{{{
-  let lnum = a:lnum - 1
-
-  while lnum > 1
-    let line = getline(lnum)
-    if line =~ a:rx_item
-          \ || line =~ '^\S'
-      break
-    endif
-    let lnum -= 1
-  endwhile
-
-  return [lnum, getline(lnum)]
-endfunction "}}}
-
-function! s:get_li_level(lnum) "{{{
-  if VimwikiGet('syntax') == 'media'
-    let level = vimwiki#u#count_first_sym(getline(a:lnum))
-  else
-    " let level = (indent(a:lnum) / &sw)
-    let level = indent(a:lnum)
-  endif
-  return level
-endfunction "}}}
-
-function! s:get_start_list(rx_item, lnum) "{{{
-  let lnum = a:lnum
-  while lnum >= 1
-    let line = getline(lnum)
-    if line !~ a:rx_item && line =~ '^\S'
-      return nextnonblank(lnum + 1)
-    endif
-    let lnum -= 1
-  endwhile
-  return 0
-endfunction "}}}
-
+" FOLDING {{{
+" Folding list items {{{
 function! VimwikiFoldListLevel(lnum) "{{{
   return vimwiki#lst#fold_level(a:lnum)
 endfunction "}}}
 " Folding list items }}}
 
-" Folding sections and code blocks using expr fold method. {{{
+" Folding sections and code blocks {{{
 function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
 
