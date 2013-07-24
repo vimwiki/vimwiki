@@ -109,6 +109,7 @@ function! s:get_item(lnum) "{{{
     return item
   endif
 
+
   let item.cb = matches[3]
 
   if matches[1] != ''
@@ -570,7 +571,6 @@ function! s:update_state(item) "{{{
   endif
 endfunction "}}}
 
-
 "Creates checkbox in a list item.
 "Returns: 1 if successful
 function! s:create_cb(item) "{{{
@@ -896,7 +896,6 @@ function! vimwiki#lst#remove_cb_in_list() "{{{
   call s:update_state(s:get_parent(first_item))
 endfunction "}}}
 
-
 function! vimwiki#lst#change_marker_in_list(new_mrkr) "{{{
   let cur_item = s:get_corresponding_item(line('.'))
   let first_item = s:get_first_item_in_list(cur_item, 0)
@@ -1103,7 +1102,6 @@ function! s:indent_multiline(prev_item, lnum) "{{{
   endif
 endfunction "}}}
 
-
 function! vimwiki#lst#kbd_o() "{{{
   let fold_end = foldclosedend('.')
   let lnum = (fold_end == -1) ? line('.') : fold_end
@@ -1160,7 +1158,7 @@ function! s:create_marker(lnum) "{{{
   endif
 endfunction "}}}
 
-function! s:cr_on_empty_list_item(lnum, behavior)
+function! s:cr_on_empty_list_item(lnum, behavior) "{{{
   if a:behavior == 1
     "just make a new list item
     normal! gi
@@ -1212,18 +1210,18 @@ function! s:cr_on_empty_list_item(lnum, behavior)
     endif
     return
   endif
-endfunction
+endfunction "}}}
 
-function! s:cr_on_empty_line(lnum, behavior)
+function! s:cr_on_empty_line(lnum, behavior) "{{{
   if a:behavior == 2 || a:behavior == 3
     normal! gi
     call s:create_marker(a:lnum+1)
   elseif a:behavior == 1 || a:behavior == 4
     normal! gix
   endif
-endfunction
+endfunction "}}}
 
-function! s:cr_on_list_item(lnum, behavior, cur_col)
+function! s:cr_on_list_item(lnum, behavior, cur_col) "{{{
   if a:behavior == 2 || a:behavior == 4 || (a:cur_col == 0 && getline(a:lnum) =~ '\s$')
     " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
     normal! gi
@@ -1239,7 +1237,7 @@ function! s:cr_on_list_item(lnum, behavior, cur_col)
       call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
     endif
   endif
-endfunction
+endfunction "}}}
 
 function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
   let lnum = line('.')
@@ -1318,7 +1316,7 @@ function! vimwiki#lst#get_list_margin() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki#lst#setup_marker_infos()
+function! vimwiki#lst#setup_marker_infos() "{{{
   let s:multiple_bullet_chars = []
   for i in keys(g:vimwiki_bullet_types)
     if g:vimwiki_bullet_types[i] == 1
@@ -1352,4 +1350,20 @@ function! vimwiki#lst#setup_marker_infos()
     let g:vimwiki_rxListNumber = '$^'
   endif
 
-endfunction
+endfunction "}}}
+
+fun! vimwiki#lst#fold_level(lnum) "{{{
+  let cur_item = s:get_item(a:lnum)
+  if cur_item.type != 0
+    let parent_item = s:get_parent(cur_item)
+    let child_item = s:get_first_child(cur_item)
+    let next_item = s:get_next_child_item(parent_item, cur_item)
+    if child_item.type != 0
+      return 'a1'
+    elseif next_item.type == 0
+      return 's1'
+    endif
+  endif
+
+  return '='
+endf "}}}

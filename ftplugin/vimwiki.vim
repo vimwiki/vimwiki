@@ -115,7 +115,8 @@ function! s:get_li_level(lnum) "{{{
   if VimwikiGet('syntax') == 'media'
     let level = vimwiki#u#count_first_sym(getline(a:lnum))
   else
-    let level = (indent(a:lnum) / &sw)
+    " let level = (indent(a:lnum) / &sw)
+    let level = indent(a:lnum)
   endif
   return level
 endfunction "}}}
@@ -133,53 +134,7 @@ function! s:get_start_list(rx_item, lnum) "{{{
 endfunction "}}}
 
 function! VimwikiFoldListLevel(lnum) "{{{
-  let line = getline(a:lnum)
-
-  "" XXX Disabled: Header/section folding...
-  "if line =~ g:vimwiki_rxHeader
-  "  return '>'.vimwiki#u#count_first_sym(line)
-  "endif
-
-  "let nnline = getline(a:lnum+1)
-
-  "" Unnecessary?
-  "if nnline =~ g:vimwiki_rxHeader
-  "  return '<'.vimwiki#u#count_first_sym(nnline)
-  "endif
-  "" Very slow when called on every single line!
-  "let base_level = s:get_base_level(a:lnum)
-
-  "FIXME does not work correctly
-  let base_level = 0
-
-  if line =~ g:vimwiki_rxListItem
-    let [nnum, nline] = s:find_forward(g:vimwiki_rxListItem, a:lnum)
-    let level = s:get_li_level(a:lnum)
-    let leveln = s:get_li_level(nnum)
-    let adj = s:get_li_level(s:get_start_list(g:vimwiki_rxListItem, a:lnum))
-
-    if leveln > level
-      return ">".(base_level+leveln-adj)
-    " check if multilined list item
-    elseif (nnum-a:lnum) > 1
-          \ && (nline =~ g:vimwiki_rxListItem || nnline !~ '^\s*$')
-      return ">".(base_level+level+1-adj)
-    else
-      return (base_level+level-adj)
-    endif
-  else
-    " process multilined list items
-    let [pnum, pline] = s:find_backward(g:vimwiki_rxListItem, a:lnum)
-    if pline =~ g:vimwiki_rxListItem
-      if indent(a:lnum) >= indent(pnum) && line !~ '^\s*$'
-        let level = s:get_li_level(pnum)
-        let adj = s:get_li_level(s:get_start_list(g:vimwiki_rxListItem, pnum))
-        return (base_level+level+1-adj)
-      endif
-    endif
-  endif
-
-  return base_level
+  return vimwiki#lst#fold_level(a:lnum)
 endfunction "}}}
 " Folding list items }}}
 
