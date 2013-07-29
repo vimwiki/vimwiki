@@ -1221,14 +1221,8 @@ function! s:cr_on_empty_line(lnum, behavior) "{{{
   endif
 endfunction "}}}
 
-function! s:cr_on_list_item(lnum, behavior, cur_col) "{{{
-  if a:behavior == 2 || a:behavior == 4 || (a:cur_col == 0 && getline(a:lnum) =~ '\s$')
-    " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
-    normal! gi
-    let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
-    call s:indent_multiline(prev_line, a:lnum+1)
-
-  elseif a:behavior == 1 || a:behavior == 3
+function! s:cr_on_list_item(lnum, insert_new_marker) "{{{
+  if a:insert_new_marker
     "the ultimate feature of this script: make new marker on <CR>
     normal! gi
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
@@ -1236,6 +1230,12 @@ function! s:cr_on_list_item(lnum, behavior, cur_col) "{{{
     if getline(a:lnum) =~ ':$'
       call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
     endif
+  else
+    " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
+    "indent this line so that it becomes the continuation of the line above
+    normal! gi
+    let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
+    call s:indent_multiline(prev_line, a:lnum+1)
   endif
 endfunction "}}}
 
@@ -1254,14 +1254,22 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
     return
   endif
 
-  let cur_col = col("$") - col("'^")
+  let insert_new_marker = (a:normal == 1 || a:normal == 3)
+  if getline('.')[col("'^")-1:] =~ '^\s\+$'
+    let cur_col = 0
+  else
+    let cur_col = col("$") - col("'^")
+    if insert_new_marker && cur_col == 0 && getline(lnum) =~ '\s$'
+      let insert_new_marker = 0
+    endif
+  endif
 
   if has_bp == 0
     call s:cr_on_empty_line(lnum, a:normal)
   endif
 
   if has_bp == 2
-    call s:cr_on_list_item(lnum, a:normal, cur_col)
+    call s:cr_on_list_item(lnum, insert_new_marker)
   endif
 
   call cursor(lnum+1, col("$") - cur_col)
