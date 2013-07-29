@@ -461,9 +461,8 @@ endfunction "}}}
 
 "Returns: the (rounded) rate of [X] checked child items in percent
 function! s:get_rate(item) "{{{
-  let rate = -1
   if a:item.type == 0 || a:item.cb == ''
-    return rate
+    return -1
   endif
   let state = a:item.cb
   return index(g:vimwiki_listsyms, state) * 25
@@ -1060,9 +1059,8 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   endif
   call s:update_state(old_parent)
   let from_item = s:get_item(from_item.lnum)
-  if s:get_rate(from_item) < 100
+  if from_item.cb != ''
     call s:update_state(from_item)
-  else
     call s:update_state(s:get_parent(from_item))
   endif
 
