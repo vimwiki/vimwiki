@@ -126,10 +126,13 @@ endfunction "}}}
 "Returns: level of the line
 "0 is the 'highest' level
 function! s:get_level(lnum) "{{{
+  if getline(a:lnum) =~ '^\s*$'
+    return 0
+  endif
   if VimwikiGet('syntax') != 'media'
-    let level = getline(a:lnum) !~ '^\s*$' ? indent(a:lnum) : 0
+    let level = indent(a:lnum)
   else
-    let level = vimwiki#u#count_first_sym(a:lnum) - 1
+    let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars)) - 1
     if level < 0
       let level = (indent(a:lnum) == 0) ? 0 : 9999
     endif
@@ -1325,6 +1328,8 @@ function! vimwiki#lst#get_list_margin() "{{{
 endfunction "}}}
 
 function! vimwiki#lst#setup_marker_infos() "{{{
+  let s:rx_bullet_chars = '['.join(keys(g:vimwiki_bullet_types), '').']\+'
+
   let s:multiple_bullet_chars = []
   for i in keys(g:vimwiki_bullet_types)
     if g:vimwiki_bullet_types[i] == 1
