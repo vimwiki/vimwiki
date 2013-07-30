@@ -321,16 +321,35 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   " Get scheme
   let scheme = matchstr(lnk, g:vimwiki_rxSchemeUrlMatchScheme)
   " Get link (without scheme)
+  " if ! empty(lnk)
   let lnk = matchstr(lnk, g:vimwiki_rxSchemeUrlMatchUrl)
   let path = ''
   let subdir = ''
   let ext = ''
   let idx = -1
+  let anchor = ''
 
   " do nothing if scheme is unknown to vimwiki
   if !(scheme =~ 'wiki.*' || scheme =~ 'diary' || scheme =~ 'local' 
         \ || scheme =~ 'file')
-    return [idx, scheme, path, subdir, lnk, ext, scheme.':'.lnk]
+    return [idx, scheme, path, subdir, lnk, ext, scheme.':'.lnk, anchor]
+  endif
+
+  if !(a:as_html)
+    if match(lnk, '#\zs.\{-}\ze$') > -1
+      if g:vimwiki_debug
+        echom 'lnk='.lnk
+      endif
+      let link = matchstr(lnk, '\zs.\{-}\ze#')
+      if g:vimwiki_debug
+        echom 'link='.link
+      endif
+      let anchor = matchstr (lnk, '#\zs.\{-}\ze$')
+      if g:vimwiki_debug
+        echom 'anchor='.anchor
+      endif
+      let lnk = link
+    endif
   endif
 
   " scheme behaviors
@@ -338,7 +357,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
     let idx = eval(matchstr(scheme, '\D\+\zs\d\+\ze'))
     if idx < 0 || idx >= len(g:vimwiki_list)
       echom 'Vimwiki Error: Numbered scheme refers to a non-existent wiki!'
-      return [idx,'','','','','','']
+      return [idx,'','','','','','','']
     else
       if idx != g:vimwiki_current_idx
         call vimwiki#base#validate_wiki_options(idx)
@@ -427,7 +446,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   endif
 
   " result
-  return [idx, scheme, path, subdir, lnk, ext, url]
+  return [idx, scheme, path, subdir, lnk, ext, url, anchor]
 endfunction "}}}
 
 " vimwiki#base#system_open_link
@@ -459,14 +478,29 @@ function! vimwiki#base#system_open_link(url) "{{{
   echomsg 'Default Vimwiki link handler was unable to open the HTML file!'
 endfunction "}}}
 
+" vimwiki#base#goto_anchor
+function! vimwiki#base#goto_anchor(anchor) "{{{
+  " find first anchor and goto it
+  " NOTE: headings are anchors too
+  " NOTE: defined anchors take precedence over headings
+
+  " searches for defined anchors
+  if g:vimwiki_debug
+    echom 'Searching for anchor: [[\s*#'.a:anchor.'\s*\]'
+  endif
+  if ! search('\[\[\s*#'.a:anchor.'\s*\]', 'cw')
+    call search('^\(=\+\)\s*'.a:anchor.'\s*\;\s*$', 'cw')
+  endif
+endfunction "}}}
+
 " vimwiki#base#open_link
 function! vimwiki#base#open_link(cmd, link, ...) "{{{
-  let [idx, scheme, path, subdir, lnk, ext, url] = 
+  let [idx, scheme, path, subdir, lnk, ext, url, anchor] = 
         \ vimwiki#base#resolve_scheme(a:link, 0)
 
   if url == ''
     if g:vimwiki_debug
-      echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url
+      echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.', anchor='.anchor
     endif
     echom 'Vimwiki Error: Unable to resolve link!'
     return
@@ -494,17 +528,22 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
 
   " open/edit
   if g:vimwiki_debug
-    echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url
+    echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.', anchor='.anchor
   endif
 
   if use_system_open
     call vimwiki#base#system_open_link(url)
   else
-    call vimwiki#base#edit_file(a:cmd, url,
-          \ vimwiki_prev_link, update_prev_link)
-    if idx != g:vimwiki_current_idx
-      " this call to setup_buffer_state may not be necessary
-      call vimwiki#base#setup_buffer_state(idx)
+    if ! empty(lnk)
+      call vimwiki#base#edit_file(a:cmd, url,
+            \ vimwiki_prev_link, update_prev_link)
+      if idx != g:vimwiki_current_idx
+        " this call to setup_buffer_state may not be necessary
+        call vimwiki#base#setup_buffer_state(idx)
+      endif
+    endif
+    if ! empty (anchor)
+      call vimwiki#base#goto_anchor(anchor)
     endif
   endif
 endfunction " }}}
