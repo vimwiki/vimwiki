@@ -334,6 +334,7 @@ function! s:CR(normal, just_mrkr) "{{{
     let res = vimwiki#tbl#kbd_cr()
     if res != ""
       exe "normal! " . res . "\<Right>"
+      startinsert
       return
     endif
   endif
