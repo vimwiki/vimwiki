@@ -151,7 +151,7 @@ let g:vimwiki_rxWikiInclSuffix1 = g:vimwiki_rxWikiInclArgs.
 " the whitespace.
 " Stuart, could you check it with markdown templated links? [](http://...), as
 " the last bracket is the part of URL now?
-let g:vimwiki_rxWeblink = '[[:alnum:]]\@<!'. g:vimwiki_rxWeblinkUrl . '\S*'
+let g:vimwiki_rxWeblink = '\<'. g:vimwiki_rxWeblinkUrl . '\S*'
 " 0a) match URL within URL
 let g:vimwiki_rxWeblinkMatchUrl = g:vimwiki_rxWeblink
 " 0b) match DESCRIPTION within URL
