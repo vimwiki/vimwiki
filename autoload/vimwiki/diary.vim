@@ -341,8 +341,8 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
     endif
   endif
 
-  " Create diary note for a selected date in default wiki.
-  call vimwiki#diary#make_note(1, 0, link)
+  " XXX: Well, +1 is for inconsistent index basing...
+  call vimwiki#diary#make_note(g:vimwiki_current_idx+1, 0, link)
 endfunction "}}}
 
 " Sign function.
