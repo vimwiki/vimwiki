@@ -776,8 +776,8 @@ endfunction "}}}
 
 " s:update_wiki_links
 function! s:update_wiki_links(old_fname, new_fname) " {{{
-  let old_fname = s:tail_name(a:old_fname)
-  let new_fname = s:tail_name(a:new_fname)
+  let old_fname = a:old_fname
+  let new_fname = a:new_fname
 
   let subdirs = split(a:old_fname, '[/\\]')[: -2]
 
@@ -1098,7 +1098,7 @@ function! vimwiki#base#rename_link() "{{{
   setlocal nomore
 
   " update links
-  call s:update_wiki_links(old_fname, new_link)
+  call s:update_wiki_links(s:tail_name(old_fname), new_link)
 
   " restore wiki buffers
   for bitem in blist
