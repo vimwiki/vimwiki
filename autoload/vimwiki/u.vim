@@ -75,3 +75,16 @@ function! vimwiki#u#path_common_pfx(path1, path2) "{{{
   endif
 endfunction "}}}
 
+function! vimwiki#u#escape(string) "{{{
+  return escape(a:string, '.*[]\^$')
+endfunction "}}}
+
+" Load concrete Wiki syntax: sets regexes and templates for headers and links
+function vimwiki#u#reload_regexes() "{{{
+  execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
+endfunction "}}}
+
+" Load syntax-specific functionality
+function vimwiki#u#reload_regexes_custom() "{{{
+  execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
+endfunction "}}}

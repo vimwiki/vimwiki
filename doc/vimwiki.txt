@@ -280,13 +280,6 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>rr <Plug>VimwikiRenameLink
 <
-                        *vimwiki_<C-Space>*
-<C-Space>               Toggle list item on/off (checked/unchecked)
-                        Maps to |:VimwikiToggleListItem|.
-                        To remap: >
-                        :nmap <leader>tt <Plug>VimwikiToggleListItem
-<                       See |vimwiki-todo-lists|.
-
                         *vimwiki_=*
 =                       Add header level. Create if needed.
                         There is nothing to indent with '==' command in
@@ -308,27 +301,80 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         the cursor over a word or link, or in visual mode with
                         the selected text .
 
-                        *vimwiki_glm*
-glm                     Increase the indent of a single-line list item.
+                        *vimwiki_<C-Space>*
+<C-Space>               Toggle list item on/off (checked/unchecked)
+                        Maps to |:VimwikiToggleListItem|.
+                        To remap: >
+                        :nmap <leader>tt <Plug>VimwikiToggleListItem
+<                       See |vimwiki-todo-lists|.
 
-                        *vimwiki_gll*
-gll                     Decrease the indent of a single-line list item.
+                        *vimwiki_gl<Space>*
+gl<Space>               Remove checkbox from list item.
 
-                        *vimwiki_glstar* *vimwiki_gl8*
-gl* or gl8              Switch or insert a "*" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_gL<Space>*
+gL<Space>               Remove checkboxes from all sibling list items.
 
-                        *vimwiki_gl#* *vimwiki_gl3*
-gl# or gl3              Switch or insert a "#" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_gll* *vimwiki_gLl*
+gll                     Increase the level of a list item.
+gLl                     Increase the level of a list item and all child items.
 
-                        *vimwiki_gl-*
-gl-                     Switch or insert a "-" symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_glh* *vimwiki_gLh*
+glh                     Decrease the level of a list item.
+gLh                     Decrease the level of a list item and all child items.
 
-                        *vimwiki_gl1*
-gl1                     Switch or insert a "1." symbol.  Only available in
-                        supported syntaxes.
+                        *vimwiki_glr* *vimwiki_gLr*
+glr                     Renumber list items for the current list.
+gLr                     Renumber list items for the whole buffer.
+
+                        *vimwiki_glstar* *vimwiki_gLstar*
+gl*                     Make a list item out of normal line or change the marker
+                        of the current item to *.
+gL*                     Change the marker of the current list to *.
+
+                        *vimwiki_gl#* *vimwiki_gL#*
+gl#                     Make a list item out of normal line or change the marker
+                        of the current item to #.
+gL#                     Change the marker of the current list to #.
+
+                        *vimwiki_gl-* *vimwiki_gL-*
+gl-                     Make a list item out of normal line or change the marker
+                        of the current item to -.
+gL-                     Change the marker of the current list to -.
+
+                        *vimwiki_gl.* *vimwiki_gL.*
+gl.                     Make a list item out of normal line or change the marker
+                        of the current item to •.
+gL.                     Change the marker of the current list to •.
+
+                        *vimwiki_gl1* *vimwiki_gL1*
+gl1                     Make a list item out of normal line or change the marker
+                        of the current item to 1., the numbering is adjusted
+                        according to the surrounding list items.
+gL1                     Change the marker of the current list to 1. 2. 3. ...
+
+                        *vimwiki_gla* *vimwiki_gLa*
+gla                     Make a list item out of normal line or change the marker
+                        of the current item to a), the numbering is adjusted
+                        according to the surrounding list items.
+gLa                     Change the marker of the current list to a) b) c) ...
+
+                        *vimwiki_glA* *vimwiki_gLA*
+glA                     Make a list item out of normal line or change the marker
+                        of the current item to A), the numbering is adjusted
+                        according to the surrounding list items.
+gLA                     Change the marker of the current list to A) B) C) ...
+
+                        *vimwiki_gli* *vimwiki_gLi*
+gli                     Make a list item out of normal line or change the marker
+                        of the current item to i), the numbering is adjusted
+                        according to the surrounding list items.
+gLi                     Change the marker of the current list to i) ii) iii) ...
+
+                        *vimwiki_glI* *vimwiki_gLI*
+glI                     Make a list item out of normal line or change the marker
+                        of the current item to I), the numbering is adjusted
+                        according to the surrounding list items.
+gLI                     Change the marker of the current list to I) II) III) ...
 
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
@@ -372,14 +418,42 @@ Note: <2-LeftMouse> is just left double click.
 
 
 INSERT MODE                                           *vimwiki-table-mappings*
-                        *vimwiki_i_<CR>*
+                        *vimwiki_i_<CR>_table*
 <CR>                    Go to the table cell beneath the current one, create
                         a new row if on the last one.
-                        
-                        *vimwiki_i_<Tab>*
+
+                        *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
                         last cell.
 See |g:vimwiki_table_mappings| to turn them off.
+
+INSERT MODE                                            *vimwiki-list-mappings*
+                        *vimwiki_i_<CR>_list*
+<CR>                    In a list item, insert a new bullet or number in the
+                        next line, numbers are incremented.
+                        In an empty list item, delete the item marker. This is
+                        useful to end a list, you simply press <CR> twice.
+
+                        *vimwiki_i_<S-CR>_list*
+<S-CR>                  Does not insert a new list item, useful to create
+                        multilined list items.
+
+                        *vimwiki_i_<C-T>_list*
+<C-T>                   Increase the level of a list item.
+
+                        *vimwiki_i_<C-D>_list*
+<C-D>                   Decrease the level of a list item.
+
+                        *vimwiki_i_<C-L>_<C-J>_list*
+<C-L><C-J>              Change the marker of the current list item to the next
+                        available. From - to • to 1. to * to I) to a).
+
+                        *vimwiki_i_<C-L>_<C-K>_list*
+<C-L><C-K>              Change the marker of the current list item to the prev
+                        available. From - to a) to I) to * to 1. to •.
+
+                        *vimwiki_i_<C-L>_<C-M>_list*
+<C-L><C-M>              Create/remove a marker from a list item.
 
 
 ------------------------------------------------------------------------------
@@ -688,72 +762,79 @@ two lines.
 5.5. Lists                                              *vimwiki-syntax-lists*
 
 Unordered lists: >
+  - Bulleted list item 1
+  - Bulleted list item 2
+or: >
+  • Bulleted list item 1
+  • Bulleted list item 2
+or: >
   * Bulleted list item 1
   * Bulleted list item 2
-    * Bulleted list sub item 1
-    * Bulleted list sub item 2
-    * more ...
-      * and more ...
-      * ...
-    * Bulleted list sub item 3
-    * etc.
 or: >
-  - Bulleted list item 1
-  - Bulleted list item 2
-    - Bulleted list sub item 1
-    - Bulleted list sub item 2
-    - more ...
-      - and more ...
-      - ...
-    - Bulleted list sub item 3
-    - etc.
+  # Bulleted list item 1
+  # Bulleted list item 2
 
-or mix: >
-  - Bulleted list item 1
-  - Bulleted list item 2
-    * Bulleted list sub item 1
-    * Bulleted list sub item 2
-    * more ...
-      - and more ...
-      - ...
-    * Bulleted list sub item 3
-    * etc.
 
 Ordered lists: >
-  # Numbered list item 1
-  # Numbered list item 2
-    # Numbered list sub item 1
-    # Numbered list sub item 2
-    # more ...
-      # and more ...
-      # ...
-    # Numbered list sub item 3
-    # etc.
+  1. Numbered list item 1
+  2. Numbered list item 2
+  3. Numbered list item 3
+or: >
+  1) Numbered list item 1
+  2) Numbered list item 2
+  3) Numbered list item 3
+or: >
+  a) Numbered list item 1
+  b) Numbered list item 2
+  c) Numbered list item 3
+or: >
+  A) Numbered list item 1
+  B) Numbered list item 2
+  C) Numbered list item 3
+or: >
+  i) Numbered list item 1
+  ii) Numbered list item 2
+  iii) Numbered list item 3
+or: >
+  I) Numbered list item 1
+  II) Numbered list item 2
+  III) Numbered list item 3
 
-It is possible to mix bulleted and numbered lists: >
-  * Bulleted list item 1
-  * Bulleted list item 2
-    # Numbered list sub item 1
-    # Numbered list sub item 2
+You can nest and mix the various types: >
+  - Bulleted list item 1
+  - Bulleted list item 2
+    a) Numbered list sub item 1
+    b) more ...
+      • and more ...
+      • ...
+    c) Numbered list sub item 3
+      1. Numbered list sub sub item 1
+      2. Numbered list sub sub item 2
+    d) etc.
+  - Bulleted list item 3
 
-Note that a space after *, - or # is essential.
 
-Multiline list items: >
-  * Bulleted list item 1
-    List item 1 continued line.
-    List item 1 next continued line.
-  * Bulleted list item 2
-    * Bulleted list sub item 1
-      List sub item 1 continued line.
-      List sub item 1 next continued line.
-    * Bulleted list sub item 2
-    * etc.
+Note that a space after the list item markers (-, *, 1. etc.) are essential
+
+List items can span multiple lines: >
+  * Item 1
+    Item 1 continued line.
+    Item 1 next continued line.
+  * Item 2
+    - Sub item 1
+      Sub item 1 continued line.
+      Sub item 1 next continued line.
+    - Sub item 2
+    - etc.
+    Continuation of Item 2
+    Next continuation of Item 2
+
 
 Definition lists: >
-Term 1:: Definition 1
-Term 2::
-:: Definition 2
-:: Definition 3
+  Term 1:: Definition 1
+  Term 2::
+  :: Definition 2
+  :: Definition 3
 
 
 ------------------------------------------------------------------------------
@@ -1702,14 +1783,23 @@ Default: 0
 Checked list items can be highlighted with a color:
 
   * [X] the whole line can be highlighted with the option set to 1.
+    * this line is highlighted as well with the option set to 2
   * [ ] I wish vim could use strikethru.
 
 Value           Description~
-1               Highlight checked [X] check box with |group-name| "Comment".
-0               Don't.
+0               Don't highlight anything.
+1               Highlight checked [X] list item with |group-name| "Comment".
+2               Highlight checked [X] list item and all its child items.
 
 Default: 0
 
+Note: Option 2 does not work perfectly. Specifically, it might break on
+preformatted text or if you mix tabs and spaces for indenting, and indented
+headers will erroneously be highlighted.
+Furthermore, if your list is long, Vim's highlight can break. Consider putting
+>
+ au BufEnter file.wiki :syntax sync fromstart
+in your .vimrc
 
 ------------------------------------------------------------------------------
 *g:vimwiki_global_ext*
@@ -1786,12 +1876,15 @@ Default: 'Vimwiki'
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
 
-String of 5 symbols for list items with checkboxes.
-Default value is ' .oOX'.
+List of 5 symbols for list items with checkboxes.
+Default value is [' ', '.', 'o', 'O', 'X'].
 
 g:vimwiki_listsyms[0] is for 0% done items.
 g:vimwiki_listsyms[4] is for 100% done items.
 
+You can set it to some more fancy symbols like this:
+
+   let g:vimwiki_listsyms = ['✗', '○', '◐', '●', '✓']
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*

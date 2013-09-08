@@ -72,11 +72,16 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
-" List items start with optional whitespace(s) then '* ' or '1. ', '2. ', etc.
-let g:vimwiki_rxListBullet = '^\s*[*+-]\s'
-let g:vimwiki_rxListNumber = '^\s*[0-9]\+\.\s'
-
+" Lists
+let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+let g:vimwiki_number_types = ['1.']
+let g:vimwiki_list_markers = ['-', '*', '+', '1.']
 let g:vimwiki_rxListDefine = '::\%(\s\|$\)'
+call vimwiki#lst#setup_marker_infos()
+
+let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
+let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.join(g:vimwiki_listsyms, '').']\)\]\s\)\?'
+let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
 
 " Preformatted text
 let g:vimwiki_rxPreStart = '```'

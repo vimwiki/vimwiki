@@ -42,12 +42,11 @@ let g:vimwiki_WikiLink1Template2 = g:vimwiki_rxWikiLink1Prefix . '__LinkDescript
     \ g:vimwiki_rxWikiLink1Separator. '__LinkUrl__'.
     \ g:vimwiki_rxWikiLink1Suffix
 "
-let magic_chars = '.*[]\^$'
 let valid_chars = '[^\\\[\]]'
 
-let g:vimwiki_rxWikiLink1Prefix = escape(g:vimwiki_rxWikiLink1Prefix, magic_chars)
-let g:vimwiki_rxWikiLink1Suffix = escape(g:vimwiki_rxWikiLink1Suffix, magic_chars)
-let g:vimwiki_rxWikiLink1Separator = escape(g:vimwiki_rxWikiLink1Separator, magic_chars)
+let g:vimwiki_rxWikiLink1Prefix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Prefix)
+let g:vimwiki_rxWikiLink1Suffix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Suffix)
+let g:vimwiki_rxWikiLink1Separator = vimwiki#u#escape(g:vimwiki_rxWikiLink1Separator)
 let g:vimwiki_rxWikiLink1Url = valid_chars.'\{-}'
 let g:vimwiki_rxWikiLink1Descr = valid_chars.'\{-}'
 
@@ -125,12 +124,11 @@ let g:vimwiki_Weblink1Template = g:vimwiki_rxWeblink1Prefix . '__LinkDescription
       \ g:vimwiki_rxWeblink1Separator. '__LinkUrl__'.
       \ g:vimwiki_rxWeblink1Suffix
 
-let magic_chars = '.*[]\^$'
 let valid_chars = '[^\\]'
 
-let g:vimwiki_rxWeblink1Prefix = escape(g:vimwiki_rxWeblink1Prefix, magic_chars)
-let g:vimwiki_rxWeblink1Suffix = escape(g:vimwiki_rxWeblink1Suffix, magic_chars)
-let g:vimwiki_rxWeblink1Separator = escape(g:vimwiki_rxWeblink1Separator, magic_chars)
+let g:vimwiki_rxWeblink1Prefix = vimwiki#u#escape(g:vimwiki_rxWeblink1Prefix)
+let g:vimwiki_rxWeblink1Suffix = vimwiki#u#escape(g:vimwiki_rxWeblink1Suffix)
+let g:vimwiki_rxWeblink1Separator = vimwiki#u#escape(g:vimwiki_rxWeblink1Separator)
 let g:vimwiki_rxWeblink1Url = valid_chars.'\{-}'
 let g:vimwiki_rxWeblink1Descr = valid_chars.'\{-}'
 
