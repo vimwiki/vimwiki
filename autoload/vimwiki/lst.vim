@@ -162,38 +162,68 @@ endfunction "}}}
 "Returns: the list item after a:item in its list or empty item
 "If a:all is 1, the markers can differ
 function! s:get_next_list_item(item, all) "{{{
-  return s:get_next_or_prev_list_item(a:item, +1, line('$')+1, a:all)
+  let org_lvl = s:get_level(a:item.lnum)
+  if !a:all
+    let org_regex = s:regexp_of_marker(a:item)
+  endif
+
+  let cur_ln = s:get_next_line(a:item.lnum)
+  while cur_ln <= line('$')
+    let cur_lvl = s:get_level(cur_ln)
+    if cur_lvl <= org_lvl
+      if a:all
+        return s:get_any_item_of_level(cur_ln, cur_lvl, org_lvl)
+      else
+        return s:get_item_of_level(cur_ln, cur_lvl, org_lvl, org_regex)
+      endif
+    endif
+    let cur_ln = s:get_next_line(cur_ln)
+  endwhile
+  return s:empty_item()
 endfunction "}}}
 
 "Returns: the list item before a:item in its list or empty item
 "If a:all is 1, the markers can differ
 function! s:get_prev_list_item(item, all) "{{{
-  return s:get_next_or_prev_list_item(a:item, -1, 0, a:all)
-endfunction "}}}
-
-function! s:get_next_or_prev_list_item(item, direction, until, all) "{{{
   let org_lvl = s:get_level(a:item.lnum)
   if !a:all
     let org_regex = s:regexp_of_marker(a:item)
   endif
-  let cur_ln = s:get_next_prev_line(a:item.lnum, a:direction)
-  while cur_ln != a:until
-    let cur_lvl = s:get_level(cur_ln)
-    let cur_linecontent = getline(cur_ln)
 
-    if cur_lvl == org_lvl
-      if a:all || cur_linecontent =~# '^\s*'.org_regex.'\s'
-        return s:get_item(cur_ln)
+  let cur_ln = s:get_prev_line(a:item.lnum)
+  while cur_ln >= 1
+    let cur_lvl = s:get_level(cur_ln)
+    if cur_lvl <= org_lvl
+      if a:all
+        return s:get_any_item_of_level(cur_ln, cur_lvl, org_lvl)
+      else
+        return s:get_item_of_level(cur_ln, cur_lvl, org_lvl, org_regex)
+      endif
+    endif
+    let cur_ln = s:get_prev_line(cur_ln)
+  endwhile
+  return s:empty_item()
+endfunction "}}}
+
+function! s:get_item_of_level(cur_ln, cur_lvl, org_lvl, org_regex) "{{{
+    let cur_linecontent = getline(a:cur_ln)
+    if a:cur_lvl == a:org_lvl
+      if cur_linecontent =~# '^\s*'.a:org_regex.'\s'
+        return s:get_item(a:cur_ln)
       else
         return s:empty_item()
       endif
-    elseif cur_lvl < org_lvl
+    elseif a:cur_lvl < a:org_lvl
       return s:empty_item()
-    else
-      let cur_ln = s:get_next_prev_line(cur_ln, a:direction)
     endif
-  endwhile
-  return s:empty_item()
+endfunction "}}}
+
+function! s:get_any_item_of_level(cur_ln, cur_lvl, org_lvl) "{{{
+    if a:cur_lvl == a:org_lvl
+      return s:get_item(a:cur_ln)
+    elseif a:cur_lvl < a:org_lvl
+      return s:empty_item()
+    endif
 endfunction "}}}
 
 function! s:first_char(string) "{{{
@@ -335,14 +365,6 @@ function! s:get_prev_line(lnum) "{{{
   endif
 
   return prev_line
-endfunction "}}}
-
-function! s:get_next_prev_line(lnum, dir) "{{{
-  if a:dir == 1
-    return s:get_next_line(a:lnum)
-  else
-    return s:get_prev_line(a:lnum)
-  endif
 endfunction "}}}
 
 function! s:get_first_child(item) "{{{
