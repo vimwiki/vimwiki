@@ -1169,10 +1169,21 @@ function! s:remove_mrkr(item) "{{{
   return item
 endfunction "}}}
 
+function! s:get_a_neighbor_item_in_column(lnum, column) "{{{
+  let cur_ln = s:get_prev_line(a:lnum)
+  while cur_ln >= 1
+    if s:get_level(cur_ln) <= a:column
+      return s:get_corresponding_item(cur_ln)
+    endif
+    let cur_ln = s:get_prev_line(cur_ln)
+  endwhile
+  return s:empty_item()
+endfunction "}}}
+
 function! s:create_marker(lnum) "{{{
   let new_sibling = s:get_corresponding_item(a:lnum)
   if new_sibling.type == 0
-    let new_sibling = s:get_a_neighbor_item(s:get_item(a:lnum))
+    let new_sibling = s:get_a_neighbor_item_in_column(a:lnum, virtcol('.'))
   endif
   if new_sibling.type != 0
     call s:clone_marker_from_to(new_sibling.lnum, a:lnum)
@@ -1242,6 +1253,8 @@ function! s:cr_on_empty_line(lnum, behavior) "{{{
     normal! gi
     call s:create_marker(a:lnum+1)
   elseif a:behavior == 1 || a:behavior == 4
+    "inserting and deleting the x is necessary
+    "because otherwise the indent is lost
     normal! gix
   endif
 endfunction "}}}
