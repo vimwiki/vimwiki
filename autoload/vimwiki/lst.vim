@@ -826,8 +826,8 @@ function! s:set_new_mrkr(item, new_mrkr) "{{{
   endif
 endfunction "}}}
 
-function! vimwiki#lst#change_marker(line1, line2, new_mrkr) "{{{
-  let cur_col_from_eol = col("$") - col("'^")
+function! vimwiki#lst#change_marker(line1, line2, new_mrkr, mode) "{{{
+  let cur_col_from_eol = col("$") - (a:mode == "i" ? col("'^") : col('.'))
   let new_mrkr = a:new_mrkr
   let cur_ln = a:line1
   while 1

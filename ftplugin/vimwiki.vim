@@ -188,7 +188,7 @@ command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
 
 
 " list commands
-command! -buffer -range -nargs=1 VimwikiListChangeMarker call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>)
+command! -buffer -range -nargs=+ VimwikiListChangeMarker call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>)
 command! -buffer -nargs=1 VimwikiListChangeMarkerInList call vimwiki#lst#change_marker_in_list(<f-args>)
 command! -buffer -nargs=+ VimwikiListLineBreak call <SID>CR(<f-args>)
 command! -buffer -range -nargs=1 VimwikiListIncreaseLvl call vimwiki#lst#change_level(<line1>, <line2>, 'increase', <f-args>)
@@ -354,8 +354,8 @@ map <silent> <buffer> gLH glH
 map <silent> <buffer> gLL gLl
 inoremap <buffer> <C-D> <C-O>:VimwikiListDecreaseLvl 0<CR>
 inoremap <buffer> <C-T> <C-O>:VimwikiListIncreaseLvl 0<CR>
-inoremap <buffer> <C-L><C-J> <C-O>:VimwikiListChangeMarker next<CR>
-inoremap <buffer> <C-L><C-K> <C-O>:VimwikiListChangeMarker prev<CR>
+inoremap <buffer> <C-L><C-J> <C-O>:VimwikiListChangeMarker next i<CR>
+inoremap <buffer> <C-L><C-K> <C-O>:VimwikiListChangeMarker prev i<CR>
 nmap <silent> <buffer> glr :call vimwiki#lst#adjust_numbered_list()<CR>
 nmap <silent> <buffer> gLr :call vimwiki#lst#adjust_whole_buffer()<CR>
 nmap <silent> <buffer> gLR gLr
@@ -365,11 +365,11 @@ inoremap <silent> <buffer> <C-L><C-M> <Esc>:call vimwiki#lst#toggle_list_item()<
 
 for s:k in keys(g:vimwiki_bullet_types)
   let s:char = (s:k == '•' ? '.' : s:k)
-  exe 'noremap <silent> <buffer> gl'.s:char.' :VimwikiListChangeMarker '.s:k.'<CR>'
+  exe 'noremap <silent> <buffer> gl'.s:char.' :VimwikiListChangeMarker '.s:k.' n<CR>'
   exe 'noremap <silent> <buffer> gL'.s:char.' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
 endfor
 for s:k in g:vimwiki_number_types
-  exe 'noremap <silent> <buffer> gl'.s:k[0].' :VimwikiListChangeMarker '.s:k.'<CR>'
+  exe 'noremap <silent> <buffer> gl'.s:k[0].' :VimwikiListChangeMarker '.s:k.' n<CR>'
   exe 'noremap <silent> <buffer> gL'.s:k[0].' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
 endfor
 
