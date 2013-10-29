@@ -484,7 +484,7 @@ function! s:adjust_numbered_list(item, all, recursive) "{{{
   endwhile
 endfunction "}}}
 
-"Returns: the (rounded) rate of [X] checked child items in percent
+"Returns: the (rounded) rate of checkboxed list item in percent
 function! s:get_rate(item) "{{{
   if a:item.type == 0 || a:item.cb == ''
     return -1
@@ -588,12 +588,19 @@ function! s:update_state(item) "{{{
 
   if count_children_with_cb > 0
     let new_rate = sum_children_rate / count_children_with_cb
-
-    "set state and set the parents states recursively
-    let state_changed = s:set_state(a:item, new_rate)
-    if state_changed
-      call s:update_state(s:get_parent(a:item))
+    call s:set_state_recursively(a:item, new_rate)
+  else
+    let rate = s:get_rate(a:item)
+    if rate > 0 && rate < 100
+      call s:set_state_recursively(a:item, 0)
     endif
+  endif
+endfunction "}}}
+
+function! s:set_state_recursively(item, new_rate) "{{{
+  let state_changed = s:set_state(a:item, a:new_rate)
+  if state_changed
+    call s:update_state(s:get_parent(a:item))
   endif
 endfunction "}}}
 
