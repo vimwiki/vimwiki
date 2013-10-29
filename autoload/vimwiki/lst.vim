@@ -1256,13 +1256,11 @@ function! s:cr_on_empty_list_item(lnum, behavior) "{{{
 endfunction "}}}
 
 function! s:cr_on_empty_line(lnum, behavior) "{{{
+  "inserting and deleting the x is necessary
+  "because otherwise the indent is lost
+  normal! gix
   if a:behavior == 2 || a:behavior == 3
-    normal! gi
     call s:create_marker(a:lnum+1)
-  elseif a:behavior == 1 || a:behavior == 4
-    "inserting and deleting the x is necessary
-    "because otherwise the indent is lost
-    normal! gix
   endif
 endfunction "}}}
 
