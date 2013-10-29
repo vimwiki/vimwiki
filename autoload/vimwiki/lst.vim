@@ -1053,7 +1053,12 @@ endfunction "}}}
 function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
-    execute a:from_line.','.a:to_line. (a:direction == 'increase' ? '>' : '<')
+    if a:direction == 'increase' && a:from_line == a:to_line && empty(getline(a:from_line))
+      "that's because :> doesn't work on an empty line
+      normal! gi
+    else
+      execute a:from_line.','.a:to_line. (a:direction == 'increase' ? '>' : '<')
+    endif
     return
   endif
   if a:from_line == a:to_line
