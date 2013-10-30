@@ -1410,6 +1410,24 @@ function! vimwiki#lst#setup_marker_infos() "{{{
 
 endfunction "}}}
 
+function! vimwiki#lst#TO_list_item(inner, visual) "{{{
+  let lnum = prevnonblank('.')
+  let item = s:get_corresponding_item(lnum)
+  if item.type == 0
+    return
+  endif
+  let from_line = item.lnum
+  if a:inner
+    let to_line = s:get_last_line_of_item(item)
+  else
+    let to_line = s:get_last_line_of_item_incl_children(item)
+  endif
+  normal! V
+  call cursor(to_line, 0)
+  normal! o
+  call cursor(from_line, 0)
+endfunction "}}}
+
 fun! vimwiki#lst#fold_level(lnum) "{{{
   let cur_item = s:get_item(a:lnum)
   if cur_item.type != 0

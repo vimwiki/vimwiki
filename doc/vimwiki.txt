@@ -471,6 +471,9 @@ i\                      An inner cell in a table.
 ac                      A column in a table.
 ic                      An inner column in a table.
 
+al                      A list item plus it's children.
+il                      A single list item.
+
 
 ==============================================================================
 4. Commands                                                 *vimwiki-commands*
@@ -814,7 +817,7 @@ You can nest and mix the various types: >
   - Bulleted list item 3
 
 
-Note that a space after the list item markers (-, *, 1. etc.) are essential
+Note that a space after the list item markers (-, *, 1. etc.) is essential
 
 List items can span multiple lines: >
   * Item 1
