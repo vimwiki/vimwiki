@@ -1,3 +1,23 @@
+Yuex's Fork of vimwiki
+==============================================================================
+
+My fork of vimwiki/vimwiki, see Changelog below.
+
+Changelog
+==============================================================================
+
+ * fixed a markdown syntax highlighting issue. Now, `**strong**` and `__strong__` show bold; `*em*` and `_em_` show italic
+ * text objects `ah` and `ih` now support markdown header.starting with `#`
+    * `vih` now selects only contents, leaving the header unselected
+ * added header motion. 
+    * **Note**: Only atx style header of markdown starting with `#` and header of default syntax starting with `=` are supported
+    * `]u` and `[u` - go to upper level header
+    * `]c` and `[c` - go to current header
+    * `]]` - go to next header
+    * `[[` - go to previous header
+    * `]=` - go to next sibling header
+    * `[=` - go to previous sibling header
+
 A Personal Wiki For Vim Plugin
 ==============================================================================
 
@@ -127,3 +147,4 @@ Using pathogen (http://www.vim.org/scripts/script.php?script_id=2332)
     git clone git://github.com/vim-scripts/vimwiki.git
 
 Then launch vim and run `:help vimwiki` to verify it was installed.
+
