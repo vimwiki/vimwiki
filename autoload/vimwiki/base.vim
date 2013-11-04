@@ -1149,9 +1149,17 @@ function! vimwiki#base#TO_header(inner, visual) "{{{
   if a:visual && is_header_selected
     if level > 1
       let level -= 1
-      call search('^\('.rxH.'\{'.level.'\}\).\+\1\=\s*$', 'bcW')
+      call search('^\('.rxH.'\{'.level.'\}\)[^'.rxH.']\+\1\=\s*$', 'bcW')
     else
       let advance = 1
+    endif
+  endif
+
+  if a:inner
+    call cursor(line('.') + 1, 0)
+    if getline(line('.')) =~ '^\s*$'
+      let lnum = nextnonblank(line('.') + 1)
+      call cursor(lnum, 0)
     endif
   endif
 
@@ -1161,7 +1169,7 @@ function! vimwiki#base#TO_header(inner, visual) "{{{
     call cursor(sel_end + advance, 0)
   endif
 
-  if search('^\('.rxH.'\{1,'.level.'}\).\+\1\=\s*$', 'W')
+  if search('^\('.rxH.'\{1,'.level.'\}\)[^'.rxH.']\+\1\=\s*$', 'W')
     call cursor(line('.') - 1, 0)
   else
     call cursor(line('$'), 0)
