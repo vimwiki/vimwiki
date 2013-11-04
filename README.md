@@ -7,8 +7,10 @@ Changelog
 ==============================================================================
 
  * fixed a markdown syntax highlighting issue. Now, `**strong**` and `__strong__` show bold; `*em*` and `_em_` show italic
- * text objects `ah` and `ih` now support markdown header. **Note**: Only atx style header starting with `#` is supported
- * added header motion. **Note**: Only atx style header starting with `#` is supported
+ * text objects `ah` and `ih` now support markdown header.starting with `#`
+    * `vih` now selects only contents, leaving the header unselected
+ * added header motion. 
+    * **Note**: Only atx style header of markdown starting with `#` and header of default syntax starting with `=` are supported
     * `]u` and `[u` - go to upper level header
     * `]c` and `[c` - go to current header
     * `]]` - go to next header
