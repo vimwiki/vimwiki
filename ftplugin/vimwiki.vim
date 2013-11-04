@@ -319,7 +319,6 @@ if g:vimwiki_use_mouse
   nnoremap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackLink<CR>
 endif
 
-
 if !hasmapto('<Plug>Vimwiki2HTML')
   nmap <buffer> <Leader>wh <Plug>Vimwiki2HTML
 endif
@@ -510,6 +509,14 @@ endif
 nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
       \<C-U>call vimwiki#base#RemoveHeaderLevel()<CR>
 
+nnoremap ]c :<C-U>call vimwiki#base#GotoHeader(0)<CR>
+nnoremap ]u :<C-U>call vimwiki#base#GotoHeader(-1, -1)<CR>
+nnoremap [c :<C-U>call vimwiki#base#GotoHeader(0)<CR>
+nnoremap [u :<C-U>call vimwiki#base#GotoHeader(-1, -1)<CR>
+nnoremap ]] :<C-U>call vimwiki#base#GotoHeader(+1)<CR>
+nnoremap [[ :<C-U>call vimwiki#base#GotoHeader(-1)<CR>
+nnoremap ]= :<C-U>call vimwiki#base#GotoHeader(+1, 0)<CR>
+nnoremap [= :<C-U>call vimwiki#base#GotoHeader(-1, 0)<CR>
 
 " }}}
 
