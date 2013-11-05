@@ -1460,7 +1460,7 @@ function! vimwiki#base#GotoHeader(direction, ...) "{{{
       let lnum = 0
     endif
   else
-    let lnum = search('^\('.rxH.'\+\).\+\1\=\s*$', 'W'.match_cursor)
+    let lnum = search('^\('.rxH.'\+\).\+\1\=\s*$', 'nW'.match_cursor)
   endif
 
   if lnum == 0
