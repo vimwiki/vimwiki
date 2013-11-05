@@ -1456,7 +1456,8 @@ function! vimwiki#base#GotoHeader(direction, ...) "{{{
 
   if exists('level')
     let lnum = search('^\('.rxH.'\{1,'.level.'}\)[^'.rxH.']\+\1\=\s*$', 'nW'.match_cursor)
-    if vimwiki#u#count_first_sym(getline(lnum)) < level
+
+    if lnum > 0 && vimwiki#u#count_first_sym(getline(lnum)) < level
       let lnum = 0
     endif
   else
