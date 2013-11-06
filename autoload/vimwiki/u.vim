@@ -36,7 +36,7 @@ endfunction "}}}
 
 function! vimwiki#u#path_norm(path) "{{{
   " /-slashes
-  if path !~# '^scp:'
+  if a:path !~# '^scp:'
     let path = substitute(a:path, '\', '/', 'g')
     " treat multiple consecutive slashes as one path separator
     let path = substitute(path, '/\+', '/', 'g')
