@@ -36,11 +36,15 @@ endfunction "}}}
 
 function! vimwiki#u#path_norm(path) "{{{
   " /-slashes
-  let path = substitute(a:path, '\', '/', 'g')
-  " treat multiple consecutive slashes as one path separator
-  let path = substitute(path, '/\+', '/', 'g')
-  " ensure that we are not fooled by a symbolic link
-  return resolve(path)
+  if path !~# '^scp:'
+    let path = substitute(a:path, '\', '/', 'g')
+    " treat multiple consecutive slashes as one path separator
+    let path = substitute(path, '/\+', '/', 'g')
+    " ensure that we are not fooled by a symbolic link
+    return resolve(path)
+  else
+    return a:path
+  endif
 endfunction "}}}
 
 function! vimwiki#u#is_link_to_dir(link) "{{{

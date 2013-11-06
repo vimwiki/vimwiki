@@ -14,7 +14,12 @@ let g:loaded_vimwiki_auto = 1
 function! s:normalize_path(path) "{{{
   let g:VimwikiLog.normalize_path += 1  "XXX
   " resolve doesn't work quite right with symlinks ended with / or \
-  return resolve(expand(substitute(a:path, '[/\\]\+$', '', ''))).'/'
+  let path = substitute(a:path, '[/\\]\+$', '', '')
+  if path !~# '^scp:'
+    return resolve(expand(path)).'/'
+  else
+    return path.'/'
+  endif
 endfunction "}}}
 
 " s:path_html
@@ -239,17 +244,21 @@ endfunction "}}}
 " vimwiki#base#mkdir will ask before creating a directory 
 function! vimwiki#base#mkdir(path, ...) "{{{
   let path = expand(a:path)
-  if !isdirectory(path) && exists("*mkdir")
-    let path = vimwiki#u#chomp_slash(path)
-    if vimwiki#u#is_windows() && !empty(g:vimwiki_w32_dir_enc)
-      let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
+  if path !~# '^scp:'
+    if !isdirectory(path) && exists("*mkdir")
+      let path = vimwiki#u#chomp_slash(path)
+      if vimwiki#u#is_windows() && !empty(g:vimwiki_w32_dir_enc)
+        let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
+      endif
+      if a:0 && a:1 && tolower(input("Vimwiki: Make new directory: ".path."\n [Y]es/[n]o? ")) !~ "y"
+        return 0
+      endif
+      call mkdir(path, "p")
     endif
-    if a:0 && a:1 && tolower(input("Vimwiki: Make new directory: ".path."\n [Y]es/[n]o? ")) !~ "y"
-      return 0
-    endif
-    call mkdir(path, "p")
+    return 1
+  else
+    return 1
   endif
-  return 1
 endfunction " }}}
 
 " vimwiki#base#file_pattern
@@ -286,7 +295,11 @@ function! vimwiki#base#subdir(path, filename)"{{{
   let path = a:path
   " ensure that we are not fooled by a symbolic link
   "FIXME if we are not "fooled", we end up in a completely different wiki?
-  let filename = resolve(a:filename)
+  if a:filename !~# '^scp:'
+    let filename = resolve(a:filename)
+  else
+    let filename = a:filename
+  endif
   let idx = 0
   "FIXME this can terminate in the middle of a path component!
   while path[idx] ==? filename[idx]
