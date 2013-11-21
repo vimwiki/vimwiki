@@ -80,16 +80,20 @@ fun! s:read_captions(files) "{{{
     let fl_key = fnamemodify(fl, ':t:r')
 
     if filereadable(fl)
-      for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
-        if line =~ g:vimwiki_rxHeader && !has_key(result, fl_key)
-          let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+      let l:results_for_day = []
+      "for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
+      for line in readfile(fl, '')
+        if line =~ g:vimwiki_rxH2 
+          call add(l:results_for_day, vimwiki#u#trim(matchstr(line, g:vimwiki_rxH2)))
         endif
       endfor
+      let result[fl_key] = l:results_for_day
+      unlet l:results_for_day
     endif
 
-    if !has_key(result, fl_key)
-      let result[fl_key] = ''
-    endif
+    "if !has_key(result, fl_key)
+    "  let result[fl_key] = ''
+    "endif
 
   endfor
   return result
@@ -163,16 +167,14 @@ fun! s:format_diary(...) "{{{
       call add(result, substitute(g:vimwiki_rxH3_Template, '__Header__', s:get_month_name(month), ''))
 
       " for [fl, cap] in s:rev(sort(items(g_files[year][month])))
-      for [fl, cap] in s:sort(items(g_files[year][month]))
-        if empty(cap)
-          let entry = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
-        else
-          let entry = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
-        endif
+      for [fl, caps] in s:sort(items(g_files[year][month]))
+        let entry = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__', fl, '')
+        let entry = substitute(entry, '__LinkDescription__', fl, '')
+        call add(result, repeat(' ', &sw).'* '.entry)
+        for cap in caps
+          let entry = substitute(cap, '\s*==\s*', '', 'g')
+          call add(result, repeat(' ', &sw*2).entry)
+        endfor
       endfor
 
     endfor
@@ -341,8 +343,8 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
     endif
   endif
 
-  " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(g:vimwiki_current_idx+1, 0, link)
+  " Create diary note for a selected date in default wiki.
+  call vimwiki#diary#make_note(1, 0, link)
 endfunction "}}}
 
 " Sign function.
