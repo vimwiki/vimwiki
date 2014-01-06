@@ -9,7 +9,7 @@ if exists("g:loaded_vimwiki_list_auto") || &cp
 endif
 let g:loaded_vimwiki_list_auto = 1
 
-" incrementation functions for the various kinds of numbers {{{
+"incrementation functions for the various kinds of numbers {{{
 
 function! s:increment_1(value) "{{{
   return eval(a:value) + 1
@@ -81,9 +81,9 @@ function! s:increment_i(value) "{{{
   return ''
 endfunction "}}}
 
-" incrementation functions for the various kinds of numbers }}}
+"incrementation functions for the various kinds of numbers }}}
 
-" utility function {{{
+"utility functions {{{
 
 function! s:substitute_rx_in_line(lnum, pattern, new_string) "{{{
   call setline(a:lnum, substitute(getline(a:lnum), a:pattern, a:new_string,
@@ -109,7 +109,40 @@ else
   endfunction
 endif "}}}
 
+function! vimwiki#lst#default_symbol() "{{{
+  return g:vimwiki_list_markers[0]
+endfunction "}}}
+
+function! vimwiki#lst#get_list_margin() "{{{
+  if VimwikiGet('list_margin') < 0
+    return &sw
+  else
+    return VimwikiGet('list_margin')
+  endif
+endfunction "}}}
+
+"Returns: the column where the text of a line starts (possible list item
+"markers and checkboxes are skipped)
+function! s:text_begin(lnum) "{{{
+  return s:string_length(matchstr(getline(a:lnum), g:vimwiki_rxListItem))
+endfunction "}}}
+
+"Returns: 2 if there is a marker and text
+" 1 for a marker and no text
+" 0 for no marker at all (empty line or only text)
+function! s:line_has_marker(lnum) "{{{
+  if getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*$'
+    return 1
+  elseif getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*\S'
+    return 2
+  else
+    return 0
+  endif
+endfunction "}}}
+
 "utility functions }}}
+
+"get properties of an item {{{
 
 "Returns: the mainly used data structure in this file
 "An item represents a single list item and is a dictionary with the keys
@@ -166,6 +199,67 @@ function! s:get_level(lnum) "{{{
   return level
 endfunction "}}}
 
+"Returns: 1, a, i, A, I or ''
+"If in doubt if alphanumeric character or romanian
+"numeral, peek in the previous line
+function! s:guess_kind_of_numbered_item(item) "{{{
+  if a:item.type != 2 | return '' | endif
+  let number_chars = a:item.mrkr[:-2]
+  let divisor = a:item.mrkr[-1:]
+
+  if number_chars =~ '\d\+'
+    return '1'
+  endif
+  if number_chars =~# '\l\+'
+    if number_chars !~# '^[ivxlcdm]\+' || index(s:number_kinds, 'i') == -1
+      return 'a'
+    else
+
+      let item_above = s:get_prev_list_item(a:item, 0)
+      if item_above.type != 0
+        if index(s:number_kinds, 'a') == -1 ||
+              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
+              \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
+          return 'i'
+        else
+          return 'a'
+        endif
+      else
+        if number_chars =~# 'i\+' || index(s:number_kinds, 'a') == -1
+          return 'i'
+        else
+          return 'a'
+        endif
+      endif
+
+    endif
+  endif
+  if number_chars =~# '\u\+'
+    if number_chars !~# '^[IVXLCDM]\+' || index(s:number_kinds, 'I') == -1
+      return 'A'
+    else
+
+      let item_above = s:get_prev_list_item(a:item, 0)
+      if item_above.type != 0
+        if index(s:number_kinds, 'A') == -1 ||
+              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
+              \ s:increment_I(item_above.mrkr[:-2]) ==# number_chars
+          return 'I'
+        else
+          return 'A'
+        endif
+      else
+        if number_chars =~# 'I\+' || index(s:number_kinds, 'A') == -1
+          return 'I'
+        else
+          return 'A'
+        endif
+      endif
+
+    endif
+  endif
+endfunction "}}}
+
 function! s:regexp_of_marker(item) "{{{
   if a:item.type == 1
     return vimwiki#u#escape(a:item.mrkr)
@@ -180,6 +274,10 @@ function! s:regexp_of_marker(item) "{{{
     return ''
   endif
 endfunction "}}}
+
+"get properties of an item }}}
+
+"functions for navigating between items {{{
 
 "Returns: the list item after a:item or an empty item
 "If a:ignore_kind is 1, the markers can differ
@@ -245,67 +343,6 @@ function! s:get_any_item_of_level(cur_ln, cur_lvl, org_lvl) "{{{
     return s:get_item(a:cur_ln)
   elseif a:cur_lvl < a:org_lvl
     return s:empty_item()
-  endif
-endfunction "}}}
-
-"Returns: 1, a, i, A, I or ''
-"If in doubt if alphanumeric character or romanian
-"numeral, peek in the previous line
-function! s:guess_kind_of_numbered_item(item) "{{{
-  if a:item.type != 2 | return '' | endif
-  let number_chars = a:item.mrkr[:-2]
-  let divisor = a:item.mrkr[-1:]
-
-  if number_chars =~ '\d\+'
-    return '1'
-  endif
-  if number_chars =~# '\l\+'
-    if number_chars !~# '^[ivxlcdm]\+' || index(s:number_kinds, 'i') == -1
-      return 'a'
-    else
-
-      let item_above = s:get_prev_list_item(a:item, 0)
-      if item_above.type != 0
-        if index(s:number_kinds, 'a') == -1 ||
-              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
-              \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
-          return 'i'
-        else
-          return 'a'
-        endif
-      else
-        if number_chars =~# 'i\+' || index(s:number_kinds, 'a') == -1
-          return 'i'
-        else
-          return 'a'
-        endif
-      endif
-
-    endif
-  endif
-  if number_chars =~# '\u\+'
-    if number_chars !~# '^[IVXLCDM]\+' || index(s:number_kinds, 'I') == -1
-      return 'A'
-    else
-
-      let item_above = s:get_prev_list_item(a:item, 0)
-      if item_above.type != 0
-        if index(s:number_kinds, 'A') == -1 ||
-              \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
-              \ s:increment_I(item_above.mrkr[:-2]) ==# number_chars
-          return 'I'
-        else
-          return 'A'
-        endif
-      else
-        if number_chars =~# 'I\+' || index(s:number_kinds, 'A') == -1
-          return 'I'
-        else
-          return 'A'
-        endif
-      endif
-
-    endif
   endif
 endfunction "}}}
 
@@ -453,6 +490,95 @@ function! s:get_parent(item) "{{{
   return s:get_item(parent_line)
 endfunction "}}}
 
+"Returns: the item above or the item below or an empty item
+function! s:get_a_neighbor_item(item) "{{{
+  let prev_item = s:get_prev_list_item(a:item, 1)
+  if prev_item.type != 0
+    return prev_item
+  else
+    let next_item = s:get_next_list_item(a:item, 1)
+    if next_item.type != 0
+      return next_item
+    endif
+  endif
+  return s:empty_item()
+endfunction "}}}
+
+function! s:get_a_neighbor_item_in_column(lnum, column) "{{{
+  let cur_ln = s:get_prev_line(a:lnum)
+  while cur_ln >= 1
+    if s:get_level(cur_ln) <= a:column
+      return s:get_corresponding_item(cur_ln)
+    endif
+    let cur_ln = s:get_prev_line(cur_ln)
+  endwhile
+  return s:empty_item()
+endfunction "}}}
+
+"Returns: the item if there is one in a:lnum
+"else the multiline item a:lnum belongs to
+function! s:get_corresponding_item(lnum) "{{{
+  let item = s:get_item(a:lnum)
+  if item.type != 0
+    return item
+  endif
+  let org_lvl = s:get_level(a:lnum)
+  let cur_ln = a:lnum
+  while cur_ln > 0
+    let cur_lvl = s:get_level(cur_ln)
+    let cur_item = s:get_item(cur_ln)
+    if cur_lvl < org_lvl && cur_item.type != 0
+      return cur_item
+    endif
+    if cur_lvl < org_lvl
+      let org_lvl = cur_lvl
+    endif
+    let cur_ln = s:get_prev_line(cur_ln)
+  endwhile
+  return s:empty_item()
+endfunction "}}}
+
+"Returns: the last line of a (possibly multiline) item, including all children
+function! s:get_last_line_of_item_incl_children(item) "{{{
+  let cur_ln = a:item.lnum
+  let org_lvl = s:get_level(a:item.lnum)
+  while 1
+    let next_line = s:get_next_line(cur_ln)
+    if next_line == 0 || s:get_level(next_line) <= org_lvl
+      return cur_ln
+    endif
+    let cur_ln = next_line
+  endwhile
+endfunction "}}}
+
+"Returns: the last line of a (possibly multiline) item
+"Note: there can be other list items inbetween the first and last lines
+function! s:get_last_line_of_item(item) "{{{
+  if a:item.type == 0 | return 0 | endif
+  let org_lvl = s:get_level(a:item.lnum)
+  let last_corresponding_line = a:item.lnum
+
+  let cur_ln = s:get_next_line(a:item.lnum)
+  while 1
+    if cur_ln == 0 || s:get_level(cur_ln) <= org_lvl
+      break
+    endif
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type == 0
+      let last_corresponding_line = cur_ln
+      let cur_ln = s:get_next_line(cur_ln)
+    else
+      let cur_ln = s:get_next_line(
+            \ s:get_last_line_of_item_incl_children(cur_item))
+    endif
+  endwhile
+
+  return last_corresponding_line
+endfunction "}}}
+
+"functions for navigating between items }}}
+
+"renumber list items {{{
 "Renumbers the current list from a:item on downwards
 "Returns: the last item that was adjusted
 function! s:adjust_numbered_list_below(item, recursive) "{{{
@@ -532,6 +658,33 @@ function! s:adjust_numbered_list(item, ignore_kind, recursive) "{{{
     let first_item = next_first_item
   endwhile
 endfunction "}}}
+
+"Renumbers the list the cursor is in
+"also update its parents checkbox state
+function! vimwiki#lst#adjust_numbered_list() "{{{
+  let cur_item = s:get_corresponding_item(line('.'))
+  if cur_item.type == 0 | return | endif
+  call s:adjust_numbered_list(cur_item, 1, 0)
+  call s:update_state(s:get_parent(cur_item))
+endfunction "}}}
+
+"Renumbers all lists of the buffer
+"of course, this might take some seconds
+function! vimwiki#lst#adjust_whole_buffer() "{{{
+  let cur_ln = 1
+  while 1
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type != 0
+      let cur_item = s:adjust_numbered_list(cur_item, 0, 1)
+    endif
+    let cur_ln = s:get_next_line(cur_item.lnum, 1)
+    if cur_ln <= 0 || cur_ln > line('$')
+      return
+    endif
+  endwhile
+endfunction "}}}
+
+"renumber list items }}}
 
 "checkbox stuff {{{
 
@@ -657,113 +810,6 @@ function! s:remove_cb(item) "{{{
   return item
 endfunction "}}}
 
-"checkbox stuff }}}
-
-"Returns: the item if there is one in a:lnum
-"else the multiline item a:lnum belongs to
-function! s:get_corresponding_item(lnum) "{{{
-  let item = s:get_item(a:lnum)
-  if item.type != 0
-    return item
-  endif
-  let org_lvl = s:get_level(a:lnum)
-  let cur_ln = a:lnum
-  while cur_ln > 0
-    let cur_lvl = s:get_level(cur_ln)
-    let cur_item = s:get_item(cur_ln)
-    if cur_lvl < org_lvl && cur_item.type != 0
-      return cur_item
-    endif
-    if cur_lvl < org_lvl
-      let org_lvl = cur_lvl
-    endif
-    let cur_ln = s:get_prev_line(cur_ln)
-  endwhile
-  return s:empty_item()
-endfunction "}}}
-
-"Returns: the last line of a (possibly multiline) item, including all children
-function! s:get_last_line_of_item_incl_children(item) "{{{
-  let cur_ln = a:item.lnum
-  let org_lvl = s:get_level(a:item.lnum)
-  while 1
-    let next_line = s:get_next_line(cur_ln)
-    if next_line == 0 || s:get_level(next_line) <= org_lvl
-      return cur_ln
-    endif
-    let cur_ln = next_line
-  endwhile
-endfunction "}}}
-
-"Returns: the last line of a (possibly multiline) item
-"Note: there can be other list items inbetween the first and last lines
-function! s:get_last_line_of_item(item) "{{{
-  if a:item.type == 0 | return 0 | endif
-  let org_lvl = s:get_level(a:item.lnum)
-  let last_corresponding_line = a:item.lnum
-
-  let cur_ln = s:get_next_line(a:item.lnum)
-  while 1
-    if cur_ln == 0 || s:get_level(cur_ln) <= org_lvl
-      break
-    endif
-    let cur_item = s:get_item(cur_ln)
-    if cur_item.type == 0
-      let last_corresponding_line = cur_ln
-      let cur_ln = s:get_next_line(cur_ln)
-    else
-      let cur_ln = s:get_next_line(
-            \ s:get_last_line_of_item_incl_children(cur_item))
-    endif
-  endwhile
-
-  return last_corresponding_line
-endfunction "}}}
-
-"Returns: the column where the text of a line starts (possible list item
-"markers and checkboxes are skipped)
-function! s:text_begin(lnum) "{{{
-  return s:string_length(matchstr(getline(a:lnum), g:vimwiki_rxListItem))
-endfunction "}}}
-
-"Returns: 2 if there is a marker and text
-" 1 for a marker and no text
-" 0 for no marker at all (empty line or only text)
-function! s:line_has_marker(lnum) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*$'
-    return 1
-  elseif getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*\S'
-    return 2
-  else
-    return 0
-  endif
-endfunction "}}}
-
-"Renumbers the list the cursor is in
-"also update its parents checkbox state
-function! vimwiki#lst#adjust_numbered_list() "{{{
-  let cur_item = s:get_corresponding_item(line('.'))
-  if cur_item.type == 0 | return | endif
-  call s:adjust_numbered_list(cur_item, 1, 0)
-  call s:update_state(s:get_parent(cur_item))
-endfunction "}}}
-
-"Renumbers all lists of the buffer
-"of course, this might take some seconds
-function! vimwiki#lst#adjust_whole_buffer() "{{{
-  let cur_ln = 1
-  while 1
-    let cur_item = s:get_item(cur_ln)
-    if cur_item.type != 0
-      let cur_item = s:adjust_numbered_list(cur_item, 0, 1)
-    endif
-    let cur_ln = s:get_next_line(cur_item.lnum, 1)
-    if cur_ln <= 0 || cur_ln > line('$')
-      return
-    endif
-  endwhile
-endfunction "}}}
-
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(line1, line2) "{{{
@@ -816,6 +862,205 @@ function! vimwiki#lst#toggle_cb(line1, line2) "{{{
 
 endfunction "}}}
 
+function! vimwiki#lst#remove_cb(first_line, last_line) "{{{
+  let first_item = s:get_corresponding_item(a:first_line)
+  let last_item = s:get_corresponding_item(a:last_line)
+
+  if first_item.type == 0 || last_item.type == 0
+    return
+  endif
+
+  let parent_items_of_lines = []
+  let cur_ln = first_item.lnum
+  while 1
+    if cur_ln <= 0 || cur_ln > last_item.lnum | break | endif
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type != 0
+      let cur_item = s:remove_cb(cur_item)
+      let cur_parent_item = s:get_parent(cur_item)
+      if index(parent_items_of_lines, cur_parent_item) == -1
+        call insert(parent_items_of_lines, cur_parent_item)
+      endif
+    endif
+    let cur_ln = s:get_next_line(cur_ln)
+  endwhile
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+endfunction "}}}
+
+function! vimwiki#lst#remove_cb_in_list() "{{{
+  let first_item = s:get_first_item_in_list(
+        \ s:get_corresponding_item(line('.')), 0)
+
+  let cur_item = first_item
+  while 1
+    let next_item = s:get_next_list_item(cur_item, 0)
+    let cur_item = s:remove_cb(cur_item)
+    if next_item.type == 0
+      break
+    else
+      let cur_item = next_item
+    endif
+  endwhile
+
+  call s:update_state(s:get_parent(first_item))
+endfunction "}}}
+
+"checkbox stuff }}}
+
+"change the level of list items {{{
+
+function! s:set_indent(lnum, new_indent) "{{{
+  if &expandtab
+    let indentstring = repeat(' ', a:new_indent)
+  else
+    let indentstring = repeat('\t', a:new_indent / &tabstop) .
+          \ repeat(' ', a:new_indent % &tabstop)
+  endif
+  call s:substitute_rx_in_line(a:lnum, '^\s*', indentstring)
+endfunction "}}}
+
+function! s:decrease_level(item) "{{{
+  let removed_indent = 0
+  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+    if s:string_length(a:item.mrkr) >= 2
+      call s:substitute_string_in_line(a:item.lnum,
+            \ s:first_char(a:item.mrkr), '')
+      let removed_indent = -1
+    endif
+  else
+    let old_indent = indent(a:item.lnum)
+    if &shiftround
+      let new_indent = (old_indent - 1) / &shiftwidth * &shiftwidth
+    else
+      let new_indent = old_indent - &shiftwidth
+    endif
+    call s:set_indent(a:item.lnum, new_indent)
+    let removed_indent = new_indent - old_indent
+  endif
+  return removed_indent
+endfunction "}}}
+
+function! s:increase_level(item) "{{{
+  let additional_space = 0
+  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+    call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
+          \ s:first_char(a:item.mrkr))
+    let additional_indent = 1
+  else
+    let old_indent = indent(a:item.lnum)
+    if &shiftround
+      let new_indent = (old_indent / &shiftwidth + 1) * &shiftwidth
+    else
+      let new_indent = old_indent + &shiftwidth
+    endif
+    call s:set_indent(a:item.lnum, new_indent)
+    let additional_indent = new_indent - old_indent
+  endif
+  return additional_indent
+endfunction "}}}
+
+"adds a:indent_by to the current indent
+"a:indent_by can be negative
+function! s:indent_line_by(lnum, indent_by) "{{{
+  let item = s:get_item(a:lnum)
+  if VimwikiGet('syntax') == 'media' && item.type == 1 &&
+        \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
+    if a:indent_by > 0
+      call s:substitute_string_in_line(a:lnum, item.mrkr,
+            \ item.mrkr . s:first_char(item.mrkr))
+    elseif a:indent_by < 0
+      call s:substitute_string_in_line(a:lnum, s:first_char(item.mrkr), '')
+    endif
+  else
+    call s:set_indent(a:lnum, indent(a:lnum) + a:indent_by)
+  endif
+endfunction "}}}
+
+"changes lvl of lines in selection
+function! s:change_level(from_line, to_line, direction, plus_children) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    if a:direction == 'increase' && a:from_line == a:to_line &&
+          \ empty(getline(a:from_line))
+      "that's because :> doesn't work on an empty line
+      normal! gi
+    else
+      execute a:from_line.','.a:to_line.(a:direction == 'increase' ? '>' : '<')
+    endif
+    return
+  endif
+  if a:from_line == a:to_line
+    if a:plus_children
+      let to_line = s:get_last_line_of_item_incl_children(from_item)
+    else
+      let to_line = s:get_last_line_of_item(from_item)
+    endif
+  else
+    let to_line = a:to_line
+  endif
+
+  if from_item.type == 0 || to_line == 0
+    return
+  endif
+
+  let to_be_adjusted = s:get_a_neighbor_item(from_item)
+  let old_parent = s:get_parent(from_item)
+  let first_line_level = s:get_level(from_item.lnum)
+  let more_than_one_level_concerned = 0
+
+  let first_line_indented_by =
+        \ (a:direction == 'increase') ?
+        \ s:increase_level(from_item) : s:decrease_level(from_item)
+
+  let cur_ln = s:get_next_line(from_item.lnum)
+  while cur_ln > 0 && cur_ln <= to_line
+    if !more_than_one_level_concerned &&
+          \ s:get_level(cur_ln) != first_line_level &&
+          \ s:get_item(cur_ln).type != 0
+      let more_than_one_level_concerned = 1
+    endif
+    call s:indent_line_by(cur_ln, first_line_indented_by)
+    let cur_ln = s:get_next_line(cur_ln, 1)
+  endwhile
+
+  if a:from_line == a:to_line
+    call s:adjust_mrkr(from_item)
+  endif
+  call s:update_state(old_parent)
+  let from_item = s:get_item(from_item.lnum)
+  if from_item.cb != ''
+    call s:update_state(from_item)
+    call s:update_state(s:get_parent(from_item))
+  endif
+
+  if more_than_one_level_concerned
+    call vimwiki#lst#adjust_whole_buffer()
+  else
+    call s:adjust_numbered_list(from_item, 0, 0)
+    call s:adjust_numbered_list(to_be_adjusted, 0, 0)
+  endif
+endfunction "}}}
+
+function! vimwiki#lst#change_level(from_line, to_line, direction, plus_children) "{{{
+  let cur_col = col('$') - col('.')
+  call s:change_level(a:from_line, a:to_line, a:direction, a:plus_children)
+  call cursor('.', col('$') - cur_col)
+endfunction "}}}
+
+"indent line a:lnum to be the continuation of a:prev_item
+function! s:indent_multiline(prev_item, lnum) "{{{
+  if a:prev_item.type != 0
+    call s:set_indent(a:lnum, s:text_begin(a:prev_item.lnum))
+  endif
+endfunction "}}}
+
+"change the level of list items }}}
+
+"change markers of list items {{{
 "Returns: the position of a marker in g:vimwiki_list_markers
 function! s:get_idx_list_markers(item) "{{{
   if a:item.type == 1
@@ -917,51 +1162,6 @@ function! vimwiki#lst#change_marker(line1, line2, new_mrkr, mode) "{{{
   call cursor('.', col('$') - cur_col_from_eol)
 endfunction "}}}
 
-function! vimwiki#lst#remove_cb(first_line, last_line) "{{{
-  let first_item = s:get_corresponding_item(a:first_line)
-  let last_item = s:get_corresponding_item(a:last_line)
-
-  if first_item.type == 0 || last_item.type == 0
-    return
-  endif
-
-  let parent_items_of_lines = []
-  let cur_ln = first_item.lnum
-  while 1
-    if cur_ln <= 0 || cur_ln > last_item.lnum | break | endif
-    let cur_item = s:get_item(cur_ln)
-    if cur_item.type != 0
-      let cur_item = s:remove_cb(cur_item)
-      let cur_parent_item = s:get_parent(cur_item)
-      if index(parent_items_of_lines, cur_parent_item) == -1
-        call insert(parent_items_of_lines, cur_parent_item)
-      endif
-    endif
-    let cur_ln = s:get_next_line(cur_ln)
-  endwhile
-  for parent_item in parent_items_of_lines
-    call s:update_state(parent_item)
-  endfor
-endfunction "}}}
-
-function! vimwiki#lst#remove_cb_in_list() "{{{
-  let first_item = s:get_first_item_in_list(
-        \ s:get_corresponding_item(line('.')), 0)
-
-  let cur_item = first_item
-  while 1
-    let next_item = s:get_next_list_item(cur_item, 0)
-    let cur_item = s:remove_cb(cur_item)
-    if next_item.type == 0
-      break
-    else
-      let cur_item = next_item
-    endif
-  endwhile
-
-  call s:update_state(s:get_parent(first_item))
-endfunction "}}}
-
 function! vimwiki#lst#change_marker_in_list(new_mrkr) "{{{
   let cur_item = s:get_corresponding_item(line('.'))
   let first_item = s:get_first_item_in_list(cur_item, 0)
@@ -977,90 +1177,6 @@ function! vimwiki#lst#change_marker_in_list(new_mrkr) "{{{
 
   call s:adjust_numbered_list(s:get_item(first_item_line), 0, 0)
 endfunction "}}}
-
-function! s:set_indent(lnum, new_indent) "{{{
-  if &expandtab
-    let indentstring = repeat(' ', a:new_indent)
-  else
-    let indentstring = repeat('\t', a:new_indent / &tabstop) .
-          \ repeat(' ', a:new_indent % &tabstop)
-  endif
-  call s:substitute_rx_in_line(a:lnum, '^\s*', indentstring)
-endfunction "}}}
-
-function! s:decrease_level(item) "{{{
-  let removed_indent = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
-    if s:string_length(a:item.mrkr) >= 2
-      call s:substitute_string_in_line(a:item.lnum,
-            \ s:first_char(a:item.mrkr), '')
-      let removed_indent = -1
-    endif
-  else
-    let old_indent = indent(a:item.lnum)
-    if &shiftround
-      let new_indent = (old_indent - 1) / &shiftwidth * &shiftwidth
-    else
-      let new_indent = old_indent - &shiftwidth
-    endif
-    call s:set_indent(a:item.lnum, new_indent)
-    let removed_indent = new_indent - old_indent
-  endif
-  return removed_indent
-endfunction "}}}
-
-function! s:increase_level(item) "{{{
-  let additional_space = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
-    call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
-          \ s:first_char(a:item.mrkr))
-    let additional_indent = 1
-  else
-    let old_indent = indent(a:item.lnum)
-    if &shiftround
-      let new_indent = (old_indent / &shiftwidth + 1) * &shiftwidth
-    else
-      let new_indent = old_indent + &shiftwidth
-    endif
-    call s:set_indent(a:item.lnum, new_indent)
-    let additional_indent = new_indent - old_indent
-  endif
-  return additional_indent
-endfunction "}}}
-
-"adds a:indent_by to the current indent
-"a:indent_by can be negative
-function! s:indent_line_by(lnum, indent_by) "{{{
-  let item = s:get_item(a:lnum)
-  if VimwikiGet('syntax') == 'media' && item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
-    if a:indent_by > 0
-      call s:substitute_string_in_line(a:lnum, item.mrkr,
-            \ item.mrkr . s:first_char(item.mrkr))
-    elseif a:indent_by < 0
-      call s:substitute_string_in_line(a:lnum, s:first_char(item.mrkr), '')
-    endif
-  else
-    call s:set_indent(a:lnum, indent(a:lnum) + a:indent_by)
-  endif
-endfunction "}}}
-
-"Returns: the item above or the item below or an empty item
-function! s:get_a_neighbor_item(item) "{{{
-  let prev_item = s:get_prev_list_item(a:item, 1)
-  if prev_item.type != 0
-    return prev_item
-  else
-    let next_item = s:get_next_list_item(a:item, 1)
-    if next_item.type != 0
-      return next_item
-    endif
-  endif
-  return s:empty_item()
-endfunction "}}}
-
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
   if a:item.type == 0 || VimwikiGet('syntax') == 'media'
@@ -1088,77 +1204,6 @@ function! s:adjust_mrkr(item) "{{{
   call s:adjust_numbered_list(a:item, 0, 1)
 endfunction "}}}
 
-"changes lvl of lines in selection
-function! s:change_level(from_line, to_line, direction, plus_children) "{{{
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    if a:direction == 'increase' && a:from_line == a:to_line &&
-          \ empty(getline(a:from_line))
-      "that's because :> doesn't work on an empty line
-      normal! gi
-    else
-      execute a:from_line.','.a:to_line.(a:direction == 'increase' ? '>' : '<')
-    endif
-    return
-  endif
-  if a:from_line == a:to_line
-    if a:plus_children
-      let to_line = s:get_last_line_of_item_incl_children(from_item)
-    else
-      let to_line = s:get_last_line_of_item(from_item)
-    endif
-  else
-    let to_line = a:to_line
-  endif
-
-  if from_item.type == 0 || to_line == 0
-    return
-  endif
-
-  let to_be_adjusted = s:get_a_neighbor_item(from_item)
-  let old_parent = s:get_parent(from_item)
-  let first_line_level = s:get_level(from_item.lnum)
-  let more_than_one_level_concerned = 0
-
-  let first_line_indented_by =
-        \ (a:direction == 'increase') ?
-        \ s:increase_level(from_item) : s:decrease_level(from_item)
-
-  let cur_ln = s:get_next_line(from_item.lnum)
-  while cur_ln > 0 && cur_ln <= to_line
-    if !more_than_one_level_concerned &&
-          \ s:get_level(cur_ln) != first_line_level &&
-          \ s:get_item(cur_ln).type != 0
-      let more_than_one_level_concerned = 1
-    endif
-    call s:indent_line_by(cur_ln, first_line_indented_by)
-    let cur_ln = s:get_next_line(cur_ln, 1)
-  endwhile
-
-  if a:from_line == a:to_line
-    call s:adjust_mrkr(from_item)
-  endif
-  call s:update_state(old_parent)
-  let from_item = s:get_item(from_item.lnum)
-  if from_item.cb != ''
-    call s:update_state(from_item)
-    call s:update_state(s:get_parent(from_item))
-  endif
-
-  if more_than_one_level_concerned
-    call vimwiki#lst#adjust_whole_buffer()
-  else
-    call s:adjust_numbered_list(from_item, 0, 0)
-    call s:adjust_numbered_list(to_be_adjusted, 0, 0)
-  endif
-endfunction "}}}
-
-function! vimwiki#lst#change_level(from_line, to_line, direction, plus_children) "{{{
-  let cur_col = col('$') - col('.')
-  call s:change_level(a:from_line, a:to_line, a:direction, a:plus_children)
-  call cursor('.', col('$') - cur_col)
-endfunction "}}}
-
 function! s:clone_marker_from_to(from, to) "{{{
   let item_from = s:get_item(a:from)
   if item_from.type == 0 | return | endif
@@ -1176,13 +1221,39 @@ function! s:clone_marker_from_to(from, to) "{{{
   endif
 endfunction "}}}
 
-"indent line a:lnum to be the continuation of a:prev_item
-function! s:indent_multiline(prev_item, lnum) "{{{
-  if a:prev_item.type != 0
-    call s:set_indent(a:lnum, s:text_begin(a:prev_item.lnum))
+function! s:remove_mrkr(item) "{{{
+  let item = a:item
+  if item.cb != ''
+    let item = s:remove_cb(item)
+    let parent_item = s:get_parent(item)
+  else
+    let parent_item = s:empty_item()
+  endif
+  call s:substitute_rx_in_line(item.lnum, vimwiki#u#escape(item.mrkr).'\s*', '')
+  call remove(item, 'mrkr')
+  call remove(item, 'cb')
+  let item.type = 0
+  call s:update_state(parent_item)
+  return item
+endfunction "}}}
+
+function! s:create_marker(lnum) "{{{
+  let new_sibling = s:get_corresponding_item(a:lnum)
+  if new_sibling.type == 0
+    let new_sibling = s:get_a_neighbor_item_in_column(a:lnum, virtcol('.'))
+  endif
+  if new_sibling.type != 0
+    call s:clone_marker_from_to(new_sibling.lnum, a:lnum)
+  else
+    let cur_item = s:get_item(a:lnum)
+    call s:set_new_mrkr(cur_item, g:vimwiki_list_markers[0])
+    call s:adjust_numbered_list(cur_item, 0, 0)
   endif
 endfunction "}}}
 
+"change markers of list items }}}
+
+"handle keys {{{
 function! vimwiki#lst#kbd_o() "{{{
   let fold_end = foldclosedend('.')
   let lnum = (fold_end == -1) ? line('.') : fold_end
@@ -1207,47 +1278,6 @@ function! vimwiki#lst#kbd_O() "{{{
     call s:clone_marker_from_to(cur_ln-1, cur_ln)
   endif
   startinsert!
-endfunction "}}}
-
-function! s:remove_mrkr(item) "{{{
-  let item = a:item
-  if item.cb != ''
-    let item = s:remove_cb(item)
-    let parent_item = s:get_parent(item)
-  else
-    let parent_item = s:empty_item()
-  endif
-  call s:substitute_rx_in_line(item.lnum, vimwiki#u#escape(item.mrkr).'\s*', '')
-  call remove(item, 'mrkr')
-  call remove(item, 'cb')
-  let item.type = 0
-  call s:update_state(parent_item)
-  return item
-endfunction "}}}
-
-function! s:get_a_neighbor_item_in_column(lnum, column) "{{{
-  let cur_ln = s:get_prev_line(a:lnum)
-  while cur_ln >= 1
-    if s:get_level(cur_ln) <= a:column
-      return s:get_corresponding_item(cur_ln)
-    endif
-    let cur_ln = s:get_prev_line(cur_ln)
-  endwhile
-  return s:empty_item()
-endfunction "}}}
-
-function! s:create_marker(lnum) "{{{
-  let new_sibling = s:get_corresponding_item(a:lnum)
-  if new_sibling.type == 0
-    let new_sibling = s:get_a_neighbor_item_in_column(a:lnum, virtcol('.'))
-  endif
-  if new_sibling.type != 0
-    call s:clone_marker_from_to(new_sibling.lnum, a:lnum)
-  else
-    let cur_item = s:get_item(a:lnum)
-    call s:set_new_mrkr(cur_item, g:vimwiki_list_markers[0])
-    call s:adjust_numbered_list(cur_item, 0, 0)
-  endif
 endfunction "}}}
 
 function! s:cr_on_empty_list_item(lnum, behavior) "{{{
@@ -1411,18 +1441,9 @@ function! vimwiki#lst#toggle_list_item() "{{{
   endif
 endfunction "}}}
 
-function! vimwiki#lst#default_symbol() "{{{
-  return g:vimwiki_list_markers[0]
-endfunction "}}}
+"handle keys }}}
 
-function! vimwiki#lst#get_list_margin() "{{{
-  if VimwikiGet('list_margin') < 0
-    return &sw
-  else
-    return VimwikiGet('list_margin')
-  endif
-endfunction "}}}
-
+"misc stuff {{{
 function! vimwiki#lst#setup_marker_infos() "{{{
   let s:rx_bullet_chars = '['.join(keys(g:vimwiki_bullet_types), '').']\+'
 
@@ -1495,8 +1516,6 @@ fun! vimwiki#lst#fold_level(lnum) "{{{
     endif
   endif
   return '='
-endfu
-
-
-  return '='
 endf "}}}
+
+"misc stuff }}}
