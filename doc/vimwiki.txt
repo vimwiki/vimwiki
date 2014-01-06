@@ -40,14 +40,14 @@ CONTENTS                                                    *vimwiki-contents*
         5.14. Thumbnails             |vimwiki-syntax-thumbnails|
     6. Folding/Outline               |vimwiki-folding|
     7. Placeholders                  |vimwiki-placeholders|
-    8. Todo lists                    |vimwiki-todo-lists|
+    8. Lists                         |vimwiki-lists|
     9. Tables                        |vimwiki-tables|
     10. Diary                        |vimwiki-diary|
     11. Options                      |vimwiki-options|
         11.1. Registered Wiki        |vimwiki-register-wiki|
         11.2. Temporary Wiki         |vimwiki-temporary-wiki|
         11.3. Per-Wiki Options       |vimwiki-local-options|
-        11.4. Global Options         |viwmiki-global-options|
+        11.4. Global Options         |vimwiki-global-options|
     12. Help                         |vimwiki-help|
     13. Developers                   |vimwiki-developers|
     14. Changelog                    |vimwiki-changelog|
@@ -266,7 +266,7 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         :nmap <Leader>wt <Plug>VimwikiTabnewLink
 <
                         *vimwiki_<Backspace>*
-<Backspace>             Go back to previous wiki page. 
+<Backspace>             Go back to previous wiki page.
                         Maps to |:VimwikiGoBackLink|.
                         To remap: >
                         :nmap <Leader>wb <Plug>VimwikiGoBackLink
@@ -308,14 +308,17 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         :nmap -- <Plug>VimwikiRemoveHeaderLevel
 <
                         *vimwiki_+*
-+                       Create and/or decorate links.  Depending on the 
++                       Create and/or decorate links.  Depending on the
                         context, this command will: convert words into
                         Wikilinks; convert raw URLs into Wikilinks; and add
                         placeholder text to Wiki- or Weblinks that are missing
                         descriptions.  Can be activated in normal mode with
                         the cursor over a word or link, or in visual mode with
-                        the selected text .
-
+                        the selected text.
+                        To remap: >
+                        :nmap ++ <Plug>VimwikiNormalizeLink
+                        :vmap ++ <Plug>VimwikiNormalizeLinkVisual
+<
                         *vimwiki_<C-Space>*
 <C-Space>               Toggle checkbox of a list item on/off
                         Maps to |:VimwikiToggleCheckbox|.
@@ -449,11 +452,15 @@ gww                     will reformat it.
                         *vimwiki_<C-Up>*
 <C-Up>                  Open the previous day's diary link if available.
                         See |:VimwikiDiaryPrevDay|
-
+                        To remap: >
+                        :nmap <Leader>k <Plug>VimwikiDiaryPrevDay
+<
                         *vimwiki_<C-Down>*
 <C-Down>                Open the next day's diary link if available.
                         See |:VimwikiDiaryNextDay|
-
+                        To remap: >
+                        :nmap <Leader>j <Plug>VimwikiDiaryNextDay
+<
 
 Works only if |g:vimwiki_use_mouse| is set to 1.
 <2-LeftMouse>           Follow wiki link (create target wiki page if needed).
@@ -632,7 +639,7 @@ il                      A single list item.
 
 *:VimwikiBacklinks*
 *:VWB*
-    Search for wikilinks to the [[current wiki page]] 
+    Search for wikilinks to the [[current wiki page]]
     in all files of current wiki.
     To display all matches use |:lopen| command.
     To display next match use |:lnext| command.
@@ -641,10 +648,10 @@ il                      A single list item.
 
 *:VimwikiTable*
     Create a table with 5 cols and 2 rows.
-    
+
     :VimwikiTable cols rows
     Create a table with the given cols and rows
-    
+
     :VimwikiTable cols
     Create a table with the given cols and 2 rows
 
@@ -672,7 +679,7 @@ il                      A single list item.
     |--------|--------|--------|--------|--------|
     | value2 | value3 | value1 | value4 | value5 |
 <
-    
+
     Commands are mapped to <A-Left> and <A-Right> respectively.
 
 
@@ -696,7 +703,7 @@ il                      A single list item.
 
 
 There are a lot of different wikies out there. Most of them have their own
-syntax and vimwiki's default syntax is not an exception here. 
+syntax and vimwiki's default syntax is not an exception here.
 
 Vimwiki has evolved its own syntax that closely resembles google's wiki
 markup.  This syntax is described in detail below.
@@ -739,7 +746,7 @@ or: >
 Links to directories (ending with a "/") are also supported: >
   [[/home/somebody/|Home Directory]]
 
-Use |g:vimwiki_dir_link| to control the behaviour when opening directories.
+Use |g:vimwiki_dir_link| to control the behavior when opening directories.
 
 Raw URLs~
 
@@ -752,7 +759,7 @@ Raw URLs are also supported: >
 Markdown Links~
 
 These links are only available for Markdown syntax.  See
-http://daringfireball.net/projects/markdown/syntax#link. 
+http://daringfireball.net/projects/markdown/syntax#link.
 
 Inline link: >
   [Looks like this](URL)
@@ -764,15 +771,15 @@ The URL can be anything recognized by vimwiki as a raw URL.
 
 
 Reference-style links: >
-  a) [Link Name][Id] 
+  a) [Link Name][Id]
   b) [Id][], using the "implicit link name" shortcut
-  
+
 Reference style links must always include *two* consecutive pairs of
 [-brackets, and field entries can not use "[" or "]".
 
 
 NOTE: (in Vimwiki's current implementation) Reference-style links are a hybrid
-of Vimwiki's default "Wikilink" and the tradition reference-style link.  
+of Vimwiki's default "Wikilink" and the tradition reference-style link.
 
 If the Id is defined elsewhere in the source, as per the Markdown standard: >
   [Id]: URL
@@ -1026,7 +1033,7 @@ have two *alternative* options:
 1. using the MathJax server for rendering (needs an internet connection).
 Add to your HTML template the following line:
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 2. installing MathJax locally (faster, no internet required). Choose a
 folder on your hard drive and save MathJax in it. Then add to your HTML
@@ -1121,7 +1128,7 @@ absolute paths and extensions: >
 Schemeless:~
 
 Schemeless URLs, which are the default, are treated internally as "wiki#:"
-URLs in all respects except when converted to Html.  
+URLs in all respects except when converted to Html.
 
 Schemeless links convert to plain relative path URLs, nearly verbatim: >
   relpath/wikipage.html
@@ -1140,12 +1147,12 @@ as regular links even if the files to which they refer do not exist.
 Transclusion (Wiki-Include) Links~
 
 Links that use "{{" and "}}" delimiters signify content that is to be
-included into the Html output, rather than referenced via hyperlink.  
+included into the Html output, rather than referenced via hyperlink.
 
 Wiki-include URLs may use any of the supported schemes, may be absolute or
 relative, and need not end with an extension.
 
-The primary purpose for wiki-include links is to include images.  
+The primary purpose for wiki-include links is to include images.
 
 Transclude from a local URL: >
   {{local:../../images/vimwiki_logo.png}}
@@ -1155,19 +1162,19 @@ or from a universal URL: >
 Transclude image with alternate text: >
   {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png|Vimwiki}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png" 
+  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
   alt="Vimwiki"/>
 
 Transclude image with alternate text and some style: >
   {{http://.../vimwiki_logo.png|cool stuff|style="width:150px; height: 120px;"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png" 
+  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
   alt="cool stuff" style="width:150px; height:120px"/>
 
 Transclude image _without_ alternate text and with css class: >
   {{http://.../vimwiki_logo.png||class="center flow blabla"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png" 
+  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
   alt="" class="center flow blabla"/>
 
 A trial feature allows you to supply your own handler for wiki-include links.
@@ -1487,7 +1494,7 @@ cursor is in.
 
 Use the  :VimwikiTable command to create a default table with 5 columns and 2
 rows: >
- 
+
  |   |   |   |   |   |
  |---|---|---|---|---|
  |   |   |   |   |   |
@@ -1561,10 +1568,10 @@ See |g:vimwiki_use_calendar| option to turn it off/on.
 11. Options                                                  *vimwiki-options*
 
 There are global options and local (per-wiki) options available to tune
-vimwiki.  
+vimwiki.
 
 Global options are configured via global variables.  For a complete list of
-them, see |viwmiki-global-options|.
+them, see |vimwiki-global-options|.
 
 Local options for multiple independent wikis are stored in a single global
 variable |g:vimwiki_list|.  The per-wiki options can be registered in advance,
@@ -1619,7 +1626,7 @@ For clarity, in your .vimrc file you can define wiki options using separate
 
 
 The creation of temporary wikis allows you to open files that would not
-normally be recognized by vimwiki.  
+normally be recognized by vimwiki.
 
 If a file with a registered wiki extension (see |vimwiki-register-extension|)
 is opened in a directory that: 1) is not listed in |g:vimwiki_list|, and 2) is
@@ -1718,7 +1725,7 @@ default, Markdown, and MediaWiki), but only vimwiki's default markup will be
 converted to HTML at the moment.
 
 To use Markdown's wiki markup: >
-  let g:vimwiki_list = [{'path': '~/my_site/', 
+  let g:vimwiki_list = [{'path': '~/my_site/',
                        \ 'syntax': 'markdown', 'ext': '.md'}]
 <
 
@@ -1755,12 +1762,12 @@ Each template could look like: >
     </body>
     </html>
 
-where 
+where
   %title% is replaced by a wiki page name or by a |vimwiki-title|
   %root_path% is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
     %root_path% is replaced by '../../../'.
-  
+
   %content% is replaced by a wiki file content.
 
 
@@ -1910,7 +1917,7 @@ custom_wiki2html  ''
 Description~
 The full path to an user-provided script that converts a wiki page to HTML.
 Vimwiki calls the provided |vimwiki-option-custom_wiki2html| script from the
-command-line, using '!' invocation.  
+command-line, using '!' invocation.
 
 The following arguments, in this order, are passed to the
 |vimwiki-option-custom_wiki2html| script:
@@ -1957,7 +1964,7 @@ is used.  This affects the appearance of the generated links (see
 
 
 ------------------------------------------------------------------------------
-11.4 Global Options                                   *viwmiki-global-options*
+11.4 Global Options                                   *vimwiki-global-options*
 
 
 Global options are configured using the following pattern: >
@@ -2016,7 +2023,7 @@ Value           Description~
 
 If your preferred wiki extension is .txt then you can >
     let g:vimwiki_global_ext = 0
-to restrict vimwiki's operation to only those paths listed in g:vimwiki_list. 
+to restrict vimwiki's operation to only those paths listed in g:vimwiki_list.
 Other text files wouldn't be treated as wiki pages.
 
 Default: 1
@@ -2026,10 +2033,10 @@ Default: 1
 *g:vimwiki_ext2syntax* *vimwiki-register-extension*
 
 A many-to-one map between file extensions and syntaxes whose purpose is to
-register the extensions with vimwiki.  
+register the extensions with vimwiki.
 
 E.g.: >
-  let g:vimwiki_ext2syntax = {'.md': 'markdown', 
+  let g:vimwiki_ext2syntax = {'.md': 'markdown',
                   \ '.mkd': 'markdown',
                   \ '.wiki': 'media'}
 
@@ -2150,17 +2157,17 @@ Default: 1
 
 A customizable link handler, |VimwikiLinkHandler|, can be defined to override
 Vimwiki's opening of links.  Each recognized link, whether it is a wikilink,
-wiki-include link or a weblink, is first passed to |VimwikiLinkHandler| to see 
-if it can be handled.  The return value 1/0 indicates success.  
+wiki-include link or a weblink, is first passed to |VimwikiLinkHandler| to see
+if it can be handled.  The return value 1/0 indicates success.
 
-If the link is not handled successfully, the behaviour of Vimwiki depends on
+If the link is not handled successfully, the behavior of Vimwiki depends on
 the scheme.  Wiki:, diary: or schemeless links are opened in Vim.  All others,
 including local: and file: schemes, are opened with a system default handler;
-i.e. Linux (!xdg-open), Mac (!open), and Windows (!start).  
+i.e. Linux (!xdg-open), Mac (!open), and Windows (!start).
 
 You can redefine |VimwikiLinkHandler| function to do something else: >
 
-  function! VimwikiLinkHandler(link) 
+  function! VimwikiLinkHandler(link)
     try
       let browser = 'C:\Program Files\Firefox\firefox.exe'
       execute '!start "'.browser.'" ' . a:link
@@ -2169,7 +2176,7 @@ You can redefine |VimwikiLinkHandler| function to do something else: >
       echo "This can happen for a variety of reasons ..."
     endtry
     return 0
-  endfunction 
+  endfunction
 
 A second example handles two new schemes, 'vlocal:' and 'vfile:', which behave
 similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
@@ -2201,7 +2208,7 @@ similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
 
 
 -----------------------------------------------------------------------------
-*VimwikiWikiIncludeHandler*~
+*VimwikiWikiIncludeHandler*
 
 Vimwiki includes the contents of a wiki-include URL as an image by default.
 
@@ -2275,7 +2282,7 @@ Default: ''
 *g:vimwiki_CJK_length*
 
 Use special method to calculate correct length of the strings with double-wide
-characters (to align table cells properly). 
+characters (to align table cells properly).
 
 Value           Description~
 0               Do not use it.
@@ -2343,14 +2350,14 @@ Default: 0
 ------------------------------------------------------------------------------
 *g:vimwiki_html_header_numbering_sym*
 
-Ending symbol for |g:vimwiki_html_header_numbering|. 
+Ending symbol for |g:vimwiki_html_header_numbering|.
 
 Value           Description~
 '.'             Dot will be added after a header's number.
 ')'             Closing bracket will be added after a header's number.
 etc.
 
-With 
+With
     let g:vimwiki_html_header_numbering_sym = '.'
 headers would look like: >
     1. Header1
@@ -2392,7 +2399,7 @@ they would not be deleted after |:VimwikiAll2HTML|.
 ------------------------------------------------------------------------------
 *g:vimwiki_conceallevel*
 
-In vim73 |conceallevel| is local to window, thus if you open viwmiki buffer in
+In vim73 |conceallevel| is local to window, thus if you open vimwiki buffer in
 a new tab or window, it would be set to default value.
 
 Vimwiki sets |conceallevel| to g:vimwiki_conceallevel everytime vimwiki buffer
@@ -2429,14 +2436,14 @@ are retained at the end after concealing the middle part of a long URL.
 It could be less: in case one of the characters /,#,? is found near the end,
 the URL will be concealed up to the last occurrence of that character.
 
-Note: 
-  * The conceal feature works only with Vim >= 7.3. 
+Note:
+  * The conceal feature works only with Vim >= 7.3.
   * When using the default |wrap| option of Vim, the effect of concealed links
     is not always pleasing, because the visible text on longer lines with
     a lot of concealed parts may appear to be strangely broken across several
     lines. This is a limitation of Vim's |conceal| feature.
-  * Many color schemes do not define an unobtrusive color for the Conceal 
-    highlight group - this might be quite noticeable on shortened URLs.  
+  * Many color schemes do not define an unobtrusive color for the Conceal
+    highlight group - this might be quite noticeable on shortened URLs.
 
 
 Default: 15
@@ -2463,15 +2470,15 @@ uses it.
 
 Redefine it in your .vimrc to get localized months in your diary:
 let g:vimwiki_diary_months = {
-      \ 1: 'Январь', 2: 'Февраль', 3: 'Март', 
+      \ 1: 'Январь', 2: 'Февраль', 3: 'Март',
       \ 4: 'Апрель', 5: 'Май', 6: 'Июнь',
       \ 7: 'Июль', 8: 'Август', 9: 'Сентябрь',
       \ 10: 'Октябрь', 11: 'Ноябрь', 12: 'Декабрь'
       \ }
 
-Default: 
+Default:
 let g:vimwiki_diary_months = {
-      \ 1: 'January', 2: 'February', 3: 'March', 
+      \ 1: 'January', 2: 'February', 3: 'March',
       \ 4: 'April', 5: 'May', 6: 'June',
       \ 7: 'July', 8: 'August', 9: 'September',
       \ 10: 'October', 11: 'November', 12: 'December'
@@ -2566,7 +2573,7 @@ http://code.google.com/p/vimwiki/issues/list
     * Issue 70: Table spanning cell support.
     * Issue 72: Do not convert again for unchanged file. |:VimwikiAll2HTML|
       converts only changed wiki files.
-    * Issue 117: |VimwikiDiaryIndex| command that opens diary index wiki page.
+    * Issue 117: |:VimwikiDiaryIndex| command that opens diary index wiki page.
     * Issue 120: Links in headers are not highlighted in vimwiki but are
       highlighted in HTML.
     * Issue 138: Added possibility to remap table-column move bindings. See
@@ -2584,7 +2591,7 @@ http://code.google.com/p/vimwiki/issues/list
     * Fix of g:vimwiki_stripsym = '' (i.e. an empty string) -- it removes bad
       symbols from filenames.
     * Issue 145: With modeline 'set ft=vimwiki' links are not correctly
-      highlighted when open wiki files. 
+      highlighted when open wiki files.
     * Issue 146: Filetype difficulty with ".txt" as a vimwiki extension.
     * Issue 148: There are no mailto links.
     * Issue 151: Use location list instead of quickfix list for :VimwikiSearch
