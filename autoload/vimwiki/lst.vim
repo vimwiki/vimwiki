@@ -993,6 +993,7 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
     endif
     return
   endif
+
   if a:from_line == a:to_line
     if a:plus_children
       let to_line = s:get_last_line_of_item_incl_children(from_item)
@@ -1000,10 +1001,19 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
       let to_line = s:get_last_line_of_item(from_item)
     endif
   else
-    let to_line = a:to_line
+    let to_item = s:get_corresponding_item(a:to_line)
+    if to_item.type == 0
+      let to_line = a:to_line
+    else
+      if a:plus_children
+        let to_line = s:get_last_line_of_item_incl_children(to_item)
+      else
+        let to_line = s:get_last_line_of_item(to_item)
+      endif
+    endif
   endif
 
-  if from_item.type == 0 || to_line == 0
+  if to_line == 0
     return
   endif
 
