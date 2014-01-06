@@ -1351,6 +1351,12 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
     let cur_col = 0
   else
     let cur_col = col("$") - col("'^")
+    if getline('.')[col("'^")-1] =~ '\s' && exists("*strdisplaywidth")
+      let ws_behind_cursor =
+            \ strdisplaywidth(matchstr(getline('.')[col("'^")-1:], '\s\+'),
+            \ virtcol("'^")-1)
+      let cur_col -= ws_behind_cursor
+    endif
     if insert_new_marker && cur_col == 0 && getline(lnum) =~ '\s$'
       let insert_new_marker = 0
     endif
