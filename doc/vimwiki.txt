@@ -199,6 +199,21 @@ See also |:VimwikiTabMakeDiaryNote|
 ------------------------------------------------------------------------------
 3.2. Local mappings
 
+To remap one of these keys, either put it in your .vimrc like this >
+    :nmap <Leader>wc <Plug>Vimwiki2HTML
+or, the better way, put it in a file .vim/ftplugin/vimwiki.vim like this >
+    :nmap <silent><buffer> <Leader>wc <Plug>Vimwiki2HTML
+
+The latter has the advantage that the mapping is local to viwiki buffers in
+every case.
+
+Also note that some keys work in normal mode as well as in visual mode. If you
+remap them using :map, they will also run in operator-pending mode. If you
+don't want that, use >
+    :nmap <Leader>tt <Plug>VimwikiToggleCheckbox
+    :vmap <Leader>tt <Plug>VimwikiToggleCheckbox
+
+
 NORMAL MODE                                           *vimwiki-local-mappings*
                         *vimwiki_<Leader>wh*
 <Leader>wh              Convert current wiki page to HTML.
@@ -302,80 +317,118 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         the selected text .
 
                         *vimwiki_<C-Space>*
-<C-Space>               Toggle list item on/off (checked/unchecked)
-                        Maps to |:VimwikiToggleListItem|.
+<C-Space>               Toggle checkbox of a list item on/off
+                        Maps to |:VimwikiToggleCheckbox|.
+                        See |vimwiki-todo-lists|.
                         To remap: >
-                        :nmap <leader>tt <Plug>VimwikiToggleListItem
-<                       See |vimwiki-todo-lists|.
-
-                        *vimwiki_gl<Space>*
+                        :map <Leader>tt <Plug>VimwikiToggleCheckbox
+<
+                        *vimwiki_gl<Space>* *vimwiki_gL<Space>*
 gl<Space>               Remove checkbox from list item.
-
-                        *vimwiki_gL<Space>*
 gL<Space>               Remove checkboxes from all sibling list items.
-
+                        To remap: >
+                        :map <Leader><Space> <Plug>VimwikiRemoveSingleCB
+                        :map <Leader><Space> <Plug>VimwikiRemoveCBInList
+<
                         *vimwiki_gll* *vimwiki_gLl*
 gll                     Increase the level of a list item.
 gLl                     Increase the level of a list item and all child items.
-
+                        To remap: >
+                        :map >> <Plug>VimwikiIncreaseLvlSingleItem
+                        :map >>> <Plug>VimwikiIncreaseLvlWholeItem
+<
                         *vimwiki_glh* *vimwiki_gLh*
 glh                     Decrease the level of a list item.
 gLh                     Decrease the level of a list item and all child items.
-
+                        To remap: >
+                        :map << <Plug>VimwikiDecreaseLvlSingleItem
+                        :map >>> <Plug>VimwikiDecreaseLvlWholeItem
+<
                         *vimwiki_glr* *vimwiki_gLr*
-glr                     Renumber list items for the current list.
-gLr                     Renumber list items for the whole buffer.
-
+glr                     Renumber list items in the current list.
+gLr                     Renumber list items in the whole buffer.
+                        Also readjust checkboxes.
+                        To remap: >
+                        :nmap <c-r> <Plug>VimwikiRenumberList
+                        :nmap <c-r> <Plug>VimwikiRenumberAllLists
+<
                         *vimwiki_glstar* *vimwiki_gLstar*
-gl*                     Make a list item out of normal line or change the marker
+gl*                     Make a list item out of normal line or change the symbol
                         of the current item to *.
-gL*                     Change the marker of the current list to *.
-
+gL*                     Change the symbol of the current list to *.
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo *<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo *<CR>
+<
                         *vimwiki_gl#* *vimwiki_gL#*
-gl#                     Make a list item out of normal line or change the marker
+gl#                     Make a list item out of normal line or change the symbol
                         of the current item to #.
-gL#                     Change the marker of the current list to #.
-
+gL#                     Change the symbol of the current list to #.
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo #<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo #<CR>
+<
                         *vimwiki_gl-* *vimwiki_gL-*
-gl-                     Make a list item out of normal line or change the marker
+gl-                     Make a list item out of normal line or change the symbol
                         of the current item to -.
-gL-                     Change the marker of the current list to -.
-
+gL-                     Change the symbol of the current list to -.
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo -<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo -<CR>
+<
                         *vimwiki_gl.* *vimwiki_gL.*
-gl.                     Make a list item out of normal line or change the marker
+gl.                     Make a list item out of normal line or change the symbol
                         of the current item to •.
-gL.                     Change the marker of the current list to •.
-
+gL.                     Change the symbol of the current list to •.
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo •<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo •<CR>
+<
                         *vimwiki_gl1* *vimwiki_gL1*
-gl1                     Make a list item out of normal line or change the marker
+gl1                     Make a list item out of normal line or change the symbol
                         of the current item to 1., the numbering is adjusted
                         according to the surrounding list items.
-gL1                     Change the marker of the current list to 1. 2. 3. ...
-
+gL1                     Change the symbol of the current list to 1. 2. 3. ...
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo 1.<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo 1.<CR>
+<
                         *vimwiki_gla* *vimwiki_gLa*
-gla                     Make a list item out of normal line or change the marker
+gla                     Make a list item out of normal line or change the symbol
                         of the current item to a), the numbering is adjusted
                         according to the surrounding list items.
-gLa                     Change the marker of the current list to a) b) c) ...
-
+gLa                     Change the symbol of the current list to a) b) c) ...
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo a)<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo a)<CR>
+<
                         *vimwiki_glA* *vimwiki_gLA*
-glA                     Make a list item out of normal line or change the marker
+glA                     Make a list item out of normal line or change the symbol
                         of the current item to A), the numbering is adjusted
                         according to the surrounding list items.
-gLA                     Change the marker of the current list to A) B) C) ...
-
+gLA                     Change the symbol of the current list to A) B) C) ...
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo A)<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo A)<CR>
+<
                         *vimwiki_gli* *vimwiki_gLi*
-gli                     Make a list item out of normal line or change the marker
+gli                     Make a list item out of normal line or change the symbol
                         of the current item to i), the numbering is adjusted
                         according to the surrounding list items.
-gLi                     Change the marker of the current list to i) ii) iii) ...
-
+gLi                     Change the symbol of the current list to i) ii) iii) ...
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo i)<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo i)<CR>
+<
                         *vimwiki_glI* *vimwiki_gLI*
-glI                     Make a list item out of normal line or change the marker
+glI                     Make a list item out of normal line or change the symbol
                         of the current item to I), the numbering is adjusted
                         according to the surrounding list items.
-gLI                     Change the marker of the current list to I) II) III) ...
-
+gLI                     Change the symbol of the current list to I) II) III) ...
+                        To remap: >
+                        noremap glo :VimwikiChangeSymbolTo I)<CR>
+                        noremap glO :VimwikiChangeSymbolInListTo I)<CR>
+<
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
@@ -428,33 +481,47 @@ INSERT MODE                                           *vimwiki-table-mappings*
 See |g:vimwiki_table_mappings| to turn them off.
 
 INSERT MODE                                            *vimwiki-list-mappings*
-                        *vimwiki_i_<CR>_list*
+                        *vimwiki_i_<CR>*
 <CR>                    In a list item, insert a new bullet or number in the
                         next line, numbers are incremented.
-                        In an empty list item, delete the item marker. This is
-                        useful to end a list, you simply press <CR> twice.
+                        In an empty list item, delete the item symbol. This is
+                        useful to end a list, simply press <CR> twice.
+                        See |vimwiki-lists| for details and for how to
+                        configure the behavior.
 
-                        *vimwiki_i_<S-CR>_list*
+                        *vimwiki_i_<S-CR>*
 <S-CR>                  Does not insert a new list item, useful to create
                         multilined list items.
+                        See |vimwiki-lists| for details and for how to
+                        configure the behavior.
 
-                        *vimwiki_i_<C-T>_list*
+                        *vimwiki_i_<C-T>*
 <C-T>                   Increase the level of a list item.
-
-                        *vimwiki_i_<C-D>_list*
+                        To remap: >
+                        :imap <C-E> <Plug>VimwikiIncreaseLvlSingleItem
+<
+                        *vimwiki_i_<C-D>*
 <C-D>                   Decrease the level of a list item.
-
-                        *vimwiki_i_<C-L>_<C-J>_list*
-<C-L><C-J>              Change the marker of the current list item to the next
+                        To remap: >
+                        :imap <C-E> <Plug>VimwikiDecreaseLvlSingleItem
+<
+                        *vimwiki_i_<C-L>_<C-J>*
+<C-L><C-J>              Change the symbol of the current list item to the next
                         available. From - to • to 1. to * to I) to a).
-
-                        *vimwiki_i_<C-L>_<C-K>_list*
-<C-L><C-K>              Change the marker of the current list item to the prev
+                        To remap: >
+                        :imap <C-A> <Plug>VimwikiListNextSymbol
+<
+                        *vimwiki_i_<C-L>_<C-K>*
+<C-L><C-K>              Change the symbol of the current list item to the prev
                         available. From - to a) to I) to * to 1. to •.
-
-                        *vimwiki_i_<C-L>_<C-M>_list*
-<C-L><C-M>              Create/remove a marker from a list item.
-
+                        To remap: >
+                        :imap <C-S> <Plug>VimwikiListPrevSymbol
+<
+                        *vimwiki_i_<C-L>_<C-M>*
+<C-L><C-M>              Create/remove a symbol from a list item.
+                        To remap: >
+                        :imap <C-K> <Plug>VimwikiListToggle
+<
 
 ------------------------------------------------------------------------------
 3.3. Text objects                                       *vimwiki-text-objects*
@@ -546,8 +613,8 @@ il                      A single list item.
     Convert all wiki pages to HTML.
     Default css file (style.css) is created if there is no one.
 
-*:VimwikiToggleListItem*
-    Toggle list item on/off (checked/unchecked)
+*:VimwikiToggleCheckbox*
+    Toggle checkbox of a list item on/off
     See |vimwiki-todo-lists|.
 
 *:VimwikiListChangeLevel* CMD
@@ -803,6 +870,8 @@ or: >
   II) Numbered list item 2
   III) Numbered list item 3
 
+Note that a space after the list item symbols (-, *, 1. etc.) is essential.
+
 You can nest and mix the various types: >
   - Bulleted list item 1
   - Bulleted list item 2
@@ -815,9 +884,6 @@ You can nest and mix the various types: >
       2. Numbered list sub sub item 2
     d) etc.
   - Bulleted list item 3
-
-
-Note that a space after the list item markers (-, *, 1. etc.) is essential
 
 List items can span multiple lines: >
   * Item 1
@@ -1220,73 +1286,202 @@ See |vimwiki-option-template_path| for details.
 
 
 ==============================================================================
-8. Todo lists                                             *vimwiki-todo-lists*
+8. Lists                                                       *vimwiki-lists*
+
+While writing lists, the keys <CR>, o and O insert new bullets or numbers as
+you would expect it. A new bullet/number is inserted if and only if the cursor
+is in a list item. To make a list item with more than one line, press <S-CR>
+or press <CR> and <C-L><C-M>.
+Note that the mapping <S-CR> is not available in all terminals.
+
+Furthermore, <CR> and <S-CR> have different behavior when the cursor is behind
+an empty list item. See the table below.
+
+You can configure the behavior of <CR> and of <S-CR> like this: >
+  inoremap <CR> <Esc>:VimwikiReturn 1 5<CR>
+  inoremap <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+
+The first argument of the command :VimwikiReturn is a number that specifies
+when to insert a new bullet/number and when not, depending on whether the
+cursor is in a list item or in a normal line: >
+
+ Number │     Before     │    After
+ ======================================
+    1   │ 1. item|       │ 1. item
+        │                │ 2. |
+        │––––––––––––––––––––––––––––––       ← default for <CR>
+        │ 1. item        │ 1. item
+        │    continue|   │    continue
+        │                │    |
+ ======================================
+    2   │ 1. item|       │ 1. item
+        │                │    |
+        │––––––––––––––––––––––––––––––       ← default for <S-CR>
+        │ 1. item        │ 1. item
+        │    continue|   │    continue
+        │                │ 2. |
+ ======================================
+    3   │ 1. item|       │ 1. item
+        │                │ 2. |
+        │––––––––––––––––––––––––––––––
+        │ 1. item        │ 1. item
+        │    continue|   │    continue
+        │                │ 2. |
+ ======================================
+    4   │ 1. item|       │ 1. item
+        │                │    |
+        │––––––––––––––––––––––––––––––
+        │ 1. item        │ 1. item
+        │    continue|   │    continue
+        │                │    |
+<
+
+The second argument is a number that specifies what should happen when you
+press <CR> or <S-CR> behind an empty list item. There are no less than five
+possibilities:
+>
+ Number │     Before     │    After
+ ======================================
+    1   │ 1. |           │ 1.
+        │                │ 2. |
+ ======================================
+    2   │ 1. |           │                    ← default for <S-CR>
+        │                │ 1. |
+ ======================================
+    3   │ 1. |           │ |
+        │                │
+ ======================================
+    4   │ 1. |           │
+        │                │ |
+ ======================================
+    5   │     1. |       │ 1. |
+        │                │
+        │––––––––––––––––––––––––––––––       ← default for <CR>
+        │ 1. |           │ |
+        │                │
+<
+
+
+                                                   *vimwiki-list-manipulation*
+The level of a list item is determined by its indentation (default and
+markdown syntax) or by the number of list symbols (media syntax).
+
+Use gll and glh in normal mode to increase or decrease the level of a list
+item. The symbols are adjusted automatically to the list items around it.
+Use gLl and gLh to increase or decrease the level of a list item plus all
+list items of lower level below it, that is, all child items.
+
+Use <C-T> and <C-D> to change the level of a list item in insert mode.
+
+See |vimwiki_gll|, |vimwiki_gLl|, |vimwiki_glh|, |vimwiki_gLh|,
+|vimwiki_i_<C-T>|, |vimwiki_i_<C-D>|
+
+
+Use gl followed by the desired symbol to change the symbol of a list item or
+create one. Type gL and the symbol to change all items of the current list.
+For default syntax, the following types are available: >
+    - hyphen
+    * asterisk
+    # hash
+    • dot, use gl. to create it
+    1. number with period
+    1) number with parenthesis
+    a) lower-case letter with parenthesis
+    A) upper-case letter with parenthesis
+    i) lower-case Roman numerals with parenthesis
+    I) upper-case Roman numerals with parenthesis
+
+Markdown syntax has the following types: >
+    - hyphen
+    * asterisk
+    + plus
+    1. number with period
+
+Media syntax only has: >
+    * asterisk
+    # hash
+
+In insert mode, use the keys <C-L><C-J> and <C-L><C-K> to switch between
+symbols. For convenience, only the commonly used symbols can be reached
+through these keys for default syntax.
+
+Note that such a list: a) b) c) … only goes up to zz), to avoid confusion with
+normal text followed by a parenthesis.
+
+Also note that you can, of course, mix different list symbols in one list, but
+if you have the strange idea of putting a list with Romanian numerals right
+after a list using characters or vice versa, vimwiki will get confused because
+it cannot distinguish which is which (at least if the types are both upper
+case or both lower case).
+
+See |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|,
+|vimwiki_gl-|, |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|,
+|vimwiki_glI|
+
+
+Use glr and gLr, if the numbers of a numbered list are mixed up. See
+|vimwiki_glr| and |vimwiki_gLr|.
+
+
+Todo lists                                                *vimwiki-todo-lists*
+------------------------------------------------------------------------------
 
 You can have todo lists -- lists of items you can check/uncheck.
 
-Consider the following example:
-= Toggleable list of todo items =
-  * [X] Toggle list item on/off.
-    * [X] Simple toggling between [ ] and [X].
-    * [X] All list's subitems should be toggled on/off appropriately.
-    * [X] Toggle child subitems only if current line is list item
-    * [X] Parent list item should be toggled depending on it's child items.
-  * [X] Make numbered list items toggleable too
-  * [X] Add highlighting to list item boxes
-  * [X] Add [ ] to the next created with o, O and <CR> list item.
+Consider the following example: >
+ = Toggleable list of todo items =
+   * [X] Toggle list item on/off.
+     * [X] Simple toggling between [ ] and [X].
+     * [X] All list's subitems should be toggled on/off appropriately.
+     * [X] Toggle child subitems only if current line is list item
+     * [X] Parent list item should be toggled depending on it's child items.
+   * [X] Make numbered list items toggleable too
+   * [X] Add highlighting to list item boxes
+   * [X] Add [ ] to the next list item created with o, O and <CR>.
 
 Pressing <C-Space> on the first list item will toggle it and all of its child
-items:
-= Toggleable list of todo items =
-  * [ ] Toggle list item on/off.
-    * [ ] Simple toggling between [ ] and [X].
-    * [ ] All of a list's subitems should be toggled on/off appropriately.
-    * [ ] Toggle child subitems only if the current line is a list item.
-    * [ ] Parent list item should be toggled depending on their child items.
-  * [X] Make numbered list items toggleable too.
-  * [X] Add highlighting to list item boxes.
-  * [X] Add [ ] to the next list item created using o, O or <CR>.
+items: >
+ = Toggleable list of todo items =
+   * [ ] Toggle list item on/off.
+     * [ ] Simple toggling between [ ] and [X].
+     * [ ] All of a list's subitems should be toggled on/off appropriately.
+     * [ ] Toggle child subitems only if the current line is a list item.
+     * [ ] Parent list item should be toggled depending on their child items.
+   * [X] Make numbered list items toggleable too.
+   * [X] Add highlighting to list item boxes.
+   * [X] Add [ ] to the next list item created using o, O or <CR>.
 
 Pressing <C-Space> on the third list item will toggle it and adjust all of its
-parent items:
-= Toggleable list of todo items =
-  * [.] Toggle list item on/off.
-    * [ ] Simple toggling between [ ] and [X].
-    * [X] All of a list's subitems should be toggled on/off appropriately.
-    * [ ] Toggle child subitems only if current line is list item.
-    * [ ] Parent list item should be toggled depending on it's child items.
-  * [ ] Make numbered list items toggleable too.
-  * [ ] Add highlighting to list item boxes.
-  * [ ] Add [ ] to the next list item created using o, O or <CR>.
+parent items: >
+ = Toggleable list of todo items =
+   * [.] Toggle list item on/off.
+     * [ ] Simple toggling between [ ] and [X].
+     * [X] All of a list's subitems should be toggled on/off appropriately.
+     * [ ] Toggle child subitems only if current line is list item.
+     * [ ] Parent list item should be toggled depending on it's child items.
+   * [ ] Make numbered list items toggleable too.
+   * [ ] Add highlighting to list item boxes.
+   * [ ] Add [ ] to the next list item created using o, O or <CR>.
 
-Parent items could be changed when their child items change. The symbol
-between [ ] depends on the percentage of toggled child items (see also
-|g:vimwiki_listsyms|): >
+Parent items could be changed when their child items change. If not, use
+|vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
+child items (see also |g:vimwiki_listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
     [O] -- 67-99%
     [X] -- 100%
 
-It is possible to toggle several list items using visual mode.
+It is possible to toggle several list items using visual mode. But note that
+instead of toggling every item individually, all items get checked if the
+first item is unchecked and all items get unchecked if the first item is
+checked.
 
-                                                   *vimwiki-list-manipulation*
-The indentation and bullet symbols for list items can be manipulated using 
-several mappings.  Examples below demonstrate this behavior for the 'default'
-syntax and with |vimwiki-option-list_margin| = 1. >
+Use gl<Space> (see |vimwiki_gl<Space>|) to remove a single checkbox and
+gL<Space> (see |vimwiki_gL<Space>|) to remove all checkboxes of the list the
+cursor is in.
 
-     Mapping    |      Input       |     Output       
-   ----------------------------------------------------
-       glm      |   ^item          |   ^ - item       
-       glm      |   ^     item     |   ^     - item   
-       gll      |   ^ - item       |   ^item          
-       glm      |   ^   # item     |   ^   item       
-       gl*      |   ^ item         |   ^ * item       
-       gl-      |   ^  item        |   ^  - item      
-       gl3      |   ^   item       |   ^   # item     
 
-See |vimwiki_gll|, |vimwiki_glm|, |vimwiki_glstar|, |vimwiki_gl8|
-|vimwiki_gl#|, |vimwiki_gl3|, |vimwiki_gl-|, |vimwiki_gl1|
 ==============================================================================
 9. Tables                                                     *vimwiki-tables*
 
@@ -1752,10 +1947,12 @@ list_margin       -1
 
 Description~
 Width of left-hand margin for lists.  When negative, the current |shiftwidth|
-is used.  This affects the behavior of the list manipulation commands
-|VimwikiListChangeLevel| and local mappings |vimwiki_gll|, |vimwiki_glm|,
-|vimwiki_glstar|, |vimwiki_gl8|, |vimwiki_gl#|, |vimwiki_gl3|,
-|vimwiki_gl-| and |vimwiki_gl1|. 
+is used.  This affects the appearance of the generated links (see
+|:VimwikiGenerateLinks|) and the behavior of the list manipulation commands
+|:VimwikiListChangeLevel| and the local mappings |vimwiki_glstar|,
+|vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|, |vimwiki_gl-|, |vimwiki_gl1|,
+|vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
+|vimwiki_i_<C-L>_<C-M>|.
 
 
 
@@ -1798,10 +1995,10 @@ Default: 0
 
 Note: Option 2 does not work perfectly. Specifically, it might break on
 preformatted text or if you mix tabs and spaces for indenting, and indented
-headers will erroneously be highlighted.
-Furthermore, if your list is long, Vim's highlight can break. Consider putting
->
- au BufEnter file.wiki :syntax sync fromstart
+headers can be highlighted erroneously.
+Furthermore, if your list is long, Vim's highlight can break. To solve this,
+consider putting >
+ au BufEnter *.wiki :syntax sync fromstart
 in your .vimrc
 
 ------------------------------------------------------------------------------
@@ -1855,7 +2052,7 @@ Value           Description~
 Default: 1
 
 E.g.:
-Press <C-Space> (|:VimwikiToggleListItem|) on a list item without checkbox to
+Press <C-Space> (|:VimwikiToggleCheckbox|) on a list item without checkbox to
 create it: >
   * List item
 Result: >

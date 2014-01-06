@@ -33,8 +33,8 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
 
-" Autocreate list items {{{
-" for bulleted and numbered list items, and list items with checkboxes
+" LIST STUFF {{{
+" settings necessary for the automatic formatting of lists
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
@@ -45,25 +45,23 @@ setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
 
-
 "Create 'formatlistpat'
 let &formatlistpat = g:vimwiki_rxListItem
-
 
 if !empty(&langmap)
   " Valid only if langmap is a comma separated pairs of chars
   let l_o = matchstr(&langmap, '\C,\zs.\zeo,')
   if l_o
-    exe 'nnoremap <buffer> '.l_o.' :call vimwiki#lst#kbd_o()<CR>a'
+    exe 'nnoremap <silent> <buffer> '.l_o.' :call vimwiki#lst#kbd_o()<CR>a'
   endif
 
   let l_O = matchstr(&langmap, '\C,\zs.\zeO,')
   if l_O
-    exe 'nnoremap <buffer> '.l_O.' :call vimwiki#lst#kbd_O()<CR>a'
+    exe 'nnoremap <silent> <buffer> '.l_O.' :call vimwiki#lst#kbd_O()<CR>a'
   endif
 endif
 
-" COMMENTS }}}
+" LIST STUFF }}}
 
 " FOLDING {{{
 " Folding list items {{{
@@ -171,8 +169,6 @@ command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(
 
 command! -buffer VimwikiTabnewLink call vimwiki#base#follow_link('tabnew')
 
-command! -buffer -range VimwikiToggleCheckbox call vimwiki#lst#toggle_cb(<line1>, <line2>)
-
 command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links()
 
 command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
@@ -188,12 +184,17 @@ command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
 
 
 " list commands
-command! -buffer -range -nargs=+ VimwikiListChangeMarker call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>)
-command! -buffer -nargs=1 VimwikiListChangeMarkerInList call vimwiki#lst#change_marker_in_list(<f-args>)
-command! -buffer -nargs=+ VimwikiListLineBreak call <SID>CR(<f-args>)
-command! -buffer -range -nargs=1 VimwikiListIncreaseLvl call vimwiki#lst#change_level(<line1>, <line2>, 'increase', <f-args>)
-command! -buffer -range -nargs=1 VimwikiListDecreaseLvl call vimwiki#lst#change_level(<line1>, <line2>, 'decrease', <f-args>)
-command! -buffer -range VimwikiListRemoveCB call vimwiki#lst#remove_cb(<line1>, <line2>)
+command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
+command! -buffer -range -nargs=1 VimwikiChangeSymbolTo call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
+command! -buffer -range -nargs=1 VimwikiListChangeSymbolI call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
+command! -buffer -nargs=1 VimwikiChangeSymbolInListTo call vimwiki#lst#change_marker_in_list(<f-args>)
+command! -buffer -range VimwikiToggleCheckbox call vimwiki#lst#toggle_cb(<line1>, <line2>)
+command! -buffer -range -nargs=+ VimwikiListChangeLvl call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
+command! -buffer -range VimwikiRemoveSingleCB call vimwiki#lst#remove_cb(<line1>, <line2>)
+command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
+command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
+command! -buffer VimwikiRenumberAllLists call vimwiki#lst#adjust_whole_buffer()
+command! -buffer VimwikiListToggle call vimwiki#lst#toggle_list_item()
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)
@@ -304,6 +305,19 @@ endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
 
+if !hasmapto('<Plug>VimwikiDiaryNextDay')
+  nmap <silent><buffer> <C-Down> <Plug>VimwikiDiaryNextDay
+endif
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiDiaryNextDay :VimwikiDiaryNextDay<CR>
+
+if !hasmapto('<Plug>VimwikiDiaryPrevDay')
+  nmap <silent><buffer> <C-Up> <Plug>VimwikiDiaryPrevDay
+endif
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiDiaryPrevDay :VimwikiDiaryPrevDay<CR>
+
+" List mappings
 if !hasmapto('<Plug>VimwikiToggleCheckbox')
   nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
   vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
@@ -317,17 +331,114 @@ nnoremap <silent><script><buffer>
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleCheckbox :VimwikiToggleCheckbox<CR>
 
-if !hasmapto('<Plug>VimwikiDiaryNextDay')
-  nmap <silent><buffer> <C-Down> <Plug>VimwikiDiaryNextDay
+if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem', 'i')
+  imap <silent><buffer> <C-D>
+        \ <Plug>VimwikiDecreaseLvlSingleItem
 endif
-nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiDiaryNextDay :VimwikiDiaryNextDay<CR>
+inoremap <silent><script><buffer> <Plug>VimwikiDecreaseLvlSingleItem
+    \ <C-O>:VimwikiListChangeLvl decrease 0<CR>
 
-if !hasmapto('<Plug>VimwikiDiaryPrevDay')
-  nmap <silent><buffer> <C-Up> <Plug>VimwikiDiaryPrevDay
+if !hasmapto('<Plug>VimwikiIncreaseLvlSingleItem', 'i')
+  imap <silent><buffer> <C-T>
+        \ <Plug>VimwikiIncreaseLvlSingleItem
+endif
+inoremap <silent><script><buffer> <Plug>VimwikiIncreaseLvlSingleItem
+    \ <C-O>:VimwikiListChangeLvl increase 0<CR>
+
+if !hasmapto('<Plug>VimwikiListNextSymbol', 'i')
+  imap <silent><buffer> <C-L><C-J>
+        \ <Plug>VimwikiListNextSymbol
+endif
+inoremap <silent><script><buffer> <Plug>VimwikiListNextSymbol
+      \ <C-O>:VimwikiListChangeSymbolI next<CR>
+
+if !hasmapto('<Plug>VimwikiListPrevSymbol', 'i')
+  imap <silent><buffer> <C-L><C-K>
+        \ <Plug>VimwikiListPrevSymbol
+endif
+inoremap <silent><script><buffer> <Plug>VimwikiListPrevSymbol
+      \ <C-O>:VimwikiListChangeSymbolI prev<CR>
+
+if !hasmapto('<Plug>VimwikiListToggle', 'i')
+  imap <silent><buffer> <C-L><C-M> <Plug>VimwikiListToggle
+endif
+inoremap <silent><script><buffer> <Plug>VimwikiListToggle <Esc>:VimwikiListToggle<CR>
+
+nnoremap <silent> <buffer> o :call vimwiki#lst#kbd_o()<CR>
+nnoremap <silent> <buffer> O :call vimwiki#lst#kbd_O()<CR>
+
+if !hasmapto('<Plug>VimwikiRenumberList')
+  nmap <silent><buffer> glr <Plug>VimwikiRenumberList
 endif
 nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiDiaryPrevDay :VimwikiDiaryPrevDay<CR>
+      \ <Plug>VimwikiRenumberList :VimwikiRenumberList<CR>
+
+if !hasmapto('<Plug>VimwikiRenumberAllLists')
+  nmap <silent><buffer> gLr <Plug>VimwikiRenumberAllLists
+  nmap <silent><buffer> gLR <Plug>VimwikiRenumberAllLists
+endif
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiRenumberAllLists :VimwikiRenumberAllLists<CR>
+
+if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem')
+  map <silent><buffer> glh <Plug>VimwikiDecreaseLvlSingleItem
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiDecreaseLvlSingleItem :VimwikiListChangeLvl decrease 0<CR>
+
+if !hasmapto('<Plug>VimwikiIncreaseLvlSingleItem')
+  map <silent><buffer> gll <Plug>VimwikiIncreaseLvlSingleItem
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiIncreaseLvlSingleItem :VimwikiListChangeLvl increase 0<CR>
+
+if !hasmapto('<Plug>VimwikiDecreaseLvlWholeItem')
+  map <silent><buffer> gLh <Plug>VimwikiDecreaseLvlWholeItem
+  map <silent><buffer> gLH <Plug>VimwikiDecreaseLvlWholeItem
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiDecreaseLvlWholeItem :VimwikiListChangeLvl decrease 1<CR>
+
+if !hasmapto('<Plug>VimwikiIncreaseLvlWholeItem')
+  map <silent><buffer> gLl <Plug>VimwikiIncreaseLvlWholeItem
+  map <silent><buffer> gLL <Plug>VimwikiIncreaseLvlWholeItem
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiIncreaseLvlWholeItem :VimwikiListChangeLvl increase 1<CR>
+
+if !hasmapto('<Plug>VimwikiRemoveSingleCB')
+  map <silent><buffer> gl<Space> <Plug>VimwikiRemoveSingleCB
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiRemoveSingleCB :VimwikiRemoveSingleCB<CR>
+
+if !hasmapto('<Plug>VimwikiRemoveCBInList')
+  map <silent><buffer> gL<Space> <Plug>VimwikiRemoveCBInList
+endif
+noremap <silent><script><buffer>
+    \ <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
+
+for s:k in keys(g:vimwiki_bullet_types)
+  let s:char = (s:k == '•' ? '.' : s:k)
+
+  if !hasmapto(':VimwikiChangeSymbolTo '.s:k.'<CR>')
+    exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:k.'<CR>'
+  endif
+  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:k.'<CR>')
+    exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:k.'<CR>'
+  endif
+
+endfor
+for s:k in g:vimwiki_number_types
+  if !hasmapto(':VimwikiChangeSymbolTo '.s:k.'<CR>')
+    exe 'noremap <silent><buffer> gl'.s:k[0].' :VimwikiChangeSymbolTo '.s:k.'<CR>'
+  endif
+  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:k.'<CR>')
+    exe 'noremap <silent><buffer> gL'.s:k[0].' :VimwikiChangeSymbolInListTo '.s:k.'<CR>'
+  endif
+endfor
+
+
 
 function! s:CR(normal, just_mrkr) "{{{
   if g:vimwiki_table_mappings
@@ -341,37 +452,12 @@ function! s:CR(normal, just_mrkr) "{{{
   call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction "}}}
 
-" List mappings
-inoremap <buffer> <CR> <Esc>:VimwikiListLineBreak 1 5<CR>
-inoremap <buffer> <S-CR> <Esc>:VimwikiListLineBreak 2 2<CR>
-nnoremap <silent> <buffer> o :call vimwiki#lst#kbd_o()<CR>
-nnoremap <silent> <buffer> O :call vimwiki#lst#kbd_O()<CR>
-map <silent> <buffer> glh :VimwikiListDecreaseLvl 0<CR>
-map <silent> <buffer> gll :VimwikiListIncreaseLvl 0<CR>
-map <silent> <buffer> gLh :VimwikiListDecreaseLvl 1<CR>
-map <silent> <buffer> gLl :VimwikiListIncreaseLvl 1<CR>
-map <silent> <buffer> gLH glH
-map <silent> <buffer> gLL gLl
-inoremap <buffer> <C-D> <C-O>:VimwikiListDecreaseLvl 0<CR>
-inoremap <buffer> <C-T> <C-O>:VimwikiListIncreaseLvl 0<CR>
-inoremap <buffer> <C-L><C-J> <C-O>:VimwikiListChangeMarker next i<CR>
-inoremap <buffer> <C-L><C-K> <C-O>:VimwikiListChangeMarker prev i<CR>
-nmap <silent> <buffer> glr :call vimwiki#lst#adjust_numbered_list()<CR>
-nmap <silent> <buffer> gLr :call vimwiki#lst#adjust_whole_buffer()<CR>
-nmap <silent> <buffer> gLR gLr
-noremap <silent> <buffer> gl<Space> :VimwikiListRemoveCB<CR>
-map <silent> <buffer> gL<Space> :call vimwiki#lst#remove_cb_in_list()<CR>
-inoremap <silent> <buffer> <C-L><C-M> <Esc>:call vimwiki#lst#toggle_list_item()<CR>
-
-for s:k in keys(g:vimwiki_bullet_types)
-  let s:char = (s:k == '•' ? '.' : s:k)
-  exe 'noremap <silent> <buffer> gl'.s:char.' :VimwikiListChangeMarker '.s:k.' n<CR>'
-  exe 'noremap <silent> <buffer> gL'.s:char.' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
-endfor
-for s:k in g:vimwiki_number_types
-  exe 'noremap <silent> <buffer> gl'.s:k[0].' :VimwikiListChangeMarker '.s:k.' n<CR>'
-  exe 'noremap <silent> <buffer> gL'.s:k[0].' :VimwikiListChangeMarkerInList '.s:k.'<CR>'
-endfor
+if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn'
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+endif
+if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn'
+  inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+endif
 
 
 "Table mappings
