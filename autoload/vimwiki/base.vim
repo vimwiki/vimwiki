@@ -290,7 +290,7 @@ endfunction "}}}
 
 " vimwiki#base#subdir
 "FIXME TODO slow and faulty
-function! vimwiki#base#subdir(path, filename)"{{{
+function! vimwiki#base#subdir(path, filename) "{{{
   let g:VimwikiLog.subdir += 1  "XXX
   let path = a:path
   " ensure that we are not fooled by a symbolic link
@@ -904,6 +904,11 @@ endfunction " }}}
 
 " vimwiki#base#find_prev_link
 function! vimwiki#base#find_prev_link() "{{{
+  "Jump 2 times if the cursor is in the middle of a link
+  if synIDattr(synID(line('.'), col('.'), 0), "name") =~ "VimwikiLink.*" &&
+        \ synIDattr(synID(line('.'), col('.')-1, 0), "name") =~ "VimwikiLink.*"
+    call vimwiki#base#search_word(g:vimwiki_rxAnyLink, 'b')
+  endif
   call vimwiki#base#search_word(g:vimwiki_rxAnyLink, 'b')
 endfunction " }}}
 
