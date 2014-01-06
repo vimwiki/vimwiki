@@ -1313,13 +1313,13 @@ function! s:cr_on_empty_line(lnum, behavior) "{{{
   endif
 endfunction "}}}
 
-function! s:cr_on_list_item(lnum, insert_new_marker) "{{{
+function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
   if a:insert_new_marker
     "the ultimate feature of this script: make new marker on <CR>
     normal! gi
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
-    if getline(a:lnum) =~ ':$'
+    if !a:not_at_eol && getline(a:lnum) =~ ':$'
       call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
     endif
   else
@@ -1361,7 +1361,7 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
   endif
 
   if has_bp == 2
-    call s:cr_on_list_item(lnum, insert_new_marker)
+    call s:cr_on_list_item(lnum, insert_new_marker, cur_col)
   endif
 
   call cursor(lnum+1, col("$") - cur_col)
