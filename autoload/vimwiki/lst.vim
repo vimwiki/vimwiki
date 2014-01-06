@@ -812,9 +812,8 @@ endfunction "}}}
 
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
-function! vimwiki#lst#toggle_cb(line1, line2) "{{{
-  let from_item = s:get_corresponding_item(a:line1)
-  let to_item = s:get_corresponding_item(a:line2)
+function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
   endif
@@ -823,9 +822,9 @@ function! vimwiki#lst#toggle_cb(line1, line2) "{{{
 
   if from_item.cb == ''
 
-    "if line1 has no CB, make a CB in every selected line
+    "if from_line has no CB, make a CB in every selected line
     let parent_items_of_lines = []
-    for cur_ln in range(from_item.lnum, to_item.lnum)
+    for cur_ln in range(from_item.lnum, a:to_line)
       let cur_item = s:get_item(cur_ln)
       let success = s:create_cb(cur_item)
 
@@ -839,11 +838,11 @@ function! vimwiki#lst#toggle_cb(line1, line2) "{{{
 
   else
 
-    "if line1 has CB, toggle it and set all siblings to the same new state
+    "if from_line has CB, toggle it and set all siblings to the same new state
     let rate_first_line = s:get_rate(from_item)
     let new_rate = rate_first_line==100 ? 0 : 100
 
-    for cur_ln in range(from_item.lnum, to_item.lnum)
+    for cur_ln in range(from_item.lnum, a:to_line)
       let cur_item = s:get_item(cur_ln)
       if cur_item.type != 0 && cur_item.cb != ''
         call s:set_state_plus_children(cur_item, new_rate)
@@ -1117,10 +1116,10 @@ function! s:set_new_mrkr(item, new_mrkr) "{{{
   endif
 endfunction "}}}
 
-function! vimwiki#lst#change_marker(line1, line2, new_mrkr, mode) "{{{
+function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
   let cur_col_from_eol = col("$") - (a:mode == "i" ? col("'^") : col('.'))
   let new_mrkr = a:new_mrkr
-  let cur_ln = a:line1
+  let cur_ln = a:from_line
   while 1
     let cur_item = s:get_item(cur_ln)
 
@@ -1165,7 +1164,7 @@ function! vimwiki#lst#change_marker(line1, line2, new_mrkr, mode) "{{{
     call s:set_new_mrkr(cur_item, new_mrkr)
     call s:adjust_numbered_list(s:get_item(cur_ln), 1, 0)
 
-    if cur_ln >= a:line2 | break | endif
+    if cur_ln >= a:to_line | break | endif
     let cur_ln = s:get_next_line(cur_ln, 1)
   endwhile
 
@@ -1187,6 +1186,7 @@ function! vimwiki#lst#change_marker_in_list(new_mrkr) "{{{
 
   call s:adjust_numbered_list(s:get_item(first_item_line), 0, 0)
 endfunction "}}}
+
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
   if a:item.type == 0 || VimwikiGet('syntax') == 'media'
