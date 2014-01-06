@@ -1295,6 +1295,8 @@ function! s:cr_on_empty_list_item(lnum, behavior) "{{{
     "just make a new list item
     normal! gi
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
+    startinsert!
+    return
   elseif a:behavior == 2
     "insert new marker but remove marker in old line
     call append(a:lnum-1, '')
