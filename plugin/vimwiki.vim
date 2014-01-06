@@ -392,7 +392,7 @@ call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
-call s:default('listsyms', [' ', '.', 'o', 'O', 'X'])
+call s:default('listsyms', ' .oOX')
 call s:default('use_calendar', 1)
 call s:default('table_mappings', 1)
 call s:default('table_auto_fmt', 1)

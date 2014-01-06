@@ -694,7 +694,7 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  return index(g:vimwiki_listsyms, state) * 25
+  return index(g:vimwiki_listsyms_list, state) * 25
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -731,15 +731,15 @@ endfunction "}}}
 function! s:rate_to_state(rate) "{{{
   let state = ''
   if a:rate == 100
-    let state = g:vimwiki_listsyms[4]
+    let state = g:vimwiki_listsyms_list[4]
   elseif a:rate == 0
-    let state = g:vimwiki_listsyms[0]
+    let state = g:vimwiki_listsyms_list[0]
   elseif a:rate >= 67
-    let state = g:vimwiki_listsyms[3]
+    let state = g:vimwiki_listsyms_list[3]
   elseif a:rate >= 34
-    let state = g:vimwiki_listsyms[2]
+    let state = g:vimwiki_listsyms_list[2]
   else
-    let state = g:vimwiki_listsyms[1]
+    let state = g:vimwiki_listsyms_list[1]
   endif
   return state
 endfunction "}}}
@@ -793,7 +793,7 @@ function! s:create_cb(item) "{{{
   endif
 
   let new_item = a:item
-  let new_item.cb = g:vimwiki_listsyms[0]
+  let new_item.cb = g:vimwiki_listsyms_list[0]
   call s:substitute_rx_in_line(new_item.lnum,
         \ vimwiki#u#escape(new_item.mrkr) . '\zs\ze', ' [' . new_item.cb . ']')
 
@@ -1493,6 +1493,8 @@ function! vimwiki#lst#setup_marker_infos() "{{{
     let g:vimwiki_rxListNumber = '$^'
   endif
 
+  "the user can set the listsyms as string, but vimwiki needs a list
+  let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
 endfunction "}}}
 
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{

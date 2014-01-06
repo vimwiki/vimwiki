@@ -1879,15 +1879,15 @@ Default: 'Vimwiki'
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
 
-List of 5 symbols for list items with checkboxes.
-Default value is [' ', '.', 'o', 'O', 'X'].
+String of 5 symbols for list items with checkboxes.
+Default value is ' .oOX'.
 
-g:vimwiki_listsyms[0] is for 0% done items.
-g:vimwiki_listsyms[4] is for 100% done items.
+The first char is for 0% done items.
+The fifth is for 100% done items.
 
 You can set it to some more fancy symbols like this:
-
-   let g:vimwiki_listsyms = ['✗', '○', '◐', '●', '✓']
+>
+   let g:vimwiki_listsyms = '✗○◐●✓'
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*
