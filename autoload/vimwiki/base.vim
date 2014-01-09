@@ -1547,14 +1547,14 @@ function! s:normalize_link_syntax_v() " {{{
   let done = 0
 
   try
-    norm! gvy
+    norm! gv""y
     let visual_selection = @"
     let visual_selection = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".visual_selection."'", '')
 
     call setreg('"', visual_selection, 'v')
 
     " paste result
-    norm! `>pgvd
+    norm! `>""pgvd
 
   finally
     call setreg('"', rv, rt)
