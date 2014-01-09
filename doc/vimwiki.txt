@@ -1371,7 +1371,7 @@ possibilities:
 
                                                    *vimwiki-list-manipulation*
 The level of a list item is determined by its indentation (default and
-markdown syntax) or by the number of list symbols (media syntax).
+Markdown syntax) or by the number of list symbols (MediaWiki syntax).
 
 Use gll and glh in normal mode to increase or decrease the level of a list
 item. The symbols are adjusted automatically to the list items around it.
@@ -1404,7 +1404,7 @@ Markdown syntax has the following types: >
     + plus
     1. number with period
 
-Media syntax only has: >
+MediaWiki syntax only has: >
     * asterisk
     # hash
 
@@ -1414,10 +1414,12 @@ through these keys for default syntax.
 
 Note that such a list: a) b) c) … only goes up to zz), to avoid confusion with
 normal text followed by a parenthesis.
+Roman numerals go up to MMMM) and numbers up to 2147483647. or
+9223372036854775807. depending if your Vim is 32 or 64 bit.
 
 Also note that you can, of course, mix different list symbols in one list, but
 if you have the strange idea of putting a list with Romanian numerals right
-after a list using characters or vice versa, vimwiki will get confused because
+after a list using letters or vice versa, vimwiki will get confused because
 it cannot distinguish which is which (at least if the types are both upper
 case or both lower case).
 
@@ -1961,7 +1963,8 @@ is used.  This affects the appearance of the generated links (see
 |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
 
-
+Note: if you use MediaWiki syntax, you probably would like to set this option
+to 0, because every indented line is considered verbatim text.
 
 ------------------------------------------------------------------------------
 11.4 Global Options                                   *vimwiki-global-options*
