@@ -399,6 +399,7 @@ call s:default('dir_link', '')
 call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
 call s:default('user_htmls', '')
 call s:default('autowriteall', 1)
+call s:default('logical_newlines', 1)
 
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')
