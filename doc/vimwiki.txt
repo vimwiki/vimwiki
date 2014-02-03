@@ -847,9 +847,6 @@ or: >
 or: >
   * Bulleted list item 1
   * Bulleted list item 2
-or: >
-  # Bulleted list item 1
-  # Bulleted list item 2
 
 
 Ordered lists: >
@@ -876,6 +873,9 @@ or: >
   I) Numbered list item 1
   II) Numbered list item 2
   III) Numbered list item 3
+or: >
+  # Bulleted list item 1            ← will be converted to numbers in HTML
+  # Bulleted list item 2
 
 Note that a space after the list item symbols (-, *, 1. etc.) is essential.
 

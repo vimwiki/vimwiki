@@ -144,7 +144,7 @@ endfunction "}}}
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
       \ silent w <bar> 
-      \ let res = vimwiki#vw2html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
       \<bar>
       \ if res != '' | echo 'Vimwiki: HTML conversion is done.' | endif
@@ -154,7 +154,7 @@ command! -buffer Vimwiki2HTMLBrowse
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))
 command! -buffer VimwikiAll2HTML
-      \ call vimwiki#vw2html#WikiAll2HTML(expand(VimwikiGet('path_html')))
+      \ call vimwiki#html#WikiAll2HTML(expand(VimwikiGet('path_html')))
 
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
@@ -530,7 +530,7 @@ if VimwikiGet('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
     au BufWritePost <buffer> 
-      \ call vimwiki#vw2html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
   augroup END
 endif

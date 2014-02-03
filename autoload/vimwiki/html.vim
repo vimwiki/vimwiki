@@ -22,15 +22,6 @@ let g:loaded_vimwiki_html_auto = 1
 "}}}
 
 " UTILITY "{{{
-function s:get_completion_index(sym) "{{{
-  for idx in range(1, 5)
-    if match(g:vimwiki_listsyms, '\C\%'.idx.'v'.a:sym) != -1
-      return (idx-1)
-    endif
-  endfor
-  return 0
-endfunction "}}}
-
 function! s:root_path(subdir) "{{{
   return repeat('../', len(split(a:subdir, '[/\\]')))
 endfunction "}}}
@@ -843,34 +834,26 @@ endfunction "}}}
 
 function! s:process_tag_list(line, lists) "{{{
 
-  function! s:add_checkbox(line, rx_list, st_tag, en_tag) "{{{
-    let st_tag = a:st_tag
-    let en_tag = a:en_tag
-
+  function! s:add_checkbox(line, rx_list) "{{{
+    let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
-    if len(chk) > 0
-      if len(chk[1])>0
-        "wildcard characters are difficult to match correctly
-        if chk[1] =~ '[.*\\^$~]'
-          let chk[1] ='\'.chk[1]
-        endif
-        " let completion = match(g:vimwiki_listsyms, '\C' . chk[1])
-        let completion = s:get_completion_index(chk[1])
-        if completion >= 0 && completion <=4 
-          let st_tag = '<li class="done'.completion.'">'
-        endif
+    if !empty(chk) && len(chk[1]) > 0
+      let completion = index(g:vimwiki_listsyms_list, chk[1])
+      if completion >= 0 && completion <=4
+        let st_tag = '<li class="done'.completion.'">'
       endif
     endif
-    return [st_tag, en_tag]
+    return [st_tag, '']
   endfunction "}}}
 
   let in_list = (len(a:lists) > 0)
 
   " If it is not list yet then do not process line that starts from *bold*
   " text.
+  " XXX necessary? in *bold* text, no space must follow the first *
   if !in_list
-    let pos = match(a:line, g:vimwiki_rxBold)
-    if pos != -1 && strpart(a:line, 0, pos) =~ '^\s*$'
+    let pos = match(a:line, '^\s*'.g:vimwiki_rxBold)
+    if pos != -1
       return [0, []]
     endif
   endif
@@ -878,16 +861,16 @@ function! s:process_tag_list(line, lists) "{{{
   let lines = []
   let processed = 0
 
-  if a:line =~ g:vimwiki_rxListBullet
-    let lstSym = matchstr(a:line, '[*-]')
+  if a:line =~ '^\s*'.s:bullets.'\s'
+    let lstSym = matchstr(a:line, s:bullets)
     let lstTagOpen = '<ul>'
     let lstTagClose = '</ul>'
-    let lstRegExp = g:vimwiki_rxListBullet
-  elseif a:line =~ g:vimwiki_rxListNumber
-    let lstSym = '#'
+    let lstRegExp = '^\s*'.s:bullets.'\s'
+  elseif a:line =~ '^\s*'.s:numbers.'\s'
+    let lstSym = matchstr(a:line, s:numbers)
     let lstTagOpen = '<ol>'
     let lstTagClose = '</ol>'
-    let lstRegExp = g:vimwiki_rxListNumber
+    let lstRegExp = '^\s*'.s:numbers.'\s'
   else
     let lstSym = ''
     let lstTagOpen = ''
@@ -901,9 +884,8 @@ function! s:process_tag_list(line, lists) "{{{
     let line = substitute(a:line, '\t', repeat(' ', &tabstop), 'g')
     let indent = stridx(line, lstSym)
 
-    let checkbox = '\s*\[\(.\?\)\]\s*'
-    let [st_tag, en_tag] = s:add_checkbox(line,
-          \ lstRegExp.checkbox, '<li>', '')
+    let checkbox = '\s*\[\(.\)\]\s*'
+    let [st_tag, en_tag] = s:add_checkbox(line, lstRegExp.checkbox)
 
     if !in_list
       call add(a:lists, [lstTagClose, indent])
@@ -929,7 +911,7 @@ function! s:process_tag_list(line, lists) "{{{
     call add(lines,
           \ substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
-  elseif in_list > 0 && a:line =~ '^\s\+\S\+'
+  elseif in_list && a:line =~ '^\s\+\S\+'
     if g:vimwiki_list_ignore_newline
       call add(lines, a:line)
     else
@@ -1419,6 +1401,11 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
       let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!' 
       let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
     endif
+
+    " prepare regexps for lists
+    let s:bullets = '[*•-]'
+    let s:numbers =
+      \'\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
 
     for line in lsource
       let oldquote = state.quote
