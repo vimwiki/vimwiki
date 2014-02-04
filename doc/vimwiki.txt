@@ -210,8 +210,8 @@ every case.
 Also note that some keys work in normal mode as well as in visual mode. If you
 remap them using :map, they will also run in operator-pending mode. If you
 don't want that, use >
-    :nmap <Leader>tt <Plug>VimwikiToggleCheckbox
-    :vmap <Leader>tt <Plug>VimwikiToggleCheckbox
+    :nmap <Leader>tt <Plug>VimwikiToggleListItem
+    :vmap <Leader>tt <Plug>VimwikiToggleListItem
 
 
 NORMAL MODE                                           *vimwiki-local-mappings*
@@ -321,10 +321,10 @@ NORMAL MODE                                           *vimwiki-local-mappings*
 <
                         *vimwiki_<C-Space>*
 <C-Space>               Toggle checkbox of a list item on/off
-                        Maps to |:VimwikiToggleCheckbox|.
+                        Maps to |:VimwikiToggleListItem|.
                         See |vimwiki-todo-lists|.
                         To remap: >
-                        :map <Leader>tt <Plug>VimwikiToggleCheckbox
+                        :map <Leader>tt <Plug>VimwikiToggleListItem
 <
                         *vimwiki_gl<Space>* *vimwiki_gL<Space>*
 gl<Space>               Remove checkbox from list item.
@@ -620,7 +620,7 @@ il                      A single list item.
     Convert all wiki pages to HTML.
     Default css file (style.css) is created if there is no one.
 
-*:VimwikiToggleCheckbox*
+*:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off
     See |vimwiki-todo-lists|.
 

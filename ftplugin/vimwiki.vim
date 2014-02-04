@@ -188,7 +188,7 @@ command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
 command! -buffer -range -nargs=1 VimwikiChangeSymbolTo call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
 command! -buffer -range -nargs=1 VimwikiListChangeSymbolI call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
 command! -buffer -nargs=1 VimwikiChangeSymbolInListTo call vimwiki#lst#change_marker_in_list(<f-args>)
-command! -buffer -range VimwikiToggleCheckbox call vimwiki#lst#toggle_cb(<line1>, <line2>)
+command! -buffer -range VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
 command! -buffer -range -nargs=+ VimwikiListChangeLvl call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
 command! -buffer -range VimwikiRemoveSingleCB call vimwiki#lst#remove_cb(<line1>, <line2>)
 command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
@@ -318,18 +318,18 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiDiaryPrevDay :VimwikiDiaryPrevDay<CR>
 
 " List mappings
-if !hasmapto('<Plug>VimwikiToggleCheckbox')
-  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
-  vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleCheckbox
+if !hasmapto('<Plug>VimwikiToggleListItem')
+  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
+  vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
   if has("unix")
-    nmap <silent><buffer> <C-@> <Plug>VimwikiToggleCheckbox
-    vmap <silent><buffer> <C-@> <Plug>VimwikiToggleCheckbox
+    nmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
+    vmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
   endif
 endif
 nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiToggleCheckbox :VimwikiToggleCheckbox<CR>
+      \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer>
-      \ <Plug>VimwikiToggleCheckbox :VimwikiToggleCheckbox<CR>
+      \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 
 if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem', 'i')
   imap <silent><buffer> <C-D>
