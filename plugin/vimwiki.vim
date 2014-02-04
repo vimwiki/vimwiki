@@ -383,7 +383,6 @@ let s:vimwiki_defaults.list_margin = -1
 
 " DEFAULT options {{{
 call s:default('list', [s:vimwiki_defaults])
-call s:default('auto_checkbox', 1)
 call s:default('use_mouse', 0)
 call s:default('folding', '')
 call s:default('menu', 'Vimwiki')

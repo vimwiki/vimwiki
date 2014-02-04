@@ -224,7 +224,7 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         *vimwiki_<Leader>whh*
 <Leader>whh             Convert current wiki page to HTML and open it in
                         webbrowser.
-                        Maps to |:Vimwiki2HTML|
+                        Maps to |:Vimwiki2HTMLBrowse|
                         To remap: >
                         :nmap <Leader>wcc <Plug>Vimwiki2HTMLBrowse
 <
@@ -1472,7 +1472,7 @@ parent items: >
    * [ ] Add highlighting to list item boxes.
    * [ ] Add [ ] to the next list item created using o, O or <CR>.
 
-Parent items could be changed when their child items change. If not, use
+Parent items should change when their child items change. If not, use
 |vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
 child items (see also |g:vimwiki_listsyms|): >
     [ ] -- 0%
@@ -2050,24 +2050,6 @@ syntax.
 
 Default: {}
 
-------------------------------------------------------------------------------
-*g:vimwiki_auto_checkbox*
-
-If on, creates checkbox while toggling list item.
-
-Value           Description~
-0               Do not create checkbox.
-1               Create checkbox.
-
-Default: 1
-
-E.g.:
-Press <C-Space> (|:VimwikiToggleCheckbox|) on a list item without checkbox to
-create it: >
-  * List item
-Result: >
-  * [ ] List item
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_menu*
@@ -2513,6 +2495,23 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ==============================================================================
 14. Changelog                                              *vimwiki-changelog*
+
+???~
+
+    * List editing capabilities, see |vimwiki-lists|:
+        * support for auto incrementing numbered lists
+        * more key maps for list manipulation, see |vimwiki-list-manipulation|
+        * improved automatic adjustment of checkboxes
+        * text objects for list items, see |vimwiki-text-objects|
+        * g:vimwiki_auto_checkbox is now useless and removed
+    * Issue 415: Disable folding if g:vimwiki_folding is set to ''
+    * Fix slowdown in Vim 7.4
+    * Issue #12: Separate diaries from different wikis
+    * Issue #13: Fix :VimwikiRenameLink on links containing a dot
+    * Issue #24: Basic support for remote directories via netrw
+    * Always jump to previous link on <S-Tab>, not to beginning of link
+    * Issue #27: Fix <CR> on a visual selection sometimes not working
+    * Various small fixes
 
 2.1~
 
