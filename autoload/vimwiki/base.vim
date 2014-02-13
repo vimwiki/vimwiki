@@ -326,8 +326,14 @@ endfunction " }}}
 
 " vimwiki#base#resolve_scheme
 function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
-  " if link is schemeless add wikiN: scheme
   let lnk = a:lnk
+
+  " a link starting with # means current file with an anchor
+  if lnk =~ '^#'
+    let lnk = expand('%:t:r').lnk
+  endif
+
+  " if link is schemeless add wikiN: scheme
   let is_schemeless = lnk !~ g:vimwiki_rxSchemeUrl
   let lnk = (is_schemeless  ? 'wiki'.g:vimwiki_current_idx.':'.lnk : lnk)
   
@@ -339,11 +345,23 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   let subdir = ''
   let ext = ''
   let idx = -1
+  let anchor = ''
+
+  "extract anchor
+  if scheme =~ 'wiki' || scheme =~ 'diary'
+    let split_lnk = split(lnk, '#', 1)
+    let lnk = split_lnk[0]
+    if len(split_lnk) <= 1 || split_lnk[-1] == ''
+      let anchor = ''
+    else
+      let anchor = join(split_lnk[1:], '#')
+    endif
+  endif
 
   " do nothing if scheme is unknown to vimwiki
   if !(scheme =~ 'wiki.*' || scheme =~ 'diary' || scheme =~ 'local' 
         \ || scheme =~ 'file')
-    return [idx, scheme, path, subdir, lnk, ext, scheme.':'.lnk]
+    return [idx, scheme, path, subdir, lnk, ext, scheme.':'.lnk, anchor]
   endif
 
   " scheme behaviors
@@ -351,7 +369,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
     let idx = eval(matchstr(scheme, '\D\+\zs\d\+\ze'))
     if idx < 0 || idx >= len(g:vimwiki_list)
       echom 'Vimwiki Error: Numbered scheme refers to a non-existent wiki!'
-      return [idx,'','','','','','']
+      return [idx,'','','','','','', '']
     else
       if idx != g:vimwiki_current_idx
         call vimwiki#base#validate_wiki_options(idx)
@@ -440,7 +458,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   endif
 
   " result
-  return [idx, scheme, path, subdir, lnk, ext, url]
+  return [idx, scheme, path, subdir, lnk, ext, url, anchor]
 endfunction "}}}
 
 " vimwiki#base#system_open_link
@@ -474,21 +492,20 @@ endfunction "}}}
 
 " vimwiki#base#open_link
 function! vimwiki#base#open_link(cmd, link, ...) "{{{
-  let [idx, scheme, path, subdir, lnk, ext, url] = 
+  let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
         \ vimwiki#base#resolve_scheme(a:link, 0)
 
   if url == ''
     if g:vimwiki_debug
-      echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url
+      echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.', anchor='.anchor
     endif
     echom 'Vimwiki Error: Unable to resolve link!'
     return
   endif
 
-  let update_prev_link = (
-        \ scheme == '' || 
-        \ scheme =~ 'wiki' || 
-        \ scheme =~ 'diary' ? 1 : 0)
+  let update_prev_link = ( (scheme == '' || scheme =~ 'wiki' || scheme =~ 'diary')
+        \ && lnk != expand('%:t:r')
+        \ ? 1 : 0)
 
   let use_system_open = (
         \ scheme == '' || 
@@ -507,13 +524,13 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
 
   " open/edit
   if g:vimwiki_debug
-    echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url
+    echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.'anchor='.anchor
   endif
 
   if use_system_open
     call vimwiki#base#system_open_link(url)
   else
-    call vimwiki#base#edit_file(a:cmd, url,
+    call vimwiki#base#edit_file(a:cmd, url, anchor,
           \ vimwiki_prev_link, update_prev_link)
     if idx != g:vimwiki_current_idx
       " this call to setup_buffer_state may not be necessary
@@ -551,11 +568,15 @@ function! vimwiki#base#generate_links() "{{{only get links from the current dir
 endfunction " }}}
 
 " vimwiki#base#goto
-function! vimwiki#base#goto(key) "{{{
-    call vimwiki#base#edit_file(':e',
-          \ VimwikiGet('path').
-          \ a:key.
-          \ VimwikiGet('ext'))
+function! vimwiki#base#goto(...) "{{{
+  let key = a:1
+  let anchor = a:0 > 1 ? a:2 : ''
+
+  call vimwiki#base#edit_file(':e',
+        \ VimwikiGet('path').
+        \ key.
+        \ VimwikiGet('ext'),
+        \ anchor)
 endfunction "}}}
 
 " vimwiki#base#backlinks
@@ -642,8 +663,31 @@ function! vimwiki#base#get_links(pat) "{{{ return string-list for files
   return globlinks
 endfunction "}}}
 
+function! s:jump_to_anchor(anchor)
+  let oldpos = getpos('.')
+  call cursor(1, 1)
+
+  let anchor = vimwiki#u#escape(a:anchor)
+
+  let segments = split(anchor, '#', 0)
+  for segment in segments
+
+    let anchor_header = substitute(
+          \ g:vimwiki_{VimwikiGet('syntax')}_header_match,
+          \ '__Header__', "\\='".segment."'", '')
+    let anchor_bold = substitute(g:vimwiki_{VimwikiGet('syntax')}_bold_match,
+          \ '__Text__', "\\='".segment."'", '')
+
+    if !search(anchor_header, 'c') && !search(anchor_bold, 'c')
+      call setpos('.', oldpos)
+      break
+    endif
+    let oldpos = getpos('.')
+  endfor
+endfunction
+
 " vimwiki#base#edit_file
-function! vimwiki#base#edit_file(command, filename, ...) "{{{
+function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " XXX: Should we allow * in filenames!?
   " Maxim: It is allowed, escaping here is for vim to be able to open files
   " which have that symbols.
@@ -655,7 +699,16 @@ function! vimwiki#base#edit_file(command, filename, ...) "{{{
   let fname = escape(a:filename, '% *|#')
   let dir = fnamemodify(a:filename, ":p:h")
   if vimwiki#base#mkdir(dir, 1)
-    execute a:command.' '.fname
+    " check if the file we want to open is already the current file
+    " which happens if we jump to an achor in the current file.
+    " This hack is necessary because apparently Vim messes up the result of
+    " getpos() directly after this command. Strange.
+    if !(a:command == ':e ' && a:filename == expand('%:p'))
+      execute a:command.' '.fname
+    endif
+    if a:anchor != ''
+      call s:jump_to_anchor(a:anchor)
+    endif
   else
     echom ' '
     echom 'Vimwiki: Unable to edit file in non-existent directory: '.dir
@@ -769,9 +822,9 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
   let new_fname_r = new_fname
 
   let old_fname_r = vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate1, 
-          \ '\zs'.old_fname.'\ze', '.*', '').
+          \ '\zs'.old_fname.'\ze\%(#.*\)\?', '.*', '').
         \ '\|'. vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate2, 
-          \ '\zs'.old_fname.'\ze', '.*', '')
+          \ '\zs'.old_fname.'\ze\%(#.*\)\?', '.*', '')
 
   let files = split(glob(VimwikiGet('path').a:dir.'*'.VimwikiGet('ext')), '\n')
   for fname in files
@@ -839,7 +892,7 @@ endfunction " }}}
 
 " s:open_wiki_buffer
 function! s:open_wiki_buffer(item) "{{{
-  call vimwiki#base#edit_file(':e', a:item[0])
+  call vimwiki#base#edit_file(':e', a:item[0], '')
   if !empty(a:item[1])
     call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
   endif
@@ -1004,7 +1057,8 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
   call vimwiki#base#validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
         \ VimwikiGet('path', idx).VimwikiGet('index', idx).
-        \ VimwikiGet('ext', idx))
+        \ VimwikiGet('ext', idx),
+        \ '')
   call vimwiki#base#setup_buffer_state(idx)
 endfunction "}}}
 
@@ -1432,6 +1486,90 @@ function! vimwiki#base#RemoveHeaderLevel() "{{{
     call setline(lnum, line)
   endif
 endfunction " }}}
+
+"creates or updates TOC in current file
+function! vimwiki#base#table_of_contents()
+  let old_cursor_pos = getpos('.')
+  let bullet = vimwiki#lst#default_symbol().' '
+  let rx_bullet = vimwiki#u#escape(bullet)
+  let toc_line = 0
+  let whitespaces = ''
+
+  " delete old TOC
+  let toc_header = '^\s*'.substitute(g:vimwiki_rxH1_Template, '__Header__',
+        \ '\='."'".g:vimwiki_toc_string."'", '').'\s*$'
+  let lnum = 1
+  while lnum <= &modelines + 2 && lnum <= line('$')
+    let line_content = getline(lnum)
+    if line_content =~# toc_header
+      let toc_line = lnum - 1
+      let whitespaces = matchstr(line_content, '^\s*')
+      let tl = lnum
+      while 1
+        let tl += 1
+        if tl > line('$') || getline(tl) !~ '^\s*'.rx_bullet.g:vimwiki_rxWikiLink.'\s*$'
+          silent exe lnum.','.string(tl-1).'delete _'
+          break
+        endif
+      endwhile
+      break
+    endif
+    let lnum += 1
+  endwhile
+
+  " collect new headers
+  let toc_lines = []
+  let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+  for lnum in range(1, line('$'))
+    let line_content = getline(lnum)
+    if line_content !~ g:vimwiki_rxHeader
+      continue
+    endif
+    let h_level = vimwiki#u#count_first_sym(line_content)
+    let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki_rxHeader))
+    let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
+    for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
+
+    let h_complete_id = ''
+    for l in range(h_level-1)
+      if headers_levels[l][0] != ''
+        let h_complete_id .= headers_levels[l][0].'#'
+      endif
+    endfor
+    let h_complete_id .= headers_levels[h_level-1][0]
+
+    if g:vimwiki_html_header_numbering > 0
+          \ && g:vimwiki_html_header_numbering <= h_level
+      let h_number = join(map(copy(headers_levels[
+            \ g:vimwiki_html_header_numbering-1 : h_level-1]), 'v:val[1]'), '.')
+      let h_number .= g:vimwiki_html_header_numbering_sym
+      let h_text = h_number.' '.h_text
+    endif
+
+    call add(toc_lines, [h_level, h_complete_id, h_text])
+  endfor
+
+  " write new TOC
+  call append(toc_line, whitespaces . substitute(g:vimwiki_rxH1_Template,
+        \ '__Header__', '\='."'".g:vimwiki_toc_string."'", ''))
+  let toc_line += 1
+
+  let startindent = repeat(' ', vimwiki#lst#get_list_margin())
+  let indentstring = repeat(' ', &shiftwidth)
+  for [lvl, link, desc] in toc_lines
+    let esc_link = substitute(link, "'", "''", 'g')
+    let esc_desc = substitute(desc, "'", "''", 'g')
+    let link = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
+          \ '\='."'".'#'.esc_link."'", '')
+    let link = substitute(link, '__LinkDescription__', '\='."'".esc_desc."'", '')
+    call append(toc_line, startindent.repeat(indentstring, lvl-1).bullet.link)
+    let toc_line += 1
+  endfor
+  if getline(toc_line+1) !~ '^\s*$'
+    call append(toc_line, '')
+  endif
+  call setpos('.', old_cursor_pos)
+endfunction
 "}}}
 
 " LINK functions {{{

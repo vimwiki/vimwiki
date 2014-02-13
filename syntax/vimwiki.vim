@@ -449,7 +449,6 @@ execute 'syntax region VimwikiMath start=/^\s*'.g:vimwiki_rxMathStart.
 
 
 " placeholders
-syntax match VimwikiPlaceholder /^\s*%toc\%(\s.*\)\?$/ contains=VimwikiPlaceholderParam
 syntax match VimwikiPlaceholder /^\s*%nohtml\s*$/
 syntax match VimwikiPlaceholder /^\s*%title\%(\s.*\)\?$/ contains=VimwikiPlaceholderParam
 syntax match VimwikiPlaceholder /^\s*%template\%(\s.*\)\?$/ contains=VimwikiPlaceholderParam

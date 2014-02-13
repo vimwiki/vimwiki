@@ -128,13 +128,21 @@ function! s:get_html_template(wikifile, template) "{{{
   return lines
 endfunction "}}}
 
-function! s:safe_html_tags(line) "{{{
+function! s:safe_html_preformatted(line) "{{{
   let line = substitute(a:line,'<','\&lt;', 'g')
   let line = substitute(line,'>','\&gt;', 'g')
   return line
 endfunction "}}}
 
-function! s:safe_html(line) "{{{
+function! s:safe_html_anchor(string) "{{{
+  let string = substitute(a:string, '"', '\&quot;', 'g')
+  let string = substitute(string, "'", '\&#39;', 'g')
+  let string = substitute(string, '/', '\&#47;', 'g')
+  let string = substitute(string, '\t', ' ', 'g') " &#9; doesn't work
+  return string
+endfunction "}}}
+
+function! s:safe_html_line(line) "{{{
   " escape & < > when producing HTML text
   " s:lt_pattern, s:gt_pattern depend on g:vimwiki_valid_html_tags
   " and are set in vimwiki#html#Wiki2HTML()
@@ -173,7 +181,7 @@ function! s:mid(value, cnt) "{{{
   return strpart(a:value, a:cnt, len(a:value) - 2 * a:cnt)
 endfunction "}}}
 
-function! s:subst_func(line, regexp, func) " {{{
+function! s:subst_func(line, regexp, func, ...) " {{{
   " Substitute text found by regexp with result of
   " func(matched) function.
 
@@ -184,7 +192,11 @@ function! s:subst_func(line, regexp, func) " {{{
     let res_line = res_line.line
     let matched = matchstr(a:line, a:regexp, pos)
     if matched != ""
-      let res_line = res_line.{a:func}(matched)
+      if a:0
+        let res_line = res_line.{a:func}(matched, a:1)
+      else
+        let res_line = res_line.{a:func}(matched)
+      endif
     endif
     let pos = matchend(a:line, a:regexp, pos)
   endfor
@@ -194,61 +206,6 @@ endfunction " }}}
 function! s:save_vimwiki_buffer() "{{{
   if &filetype == 'vimwiki'
     silent update
-  endif
-endfunction "}}}
-
-function! s:get_html_toc(toc_list) "{{{
-  " toc_list is list of [level, header_text, header_id]
-  " ex: [[1, "Header", "toc1"], [2, "Header2", "toc2"], ...]
-  function! s:close_list(toc, plevel, level) "{{{
-    let plevel = a:plevel
-    while plevel > a:level
-      call add(a:toc, '</ul>')
-      let plevel -= 1
-    endwhile
-    return plevel
-  endfunction "}}}
-
-  if empty(a:toc_list)
-    return []
-  endif
-
-  let toc = ['<div class="toc">']
-  let level = 0
-  let plevel = 0
-  for [level, text, id] in a:toc_list
-    if level > plevel
-      call add(toc, '<ul>')
-    elseif level < plevel
-      let plevel = s:close_list(toc, plevel, level)
-    endif
-
-    let toc_text = s:process_tags_remove_links(text)
-    let toc_text = s:process_tags_typefaces(toc_text)
-    call add(toc, '<li><a href="#'.id.'">'.toc_text.'</a>')
-    let plevel = level
-  endfor
-  call s:close_list(toc, level, 0)
-  call add(toc, '</div>')
-  return toc
-endfunction "}}}
-
-" insert toc into dest.
-function! s:process_toc(dest, placeholders, toc) "{{{
-  let toc_idx = 0
-  if !empty(a:placeholders)
-    for [placeholder, row, idx] in a:placeholders
-      let [type, param] = placeholder
-      if type == 'toc'
-        let toc = a:toc[:]
-        if !empty(param)
-          call insert(toc, '<h1>'.param.'</h1>')
-        endif
-        let shift = toc_idx * len(toc)
-        call extend(a:dest, toc, row + shift)
-        let toc_idx += 1
-      endif
-    endfor
   endif
 endfunction "}}}
 
@@ -316,8 +273,21 @@ function! s:tag_em(value) "{{{
   return '<em>'.s:mid(a:value, 1).'</em>'
 endfunction "}}}
 
-function! s:tag_strong(value) "{{{
-  return '<strong>'.s:mid(a:value, 1).'</strong>'
+function! s:tag_strong(value, header_ids) "{{{
+  let text = s:mid(a:value, 1)
+  let id = s:safe_html_anchor(text)
+  let complete_id = ''
+  for l in range(6)
+    if a:header_ids[l][0] != ''
+      let complete_id .= a:header_ids[l][0].'-'
+    endif
+  endfor
+  if a:header_ids[5][0] == ''
+    let complete_id = complete_id[:-2]
+  endif
+  let complete_id .= '-'.id
+  return '<div id="'.s:safe_html_anchor(complete_id).'"></div><strong id="'
+        \ .id.'">'.text.'</strong>'
 endfunction "}}}
 
 function! s:tag_todo(value) "{{{
@@ -337,7 +307,7 @@ function! s:tag_sub(value) "{{{
 endfunction "}}}
 
 function! s:tag_code(value) "{{{
-  return '<code>'.s:safe_html_tags(s:mid(a:value, 1)).'</code>'
+  return '<code>'.s:safe_html_preformatted(s:mid(a:value, 1)).'</code>'
 endfunction "}}}
 
 "function! s:tag_pre(value) "{{{
@@ -365,7 +335,7 @@ endfunction
 "}}}
 
 function! vimwiki#html#linkify_link(src, descr) "{{{
-  let src_str = ' href="'.a:src.'"'
+  let src_str = ' href="'.s:safe_html_anchor(a:src).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
   let descr = (descr == "" ? a:src : descr)
   let descr_str = (descr =~ g:vimwiki_rxWikiIncl 
@@ -404,7 +374,7 @@ function! s:tag_wikiincl(value) "{{{
     let descr = matchstr(str, vimwiki#html#incl_match_arg(1))
     let verbatim_str = matchstr(str, vimwiki#html#incl_match_arg(2))
     " resolve url
-    let [idx, scheme, path, subdir, lnk, ext, url] = 
+    let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
           \ vimwiki#base#resolve_scheme(url_0, 1)
     " generate html output
     " TODO: migrate non-essential debugging messages into g:VimwikiLog
@@ -426,18 +396,20 @@ function! s:tag_wikiincl(value) "{{{
 endfunction "}}}
 
 function! s:tag_wikilink(value) "{{{
-  " [[url]]                -> <a href="url.html">url</a>
-  " [[url|descr]]         -> <a href="url.html">descr</a>
-  " [[url|{{...}}]]        -> <a href="url.html"> ... </a>
-  " [[fileurl.ext|descr]] -> <a href="fileurl.ext">descr</a>
-  " [[dirurl/|descr]]     -> <a href="dirurl/index.html">descr</a>
+  " [[url]]                   -> <a href="url.html">url</a>
+  " [[url|descr]]             -> <a href="url.html">descr</a>
+  " [[url|{{...}}]]           -> <a href="url.html"> ... </a>
+  " [[fileurl.ext|descr]]     -> <a href="fileurl.ext">descr</a>
+  " [[dirurl/|descr]]         -> <a href="dirurl/index.html">descr</a>
+  " [[url#a1#a2]]             -> <a href="url.html#a1-a2">url#a1#a2</a>
+  " [[#a1#a2]]                -> <a href="file.html#a1-a2">#a1#a2</a>
   let str = a:value
   let url = matchstr(str, g:vimwiki_rxWikiLinkMatchUrl)
   let descr = matchstr(str, g:vimwiki_rxWikiLinkMatchDescr)
   let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
 
   " resolve url
-  let [idx, scheme, path, subdir, lnk, ext, url] = 
+  let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
         \ vimwiki#base#resolve_scheme(url, 1)
 
   " generate html output
@@ -445,7 +417,8 @@ function! s:tag_wikilink(value) "{{{
   if g:vimwiki_debug > 1
     echom '[[idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.']]'
   endif
-  let line = vimwiki#html#linkify_link(url, descr)
+  let anchor = substitute(anchor, '#', '-', 'g')
+  let line = vimwiki#html#linkify_link(url.'#'.anchor, descr)
   return line
 endfunction "}}}
 "}}}
@@ -496,7 +469,7 @@ function! s:tag_remove_external_link(value) "{{{
   return line
 endfunction "}}}
 
-function! s:make_tag(line, regexp, func) "{{{
+function! s:make_tag(line, regexp, func, ...) "{{{
   " Make tags for a given matched regexp.
   " Exclude preformatted text and href links.
   " FIXME 
@@ -521,7 +494,11 @@ function! s:make_tag(line, regexp, func) "{{{
     let lines = split(a:line, patt_splitter, 1)
     let res_line = ""
     for line in lines
-      let res_line = res_line.s:subst_func(line, a:regexp, a:func)
+      if a:0
+        let res_line = res_line.s:subst_func(line, a:regexp, a:func, a:1)
+      else
+        let res_line = res_line.s:subst_func(line, a:regexp, a:func)
+      endif
       let res_line = res_line.matchstr(a:line, patt_splitter, pos)
       let pos = matchend(a:line, patt_splitter, pos)
     endfor
@@ -536,10 +513,10 @@ function! s:process_tags_remove_links(line) " {{{
   return line
 endfunction " }}}
 
-function! s:process_tags_typefaces(line) "{{{
+function! s:process_tags_typefaces(line, header_ids) "{{{
   let line = a:line
   let line = s:make_tag(line, g:vimwiki_rxItalic, 's:tag_em')
-  let line = s:make_tag(line, g:vimwiki_rxBold, 's:tag_strong')
+  let line = s:make_tag(line, g:vimwiki_rxBold, 's:tag_strong', a:header_ids)
   let line = s:make_tag(line, g:vimwiki_rxTodo, 's:tag_todo')
   let line = s:make_tag(line, g:vimwiki_rxDelText, 's:tag_strike')
   let line = s:make_tag(line, g:vimwiki_rxSuperScript, 's:tag_super')
@@ -557,9 +534,9 @@ function! s:process_tags_links(line) " {{{
   return line
 endfunction " }}}
 
-function! s:process_inline_tags(line) "{{{
+function! s:process_inline_tags(line, header_ids) "{{{
   let line = s:process_tags_links(a:line)
-  let line = s:process_tags_typefaces(line)
+  let line = s:process_tags_typefaces(line, a:header_ids)
   return line
 endfunction " }}}
 "}}}
@@ -597,7 +574,7 @@ function! s:close_tag_para(para, ldest) "{{{
   return a:para
 endfunction "}}}
 
-function! s:close_tag_table(table, ldest) "{{{
+function! s:close_tag_table(table, ldest, header_ids) "{{{
   " The first element of table list is a string which tells us if table should be centered.
   " The rest elements are rows which are lists of columns:
   " ['center', 
@@ -654,7 +631,7 @@ function! s:close_tag_table(table, ldest) "{{{
     endfor
   endfunction "}}}
 
-  function! s:close_tag_row(row, header, ldest) "{{{
+  function! s:close_tag_row(row, header, ldest, header_ids) "{{{
     call add(a:ldest, '<tr>')
 
     " Set tag element of columns 
@@ -682,7 +659,7 @@ function! s:close_tag_table(table, ldest) "{{{
       endif
 
       call add(a:ldest, '<' . tag_name . rowspan_attr . colspan_attr .'>')
-      call add(a:ldest, s:process_inline_tags(cell.body))
+      call add(a:ldest, s:process_inline_tags(cell.body, a:header_ids))
       call add(a:ldest, '</'. tag_name . '>')
     endfor
 
@@ -715,15 +692,15 @@ function! s:close_tag_table(table, ldest) "{{{
     if head > 0
       for row in table[1 : head-1]
         if !empty(filter(row, '!empty(v:val)'))
-          call s:close_tag_row(row, 1, ldest)
+          call s:close_tag_row(row, 1, ldest, a:header_ids)
         endif
       endfor
       for row in table[head+1 :]
-        call s:close_tag_row(row, 0, ldest)
+        call s:close_tag_row(row, 0, ldest, a:header_ids)
       endfor
     else
       for row in table[1 :]
-        call s:close_tag_row(row, 0, ldest)
+        call s:close_tag_row(row, 0, ldest, a:header_ids)
       endfor
     endif
     call add(ldest, "</table>")
@@ -774,7 +751,7 @@ function! s:process_tag_pre(line, pre) "{{{
     let processed = 1
     "XXX destroys indent in general!
     "call add(lines, substitute(a:line, '^\s\{'.pre[1].'}', '', ''))
-    call add(lines, s:safe_html_tags(a:line))
+    call add(lines, s:safe_html_preformatted(a:line))
   endif
   return [processed, lines, pre]
 endfunction "}}}
@@ -977,26 +954,48 @@ function! s:process_tag_h(line, id) "{{{
     let h_level = vimwiki#u#count_first_sym(a:line)
   endif
   if h_level > 0
-    let a:id[h_level] += 1
-    " reset higher level ids
-    for level in range(h_level+1, 6)
-      let a:id[level] = 0
-    endfor
 
-    let centered = 0
-    if a:line =~ '^\s\+'
-      let centered = 1
+    let h_text = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+    let h_number = ''
+    let h_complete_id = ''
+    let h_id = s:safe_html_anchor(h_text)
+    let centered = (a:line =~ '^\s')
+
+    if h_text != g:vimwiki_toc_string
+
+      let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
+
+      " reset higher level ids
+      for level in range(h_level, 5)
+        let a:id[level] = ['', 0]
+      endfor
+
+      for l in range(h_level-1)
+        let h_number .= a:id[l][1].'.'
+        if a:id[l][0] != ''
+          let h_complete_id .= a:id[l][0].'-'
+        endif
+      endfor
+      let h_number .= a:id[h_level-1][1]
+      let h_complete_id .= a:id[h_level-1][0]
+
+      if g:vimwiki_html_header_numbering
+        let num = matchstr(h_number,
+              \ '^\(\d.\)\{'.(g:vimwiki_html_header_numbering-1).'}\zs.*')
+        if !empty(num)
+          let num .= g:vimwiki_html_header_numbering_sym
+        endif
+        let h_text = num.' '.h_text
+      endif
+      let h_complete_id = s:safe_html_anchor(h_complete_id)
+      let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
+
+    else
+
+      let h_part = '<div id="'.h_id.'" class="toc"><h1 id="'.h_id.'"'
+
     endif
 
-    let h_number = ''
-    for l in range(1, h_level-1)
-      let h_number .= a:id[l].'.'
-    endfor
-    let h_number .= a:id[h_level]
-
-    let h_id = 'toc_'.h_number
-
-    let h_part = '<h'.h_level.' id="'.h_id.'"'
 
     if centered
       let h_part .= ' class="justcenter">'
@@ -1004,21 +1003,11 @@ function! s:process_tag_h(line, id) "{{{
       let h_part .= '>'
     endif
 
-    let h_text = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+    let line = h_part.h_text.'</h'.h_level.'></div>'
 
-    if g:vimwiki_html_header_numbering
-      let num = matchstr(h_number, 
-            \ '^\(\d.\)\{'.(g:vimwiki_html_header_numbering-1).'}\zs.*')
-      if !empty(num)
-        let num .= g:vimwiki_html_header_numbering_sym
-      endif
-      let h_text = num.' '.h_text
-    endif
-
-    let line = h_part.h_text.'</h'.h_level.'>'
     let processed = 1
   endif
-  return [processed, line, h_level, h_text, h_id]
+  return [processed, line]
 endfunction "}}}
 
 function! s:process_tag_hr(line) "{{{
@@ -1031,7 +1020,7 @@ function! s:process_tag_hr(line) "{{{
   return [processed, line]
 endfunction "}}}
 
-function! s:process_tag_table(line, table) "{{{
+function! s:process_tag_table(line, table, header_ids) "{{{
   function! s:table_empty_cell(value) "{{{
     let cell = {}
 
@@ -1085,7 +1074,7 @@ function! s:process_tag_table(line, table) "{{{
     call map(cells, 's:table_empty_cell(v:val)')
     call extend(table[-1], cells)
   else
-    let table = s:close_tag_table(table, lines)
+    let table = s:close_tag_table(table, lines, a:header_ids)
   endif
   return [processed, lines, table]
 endfunction "}}}
@@ -1105,12 +1094,11 @@ function! s:parse_line(line, state) " {{{
   let state.lists = a:state.lists[:]
   let state.deflist = a:state.deflist
   let state.placeholder = a:state.placeholder
-  let state.toc = a:state.toc
-  let state.toc_id = a:state.toc_id
+  let state.header_ids = a:state.header_ids
 
   let res_lines = []
 
-  let line = s:safe_html(a:line)
+  let line = s:safe_html_line(a:line)
 
   let processed = 0
 
@@ -1147,16 +1135,6 @@ function! s:parse_line(line, state) " {{{
   endif
   "}}}
 
-  " toc -- placeholder "{{{
-  if !processed
-    if line =~ '^\s*%toc'
-      let processed = 1
-      let param = matchstr(line, '^\s*%toc\s\zs.*')
-      let state.placeholder = ['toc', param]
-    endif
-  endif
-  "}}}
-
   " pres "{{{
   if !processed
     let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
@@ -1168,7 +1146,7 @@ function! s:parse_line(line, state) " {{{
       let [processed, lines, state.math] = s:process_tag_math(line, state.math)
     endif
     if processed && len(state.table)
-      let state.table = s:close_tag_table(state.table, lines)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
     endif
     if processed && state.deflist
       let state.deflist = s:close_tag_def_list(state.deflist, lines)
@@ -1196,7 +1174,7 @@ function! s:parse_line(line, state) " {{{
       let state.math = s:close_tag_math(state.math, lines)
     endif
     if processed && len(state.table)
-      let state.table = s:close_tag_table(state.table, lines)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
     endif
     if processed && state.deflist
       let state.deflist = s:close_tag_def_list(state.deflist, lines)
@@ -1205,7 +1183,7 @@ function! s:parse_line(line, state) " {{{
       let state.para = s:close_tag_para(state.para, lines)
     endif
 
-    call map(lines, 's:process_inline_tags(v:val)')
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
 
     call extend(res_lines, lines)
   endif
@@ -1213,28 +1191,27 @@ function! s:parse_line(line, state) " {{{
 
   " headers "{{{
   if !processed
-    let [processed, line, h_level, h_text, h_id] = s:process_tag_h(line, state.toc_id)
+    let [processed, line] = s:process_tag_h(line, state.header_ids)
     if processed
       call s:close_tag_list(state.lists, res_lines)
-      let state.table = s:close_tag_table(state.table, res_lines)
+      let state.table = s:close_tag_table(state.table, res_lines,
+            \ state.header_ids)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.math = s:close_tag_math(state.math, res_lines)
       let state.quote = s:close_tag_quote(state.quote, res_lines)
       let state.para = s:close_tag_para(state.para, res_lines)
 
-      let line = s:process_inline_tags(line)
+      let line = s:process_inline_tags(line, state.header_ids)
 
       call add(res_lines, line)
-
-      " gather information for table of contents
-      call add(state.toc, [h_level, h_text, h_id])
     endif
   endif
   "}}}
 
   " tables "{{{
   if !processed
-    let [processed, lines, state.table] = s:process_tag_table(line, state.table)
+    let [processed, lines, state.table] = s:process_tag_table(line,
+          \ state.table, state.header_ids)
     call extend(res_lines, lines)
   endif
   "}}}
@@ -1249,7 +1226,7 @@ function! s:parse_line(line, state) " {{{
       let state.deflist = s:close_tag_def_list(state.deflist, lines)
     endif
     if processed && len(state.table)
-      let state.table = s:close_tag_table(state.table, lines)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
     endif
     if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, lines)
@@ -1261,7 +1238,7 @@ function! s:parse_line(line, state) " {{{
       let state.para = s:close_tag_para(state.para, lines)
     endif
 
-    call map(lines, 's:process_inline_tags(v:val)')
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
 
     call extend(res_lines, lines)
   endif
@@ -1272,7 +1249,8 @@ function! s:parse_line(line, state) " {{{
     let [processed, line] = s:process_tag_hr(line)
     if processed
       call s:close_tag_list(state.lists, res_lines)
-      let state.table = s:close_tag_table(state.table, res_lines)
+      let state.table = s:close_tag_table(state.table, res_lines,
+            \ state.header_ids)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.math = s:close_tag_math(state.math, res_lines)
       call add(res_lines, line)
@@ -1284,7 +1262,7 @@ function! s:parse_line(line, state) " {{{
   if !processed
     let [processed, lines, state.deflist] = s:process_tag_def_list(line, state.deflist)
 
-    call map(lines, 's:process_inline_tags(v:val)')
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
 
     call extend(res_lines, lines)
   endif
@@ -1306,10 +1284,11 @@ function! s:parse_line(line, state) " {{{
       let state.math = s:close_tag_math(state.math, res_lines)
     endif
     if processed && len(state.table)
-      let state.table = s:close_tag_table(state.table, res_lines)
+      let state.table = s:close_tag_table(state.table, res_lines,
+            \ state.header_ids)
     endif
 
-    call map(lines, 's:process_inline_tags(v:val)')
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
 
     call extend(res_lines, lines)
   endif
@@ -1390,10 +1369,10 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     let state.deflist = 0
     let state.lists = []
     let state.placeholder = []
-    let state.toc = []
-    let state.toc_id = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+    let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+         " [last seen header text in this level, number]
 
-    " prepare constants for s:safe_html()
+    " prepare constants for s:safe_html_line()
     let s:lt_pattern = '<'
     let s:gt_pattern = '>'
     if g:vimwiki_valid_html_tags != ''
@@ -1439,8 +1418,6 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
       return
     endif
 
-    let toc = s:get_html_toc(state.toc)
-    call s:process_toc(ldest, placeholders, toc)
     call s:remove_blank_lines(ldest)
 
     "" process end of file
@@ -1452,7 +1429,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     call s:close_tag_math(state.math, lines)
     call s:close_tag_list(state.lists, lines)
     call s:close_tag_def_list(state.deflist, lines)
-    call s:close_tag_table(state.table, lines)
+    call s:close_tag_table(state.table, lines, state.header_ids)
     call extend(ldest, lines)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))

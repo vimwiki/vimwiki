@@ -266,7 +266,7 @@ function! vimwiki#diary#goto_diary_index(wnum) "{{{
   endif
 
   call vimwiki#base#validate_wiki_options(idx)
-  call vimwiki#base#edit_file('e', s:diary_index(idx))
+  call vimwiki#base#edit_file('e', s:diary_index(idx), '')
   call vimwiki#base#setup_buffer_state(idx)
 endfunction "}}}
 

@@ -26,12 +26,155 @@ if g:vimwiki_conceallevel && exists("+conceallevel")
   let &l:conceallevel = g:vimwiki_conceallevel
 endif
 
-" MISC }}}
-
 " GOTO FILE: gf {{{
 execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
+
+" omnicomplete function for wiki files and anchors {{{
+
+" XXX move to an appropriate place
+let g:vimwiki_default_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
+let g:vimwiki_default_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
+let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
+let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+let g:vimwiki_media_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
+let g:vimwiki_media_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
+let g:vimwiki_default_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
+let g:vimwiki_default_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
+let g:vimwiki_markdown_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
+let g:vimwiki_markdown_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
+let g:vimwiki_media_bold_search = "'''\\zs[^']\\+\\ze'''"
+let g:vimwiki_media_bold_match = '''''''__Text__'''''''
+" ^- looks strange, but is equivalent to "'''__Text__'''" but since we later
+" want to call escape() on this string, we must keep it in single quotes
+
+function! g:complete_wikifiles(findstart, base)
+  if a:findstart == 1
+    let column = col('.')-1
+    let line = getline('.')[:column]
+    let startoflink = match(line, '\[\[\zs[^\\[]*$')
+    if startoflink != -1
+      return startoflink
+    endif
+    if VimwikiGet('syntax') == 'markdown'
+      let startofinlinelink = match(line, '\[.*\](\zs.*$')
+      if startofinlinelink != -1
+        return startofinlinelink
+      endif
+    endif
+    return -1
+  else
+    if a:base !~ '#'
+      " we look for wiki files
+
+      if a:base =~# '^wiki\d:'
+        let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
+        let directory = VimwikiGet('path', wikinumber)
+        let ext = VimwikiGet('ext', wikinumber)
+        let prefix = matchstr(a:base, '^wiki\d:\zs.*')
+        let scheme = matchstr(a:base, '^wiki\d:\ze')
+      elseif a:base =~# '^diary:'
+        let directory = VimwikiGet('path').'/'.VimwikiGet('diary_rel_path')
+        let ext = VimwikiGet('ext')
+        let prefix = matchstr(a:base, '^diary:\zs.*')
+        let scheme = matchstr(a:base, '^diary:\ze')
+      else
+        let directory = VimwikiGet('path')
+        let ext = VimwikiGet('ext')
+        let prefix = a:base
+        let scheme = ''
+      endif
+
+      let result = []
+      for wikifile in split(globpath(directory, '**/*'.ext), '\n')
+        " get the filename relative to the wiki path:
+        let subdir_filename = substitute(fnamemodify(wikifile, ':p:r'),
+              \ '\V'.fnamemodify(directory, ':p'), '', '')
+        if subdir_filename =~ '^'.prefix
+          call add(result, scheme . subdir_filename)
+        endif
+      endfor
+      return result
+
+    else
+      " we look for anchors in the given wikifile
+
+      let segments = split(a:base, '#', 1)
+      let link_infos = vimwiki#base#resolve_scheme(segments[0].'#', 0)
+      let wikifile = link_infos[6]
+      let syntax = VimwikiGet('syntax', link_infos[0])
+      let rxheader = g:vimwiki_{syntax}_header_search
+      let rxbold = g:vimwiki_{syntax}_bold_search
+      if !filereadable(wikifile)
+        return []
+      endif
+      let filecontent = readfile(wikifile)
+      let anchor_level = ['', '', '', '', '', '', '']
+      let anchors = []
+
+      for line in filecontent
+
+        " collect headers
+        let h_match = matchlist(line, rxheader)
+        if !empty(h_match)
+          let header = vimwiki#u#trim(h_match[2])
+          let level = len(h_match[1])
+          let anchor_level[level-1] = header
+          for l in range(level, 6)
+            let anchor_level[l] = ''
+          endfor
+          call add(anchors, header)
+          let complete_anchor = ''
+          for l in range(level-1)
+            if anchor_level[l] != ''
+              let complete_anchor .= anchor_level[l].'#'
+            endif
+          endfor
+          let complete_anchor .= header
+          call add(anchors, complete_anchor)
+        endif
+
+        " collect bold text (there can be several in one line)
+        let bold_count = 0
+        let bold_end = 0
+        while 1
+          let bold_text = matchstr(line, rxbold, bold_end, bold_count)
+          let bold_end = matchend(line, rxbold, bold_end, bold_count) + 1
+          if bold_text == ""
+            break
+          endif
+          let anchor_level[6] = bold_text
+          call add(anchors, bold_text)
+          let complete_anchor = ''
+          for l in range(6)
+            if anchor_level[l] != ''
+              let complete_anchor .= anchor_level[l].'#'
+            endif
+          endfor
+          let complete_anchor .= bold_text
+          call add(anchors, complete_anchor)
+          let bold_count += 1
+        endwhile
+
+      endfor
+
+      let filtered_anchors = []
+      let given_anchor = join(segments[1:], '#')
+      for anchor in anchors
+        if anchor =~# '^'.given_anchor
+          call add(filtered_anchors, segments[0].'#'.anchor)
+        endif
+      endfor
+
+      return filtered_anchors
+    endif
+  endif
+endfunction
+setlocal omnifunc=g:complete_wikifiles
+" omnicomplete }}}
+
+" MISC }}}
 
 " LIST STUFF {{{
 " settings necessary for the automatic formatting of lists
@@ -156,6 +299,8 @@ command! -buffer Vimwiki2HTMLBrowse
 command! -buffer VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(VimwikiGet('path_html')))
 
+command! -buffer VimwikiTOC call vimwiki#base#table_of_contents()
+
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
 command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
@@ -180,7 +325,7 @@ exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
-command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
+command! -buffer -nargs=+ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
 
 " list commands

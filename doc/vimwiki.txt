@@ -43,15 +43,16 @@ CONTENTS                                                    *vimwiki-contents*
     8. Lists                         |vimwiki-lists|
     9. Tables                        |vimwiki-tables|
     10. Diary                        |vimwiki-diary|
-    11. Options                      |vimwiki-options|
-        11.1. Registered Wiki        |vimwiki-register-wiki|
-        11.2. Temporary Wiki         |vimwiki-temporary-wiki|
-        11.3. Per-Wiki Options       |vimwiki-local-options|
-        11.4. Global Options         |vimwiki-global-options|
-    12. Help                         |vimwiki-help|
-    13. Developers                   |vimwiki-developers|
-    14. Changelog                    |vimwiki-changelog|
-    15. License                      |vimwiki-license|
+    11. Anchors                      |vimwiki-anchors|
+    12. Options                      |vimwiki-options|
+        12.1. Registered Wiki        |vimwiki-register-wiki|
+        12.2. Temporary Wiki         |vimwiki-temporary-wiki|
+        12.3. Per-Wiki Options       |vimwiki-local-options|
+        12.4. Global Options         |vimwiki-global-options|
+    13. Help                         |vimwiki-help|
+    14. Developers                   |vimwiki-developers|
+    15. Changelog                    |vimwiki-changelog|
+    16. License                      |vimwiki-license|
 
 
 ==============================================================================
@@ -755,6 +756,16 @@ Raw URLs are also supported: >
   mailto:habamax@gmail.com
   ftp://vim.org
 
+Anchors~
+
+A URL can be followed by a '#' and the name of an anchor.  When opening a
+link, Vimwiki then jumps to the anchor. >
+  [[Todo List#Tomorrow|Tasks for tomorrow]]
+
+To jump inside the current wiki file you can omit the file: >
+  [[#Tomorrow]]
+
+See |vimwiki-anchors|.
 
 Markdown Links~
 
@@ -795,6 +806,10 @@ as a wiki page.
 To scan the page for new or changed definitions for reference-links, simply
 re-open the page ":e<CR>".
 
+Typing wikilinks can be simplified by using Vim's omni completion (see
+|compl-omni|) like so: >
+  [[ind<C-X><C-O>
+which opens up a popup menu with all the wiki files starting with "ind".
 
 ------------------------------------------------------------------------------
 5.3. Headers                                          *vimwiki-syntax-headers*
@@ -1565,9 +1580,42 @@ Get it from http://www.vim.org/scripts/script.php?script_id=52
 See |g:vimwiki_use_calendar| option to turn it off/on.
 
 
+==============================================================================
+12. Anchors                                                  *vimwiki-anchors*
+
+Every header and every bold text is an anchor. To jump to it, use a wikilink
+of the form >
+  [[file#anchor]]
+
+For example, consider the following file "Todo.wiki": >
+  = My tasks =
+  == Home ==
+    - [ ] bathe my *dog*
+  == Work ==
+    - [ ] beg for *pay rise*
+  == Knitting club =
+  === Knitting projects ===
+    - [ ] a funny *pig*
+    - [ ] a scary *dog*
+
+Then, to jump from your index.wiki directly to your knitting projects, use: >
+  [[Todo#Knitting projects]]
+
+Or, to jump to an individual project, use this link: >
+  [[Todo#pig]]
+
+If there are multiple instances of an anchor, you can use the long form which
+consists of the complete header hierarchy, separated by '#': >
+ [[Todo#My Tasks#Knitting club#Knitting projects#dog]]
+
+If you don't feel like typing the whole stuff, type just [[Todo# and then
+|i_CTRL-X_CTRL-O| to start the omni completion of anchors.
+
+For jumping inside a single file, you can omit the file in the link: >
+  [[#pay rise]]
 
 ==============================================================================
-11. Options                                                  *vimwiki-options*
+12. Options                                                  *vimwiki-options*
 
 There are global options and local (per-wiki) options available to tune
 vimwiki.
@@ -1583,7 +1631,7 @@ described in |vimwiki-temporary-wiki|.  For a list of per-wiki options, see
 
 
 ------------------------------------------------------------------------------
-11.1 Registered Wiki                    *g:vimwiki_list* *vimwiki-register-wiki*
+12.1 Registered Wiki                    *g:vimwiki_list* *vimwiki-register-wiki*
 
 One or more wikis can be registered using the |g:vimwiki_list| variable.
 
@@ -1624,7 +1672,7 @@ For clarity, in your .vimrc file you can define wiki options using separate
 
 
 ------------------------------------------------------------------------------
-11.2 Temporary Wiki                                    *vimwiki-temporary-wiki*
+12.2 Temporary Wiki                                    *vimwiki-temporary-wiki*
 
 
 The creation of temporary wikis allows you to open files that would not
@@ -1651,7 +1699,7 @@ NOTE: Vimwiki assumes that the locations of distinct wikis do not overlap.
 
 
 ------------------------------------------------------------------------------
-11.3 Per-Wiki Options                                  *vimwiki-local-options*
+12.3 Per-Wiki Options                                  *vimwiki-local-options*
 
 
 *vimwiki-option-path*
@@ -1967,7 +2015,7 @@ Note: if you use MediaWiki syntax, you probably would like to set this option
 to 0, because every indented line is considered verbatim text.
 
 ------------------------------------------------------------------------------
-11.4 Global Options                                   *vimwiki-global-options*
+12.4 Global Options                                   *vimwiki-global-options*
 
 
 Global options are configured using the following pattern: >
@@ -2176,17 +2224,18 @@ similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
     else
       return 0
     endif
-    let [idx, scheme, path, subdir, lnk, ext, url] = 
+    let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
          \ vimwiki#base#resolve_scheme(link, 0)
     if g:vimwiki_debug
       echom 'LinkHandler: idx='.idx.', scheme=[v]'.scheme.', path='.path.
-           \ ', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url
+           \ ', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.
+           \ ', anchor='.anchor
     endif
     if url == ''
       echom 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
-      call vimwiki#base#edit_file('tabnew', url, [], 0)
+      call vimwiki#base#edit_file('tabnew', url, '', [], 0)
       return 1
     endif
   endfunction " }}}
@@ -2208,7 +2257,7 @@ cannot otherwise convert the link.  A customized handler might look like this: >
     " complete URL
     let url_0 = matchstr(str, g:vimwiki_rxWikiInclMatchUrl)
     " URL parts
-    let [scheme, path, subdir, lnk, ext, url] = 
+    let [scheme, path, subdir, lnk, ext, url, anchor] =
           \ vimwiki#base#resolve_scheme(url_0, VimwikiGet('ext'))
     let arg1 = matchstr(str, VimwikiWikiInclMatchArg(1))
     let arg2 = matchstr(str, VimwikiWikiInclMatchArg(2))
@@ -2471,7 +2520,7 @@ let g:vimwiki_diary_months = {
 
 
 ==============================================================================
-12. Help                                                        *vimwiki-help*
+13. Help                                                        *vimwiki-help*
 
 Your help in making vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
@@ -2481,7 +2530,7 @@ Issues can be filed at http://code.google.com/p/vimwiki/issues .
 
 
 ==============================================================================
-13. Developers                                            *vimwiki-developers*
+14. Developers                                            *vimwiki-developers*
 
     - Maxim Kim <habamax@gmail.com> as original author.
     - Stuart Andrews
@@ -2494,7 +2543,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
 ==============================================================================
-14. Changelog                                              *vimwiki-changelog*
+15. Changelog                                              *vimwiki-changelog*
 
 ???~
 
@@ -2644,7 +2693,7 @@ http://code.google.com/p/vimwiki/issues/list
     * First public version.
 
 ==============================================================================
-15. License                                                  *vimwiki-license*
+16. License                                                  *vimwiki-license*
 
 The MIT Licence
 http://www.opensource.org/licenses/mit-license.php
