@@ -581,10 +581,13 @@ endfunction "}}}
 
 " vimwiki#base#backlinks
 function! vimwiki#base#backlinks() "{{{
-    execute 'lvimgrep "\%(^\|[[:blank:][:punct:]]\)'.
-          \ expand("%:t:r").
-          \ '\([[:blank:][:punct:]]\|$\)\C" '. 
-          \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+  let filename = expand("%:t:r")
+  let rx_wikilink = vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate1,
+        \ '\zs'.filename.'\ze\%(#.*\)\?', '.*', '').
+        \ '\|'. vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate2,
+        \ '\zs'.filename.'\ze\%(#.*\)\?', '.*', '')
+  execute 'lvimgrep "\C'.rx_wikilink.'" '.
+        \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 endfunction "}}}
 
 " vimwiki#base#get_links
