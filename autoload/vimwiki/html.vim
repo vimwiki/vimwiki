@@ -961,7 +961,7 @@ function! s:process_tag_h(line, id) "{{{
     let h_id = s:safe_html_anchor(h_text)
     let centered = (a:line =~ '^\s')
 
-    if h_text != g:vimwiki_toc_string
+    if h_text != g:vimwiki_toc_header
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
@@ -1324,6 +1324,11 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
 endfunction " }}}
 
 function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
+
+  if VimwikiGet('auto_toc') >= 1
+    call vimwiki#base#table_of_contents(0)
+    noautocmd update
+  endif
 
   let starttime = reltime()  " start the clock
 

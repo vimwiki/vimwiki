@@ -361,6 +361,7 @@ let s:vimwiki_defaults.template_ext = ''
 
 let s:vimwiki_defaults.nested_syntaxes = {}
 let s:vimwiki_defaults.auto_export = 0
+let s:vimwiki_defaults.auto_toc = 0
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
 " file.
 let s:vimwiki_defaults.temp = 0
@@ -401,7 +402,7 @@ call s:default('dir_link', '')
 call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
 call s:default('user_htmls', '')
 call s:default('autowriteall', 1)
-call s:default('toc_string', 'Contents')
+call s:default('toc_header', 'Contents')
 
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')

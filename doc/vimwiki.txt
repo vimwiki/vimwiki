@@ -698,6 +698,9 @@ il                      A single list item.
     Open previous day diary link if available.
     Mapped to <C-Up>.
 
+*:VimwikiTOC*
+    Create or update the Table of Contents for the current wiki file.
+    See |vimwiki-toc|
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
@@ -1257,24 +1260,6 @@ To turn folding on/off check |g:vimwiki_folding|.
 7. Placeholders                                         *vimwiki-placeholders*
 
 ------------------------------------------------------------------------------
-%toc Table of Contents               *vimwiki-toc* *vimwiki-table-of-contents*
-
-You can add 'table of contents' to your HTML page generated from wiki one.
-Just place >
-
-%toc
-
-into your wiki page.
-You can also add a caption to your 'toc': >
-
-%toc Table of Contents
-
-or >
-
-%toc Whatever
-
-
-------------------------------------------------------------------------------
 %title Title of the page                                       *vimwiki-title*
 
 When you htmlize your wiki page, the default title is the filename of the
@@ -1614,6 +1599,29 @@ If you don't feel like typing the whole stuff, type just [[Todo# and then
 For jumping inside a single file, you can omit the file in the link: >
   [[#pay rise]]
 
+
+------------------------------------------------------------------------------
+Table of Contents                    *vimwiki-toc* *vimwiki-table-of-contents*
+
+You can add  a 'table of contents' to your wiki file.
+Use the commando |:VimwikiTOC| to create the magic header >
+  = Contents =
+at the top of your file and create a list of all the headers in the current
+file as links, so you can directly jump to specific parts of the file.
+
+For the indentation, the value of *vimwiki-option-list_margin* is used.
+
+If you don't want the TOC so sit in the very first line, e.g. if you have a
+modeline there, put the magic header in the second or third line and run
+:VimwikiTOC to update the TOC.
+
+If your language is not english, set the option |g:vimwiki_toc_header| to your
+favorite translation.
+
+If you want to keep the TOC up to date automatically, use the option
+|vimwiki-option-auto_toc|.
+
+
 ==============================================================================
 12. Options                                                  *vimwiki-options*
 
@@ -1740,6 +1748,21 @@ corresponding wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_export': 1}]
 
 This will keep your HTML files up to date.
+
+
+*vimwiki-option-auto_toc*
+------------------------------------------------------------------------------
+Set this option to a value greater than 0 to automatically update the Table of
+Contents: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
+
+Value           Description~
+0               Don't update it automatically.
+1               Update when the wiki file is converted to HTML.
+2               Update when the wiki file is saved.
+
+Default: 0
+
 
 *vimwiki-option-index*
 ------------------------------------------------------------------------------
@@ -2005,11 +2028,11 @@ list_margin       -1
 Description~
 Width of left-hand margin for lists.  When negative, the current |shiftwidth|
 is used.  This affects the appearance of the generated links (see
-|:VimwikiGenerateLinks|) and the behavior of the list manipulation commands
-|:VimwikiListChangeLevel| and the local mappings |vimwiki_glstar|,
-|vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|, |vimwiki_gl-|, |vimwiki_gl1|,
-|vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
-|vimwiki_i_<C-L>_<C-M>|.
+|:VimwikiGenerateLinks|), the Table of contents (|vimwiki-toc|) and the
+behavior of the list manipulation commands |:VimwikiListChangeLevel| and the
+local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|,
+|vimwiki_gl-|, |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|,
+|vimwiki_glI| and |vimwiki_i_<C-L>_<C-M>|.
 
 Note: if you use MediaWiki syntax, you probably would like to set this option
 to 0, because every indented line is considered verbatim text.
@@ -2023,7 +2046,7 @@ Global options are configured using the following pattern: >
     let g:option_name = option_value
 
 
------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 *g:vimwiki_hl_headers*
 
 Highlight headers with =Reddish=, ==Greenish==, ===Blueish=== colors.
@@ -2241,7 +2264,7 @@ similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
   endfunction " }}}
 
 
------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 *VimwikiWikiIncludeHandler*
 
 Vimwiki includes the contents of a wiki-include URL as an image by default.
@@ -2518,6 +2541,15 @@ let g:vimwiki_diary_months = {
       \ 10: 'October', 11: 'November', 12: 'December'
       \ }
 
+------------------------------------------------------------------------------
+*g:vimwiki_toc_header*
+
+A string with the magic header that tells vimwiki where the Table of Contents
+is located in the file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_toc_header = 'Inhalt'
+
+The default is 'Contents'.
 
 ==============================================================================
 13. Help                                                        *vimwiki-help*
@@ -2547,6 +2579,14 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ???~
 
+    * Support for anchors, see |vimwiki-anchors|
+        * in this context, add support for TOC, see |vimwiki-toc|
+        * remove the now useless %toc placeholder
+        * add omni completion of wiki links (files and anchors)
+        * the function base#resolve_scheme() now also returns the anchor
+          (important for custom VimwikiLinkHandlers)
+        * new local option |vimwiki-option-auto_toc|
+        * new global option |g:vimwiki_toc_header|
     * List editing capabilities, see |vimwiki-lists|:
         * support for auto incrementing numbered lists
         * more key maps for list manipulation, see |vimwiki-list-manipulation|

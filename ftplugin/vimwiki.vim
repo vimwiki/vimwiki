@@ -286,20 +286,20 @@ endfunction "}}}
 
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
-      \ silent w <bar> 
+      \ silent noautocmd w <bar>
       \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
       \<bar>
       \ if res != '' | echo 'Vimwiki: HTML conversion is done.' | endif
 command! -buffer Vimwiki2HTMLBrowse
-      \ silent w <bar> 
+      \ silent noautocmd w <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))
 command! -buffer VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(VimwikiGet('path_html')))
 
-command! -buffer VimwikiTOC call vimwiki#base#table_of_contents()
+command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
@@ -671,15 +671,21 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 " KEYBINDINGS }}}
 
 " AUTOCOMMANDS {{{
-if VimwikiGet('auto_export')
-  " Automatically generate HTML on page write.
+function! s:toc_html()
+  if VimwikiGet('auto_toc') >= 2 && VimwikiGet('auto_export') == 0
+    call vimwiki#base#table_of_contents(0)
+  endif
+  if VimwikiGet('auto_export')
+    call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \                         expand('%'))
+  endif
+endfunction
+
+if VimwikiGet('auto_export') || VimwikiGet('auto_toc') >= 2
   augroup vimwiki
-    au BufWritePost <buffer> 
-      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
-      \                             expand('%'))
+    au BufWritePost <buffer> call s:toc_html()
   augroup END
 endif
-
 " AUTOCOMMANDS }}}
 
 " PASTE, CAT URL {{{

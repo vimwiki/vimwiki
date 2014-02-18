@@ -663,7 +663,8 @@ function! vimwiki#base#get_links(pat) "{{{ return string-list for files
   return globlinks
 endfunction "}}}
 
-function! s:jump_to_anchor(anchor)
+" s:jump_to_anchor
+function! s:jump_to_anchor(anchor) "{{{
   let oldpos = getpos('.')
   call cursor(1, 1)
 
@@ -684,7 +685,7 @@ function! s:jump_to_anchor(anchor)
     endif
     let oldpos = getpos('.')
   endfor
-endfunction
+endfunction "}}}
 
 " vimwiki#base#edit_file
 function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
@@ -946,8 +947,6 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort "{{
     syntax clear perlFunctionName 
   endif
 endfunction "}}}
-
-" }}}
 
 " WIKI link following functions {{{
 " vimwiki#base#find_next_link
@@ -1487,38 +1486,45 @@ function! vimwiki#base#RemoveHeaderLevel() "{{{
   endif
 endfunction " }}}
 
-"creates or updates TOC in current file
-function! vimwiki#base#table_of_contents()
-  let old_cursor_pos = getpos('.')
-  let bullet = vimwiki#lst#default_symbol().' '
-  let rx_bullet = vimwiki#u#escape(bullet)
-  let toc_line = 0
-  let whitespaces = ''
+" a:create == 1: creates or updates TOC in current file
+" a:create == 0: update if TOC exists
+function! vimwiki#base#table_of_contents(create)
 
-  " delete old TOC
+  " look for existing TOC
   let toc_header = '^\s*'.substitute(g:vimwiki_rxH1_Template, '__Header__',
-        \ '\='."'".g:vimwiki_toc_string."'", '').'\s*$'
+        \ '\='."'".g:vimwiki_toc_header."'", '').'\s*$'
+  let toc_line = 0
   let lnum = 1
   while lnum <= &modelines + 2 && lnum <= line('$')
-    let line_content = getline(lnum)
-    if line_content =~# toc_header
-      let toc_line = lnum - 1
-      let whitespaces = matchstr(line_content, '^\s*')
-      let tl = lnum
-      while 1
-        let tl += 1
-        if tl > line('$') || getline(tl) !~ '^\s*'.rx_bullet.g:vimwiki_rxWikiLink.'\s*$'
-          silent exe lnum.','.string(tl-1).'delete _'
-          break
-        endif
-      endwhile
+    if getline(lnum) =~# toc_header
+      let toc_line = lnum
       break
     endif
     let lnum += 1
   endwhile
 
+  if !a:create && toc_line <= 0
+    return
+  endif
+
+  let old_cursor_pos = getpos('.')
+  let bullet = vimwiki#lst#default_symbol().' '
+  let rx_bullet = vimwiki#u#escape(bullet)
+  let whitespaces = matchstr(getline(toc_line), '^\s*')
+
+  " delete old TOC
+  if toc_line > 0
+    let endoftoc = toc_line+1
+    while endoftoc <= line('$') && getline(endoftoc) =~ '^\s*'.rx_bullet.g:vimwiki_rxWikiLink.'\s*$'
+      let endoftoc += 1
+    endwhile
+    silent exe toc_line.','.string(endoftoc-1).'delete _'
+  else
+    let toc_line = 1
+  endif
+
   " collect new headers
-  let toc_lines = []
+  let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   for lnum in range(1, line('$'))
     let line_content = getline(lnum)
@@ -1546,17 +1552,16 @@ function! vimwiki#base#table_of_contents()
       let h_text = h_number.' '.h_text
     endif
 
-    call add(toc_lines, [h_level, h_complete_id, h_text])
+    call add(headers, [h_level, h_complete_id, h_text])
   endfor
 
   " write new TOC
-  call append(toc_line, whitespaces . substitute(g:vimwiki_rxH1_Template,
-        \ '__Header__', '\='."'".g:vimwiki_toc_string."'", ''))
-  let toc_line += 1
+  call append(toc_line-1, whitespaces . substitute(g:vimwiki_rxH1_Template,
+        \ '__Header__', '\='."'".g:vimwiki_toc_header."'", ''))
 
   let startindent = repeat(' ', vimwiki#lst#get_list_margin())
   let indentstring = repeat(' ', &shiftwidth)
-  for [lvl, link, desc] in toc_lines
+  for [lvl, link, desc] in headers
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
     let link = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
