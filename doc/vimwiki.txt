@@ -1575,10 +1575,10 @@ of the form >
 For example, consider the following file "Todo.wiki": >
   = My tasks =
   == Home ==
-    - [ ] bathe my *dog*
+    - [ ] bathe my dog
   == Work ==
     - [ ] beg for *pay rise*
-  == Knitting club =
+  == Knitting club ==
   === Knitting projects ===
     - [ ] a funny *pig*
     - [ ] a scary *dog*
@@ -1609,7 +1609,7 @@ Use the commando |:VimwikiTOC| to create the magic header >
 at the top of your file and create a list of all the headers in the current
 file as links, so you can directly jump to specific parts of the file.
 
-For the indentation, the value of *vimwiki-option-list_margin* is used.
+For the indentation, the value of |vimwiki-option-list_margin| is used.
 
 If you don't want the TOC so sit in the very first line, e.g. if you have a
 modeline there, put the magic header in the second or third line and run
