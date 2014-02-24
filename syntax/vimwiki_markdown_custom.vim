@@ -42,13 +42,13 @@ let g:vimwiki_WikiLink1Template2 = g:vimwiki_rxWikiLink1Prefix . '__LinkDescript
     \ g:vimwiki_rxWikiLink1Separator. '__LinkUrl__'.
     \ g:vimwiki_rxWikiLink1Suffix
 "
-let valid_chars = '[^\\\[\]]'
+let s:valid_chars = '[^\\\[\]]'
 
 let g:vimwiki_rxWikiLink1Prefix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Prefix)
 let g:vimwiki_rxWikiLink1Suffix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Suffix)
 let g:vimwiki_rxWikiLink1Separator = vimwiki#u#escape(g:vimwiki_rxWikiLink1Separator)
-let g:vimwiki_rxWikiLink1Url = valid_chars.'\{-}'
-let g:vimwiki_rxWikiLink1Descr = valid_chars.'\{-}'
+let g:vimwiki_rxWikiLink1Url = s:valid_chars.'\{-}'
+let g:vimwiki_rxWikiLink1Descr = s:valid_chars.'\{-}'
 
 let g:vimwiki_rxWikiLink1InvalidPrefix = '[\]\[]\@<!'
 let g:vimwiki_rxWikiLink1InvalidSuffix = '[\]\[]\@!'
@@ -124,13 +124,13 @@ let g:vimwiki_Weblink1Template = g:vimwiki_rxWeblink1Prefix . '__LinkDescription
       \ g:vimwiki_rxWeblink1Separator. '__LinkUrl__'.
       \ g:vimwiki_rxWeblink1Suffix
 
-let valid_chars = '[^\\]'
+let s:valid_chars = '[^\\]'
 
 let g:vimwiki_rxWeblink1Prefix = vimwiki#u#escape(g:vimwiki_rxWeblink1Prefix)
 let g:vimwiki_rxWeblink1Suffix = vimwiki#u#escape(g:vimwiki_rxWeblink1Suffix)
 let g:vimwiki_rxWeblink1Separator = vimwiki#u#escape(g:vimwiki_rxWeblink1Separator)
-let g:vimwiki_rxWeblink1Url = valid_chars.'\{-}'
-let g:vimwiki_rxWeblink1Descr = valid_chars.'\{-}'
+let g:vimwiki_rxWeblink1Url = s:valid_chars.'\{-}'
+let g:vimwiki_rxWeblink1Descr = s:valid_chars.'\{-}'
 
 "
 " " 2012-02-04 TODO not starting with [[ or ][ ?  ... prefix = '[\[\]]\@<!\[' 
@@ -272,14 +272,14 @@ if VimwikiGet('maxhi')
   call s:add_target_syntax_OFF(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
 
   " Subsequently, links verified on vimwiki's path are highlighted as existing
-  let time01 = vimwiki#u#time(starttime)  "XXX
+  let s:time01 = vimwiki#u#time(starttime)  "XXX
   call s:highlight_existing_links()
-  let time02 = vimwiki#u#time(starttime)  "XXX
+  let s:time02 = vimwiki#u#time(starttime)  "XXX
 else
-  let time01 = vimwiki#u#time(starttime)  "XXX
+  let s:time01 = vimwiki#u#time(starttime)  "XXX
   " Wikilink
   call s:add_target_syntax_ON(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
-  let time02 = vimwiki#u#time(starttime)  "XXX
+  let s:time02 = vimwiki#u#time(starttime)  "XXX
 endif
 
 " Weblink
@@ -287,27 +287,27 @@ call s:add_target_syntax_ON(g:vimwiki_rxWeblink1, 'VimwikiWeblink1')
 
 " WikiLink
 " All remaining schemes are highlighted automatically
-let rxSchemes = '\%('. 
+let s:rxSchemes = '\%('.
       \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
       \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').
       \ '\):'
 
 " a) match [nonwiki-scheme-URL]
-let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template1,
-      \ rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
-call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
+let s:target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template1,
+      \ s:rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
+call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 " b) match [DESCRIPTION][nonwiki-scheme-URL]
-let target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template2,
-      \ rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
-call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
+let s:target = vimwiki#base#apply_template(g:vimwiki_WikiLink1Template2,
+      \ s:rxSchemes.g:vimwiki_rxWikiLink1Url, g:vimwiki_rxWikiLink1Descr, '')
+call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 " }}}
 
 
 " generic headers "{{{
 
 " Header levels, 1-6
-for i in range(1,6)
-  execute 'syntax match VimwikiHeader'.i.' /'.g:vimwiki_rxH{i}.'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+for s:i in range(1,6)
+  execute 'syntax match VimwikiHeader'.s:i.' /'.g:vimwiki_rxH{s:i}.'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endfor
 
 " }}}
@@ -328,16 +328,16 @@ endif
 
 " VimwikiWikiLink1Char is for syntax markers (and also URL when a description
 " is present) and may be concealed
-let options = ' contained transparent contains=NONE'
+let s:options = ' contained transparent contains=NONE'
 " conceal wikilink1
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Prefix.'/'.options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Suffix.'/'.options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Prefix1.'/'.options
-execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Suffix1.'/'.options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Prefix.'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Suffix.'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Prefix1.'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.g:vimwiki_rxWikiLink1Suffix1.'/'.s:options
 
 " conceal weblink1
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki_rxWeblink1Prefix1.'"'.options
-execute 'syn match VimwikiWeblink1Char "'.g:vimwiki_rxWeblink1Suffix1.'"'.options
+execute 'syn match VimwikiWeblink1Char "'.g:vimwiki_rxWeblink1Prefix1.'"'.s:options
+execute 'syn match VimwikiWeblink1Char "'.g:vimwiki_rxWeblink1Suffix1.'"'.s:options
 
 if exists("+conceallevel")
   syntax conceal off

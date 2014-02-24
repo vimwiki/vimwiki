@@ -943,7 +943,7 @@ function! s:decrease_level(item) "{{{
 endfunction "}}}
 
 function! s:increase_level(item) "{{{
-  let additional_space = 0
+  let additional_indent = 0
   if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .

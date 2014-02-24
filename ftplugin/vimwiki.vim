@@ -33,7 +33,6 @@ setlocal isfname-=[,]
 
 " omnicomplete function for wiki files and anchors {{{
 
-" XXX move to an appropriate place
 let g:vimwiki_default_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let g:vimwiki_default_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
 let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
@@ -193,14 +192,14 @@ let &formatlistpat = g:vimwiki_rxListItem
 
 if !empty(&langmap)
   " Valid only if langmap is a comma separated pairs of chars
-  let l_o = matchstr(&langmap, '\C,\zs.\zeo,')
-  if l_o
-    exe 'nnoremap <silent> <buffer> '.l_o.' :call vimwiki#lst#kbd_o()<CR>a'
+  let s:l_o = matchstr(&langmap, '\C,\zs.\zeo,')
+  if s:l_o
+    exe 'nnoremap <silent> <buffer> '.s:l_o.' :call vimwiki#lst#kbd_o()<CR>a'
   endif
 
-  let l_O = matchstr(&langmap, '\C,\zs.\zeO,')
-  if l_O
-    exe 'nnoremap <silent> <buffer> '.l_O.' :call vimwiki#lst#kbd_O()<CR>a'
+  let s:l_O = matchstr(&langmap, '\C,\zs.\zeO,')
+  if s:l_O
+    exe 'nnoremap <silent> <buffer> '.s:l_O.' :call vimwiki#lst#kbd_O()<CR>a'
   endif
 endif
 

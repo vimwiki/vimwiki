@@ -474,8 +474,7 @@ function! vimwiki#base#system_open_link(url) "{{{
   function! s:linux_handler(url)
     call system('xdg-open ' . shellescape(a:url, 1).' &')
   endfunction
-  let success = 0
-  try 
+  try
     if vimwiki#u#is_windows()
       call s:win32_handler(a:url)
       return
@@ -1634,14 +1633,13 @@ endfunction " }}}
 " vimwiki#base#normalize_imagelink_helper
 function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, template) "{{{
   let lnk = vimwiki#base#normalize_link_helper(a:str, a:rxUrl, a:rxDesc, a:template)
-  let style = matchstr(str, a:rxStyle)
+  let style = matchstr(a:str, a:rxStyle)
   let lnk = substitute(lnk, '__LinkStyle__', '\="'.style.'"', '')
   return lnk
 endfunction " }}}
 
 " s:normalize_link_syntax_n
 function! s:normalize_link_syntax_n() " {{{
-  let lnum = line('.')
 
   " try WikiLink
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink)
@@ -1685,12 +1683,10 @@ endfunction " }}}
 
 " s:normalize_link_syntax_v
 function! s:normalize_link_syntax_v() " {{{
-  let lnum = line('.')
   let sel_save = &selection
   let &selection = "old"
   let rv = @"
   let rt = getregtype('"')
-  let done = 0
 
   try
     norm! gv""y
@@ -1728,8 +1724,8 @@ endfunction "}}}
 
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
-for syn in vimwiki#base#get_known_syntaxes()
-  execute 'runtime! autoload/vimwiki/'.syn.'_base.vim'
+for s:syn in vimwiki#base#get_known_syntaxes()
+  execute 'runtime! autoload/vimwiki/'.s:syn.'_base.vim'
 endfor 
 " -------------------------------------------------------------------------
 

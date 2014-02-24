@@ -1591,7 +1591,7 @@ Or, to jump to an individual project, use this link: >
 
 If there are multiple instances of an anchor, you can use the long form which
 consists of the complete header hierarchy, separated by '#': >
- [[Todo#My Tasks#Knitting club#Knitting projects#dog]]
+ [[Todo#My tasks#Knitting club#Knitting projects#dog]]
 
 If you don't feel like typing the whole stuff, type just [[Todo# and then
 |i_CTRL-X_CTRL-O| to start the omni completion of anchors.
@@ -1611,7 +1611,7 @@ file as links, so you can directly jump to specific parts of the file.
 
 For the indentation, the value of |vimwiki-option-list_margin| is used.
 
-If you don't want the TOC so sit in the very first line, e.g. if you have a
+If you don't want the TOC to sit in the very first line, e.g. if you have a
 modeline there, put the magic header in the second or third line and run
 :VimwikiTOC to update the TOC.
 

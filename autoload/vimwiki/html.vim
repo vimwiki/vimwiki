@@ -714,7 +714,7 @@ function! s:close_tag_list(lists, ldest) "{{{
     let item = remove(a:lists, 0)
     call insert(a:ldest, item[0])
   endwhile
-endfunction! "}}}
+endfunction "}}}
 
 function! s:close_tag_def_list(deflist, ldest) "{{{
   if a:deflist
@@ -722,7 +722,7 @@ function! s:close_tag_def_list(deflist, ldest) "{{{
     return 0
   endif
   return a:deflist
-endfunction! "}}}
+endfunction "}}}
 
 function! s:process_tag_pre(line, pre) "{{{
   " pre is the list of [is_in_pre, indent_of_pre]
