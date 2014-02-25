@@ -44,6 +44,7 @@ let g:vimwiki_rxWeblinkUrl = g:vimwiki_rxWebProtocols .
 
 " }}}
 
+call vimwiki#u#reload_regexes()
 
 let s:time0 = vimwiki#u#time(s:starttime)  "XXX
 
