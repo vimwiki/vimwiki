@@ -472,7 +472,7 @@ function! vimwiki#base#system_open_link(url) "{{{
     execute '!open ' . shellescape(a:url, 1)
   endfunction
   function! s:linux_handler(url)
-    call system('xdg-open ' . shellescape(a:url, 1).' &')
+    call system('xdg-open ' . shellescape(a:url).' &')
   endfunction
   try
     if vimwiki#u#is_windows()

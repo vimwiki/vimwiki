@@ -1314,13 +1314,13 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ a:force. ' '.
       \ VimwikiGet('syntax'). ' '.
       \ strpart(VimwikiGet('ext'), 1). ' '.
-      \ shellescape(a:path, 1). ' '.
-      \ shellescape(a:wikifile, 1). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path), 1). ' '.
-      \ (len(VimwikiGet('template_path'))    > 1 ? shellescape(expand(VimwikiGet('template_path')), 1) : '-'). ' '.
-      \ (len(VimwikiGet('template_default')) > 0 ? VimwikiGet('template_default')                      : '-'). ' '.
-      \ (len(VimwikiGet('template_ext'))     > 0 ? VimwikiGet('template_ext')                          : '-'). ' '.
-      \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')), 1)   : '-'))
+      \ shellescape(a:path). ' '.
+      \ shellescape(a:wikifile). ' '.
+      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
+      \ (len(VimwikiGet('template_path'))    > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
+      \ (len(VimwikiGet('template_default')) > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
+      \ (len(VimwikiGet('template_ext'))     > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
+      \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'))
 endfunction " }}}
 
 function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
