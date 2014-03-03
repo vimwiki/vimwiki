@@ -372,8 +372,8 @@ function! s:get_last_item_in_list(item, ignore_kind) "{{{
   return cur_item
 endfunction "}}}
 
-"Returns: lnum+1 in most cases, but skips blank lines and preformatted text
-"0 in case of nonvalid line
+"Returns: lnum+1 in most cases, but skips blank lines and preformatted text,
+"0 in case of nonvalid line.
 "If there is no second argument, 0 is returned at a header, otherwise the
 "header is skipped
 function! s:get_next_line(lnum, ...) "{{{
@@ -383,7 +383,7 @@ function! s:get_next_line(lnum, ...) "{{{
           \ getline(cur_ln) !~# '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
       let cur_ln += 1
     endwhile
-    let next_line = nextnonblank(cur_ln+1)
+    let next_line = cur_ln
   else
     let next_line = nextnonblank(a:lnum+1)
   endif
@@ -552,7 +552,7 @@ function! s:get_last_line_of_item_incl_children(item) "{{{
 endfunction "}}}
 
 "Returns: the last line of a (possibly multiline) item
-"Note: there can be other list items inbetween the first and last lines
+"Note: there can be other list items between the first and last line
 function! s:get_last_line_of_item(item) "{{{
   if a:item.type == 0 | return 0 | endif
   let org_lvl = s:get_level(a:item.lnum)
