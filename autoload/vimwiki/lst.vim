@@ -993,6 +993,10 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
     return
   endif
 
+  if a:direction == 'decrease' && s:get_level(from_item.lnum) == 0
+    return
+  endif
+
   if a:from_line == a:to_line
     if a:plus_children
       let to_line = s:get_last_line_of_item_incl_children(from_item)
