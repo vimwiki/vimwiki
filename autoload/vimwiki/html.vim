@@ -477,6 +477,7 @@ function! s:make_tag(line, regexp, func, ...) "{{{
                     \ '\('.g:vimwiki_rxPreStart.'.\+'.g:vimwiki_rxPreEnd.'\)\|'.
                     \ '\(<a href.\{-}</a>\)\|'.
                     \ '\(<img src.\{-}/>\)\|'.
+                    \ '\(<pre.\{-}</pre>\)\|'.
       	            \ '\('.g:vimwiki_rxEqIn.'\)'
 
   "FIXME FIXME !!! these can easily occur on the same line!
