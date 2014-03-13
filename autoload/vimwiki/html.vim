@@ -417,8 +417,11 @@ function! s:tag_wikilink(value) "{{{
   if g:vimwiki_debug > 1
     echom '[[idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.']]'
   endif
-  let anchor = substitute(anchor, '#', '-', 'g')
-  let line = vimwiki#html#linkify_link(url.'#'.anchor, descr)
+  if anchor != ''
+    let anchor = substitute(anchor, '#', '-', 'g')
+    let url .= '#'.anchor
+  endif
+  let line = vimwiki#html#linkify_link(url, descr)
   return line
 endfunction "}}}
 "}}}
