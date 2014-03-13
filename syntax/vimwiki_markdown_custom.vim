@@ -272,14 +272,14 @@ if VimwikiGet('maxhi')
   call s:add_target_syntax_OFF(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
 
   " Subsequently, links verified on vimwiki's path are highlighted as existing
-  let s:time01 = vimwiki#u#time(starttime)  "XXX
+  let s:time01 = vimwiki#u#time(g:starttime)  "XXX
   call s:highlight_existing_links()
-  let s:time02 = vimwiki#u#time(starttime)  "XXX
+  let s:time02 = vimwiki#u#time(g:starttime)  "XXX
 else
-  let s:time01 = vimwiki#u#time(starttime)  "XXX
+  let s:time01 = vimwiki#u#time(g:starttime)  "XXX
   " Wikilink
   call s:add_target_syntax_ON(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
-  let s:time02 = vimwiki#u#time(starttime)  "XXX
+  let s:time02 = vimwiki#u#time(g:starttime)  "XXX
 endif
 
 " Weblink
