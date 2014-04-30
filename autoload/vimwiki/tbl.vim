@@ -235,13 +235,13 @@ function! s:get_rows(lnum) "{{{
   return upper_rows + lower_rows
 endfunction "}}}
 
-function! s:get_cell_max_lens(lnum) "{{{
+function! s:get_cell_max_lens(lnum, ...) "{{{
   let max_lens = {}
   for [lnum, row] in s:get_rows(a:lnum)
     if s:is_separator(row)
       continue
     endif
-    let cells = vimwiki#tbl#get_cells(row)
+    let cells = a:0 > 1 ? a:1[lnum - a:2] : vimwiki#tbl#get_cells(row)
     for idx in range(len(cells))
       let value = cells[idx]
       if has_key(max_lens, idx)
@@ -255,17 +255,23 @@ function! s:get_cell_max_lens(lnum) "{{{
 endfunction "}}}
 
 function! s:get_aligned_rows(lnum, col1, col2) "{{{
-  let max_lens = s:get_cell_max_lens(a:lnum)
-  let rows = []
-  for [lnum, row] in s:get_rows(a:lnum)
+  let rows = s:get_rows(a:lnum)
+  let startlnum = rows[0][0]
+  let cells = []
+  for [lnum, row] in rows
+    call add(cells, vimwiki#tbl#get_cells(row))
+  endfor
+  let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum)
+  let result = []
+  for [lnum, row] in rows
     if s:is_separator(row)
       let new_row = s:fmt_sep(max_lens, a:col1, a:col2)
     else
-      let new_row = s:fmt_row(row, max_lens, a:col1, a:col2)
+      let new_row = s:fmt_row(cells[lnum - startlnum], max_lens, a:col1, a:col2)
     endif
-    call add(rows, [lnum, new_row])
+    call add(result, [lnum, new_row])
   endfor
-  return rows
+  return result
 endfunction "}}}
 
 " Number of the current column. Starts from 0.
@@ -303,20 +309,19 @@ function! s:fmt_cell(cell, max_len) "{{{
   return cell
 endfunction "}}}
 
-function! s:fmt_row(line, max_lens, col1, col2) "{{{
+function! s:fmt_row(cells, max_lens, col1, col2) "{{{
   let new_line = s:rxSep()
-  let cells = vimwiki#tbl#get_cells(a:line)
-  for idx in range(len(cells))
+  for idx in range(len(a:cells))
     if idx == a:col1
       let idx = a:col2
     elseif idx == a:col2
       let idx = a:col1
     endif
-    let value = cells[idx]
+    let value = a:cells[idx]
     let new_line .= s:fmt_cell(value, a:max_lens[idx]).s:rxSep()
   endfor
 
-  let idx = len(cells)
+  let idx = len(a:cells)
   while idx < len(a:max_lens)
     let new_line .= s:fmt_cell('', a:max_lens[idx]).s:rxSep()
     let idx += 1
