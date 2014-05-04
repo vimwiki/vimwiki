@@ -267,7 +267,7 @@ function! s:get_aligned_rows(lnum, col1, col2) "{{{
   if lrows == depth + 1
     let i = 1
     for [lnum, row] in rows
-      call add(cells, vimwiki#tbl#get_cells(row, i == lrows - 1 ? 0 : 1))
+      call add(cells, vimwiki#tbl#get_cells(row, i != lrows - 1))
       let i += 1
     endfor
     let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
