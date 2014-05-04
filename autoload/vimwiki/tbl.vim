@@ -263,6 +263,7 @@ function! s:get_aligned_rows(lnum, col1, col2) "{{{
   let cells = []
   let max_lens = {}
   let lrows = len(rows)
+  let check_all = 1
   if lrows == depth + 1
     let i = 1
     for [lnum, row] in rows
@@ -271,16 +272,17 @@ function! s:get_aligned_rows(lnum, col1, col2) "{{{
     endfor
     let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
     let fst_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows[0:0])
-    if max_lens != fst_lens
-      " all the table must be re-formatted
-      let rows = s:get_rows(a:lnum)
-      let startlnum = rows[0][0]
-      let cells = []
-      for [lnum, row] in rows
-        call add(cells, vimwiki#tbl#get_cells(row))
-      endfor
-      let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
-    endif
+    let check_all = max_lens != fst_lens
+  endif
+  if check_all
+    " all the table must be re-formatted
+    let rows = s:get_rows(a:lnum)
+    let startlnum = rows[0][0]
+    let cells = []
+    for [lnum, row] in rows
+      call add(cells, vimwiki#tbl#get_cells(row))
+    endfor
+    let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
   endif
   let result = []
   for [lnum, row] in rows
