@@ -408,7 +408,13 @@ function! vimwiki#tbl#goto_next_col() "{{{
   let curcol = virtcol('.')
   let lnum = line('.')
   let newcol = s:get_indent(lnum)
-  let max_lens = s:get_cell_max_lens(lnum)
+  let rows = s:get_rows(lnum, 2)
+  let startlnum = rows[0][0]
+  let cells = []
+  for [lnum, row] in rows
+    call add(cells, vimwiki#tbl#get_cells(row, 1))
+  endfor
+  let max_lens = s:get_cell_max_lens(lnum, cells, startlnum, rows)
   for cell_len in values(max_lens)
     if newcol >= curcol-1
       break
@@ -434,7 +440,13 @@ function! vimwiki#tbl#goto_prev_col() "{{{
   let curcol = virtcol('.')
   let lnum = line('.')
   let newcol = s:get_indent(lnum)
-  let max_lens = s:get_cell_max_lens(lnum)
+  let rows = s:get_rows(lnum, 2)
+  let startlnum = rows[0][0]
+  let cells = []
+  for [lnum, row] in rows
+    call add(cells, vimwiki#tbl#get_cells(row, 1))
+  endfor
+  let max_lens = s:get_cell_max_lens(lnum, cells, startlnum, rows)
   let prev_cell_len = 0
   echom string(max_lens) 
   for cell_len in values(max_lens)
