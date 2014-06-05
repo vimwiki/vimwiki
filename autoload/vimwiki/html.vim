@@ -1165,6 +1165,14 @@ function! s:parse_line(line, state) " {{{
   endif
   "}}}
 
+  " tables "{{{
+  if !processed
+    let [processed, lines, state.table] = s:process_tag_table(line,
+          \ state.table, state.header_ids)
+    call extend(res_lines, lines)
+  endif
+  "}}}
+
   " lists "{{{
   if !processed
     let [processed, lines] = s:process_tag_list(line, state.lists)
@@ -1209,14 +1217,6 @@ function! s:parse_line(line, state) " {{{
 
       call add(res_lines, line)
     endif
-  endif
-  "}}}
-
-  " tables "{{{
-  if !processed
-    let [processed, lines, state.table] = s:process_tag_table(line,
-          \ state.table, state.header_ids)
-    call extend(res_lines, lines)
   endif
   "}}}
 
