@@ -30,7 +30,7 @@ With vimwiki you can:
  * manage todo-lists;
  * write documentation.
 
-To do a quick start press `<Leader>`ww (this is usually \ww) to go to your index
+To do a quick start press `<Leader>ww` (this is usually `\ww`) to go to your index
 wiki file.  By default it is located in: 
     ~/vimwiki/index.wiki
 
@@ -80,10 +80,10 @@ Lists:
         - bullet list item 8
         - bullet list item 9
 
-    # numbered list item 1
-    # numbered list item 2
-        # numbered list item 3
-        # numbered list item 4
+    1. numbered list item 1
+    2. numbered list item 2
+        a) numbered list item 3
+        b) numbered list item 4
 
     = Header1 =
     == Header2 ==
@@ -119,11 +119,11 @@ Commands
 Install details
 ============================================================================== 
 
-Using pathogen (http://www.vim.org/scripts/script.php?script_id=2332)
+Using pathogen (http://www.vim.org/scripts/script.php?script_id=2332 )
 
     cd ~/.vim
     mkdir bundle
     cd bundle
     git clone git://github.com/vim-scripts/vimwiki.git
 
-Then launch vim and run `:help vimwiki` to verify it was installed.
+Then launch vim, run `:Helptags` and then `:help vimwiki` to verify it was installed.
