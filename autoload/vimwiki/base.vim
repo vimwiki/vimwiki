@@ -581,10 +581,8 @@ endfunction "}}}
 " vimwiki#base#backlinks
 function! vimwiki#base#backlinks() "{{{
   let filename = expand("%:t:r")
-  let rx_wikilink = vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate1,
-        \ '\zs'.filename.'\ze\%(#.*\)\?', '.*', '').
-        \ '\|'. vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate2,
-        \ '\zs'.filename.'\ze\%(#.*\)\?', '.*', '')
+  let rx_wikilink = vimwiki#base#apply_template(
+        \ g:vimwiki_WikiLinkMatchUrlTemplate, filename, '', '')
   execute 'lvimgrep "\C'.rx_wikilink.'" '.
         \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 endfunction "}}}
@@ -821,17 +819,13 @@ endfunction " }}}
 function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
   let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
   let new_fname = a:new_fname
-  let old_fname_r = old_fname
-  let new_fname_r = new_fname
 
-  let old_fname_r = vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate1, 
-          \ '\zs'.old_fname.'\ze\%(#.*\)\?', '.*', '').
-        \ '\|'. vimwiki#base#apply_template(g:vimwiki_WikiLinkTemplate2, 
-          \ '\zs'.old_fname.'\ze\%(#.*\)\?', '.*', '')
+  let old_fname_r = vimwiki#base#apply_template(
+        \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
 
   let files = split(glob(VimwikiGet('path').a:dir.'*'.VimwikiGet('ext')), '\n')
   for fname in files
-    call s:update_wiki_link(fname, old_fname_r, new_fname_r)
+    call s:update_wiki_link(fname, old_fname_r, new_fname)
   endfor
 endfunction " }}}
 
@@ -1587,15 +1581,15 @@ endfunction
 "   arguments rxUrl, rxDesc, and rxStyle are copied verbatim, without any
 "   special character escapes or substitutions.
 function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle) "{{{
-  let lnk = vimwiki#u#escape(a:template)
+  let lnk = a:template
   if a:rxUrl != ""
-    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", '') 
+    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", 'g')
   endif
   if a:rxDesc != ""
-    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", '')
+    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", 'g')
   endif
   if a:rxStyle != ""
-    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", '')
+    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", 'g')
   endif
   return lnk
 endfunction " }}}

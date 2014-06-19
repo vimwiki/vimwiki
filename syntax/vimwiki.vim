@@ -51,22 +51,30 @@ let s:time0 = vimwiki#u#time(g:starttime)  "XXX
 " LINKS: setup of larger regexes {{{
 
 " LINKS: setup wikilink regexps {{{
-let g:vimwiki_rxWikiLinkPrefix = '[['
-let g:vimwiki_rxWikiLinkSuffix = ']]'
+let g:vimwiki_rxWikiLinkPrefix = '\[\['
+let g:vimwiki_rxWikiLinkSuffix = '\]\]'
 let g:vimwiki_rxWikiLinkSeparator = '|'
 " [[URL]]
-let g:vimwiki_WikiLinkTemplate1 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'. 
+let g:vimwiki_WikiLinkTemplate1 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'.
       \ g:vimwiki_rxWikiLinkSuffix
 " [[URL|DESCRIPTION]]
-let g:vimwiki_WikiLinkTemplate2 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'. 
+let g:vimwiki_WikiLinkTemplate2 = g:vimwiki_rxWikiLinkPrefix . '__LinkUrl__'.
       \ g:vimwiki_rxWikiLinkSeparator. '__LinkDescription__'.
       \ g:vimwiki_rxWikiLinkSuffix
-"
-let s:valid_chars = '[^\\\]]'
 
-let g:vimwiki_rxWikiLinkPrefix = vimwiki#u#escape(g:vimwiki_rxWikiLinkPrefix)
-let g:vimwiki_rxWikiLinkSuffix = vimwiki#u#escape(g:vimwiki_rxWikiLinkSuffix)
-let g:vimwiki_rxWikiLinkSeparator = vimwiki#u#escape(g:vimwiki_rxWikiLinkSeparator)
+" match every Wikilink with a given URL
+let g:vimwiki_WikiLinkMatchUrlTemplate =
+      \ g:vimwiki_rxWikiLinkPrefix .
+      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+      \ g:vimwiki_rxWikiLinkSuffix .
+      \ '\|' .
+      \ g:vimwiki_rxWikiLinkPrefix .
+      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+      \ g:vimwiki_rxWikiLinkSeparator .
+      \ '.*' .
+      \ g:vimwiki_rxWikiLinkSuffix
+
+let s:valid_chars = '[^\\\]]'
 let g:vimwiki_rxWikiLinkUrl = s:valid_chars.'\{-}'
 let g:vimwiki_rxWikiLinkDescr = s:valid_chars.'\{-}'
 
@@ -108,11 +116,8 @@ let g:vimwiki_WikiInclTemplate2 = g:vimwiki_rxWikiInclPrefix . '__LinkUrl__'.
       \ '__LinkDescription__'.
       \ g:vimwiki_rxWikiInclSuffix
 
-let s:valid_chars = '[^\\\}]'
 
-let g:vimwiki_rxWikiInclPrefix = vimwiki#u#escape(g:vimwiki_rxWikiInclPrefix)
-let g:vimwiki_rxWikiInclSuffix = vimwiki#u#escape(g:vimwiki_rxWikiInclSuffix)
-let g:vimwiki_rxWikiInclSeparator = vimwiki#u#escape(g:vimwiki_rxWikiInclSeparator)
+let s:valid_chars = '[^\\\}]'
 let g:vimwiki_rxWikiInclUrl = s:valid_chars.'\{-}'
 let g:vimwiki_rxWikiInclArg = s:valid_chars.'\{-}'
 let g:vimwiki_rxWikiInclArgs = '\%('. g:vimwiki_rxWikiInclSeparator. g:vimwiki_rxWikiInclArg. '\)'.'\{-}'

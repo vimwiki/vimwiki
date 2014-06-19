@@ -30,9 +30,9 @@ let g:vimwiki_rxWikiLink0MatchDescr = g:vimwiki_rxWikiLinkMatchDescr
 " LINKS: setup wikilink1 regexps {{{
 " 1. [URL][], or [DESCRIPTION][URL]
 
-let g:vimwiki_rxWikiLink1Prefix = '['
-let g:vimwiki_rxWikiLink1Suffix = ']'
-let g:vimwiki_rxWikiLink1Separator = ']['
+let g:vimwiki_rxWikiLink1Prefix = '\['
+let g:vimwiki_rxWikiLink1Suffix = '\]'
+let g:vimwiki_rxWikiLink1Separator = '\]\['
 
 " [URL][]
 let g:vimwiki_WikiLink1Template1 = g:vimwiki_rxWikiLink1Prefix . '__LinkUrl__'. 
@@ -42,11 +42,20 @@ let g:vimwiki_WikiLink1Template2 = g:vimwiki_rxWikiLink1Prefix . '__LinkDescript
     \ g:vimwiki_rxWikiLink1Separator. '__LinkUrl__'.
     \ g:vimwiki_rxWikiLink1Suffix
 "
-let s:valid_chars = '[^\\\[\]]'
+let g:vimwiki_WikiLinkMatchUrlTemplate .=
+      \ '\|' .
+      \ g:vimwiki_rxWikiLink1Prefix .
+      \ '.*' .
+      \ g:vimwiki_rxWikiLink1Separator .
+      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+      \ g:vimwiki_rxWikiLink1Suffix .
+      \ '\|' .
+      \ g:vimwiki_rxWikiLink1Prefix .
+      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+      \ g:vimwiki_rxWikiLink1Separator .
+      \ g:vimwiki_rxWikiLink1Suffix
 
-let g:vimwiki_rxWikiLink1Prefix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Prefix)
-let g:vimwiki_rxWikiLink1Suffix = vimwiki#u#escape(g:vimwiki_rxWikiLink1Suffix)
-let g:vimwiki_rxWikiLink1Separator = vimwiki#u#escape(g:vimwiki_rxWikiLink1Separator)
+let s:valid_chars = '[^\\\[\]]'
 let g:vimwiki_rxWikiLink1Url = s:valid_chars.'\{-}'
 let g:vimwiki_rxWikiLink1Descr = s:valid_chars.'\{-}'
 
