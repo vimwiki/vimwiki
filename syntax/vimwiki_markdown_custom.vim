@@ -242,7 +242,8 @@ function! s:highlight_existing_links() "{{{
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
   " Links are set up upon BufEnter (see plugin/...)
-  let safe_links = vimwiki#base#file_pattern(b:existing_wikifiles)
+  let safe_links = '\%('.vimwiki#base#file_pattern(b:existing_wikifiles) .
+        \ '\%(#[^|]*\)\?\|#[^|]*\)'
   " Wikilink1 Dirs set up upon BufEnter (see plugin/...)
   let safe_dirs = vimwiki#base#file_pattern(b:existing_wikidirs)
   " Ref links are cached
