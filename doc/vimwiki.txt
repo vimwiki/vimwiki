@@ -49,10 +49,11 @@ CONTENTS                                                    *vimwiki-contents*
         12.2. Temporary Wiki         |vimwiki-temporary-wiki|
         12.3. Per-Wiki Options       |vimwiki-local-options|
         12.4. Global Options         |vimwiki-global-options|
-    13. Help                         |vimwiki-help|
-    14. Developers                   |vimwiki-developers|
-    15. Changelog                    |vimwiki-changelog|
-    16. License                      |vimwiki-license|
+    13. Miscellaneous                |vimwiki-misc|
+    14. Help                         |vimwiki-help|
+    15. Developers                   |vimwiki-developers|
+    16. Changelog                    |vimwiki-changelog|
+    17. License                      |vimwiki-license|
 
 
 ==============================================================================
@@ -2551,8 +2552,19 @@ mother tongue like this: >
 
 The default is 'Contents'.
 
+
 ==============================================================================
-13. Help                                                        *vimwiki-help*
+13. Miscellaneous                                               *vimwiki-misc*
+
+Tagbar integration~
+If you want the Tagbar plugin (http://majutsushi.github.io/tagbar/) to show
+the headers of your wiki files in a side pane, download the Python script from
+https://raw.githubusercontent.com/vimwiki/utils/master/vwtags.py and follow
+the instructions in it.
+
+
+==============================================================================
+14. Help                                                        *vimwiki-help*
 
 Your help in making vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
@@ -2562,7 +2574,7 @@ Issues can be filed at http://code.google.com/p/vimwiki/issues .
 
 
 ==============================================================================
-14. Developers                                            *vimwiki-developers*
+15. Developers                                            *vimwiki-developers*
 
     - Maxim Kim <habamax@gmail.com> as original author.
     - Stuart Andrews
@@ -2575,7 +2587,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
 ==============================================================================
-15. Changelog                                              *vimwiki-changelog*
+16. Changelog                                              *vimwiki-changelog*
 
 ???~
 
@@ -2733,7 +2745,7 @@ http://code.google.com/p/vimwiki/issues/list
     * First public version.
 
 ==============================================================================
-16. License                                                  *vimwiki-license*
+17. License                                                  *vimwiki-license*
 
 The MIT Licence
 http://www.opensource.org/licenses/mit-license.php
