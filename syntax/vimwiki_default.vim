@@ -74,11 +74,11 @@ let g:vimwiki_rxTableSep = '|'
 
 " Lists
 "1 means multiple bullets, like * ** ***
-let g:vimwiki_bullet_types = { '-':0, '*':0, '#':0 , '•':0 }
+let g:vimwiki_bullet_types = { '-':0, '*':0, '#':0 }
 let g:vimwiki_number_types = ['1)', '1.', 'i)', 'I)', 'a)', 'A)']
 "this should contain at least one element
 "it is used for i_<C-L><C-J> among other things
-let g:vimwiki_list_markers = ['-', '•', '1.', '*', 'I)', 'a)']
+let g:vimwiki_list_markers = ['-', '1.', '*', 'I)', 'a)']
 let g:vimwiki_rxListDefine = '::\(\s\|$\)'
 call vimwiki#lst#setup_marker_infos()
 

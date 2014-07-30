@@ -1391,7 +1391,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     endif
 
     " prepare regexps for lists
-    let s:bullets = '[*•-]'
+    let s:bullets = '[*-]'
     let s:numbers =
       \'\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
 

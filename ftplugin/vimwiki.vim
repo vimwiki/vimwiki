@@ -562,23 +562,21 @@ endif
 noremap <silent><script><buffer>
     \ <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
 
-for s:k in keys(g:vimwiki_bullet_types)
-  let s:char = (s:k == '•' ? '.' : s:k)
-
-  if !hasmapto(':VimwikiChangeSymbolTo '.s:k.'<CR>')
-    exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:k.'<CR>'
+for s:char in keys(g:vimwiki_bullet_types)
+  if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
+    exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
   endif
-  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:k.'<CR>')
-    exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:k.'<CR>'
+  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:char.'<CR>')
+    exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:char.'<CR>'
   endif
-
 endfor
-for s:k in g:vimwiki_number_types
-  if !hasmapto(':VimwikiChangeSymbolTo '.s:k.'<CR>')
-    exe 'noremap <silent><buffer> gl'.s:k[0].' :VimwikiChangeSymbolTo '.s:k.'<CR>'
+
+for s:typ in g:vimwiki_number_types
+  if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>')
+    exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
   endif
-  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:k.'<CR>')
-    exe 'noremap <silent><buffer> gL'.s:k[0].' :VimwikiChangeSymbolInListTo '.s:k.'<CR>'
+  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:typ.'<CR>')
+    exe 'noremap <silent><buffer> gL'.s:typ[0].' :VimwikiChangeSymbolInListTo '.s:typ.'<CR>'
   endif
 endfor
 

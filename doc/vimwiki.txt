@@ -381,14 +381,6 @@ gL-                     Change the symbol of the current list to -.
                         noremap glo :VimwikiChangeSymbolTo -<CR>
                         noremap glO :VimwikiChangeSymbolInListTo -<CR>
 <
-                        *vimwiki_gl.* *vimwiki_gL.*
-gl.                     Make a list item out of normal line or change the symbol
-                        of the current item to •.
-gL.                     Change the symbol of the current list to •.
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo •<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo •<CR>
-<
                         *vimwiki_gl1* *vimwiki_gL1*
 gl1                     Make a list item out of normal line or change the symbol
                         of the current item to 1., the numbering is adjusted
@@ -516,13 +508,13 @@ INSERT MODE                                            *vimwiki-list-mappings*
 <
                         *vimwiki_i_<C-L>_<C-J>*
 <C-L><C-J>              Change the symbol of the current list item to the next
-                        available. From - to • to 1. to * to I) to a).
+                        available. From - to 1. to * to I) to a).
                         To remap: >
                         :imap <C-A> <Plug>VimwikiListNextSymbol
 <
                         *vimwiki_i_<C-L>_<C-K>*
 <C-L><C-K>              Change the symbol of the current list item to the prev
-                        available. From - to a) to I) to * to 1. to •.
+                        available. From - to a) to I) to * to 1.
                         To remap: >
                         :imap <C-S> <Plug>VimwikiListPrevSymbol
 <
@@ -861,9 +853,6 @@ Unordered lists: >
   - Bulleted list item 1
   - Bulleted list item 2
 or: >
-  • Bulleted list item 1
-  • Bulleted list item 2
-or: >
   * Bulleted list item 1
   * Bulleted list item 2
 
@@ -903,8 +892,8 @@ You can nest and mix the various types: >
   - Bulleted list item 2
     a) Numbered list sub item 1
     b) more ...
-      • and more ...
-      • ...
+      * and more ...
+      * ...
     c) Numbered list sub item 3
       1. Numbered list sub sub item 1
       2. Numbered list sub sub item 2
@@ -1391,7 +1380,6 @@ For default syntax, the following types are available: >
     - hyphen
     * asterisk
     # hash
-    • dot, use gl. to create it
     1. number with period
     1) number with parenthesis
     a) lower-case letter with parenthesis
@@ -1424,9 +1412,8 @@ after a list using letters or vice versa, vimwiki will get confused because
 it cannot distinguish which is which (at least if the types are both upper
 case or both lower case).
 
-See |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|,
-|vimwiki_gl-|, |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|,
-|vimwiki_glI|
+See |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
+|vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI|
 
 
 Use glr and gLr, if the numbers of a numbered list are mixed up. See
@@ -2031,9 +2018,9 @@ Width of left-hand margin for lists.  When negative, the current |shiftwidth|
 is used.  This affects the appearance of the generated links (see
 |:VimwikiGenerateLinks|), the Table of contents (|vimwiki-toc|) and the
 behavior of the list manipulation commands |:VimwikiListChangeLevel| and the
-local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl.|,
-|vimwiki_gl-|, |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|,
-|vimwiki_glI| and |vimwiki_i_<C-L>_<C-M>|.
+local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
+|vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
+|vimwiki_i_<C-L>_<C-M>|.
 
 Note: if you use MediaWiki syntax, you probably would like to set this option
 to 0, because every indented line is considered verbatim text.
