@@ -48,7 +48,7 @@ let g:vimwiki_media_bold_match = '''''''__Text__'''''''
 " ^- looks strange, but is equivalent to "'''__Text__'''" but since we later
 " want to call escape() on this string, we must keep it in single quotes
 
-function! g:complete_wikifiles(findstart, base)
+function! Complete_wikifiles(findstart, base)
   if a:findstart == 1
     let column = col('.')-1
     let line = getline('.')[:column]
@@ -170,7 +170,7 @@ function! g:complete_wikifiles(findstart, base)
     endif
   endif
 endfunction
-setlocal omnifunc=g:complete_wikifiles
+setlocal omnifunc=Complete_wikifiles
 " omnicomplete }}}
 
 " MISC }}}
