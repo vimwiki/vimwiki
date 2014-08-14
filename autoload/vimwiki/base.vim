@@ -420,6 +420,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
       let path = VimwikiGet('path')
       let ext = VimwikiGet('ext')
     endif
+    let idx = g:vimwiki_current_idx
     let subdir = VimwikiGet('diary_rel_path')
   elseif scheme =~ 'local'
     " revisiting the 'lcd'-bug ...
@@ -672,6 +673,65 @@ function! vimwiki#base#get_links(pat) "{{{ return string-list for files
   let time2 = vimwiki#u#time(time1)
   call VimwikiLog_extend('timing',['base:afterglob('.len(split(globlinks, '\n')).')',time2])
   return globlinks
+endfunction "}}}
+
+function! vimwiki#base#get_anchors(filename, syntax) "{{{
+  if !filereadable(a:filename)
+    return []
+  endif
+
+  let rxheader = g:vimwiki_{a:syntax}_header_search
+  let rxbold = g:vimwiki_{a:syntax}_bold_search
+
+  let anchor_level = ['', '', '', '', '', '', '']
+  let anchors = []
+  for line in readfile(a:filename)
+
+    " collect headers
+    let h_match = matchlist(line, rxheader)
+    if !empty(h_match)
+      let header = vimwiki#u#trim(h_match[2])
+      let level = len(h_match[1])
+      let anchor_level[level-1] = header
+      for l in range(level, 6)
+        let anchor_level[l] = ''
+      endfor
+      call add(anchors, header)
+      let complete_anchor = ''
+      for l in range(level-1)
+        if anchor_level[l] != ''
+          let complete_anchor .= anchor_level[l].'#'
+        endif
+      endfor
+      let complete_anchor .= header
+      call add(anchors, complete_anchor)
+    endif
+
+    " collect bold text (there can be several in one line)
+    let bold_count = 0
+    let bold_end = 0
+    while 1
+      let bold_text = matchstr(line, rxbold, bold_end, bold_count)
+      let bold_end = matchend(line, rxbold, bold_end, bold_count) + 1
+      if bold_text == ""
+        break
+      endif
+      call add(anchors, bold_text)
+      let anchor_level[6] = bold_text
+      let complete_anchor = ''
+      for l in range(6)
+        if anchor_level[l] != ''
+          let complete_anchor .= anchor_level[l].'#'
+        endif
+      endfor
+      let complete_anchor .= bold_text
+      call add(anchors, complete_anchor)
+      let bold_count += 1
+    endwhile
+
+  endfor
+
+  return anchors
 endfunction "}}}
 
 " s:jump_to_anchor

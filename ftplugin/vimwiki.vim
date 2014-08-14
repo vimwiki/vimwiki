@@ -90,7 +90,7 @@ function! Complete_wikifiles(findstart, base)
         " get the filename relative to the wiki path:
         let subdir_filename = substitute(fnamemodify(wikifile, ':p:r'),
               \ '\V'.fnamemodify(directory, ':p'), '', '')
-        if subdir_filename =~ '^'.prefix
+        if subdir_filename =~ '^'.vimwiki#u#escape(prefix)
           call add(result, scheme . subdir_filename)
         endif
       endfor
@@ -103,70 +103,17 @@ function! Complete_wikifiles(findstart, base)
       let link_infos = vimwiki#base#resolve_scheme(segments[0].'#', 0)
       let wikifile = link_infos[6]
       let syntax = VimwikiGet('syntax', link_infos[0])
-      let rxheader = g:vimwiki_{syntax}_header_search
-      let rxbold = g:vimwiki_{syntax}_bold_search
-      if !filereadable(wikifile)
-        return []
-      endif
-      let filecontent = readfile(wikifile)
-      let anchor_level = ['', '', '', '', '', '', '']
-      let anchors = []
-
-      for line in filecontent
-
-        " collect headers
-        let h_match = matchlist(line, rxheader)
-        if !empty(h_match)
-          let header = vimwiki#u#trim(h_match[2])
-          let level = len(h_match[1])
-          let anchor_level[level-1] = header
-          for l in range(level, 6)
-            let anchor_level[l] = ''
-          endfor
-          call add(anchors, header)
-          let complete_anchor = ''
-          for l in range(level-1)
-            if anchor_level[l] != ''
-              let complete_anchor .= anchor_level[l].'#'
-            endif
-          endfor
-          let complete_anchor .= header
-          call add(anchors, complete_anchor)
-        endif
-
-        " collect bold text (there can be several in one line)
-        let bold_count = 0
-        let bold_end = 0
-        while 1
-          let bold_text = matchstr(line, rxbold, bold_end, bold_count)
-          let bold_end = matchend(line, rxbold, bold_end, bold_count) + 1
-          if bold_text == ""
-            break
-          endif
-          let anchor_level[6] = bold_text
-          call add(anchors, bold_text)
-          let complete_anchor = ''
-          for l in range(6)
-            if anchor_level[l] != ''
-              let complete_anchor .= anchor_level[l].'#'
-            endif
-          endfor
-          let complete_anchor .= bold_text
-          call add(anchors, complete_anchor)
-          let bold_count += 1
-        endwhile
-
-      endfor
+      let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 
       let filtered_anchors = []
       let given_anchor = join(segments[1:], '#')
       for anchor in anchors
-        if anchor =~# '^'.given_anchor
+        if anchor =~# '^'.vimwiki#u#escape(given_anchor)
           call add(filtered_anchors, segments[0].'#'.anchor)
         endif
       endfor
-
       return filtered_anchors
+
     endif
   endif
 endfunction
