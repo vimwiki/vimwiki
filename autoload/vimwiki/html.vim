@@ -286,7 +286,7 @@ function! s:tag_strong(value, header_ids) "{{{
     let complete_id = complete_id[:-2]
   endif
   let complete_id .= '-'.id
-  return '<div id="'.s:safe_html_anchor(complete_id).'"></div><strong id="'
+  return '<span id="'.s:safe_html_anchor(complete_id).'"></span><strong id="'
         \ .id.'">'.text.'</strong>'
 endfunction "}}}
 
