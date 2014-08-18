@@ -617,7 +617,7 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 
 " AUTOCOMMANDS {{{
 function! s:toc_html()
-  if VimwikiGet('auto_toc') >= 2 && VimwikiGet('auto_export') == 0
+  if VimwikiGet('auto_toc')
     call vimwiki#base#table_of_contents(0)
   endif
   if VimwikiGet('auto_export')
@@ -626,7 +626,7 @@ function! s:toc_html()
   endif
 endfunction
 
-if VimwikiGet('auto_export') || VimwikiGet('auto_toc') >= 2
+if VimwikiGet('auto_export') || VimwikiGet('auto_toc')
   augroup vimwiki
     au BufWritePost <buffer> call s:toc_html()
   augroup END

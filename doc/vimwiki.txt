@@ -1740,16 +1740,13 @@ This will keep your HTML files up to date.
 
 *vimwiki-option-auto_toc*
 ------------------------------------------------------------------------------
-Set this option to a value greater than 0 to automatically update the Table of
-Contents: >
+Key             Default value     Values~
+auto_toc        0                 0, 1
+
+Description~
+Set this option to 1 to automatically generate the table of contents when the
+current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
-
-Value           Description~
-0               Don't update it automatically.
-1               Update when the wiki file is converted to HTML.
-2               Update when the wiki file is saved.
-
-Default: 0
 
 
 *vimwiki-option-index*

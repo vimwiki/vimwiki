@@ -1328,11 +1328,6 @@ endfunction " }}}
 
 function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
-  if VimwikiGet('auto_toc') >= 1
-    call vimwiki#base#table_of_contents(0)
-    noautocmd update
-  endif
-
   let starttime = reltime()  " start the clock
 
   let done = 0
