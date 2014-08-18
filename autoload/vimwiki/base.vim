@@ -328,10 +328,6 @@ endfunction " }}}
 function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   let lnk = a:lnk
 
-  " a link starting with # means current file with an anchor
-  if lnk =~ '^#'
-    let lnk = expand('%:t:r').lnk
-  endif
 
   " if link is schemeless add wikiN: scheme
   let is_schemeless = lnk !~ g:vimwiki_rxSchemeUrl
@@ -458,6 +454,14 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
     let url = path.subdir.lnk.ext
   endif
 
+  " lnk and url should be '' if the given wiki link has the form [[#anchor]].
+  " We cannot do lnk = expand('%:t:r') or so, because this function is called
+  " from vimwiki#html#WikiAll2HTML() for many files, so expand('%:t:r')
+  " doesn't give the currently processed file
+  if lnk == ''
+    let url = ''
+  endif
+
   " result
   return [idx, scheme, path, subdir, lnk, ext, url, anchor]
 endfunction "}}}
@@ -506,12 +510,17 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
         \ vimwiki#base#resolve_scheme(a:link, 0)
 
-  if url == ''
+  if path == ''
     if g:vimwiki_debug
       echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.', anchor='.anchor
     endif
     echom 'Vimwiki Error: Unable to resolve link!'
     return
+  endif
+
+  if url == ''
+    let lnk = expand('%:t:r')
+    let url = path.subdir.lnk.ext
   endif
 
   let update_prev_link = ( (scheme == '' || scheme =~ 'wiki' || scheme =~ 'diary')

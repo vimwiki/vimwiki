@@ -390,7 +390,6 @@ function! s:tag_wikiincl(value) "{{{
 
     let url = escape(url, '#')
     let line = vimwiki#html#linkify_image(url, descr, verbatim_str)
-    return line
   endif
   return line
 endfunction "}}}
@@ -402,7 +401,7 @@ function! s:tag_wikilink(value) "{{{
   " [[fileurl.ext|descr]]     -> <a href="fileurl.ext">descr</a>
   " [[dirurl/|descr]]         -> <a href="dirurl/index.html">descr</a>
   " [[url#a1#a2]]             -> <a href="url.html#a1-a2">url#a1#a2</a>
-  " [[#a1#a2]]                -> <a href="file.html#a1-a2">#a1#a2</a>
+  " [[#a1#a2]]                -> <a href="#a1-a2">#a1#a2</a>
   let str = a:value
   let url = matchstr(str, g:vimwiki_rxWikiLinkMatchUrl)
   let descr = matchstr(str, g:vimwiki_rxWikiLinkMatchDescr)

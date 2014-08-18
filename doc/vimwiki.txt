@@ -2242,7 +2242,7 @@ similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
            \ ', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.
            \ ', anchor='.anchor
     endif
-    if url == ''
+    if path == ''
       echom 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
