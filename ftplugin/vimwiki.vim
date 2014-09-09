@@ -86,10 +86,14 @@ function! Complete_wikifiles(findstart, base)
       endif
 
       let result = []
+      let cwd = substitute(fnamemodify(getcwd(), ':p:h'),
+            \ '\V'.fnamemodify(directory, ':p'), '', '')
       for wikifile in split(globpath(directory, '**/*'.ext), '\n')
-        " get the filename relative to the wiki path:
         let subdir_filename = substitute(fnamemodify(wikifile, ':p:r'),
               \ '\V'.fnamemodify(directory, ':p'), '', '')
+
+        let subdir_filename = s:relpath(subdir_filename, cwd)
+
         if subdir_filename =~ '^'.vimwiki#u#escape(prefix)
           call add(result, scheme . subdir_filename)
         endif
@@ -119,6 +123,24 @@ function! Complete_wikifiles(findstart, base)
   endif
 endfunction
 setlocal omnifunc=Complete_wikifiles
+
+function! s:relpath(file1, file2)
+  let f = []
+  let f1 = split(a:file1, '/')
+  let f2 = split(a:file2, '/')
+  while (len(f1) > 0 && len(f2) > 0) && f1[0] == f2[0]
+    call remove(f1, 0)
+    call remove(f2, 0)
+  endwhile
+  for name in f2
+    let f += ['..']
+  endfor
+  for name in f1
+    let f += [name]
+  endfor
+  return join(f, '/')
+endfunction
+
 " omnicomplete }}}
 
 " MISC }}}
