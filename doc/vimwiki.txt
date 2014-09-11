@@ -1132,6 +1132,7 @@ File:~
 The file scheme allows you to directly link to arbitray resources using
 absolute paths and extensions: >
   [[file:///home/somebody/a/b/c/music.mp3]]
+  [[file:C:/Users/somebody/d/e/f/music.mp3]]
 
 Schemeless:~
 
