@@ -2239,11 +2239,11 @@ similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
            \ ', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.
            \ ', anchor='.anchor
     endif
-    if path == ''
+    if url == '' && anchor == ''
       echom 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
-      call vimwiki#base#edit_file('tabnew', url, '', [], 0)
+      call vimwiki#base#edit_file('tabnew', url, anchor, [], 0)
       return 1
     endif
   endfunction " }}}

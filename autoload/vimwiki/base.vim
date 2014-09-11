@@ -510,17 +510,18 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
         \ vimwiki#base#resolve_scheme(a:link, 0)
 
-  if path == ''
+  " wikilinks of the form [[#anchor]]
+  if url == '' && anchor != ''
+    let lnk = expand('%:t:r')
+    let url = path.subdir.lnk.ext
+  endif
+
+  if url == ''
     if g:vimwiki_debug
       echom 'open_link: idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.', anchor='.anchor
     endif
     echom 'Vimwiki Error: Unable to resolve link!'
     return
-  endif
-
-  if url == ''
-    let lnk = expand('%:t:r')
-    let url = path.subdir.lnk.ext
   endif
 
   let update_prev_link = ( (scheme == '' || scheme =~ 'wiki' || scheme =~ 'diary')
