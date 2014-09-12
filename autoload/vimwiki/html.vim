@@ -1528,6 +1528,7 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   call VimwikiSet('invsubdir', current_invsubdir)
 
   call s:create_default_CSS(path_html)
+  echomsg 'HTML exported to '.path_html
   echomsg 'Done!'
 
   let &more = setting_more
