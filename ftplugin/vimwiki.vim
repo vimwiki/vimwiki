@@ -255,9 +255,9 @@ command! -buffer Vimwiki2HTML
       \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
       \<bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done.' | endif
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '.expand(VimwikiGet('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
-      \ silent w <bar> 
+      \ silent w <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))
