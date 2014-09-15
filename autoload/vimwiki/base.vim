@@ -1691,6 +1691,15 @@ function! s:clean_url(url) " {{{
   return join(url, " ")
 endfunction " }}}
 
+" s:in_diary
+function! s:in_diary() " {{{
+  let file_path = vimwiki#u#path_norm(expand("%:p"))
+  let rel_path = VimwikiGet('diary_rel_path')
+  let diary_path = vimwiki#u#path_norm(VimwikiGet('path') . rel_path)
+  return rel_path != ''
+        \ && file_path =~# '^'.vimwiki#u#escape(diary_path)
+endfunction " }}}
+
 " vimwiki#base#normalize_link_helper
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) " {{{
   let str = a:str
@@ -1711,6 +1720,22 @@ function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, t
   let style = matchstr(a:str, a:rxStyle)
   let lnk = substitute(lnk, '__LinkStyle__', '\="'.style.'"', '')
   return lnk
+endfunction " }}}
+
+" s:normalize_link_in_diary
+function! s:normalize_link_in_diary(lnk) " {{{
+
+  " Check if link already exists or is a date
+  if filereadable(a:lnk . '.wiki') || a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+    let sub = vimwiki#base#normalize_link_helper(a:lnk,
+          \ g:vimwiki_rxWord, '',
+          \ g:vimwiki_WikiLinkTemplate1)
+  else
+    let depth = len(split(VimwikiGet('diary_rel_path'), '/'))
+    let sub = '[[' . repeat('../', depth) . a:lnk . '|' . a:lnk . ']]'
+  endif
+
+  return sub
 endfunction " }}}
 
 " s:normalize_link_syntax_n
@@ -1744,9 +1769,13 @@ function! s:normalize_link_syntax_n() " {{{
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWord, '',
-          \ g:vimwiki_WikiLinkTemplate1)
+    if s:in_diary()
+      let sub = s:normalize_link_in_diary(lnk)
+    else
+      let sub = vimwiki#base#normalize_link_helper(lnk,
+            \ g:vimwiki_rxWord, '',
+            \ g:vimwiki_WikiLinkTemplate1)
+    endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     if g:vimwiki_debug > 1
       echomsg "Word: ".lnk." Sub: ".sub
@@ -1764,20 +1793,24 @@ function! s:normalize_link_syntax_v() " {{{
   let rt = getregtype('"')
 
   try
-    norm! gv""y
-    let visual_selection = @"
-    let visual_selection = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".visual_selection."'", '')
+    " Save selected text to register "
+    normal! gv""y
 
-    call setreg('"', visual_selection, 'v')
+    " Set substitution
+    if s:in_diary()
+      let sub = s:normalize_link_in_diary(@")
+    else
+      let sub = substitute(g:vimwiki_WikiLinkTemplate1,
+            \ '__LinkUrl__', '\=' . "'" . @" . "'", '')
+    endif
 
-    " paste result
-    norm! `>""pgvd
-
+    " Put substitution in register " and change text
+    call setreg('"', sub, 'v')
+    normal! `>""pgvd
   finally
     call setreg('"', rv, rt)
     let &selection = sel_save
   endtry
-
 endfunction " }}}
 
 " vimwiki#base#normalize_link
