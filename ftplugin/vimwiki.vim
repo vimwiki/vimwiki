@@ -69,16 +69,21 @@ function! Complete_wikifiles(findstart, base)
 
       if a:base =~# '^wiki\d:'
         let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
+        if wikinumber >= len(g:vimwiki_list)
+          return []
+        endif
         let directory = VimwikiGet('path', wikinumber)
         let ext = VimwikiGet('ext', wikinumber)
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
         let scheme = matchstr(a:base, '^wiki\d:\ze')
       elseif a:base =~# '^diary:'
+        let wikinumber = g:vimwiki_current_idx
         let directory = VimwikiGet('path').'/'.VimwikiGet('diary_rel_path')
         let ext = VimwikiGet('ext')
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
-      else
+      else " current wiki
+        let wikinumber = g:vimwiki_current_idx
         let directory = VimwikiGet('path')
         let ext = VimwikiGet('ext')
         let prefix = a:base
@@ -86,12 +91,16 @@ function! Complete_wikifiles(findstart, base)
       endif
 
       let result = []
+      if wikinumber == g:vimwiki_current_idx
+        let cwd = vimwiki#u#wikify_path(expand('%:p:h'))
+      else
+        let cwd = vimwiki#u#wikify_path(directory)
+      endif
       for wikifile in split(globpath(directory, '**/*'.ext), '\n')
-        " get the filename relative to the wiki path:
-        let subdir_filename = substitute(fnamemodify(wikifile, ':p:r'),
-              \ '\V'.fnamemodify(directory, ':p'), '', '')
-        if subdir_filename =~ '^'.vimwiki#u#escape(prefix)
-          call add(result, scheme . subdir_filename)
+        let wikifile = vimwiki#u#wikify_path(fnamemodify(wikifile, ':r'))
+        let relative_filename = vimwiki#u#relpath(cwd, wikifile)
+        if relative_filename =~ '^'.vimwiki#u#escape(prefix)
+          call add(result, scheme . relative_filename)
         endif
       endfor
       return result

@@ -83,6 +83,33 @@ function! vimwiki#u#escape(string) "{{{
   return escape(a:string, '.*[]\^$')
 endfunction "}}}
 
+function! vimwiki#u#wikify_path(path) "{{{
+  let result = resolve(expand(a:path, ':p'))
+  if vimwiki#u#is_windows()
+    let result = substitute(result, '\\', '/', 'g')
+  endif
+  let result = vimwiki#u#chomp_slash(result)
+  return result
+endfunction "}}}
+
+" Returns: the relative path from a:dir to a:file
+function! vimwiki#u#relpath(dir, file) "{{{
+  let result = []
+  let dir = split(a:dir, '/')
+  let file = split(a:file, '/')
+  while (len(dir) > 0 && len(file) > 0) && dir[0] == file[0]
+    call remove(dir, 0)
+    call remove(file, 0)
+  endwhile
+  for segment in dir
+    let result += ['..']
+  endfor
+  for segment in file
+    let result += [segment]
+  endfor
+  return join(result, '/')
+endfunction "}}}
+
 " Load concrete Wiki syntax: sets regexes and templates for headers and links
 function vimwiki#u#reload_regexes() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
