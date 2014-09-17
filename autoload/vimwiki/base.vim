@@ -1724,8 +1724,16 @@ endfunction " }}}
 
 " s:normalize_link_in_diary
 function! s:normalize_link_in_diary(lnk) " {{{
-  let link_path = fnamemodify(a:lnk . VimwikiGet('ext'), ':p')
-  if filereadable(link_path) || a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+  let link = a:lnk . VimwikiGet('ext')
+  let link_wiki = VimwikiGet('path') . '/' . link
+  let link_diary = VimwikiGet('path') . '/'
+        \ . VimwikiGet('diary_rel_path') . '/' . link
+  let link_exists_in_diary = filereadable(link_diary)
+  let link_exists_in_wiki = filereadable(link_wiki)
+  let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+
+  if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
+    let str = a:lnk
     let rxUrl = g:vimwiki_rxWord
     let rxDesc = ''
     let template = g:vimwiki_WikiLinkTemplate1
