@@ -1724,18 +1724,20 @@ endfunction " }}}
 
 " s:normalize_link_in_diary
 function! s:normalize_link_in_diary(lnk) " {{{
-
-  " Check if link already exists or is a date
-  if filereadable(a:lnk . '.wiki') || a:lnk =~# '\d\d\d\d-\d\d-\d\d'
-    let sub = vimwiki#base#normalize_link_helper(a:lnk,
-          \ g:vimwiki_rxWord, '',
-          \ g:vimwiki_WikiLinkTemplate1)
+  let link_path = fnamemodify(a:lnk . VimwikiGet('ext'), ':p')
+  if filereadable(link_path) || a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+    let rxUrl = g:vimwiki_rxWord
+    let rxDesc = ''
+    let template = g:vimwiki_WikiLinkTemplate1
   else
     let depth = len(split(VimwikiGet('diary_rel_path'), '/'))
-    let sub = '[[' . repeat('../', depth) . a:lnk . '|' . a:lnk . ']]'
+    let str = repeat('../', depth) . a:lnk . '¦¦' . a:lnk
+    let rxUrl = '^.*\ze¦¦'
+    let rxDesc = '¦¦\zs.*$'
+    let template = g:vimwiki_WikiLinkTemplate2
   endif
 
-  return sub
+  return vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template)
 endfunction " }}}
 
 " s:normalize_link_syntax_n
