@@ -1344,7 +1344,7 @@ endfunction " }}}
 
 function! s:use_custom_wiki2html() "{{{
   let custom_wiki2html = VimwikiGet('custom_wiki2html')
-  return !empty(custom_wiki2html) && s:file_exists(custom_wiki2html)
+  return !empty(custom_wiki2html) && (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction " }}}
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
@@ -1568,6 +1568,10 @@ endfunction "}}}
 
 function! s:file_exists(fname) "{{{
   return !empty(getftype(expand(a:fname)))
+endfunction "}}}
+
+function! s:binary_exists(fname) "{{{
+  return executable(expand(a:fname))
 endfunction "}}}
 
 " uses VimwikiGet('path')
