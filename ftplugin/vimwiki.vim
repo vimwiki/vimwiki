@@ -242,13 +242,15 @@ endfunction "}}}
 
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
-      \ silent noautocmd w <bar>
+      \ if filewritable(expand('%')) | silent noautocmd w | endif
+      \ <bar>
       \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
-      \<bar>
+      \ <bar>
       \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '.expand(VimwikiGet('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
-      \ silent noautocmd w <bar>
+      \ if filewritable(expand('%')) | silent noautocmd w | endif
+      \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))

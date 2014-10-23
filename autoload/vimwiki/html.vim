@@ -204,7 +204,7 @@ function! s:subst_func(line, regexp, func, ...) " {{{
 endfunction " }}}
 
 function! s:save_vimwiki_buffer() "{{{
-  if &filetype == 'vimwiki'
+  if &filetype == 'vimwiki' && filewritable(expand('%'))
     silent update
   endif
 endfunction "}}}
