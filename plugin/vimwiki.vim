@@ -418,6 +418,7 @@ call s:default('diary_months',
       \ 10: 'October', 11: 'November', 12: 'December'
       \ })
 
+call s:default('map_prefix', '<Leader>w')
 
 call s:default('current_idx', 0)
 
@@ -489,37 +490,37 @@ command! VimwikiDiaryGenerateLinks
 
 " MAPPINGS {{{
 if !hasmapto('<Plug>VimwikiIndex')
-  nmap <silent><unique> <Leader>ww <Plug>VimwikiIndex
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
 
 if !hasmapto('<Plug>VimwikiTabIndex')
-  nmap <silent><unique> <Leader>wt <Plug>VimwikiTabIndex
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'t <Plug>VimwikiTabIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabIndex :VimwikiTabIndex<CR>
 
 if !hasmapto('<Plug>VimwikiUISelect')
-  nmap <silent><unique> <Leader>ws <Plug>VimwikiUISelect
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'s <Plug>VimwikiUISelect'
 endif
 nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryIndex')
-  nmap <silent><unique> <Leader>wi <Plug>VimwikiDiaryIndex
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'i <Plug>VimwikiDiaryIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryIndex :VimwikiDiaryIndex<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryGenerateLinks')
-  nmap <silent><unique> <Leader>w<Leader>i <Plug>VimwikiDiaryGenerateLinks
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateLinks<CR>
 
 if !hasmapto('<Plug>VimwikiMakeDiaryNote')
-  nmap <silent><unique> <Leader>w<Leader>w <Plug>VimwikiMakeDiaryNote
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
 
 if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
-  nmap <silent><unique> <Leader>w<Leader>t <Plug>VimwikiTabMakeDiaryNote
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
       \ :VimwikiTabMakeDiaryNote<CR>
