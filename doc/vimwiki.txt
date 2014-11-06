@@ -2537,6 +2537,16 @@ mother tongue like this: >
 
 The default is 'Contents'.
 
+------------------------------------------------------------------------------
+*g:vimwiki_map_prefix*
+
+A string which specifies the prefix for all global mappings (and some local).
+Use it to avoid conflicts with other plugins.  Note that it must be defined
+before the plugin loads.  >
+  let g:vimwiki_map_prefix = '<Leader>e'
+
+The default is '<Leader>w'.
+
 
 ==============================================================================
 13. Miscellaneous                                               *vimwiki-misc*

@@ -324,13 +324,13 @@ endif
 
 
 if !hasmapto('<Plug>Vimwiki2HTML')
-  nmap <buffer> <Leader>wh <Plug>Vimwiki2HTML
+  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'h <Plug>Vimwiki2HTML'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTML :Vimwiki2HTML<CR>
 
 if !hasmapto('<Plug>Vimwiki2HTMLBrowse')
-  nmap <buffer> <Leader>whh <Plug>Vimwiki2HTMLBrowse
+  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'hh <Plug>Vimwiki2HTMLBrowse'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTMLBrowse :Vimwiki2HTMLBrowse<CR>
@@ -397,13 +397,13 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiPrevLink :VimwikiPrevLink<CR>
 
 if !hasmapto('<Plug>VimwikiDeleteLink')
-  nmap <silent><buffer> <Leader>wd <Plug>VimwikiDeleteLink
+  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'d <Plug>VimwikiDeleteLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiDeleteLink :VimwikiDeleteLink<CR>
 
 if !hasmapto('<Plug>VimwikiRenameLink')
-  nmap <silent><buffer> <Leader>wr <Plug>VimwikiRenameLink
+  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'r <Plug>VimwikiRenameLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
