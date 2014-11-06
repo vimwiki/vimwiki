@@ -1804,6 +1804,17 @@ endfunction "}}}
 
 " }}}
 
+" Command completion functions {{{
+
+" vimwiki#base#complete_links
+function! vimwiki#base#complete_links(ArgLead, CmdLine, CursorPos) abort " {{{
+  " We can safely ignore args if we use -custom=complete option, Vim engine
+  " will do the job of filtering.
+  return vimwiki#base#get_globlinks()
+endfunction " }}}
+
+"}}}
+
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
 for s:syn in vimwiki#base#get_known_syntaxes()
