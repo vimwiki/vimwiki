@@ -1739,9 +1739,9 @@ function! s:normalize_link_in_diary(lnk) " {{{
     let template = g:vimwiki_WikiLinkTemplate1
   else
     let depth = len(split(VimwikiGet('diary_rel_path'), '/'))
-    let str = repeat('../', depth) . a:lnk . '¦¦' . a:lnk
-    let rxUrl = '^.*\ze¦¦'
-    let rxDesc = '¦¦\zs.*$'
+    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
+    let rxUrl = '^.*\ze|'
+    let rxDesc = '|\zs.*$'
     let template = g:vimwiki_WikiLinkTemplate2
   endif
 
