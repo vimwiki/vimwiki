@@ -560,8 +560,8 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   endif
 endfunction " }}}
 
-" vimwiki#base#generate_links
-function! vimwiki#base#generate_links() "{{{only get links from the current dir
+" vimwiki#base#generate_globlinks
+function! vimwiki#base#get_globlinks() abort "{{{only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
   lcd! %:h
@@ -571,6 +571,13 @@ function! vimwiki#base#generate_links() "{{{only get links from the current dir
   let globlinks = substitute(globlinks, '\'.VimwikiGet('ext').'\ze\n', '', 'g')
   " restore the original working directory
   exe 'lcd! '.orig_pwd
+  " return all links as a single newline-separated string
+  return globlinks
+endfunction " }}}
+
+" vimwiki#base#generate_links
+function! vimwiki#base#generate_links() "{{{only get links from the current dir
+  let globlinks = vimwiki#base#get_globlinks()
 
   " We don't want link to itself. XXX Why ???
   " let cur_link = expand('%:t:r')
