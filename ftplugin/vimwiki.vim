@@ -283,7 +283,7 @@ exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
-command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links
+command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
 

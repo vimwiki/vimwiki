@@ -560,7 +560,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   endif
 endfunction " }}}
 
-" vimwiki#base#generate_globlinks
+" vimwiki#base#get_globlinks
 function! vimwiki#base#get_globlinks() abort "{{{only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
@@ -572,6 +572,15 @@ function! vimwiki#base#get_globlinks() abort "{{{only get links from the current
   " restore the original working directory
   exe 'lcd! '.orig_pwd
   " return all links as a single newline-separated string
+  return globlinks
+endfunction " }}}
+
+" vimwiki#base#get_globlinks_escaped
+function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the current dir
+  let globlinks = vimwiki#base#get_globlinks()
+  let lst = split(globlinks, '\n')
+  call map(lst, 'fnameescape(v:val)')
+  let globlinks = join(lst, "\n")
   return globlinks
 endfunction " }}}
 
@@ -1811,6 +1820,13 @@ function! vimwiki#base#complete_links(ArgLead, CmdLine, CursorPos) abort " {{{
   " We can safely ignore args if we use -custom=complete option, Vim engine
   " will do the job of filtering.
   return vimwiki#base#get_globlinks()
+endfunction " }}}
+
+" vimwiki#base#complete_links_escaped
+function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort " {{{
+  " We can safely ignore args if we use -custom=complete option, Vim engine
+  " will do the job of filtering.
+  return vimwiki#base#get_globlinks_escaped()
 endfunction " }}}
 
 "}}}
