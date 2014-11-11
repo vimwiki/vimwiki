@@ -627,19 +627,19 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 " KEYBINDINGS }}}
 
 " AUTOCOMMANDS {{{
-function! s:toc_html()
-  if VimwikiGet('auto_toc')
-    call vimwiki#base#table_of_contents(0)
-  endif
-  if VimwikiGet('auto_export')
-    call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
-      \                         expand('%'))
-  endif
-endfunction
-
-if VimwikiGet('auto_export') || VimwikiGet('auto_toc')
+if VimwikiGet('auto_export')
+  " Automatically generate HTML on page write.
   augroup vimwiki
-    au BufWritePost <buffer> call s:toc_html()
+    au BufWritePost <buffer>
+      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \                             expand('%'))
+  augroup END
+endif
+
+if VimwikiGet('auto_toc')
+  " Automatically update the TOC *before* the file is written
+  augroup vimwiki
+    au BufWritePre <buffer> call vimwiki#base#table_of_contents(0)
   augroup END
 endif
 " AUTOCOMMANDS }}}
