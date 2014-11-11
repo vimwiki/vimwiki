@@ -560,8 +560,8 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   endif
 endfunction " }}}
 
-" vimwiki#base#get_globlinks
-function! vimwiki#base#get_globlinks() abort "{{{only get links from the current dir
+" vimwiki#base#get_globlinks_escaped
+function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
   lcd! %:h
@@ -571,16 +571,13 @@ function! vimwiki#base#get_globlinks() abort "{{{only get links from the current
   let globlinks = substitute(globlinks, '\'.VimwikiGet('ext').'\ze\n', '', 'g')
   " restore the original working directory
   exe 'lcd! '.orig_pwd
-  " return all links as a single newline-separated string
-  return globlinks
-endfunction " }}}
-
-" vimwiki#base#get_globlinks_escaped
-function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the current dir
-  let globlinks = vimwiki#base#get_globlinks()
+  " convert to a List
   let lst = split(globlinks, '\n')
+  " Apply fnameescape() to each item
   call map(lst, 'fnameescape(v:val)')
+  " Convert back to newline-separated list
   let globlinks = join(lst, "\n")
+  " return all escaped links as a single newline-separated string
   return globlinks
 endfunction " }}}
 
@@ -1814,13 +1811,6 @@ endfunction "}}}
 " }}}
 
 " Command completion functions {{{
-
-" vimwiki#base#complete_links
-function! vimwiki#base#complete_links(ArgLead, CmdLine, CursorPos) abort " {{{
-  " We can safely ignore args if we use -custom=complete option, Vim engine
-  " will do the job of filtering.
-  return vimwiki#base#get_globlinks()
-endfunction " }}}
 
 " vimwiki#base#complete_links_escaped
 function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort " {{{
