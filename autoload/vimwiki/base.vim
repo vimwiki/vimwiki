@@ -695,6 +695,7 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
 
   let anchor_level = ['', '', '', '', '', '', '']
   let anchors = []
+  let current_complete_anchor = ''
   for line in readfile(a:filename)
 
     " collect headers
@@ -702,40 +703,36 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
     if !empty(h_match)
       let header = vimwiki#u#trim(h_match[2])
       let level = len(h_match[1])
+      call add(anchors, header)
       let anchor_level[level-1] = header
       for l in range(level, 6)
         let anchor_level[l] = ''
       endfor
-      call add(anchors, header)
-      let complete_anchor = ''
-      for l in range(level-1)
-        if anchor_level[l] != ''
-          let complete_anchor .= anchor_level[l].'#'
-        endif
-      endfor
-      let complete_anchor .= header
-      call add(anchors, complete_anchor)
+      if level == 1
+        let current_complete_anchor = header
+      else
+        let current_complete_anchor = ''
+        for l in range(level-1)
+          if anchor_level[l] != ''
+            let current_complete_anchor .= anchor_level[l].'#'
+          endif
+        endfor
+        let current_complete_anchor .= header
+        call add(anchors, current_complete_anchor)
+      endif
     endif
 
     " collect bold text (there can be several in one line)
     let bold_count = 0
-    let bold_end = 0
     while 1
-      let bold_text = matchstr(line, rxbold, bold_end, bold_count)
-      let bold_end = matchend(line, rxbold, bold_end, bold_count) + 1
-      if bold_text == ""
+      let bold_text = matchstr(line, rxbold, 0, bold_count)
+      if bold_text == ''
         break
       endif
       call add(anchors, bold_text)
-      let anchor_level[6] = bold_text
-      let complete_anchor = ''
-      for l in range(6)
-        if anchor_level[l] != ''
-          let complete_anchor .= anchor_level[l].'#'
-        endif
-      endfor
-      let complete_anchor .= bold_text
-      call add(anchors, complete_anchor)
+      if current_complete_anchor != ''
+        call add(anchors, current_complete_anchor.'#'.bold_text)
+      endif
       let bold_count += 1
     endwhile
 
