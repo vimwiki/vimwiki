@@ -1593,15 +1593,16 @@ For jumping inside a single file, you can omit the file in the link: >
 Table of Contents                    *vimwiki-toc* *vimwiki-table-of-contents*
 
 You can add  a 'table of contents' to your wiki file.
-Use the commando |:VimwikiTOC| to create the magic header >
+The commando |:VimwikiTOC| creates the magic header >
   = Contents =
-at the top of your file and create a list of all the headers in the current
+at the top of your file and below it a list of all the headers in the current
 file as links, so you can directly jump to specific parts of the file.
 
-For the indentation, the value of |vimwiki-option-list_margin| is used.
+For the indentation of the list, the value of |vimwiki-option-list_margin| is
+used.
 
-If you don't want the TOC to sit in the very first line, e.g. if you have a
-modeline there, put the magic header in the second or third line and run
+If you don't want the TOC to sit in the very first line, e.g. because you have
+a modeline there, put the magic header in the second or third line and run
 :VimwikiTOC to update the TOC.
 
 If your language is not english, set the option |g:vimwiki_toc_header| to your
@@ -1745,7 +1746,7 @@ Key             Default value     Values~
 auto_toc        0                 0, 1
 
 Description~
-Set this option to 1 to automatically generate the table of contents when the
+Set this option to 1 to automatically update the table of contents when the
 current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
 
@@ -2333,8 +2334,8 @@ Value           Description~
 
 Default: 0
 
-Note: Vim73 has a new function |strdisplaywidth|, so for Vim73 users this
-option is obsolete.
+Note: Vim 7.3 has a new function |strdisplaywidth|, so for users of an up to
+date Vim, this option is obsolete.
 
 
 ------------------------------------------------------------------------------
