@@ -597,6 +597,8 @@ il                      A single list item.
         :VimwikiGoto HelloWorld
 <   opens opens/creates HelloWorld wiki page.
 
+    Supports |cmdline-completion| for link name.
+
 *:VimwikiDeleteLink*
     Delete the wiki page that you are in.
 
