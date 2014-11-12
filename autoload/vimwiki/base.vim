@@ -1576,6 +1576,10 @@ endfunction " }}}
 " a:create == 1: creates or updates TOC in current file
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
+  " apparently, Vim behaves strange when files change while in diff mode
+  if &diff
+    return
+  endif
 
   " look for existing TOC
   let toc_header = '^\s*'.substitute(g:vimwiki_rxH1_Template, '__Header__',
