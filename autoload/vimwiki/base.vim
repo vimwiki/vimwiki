@@ -10,30 +10,6 @@ let g:loaded_vimwiki_auto = 1
 
 " MISC helper functions {{{
 
-" s:normalize_path
-function! s:normalize_path(path) "{{{
-  let g:VimwikiLog.normalize_path += 1  "XXX
-  " resolve doesn't work quite right with symlinks ended with / or \
-  let path = substitute(a:path, '[/\\]\+$', '', '')
-  if path !~# '^scp:'
-    return resolve(expand(path)).'/'
-  else
-    return path.'/'
-  endif
-endfunction "}}}
-
-" s:path_html
-function! s:path_html(idx) "{{{
-  let path_html = VimwikiGet('path_html', a:idx)
-  if !empty(path_html)
-    return path_html
-  else
-    let g:VimwikiLog.path_html += 1  "XXX
-    let path = VimwikiGet('path', a:idx)
-    return substitute(path, '[/\\]\+$', '', '').'_html/'
-  endif
-endfunction "}}}
-
 function! vimwiki#base#get_known_extensions() " {{{
   " Getting all extensions that different wikis could have
   let extensions = {}
@@ -74,7 +50,7 @@ function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
   for kk in keys(a:options)
     let g:vimwiki_list[g:vimwiki_current_idx][kk] = a:options[kk]
   endfor
-  call vimwiki#base#validate_wiki_options(g:vimwiki_current_idx)
+  call Validate_wiki_options(g:vimwiki_current_idx)
   call vimwiki#base#setup_buffer_state(g:vimwiki_current_idx)
 endfunction " }}}
 
@@ -158,27 +134,6 @@ function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
       echo "Vimwiki: No options were applied."
     endif
   endif
-endfunction " }}}
-
-" vimwiki#base#validate_wiki_options
-function! vimwiki#base#validate_wiki_options(idx) " {{{ Validate wiki options
-  " Only call this function *before* opening a wiki page.
-  "
-  " XXX: It's too early to update global / buffer variables, because they are
-  "  still needed in their existing state for s:setup_buffer_leave()
-  "" let g:vimwiki_current_idx = a:idx
-
-  " update normalized path & path_html
-  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
-  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
-  call VimwikiSet('template_path', 
-        \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
-  call VimwikiSet('diary_rel_path', 
-        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
-
-  " XXX: It's too early to update global / buffer variables, because they are
-  "  still needed in their existing state for s:setup_buffer_leave()
-  "" call vimwiki#base#cache_buffer_state()
 endfunction " }}}
 
 " vimwiki#base#setup_buffer_state
@@ -366,10 +321,6 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
     if idx < 0 || idx >= len(g:vimwiki_list)
       echom 'Vimwiki Error: Numbered scheme refers to a non-existent wiki!'
       return [idx,'','','','','','', '']
-    else
-      if idx != g:vimwiki_current_idx
-        call vimwiki#base#validate_wiki_options(idx)
-      endif
     endif
 
     if a:as_html
@@ -1140,7 +1091,6 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     echom "--- Goto_index g:curr_idx=".g:vimwiki_current_idx." ww_idx=".idx.""
   endif
 
-  call vimwiki#base#validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
         \ VimwikiGet('path', idx).VimwikiGet('index', idx).
         \ VimwikiGet('ext', idx),

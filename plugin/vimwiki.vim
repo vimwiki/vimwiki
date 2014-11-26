@@ -48,6 +48,36 @@ function! s:find_wiki(path) "{{{
   " an orphan page has been detected
 endfunction "}}}
 
+function! s:path_html(idx) "{{{
+  let path_html = VimwikiGet('path_html', a:idx)
+  if !empty(path_html)
+    return path_html
+  else
+    let g:VimwikiLog.path_html += 1  "XXX
+    let path = VimwikiGet('path', a:idx)
+    return substitute(path, '[/\\]\+$', '', '').'_html/'
+  endif
+endfunction "}}}
+
+function! s:normalize_path(path) "{{{
+  let g:VimwikiLog.normalize_path += 1  "XXX
+  " resolve doesn't work quite right with symlinks ended with / or \
+  let path = substitute(a:path, '[/\\]\+$', '', '')
+  if path !~# '^scp:'
+    return resolve(expand(path)).'/'
+  else
+    return path.'/'
+  endif
+endfunction "}}}
+
+function! Validate_wiki_options(idx) " {{{
+  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
+  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
+  call VimwikiSet('template_path',
+        \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
+  call VimwikiSet('diary_rel_path',
+        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
+endfunction " }}}
 
 function! s:vimwiki_idx() " {{{
   if exists('b:vimwiki_idx')
@@ -108,8 +138,8 @@ function! s:setup_filetype() "{{{
     endif
     call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
     let idx = len(g:vimwiki_list) - 1
+    call Validate_wiki_options(idx)
   endif
-  call vimwiki#base#validate_wiki_options(idx)
   " initialize and cache global vars of current state
   call vimwiki#base#setup_buffer_state(idx)
   if g:vimwiki_debug ==3
@@ -161,8 +191,8 @@ function! s:setup_buffer_enter() "{{{
       endif
       call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
       let idx = len(g:vimwiki_list) - 1
+      call Validate_wiki_options(idx)
     endif
-    call vimwiki#base#validate_wiki_options(idx)
     " initialize and cache global vars of current state
     call vimwiki#base#setup_buffer_state(idx)
     if g:vimwiki_debug ==3
@@ -441,6 +471,10 @@ call s:default('rxSchemeUrl', s:rxSchemes.':.*')
 call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
 call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
 " scheme regexes }}}
+
+for s:idx in range(len(g:vimwiki_list))
+  call Validate_wiki_options(s:idx)
+endfor
 "}}}
 
 " AUTOCOMMANDS for all known wiki extensions {{{
