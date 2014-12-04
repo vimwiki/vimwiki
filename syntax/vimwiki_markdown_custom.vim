@@ -234,7 +234,7 @@ endfunction "}}}
 
 function! s:existing_mkd_refs() "{{{
   call vimwiki#markdown_base#reset_mkd_refs()
-  return "\n".join(keys(vimwiki#markdown_base#get_reflinks()), "\n")."\n"
+  return keys(vimwiki#markdown_base#get_reflinks())
 endfunction "}}}
 
 function! s:highlight_existing_links() "{{{

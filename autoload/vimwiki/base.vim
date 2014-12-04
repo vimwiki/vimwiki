@@ -201,24 +201,7 @@ function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   "   encounter (e.g. filesystem, wiki conventions, other syntaxes, ...).
   "   See: http://code.google.com/p/vimwiki/issues/detail?id=316
   " Change / to [/\\] to allow "Windows paths" 
-  " TODO: boundary cases ...
-  "   e.g. "File$", "^File", "Fi]le", "Fi[le", "Fi\le", "Fi/le"
-  " XXX: (remove my comment if agreed) Maxim: with \V (very nomagic) boundary
-  " cases works for 1 and 2.
-  " 3, 4, 5 is not highlighted as links thus wouldn't be highlighted.
-  " 6 is a regular vimwiki link with subdirectory...
-  "
-  let pattern = vimwiki#base#branched_pattern(a:files,"\n")
-  return '\V'.pattern.'\m'
-endfunction "}}}
-
-" vimwiki#base#branched_pattern
-function! vimwiki#base#branched_pattern(string,separator) "{{{ get search regex
-" from a string-list; separators assumed at start and end as well
-  let pattern = substitute(a:string, a:separator, '\\|','g')
-  let pattern = substitute(pattern, '\%^\\|', '\\%(','')
-  let pattern = substitute(pattern,'\\|\%$', '\\)','')
-  return pattern
+  return '\V\%('.join(a:files, '\|').'\)\m'
 endfunction "}}}
 
 " vimwiki#base#subdir
@@ -511,13 +494,9 @@ function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the
 endfunction " }}}
 
 " vimwiki#base#generate_links
-function! vimwiki#base#generate_links() "{{{only get links from the current dir
-  let globlinks = vimwiki#base#get_globlinks()
+function! vimwiki#base#generate_links() "{{{
+  let links = vimwiki#base#get_wikilinks(g:vimwiki_current_idx)
 
-  " We don't want link to itself. XXX Why ???
-  " let cur_link = expand('%:t:r')
-  " call filter(links, 'v:val != cur_link')
-  let links = split(globlinks,"\n")
   call append(line('$'), substitute(g:vimwiki_rxH1_Template, '__Header__', 'Generated Links', ''))
 
   call sort(links)
@@ -525,8 +504,11 @@ function! vimwiki#base#generate_links() "{{{only get links from the current dir
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
         \ vimwiki#lst#default_symbol().' '
   for link in links
-    call append(line('$'), bullet.
-          \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".link."'", ''))
+    let abs_filepath = vimwiki#path#abs_path_of_link(link)
+    if !s:is_diary_file(abs_filepath)
+      call append(line('$'), bullet.
+            \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".link."'", ''))
+    endif
   endfor
 endfunction " }}}
 
@@ -536,9 +518,7 @@ function! vimwiki#base#goto(...) "{{{
   let anchor = a:0 > 1 ? a:2 : ''
 
   call vimwiki#base#edit_file(':e',
-        \ VimwikiGet('path').
-        \ key.
-        \ VimwikiGet('ext'),
+        \ VimwikiGet('path') . key . VimwikiGet('ext'),
         \ anchor)
 endfunction "}}}
 
@@ -1761,11 +1741,11 @@ function! s:clean_url(url) " {{{
   return join(url, " ")
 endfunction " }}}
 
-" s:in_diary
-function! s:in_diary() " {{{
-  let file_path = vimwiki#u#path_norm(expand("%:p"))
+" s:is_diary_file
+function! s:is_diary_file(filename) " {{{
+  let file_path = vimwiki#path#path_norm(a:filename)
   let rel_path = VimwikiGet('diary_rel_path')
-  let diary_path = vimwiki#u#path_norm(VimwikiGet('path') . rel_path)
+  let diary_path = vimwiki#path#path_norm(VimwikiGet('path') . rel_path)
   return rel_path != ''
         \ && file_path =~# '^'.vimwiki#u#escape(diary_path)
 endfunction " }}}
@@ -1849,7 +1829,7 @@ function! s:normalize_link_syntax_n() " {{{
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
   if !empty(lnk)
-    if s:in_diary()
+    if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(lnk)
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
@@ -1877,7 +1857,7 @@ function! s:normalize_link_syntax_v() " {{{
     normal! gv""y
 
     " Set substitution
-    if s:in_diary()
+    if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(@")
     else
       let sub = substitute(g:vimwiki_WikiLinkTemplate1,
