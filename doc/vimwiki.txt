@@ -697,6 +697,12 @@ il                      A single list item.
     Create or update the Table of Contents for the current wiki file.
     See |vimwiki-toc|
 
+*:VimwikiCheckLinks*
+    Search through all wiki files and check if the targets of all wiki links
+    and links to external files actually exist. It checks also if all wiki
+    files are reachable from the index file. Errors are shown in the quickfix
+    window.
+
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
 
@@ -2603,6 +2609,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
         * improved automatic adjustment of checkboxes
         * text objects for list items, see |vimwiki-text-objects|
         * g:vimwiki_auto_checkbox is now useless and removed
+    * Add the command |VimwikiCheckLinks| to check for broken links
     * Issue 415: Disable folding if g:vimwiki_folding is set to ''
     * Fix slowdown in Vim 7.4
     * Issue #12: Separate diaries from different wikis

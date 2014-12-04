@@ -43,6 +43,11 @@ function vimwiki#u#reload_regexes() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
 endfunction "}}}
 
+" Load omnipresent Wiki syntax
+function vimwiki#u#reload_omni_regexes() "{{{
+  execute 'runtime! syntax/omnipresent_syntax.vim'
+endfunction "}}}
+
 " Load syntax-specific functionality
 function vimwiki#u#reload_regexes_custom() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'

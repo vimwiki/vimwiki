@@ -9,6 +9,7 @@ endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
 call vimwiki#u#reload_regexes()
+call vimwiki#u#reload_omni_regexes()
 
 " UNDO list {{{
 " Reset the following options to undo this plugin.
@@ -31,23 +32,9 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
 
-" omnicomplete function for wiki files and anchors {{{
+" MISC }}}
 
-let g:vimwiki_default_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
-let g:vimwiki_default_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
-let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
-let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
-let g:vimwiki_media_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
-let g:vimwiki_media_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
-let g:vimwiki_default_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
-let g:vimwiki_default_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
-let g:vimwiki_markdown_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
-let g:vimwiki_markdown_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
-let g:vimwiki_media_bold_search = "'''\\zs[^']\\+\\ze'''"
-let g:vimwiki_media_bold_match = '''''''__Text__'''''''
-" ^- looks strange, but is equivalent to "'''__Text__'''" but since we later
-" want to call escape() on this string, we must keep it in single quotes
-
+" COMPLETION {{{
 function! Complete_wikifiles(findstart, base)
   if a:findstart == 1
     let column = col('.')-1
@@ -72,35 +59,23 @@ function! Complete_wikifiles(findstart, base)
         if wikinumber >= len(g:vimwiki_list)
           return []
         endif
-        let directory = VimwikiGet('path', wikinumber)
-        let ext = VimwikiGet('ext', wikinumber)
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
         let scheme = matchstr(a:base, '^wiki\d:\ze')
       elseif a:base =~# '^diary:'
-        let wikinumber = g:vimwiki_current_idx
-        let directory = VimwikiGet('path').'/'.VimwikiGet('diary_rel_path')
-        let ext = VimwikiGet('ext')
+        let wikinumber = -1
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
       else " current wiki
         let wikinumber = g:vimwiki_current_idx
-        let directory = VimwikiGet('path')
-        let ext = VimwikiGet('ext')
         let prefix = a:base
         let scheme = ''
       endif
 
+      let links = vimwiki#base#get_wikilinks(wikinumber)
       let result = []
-      if wikinumber == g:vimwiki_current_idx
-        let cwd = vimwiki#u#wikify_path(expand('%:p:h'))
-      else
-        let cwd = vimwiki#u#wikify_path(directory)
-      endif
-      for wikifile in split(globpath(directory, '**/*'.ext), '\n')
-        let wikifile = vimwiki#u#wikify_path(fnamemodify(wikifile, ':r'))
-        let relative_filename = vimwiki#u#relpath(cwd, wikifile)
-        if relative_filename =~ '^'.vimwiki#u#escape(prefix)
-          call add(result, scheme . relative_filename)
+      for wikifile in links
+        if wikifile =~ '^'.vimwiki#u#escape(prefix)
+          call add(result, scheme . wikifile)
         endif
       endfor
       return result
@@ -127,10 +102,9 @@ function! Complete_wikifiles(findstart, base)
     endif
   endif
 endfunction
-setlocal omnifunc=Complete_wikifiles
-" omnicomplete }}}
 
-" MISC }}}
+setlocal omnifunc=Complete_wikifiles
+" COMPLETION }}}
 
 " LIST STUFF {{{
 " settings necessary for the automatic formatting of lists
@@ -286,6 +260,7 @@ exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
 command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
+command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
 
 " list commands
 command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
