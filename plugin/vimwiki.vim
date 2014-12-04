@@ -34,12 +34,12 @@ endfunction "}}}
 
 function! s:find_wiki(path) "{{{
   " XXX: find_wiki() does not (yet) take into consideration the ext
-  let path = vimwiki#u#path_norm(vimwiki#u#chomp_slash(a:path))
+  let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
   let idx = 0
   while idx < len(g:vimwiki_list)
     let idx_path = expand(VimwikiGet('path', idx))
-    let idx_path = vimwiki#u#path_norm(vimwiki#u#chomp_slash(idx_path))
-    if vimwiki#u#path_common_pfx(idx_path, path) == idx_path
+    let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
+    if vimwiki#path#path_common_pfx(idx_path, path) == idx_path
       return idx
     endif
     let idx += 1

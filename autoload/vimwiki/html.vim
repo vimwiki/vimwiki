@@ -76,7 +76,7 @@ endfunction "}}}
 function! s:create_default_CSS(path) " {{{
   let css_full_name = s:default_CSS_full_name(a:path)
   if glob(css_full_name) == ""
-    call vimwiki#base#mkdir(fnamemodify(css_full_name, ':p:h'))
+    call vimwiki#path#mkdir(fnamemodify(css_full_name, ':p:h'))
     let default_css = s:find_autoload_file('style.css')
     if default_css != ''
       let lines = readfile(default_css)
@@ -1312,7 +1312,7 @@ function! s:use_custom_wiki2html() "{{{
 endfunction " }}}
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
-  call vimwiki#base#mkdir(a:path)
+  call vimwiki#path#mkdir(a:path)
   echomsg system(VimwikiGet('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ VimwikiGet('syntax'). ' '.
@@ -1351,7 +1351,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     "  echo 'Generating HTML ... '
     "endif
 
-    call vimwiki#base#mkdir(path_html)
+    call vimwiki#path#mkdir(path_html)
 
     " nohtml placeholder -- to skip html generation.
     let nohtml = 0
@@ -1493,7 +1493,7 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   let &eventignore = save_eventignore
 
   let path_html = expand(a:path_html)
-  call vimwiki#base#mkdir(path_html)
+  call vimwiki#path#mkdir(path_html)
 
   echomsg 'Deleting non-wiki html files...'
   call s:delete_html_files(path_html)

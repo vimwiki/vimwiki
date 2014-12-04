@@ -194,28 +194,6 @@ function! vimwiki#base#print_wiki_state() "{{{ print wiki options
   endfor
 endfunction "}}}
 
-" vimwiki#base#mkdir
-" If the optional argument 'confirm' == 1 is provided,
-" vimwiki#base#mkdir will ask before creating a directory 
-function! vimwiki#base#mkdir(path, ...) "{{{
-  let path = expand(a:path)
-  if path !~# '^scp:'
-    if !isdirectory(path) && exists("*mkdir")
-      let path = vimwiki#u#chomp_slash(path)
-      if vimwiki#u#is_windows() && !empty(g:vimwiki_w32_dir_enc)
-        let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
-      endif
-      if a:0 && a:1 && tolower(input("Vimwiki: Make new directory: ".path."\n [Y]es/[n]o? ")) !~ "y"
-        return 0
-      endif
-      call mkdir(path, "p")
-    endif
-    return 1
-  else
-    return 1
-  endif
-endfunction " }}}
-
 " vimwiki#base#file_pattern
 function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   " string. Aim to support *all* special characters, forcing the user to choose
@@ -355,7 +333,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
     endif
 
     " default link for directories
-    if vimwiki#u#is_link_to_dir(lnk)
+    if vimwiki#path#is_link_to_dir(lnk)
       let ext = (g:vimwiki_dir_link != '' ? g:vimwiki_dir_link. ext : '')
     endif
   elseif scheme =~ 'diary'
@@ -741,20 +719,24 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " you'll have E77: Too many file names
   let fname = escape(a:filename, '% *|#')
   let dir = fnamemodify(a:filename, ":p:h")
-  if vimwiki#base#mkdir(dir, 1)
-    " check if the file we want to open is already the current file
-    " which happens if we jump to an achor in the current file.
-    " This hack is necessary because apparently Vim messes up the result of
-    " getpos() directly after this command. Strange.
-    if !(a:command == ':e ' && a:filename == expand('%:p'))
-      execute a:command.' '.fname
-    endif
-    if a:anchor != ''
-      call s:jump_to_anchor(a:anchor)
-    endif
-  else
+
+  let ok = vimwiki#path#mkdir(dir, 1)
+
+  if !ok
     echom ' '
     echom 'Vimwiki: Unable to edit file in non-existent directory: '.dir
+    return
+  endif
+
+  " check if the file we want to open is already the current file
+  " which happens if we jump to an achor in the current file.
+  " This hack is necessary because apparently Vim messes up the result of
+  " getpos() directly after this command. Strange.
+  if !(a:command == ':e ' && a:filename == expand('%:p'))
+    execute a:command.' '.fname
+  endif
+  if a:anchor != ''
+    call s:jump_to_anchor(a:anchor)
   endif
 
   " save previous link
