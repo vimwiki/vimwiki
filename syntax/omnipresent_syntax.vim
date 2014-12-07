@@ -19,7 +19,7 @@ let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
 let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
 let g:vimwiki_markdown_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
 let g:vimwiki_markdown_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
-let g:vimwiki_markdown_wikilink = g:vimwiki_default_wikilink "XXX hier fehlen noch welche
+let g:vimwiki_markdown_wikilink = g:vimwiki_default_wikilink "XXX plus markdown-style links
 
 let g:vimwiki_media_header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let g:vimwiki_media_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'

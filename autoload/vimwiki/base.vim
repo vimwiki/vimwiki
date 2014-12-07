@@ -674,42 +674,61 @@ function! s:jump_to_anchor(anchor) "{{{
   endfor
 endfunction "}}}
 
-function! s:link_target(file_from, wiki_nr, link_text)
-  let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
+" Returns: the absolute file path (and possibly an anchor) of the target file,
+" if a link with the given link text appears in the given wiki file, which
+" belongs to the given wiki nr
+function! s:link_target(source_file, wiki_nr, link_text) "{{{
+  let [target_idx, scheme, path, subdir, lnk, ext, url, anchor] =
         \ vimwiki#base#resolve_scheme(a:link_text, 0)
-  let root_dir = fnamemodify(a:file_from, ':p:h').'/'
+  let source_dir = fnamemodify(a:source_file, ':p:h').'/'
+
   if lnk =~ '/$' " link to a directory
     return []
   elseif url == '' && anchor != '' " only anchor
-    return [fnamemodify(a:file_from, ':p'), anchor]
+    return [fnamemodify(a:source_file, ':p'), anchor]
   elseif scheme == 'file'
     return [url, '']
   elseif scheme == 'local'
-    return [vimwiki#path#normalize(root_dir.lnk), '']
-  elseif idx >= len(g:vimwiki_list)
-    return ['', ''] " a malformed link
-  elseif scheme !~ '^wiki\d\+\|diary'
+    return [vimwiki#path#normalize(source_dir.lnk), '']
+  elseif target_idx >= len(g:vimwiki_list) " a malformed link
+    return ['', '']
+  elseif scheme !~ '^wiki\d\+\|diary' " unknown scheme
     return []
   endif
-  if a:link_text !~ '^wiki\d\+:'
-    let idx = a:wiki_nr
-    let ext = VimwikiGet('ext', a:wiki_nr)
-  endif
-  if idx != a:wiki_nr
-    let root_dir = VimwikiGet('path', idx)
-    let ext = VimwikiGet('ext', idx)
-  endif
-  let target_file = root_dir . subdir . lnk . ext
-  return [vimwiki#path#normalize(target_file), anchor]
-endfunction
 
-function! s:find_links(wikifile, idx)
+  if scheme == 'diary'
+    let root_dir = VimwikiGet('path',a:wiki_nr).
+          \ VimwikiGet('diary_rel_path', a:wiki_nr)
+    let ext = VimwikiGet('ext', a:wiki_nr)
+  else
+    " a schemeless link is like a link to the current wiki
+    if a:link_text !~ '^wiki\d\+:'
+      let target_idx = a:wiki_nr
+    endif
+
+    if target_idx == a:wiki_nr
+      let root_dir = source_dir
+    else
+      let root_dir = VimwikiGet('path', target_idx)
+    endif
+    let ext = VimwikiGet('ext', target_idx)
+  endif
+
+  let target_file = root_dir . lnk . ext
+  return [vimwiki#path#normalize(target_file), anchor]
+endfunction "}}}
+
+" Params: full path to a wiki file and its wiki number
+" Returns: a list of all links inside the wiki file
+" Every list item has the form
+" [target file, anchor, line number of the link in source file, column number]
+function! s:get_links(wikifile, idx) "{{{
   if !filereadable(a:wikifile)
     return []
   endif
 
   let syntax = VimwikiGet('syntax', a:idx)
-  let rxheader = g:vimwiki_{syntax}_wikilink
+  let rx_link = g:vimwiki_{syntax}_wikilink
   let links = []
   let lnum = 0
 
@@ -718,8 +737,8 @@ function! s:find_links(wikifile, idx)
 
     let link_count = 1
     while 1
-      let col = match(line, rxheader, 0, link_count)+1
-      let link_text = matchstr(line, rxheader, 0, link_count)
+      let col = match(line, rx_link, 0, link_count)+1
+      let link_text = matchstr(line, rx_link, 0, link_count)
       if link_text == ''
         break
       endif
@@ -734,9 +753,9 @@ function! s:find_links(wikifile, idx)
   endfor
 
   return links
-endfunction
+endfunction "}}}
 
-function! vimwiki#base#check_links()
+function! vimwiki#base#check_links() "{{{
   let anchors_of_files = {}
   let links_of_files = {}
   let errors = []
@@ -744,7 +763,7 @@ function! vimwiki#base#check_links()
     let syntax = VimwikiGet('syntax', idx)
     let wikifiles = s:find_files(idx, 0)
     for wikifile in wikifiles
-      let links_of_files[wikifile] = s:find_links(wikifile, idx)
+      let links_of_files[wikifile] = s:get_links(wikifile, idx)
       let anchors_of_files[wikifile] = vimwiki#base#get_anchors(wikifile, syntax)
     endfor
   endfor
@@ -809,7 +828,7 @@ function! vimwiki#base#check_links()
     call setqflist(errors, 'r')
     copen
   endif
-endfunction
+endfunction "}}}
 
 " vimwiki#base#edit_file
 function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
@@ -1210,8 +1229,8 @@ function! vimwiki#base#delete_link() "{{{
 endfunction "}}}
 
 " vimwiki#base#rename_link
+" Rename current file, update all links to it
 function! vimwiki#base#rename_link() "{{{
-  "" Rename wiki link, update all links to renamed WikiWord
   let subdir = VimwikiGet('subdir')
   let old_fname = subdir.expand('%:t')
 
