@@ -524,11 +524,29 @@ endfunction "}}}
 
 " vimwiki#base#backlinks
 function! vimwiki#base#backlinks() "{{{
-  let filename = expand("%:t:r")
-  let rx_wikilink = vimwiki#base#apply_template(
-        \ g:vimwiki_WikiLinkMatchUrlTemplate, filename, '', '')
-  execute 'lvimgrep "\C'.rx_wikilink.'" '.
-        \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+  let current_filename = expand("%:p")
+  let locations = []
+  for idx in range(len(g:vimwiki_list))
+    let syntax = VimwikiGet('syntax', idx)
+    let wikifiles = s:find_files(idx, 0)
+    for source_file in wikifiles
+      let links = s:get_links(source_file, idx)
+      for [target_file, _, lnum, col] in links
+        " echom source_file target_file
+        " don't include links from the current file to itself
+        if target_file == current_filename && target_file != source_file
+          call add(locations, {'filename':source_file, 'lnum':lnum, 'col':col})
+        endif
+      endfor
+    endfor
+  endfor
+
+  if empty(locations)
+    echom 'vimwiki: no other file links to this file'
+  else
+    call setloclist(0, locations, 'r')
+    lopen
+  endif
 endfunction "}}}
 
 " Returns: a list containing all files of the given wiki as absolute file path.
