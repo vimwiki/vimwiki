@@ -375,7 +375,7 @@ function! s:tag_wikiincl(value) "{{{
     let verbatim_str = matchstr(str, vimwiki#html#incl_match_arg(2))
     " resolve url
     let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
-          \ vimwiki#base#resolve_scheme(url_0, 1)
+          \ vimwiki#base#resolve_scheme(url_0, 1, 1)
     " generate html output
     " TODO: migrate non-essential debugging messages into g:VimwikiLog
     if g:vimwiki_debug > 1
@@ -409,7 +409,7 @@ function! s:tag_wikilink(value) "{{{
 
   " resolve url
   let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
-        \ vimwiki#base#resolve_scheme(url, 1)
+        \ vimwiki#base#resolve_scheme(url, 1, 1)
 
   " generate html output
   " TODO: migrate non-essential debugging messages into g:VimwikiLog

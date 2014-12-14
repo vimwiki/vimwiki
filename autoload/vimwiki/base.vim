@@ -241,9 +241,9 @@ function! vimwiki#base#invsubdir(subdir) " {{{
 endfunction " }}}
 
 " vimwiki#base#resolve_scheme
-function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
+function! vimwiki#base#resolve_scheme(lnk, as_html, ...) " {{{ Resolve scheme
+  let quiet = a:0 && a:1 ? 1 : 0
   let lnk = a:lnk
-
 
   " if link is schemeless add wikiN: scheme
   let is_schemeless = lnk !~ g:vimwiki_rxSchemeUrl
@@ -280,7 +280,9 @@ function! vimwiki#base#resolve_scheme(lnk, as_html) " {{{ Resolve scheme
   if scheme =~ 'wiki\d\+'
     let idx = eval(matchstr(scheme, '\D\+\zs\d\+\ze'))
     if idx < 0 || idx >= len(g:vimwiki_list)
-      echom 'Vimwiki Error: Numbered scheme refers to a non-existent wiki!'
+      if !quiet
+        echom 'Vimwiki Error: Numbered scheme refers to a non-existent wiki!'
+      endif
       return [idx,'','','','','','', '']
     endif
 
@@ -532,7 +534,6 @@ function! vimwiki#base#backlinks() "{{{
     for source_file in wikifiles
       let links = s:get_links(source_file, idx)
       for [target_file, _, lnum, col] in links
-        " echom source_file target_file
         " don't include links from the current file to itself
         if target_file == current_filename && target_file != source_file
           call add(locations, {'filename':source_file, 'lnum':lnum, 'col':col})
@@ -697,7 +698,7 @@ endfunction "}}}
 " belongs to the given wiki nr
 function! s:link_target(source_file, wiki_nr, link_text) "{{{
   let [target_idx, scheme, path, subdir, lnk, ext, url, anchor] =
-        \ vimwiki#base#resolve_scheme(a:link_text, 0)
+        \ vimwiki#base#resolve_scheme(a:link_text, 0, 1)
   let source_dir = fnamemodify(a:source_file, ':p:h').'/'
 
   if lnk =~ '/$' " link to a directory

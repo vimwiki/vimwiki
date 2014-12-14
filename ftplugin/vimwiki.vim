@@ -85,7 +85,7 @@ function! Complete_wikifiles(findstart, base)
 
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0]=='' ? expand('%:t:r') : segments[0]
-      let link_infos = vimwiki#base#resolve_scheme(given_wikifile.'#', 0)
+      let link_infos = vimwiki#base#resolve_scheme(given_wikifile.'#', 0, 1)
       let wikifile = link_infos[6]
       let syntax = VimwikiGet('syntax', link_infos[0])
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
