@@ -1105,6 +1105,32 @@ function! s:parse_line(line, state) " {{{
 
   let processed = 0
 
+  " pres "{{{
+  if !processed
+    let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
+    " pre is just fine to be in the list -- do not close list item here.
+    " if processed && len(state.lists)
+      " call s:close_tag_list(state.lists, lines)
+    " endif
+    if !processed
+      let [processed, lines, state.math] = s:process_tag_math(line, state.math)
+    endif
+    if processed && len(state.table)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
+    endif
+    if processed && state.deflist
+      let state.deflist = s:close_tag_def_list(state.deflist, lines)
+    endif
+    if processed && state.quote
+      let state.quote = s:close_tag_quote(state.quote, lines)
+    endif
+    if processed && state.para
+      let state.para = s:close_tag_para(state.para, lines)
+    endif
+    call extend(res_lines, lines)
+  endif
+  "}}}
+
   if !processed
     if line =~ g:vimwiki_rxComment
       let processed = 1
@@ -1135,32 +1161,6 @@ function! s:parse_line(line, state) " {{{
       let param = matchstr(line, '^\s*%template\s\zs.*')
       let state.placeholder = ['template', param]
     endif
-  endif
-  "}}}
-
-  " pres "{{{
-  if !processed
-    let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
-    " pre is just fine to be in the list -- do not close list item here.
-    " if processed && len(state.lists)
-      " call s:close_tag_list(state.lists, lines)
-    " endif
-    if !processed
-      let [processed, lines, state.math] = s:process_tag_math(line, state.math)
-    endif
-    if processed && len(state.table)
-      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
-    endif
-    if processed && state.deflist
-      let state.deflist = s:close_tag_def_list(state.deflist, lines)
-    endif
-    if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, lines)
-    endif
-    if processed && state.para
-      let state.para = s:close_tag_para(state.para, lines)
-    endif
-    call extend(res_lines, lines)
   endif
   "}}}
 
