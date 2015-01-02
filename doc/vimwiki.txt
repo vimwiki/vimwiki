@@ -950,7 +950,7 @@ In HTML the following part >
  | Year | Temperature (low) | Temperature (high) |
  |------|-------------------|--------------------|
 >
-is higlighted as a table header.
+is highlighted as a table header.
 
 If you indent a table then it will be centered in HTML.
 
