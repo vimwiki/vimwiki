@@ -618,6 +618,13 @@ if VimwikiGet('auto_toc')
     au BufWritePre <buffer> call vimwiki#base#table_of_contents(0)
   augroup END
 endif
+
+if VimwikiGet('auto_tags')
+  " Automatically update tags metadata on page write.
+  augroup vimwiki
+    au BufWritePost <buffer> call vimwiki#base#update_tags(0)
+  augroup END
+endif
 " AUTOCOMMANDS }}}
 
 " PASTE, CAT URL {{{

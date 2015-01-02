@@ -1928,6 +1928,61 @@ endfunction "}}}
 
 " }}}
 
+" TAGS functions {{{
+" vimwiki#base#update_tags
+"   Update tags metadata.
+"   a:full_rebuild == 1: re-scan entire wiki
+"   a:full_rebuild == 0: only re-scan current page
+function! vimwiki#base#update_tags(full_rebuild) "{{{
+  if a:full_rebuild
+    throw 'vimwiki#base#update_tags1: full rebuild not supported yet'
+  endif
+  "
+  let page_name = expand('%:t:r')
+  " Collect tags in current file
+  let tags = vimwiki#base#scan_tags(getline(1, '$'))
+  " Load metadata file
+  let metadata = vimwiki#base#load_tags_metadata()
+  " Drop old tags
+  let metadata = vimwiki#base#remove_page_from_tags(metadata, page_name)
+  " Merge in the new ones
+  let metadata = vimwiki#base#merge_tags(metadata, tags)
+  " Save
+  call vimwiki#base#write_tags_metadata(metadata)
+endfunction " }}}
+
+" vimwiki#base#scan_tags
+"   Scans the list (argument) and produces tags metadata dictionary.
+function! vimwiki#base#scan_tags(lines) "{{{
+  return {}
+endfunction " }}}
+
+" vimwiki#base#load_tags_metadata
+"   Loads tags metadata from file, returns a dictionary
+function! vimwiki#base#load_tags_metadata() "{{{
+  return []
+endfunction " }}}
+
+" vimwiki#base#remove_page_from_tags
+"   Removes all entries for given page from metadata in-place.  Returns updated
+"   metadata (just in case).
+function! vimwiki#base#remove_page_from_tags(metadata, page_name) "{{{
+  return []
+endfunction " }}}
+
+" vimwiki#base#merge_tags
+"   Merges two tags metadata objects into (new) one.
+function! vimwiki#base#merge_tags(metadata1, metadata2) "{{{
+  return []
+endfunction " }}}
+
+" vimwiki#base#write_tags_metadata
+"   Saves metadata object into a file. Throws exceptions in case of problems.
+function! vimwiki#base#write_tags_metadata(metadata) "{{{
+endfunction " }}}
+
+" }}}
+
 " Command completion functions {{{
 
 " vimwiki#base#complete_links_escaped
