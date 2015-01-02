@@ -38,6 +38,7 @@ CONTENTS                                                    *vimwiki-contents*
         5.12. Schemes                |vimwiki-syntax-schemes|
         5.13. Transclusions          |vimwiki-syntax-transclude|
         5.14. Thumbnails             |vimwiki-syntax-thumbnails|
+        5.15. Tags                   |vimwiki-syntax-tags|
     6. Folding/Outline               |vimwiki-folding|
     7. Placeholders                  |vimwiki-placeholders|
     8. Lists                         |vimwiki-lists|
@@ -1211,6 +1212,35 @@ in HTML: >
   <img src="http://../thumbnail.jpg /></a>
 
 
+------------------------------------------------------------------------------
+5.15. Tags                                                *vimwiki-syntax-tags*
+
+Tags~
+>
+Vimwiki supports notion of tags.  A tag is a sequence of non-space characters
+between two colons: >
+        :tag-example:
+<
+It is allowed to concatenate multiple tags in one line: >
+        :tag-one:tag-two:
+<
+A tag can be placed anywhere in a file (except for header line, and wikilink).
+If placed under a header, within 5 lines below it, the header is then "tagged"
+with this tag, and tag search commands will jump to this specific header.
+Otherwise the entire page is tagged, and search commands will jump
+accordingly.
+
+Typing tags can be simplified by using Vim's omni completion (see
+|compl-omni|) like so: >
+  :ind<C-X><C-O>
+which opens up a popup menu with all tags defined in the wiki starting with
+"ind".
+
+Note that tag search/jump/completion commands need certain metadata saved in
+the wiki folder.  This metadata can be manually updated by running
+|:VimwikiGenerateTags|.  There is an option |vimwiki-option-auto_tags|, when
+enabled, tags metadata will be auto-updated on each page save.
+
 
 
 ==============================================================================
@@ -2031,6 +2061,18 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 
 Note: if you use MediaWiki syntax, you probably would like to set this option
 to 0, because every indented line is considered verbatim text.
+
+
+*vimwiki-option-auto_tags*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+auto_tags       0                 0, 1
+
+Description~
+Set this option to 1 to automatically update the tags metadata when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_tags': 1}]
+
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
