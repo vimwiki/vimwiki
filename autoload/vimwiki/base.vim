@@ -1930,9 +1930,15 @@ endfunction "}}}
 
 " TAGS functions {{{
 
+let s:TAGS_METADATA_FILE_NAME = '.tags'
+
 " Tags metadata in-memory format:
 " metadata := [ entry, ... ]
 " entry := { 'tagname':..., 'pagename':..., 'lineno':..., 'link':... }
+
+" Tags metadata in-file format:
+" * entry per line,
+" * entry fields go in the same order as defined above, separated with TAB (\t)
 
 " vimwiki#base#update_tags
 "   Update tags metadata.
@@ -2046,12 +2052,23 @@ endfunction " }}}
 " vimwiki#base#merge_tags
 "   Merges two tags metadata objects into (new) one.
 function! vimwiki#base#merge_tags(metadata1, metadata2) "{{{
-  return []
+  return a:metadata1 + a:metadata2
 endfunction " }}}
 
 " vimwiki#base#write_tags_metadata
 "   Saves metadata object into a file. Throws exceptions in case of problems.
 function! vimwiki#base#write_tags_metadata(metadata) "{{{
+  let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
+  let entries = []
+  for entry in a:metadata
+    call add(entries,
+          \   entry.tagname  . "\t"
+          \ . entry.pagename . "\t"
+          \ . entry.lineno   . "\t" 
+          \ . entry.link
+          \)
+  endfor
+  call writefile(entries, metadata_path)
 endfunction " }}}
 
 " }}}
