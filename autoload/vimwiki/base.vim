@@ -1929,6 +1929,11 @@ endfunction "}}}
 " }}}
 
 " TAGS functions {{{
+
+" Tags metadata in-memory format:
+" metadata := [ entry, ... ]
+" entry := { 'tagname':..., 'pagename':..., 'lineno':..., 'link':... }
+
 " vimwiki#base#update_tags
 "   Update tags metadata.
 "   a:full_rebuild == 1: re-scan entire wiki
@@ -1940,7 +1945,7 @@ function! vimwiki#base#update_tags(full_rebuild) "{{{
   "
   let page_name = expand('%:t:r')
   " Collect tags in current file
-  let tags = vimwiki#base#scan_tags(getline(1, '$'))
+  let tags = vimwiki#base#scan_tags(getline(1, '$'), page_name)
   " Load metadata file
   let metadata = vimwiki#base#load_tags_metadata()
   " Drop old tags
@@ -1953,8 +1958,76 @@ endfunction " }}}
 
 " vimwiki#base#scan_tags
 "   Scans the list (argument) and produces tags metadata dictionary.
-function! vimwiki#base#scan_tags(lines) "{{{
-  return {}
+function! vimwiki#base#scan_tags(lines, page_name) "{{{
+
+  let metadata = []
+  let page_name = a:page_name
+
+  " Code wireframe to scan for headers -- borrowed from
+  " vimwiki#base#get_anchors(), with minor modifications.
+
+  let rxheader = g:vimwiki_{VimwikiGet('syntax')}_header_search
+  let rxtag = g:vimwiki_{VimwikiGet('syntax')}_tag_search
+
+  let anchor_level = ['', '', '', '', '', '', '']
+  let current_complete_anchor = ''
+
+  let PROXIMITY_LINES_NR = 5
+  let header_line_nr = - (2 * PROXIMITY_LINES_NR)
+
+  for line_nr in range(1, len(a:lines))
+    let line = a:lines[line_nr - 1]
+
+    " process headers
+    let h_match = matchlist(line, rxheader)
+    if !empty(h_match) " got a header
+      let header_line_nr = line_nr
+      let header = vimwiki#u#trim(h_match[2])
+      let level = len(h_match[1])
+      let anchor_level[level-1] = header
+      for l in range(level, 6)
+        let anchor_level[l] = ''
+      endfor
+      if level == 1
+        let current_complete_anchor = header
+      else
+        let current_complete_anchor = ''
+        for l in range(level-1)
+          if anchor_level[l] != ''
+            let current_complete_anchor .= anchor_level[l].'#'
+          endif
+        endfor
+        let current_complete_anchor .= header
+      endif
+      continue " tags are not allowed in headers
+    endif
+
+    " TODO ignore verbatim blocks
+
+    " Scan line for tags.  There can be many of them.
+    let str = line
+    while 1
+      let tag = matchstr(str, rxtag)
+      if tag == ''
+        break
+      endif
+      let tagend = matchend(str, rxtag)
+      let str = str[(tagend):]
+      " Create metadata entry
+      let entry = {}
+      let entry.tagname  = tag
+      let entry.pagename = page_name
+      let entry.lineno   = line_nr
+      if line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+        let entry.link   = page_name . '#' . current_complete_anchor
+      else
+        let entry.link   = page_name
+      endif
+      call add(metadata, entry)
+    endwhile
+
+  endfor " loop over lines
+  return metadata
 endfunction " }}}
 
 " vimwiki#base#load_tags_metadata
