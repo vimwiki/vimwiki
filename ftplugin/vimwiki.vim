@@ -49,9 +49,25 @@ function! Complete_wikifiles(findstart, base)
         return startofinlinelink
       endif
     endif
+    let startoftag = match(line, ':\zs[^:[:space:]]*$')
+    if startoftag != -1
+      return startoftag
+    endif
     return -1
   else
-    if a:base !~ '#'
+    " Completion works for wikilinks/anchors, and for tags.  So first we have
+    " to find out what we're about to complete.
+    let column = col('.')
+    let line = getline('.')[:(column - len(a:base))]
+    let char_before_start = line[-1:-1]
+    if char_before_start == ':'
+      " Tags completion
+      let metadata = vimwiki#base#load_tags_metadata()
+      let tags = vimwiki#base#get_tags(metadata)
+      call filter(tags,
+            \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
+      return tags
+    elseif a:base !~ '#'
       " we look for wiki files
 
       if a:base =~# '^wiki\d:'

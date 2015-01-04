@@ -2087,6 +2087,16 @@ function! vimwiki#base#write_tags_metadata(metadata) "{{{
   call writefile(entries, metadata_path)
 endfunction " }}}
 
+" vimwiki#base#get_tags
+"   Returns list of unique tags found in metadata
+function! vimwiki#base#get_tags(metadata) "{{{
+  let tags = {}
+  for entry in a:metadata
+    let tags[entry.tagname] = 1
+  endfor
+  return keys(tags)
+endfunction " }}}
+
 " }}}
 
 " Command completion functions {{{
