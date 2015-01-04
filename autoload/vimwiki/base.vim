@@ -2039,14 +2039,30 @@ endfunction " }}}
 " vimwiki#base#load_tags_metadata
 "   Loads tags metadata from file, returns a dictionary
 function! vimwiki#base#load_tags_metadata() "{{{
-  return []
+  let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
+  let metadata = []
+  for line in readfile(metadata_path)
+    let fields = split(line, '\t')
+    if len(fields) != 4
+      throw 'VimwikiTags1: Metadata file corrupted'
+    endif
+    let entry = {}
+    let entry.tagname  = fields[0]
+    let entry.pagename = fields[1]
+    let entry.lineno   = fields[2]
+    let entry.link     = fields[3]
+    call add(metadata, entry)
+  endfor
+  return metadata
 endfunction " }}}
 
 " vimwiki#base#remove_page_from_tags
 "   Removes all entries for given page from metadata in-place.  Returns updated
 "   metadata (just in case).
 function! vimwiki#base#remove_page_from_tags(metadata, page_name) "{{{
-  return []
+  let metadata = filter(a:metadata,
+        \ "v:val.pagename != '" . substitute(a:page_name, "'", "''", '') . "'")
+  return metadata
 endfunction " }}}
 
 " vimwiki#base#merge_tags
