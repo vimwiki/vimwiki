@@ -485,6 +485,10 @@ if g:vimwiki_valid_html_tags != ''
 
   execute 'syntax match VimwikiComment /'.g:vimwiki_rxComment.'/ contains=@Spell'
 endif
+
+" tags
+execute 'syntax match VimwikiTag /'.g:vimwiki_rxTags.'/'
+
 " }}}
 
 " header groups highlighting "{{{
@@ -550,6 +554,7 @@ hi def link VimwikiListTodo VimwikiList
 hi def link VimwikiCheckBoxDone Comment
 hi def link VimwikiEmoticons Character
 hi def link VimwikiHR Identifier
+hi def link VimwikiTag Keyword
 
 hi def link VimwikiDelText Constant
 hi def link VimwikiDelTextT VimwikiDelText
