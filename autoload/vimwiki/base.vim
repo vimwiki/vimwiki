@@ -2105,6 +2105,39 @@ function! vimwiki#base#get_tags(metadata) "{{{
   return keys(tags)
 endfunction " }}}
 
+" vimwiki#base#generate_tags
+"   Similar to vimwiki#base#generate_links.  In the current buffer, appends
+"   tags and references to all their instances.  If no arguments (tags) are
+"   specified, outputs all tags.
+function! vimwiki#base#generate_tags(...) abort "{{{
+  let need_all_tags = (a:0 == 0)
+  let specific_tags = a:000
+
+  let metadata = vimwiki#base#load_tags_metadata()
+
+  call append(line('$'), [
+        \ '',
+        \ substitute(g:vimwiki_rxH1_Template, '__Header__', 'Generated Tags', '') ])
+
+  call sort(metadata)
+
+  let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
+        \ vimwiki#lst#default_symbol().' '
+  let current_tag = ''
+  for entry in metadata
+    if need_all_tags || index(specific_tags, entry.tagname) != -1
+      if entry.tagname != current_tag
+        let current_tag = entry.tagname
+        call append(line('$'), [
+              \ '',
+              \ substitute(g:vimwiki_rxH2_Template, '__Header__', entry.tagname, ''),
+              \ '' ])
+      endif
+      call append(line('$'), bullet . '[[' . entry.link . ']]')
+    endif
+  endfor
+endfunction " }}}
+
 " }}}
 
 " Command completion functions {{{

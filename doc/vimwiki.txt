@@ -712,6 +712,11 @@ il                      A single list item.
     Searches over the pages in current wiki and finds all locations of a given
     tag.  Supports |cmdline-completion|.
 
+*:VimwikiGenerateTags*
+    Similar to |:VimwikiGenerateLinks|.  In the current buffer, appends tags
+    and references to all their instances.  Supports |cmdline-completion|.  If
+    no arguments (tags) are specified, outputs all tags.
+
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
 
