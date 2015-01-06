@@ -596,7 +596,7 @@ il                      A single list item.
 *:VimwikiGoto*
     Goto link provided by an argument. For example: >
         :VimwikiGoto HelloWorld
-<   opens opens/creates HelloWorld wiki page.
+<    opens opens/creates HelloWorld wiki page.
 
     Supports |cmdline-completion| for link name.
 
@@ -707,6 +707,10 @@ il                      A single list item.
 *:VimwikiRebuildTags*
     Iterates over all files in a current wiki and rebuilds tags metadata (to
     enable tags related commands).
+
+*:VimwikiSearchTags*
+    Searches over the pages in current wiki and finds all locations of a given
+    tag.  Supports |cmdline-completion|.
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*

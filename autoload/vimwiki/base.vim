@@ -2109,6 +2109,15 @@ endfunction " }}}
 
 " Command completion functions {{{
 
+" vimwiki#base#complete_tags
+function! vimwiki#base#complete_tags(ArgLead, CmdLine, CursorPos) abort " {{{
+  " We can safely ignore args if we use -custom=complete option, Vim engine
+  " will do the job of filtering.
+  let metadata = vimwiki#base#load_tags_metadata()
+  let taglist = vimwiki#base#get_tags(metadata)
+  return join(taglist, "\n")
+endfunction " }}}
+
 " vimwiki#base#complete_links_escaped
 function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort " {{{
   " We can safely ignore args if we use -custom=complete option, Vim engine
