@@ -302,6 +302,9 @@ command! -buffer VimwikiTableMoveColumnRight call vimwiki#tbl#move_column_right(
 command! -buffer VimwikiDiaryNextDay call vimwiki#diary#goto_next_day()
 command! -buffer VimwikiDiaryPrevDay call vimwiki#diary#goto_prev_day()
 
+" tags commands
+command! -buffer VimwikiRebuildTags call vimwiki#base#update_tags(1)
+
 " COMMANDS }}}
 
 " KEYBINDINGS {{{

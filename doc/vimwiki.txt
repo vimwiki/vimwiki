@@ -704,6 +704,10 @@ il                      A single list item.
     files are reachable from the index file. Errors are shown in the quickfix
     window.
 
+*:VimwikiRebuildTags*
+    Iterates over all files in a current wiki and rebuilds tags metadata (to
+    enable tags related commands).
+
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
 

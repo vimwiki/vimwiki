@@ -1945,21 +1945,29 @@ let s:TAGS_METADATA_FILE_NAME = '.tags'
 "   a:full_rebuild == 1: re-scan entire wiki
 "   a:full_rebuild == 0: only re-scan current page
 function! vimwiki#base#update_tags(full_rebuild) "{{{
-  if a:full_rebuild
-    throw 'vimwiki#base#update_tags1: full rebuild not supported yet'
+  if !a:full_rebuild
+    " Updating for one page (current)
+    let page_name = expand('%:t:r')
+    " Collect tags in current file
+    let tags = vimwiki#base#scan_tags(getline(1, '$'), page_name)
+    " Load metadata file
+    let metadata = vimwiki#base#load_tags_metadata()
+    " Drop old tags
+    let metadata = vimwiki#base#remove_page_from_tags(metadata, page_name)
+    " Merge in the new ones
+    let metadata = vimwiki#base#merge_tags(metadata, tags)
+    " Save
+    call vimwiki#base#write_tags_metadata(metadata)
+  else " full rebuild
+    let files = s:find_files(g:vimwiki_current_idx, 0)
+    let metadata = []
+    for file in files
+      let page_name = fnamemodify(file, ':t:r')
+      let tags = vimwiki#base#scan_tags(readfile(file), page_name)
+      let metadata = vimwiki#base#merge_tags(metadata, tags)
+    endfor
+    call vimwiki#base#write_tags_metadata(metadata)
   endif
-  "
-  let page_name = expand('%:t:r')
-  " Collect tags in current file
-  let tags = vimwiki#base#scan_tags(getline(1, '$'), page_name)
-  " Load metadata file
-  let metadata = vimwiki#base#load_tags_metadata()
-  " Drop old tags
-  let metadata = vimwiki#base#remove_page_from_tags(metadata, page_name)
-  " Merge in the new ones
-  let metadata = vimwiki#base#merge_tags(metadata, tags)
-  " Save
-  call vimwiki#base#write_tags_metadata(metadata)
 endfunction " }}}
 
 " vimwiki#base#scan_tags
