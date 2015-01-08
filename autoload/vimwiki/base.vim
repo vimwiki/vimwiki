@@ -1725,7 +1725,7 @@ function! vimwiki#base#table_of_contents(create)
         \ '__Header__', '\='."'".g:vimwiki_toc_header."'", ''))
 
   let startindent = repeat(' ', vimwiki#lst#get_list_margin())
-  let indentstring = repeat(' ', shiftwidth())
+  let indentstring = repeat(' ', vimwiki#u#sw())
   for [lvl, link, desc] in headers
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')

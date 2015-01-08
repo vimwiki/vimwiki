@@ -52,3 +52,14 @@ endfunction "}}}
 function vimwiki#u#reload_regexes_custom() "{{{
   execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
 endfunction "}}}
+
+" Backward compatible version of the built-in function shiftwidth()
+if exists('*shiftwidth') "{{{
+  func vimwiki#u#sw()
+    return shiftwidth()
+  endfunc
+else
+  func vimwiki#u#sw()
+    return &sw
+  endfunc
+endif "}}}
