@@ -2048,6 +2048,9 @@ endfunction " }}}
 "   Loads tags metadata from file, returns a dictionary
 function! vimwiki#base#load_tags_metadata() "{{{
   let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
+  if !filereadable(metadata_path)
+    return []
+  endif
   let metadata = []
   for line in readfile(metadata_path)
     let fields = split(line, '\t')
