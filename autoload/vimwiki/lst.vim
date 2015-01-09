@@ -932,9 +932,9 @@ function! s:decrease_level(item) "{{{
   else
     let old_indent = indent(a:item.lnum)
     if &shiftround
-      let new_indent = (old_indent - 1) / &shiftwidth * &shiftwidth
+      let new_indent = (old_indent - 1) / vimwiki#u#sw() * vimwiki#u#sw()
     else
-      let new_indent = old_indent - &shiftwidth
+      let new_indent = old_indent - vimwiki#u#sw()
     endif
     call s:set_indent(a:item.lnum, new_indent)
     let removed_indent = new_indent - old_indent
@@ -952,9 +952,9 @@ function! s:increase_level(item) "{{{
   else
     let old_indent = indent(a:item.lnum)
     if &shiftround
-      let new_indent = (old_indent / &shiftwidth + 1) * &shiftwidth
+      let new_indent = (old_indent / vimwiki#u#sw() + 1) * vimwiki#u#sw()
     else
-      let new_indent = old_indent + &shiftwidth
+      let new_indent = old_indent + vimwiki#u#sw()
     endif
     call s:set_indent(a:item.lnum, new_indent)
     let additional_indent = new_indent - old_indent
