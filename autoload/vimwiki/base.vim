@@ -1937,8 +1937,15 @@ let s:TAGS_METADATA_FILE_NAME = '.tags'
 " entry := { 'tagname':..., 'pagename':..., 'lineno':..., 'link':... }
 
 " Tags metadata in-file format:
-" * entry per line,
-" * entry fields go in the same order as defined above, separated with TAB (\t)
+"
+" Is based on CTags format (see |tags-file-format|).
+"
+" {tagaddress} is set to lineno.  We'll let vim search by exact line number; we
+" can afford that, we assume metadata file is always updated before use.
+"
+" Pagename and link are not saved in standard ctags fields, so we'll add
+" an optional field, "vimwiki:".  In this field, we encode tab-separated values
+" of missing parameters -- "pagename" and "link".
 
 " vimwiki#base#update_tags
 "   Update tags metadata.
@@ -2046,22 +2053,46 @@ endfunction " }}}
 
 " vimwiki#base#load_tags_metadata
 "   Loads tags metadata from file, returns a dictionary
-function! vimwiki#base#load_tags_metadata() "{{{
+function! vimwiki#base#load_tags_metadata() abort "{{{
   let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
   if !filereadable(metadata_path)
     return []
   endif
   let metadata = []
   for line in readfile(metadata_path)
-    let fields = split(line, '\t')
-    if len(fields) != 4
+    if line =~ '^!_TAG_FILE_'
+      continue
+    endif
+    let parts = matchlist(line, '^\(.\{-}\);"\(.*\)$')
+    if parts[0] == '' || parts[1] == '' || parts[2] == ''
       throw 'VimwikiTags1: Metadata file corrupted'
     endif
+    let std_fields = split(parts[1], '\t')
+    if len(std_fields) != 3
+      throw 'VimwikiTags2: Metadata file corrupted'
+    endif
+    let vw_part = parts[2]
+    if vw_part[0] != "\t"
+      throw 'VimwikiTags3: Metadata file corrupted'
+    endif
+    let vw_fields = split(vw_part[1:], "\t")
+    if len(vw_fields) != 1 || vw_fields[0] !~ '^vimwiki:'
+      throw 'VimwikiTags4: Metadata file corrupted'
+    endif
+    let vw_data = substitute(vw_fields[0], '^vimwiki:', '', '')
+    let vw_data = substitute(vw_data, '\\n', "\n", 'g')
+    let vw_data = substitute(vw_data, '\\r', "\r", 'g')
+    let vw_data = substitute(vw_data, '\\t', "\t", 'g')
+    let vw_data = substitute(vw_data, '\\\\', "\\", 'g')
+    let vw_fields = split(vw_data, "\t")
+    if len(vw_fields) != 2
+      throw 'VimwikiTags5: Metadata file corrupted'
+    endif
     let entry = {}
-    let entry.tagname  = fields[0]
-    let entry.pagename = fields[1]
-    let entry.lineno   = fields[2]
-    let entry.link     = fields[3]
+    let entry.tagname  = std_fields[0]
+    let entry.pagename = vw_fields[0]
+    let entry.lineno   = std_fields[2]
+    let entry.link     = vw_fields[1]
     call add(metadata, entry)
   endfor
   return metadata
@@ -2088,13 +2119,21 @@ function! vimwiki#base#write_tags_metadata(metadata) "{{{
   let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
   let entries = []
   for entry in a:metadata
+    let entry_data = entry.pagename . "\t" . entry.link
+    let entry_data = substitute(entry_data, "\\", '\\\\', 'g')
+    let entry_data = substitute(entry_data, "\t", '\\t', 'g')
+    let entry_data = substitute(entry_data, "\r", '\\r', 'g')
+    let entry_data = substitute(entry_data, "\n", '\\n', 'g')
     call add(entries,
           \   entry.tagname  . "\t"
-          \ . entry.pagename . "\t"
-          \ . entry.lineno   . "\t" 
-          \ . entry.link
+          \ . entry.pagename . VimwikiGet('ext') . "\t"
+          \ . entry.lineno
+          \ . ';"'
+          \ . "\t" . "vimwiki:" . entry_data
           \)
   endfor
+  call sort(entries)
+  call insert(entries, "!_TAG_FILE_SORTED\t1\t{anything}")
   call writefile(entries, metadata_path)
 endfunction " }}}
 

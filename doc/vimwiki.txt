@@ -1251,9 +1251,17 @@ which opens up a popup menu with all tags defined in the wiki starting with
 
 Note that tag search/jump/completion commands need certain metadata saved in
 the wiki folder.  This metadata can be manually updated by running
-|:VimwikiGenerateTags|.  There is an option |vimwiki-option-auto_tags|, when
+|:VimwikiRebuildTags|.  There is an option |vimwiki-option-auto_tags|, when
 enabled, tags metadata will be auto-updated on each page save.
 
+Once tags metadata has been built, one can use Vim's built-in tag search 
+functionality (see |tagsrch.txt|).
+
+Tags-related commands and options:
+   * |:VimwikiRebuildTags|
+   * |:VimwikiGenerateTags|
+   * |:VimwikiSearchTags|
+   * |vimwiki-option-auto_tags|
 
 
 ==============================================================================
