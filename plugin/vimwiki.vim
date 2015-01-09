@@ -357,6 +357,39 @@ function! VimwikiClear(option, ...) "{{{
 endfunction "}}}
 " }}}
 
+function! VimwikiGetKnownExtensions() " {{{
+  " Getting all extensions that different wikis could have
+  let extensions = {}
+  for wiki in g:vimwiki_list
+    if has_key(wiki, 'ext')
+      let extensions[wiki.ext] = 1
+    else
+      let extensions['.wiki'] = 1
+    endif
+  endfor
+  " append map g:vimwiki_ext2syntax
+  for ext in keys(g:vimwiki_ext2syntax)
+    let extensions[ext] = 1
+  endfor
+  return keys(extensions)
+endfunction " }}}
+
+function! VimwikiGetKnownSyntaxes() " {{{
+  " Getting all syntaxes that different wikis could have
+  let syntaxes = {}
+  let syntaxes['default'] = 1
+  for wiki in g:vimwiki_list
+    if has_key(wiki, 'syntax')
+      let syntaxes[wiki.syntax] = 1
+    endif
+  endfor
+  " append map g:vimwiki_ext2syntax
+  for syn in values(g:vimwiki_ext2syntax)
+    let syntaxes[syn] = 1
+  endfor
+  return keys(syntaxes)
+endfunction " }}}
+
 " }}}
 
 " CALLBACK functions "{{{
@@ -486,7 +519,7 @@ augroup end
 
 augroup vimwiki
   autocmd!
-  for s:ext in vimwiki#base#get_known_extensions()
+  for s:ext in VimwikiGetKnownExtensions()
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_reenter()'
     exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.s:ext.' call s:setup_buffer_leave()'
