@@ -620,6 +620,7 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
 
   let rxheader = g:vimwiki_{a:syntax}_header_search
   let rxbold = g:vimwiki_{a:syntax}_bold_search
+  let rxtag = g:vimwiki_{a:syntax}_tag_search
 
   let anchor_level = ['', '', '', '', '', '', '']
   let anchors = []
@@ -664,6 +665,20 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
       let bold_count += 1
     endwhile
 
+    " collect tags text (there can be several in one line)
+    let tag_count = 1
+    while 1
+      let tag_text = matchstr(line, rxtag, 0, tag_count)
+      if tag_text == ''
+        break
+      endif
+      call add(anchors, tag_text)
+      if current_complete_anchor != ''
+        call add(anchors, current_complete_anchor.'#'.tag_text)
+      endif
+      let tag_count += 1
+    endwhile
+
   endfor
 
   return anchors
@@ -684,8 +699,12 @@ function! s:jump_to_anchor(anchor) "{{{
           \ '__Header__', "\\='".segment."'", '')
     let anchor_bold = substitute(g:vimwiki_{VimwikiGet('syntax')}_bold_match,
           \ '__Text__', "\\='".segment."'", '')
+    let anchor_tag = substitute(g:vimwiki_{VimwikiGet('syntax')}_tag_match,
+          \ '__Tag__', "\\='".segment."'", '')
 
-    if !search(anchor_header, 'Wc') && !search(anchor_bold, 'Wc')
+    if         !search(anchor_header, 'Wc')
+          \ && !search(anchor_bold, 'Wc')
+          \ && !search(anchor_tag, 'Wc')
       call setpos('.', oldpos)
       break
     endif

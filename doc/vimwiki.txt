@@ -1249,6 +1249,8 @@ Typing tags can be simplified by using Vim's omni completion (see
 which opens up a popup menu with all tags defined in the wiki starting with
 "ind".
 
+Tags are also treated as |vimwiki-anchors| (similar to bold text).
+
 Note that tag search/jump/completion commands need certain metadata saved in
 the wiki folder.  This metadata can be manually updated by running
 |:VimwikiRebuildTags|.  There is an option |vimwiki-option-auto_tags|, when
@@ -1622,6 +1624,7 @@ of the form >
 
 For example, consider the following file "Todo.wiki": >
   = My tasks =
+  :todo-lists:
   == Home ==
     - [ ] bathe my dog
   == Work ==
@@ -1636,6 +1639,9 @@ Then, to jump from your index.wiki directly to your knitting projects, use: >
 
 Or, to jump to an individual project, use this link: >
   [[Todo#pig]]
+
+Or, to jump to a tag, use this link: >
+  [[Todo#todo-lists]]
 
 If there are multiple instances of an anchor, you can use the long form which
 consists of the complete header hierarchy, separated by '#': >
