@@ -1997,7 +1997,7 @@ function! vimwiki#base#update_tags(full_rebuild) "{{{
 endfunction " }}}
 
 " vimwiki#base#scan_tags
-"   Scans the list (argument) and produces tags metadata dictionary.
+"   Scans the list of text lines (argument) and produces tags metadata.
 function! vimwiki#base#scan_tags(lines, page_name) "{{{
 
   let metadata = []
@@ -2060,8 +2060,11 @@ function! vimwiki#base#scan_tags(lines, page_name) "{{{
       let entry.lineno   = line_nr
       if line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
         let entry.link   = page_name . '#' . current_complete_anchor
-      else
+      elseif header_line_nr < 0
+        " Tag appeared before the first header
         let entry.link   = page_name
+      else
+        let entry.link   = page_name . '#' . tag
       endif
       call add(metadata, entry)
     endwhile
