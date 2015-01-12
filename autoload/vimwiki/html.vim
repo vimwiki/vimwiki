@@ -103,7 +103,7 @@ function! s:template_full_name(name) "{{{
   endif
 endfunction "}}}
 
-function! s:get_html_template(wikifile, template) "{{{
+function! s:get_html_template(template) "{{{
   " TODO: refactor it!!!
   let lines=[]
 
@@ -1437,7 +1437,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
 
-    let html_lines = s:get_html_template(a:wikifile, template_name)
+    let html_lines = s:get_html_template(template_name)
 
     " processing template variables (refactor to a function)
     call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
