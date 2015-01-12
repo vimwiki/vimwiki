@@ -1860,7 +1860,7 @@ See |vimwiki-option-template_path| for details.
 *vimwiki-option-template_ext*
 ------------------------------------------------------------------------------
 Key                 Default value~
-template_ext        .html
+template_ext        .tpl
 
 Description~
 Setup template filename extension.
