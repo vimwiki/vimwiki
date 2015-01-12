@@ -651,7 +651,7 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
     endif
 
     " collect bold text (there can be several in one line)
-    let bold_count = 0
+    let bold_count = 1
     while 1
       let bold_text = matchstr(line, rxbold, 0, bold_count)
       if bold_text == ''
