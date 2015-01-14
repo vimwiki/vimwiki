@@ -83,7 +83,11 @@ let s:valid_chars = '[^\\\]]'
 let g:vimwiki_rxWikiLinkUrl = s:valid_chars.'\{-}'
 let g:vimwiki_rxWikiLinkDescr = s:valid_chars.'\{-}'
 
-let g:vimwiki_rxWord = '[^[:blank:]()\\]\+'
+" this regexp defines what can form a link when the user presses <CR> in the
+" buffer (and not on a link) to create a link
+" basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
+" non-Ascii characters
+let g:vimwiki_rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
 
 
 " [[URL]], or [[URL|DESCRIPTION]]
