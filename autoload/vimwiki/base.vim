@@ -668,14 +668,16 @@ function! vimwiki#base#get_anchors(filename, syntax) "{{{
     " collect tags text (there can be several in one line)
     let tag_count = 1
     while 1
-      let tag_text = matchstr(line, rxtag, 0, tag_count)
-      if tag_text == ''
+      let tag_group_text = matchstr(line, rxtag, 0, tag_count)
+      if tag_group_text == ''
         break
       endif
-      call add(anchors, tag_text)
-      if current_complete_anchor != ''
-        call add(anchors, current_complete_anchor.'#'.tag_text)
-      endif
+      for tag_text in split(tag_group_text, ':')
+        call add(anchors, tag_text)
+        if current_complete_anchor != ''
+          call add(anchors, current_complete_anchor.'#'.tag_text)
+        endif
+      endfor
       let tag_count += 1
     endwhile
 
@@ -2047,26 +2049,28 @@ function! vimwiki#base#scan_tags(lines, page_name) "{{{
     " Scan line for tags.  There can be many of them.
     let str = line
     while 1
-      let tag = matchstr(str, rxtag)
-      if tag == ''
+      let tag_group = matchstr(str, rxtag)
+      if tag_group == ''
         break
       endif
       let tagend = matchend(str, rxtag)
       let str = str[(tagend):]
-      " Create metadata entry
-      let entry = {}
-      let entry.tagname  = tag
-      let entry.pagename = page_name
-      let entry.lineno   = line_nr
-      if line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-        let entry.link   = page_name . '#' . current_complete_anchor
-      elseif header_line_nr < 0
-        " Tag appeared before the first header
-        let entry.link   = page_name
-      else
-        let entry.link   = page_name . '#' . tag
-      endif
-      call add(metadata, entry)
+      for tag in split(tag_group, ':')
+        " Create metadata entry
+        let entry = {}
+        let entry.tagname  = tag
+        let entry.pagename = page_name
+        let entry.lineno   = line_nr
+        if line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+          let entry.link   = page_name . '#' . current_complete_anchor
+        elseif header_line_nr < 0
+          " Tag appeared before the first header
+          let entry.link   = page_name
+        else
+          let entry.link   = page_name . '#' . tag
+        endif
+        call add(metadata, entry)
+      endfor
     endwhile
 
   endfor " loop over lines

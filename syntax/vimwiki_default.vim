@@ -95,4 +95,5 @@ let g:vimwiki_rxMathStart = '{{\$'
 let g:vimwiki_rxMathEnd = '}}\$'
 
 let g:vimwiki_rxComment = '^\s*%%.*$'
-let g:vimwiki_rxTags = ':\([^:[:space:]]\+:\)\+'
+let g:vimwiki_rxTags = '\(^\|\s\)\zs:\([^:[:space:]]\+:\)\+\ze\(\s\|$\)'
+" see also g:vimwiki_default_tag_search
