@@ -8,6 +8,23 @@ if exists("g:loaded_vimwiki_auto") || &cp
 endif
 let g:loaded_vimwiki_auto = 1
 
+" s:vimwiki_get_known_syntaxes
+function! s:vimwiki_get_known_syntaxes() " {{{
+  " Getting all syntaxes that different wikis could have
+  let syntaxes = {}
+  let syntaxes['default'] = 1
+  for wiki in g:vimwiki_list
+    if has_key(wiki, 'syntax')
+      let syntaxes[wiki.syntax] = 1
+    endif
+  endfor
+  " append map g:vimwiki_ext2syntax
+  for syn in values(g:vimwiki_ext2syntax)
+    let syntaxes[syn] = 1
+  endfor
+  return keys(syntaxes)
+endfunction " }}}
+
 " vimwiki#base#apply_wiki_options
 function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
   " wiki using the options dictionary
@@ -1905,7 +1922,7 @@ endfunction " }}}
 
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
-for s:syn in VimwikiGetKnownSyntaxes()
+for s:syn in s:vimwiki_get_known_syntaxes()
   execute 'runtime! autoload/vimwiki/'.s:syn.'_base.vim'
 endfor 
 " -------------------------------------------------------------------------

@@ -374,22 +374,6 @@ function! VimwikiGetKnownExtensions() " {{{
   return keys(extensions)
 endfunction " }}}
 
-function! VimwikiGetKnownSyntaxes() " {{{
-  " Getting all syntaxes that different wikis could have
-  let syntaxes = {}
-  let syntaxes['default'] = 1
-  for wiki in g:vimwiki_list
-    if has_key(wiki, 'syntax')
-      let syntaxes[wiki.syntax] = 1
-    endif
-  endfor
-  " append map g:vimwiki_ext2syntax
-  for syn in values(g:vimwiki_ext2syntax)
-    let syntaxes[syn] = 1
-  endfor
-  return keys(syntaxes)
-endfunction " }}}
-
 " }}}
 
 " CALLBACK functions "{{{
