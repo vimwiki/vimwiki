@@ -2608,6 +2608,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ???~
 
+    * Spport for |g:vimwiki_auto_chdir| option.
     * Support for anchors, see |vimwiki-anchors|
         * in this context, add support for TOC, see |vimwiki-toc|
         * remove the now useless %toc placeholder
