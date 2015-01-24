@@ -452,6 +452,8 @@ call s:default('map_prefix', '<Leader>w')
 
 call s:default('current_idx', 0)
 
+call s:default('auto_chdir', 0)
+
 " Scheme regexes should be defined even if syntax file is not loaded yet
 " cause users should be able to <leader>w<leader>w without opening any
 " vimwiki file first
