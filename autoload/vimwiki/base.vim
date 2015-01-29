@@ -2077,10 +2077,16 @@ function! vimwiki#base#scan_tags(lines, page_name) "{{{
   return metadata
 endfunction " }}}
 
+" vimwiki#base#metadata_file_path
+"   Returns tags metadata file path
+function! vimwiki#base#metadata_file_path() abort "{{{
+  return fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p')
+endfunction " }}}
+
 " vimwiki#base#load_tags_metadata
 "   Loads tags metadata from file, returns a dictionary
 function! vimwiki#base#load_tags_metadata() abort "{{{
-  let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
+  let metadata_path = vimwiki#base#metadata_file_path()
   if !filereadable(metadata_path)
     return []
   endif
@@ -2142,7 +2148,7 @@ endfunction " }}}
 " vimwiki#base#write_tags_metadata
 "   Saves metadata object into a file. Throws exceptions in case of problems.
 function! vimwiki#base#write_tags_metadata(metadata) "{{{
-  let metadata_path = VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME
+  let metadata_path = vimwiki#base#metadata_file_path()
   let entries = []
   for entry in a:metadata
     let entry_data = entry.pagename . "\t" . entry.link
