@@ -768,10 +768,11 @@ function! s:process_tag_math(line, math) "{{{
     let class = matchstr(a:line, '{{$\zs.*$')
     "FIXME class cannot be any string!
     let class = substitute(class, '\s\+$', '', 'g')
-    " Check the math placeholder (default: displaymath)
-    let b:vimwiki_mathEnv = matchstr(class, '^%\zs\S\+\ze%')
-    if b:vimwiki_mathEnv != ""
-        call add(lines, substitute(class, '^%\(\S\+\)%','\\begin{\1}', ''))
+    " store the environment name in a global variable in order to close the
+    " environment properly
+    let s:current_math_env = matchstr(class, '^%\zs\S\+\ze%')
+    if s:current_math_env != ""
+      call add(lines, substitute(class, '^%\(\S\+\)%','\\begin{\1}', ''))
     elseif class != ""
       call add(lines, "\\\[".class)
     else
@@ -781,8 +782,8 @@ function! s:process_tag_math(line, math) "{{{
     let processed = 1
   elseif math[0] && a:line =~ '^\s*}}\$\s*$'
     let math = [0, 0]
-    if b:vimwiki_mathEnv != ""
-      call add(lines, "\\end{".b:vimwiki_mathEnv."}")
+    if s:current_math_env != ""
+      call add(lines, "\\end{".s:current_math_env."}")
     else
       call add(lines, "\\\]")
     endif
