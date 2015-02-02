@@ -357,7 +357,7 @@ function! VimwikiClear(option, ...) "{{{
 endfunction "}}}
 " }}}
 
-function! VimwikiGetKnownExtensions() " {{{
+function! s:vimwiki_get_known_extensions() " {{{
   " Getting all extensions that different wikis could have
   let extensions = {}
   for wiki in g:vimwiki_list
@@ -503,7 +503,7 @@ augroup end
 
 augroup vimwiki
   autocmd!
-  for s:ext in VimwikiGetKnownExtensions()
+  for s:ext in s:vimwiki_get_known_extensions()
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_reenter()'
     exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.s:ext.' call s:setup_buffer_leave()'
