@@ -1544,17 +1544,17 @@ function! s:binary_exists(fname) "{{{
 endfunction "}}}
 
 " uses VimwikiGet('path')
-function! vimwiki#html#get_wikifile_url(wikifile) "{{{
+function! s:get_wikifile_url(wikifile) "{{{
   return VimwikiGet('path_html').
     \ vimwiki#base#subdir(VimwikiGet('path'), a:wikifile).
     \ fnamemodify(a:wikifile, ":t:r").'.html'
 endfunction "}}}
 
 function! vimwiki#html#PasteUrl(wikifile) "{{{
-  execute 'r !echo file://'.vimwiki#html#get_wikifile_url(a:wikifile)
+  execute 'r !echo file://'.s:get_wikifile_url(a:wikifile)
 endfunction "}}}
 
 function! vimwiki#html#CatUrl(wikifile) "{{{
-  execute '!echo file://'.vimwiki#html#get_wikifile_url(a:wikifile)
+  execute '!echo file://'.s:get_wikifile_url(a:wikifile)
 endfunction "}}}
 "}}}
