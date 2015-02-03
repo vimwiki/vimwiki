@@ -80,7 +80,7 @@ function! vimwiki#path#relpath(dir, file) "{{{
   let result = []
   let dir = split(a:dir, '/')
   let file = split(a:file, '/')
-  while (len(dir) > 0 && len(file) > 0) && dir[0] == file[0]
+  while (len(dir) > 0 && len(file) > 0) && dir[0] ==? file[0]
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
