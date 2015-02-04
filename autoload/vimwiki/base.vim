@@ -8,26 +8,8 @@ if exists("g:loaded_vimwiki_auto") || &cp
 endif
 let g:loaded_vimwiki_auto = 1
 
-" MISC helper functions {{{
-
-function! vimwiki#base#get_known_extensions() " {{{
-  " Getting all extensions that different wikis could have
-  let extensions = {}
-  for wiki in g:vimwiki_list
-    if has_key(wiki, 'ext')
-      let extensions[wiki.ext] = 1
-    else
-      let extensions['.wiki'] = 1
-    endif
-  endfor
-  " append map g:vimwiki_ext2syntax
-  for ext in keys(g:vimwiki_ext2syntax)
-    let extensions[ext] = 1
-  endfor
-  return keys(extensions)
-endfunction " }}}
-
-function! vimwiki#base#get_known_syntaxes() " {{{
+" s:vimwiki_get_known_syntaxes
+function! s:vimwiki_get_known_syntaxes() " {{{
   " Getting all syntaxes that different wikis could have
   let syntaxes = {}
   let syntaxes['default'] = 1
@@ -42,7 +24,6 @@ function! vimwiki#base#get_known_syntaxes() " {{{
   endfor
   return keys(syntaxes)
 endfunction " }}}
-" }}}
 
 " vimwiki#base#apply_wiki_options
 function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
@@ -1940,7 +1921,7 @@ endfunction " }}}
 
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
-for s:syn in vimwiki#base#get_known_syntaxes()
+for s:syn in s:vimwiki_get_known_syntaxes()
   execute 'runtime! autoload/vimwiki/'.s:syn.'_base.vim'
 endfor 
 " -------------------------------------------------------------------------
