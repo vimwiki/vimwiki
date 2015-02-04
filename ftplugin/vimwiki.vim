@@ -66,8 +66,10 @@ function! Complete_wikifiles(findstart, base)
       " Tags completion
       let metadata = vimwiki#base#load_tags_metadata()
       let tags = vimwiki#base#get_tags(metadata)
-      call filter(tags,
+      if a:base != ''
+        call filter(tags,
             \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
+      endif
       return tags
     elseif a:base !~ '#'
       " we look for wiki files
