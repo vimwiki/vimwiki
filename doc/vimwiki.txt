@@ -2556,6 +2556,19 @@ before the plugin loads.  >
 
 The default is '<Leader>w'.
 
+------------------------------------------------------------------------------
+*g:vimwiki_auto_chdir*
+
+When set to 1, enables auto-cd feature.  Whenever vimwiki page is opened, 
+vimwiki performs an |:lcd| to the vimwiki folder to where the page belongs.
+
+
+Value           Description~
+0               Do not change directory.
+1               Change directory to vimwiki folder on opening page.
+
+Default: 0
+
 
 ==============================================================================
 13. Miscellaneous                                               *vimwiki-misc*
@@ -2595,6 +2608,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ???~
 
+    * Spport for |g:vimwiki_auto_chdir| option.
     * Support for anchors, see |vimwiki-anchors|
         * in this context, add support for TOC, see |vimwiki-toc|
         * remove the now useless %toc placeholder

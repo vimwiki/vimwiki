@@ -131,6 +131,10 @@ function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variable
   call VimwikiSet('subdir', subdir, a:idx)
   call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir), a:idx)
 
+  if g:vimwiki_auto_chdir == 1
+    exe 'lcd' VimwikiGet('path')
+  endif
+
   " update cache
   call vimwiki#base#cache_buffer_state()
 endfunction " }}}
