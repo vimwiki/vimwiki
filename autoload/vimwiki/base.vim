@@ -71,7 +71,7 @@ function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
       "
       echo "\nFound file : ".local_wiki_options_filename
       let query = "Vimwiki: Check for options in this file [Y]es/[n]o? "
-      if a:check > 0 && (tolower(input(query)) !~ "y")
+      if a:check > 0 && input(query) =~? '^n')
         continue
       endif
       "
@@ -86,7 +86,7 @@ function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
       if a:check > 0
         echo "\n\nFound wiki options\n  g:local_wiki = ".string(g:local_wiki)
         let query = "Vimwiki: Apply these options [Y]es/[n]o? "
-        if tolower(input(query)) !~ "y"
+        if input(query) =~? '^n'
           let g:local_wiki = {}
           continue
         endif
@@ -1210,8 +1210,8 @@ endfunction "}}}
 function! vimwiki#base#delete_link() "{{{
   "" file system funcs
   "" Delete wiki link you are in from filesystem
-  let val = input('Delete ['.expand('%').'] (y/n)? ', "")
-  if val != 'y'
+  let val = input('Delete "'.expand('%').'" [y]es/[N]o? ')
+  if val !~? '^y'
     return
   endif
   let fname = expand('%:p')
@@ -1244,12 +1244,12 @@ function! vimwiki#base#rename_link() "{{{
     return
   endif
 
-  let val = input('Rename "'.expand('%:t:r').'" (y/n)? ', "")
-  if val!='y'
+  let val = input('Rename "'.expand('%:t:r').'" [y]es/[N]o? ')
+  if val !~? '^y'
     return
   endif
 
-  let new_link = input('Enter new name: ', "")
+  let new_link = input('Enter new name: ')
 
   if new_link =~ '[/\\]'
     " It is actually doable but I do not have free time to do it.

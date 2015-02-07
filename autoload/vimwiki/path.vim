@@ -116,7 +116,8 @@ function! vimwiki#path#mkdir(path, ...) "{{{
       let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
     endif
 
-    if a:0 && a:1 && tolower(input("Vimwiki: Make new directory: ".path."\n [Y]es/[n]o? ")) !~ "^y"
+    if a:0 && a:1 && input("Vimwiki: Make new directory: "
+          \ .path."\n [y]es/[N]o? ") !~? '^y'
       return 0
     endif
 
