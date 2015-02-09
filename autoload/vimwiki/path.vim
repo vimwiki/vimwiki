@@ -17,7 +17,7 @@ if vimwiki#u#is_windows()
   endfunction
 else
   function! vimwiki#path#is_equal(p1, p2)
-    return a:p1 == a:p2
+    return a:p1 ==# a:p2
   endfunction
 endif "}}}
 
@@ -26,7 +26,7 @@ function! vimwiki#path#normalize(path) "{{{
   let path = a:path
   while 1
     let result = substitute(path, '/[^/]\+/\.\.', '', '')
-    if result == path
+    if result ==# path
       break
     endif
     let path = result

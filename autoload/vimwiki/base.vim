@@ -436,7 +436,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   if update_prev_link
     if a:0
       let vimwiki_prev_link = [a:1, []]
-    elseif &ft == 'vimwiki'
+    elseif &ft ==# 'vimwiki'
       let vimwiki_prev_link = [expand('%:p'), getpos('.')]
     endif
   endif
@@ -519,7 +519,8 @@ function! vimwiki#base#backlinks() "{{{
       let links = s:get_links(source_file, idx)
       for [target_file, _, lnum, col] in links
         " don't include links from the current file to itself
-        if target_file == current_filename && target_file != source_file
+        if vimwiki#path#is_equal(target_file, current_filename) &&
+              \ !vimwiki#path#is_equal(target_file, source_file)
           call add(locations, {'filename':source_file, 'lnum':lnum, 'col':col})
         endif
       endfor
@@ -689,9 +690,9 @@ function! s:link_target(source_file, wiki_nr, link_text) "{{{
     return []
   elseif url == '' && anchor != '' " only anchor
     return [fnamemodify(a:source_file, ':p'), anchor]
-  elseif scheme == 'file'
+  elseif scheme ==# 'file'
     return [url, '']
-  elseif scheme == 'local'
+  elseif scheme ==# 'local'
     return [vimwiki#path#normalize(source_dir.lnk), '']
   elseif target_idx >= len(g:vimwiki_list) " a malformed link
     return ['', '']
@@ -699,7 +700,7 @@ function! s:link_target(source_file, wiki_nr, link_text) "{{{
     return []
   endif
 
-  if scheme == 'diary'
+  if scheme ==# 'diary'
     let root_dir = VimwikiGet('path',a:wiki_nr).
           \ VimwikiGet('diary_rel_path', a:wiki_nr)
     let ext = VimwikiGet('ext', a:wiki_nr)
@@ -858,7 +859,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " which happens if we jump to an achor in the current file.
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
-  if !(a:command == ':e ' && a:filename == expand('%:p'))
+  if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
     execute a:command.' '.fname
   endif
   if a:anchor != ''
@@ -1124,11 +1125,11 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
       call vimwiki#{VimwikiGet('syntax')}_base#follow_link(a:split)
     endif
   else
-    if a:split == "split"
+    if a:split ==# "split"
       let cmd = ":split "
-    elseif a:split == "vsplit"
+    elseif a:split ==# "vsplit"
       let cmd = ":vsplit "
-    elseif a:split == "tabnew"
+    elseif a:split ==# "tabnew"
       let cmd = ":tabnew "
     else
       let cmd = ":e "

@@ -134,7 +134,7 @@ fun! s:group_links(links) "{{{
 endfun "}}}
 
 fun! s:sort(lst) "{{{
-  if VimwikiGet("diary_sort") == 'desc'
+  if VimwikiGet("diary_sort") ==? 'desc'
     return reverse(sort(a:lst))
   else
     return sort(a:lst)
@@ -311,7 +311,7 @@ endfunction "}}}
 function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
-  if  current_file == diary_file
+  if vimwiki#path#is_equal(current_file, diary_file)
     call s:delete_diary_section()
     call s:insert_diary_section()
   else
@@ -327,7 +327,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
 
   let link = a:year.'-'.month.'-'.day
   if winnr('#') == 0
-    if a:dir == 'V'
+    if a:dir ==? 'V'
       vsplit
     else
       split

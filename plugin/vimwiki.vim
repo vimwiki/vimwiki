@@ -39,7 +39,8 @@ function! s:find_wiki(path) "{{{
   while idx < len(g:vimwiki_list)
     let idx_path = expand(VimwikiGet('path', idx))
     let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#path_common_pfx(idx_path, path) == idx_path
+    if vimwiki#path#is_equal(
+          \ vimwiki#path#path_common_pfx(idx_path, path), idx_path)
       return idx
     endif
     let idx += 1
@@ -88,14 +89,14 @@ function! s:vimwiki_idx() " {{{
 endfunction " }}}
 
 function! s:setup_buffer_leave() "{{{
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "Setup_buffer_leave g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
-  if &filetype == 'vimwiki'
+  if &filetype ==? 'vimwiki'
     " cache global vars of current state XXX: SLOW!?
     call vimwiki#base#cache_buffer_state()
   endif
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "  Setup_buffer_leave g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
 
@@ -108,7 +109,7 @@ function! s:setup_buffer_leave() "{{{
 endfunction "}}}
 
 function! s:setup_filetype() "{{{
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "Setup_filetype g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
   let time0 = reltime()  " start the clock  "XXX
@@ -116,7 +117,7 @@ function! s:setup_filetype() "{{{
   let path = expand('%:p:h')
   " XXX: find_wiki() does not (yet) take into consideration the ext
   let idx = s:find_wiki(path)
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "  Setup_filetype g:curr_idx=".g:vimwiki_current_idx." find_idx=".idx." b:curr_idx=".s:vimwiki_idx().""
   endif
 
@@ -210,7 +211,7 @@ function! s:setup_buffer_enter() "{{{
     if g:vimwiki_debug ==3
       echom "  Setup_buffer_enter g:curr_idx=".g:vimwiki_current_idx." (set ft vimwiki) b:curr_idx=".s:vimwiki_idx().""
     endif
-  elseif &syntax == 'vimwiki'
+  elseif &syntax ==? 'vimwiki'
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;
     " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
@@ -227,15 +228,15 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding == 'expr'
+  if g:vimwiki_folding ==? 'expr'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding == 'list' || g:vimwiki_folding == 'lists'
+  elseif g:vimwiki_folding ==? 'list' || g:vimwiki_folding ==? 'lists'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding == 'syntax'
+  elseif g:vimwiki_folding ==? 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
   else

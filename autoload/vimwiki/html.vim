@@ -27,7 +27,7 @@ function! s:root_path(subdir) "{{{
 endfunction "}}}
 
 function! s:syntax_supported() " {{{
-  return VimwikiGet('syntax') == "default"
+  return VimwikiGet('syntax') ==? "default"
 endfunction " }}}
 
 function! s:remove_blank_lines(lines) " {{{
@@ -204,7 +204,7 @@ function! s:subst_func(line, regexp, func, ...) " {{{
 endfunction " }}}
 
 function! s:save_vimwiki_buffer() "{{{
-  if &filetype == 'vimwiki' && filewritable(expand('%'))
+  if &filetype ==? 'vimwiki' && filewritable(expand('%'))
     silent update
   endif
 endfunction "}}}
@@ -214,7 +214,7 @@ function! s:process_title(placeholders, default_title) "{{{
   if !empty(a:placeholders)
     for [placeholder, row, idx] in a:placeholders
       let [type, param] = placeholder
-      if type == 'title' && !empty(param)
+      if type ==# 'title' && !empty(param)
         return param
       endif
     endfor
@@ -457,8 +457,8 @@ function! s:tag_remove_external_link(value) "{{{
     let lnkElements = split(value)
     let head = lnkElements[0]
     let rest = join(lnkElements[1:])
-    if rest==""
-      let rest=head
+    if rest == ""
+      let rest = head
     endif
     let line = rest
   elseif s:is_img_link(value)
@@ -484,7 +484,8 @@ function! s:make_tag(line, regexp, func, ...) "{{{
 
   "FIXME FIXME !!! these can easily occur on the same line!
   "XXX  {{{ }}} ??? obsolete
-  if '`[^`]\+`' == a:regexp || '{{{.\+}}}' == a:regexp || g:vimwiki_rxEqIn == a:regexp
+  if '`[^`]\+`' ==# a:regexp || '{{{.\+}}}' ==# a:regexp ||
+        \ g:vimwiki_rxEqIn ==# a:regexp
     let res_line = s:subst_func(a:line, a:regexp, a:func)
   else
     let pos = 0
@@ -675,7 +676,7 @@ function! s:close_tag_table(table, ldest, header_ids) "{{{
     call s:sum_rowspan(table)
     call s:sum_colspan(table)
 
-    if table[0] == 'center'
+    if table[0] ==# 'center'
       call add(ldest, "<table class='center'>")
     else
       call add(ldest, "<table>")
@@ -1402,10 +1403,10 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
       endif
 
       if !empty(state.placeholder)
-        if state.placeholder[0] == 'nohtml'
+        if state.placeholder[0] ==# 'nohtml'
           let nohtml = 1
           break
-        elseif state.placeholder[0] == 'template'
+        elseif state.placeholder[0] ==# 'template'
           let template_name = state.placeholder[1]
         else
           call add(placeholders, [state.placeholder, len(ldest), len(placeholders)])
