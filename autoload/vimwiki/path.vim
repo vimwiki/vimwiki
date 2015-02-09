@@ -50,7 +50,7 @@ endfunction "}}}
 function! vimwiki#path#is_link_to_dir(link) "{{{
   " Check if link is to a directory.
   " It should be ended with \ or /.
-  if a:link =~ '.\+[/\\]$'
+  if a:link =~# '.\+[/\\]$'
     return 1
   endif
   return 0

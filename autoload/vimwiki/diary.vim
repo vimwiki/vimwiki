@@ -28,7 +28,7 @@ endfunction "}}}
 function! s:link_exists(lines, link) "{{{
   let link_exists = 0
   for line in a:lines
-    if line =~ escape(a:link, '[]\')
+    if line =~# escape(a:link, '[]\')
       let link_exists = 1
       break
     endif
@@ -54,7 +54,7 @@ endfunction "}}}
 function! s:get_position_links(link) "{{{
   let idx = -1
   let links = []
-  if a:link =~ '^\d\{4}-\d\d-\d\d'
+  if a:link =~# '^\d\{4}-\d\d-\d\d'
     let links = keys(s:get_diary_links())
     " include 'today' into links
     if index(links, s:diary_date_link()) == -1
@@ -81,7 +81,7 @@ fun! s:read_captions(files) "{{{
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
-        if line =~ g:vimwiki_rxHeader && !has_key(result, fl_key)
+        if line =~# g:vimwiki_rxHeader && !has_key(result, fl_key)
           let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
         endif
       endfor
@@ -99,10 +99,10 @@ fun! s:get_diary_links(...) "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
   let files = split(s_files, '\n')
-  call filter(files, 'fnamemodify(v:val, ":t") =~ "'.escape(rx, '\').'"')
+  call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
   " remove backup files (.wiki~)
-  call filter(files, 'v:val !~ ''.*\~$''')
+  call filter(files, 'v:val !~# ''.*\~$''')
 
   if a:0
     call add(files, a:1)

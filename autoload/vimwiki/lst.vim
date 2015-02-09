@@ -185,7 +185,7 @@ endfunction "}}}
 "Returns: level of the line
 "0 is the 'highest' level
 function! s:get_level(lnum) "{{{
-  if getline(a:lnum) =~ '^\s*$'
+  if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
   if VimwikiGet('syntax') !=? 'media'
@@ -207,7 +207,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
   let number_chars = a:item.mrkr[:-2]
   let divisor = a:item.mrkr[-1:]
 
-  if number_chars =~ '\d\+'
+  if number_chars =~# '\d\+'
     return '1'
   endif
   if number_chars =~# '\l\+'
@@ -1286,7 +1286,7 @@ endfunction "}}}
 function! vimwiki#lst#kbd_O() "{{{
   normal! Ox
   let cur_ln = line('.')
-  if getline(cur_ln+1) !~ '^\s*$'
+  if getline(cur_ln+1) !~# '^\s*$'
     call s:clone_marker_from_to(cur_ln+1, cur_ln)
   else
     call s:clone_marker_from_to(cur_ln-1, cur_ln)
@@ -1365,7 +1365,7 @@ function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
     normal! gi
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
-    if !a:not_at_eol && getline(a:lnum) =~ ':$'
+    if !a:not_at_eol && getline(a:lnum) =~# ':$'
       call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
     endif
   else
@@ -1393,17 +1393,17 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
   endif
 
   let insert_new_marker = (a:normal == 1 || a:normal == 3)
-  if getline('.')[col("'^")-1:] =~ '^\s\+$'
+  if getline('.')[col("'^")-1:] =~# '^\s\+$'
     let cur_col = 0
   else
     let cur_col = col("$") - col("'^")
-    if getline('.')[col("'^")-1] =~ '\s' && exists("*strdisplaywidth")
+    if getline('.')[col("'^")-1] =~# '\s' && exists("*strdisplaywidth")
       let ws_behind_cursor =
             \ strdisplaywidth(matchstr(getline('.')[col("'^")-1:], '\s\+'),
             \ virtcol("'^")-1)
       let cur_col -= ws_behind_cursor
     endif
-    if insert_new_marker && cur_col == 0 && getline(lnum) =~ '\s$'
+    if insert_new_marker && cur_col == 0 && getline(lnum) =~# '\s$'
       let insert_new_marker = 0
     endif
   endif
@@ -1450,7 +1450,7 @@ function! vimwiki#lst#toggle_list_item() "{{{
   let new_cur_col = col("$") - cur_col_from_eol
   call cursor(cur_item.lnum, new_cur_col >= 1 ? new_cur_col : 1)
 
-  if cur_col_from_eol == 0 || getline(cur_item.lnum) =~ '^\s*$'
+  if cur_col_from_eol == 0 || getline(cur_item.lnum) =~# '^\s*$'
     startinsert!
   else
     startinsert
