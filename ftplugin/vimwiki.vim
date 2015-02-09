@@ -43,26 +43,30 @@ function! Complete_wikifiles(findstart, base)
     let line = getline('.')[:column]
     let startoflink = match(line, '\[\[\zs[^\\[]*$')
     if startoflink != -1
+      let s:line_context = '['
       return startoflink
     endif
     if VimwikiGet('syntax') == 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs.*$')
       if startofinlinelink != -1
+        let s:line_context = '['
         return startofinlinelink
       endif
     endif
     let startoftag = match(line, ':\zs[^:[:space:]]*$')
     if startoftag != -1
+      let s:line_context = ':'
       return startoftag
     endif
+    let s:line_context = ''
     return -1
   else
-    " Completion works for wikilinks/anchors, and for tags.  So first we have
-    " to find out what we're about to complete.
-    let column = col('.')
-    let line = getline('.')[:(column - len(a:base))]
-    let char_before_start = line[-1:-1]
-    if char_before_start == ':'
+    " Completion works for wikilinks/anchors, and for tags. s:line_content
+    " tells us, which string came before a:base. There seems to be no easier
+    " solution, because calling col('.') here returns garbage.
+    if s:line_context == ''
+      return []
+    elseif s:line_context == ':'
       " Tags completion
       let metadata = vimwiki#base#load_tags_metadata()
       let tags = vimwiki#base#get_tags(metadata)
