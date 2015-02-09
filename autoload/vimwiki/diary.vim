@@ -25,17 +25,6 @@ function! s:get_date_link(fmt) "{{{
   return strftime(a:fmt)
 endfunction "}}}
 
-function! s:link_exists(lines, link) "{{{
-  let link_exists = 0
-  for line in a:lines
-    if line =~# escape(a:link, '[]\')
-      let link_exists = 1
-      break
-    endif
-  endfor
-  return link_exists
-endfunction "}}}
-
 function! s:diary_path(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
   return VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx)
