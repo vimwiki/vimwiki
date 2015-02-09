@@ -39,15 +39,15 @@ setlocal tags+=./.tags
 " COMPLETION {{{
 function! Complete_wikifiles(findstart, base)
   if a:findstart == 1
-    let column = col('.')-1
+    let column = col('.')-2
     let line = getline('.')[:column]
-    let startoflink = match(line, '\[\[\zs[^\\[]*$')
+    let startoflink = match(line, '\[\[\zs[^\\[\]]*$')
     if startoflink != -1
       let s:line_context = '['
       return startoflink
     endif
     if VimwikiGet('syntax') == 'markdown'
-      let startofinlinelink = match(line, '\[.*\](\zs.*$')
+      let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
         let s:line_context = '['
         return startofinlinelink
