@@ -188,7 +188,7 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~ '^\s*$'
     return 0
   endif
-  if VimwikiGet('syntax') != 'media'
+  if VimwikiGet('syntax') !=? 'media'
     let level = indent(a:lnum)
   else
     let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
@@ -1112,7 +1112,7 @@ endfunction "}}}
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') != 'media'
+    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') !=? 'media'
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1223,7 +1223,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( VimwikiGet('syntax') != 'media' ? indent(a:from) : 0 )
+  let new_indent = ( VimwikiGet('syntax') !=? 'media' ? indent(a:from) : 0 )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))

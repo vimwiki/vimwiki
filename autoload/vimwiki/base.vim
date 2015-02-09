@@ -303,7 +303,7 @@ function! vimwiki#base#resolve_scheme(lnk, as_html, ...) " {{{ Resolve scheme
 
     " default link for directories
     if vimwiki#path#is_link_to_dir(lnk)
-      let ext = (g:vimwiki_dir_link != '' ? g:vimwiki_dir_link. ext : '')
+      let ext = (g:vimwiki_dir_link != '' ? g:vimwiki_dir_link . ext : '')
     endif
   elseif scheme =~ 'diary'
     if a:as_html
@@ -423,7 +423,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   endif
 
   let update_prev_link = ( (scheme == '' || scheme =~ 'wiki' || scheme =~ 'diary')
-        \ && lnk != expand('%:t:r')
+        \ && !vimwiki#path#is_equal(lnk, expand('%:t:r'))
         \ ? 1 : 0)
 
   let use_system_open = (
@@ -1319,7 +1319,7 @@ function! vimwiki#base#rename_link() "{{{
 
   " restore wiki buffers
   for bitem in blist
-    if bitem[0] != cur_buffer[0]
+    if !vimwiki#path#is_equal(bitem[0], cur_buffer[0])
       call s:open_wiki_buffer(bitem)
     endif
   endfor
@@ -1751,16 +1751,16 @@ endfunction " }}}
 " s:clean_url
 function! s:clean_url(url) " {{{
   let url = split(a:url, '/\|=\|-\|&\|?\|\.')
-  let url = filter(url, 'v:val != ""')
-  let url = filter(url, 'v:val != "www"')
-  let url = filter(url, 'v:val != "com"')
-  let url = filter(url, 'v:val != "org"')
-  let url = filter(url, 'v:val != "net"')
-  let url = filter(url, 'v:val != "edu"')
-  let url = filter(url, 'v:val != "http\:"')
-  let url = filter(url, 'v:val != "https\:"')
-  let url = filter(url, 'v:val != "file\:"')
-  let url = filter(url, 'v:val != "xml\:"')
+  let url = filter(url, 'v:val !=# ""')
+  let url = filter(url, 'v:val !=# "www"')
+  let url = filter(url, 'v:val !=# "com"')
+  let url = filter(url, 'v:val !=# "org"')
+  let url = filter(url, 'v:val !=# "net"')
+  let url = filter(url, 'v:val !=# "edu"')
+  let url = filter(url, 'v:val !=# "http\:"')
+  let url = filter(url, 'v:val !=# "https\:"')
+  let url = filter(url, 'v:val !=# "file\:"')
+  let url = filter(url, 'v:val !=# "xml\:"')
   return join(url, " ")
 endfunction " }}}
 
