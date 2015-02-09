@@ -11,7 +11,7 @@ endfunction "}}}
 
 " Define path-compare function, either case-sensitive or not, depending on OS.
 "{{{ " function! vimwiki#path#is_equal(p1, p2)
-if has('win32')
+if vimwiki#u#is_windows()
   function! vimwiki#path#is_equal(p1, p2)
     return a:p1 ==? a:p2
   endfunction
