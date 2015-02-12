@@ -4,9 +4,6 @@
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
 
-" placeholder for math environments
-let b:vimwiki_mathEnv = ""
-
 " text: $ equation_inline $
 let g:vimwiki_rxEqIn = '\$[^$`]\+\$'
 let g:vimwiki_char_eqin = '\$'

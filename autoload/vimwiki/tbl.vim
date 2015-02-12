@@ -54,28 +54,28 @@ function! s:sep_splitter() "{{{
 endfunction "}}}
 
 function! s:is_table(line) "{{{
-  return s:is_separator(a:line) || (a:line !~ s:rxSep().s:rxSep() && a:line =~ '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
+  return s:is_separator(a:line) || (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
 endfunction "}}}
 
 function! s:is_separator(line) "{{{
-  return a:line =~ '^\s*'.s:rxSep().'\(--\+'.s:rxSep().'\)\+\s*$'
+  return a:line =~# '^\s*'.s:rxSep().'\(--\+'.s:rxSep().'\)\+\s*$'
 endfunction "}}}
 
 function! s:is_separator_tail(line) "{{{
-  return a:line =~ '^\{-1}\%(\s*\|-*\)\%('.s:rxSep().'-\+\)\+'.s:rxSep().'\s*$'
+  return a:line =~# '^\{-1}\%(\s*\|-*\)\%('.s:rxSep().'-\+\)\+'.s:rxSep().'\s*$'
 endfunction "}}}
 
 function! s:is_last_column(lnum, cnum) "{{{
   let line = strpart(getline(a:lnum), a:cnum - 1)
-  "echomsg "DEBUG is_last_column> ".(line =~ s:rxSep().'\s*$' && line !~ s:rxSep().'.*'.s:rxSep().'\s*$')
-  return line =~ s:rxSep().'\s*$'  && line !~ s:rxSep().'.*'.s:rxSep().'\s*$'
+  "echomsg "DEBUG is_last_column> ".(line =~# s:rxSep().'\s*$' && line !~# s:rxSep().'.*'.s:rxSep().'\s*$')
+  return line =~# s:rxSep().'\s*$'  && line !~# s:rxSep().'.*'.s:rxSep().'\s*$'
  
 endfunction "}}}
 
 function! s:is_first_column(lnum, cnum) "{{{
   let line = strpart(getline(a:lnum), 0, a:cnum - 1)
-  "echomsg "DEBUG is_first_column> ".(line =~ '^\s*'.s:rxSep() && line !~ '^\s*'.s:rxSep().'.*'.s:rxSep())
-  return line =~ '^\s*$' || (line =~ '^\s*'.s:rxSep() && line !~ '^\s*'.s:rxSep().'.*'.s:rxSep())
+  "echomsg "DEBUG is_first_column> ".(line =~# '^\s*'.s:rxSep() && line !~# '^\s*'.s:rxSep().'.*'.s:rxSep())
+  return line =~# '^\s*$' || (line =~# '^\s*'.s:rxSep() && line !~# '^\s*'.s:rxSep().'.*'.s:rxSep())
 endfunction "}}}
 
 function! s:count_separators_up(lnum) "{{{
@@ -134,11 +134,11 @@ function! vimwiki#tbl#get_cells(line) "{{{
   for idx in range(strlen(a:line))
     " The only way I know Vim can do Unicode...
     let ch = a:line[idx]
-    if state == 'NONE'
+    if state ==# 'NONE'
       if ch == '|'
         let state = 'CELL'
       endif
-    elseif state == 'CELL'
+    elseif state ==# 'CELL'
       if ch == '[' || ch == '{'
         let state = 'BEFORE_QUOTE_START'
         let quote = ch
@@ -148,7 +148,7 @@ function! vimwiki#tbl#get_cells(line) "{{{
       else
         let cell .= ch
       endif
-    elseif state == 'BEFORE_QUOTE_START'
+    elseif state ==# 'BEFORE_QUOTE_START'
       if ch == '[' || ch == '{'
         let state = 'QUOTE'
         let quote .= ch
@@ -157,12 +157,12 @@ function! vimwiki#tbl#get_cells(line) "{{{
         let cell .= quote.ch
         let quote = ''
       endif
-    elseif state == 'QUOTE'
+    elseif state ==# 'QUOTE'
       if ch == ']' || ch == '}'
         let state = 'BEFORE_QUOTE_END'
       endif
       let quote .= ch
-    elseif state == 'BEFORE_QUOTE_END'
+    elseif state ==# 'BEFORE_QUOTE_END'
       if ch == ']' || ch == '}'
         let state = 'CELL'
       endif
@@ -495,7 +495,7 @@ function! vimwiki#tbl#kbd_shift_tab() "{{{
 endfunction "}}}
 
 function! vimwiki#tbl#format(lnum, ...) "{{{
-  if !(&filetype == 'vimwiki')
+  if !(&filetype ==? 'vimwiki')
     return
   endif
   let line = getline(a:lnum)
@@ -570,7 +570,7 @@ function! vimwiki#tbl#align_or_cmd(cmd) "{{{
 endfunction "}}}
 
 function! vimwiki#tbl#reset_tw(lnum) "{{{
-  if !(&filetype == 'vimwiki')
+  if !(&filetype ==? 'vimwiki')
     return
   endif
   let line = getline(a:lnum)

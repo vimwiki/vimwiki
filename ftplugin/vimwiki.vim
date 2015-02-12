@@ -46,7 +46,7 @@ function! Complete_wikifiles(findstart, base)
       let s:line_context = '['
       return startoflink
     endif
-    if VimwikiGet('syntax') == 'markdown'
+    if VimwikiGet('syntax') ==? 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
         let s:line_context = '['
@@ -75,7 +75,7 @@ function! Complete_wikifiles(findstart, base)
             \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
       endif
       return tags
-    elseif a:base !~ '#'
+    elseif a:base !~# '#'
       " we look for wiki files
 
       if a:base =~# '^wiki\d:'
@@ -108,7 +108,7 @@ function! Complete_wikifiles(findstart, base)
       " we look for anchors in the given wikifile
 
       let segments = split(a:base, '#', 1)
-      let given_wikifile = segments[0]=='' ? expand('%:t:r') : segments[0]
+      let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
       let link_infos = vimwiki#base#resolve_scheme(given_wikifile.'#', 0, 1)
       let wikifile = link_infos[6]
       let syntax = VimwikiGet('syntax', link_infos[0])
@@ -172,12 +172,12 @@ function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
 
   " Header/section folding...
-  if line =~ g:vimwiki_rxHeader
+  if line =~# g:vimwiki_rxHeader
     return '>'.vimwiki#u#count_first_sym(line)
   " Code block folding...
-  elseif line =~ '^\s*'.g:vimwiki_rxPreStart
+  elseif line =~# '^\s*'.g:vimwiki_rxPreStart
     return 'a1'
-  elseif line =~ '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+  elseif line =~# '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
     return 's1'
   else
     return "="
@@ -218,7 +218,7 @@ function! VimwikiFoldText() "{{{
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
   let len_text = ' ['.fold_len.'] '
-  if line !~ '^\s*'.g:vimwiki_rxPreStart
+  if line !~# '^\s*'.g:vimwiki_rxPreStart
     let [main_text, spare_len] = s:shorten_text(main_text, 50)
     return main_text.len_text
   else

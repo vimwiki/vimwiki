@@ -25,17 +25,6 @@ function! s:get_date_link(fmt) "{{{
   return strftime(a:fmt)
 endfunction "}}}
 
-function! s:link_exists(lines, link) "{{{
-  let link_exists = 0
-  for line in a:lines
-    if line =~ escape(a:link, '[]\')
-      let link_exists = 1
-      break
-    endif
-  endfor
-  return link_exists
-endfunction "}}}
-
 function! s:diary_path(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
   return VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx)
@@ -54,7 +43,7 @@ endfunction "}}}
 function! s:get_position_links(link) "{{{
   let idx = -1
   let links = []
-  if a:link =~ '^\d\{4}-\d\d-\d\d'
+  if a:link =~# '^\d\{4}-\d\d-\d\d'
     let links = keys(s:get_diary_links())
     " include 'today' into links
     if index(links, s:diary_date_link()) == -1
@@ -81,7 +70,7 @@ fun! s:read_captions(files) "{{{
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
-        if line =~ g:vimwiki_rxHeader && !has_key(result, fl_key)
+        if line =~# g:vimwiki_rxHeader && !has_key(result, fl_key)
           let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
         endif
       endfor
@@ -99,10 +88,10 @@ fun! s:get_diary_links(...) "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
   let files = split(s_files, '\n')
-  call filter(files, 'fnamemodify(v:val, ":t") =~ "'.escape(rx, '\').'"')
+  call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
   " remove backup files (.wiki~)
-  call filter(files, 'v:val !~ ''.*\~$''')
+  call filter(files, 'v:val !~# ''.*\~$''')
 
   if a:0
     call add(files, a:1)
@@ -134,7 +123,7 @@ fun! s:group_links(links) "{{{
 endfun "}}}
 
 fun! s:sort(lst) "{{{
-  if VimwikiGet("diary_sort") == 'desc'
+  if VimwikiGet("diary_sort") ==? 'desc'
     return reverse(sort(a:lst))
   else
     return sort(a:lst)
@@ -311,7 +300,7 @@ endfunction "}}}
 function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
-  if  current_file == diary_file
+  if vimwiki#path#is_equal(current_file, diary_file)
     call s:delete_diary_section()
     call s:insert_diary_section()
   else
@@ -327,7 +316,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
 
   let link = a:year.'-'.month.'-'.day
   if winnr('#') == 0
-    if a:dir == 'V'
+    if a:dir ==? 'V'
       vsplit
     else
       split

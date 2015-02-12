@@ -9,12 +9,24 @@ function! vimwiki#path#chomp_slash(str) "{{{
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction "}}}
 
+" Define path-compare function, either case-sensitive or not, depending on OS.
+"{{{ " function! vimwiki#path#is_equal(p1, p2)
+if vimwiki#u#is_windows()
+  function! vimwiki#path#is_equal(p1, p2)
+    return a:p1 ==? a:p2
+  endfunction
+else
+  function! vimwiki#path#is_equal(p1, p2)
+    return a:p1 ==# a:p2
+  endfunction
+endif "}}}
+
 " collapse sections like /a/b/../c to /a/c
 function! vimwiki#path#normalize(path) "{{{
   let path = a:path
   while 1
     let result = substitute(path, '/[^/]\+/\.\.', '', '')
-    if result == path
+    if result ==# path
       break
     endif
     let path = result
@@ -38,7 +50,7 @@ endfunction "}}}
 function! vimwiki#path#is_link_to_dir(link) "{{{
   " Check if link is to a directory.
   " It should be ended with \ or /.
-  if a:link =~ '.\+[/\\]$'
+  if a:link =~# '.\+[/\\]$'
     return 1
   endif
   return 0
@@ -56,7 +68,7 @@ function! vimwiki#path#path_common_pfx(path1, path2) "{{{
 
   let idx = 0
   let minlen = min([len(p1), len(p2)])
-  while (idx < minlen) && (p1[idx] ==? p2[idx])
+  while (idx < minlen) && vimwiki#path#is_equal(p1[idx], p2[idx])
     let idx = idx + 1
   endwhile
   if idx == 0
@@ -80,7 +92,7 @@ function! vimwiki#path#relpath(dir, file) "{{{
   let result = []
   let dir = split(a:dir, '/')
   let file = split(a:file, '/')
-  while (len(dir) > 0 && len(file) > 0) && dir[0] == file[0]
+  while (len(dir) > 0 && len(file) > 0) && vimwiki#path#is_equal(dir[0], file[0])
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
@@ -116,7 +128,8 @@ function! vimwiki#path#mkdir(path, ...) "{{{
       let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
     endif
 
-    if a:0 && a:1 && tolower(input("Vimwiki: Make new directory: ".path."\n [Y]es/[n]o? ")) !~ "^y"
+    if a:0 && a:1 && input("Vimwiki: Make new directory: "
+          \ .path."\n [y]es/[N]o? ") !~? '^y'
       return 0
     endif
 

@@ -185,10 +185,10 @@ endfunction "}}}
 "Returns: level of the line
 "0 is the 'highest' level
 function! s:get_level(lnum) "{{{
-  if getline(a:lnum) =~ '^\s*$'
+  if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if VimwikiGet('syntax') != 'media'
+  if VimwikiGet('syntax') !=? 'media'
     let level = indent(a:lnum)
   else
     let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
@@ -207,7 +207,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
   let number_chars = a:item.mrkr[:-2]
   let divisor = a:item.mrkr[-1:]
 
-  if number_chars =~ '\d\+'
+  if number_chars =~# '\d\+'
     return '1'
   endif
   if number_chars =~# '\l\+'
@@ -840,7 +840,7 @@ function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
 
     "if from_line has CB, toggle it and set all siblings to the same new state
     let rate_first_line = s:get_rate(from_item)
-    let new_rate = rate_first_line==100 ? 0 : 100
+    let new_rate = rate_first_line == 100 ? 0 : 100
 
     for cur_ln in range(from_item.lnum, a:to_line)
       let cur_item = s:get_item(cur_ln)
@@ -922,7 +922,7 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum,
@@ -944,7 +944,7 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_indent = 0
-  if VimwikiGet('syntax') == 'media' && a:item.type == 1 &&
+  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
@@ -966,7 +966,7 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if VimwikiGet('syntax') == 'media' && item.type == 1 &&
+  if VimwikiGet('syntax') ==? 'media' && item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr,
@@ -983,17 +983,17 @@ endfunction "}}}
 function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
-    if a:direction == 'increase' && a:from_line == a:to_line &&
+    if a:direction ==# 'increase' && a:from_line == a:to_line &&
           \ empty(getline(a:from_line))
       "that's because :> doesn't work on an empty line
       normal! gi
     else
-      execute a:from_line.','.a:to_line.(a:direction == 'increase' ? '>' : '<')
+      execute a:from_line.','.a:to_line.(a:direction ==# 'increase' ? '>' : '<')
     endif
     return
   endif
 
-  if a:direction == 'decrease' && s:get_level(from_item.lnum) == 0
+  if a:direction ==# 'decrease' && s:get_level(from_item.lnum) == 0
     return
   endif
 
@@ -1026,7 +1026,7 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
   let more_than_one_level_concerned = 0
 
   let first_line_indented_by =
-        \ (a:direction == 'increase') ?
+        \ (a:direction ==# 'increase') ?
         \ s:increase_level(from_item) : s:decrease_level(from_item)
 
   let cur_ln = s:get_next_line(from_item.lnum)
@@ -1112,7 +1112,7 @@ endfunction "}}}
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') != 'media'
+    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') !=? 'media'
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1121,7 +1121,7 @@ function! s:set_new_mrkr(item, new_mrkr) "{{{
 endfunction "}}}
 
 function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
-  let cur_col_from_eol = col("$") - (a:mode == "i" ? col("'^") : col('.'))
+  let cur_col_from_eol = col("$") - (a:mode ==# "i" ? col("'^") : col('.'))
   let new_mrkr = a:new_mrkr
   let cur_ln = a:from_line
   while 1
@@ -1138,13 +1138,13 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
       "use *** if the item above has *** too
       let item_above = s:get_prev_list_item(cur_item, 1)
       if item_above.type == 1 &&
-            \ s:first_char(item_above.mrkr) ==s:first_char(new_mrkr)
+            \ s:first_char(item_above.mrkr) ==# s:first_char(new_mrkr)
         let new_mrkr = item_above.mrkr
       else
         "use *** if the item below has *** too
         let item_below = s:get_next_list_item(cur_item, 1)
         if item_below.type == 1 &&
-              \ s:first_char(item_below.mrkr) == s:first_char(new_mrkr)
+              \ s:first_char(item_below.mrkr) ==# s:first_char(new_mrkr)
           let new_mrkr = item_below.mrkr
         else
           "if the old is ### and the new is * use ***
@@ -1155,7 +1155,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
             "use *** if the parent item has **
             let parent_item = s:get_parent(cur_item)
             if parent_item.type == 1 &&
-                  \ s:first_char(parent_item.mrkr) == s:first_char(new_mrkr)
+                  \ s:first_char(parent_item.mrkr) ==# s:first_char(new_mrkr)
               let new_mrkr = repeat(s:first_char(parent_item.mrkr),
                     \ s:string_length(parent_item.mrkr)+1)
             endif
@@ -1193,7 +1193,7 @@ endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
-  if a:item.type == 0 || VimwikiGet('syntax') == 'media'
+  if a:item.type == 0 || VimwikiGet('syntax') ==? 'media'
     return
   endif
 
@@ -1208,7 +1208,7 @@ function! s:adjust_mrkr(item) "{{{
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     let parent_item = s:get_parent(a:item)
     if parent_item.type == 1 &&
-          \ s:first_char(parent_item.mrkr) == s:first_char(a:item.mrkr)
+          \ s:first_char(parent_item.mrkr) ==# s:first_char(a:item.mrkr)
       let new_mrkr = repeat(s:first_char(parent_item.mrkr),
             \ s:string_length(parent_item.mrkr)+1)
     endif
@@ -1223,7 +1223,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( VimwikiGet('syntax') != 'media' ? indent(a:from) : 0 )
+  let new_indent = ( VimwikiGet('syntax') !=? 'media' ? indent(a:from) : 0 )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))
@@ -1286,7 +1286,7 @@ endfunction "}}}
 function! vimwiki#lst#kbd_O() "{{{
   normal! Ox
   let cur_ln = line('.')
-  if getline(cur_ln+1) !~ '^\s*$'
+  if getline(cur_ln+1) !~# '^\s*$'
     call s:clone_marker_from_to(cur_ln+1, cur_ln)
   else
     call s:clone_marker_from_to(cur_ln-1, cur_ln)
@@ -1365,7 +1365,7 @@ function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
     normal! gi
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
-    if !a:not_at_eol && getline(a:lnum) =~ ':$'
+    if !a:not_at_eol && getline(a:lnum) =~# ':$'
       call s:change_level(a:lnum+1, a:lnum+1, 'increase', 0)
     endif
   else
@@ -1393,17 +1393,17 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) "{{{
   endif
 
   let insert_new_marker = (a:normal == 1 || a:normal == 3)
-  if getline('.')[col("'^")-1:] =~ '^\s\+$'
+  if getline('.')[col("'^")-1:] =~# '^\s\+$'
     let cur_col = 0
   else
     let cur_col = col("$") - col("'^")
-    if getline('.')[col("'^")-1] =~ '\s' && exists("*strdisplaywidth")
+    if getline('.')[col("'^")-1] =~# '\s' && exists("*strdisplaywidth")
       let ws_behind_cursor =
             \ strdisplaywidth(matchstr(getline('.')[col("'^")-1:], '\s\+'),
             \ virtcol("'^")-1)
       let cur_col -= ws_behind_cursor
     endif
-    if insert_new_marker && cur_col == 0 && getline(lnum) =~ '\s$'
+    if insert_new_marker && cur_col == 0 && getline(lnum) =~# '\s$'
       let insert_new_marker = 0
     endif
   endif
@@ -1450,7 +1450,7 @@ function! vimwiki#lst#toggle_list_item() "{{{
   let new_cur_col = col("$") - cur_col_from_eol
   call cursor(cur_item.lnum, new_cur_col >= 1 ? new_cur_col : 1)
 
-  if cur_col_from_eol == 0 || getline(cur_item.lnum) =~ '^\s*$'
+  if cur_col_from_eol == 0 || getline(cur_item.lnum) =~# '^\s*$'
     startinsert!
   else
     startinsert

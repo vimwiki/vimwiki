@@ -81,11 +81,11 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     " XXX: @Maxim: most likely!  I am still working on a seemless way to
     " integrate regexp's without complicating syntax/vimwiki.vim
   else
-    if a:split == "split"
+    if a:split ==# "split"
       let cmd = ":split "
-    elseif a:split == "vsplit"
+    elseif a:split ==# "vsplit"
       let cmd = ":vsplit "
-    elseif a:split == "tabnew"
+    elseif a:split ==# "tabnew"
       let cmd = ":tabnew "
     else
       let cmd = ":e "

@@ -39,7 +39,8 @@ function! s:find_wiki(path) "{{{
   while idx < len(g:vimwiki_list)
     let idx_path = expand(VimwikiGet('path', idx))
     let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#path_common_pfx(idx_path, path) == idx_path
+    if vimwiki#path#is_equal(
+          \ vimwiki#path#path_common_pfx(idx_path, path), idx_path)
       return idx
     endif
     let idx += 1
@@ -88,14 +89,14 @@ function! s:vimwiki_idx() " {{{
 endfunction " }}}
 
 function! s:setup_buffer_leave() "{{{
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "Setup_buffer_leave g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
-  if &filetype == 'vimwiki'
+  if &filetype ==? 'vimwiki'
     " cache global vars of current state XXX: SLOW!?
     call vimwiki#base#cache_buffer_state()
   endif
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "  Setup_buffer_leave g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
 
@@ -108,7 +109,7 @@ function! s:setup_buffer_leave() "{{{
 endfunction "}}}
 
 function! s:setup_filetype() "{{{
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "Setup_filetype g:curr_idx=".g:vimwiki_current_idx." b:curr_idx=".s:vimwiki_idx().""
   endif
   let time0 = reltime()  " start the clock  "XXX
@@ -116,7 +117,7 @@ function! s:setup_filetype() "{{{
   let path = expand('%:p:h')
   " XXX: find_wiki() does not (yet) take into consideration the ext
   let idx = s:find_wiki(path)
-  if g:vimwiki_debug ==3
+  if g:vimwiki_debug == 3
     echom "  Setup_filetype g:curr_idx=".g:vimwiki_current_idx." find_idx=".idx." b:curr_idx=".s:vimwiki_idx().""
   endif
 
@@ -210,7 +211,7 @@ function! s:setup_buffer_enter() "{{{
     if g:vimwiki_debug ==3
       echom "  Setup_buffer_enter g:curr_idx=".g:vimwiki_current_idx." (set ft vimwiki) b:curr_idx=".s:vimwiki_idx().""
     endif
-  elseif &syntax == 'vimwiki'
+  elseif &syntax ==? 'vimwiki'
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;
     " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
@@ -227,15 +228,15 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding == 'expr'
+  if g:vimwiki_folding ==? 'expr'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding == 'list' || g:vimwiki_folding == 'lists'
+  elseif g:vimwiki_folding ==? 'list' || g:vimwiki_folding ==? 'lists'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding == 'syntax'
+  elseif g:vimwiki_folding ==? 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
   else
@@ -357,6 +358,23 @@ function! VimwikiClear(option, ...) "{{{
 endfunction "}}}
 " }}}
 
+function! s:vimwiki_get_known_extensions() " {{{
+  " Getting all extensions that different wikis could have
+  let extensions = {}
+  for wiki in g:vimwiki_list
+    if has_key(wiki, 'ext')
+      let extensions[wiki.ext] = 1
+    else
+      let extensions['.wiki'] = 1
+    endif
+  endfor
+  " append map g:vimwiki_ext2syntax
+  for ext in keys(g:vimwiki_ext2syntax)
+    let extensions[ext] = 1
+  endfor
+  return keys(extensions)
+endfunction " }}}
+
 " }}}
 
 " CALLBACK functions "{{{
@@ -385,9 +403,9 @@ let s:vimwiki_defaults.ext = '.wiki'
 let s:vimwiki_defaults.maxhi = 0
 let s:vimwiki_defaults.syntax = 'default'
 
-let s:vimwiki_defaults.template_path = ''
-let s:vimwiki_defaults.template_default = ''
-let s:vimwiki_defaults.template_ext = ''
+let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
+let s:vimwiki_defaults.template_default = 'default'
+let s:vimwiki_defaults.template_ext = '.tpl'
 
 let s:vimwiki_defaults.nested_syntaxes = {}
 let s:vimwiki_defaults.auto_export = 0
@@ -454,6 +472,8 @@ call s:default('map_prefix', '<Leader>w')
 
 call s:default('current_idx', 0)
 
+call s:default('auto_chdir', 0)
+
 " Scheme regexes should be defined even if syntax file is not loaded yet
 " cause users should be able to <leader>w<leader>w without opening any
 " vimwiki file first
@@ -488,7 +508,7 @@ augroup end
 
 augroup vimwiki
   autocmd!
-  for s:ext in vimwiki#base#get_known_extensions()
+  for s:ext in s:vimwiki_get_known_extensions()
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_reenter()'
     exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave,BufHidden *'.s:ext.' call s:setup_buffer_leave()'
