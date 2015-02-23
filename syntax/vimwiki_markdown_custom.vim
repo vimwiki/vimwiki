@@ -1,7 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
-" Author: Stuart Andrews <stu.andrews@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Special stuff for markdown syntax
+" Home: https://github.com/vimwiki/vimwiki/
 
 " LINKS: assume this is common to all syntaxes "{{{
 

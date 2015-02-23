@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
-" Default syntax
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Defines markdown syntax
+" Home: https://github.com/vimwiki/vimwiki/
 
 " text: $ equation_inline $
 let g:vimwiki_rxEqIn = '\$[^$`]\+\$'

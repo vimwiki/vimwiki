@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
-" Utility functions
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Utility functions
+" Home: https://github.com/vimwiki/vimwiki/
 
 function! vimwiki#u#trim(string, ...) "{{{
   let chars = ''

@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Desc: Link functions for markdown syntax
-" Author: Stuart Andrews <stu.andrews@gmail.com> (.. i.e. don't blame Maxim!)
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 " MISC helper functions {{{

@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
-" Path manipulation functions
-" Author: Daniel Schemala <istjanichtzufassen@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Path manipulation functions
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 function! vimwiki#path#chomp_slash(str) "{{{

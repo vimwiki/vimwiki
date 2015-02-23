@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
-" Export to HTML
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Export to HTML
+" Home: https://github.com/vimwiki/vimwiki/
 
 " TODO: We need vimwiki abstract syntax tree. If properly designed it wourld
 " greatly symplify different syntax to HTML generation.

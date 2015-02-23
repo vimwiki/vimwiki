@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
-" Syntax definitions which are always available
-" Author: Daniel Schemala <istjanichtzufassen@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Syntax definitions which are always available
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 " Define Regexes of anchors for every syntax.
