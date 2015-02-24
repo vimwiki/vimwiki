@@ -514,7 +514,7 @@ function! vimwiki#base#backlinks() "{{{
   let locations = []
   for idx in range(len(g:vimwiki_list))
     let syntax = VimwikiGet('syntax', idx)
-    let wikifiles = s:find_files(idx, 0)
+    let wikifiles = vimwiki#base#find_files(idx, 0)
     for source_file in wikifiles
       let links = s:get_links(source_file, idx)
       for [target_file, _, lnum, col] in links
@@ -538,7 +538,7 @@ endfunction "}}}
 " Returns: a list containing all files of the given wiki as absolute file path.
 " If the given wiki number is negative, the diary of the current wiki is used
 " If the second argument is not zero, only directories are found
-function! s:find_files(wiki_nr, directories_only)
+function! vimwiki#base#find_files(wiki_nr, directories_only)
   let wiki_nr = a:wiki_nr
   if wiki_nr >= 0
     let root_directory = VimwikiGet('path', wiki_nr)
@@ -565,7 +565,7 @@ endfunction
 " Returns: a list containing the links to all wiki files for the given wiki
 " If the given wiki number is negative, the diary of the current wiki is used
 function! vimwiki#base#get_wikilinks(wiki_nr)
-  let files = s:find_files(a:wiki_nr, 0)
+  let files = vimwiki#base#find_files(a:wiki_nr, 0)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   elseif a:wiki_nr < 0
@@ -584,7 +584,7 @@ endfunction
 
 " Returns: a list containing 
 function! vimwiki#base#get_wiki_directories(wiki_nr)
-  let dirs = s:find_files(a:wiki_nr, 1)
+  let dirs = vimwiki#base#find_files(a:wiki_nr, 1)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   else
@@ -786,7 +786,7 @@ function! vimwiki#base#check_links() "{{{
   let errors = []
   for idx in range(len(g:vimwiki_list))
     let syntax = VimwikiGet('syntax', idx)
-    let wikifiles = s:find_files(idx, 0)
+    let wikifiles = vimwiki#base#find_files(idx, 0)
     for wikifile in wikifiles
       let links_of_files[wikifile] = s:get_links(wikifile, idx)
       let anchors_of_files[wikifile] = vimwiki#base#get_anchors(wikifile, syntax)

@@ -38,7 +38,7 @@ function! vimwiki#tags#update_tags(full_rebuild) "{{{
     " Save
     call s:write_tags_metadata(metadata)
   else " full rebuild
-    let files = s:find_files(g:vimwiki_current_idx, 0)
+    let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
     let metadata = []
     for file in files
       let page_name = fnamemodify(file, ':t:r')
