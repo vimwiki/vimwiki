@@ -31,23 +31,6 @@ function! s:default(varname, value) "{{{
   endif
 endfunction "}}}
 
-function! s:find_wiki(path) "{{{
-  " XXX: find_wiki() does not (yet) take into consideration the ext
-  let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
-  let idx = 0
-  while idx < len(g:vimwiki_list)
-    let idx_path = expand(VimwikiGet('path', idx))
-    let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#is_equal(
-          \ vimwiki#path#path_common_pfx(idx_path, path), idx_path)
-      return idx
-    endif
-    let idx += 1
-  endwhile
-  return -1
-  " an orphan page has been detected
-endfunction "}}}
-
 function! s:path_html(idx) "{{{
   let path_html = VimwikiGet('path_html', a:idx)
   if !empty(path_html)
@@ -114,8 +97,7 @@ function! s:setup_filetype() "{{{
   let time0 = reltime()  " start the clock  "XXX
   " Find what wiki current buffer belongs to.
   let path = expand('%:p:h')
-  " XXX: find_wiki() does not (yet) take into consideration the ext
-  let idx = s:find_wiki(path)
+  let idx = vimwiki#base#find_wiki(path)
   if g:vimwiki_debug == 3
     echom "  Setup_filetype g:curr_idx=".g:vimwiki_current_idx." find_idx=".idx." b:curr_idx=".s:vimwiki_idx().""
   endif
@@ -166,8 +148,7 @@ function! s:setup_buffer_enter() "{{{
     " buffer's path and ext.
     " Else set g:vimwiki_current_idx to that wiki index.
     let path = expand('%:p:h')
-    " XXX: find_wiki() does not (yet) take into consideration the ext
-    let idx = s:find_wiki(path)
+    let idx = vimwiki#base#find_wiki(path)
 
     if g:vimwiki_debug ==3
       echom "  Setup_buffer_enter g:curr_idx=".g:vimwiki_current_idx." find_idx=".idx." b:curr_idx=".s:vimwiki_idx().""
