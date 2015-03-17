@@ -12,7 +12,8 @@ endif
 "TODO do nothing if ...? (?)
 let g:starttime = reltime()  " start the clock
 if VimwikiGet('maxhi')
-  let b:existing_wikifiles = vimwiki#base#get_wikilinks(g:vimwiki_current_idx)
+  let b:existing_wikifiles =
+        \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
   let b:existing_wikidirs  =
         \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
 endif

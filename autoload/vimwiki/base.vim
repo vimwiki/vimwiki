@@ -605,7 +605,7 @@ endfunction " }}}
 
 " vimwiki#base#generate_links
 function! vimwiki#base#generate_links() "{{{
-  let links = vimwiki#base#get_wikilinks(g:vimwiki_current_idx)
+  let links = vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 0)
 
   call append(line('$'), substitute(g:vimwiki_rxH1_Template, '__Header__', 'Generated Links', ''))
 
@@ -686,9 +686,11 @@ function! s:find_files(wiki_nr, directories_only)
   return split(globpath(root_directory, pattern), '\n')
 endfunction
 
-" Returns: a list containing the links to all wiki files for the given wiki
-" If the given wiki number is negative, the diary of the current wiki is used
-function! vimwiki#base#get_wikilinks(wiki_nr)
+" Returns: a list containing the links to get from the current file to all wiki
+" files in the given wiki.
+" If the given wiki number is negative, the diary of the current wiki is used.
+" If also_absolute_links is nonzero, also return links of the form /file
+function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
   let files = s:find_files(a:wiki_nr, 0)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
@@ -703,21 +705,38 @@ function! vimwiki#base#get_wikilinks(wiki_nr)
     let wikifile = vimwiki#path#relpath(cwd, wikifile)
     call add(result, wikifile)
   endfor
+  if a:also_absolute_links
+    for wikifile in files
+      if a:wiki_nr == g:vimwiki_current_idx
+        let cwd = VimwikiGet('path')
+      elseif a:wiki_nr < 0
+        let cwd = VimwikiGet('path').VimwikiGet('diary_rel_path')
+      endif
+      let wikifile = fnamemodify(wikifile, ':r') " strip extension
+      let wikifile = '/'.vimwiki#path#relpath(cwd, wikifile)
+      call add(result, wikifile)
+    endfor
+  endif
   return result
 endfunction
 
-" Returns: a list containing 
+" Returns: a list containing the links to all directories from the current file
 function! vimwiki#base#get_wiki_directories(wiki_nr)
   let dirs = s:find_files(a:wiki_nr, 1)
   if a:wiki_nr == g:vimwiki_current_idx
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
+    let root_dir = VimwikiGet('path')
   else
     let cwd = VimwikiGet('path', a:wiki_nr)
   endif
   let result = ['./']
   for wikidir in dirs
-    let wikidir = vimwiki#path#relpath(cwd, wikidir).'/'
-    call add(result, wikidir)
+    let wikidir_relative = vimwiki#path#relpath(cwd, wikidir).'/'
+    call add(result, wikidir_relative)
+    if a:wiki_nr == g:vimwiki_current_idx
+      let wikidir_absolute = '/'.vimwiki#path#relpath(root_dir, wikidir).'/'
+      call add(result, wikidir_absolute)
+    endif
   endfor
   return result
 endfunction
