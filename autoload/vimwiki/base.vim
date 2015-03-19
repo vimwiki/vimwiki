@@ -318,7 +318,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
       return link_infos
     endif
 
-    if !is_relative
+    if !is_relative || link_infos.index != source_wiki
       let root_dir = VimwikiGet('path', link_infos.index)
     endif
 
