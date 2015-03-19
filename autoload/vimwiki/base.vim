@@ -880,11 +880,18 @@ function! vimwiki#base#check_links() "{{{
                 \'text': "there is no such anchor: ".target_anchor})
         endif
       else
-        if filereadable(target_file) " maybe it's a non-wiki file
-          let anchors_of_files[target_file] = []
+        if target_file =~ '/$'  " maybe it's a link to a directory
+          if !isdirectory(target_file)
+            call add(errors, {'filename':wikifile, 'lnum':lnum, 'col':col,
+                  \'text': "there is no such directory: ".target_file})
+          endif
         else
-          call add(errors, {'filename':wikifile, 'lnum':lnum, 'col':col,
-                \'text': "there is no such file: ".target_file})
+          if filereadable(target_file) " maybe it's a non-wiki file
+            let anchors_of_files[target_file] = []
+          else
+            call add(errors, {'filename':wikifile, 'lnum':lnum, 'col':col,
+                  \'text': "there is no such file: ".target_file})
+          endif
         endif
       endif
     endfor
