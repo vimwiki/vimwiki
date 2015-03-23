@@ -16,7 +16,8 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
-    execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
