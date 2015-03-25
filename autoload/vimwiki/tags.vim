@@ -26,7 +26,7 @@ let s:TAGS_METADATA_FILE_NAME = '.tags'
 function! vimwiki#tags#update_tags(full_rebuild) "{{{
   if !a:full_rebuild
     " Updating for one page (current)
-    let page_name = expand('%:t:r')
+    let page_name = VimwikiGet('subdir') . expand('%:t:r')
     " Collect tags in current file
     let tags = s:scan_tags(getline(1, '$'), page_name)
     " Load metadata file
