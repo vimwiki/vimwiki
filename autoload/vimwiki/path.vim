@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
-" Path manipulation functions
-" Author: Daniel Schemala <istjanichtzufassen@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Desc: Path manipulation functions
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 function! vimwiki#path#chomp_slash(str) "{{{
@@ -50,10 +49,7 @@ endfunction "}}}
 function! vimwiki#path#is_link_to_dir(link) "{{{
   " Check if link is to a directory.
   " It should be ended with \ or /.
-  if a:link =~# '.\+[/\\]$'
-    return 1
-  endif
-  return 0
+  return a:link =~# '\m[/\\]$'
 endfunction "}}}
 
 function! vimwiki#path#abs_path_of_link(link) "{{{

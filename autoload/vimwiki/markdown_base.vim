@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Desc: Link functions for markdown syntax
-" Author: Stuart Andrews <stu.andrews@gmail.com> (.. i.e. don't blame Maxim!)
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 " MISC helper functions {{{
@@ -17,7 +16,8 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
-    execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry

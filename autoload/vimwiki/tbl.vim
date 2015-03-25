@@ -5,8 +5,7 @@
 " |--------|------------|-------|--------|---------|
 " | Have   | fun!       | Drink | tea    | Period. |
 "
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 " Load only once {{{
 if exists("g:loaded_vimwiki_tbl_auto") || &cp

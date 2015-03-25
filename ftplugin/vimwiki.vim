@@ -1,7 +1,6 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki filetype plugin file
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 if exists("b:did_ftplugin")
   finish
@@ -95,7 +94,7 @@ function! Complete_wikifiles(findstart, base)
         let scheme = ''
       endif
 
-      let links = vimwiki#base#get_wikilinks(wikinumber)
+      let links = vimwiki#base#get_wikilinks(wikinumber, 0)
       let result = []
       for wikifile in links
         if wikifile =~ '^'.vimwiki#u#escape(prefix)
@@ -109,9 +108,9 @@ function! Complete_wikifiles(findstart, base)
 
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
-      let link_infos = vimwiki#base#resolve_scheme(given_wikifile.'#', 0, 1)
-      let wikifile = link_infos[6]
-      let syntax = VimwikiGet('syntax', link_infos[0])
+      let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
+      let wikifile = link_infos.filename
+      let syntax = VimwikiGet('syntax', link_infos.index)
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 
       let filtered_anchors = []

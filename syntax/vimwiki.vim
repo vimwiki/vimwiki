@@ -1,7 +1,6 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 " Quit if syntax file is already loaded
 if version < 600
@@ -13,7 +12,8 @@ endif
 "TODO do nothing if ...? (?)
 let g:starttime = reltime()  " start the clock
 if VimwikiGet('maxhi')
-  let b:existing_wikifiles = vimwiki#base#get_wikilinks(g:vimwiki_current_idx)
+  let b:existing_wikifiles =
+        \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
   let b:existing_wikidirs  =
         \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
 endif
