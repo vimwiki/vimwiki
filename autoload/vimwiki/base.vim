@@ -965,7 +965,10 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " getpos() directly after this command. Strange.
   if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
     execute a:command.' '.fname
-    if &filetype != 'vimwiki'
+    " Make sure no other plugin takes ownership over the new file. Vimwiki
+    " rules them all! Well, except for directories, which may be opened with
+    " Netrw
+    if &filetype != 'vimwiki' && fname !~ '\m/$'
       set filetype=vimwiki
     endif
   endif
