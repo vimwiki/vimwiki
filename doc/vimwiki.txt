@@ -748,10 +748,26 @@ Link with spaces in it: >
 or: >
   [[This is a link source|Description of the link]]
 
-Links to directories (ending with a "/") are also supported: >
-  [[/home/somebody/|Home Directory]]
+Wiki files don't need to be in the root directory of your wiki, you can put
+them in subdirectories as well: >
+   [[projects/Important Project 1]]
+To jump from that file back to the index file, use this link: >
+   [[../index]]
+or: >
+   [[/index]]
+The latter works, because wiki links starting with "/" are considered to be
+absolute to the wiki root directory, that is, the link [[/index]] always opens
+the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
+are currently in.
 
+Links to directories (ending with a "/") are also supported: >
+  [[a subdirectory/|Other files]]
 Use |g:vimwiki_dir_link| to control the behavior when opening directories.
+
+Typing wikilinks can be simplified by using Vim's omni completion (see
+|compl-omni|) like so: >
+  [[ind<C-X><C-O>
+which opens up a popup menu with all the wiki files starting with "ind".
 
 Raw URLs~
 
