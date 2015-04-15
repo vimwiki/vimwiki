@@ -92,13 +92,20 @@ function! vimwiki#path#relpath(dir, file) "{{{
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
+  if empty(dir) && empty(file)
+    return './'
+  endif
   for segment in dir
     let result += ['..']
   endfor
   for segment in file
     let result += [segment]
   endfor
-  return join(result, '/')
+  let result_path = join(result, '/')
+  if a:file =~ '\m/$'
+    let result_path .= '/'
+  endif
+  return result_path
 endfunction "}}}
 
 " If the optional argument provided and nonzero,
@@ -133,3 +140,11 @@ function! vimwiki#path#mkdir(path, ...) "{{{
     return 1
   endif
 endfunction " }}}
+
+function! vimwiki#path#is_absolute(path) "{{{
+  if vimwiki#u#is_windows()
+    return a:path =~? '\m^\a:'
+  else
+    return a:path =~# '\m^/\|\~/'
+  endif
+endfunction "}}}

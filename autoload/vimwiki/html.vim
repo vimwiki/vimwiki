@@ -372,19 +372,20 @@ function! s:tag_wikiincl(value) "{{{
     let url_0 = matchstr(str, g:vimwiki_rxWikiInclMatchUrl)
     let descr = matchstr(str, vimwiki#html#incl_match_arg(1))
     let verbatim_str = matchstr(str, vimwiki#html#incl_match_arg(2))
-    " resolve url
-    let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
-          \ vimwiki#base#resolve_scheme(url_0, 1, 1)
-    " generate html output
+
+    let link_infos = vimwiki#base#resolve_link(url_0)
+
     " TODO: migrate non-essential debugging messages into g:VimwikiLog
     if g:vimwiki_debug > 1
-      echom '{{idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.'}}'
+      echom string(link_infos)
     endif
 
-    " Issue 343: Image transclusions: schemeless links have .html appended.
-    " If link is schemeless pass it as it is
-    if scheme == ''
-      let url = lnk
+    let url = link_infos.filename
+
+    " strip the .html extension when we have wiki links, so that the user can
+    " simply write {{image.png}} to include an image from the wiki directory
+    if link_infos.scheme =~# '\mwiki\d\+\|diary'
+      let url = fnamemodify(url, ':r')
     endif
 
     let url = escape(url, '#')
@@ -406,20 +407,40 @@ function! s:tag_wikilink(value) "{{{
   let descr = matchstr(str, g:vimwiki_rxWikiLinkMatchDescr)
   let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
 
-  " resolve url
-  let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
-        \ vimwiki#base#resolve_scheme(url, 1, 1)
+  let line = VimwikiLinkConverter(url, s:current_wiki_file,
+        \ s:current_html_file)
+  if line == ''
+    let link_infos = vimwiki#base#resolve_link(url, s:current_wiki_file)
 
-  " generate html output
-  " TODO: migrate non-essential debugging messages into g:VimwikiLog
-  if g:vimwiki_debug > 1
-    echom '[[idx='.idx.', scheme='.scheme.', path='.path.', subdir='.subdir.', lnk='.lnk.', ext='.ext.']]'
+    if link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local'
+      " external file links are always absolute
+      let html_link = link_infos.filename
+    else
+      " wiki links are always relative to the current file
+      echom link_infos.filename fnamemodify(s:current_wiki_file, ':h') fnamemodify(link_infos.filename, ':r')
+      let html_link = vimwiki#path#relpath(
+            \ fnamemodify(s:current_wiki_file, ':h'),
+            \ fnamemodify(link_infos.filename, ':r'))
+      echom html_link
+      if html_link !~ '\m/$'
+        let html_link .= '.html'
+      endif
+    endif
+
+    " generate html output
+    " TODO: migrate non-essential debugging messages into g:VimwikiLog
+    if g:vimwiki_debug > 1
+      echom string(link_infos)
+    endif
+
+    if link_infos.anchor != ''
+      let anchor = substitute(link_infos.anchor, '#', '-', 'g')
+      let html_link .= '#'.anchor
+    endif
+    let line = html_link
   endif
-  if anchor != ''
-    let anchor = substitute(anchor, '#', '-', 'g')
-    let url .= '#'.anchor
-  endif
-  let line = vimwiki#html#linkify_link(url, descr)
+
+  let line =vimwiki#html#linkify_link(line, descr)
   return line
 endfunction "}}}
 "}}}
@@ -1337,6 +1358,11 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
   let path_html = expand(a:path_html).VimwikiGet('subdir') 
   let htmlfile = fnamemodify(wikifile, ":t:r").'.html'
+
+  " the currently processed file name is needed when processing links
+  " yeah yeah, shame on me for using (quasi-) global variables
+  let s:current_wiki_file = wikifile
+  let s:current_html_file = path_html . htmlfile
 
   if s:use_custom_wiki2html()
     let force = 1
