@@ -31,7 +31,7 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
 
-setlocal tags+=./.tags
+setlocal tags+=.tags
 
 " MISC }}}
 
