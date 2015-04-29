@@ -380,12 +380,16 @@ function! s:tag_wikiincl(value) "{{{
       echom string(link_infos)
     endif
 
-    let url = link_infos.filename
-
-    " strip the .html extension when we have wiki links, so that the user can
-    " simply write {{image.png}} to include an image from the wiki directory
-    if link_infos.scheme =~# '\mwiki\d\+\|diary'
-      let url = fnamemodify(url, ':r')
+    if link_infos.scheme =~# '\mlocal\|wiki\d\+\|diary'
+      let url = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'),
+            \ link_infos.filename)
+      " strip the .html extension when we have wiki links, so that the user can
+      " simply write {{image.png}} to include an image from the wiki directory
+      if link_infos.scheme =~# '\mwiki\d\+\|diary'
+        let url = fnamemodify(url, ':r')
+      endif
+    else
+      let url = link_infos.filename
     endif
 
     let url = escape(url, '#')
@@ -412,16 +416,17 @@ function! s:tag_wikilink(value) "{{{
   if line == ''
     let link_infos = vimwiki#base#resolve_link(url, s:current_wiki_file)
 
-    if link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local'
+    if link_infos.scheme ==# 'file'
       " external file links are always absolute
       let html_link = link_infos.filename
+    elseif link_infos.scheme ==# 'local'
+      let html_link = vimwiki#path#relpath(fnamemodify(s:current_html_file,
+            \ ':h'), link_infos.filename)
     else
       " wiki links are always relative to the current file
-      echom link_infos.filename fnamemodify(s:current_wiki_file, ':h') fnamemodify(link_infos.filename, ':r')
       let html_link = vimwiki#path#relpath(
             \ fnamemodify(s:current_wiki_file, ':h'),
             \ fnamemodify(link_infos.filename, ':r'))
-      echom html_link
       if html_link !~ '\m/$'
         let html_link .= '.html'
       endif

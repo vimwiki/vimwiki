@@ -270,7 +270,6 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
         \ 'scheme': '',
         \ 'filename': '',
         \ 'anchor': '',
-        \ 'relative': 0,
         \ }
 
 
@@ -303,12 +302,14 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
 
   " check if absolute or relative path
   if is_wiki_link && link_text[0] == '/'
-    let link_text = link_text[1:]
-    let link_infos.relative = 0
+    if link_text != '/'
+      let link_text = link_text[1:]
+    endif
+    let is_relative = 0
   elseif !is_wiki_link && vimwiki#path#is_absolute(link_text)
-    let link_infos.relative = 0
+    let is_relative = 0
   else
-    let link_infos.relative = 1
+    let is_relative = 1
     let root_dir = fnamemodify(source_file, ':p:h') . '/'
   endif
 
@@ -321,7 +322,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
       return link_infos
     endif
 
-    if !link_infos.relative || link_infos.index != source_wiki
+    if !is_relative || link_infos.index != source_wiki
       let root_dir = VimwikiGet('path', link_infos.index)
     endif
 
@@ -345,7 +346,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
           \ link_text .
           \ VimwikiGet('ext', link_infos.index)
   elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local')
-        \ && link_infos.relative
+        \ && is_relative
     let link_infos.filename = simplify(root_dir . link_text)
   else " absolute file link
     " collapse repeated leading "/"'s within a link
