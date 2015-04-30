@@ -591,10 +591,10 @@ function! vimwiki#base#get_wiki_directories(wiki_nr)
   endif
   let result = ['./']
   for wikidir in dirs
-    let wikidir_relative = vimwiki#path#relpath(cwd, wikidir).'/'
+    let wikidir_relative = vimwiki#path#relpath(cwd, wikidir)
     call add(result, wikidir_relative)
     if a:wiki_nr == g:vimwiki_current_idx
-      let wikidir_absolute = '/'.vimwiki#path#relpath(root_dir, wikidir).'/'
+      let wikidir_absolute = '/'.vimwiki#path#relpath(root_dir, wikidir)
       call add(result, wikidir_absolute)
     endif
   endfor
