@@ -1121,8 +1121,9 @@ number of special schemes are supported: "wikiX:", "diary:", "file:", "local:"
 and schemeless.
 
 While "wikiX", "diary" and schemeless links are automatically opened in Vim,
-all other links are opened with the system command.  To customize this
-behavior, see |VimwikiLinkHandler|.
+all other links are opened with the system command, i.e. !xdg-open (Linux),
+!open (Mac), or !start (Windows).  To customize this behavior, see
+|VimwikiLinkHandler|.
 
 Interwiki:~
 
@@ -2219,17 +2220,17 @@ Default: 1
 ------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
-A customizable link handler, |VimwikiLinkHandler|, can be defined to override
-Vimwiki's opening of links.  Each recognized link, whether it is a wikilink,
-wiki-include link or a weblink, is first passed to |VimwikiLinkHandler| to see
-if it can be handled.  The return value 1/0 indicates success.
+A customizable link handler can be defined to override Vimwiki's opening of
+links.  Each recognized link, whether it is a wikilink, wiki-include link or a
+weblink, is first passed to |VimwikiLinkHandler| to see if it can be handled.
+The return value 1 indicates success.
 
 If the link is not handled successfully, the behavior of Vimwiki depends on
 the scheme.  "wiki:", "diary:" or schemeless links are opened in Vim.  "file:"
-and "local:" links are opened with a system default handler; i.e. Linux
-(!xdg-open), Mac (!open), and Windows (!start).
+and "local:" links are opened with a system default handler.
 
-You can redefine |VimwikiLinkHandler| function to do something else: >
+You can redefine the VimwikiLinkHandler function in your .vimrc to do
+something else: >
 
   function! VimwikiLinkHandler(link)
     try
@@ -2242,15 +2243,15 @@ You can redefine |VimwikiLinkHandler| function to do something else: >
     return 0
   endfunction
 
-A second example handles a new scheme, 'vfile:', which behaves similar to
-'file:', but the files are always opened with Vim: >
+A second example handles a new scheme, "vfile:", which behaves similar to
+"file:", but the files are always opened with Vim: >
 
   function! VimwikiLinkHandler(link)
     " Use Vim to open external files with the 'vfile:' scheme.  E.g.:
     "   1) [[vfile:~/Code/PythonProject/abc123.py]]
     "   2) [[vfile:./|Wiki Home]]
     let link = a:link
-    if link =~ "vfile:"
+    if link =~# '^vfile:'
       let link = link[1:]
     else
       return 0
@@ -2268,6 +2269,30 @@ A second example handles a new scheme, 'vfile:', which behaves similar to
 ------------------------------------------------------------------------------
 *VimwikiLinkConverter*
 
+This function can be overridden in your .vimrc to specify what a link looks
+like when converted to HTML.  It should return the HTML link if successful or
+an empty string '' otherwise.
+
+This example changes how relative links to external files using the "local:"
+scheme look like in HTML.  Per default, they would become links relative to
+the HTML output directory.  This function converts them to links relative to
+the wiki file, i.e. a link [[local:../document.pdf]] becomes
+<a href="../document.pdf">. Also, this function will copy document.pdf to the
+right place. >
+
+  fu! VimwikiLinkConverter(link, source_wiki_file, target_html_file)
+    if a:link =~# '^local:'
+      let link_infos = vimwiki#base#resolve_link(a:link)
+      let html_link = vimwiki#path#relpath(
+                \ fnamemodify(a:source_wiki_file, ':h'), link_infos.filename)
+      let relative_link =
+                \ fnamemodify(a:target_html_file, ':h') . '/' . html_link
+      call system('cp ' . fnameescape(link_infos.filename) .
+                \ ' ' . fnameescape(relative_link))
+      return html_link
+    endif
+    return ''
+  endfu
 
 ------------------------------------------------------------------------------
 *VimwikiWikiIncludeHandler*
@@ -2617,6 +2642,9 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ???~
 
+    * Support for wiki links absolute to the wiki root
+    * The "file:" and "local:" schemes semantic changed slightly
+    * Added the |VimwikiLinkConverter| function
     * Support for |g:vimwiki_auto_chdir| option.
     * Support for anchors, see |vimwiki-anchors|
         * in this context, add support for TOC, see |vimwiki-toc|
