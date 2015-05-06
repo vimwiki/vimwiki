@@ -769,7 +769,7 @@ To jump from that file back to the index file, use this link: >
    [[../index]]
 or: >
    [[/index]]
-The latter works, because wiki links starting with "/" are considered to be
+The latter works because wiki links starting with "/" are considered to be
 absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
@@ -789,6 +789,13 @@ Raw URLs are also supported: >
   http://code.google.com/p/vimwiki
   mailto:habamax@gmail.com
   ftp://vim.org
+
+External files~
+
+You can open arbitrary files like this: >
+   [[file:/important/documents/document.pdf]]
+
+See |vimwiki-syntax-schemes|.
 
 Anchors~
 
@@ -839,11 +846,6 @@ as a wiki page.
 
 To scan the page for new or changed definitions for reference-links, simply
 re-open the page ":e<CR>".
-
-Typing wikilinks can be simplified by using Vim's omni completion (see
-|compl-omni|) like so: >
-  [[ind<C-X><C-O>
-which opens up a popup menu with all the wiki files starting with "ind".
 
 ------------------------------------------------------------------------------
 5.3. Headers                                          *vimwiki-syntax-headers*
@@ -1128,24 +1130,25 @@ E.g.: >
 ------------------------------------------------------------------------------
 5.12. Schemes                                           *vimwiki-syntax-schemes*
 
-In addition to standard web schemes (e.g. `http:`, `https:`, `ftp:`, etc.) a
-number of special schemes are supported: "wiki#:", "local:", "diary:",
-"file:", and schemeless.
+In addition to standard web schemes (e.g. "http:", "https:", "ftp:", etc.) a
+number of special schemes are supported: "wikiX:", "diary:", "file:", "local:"
+and schemeless.
 
-While "wiki:#", "diary" and schemeless links are automatically opened in Vi,
-all other links are opened with the system command.  To customize this
-behavior, see |VimwikiLinkHandler|.
+While "wikiX", "diary" and schemeless links are automatically opened in Vim,
+all other links are opened with the system command, i.e. !xdg-open (Linux),
+!open (Mac), or !start (Windows).  To customize this behavior, see
+|VimwikiLinkHandler|.
 
 Interwiki:~
 
 If you maintain more than one wiki, you can create interwiki links between them
-by adding a numbered prefix "wiki#:" in front of a link: >
-  [[wiki#:This is a link]]
+by adding a numbered prefix "wikiX:" in front of a link: >
+  [[wiki1:This is a link]]
 or: >
-  [[wiki#:This is a link source|Description of the link]]
+  [[wiki1:This is a link source|Description of the link]]
 
-The number "#", in the range 0..N-1, identifies the destination wiki in
-|g:vimwiki_list|.
+The number behind "wiki" is in the range 0..N-1 and identifies the destination
+wiki in |g:vimwiki_list|.
 
 Diary:~
 
@@ -1156,32 +1159,27 @@ This scheme precludes explicit inclusion of |vimwiki-option-diary_rel_path|,
 and is most useful on subwiki pages to avoid links such as: >
   [[../../diary/2012-03-05]]
 
-Local:~
+External files:~
 
-A local resource that is not a wiki page may be specified with a path relative
-to the current page: >
-  [[local:../assets/data.csv|data (CSV)]]
-
-When followed or converted to HTML, extensions of local-scheme links are not
-modified.
-
-File:~
-
-The file scheme allows you to directly link to arbitray resources using
-absolute paths and extensions: >
-  [[file:///home/somebody/a/b/c/music.mp3]]
+The file and local schemes allow you to directly link to arbitray resources
+using absolute or relative paths with extension: >
+  [[file:/home/somebody/a/b/c/music.mp3]]
   [[file:C:/Users/somebody/d/e/f/music.mp3]]
+  [[file:~/a/b/c/music.mp3]]
+  [[file:../assets/data.csv|data (CSV)]]
+  [[local:C:/Users/somebody/d/e/f/music.mp3]]
+
+In Vim, "file:" and "local:" behave the same, i.e. you can use them with both
+relative and absolute links. When converted to HTML, however, "file:" links
+will become absolute links, while "local:" links become relative to the HTML
+output directory. The latter can be useful if you copy your HTML files to
+another computer.
+To customize the HTML conversion of links, see |VimwikiLinkConverter|.
 
 Schemeless:~
 
-Schemeless URLs, which are the default, are treated internally as "wiki#:"
-URLs in all respects except when converted to Html.
-
-Schemeless links convert to plain relative path URLs, nearly verbatim: >
-  relpath/wikipage.html
-
-The "wiki#:", "local:", and "diary:" schemes use absolute paths as URLs: >
-  file:///abs_path_to_html#/relpath/wikipage.html
+Schemeless URLs, which are the default, are treated internally as "wikiX:"
+URLs in all respects, where X is the number of the current wiki.
 
 When |vimwiki-option-maxhi| equals 1, a distinct highlighting style is used to
 identify schemeless links whose targets are not found.  All other links appear
@@ -1202,7 +1200,7 @@ relative, and need not end with an extension.
 The primary purpose for wiki-include links is to include images.
 
 Transclude from a local URL: >
-  {{local:../../images/vimwiki_logo.png}}
+  {{file:../../images/vimwiki_logo.png}}
 or from a universal URL: >
   {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png}}
 
@@ -2291,17 +2289,17 @@ Default: 1
 ------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
-A customizable link handler, |VimwikiLinkHandler|, can be defined to override
-Vimwiki's opening of links.  Each recognized link, whether it is a wikilink,
-wiki-include link or a weblink, is first passed to |VimwikiLinkHandler| to see
-if it can be handled.  The return value 1/0 indicates success.
+A customizable link handler can be defined to override Vimwiki's opening of
+links.  Each recognized link, whether it is a wikilink, wiki-include link or a
+weblink, is first passed to |VimwikiLinkHandler| to see if it can be handled.
+The return value 1 indicates success.
 
 If the link is not handled successfully, the behavior of Vimwiki depends on
-the scheme.  Wiki:, diary: or schemeless links are opened in Vim.  All others,
-including local: and file: schemes, are opened with a system default handler;
-i.e. Linux (!xdg-open), Mac (!open), and Windows (!start).
+the scheme.  "wiki:", "diary:" or schemeless links are opened in Vim.  "file:"
+and "local:" links are opened with a system default handler.
 
-You can redefine |VimwikiLinkHandler| function to do something else: >
+You can redefine the VimwikiLinkHandler function in your .vimrc to do
+something else: >
 
   function! VimwikiLinkHandler(link)
     try
@@ -2314,35 +2312,56 @@ You can redefine |VimwikiLinkHandler| function to do something else: >
     return 0
   endfunction
 
-A second example handles two new schemes, 'vlocal:' and 'vfile:', which behave
-similar to 'local:' and 'file:' schemes, but are always opened with Vim: >
+A second example handles a new scheme, "vfile:", which behaves similar to
+"file:", but the files are always opened with Vim: >
 
-  function! VimwikiLinkHandler(link) "{{{ Use Vim to open links with the
-    " 'vlocal:' or 'vfile:' schemes.  E.g.:
-    "   1) [[vfile:///~/Code/PythonProject/abc123.py]], and
-    "   2) [[vlocal:./|Wiki Home]]
+  function! VimwikiLinkHandler(link)
+    " Use Vim to open external files with the 'vfile:' scheme.  E.g.:
+    "   1) [[vfile:~/Code/PythonProject/abc123.py]]
+    "   2) [[vfile:./|Wiki Home]]
     let link = a:link
-    if link =~ "vlocal:" || link =~ "vfile:"
+    if link =~# '^vfile:'
       let link = link[1:]
     else
       return 0
     endif
-    let [idx, scheme, path, subdir, lnk, ext, url, anchor] =
-         \ vimwiki#base#resolve_scheme(link, 0)
-    if g:vimwiki_debug
-      echom 'LinkHandler: idx='.idx.', scheme=[v]'.scheme.', path='.path.
-           \ ', subdir='.subdir.', lnk='.lnk.', ext='.ext.', url='.url.
-           \ ', anchor='.anchor
-    endif
-    if url == '' && anchor == ''
+    let link_infos = vimwiki#base#resolve_link(link)
+    if link_infos.filename == ''
       echom 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
-      call vimwiki#base#edit_file('tabnew', url, anchor, [], 0)
+      exe 'tabnew ' . fnameescape(link_infos.filename)
       return 1
     endif
-  endfunction " }}}
+  endfunction
 
+------------------------------------------------------------------------------
+*VimwikiLinkConverter*
+
+This function can be overridden in your .vimrc to specify what a link looks
+like when converted to HTML.  It should return the HTML link if successful or
+an empty string '' otherwise.
+
+This example changes how relative links to external files using the "local:"
+scheme look like in HTML.  Per default, they would become links relative to
+the HTML output directory.  This function converts them to links relative to
+the wiki file, i.e. a link [[local:../document.pdf]] becomes
+<a href="../document.pdf">. Also, this function will copy document.pdf to the
+right place. >
+
+  fu! VimwikiLinkConverter(link, source_wiki_file, target_html_file)
+    if a:link =~# '^local:'
+      let link_infos = vimwiki#base#resolve_link(a:link)
+      let html_link = vimwiki#path#relpath(
+                \ fnamemodify(a:source_wiki_file, ':h'), link_infos.filename)
+      let relative_link =
+                \ fnamemodify(a:target_html_file, ':h') . '/' . html_link
+      call system('cp ' . fnameescape(link_infos.filename) .
+                \ ' ' . fnameescape(relative_link))
+      return html_link
+    endif
+    return ''
+  endfu
 
 ------------------------------------------------------------------------------
 *VimwikiWikiIncludeHandler*
@@ -2360,13 +2379,12 @@ cannot otherwise convert the link.  A customized handler might look like this: >
     " complete URL
     let url_0 = matchstr(str, g:vimwiki_rxWikiInclMatchUrl)
     " URL parts
-    let [scheme, path, subdir, lnk, ext, url, anchor] =
-          \ vimwiki#base#resolve_scheme(url_0, VimwikiGet('ext'))
+    let link_infos = vimwiki#base#resolve_link(url_0)
     let arg1 = matchstr(str, VimwikiWikiInclMatchArg(1))
     let arg2 = matchstr(str, VimwikiWikiInclMatchArg(2))
 
     if arg1 =~ '#'
-      return url.'#'.arg2
+      return link_infos.filename.'#'.arg2
     endif
 
     " Return the empty string when unable to process link
@@ -2694,7 +2712,10 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 ???~
 
     * Support for tags.
-    * Spport for |g:vimwiki_auto_chdir| option.
+    * Support for wiki links absolute to the wiki root
+    * The "file:" and "local:" schemes semantic changed slightly
+    * Added the |VimwikiLinkConverter| function
+    * Support for |g:vimwiki_auto_chdir| option.
     * Support for anchors, see |vimwiki-anchors|
         * in this context, add support for TOC, see |vimwiki-toc|
         * remove the now useless %toc placeholder

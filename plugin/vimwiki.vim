@@ -365,9 +365,15 @@ if !exists("*VimwikiLinkHandler") "{{{
   endfunction
 endif "}}}
 
+if !exists("*VimwikiLinkConverter") "{{{
+  function VimwikiLinkConverter(url, source, target)
+    " Return the empty string when unable to process link
+    return ''
+  endfunction
+endif "}}}
+
 if !exists("*VimwikiWikiIncludeHandler") "{{{
   function! VimwikiWikiIncludeHandler(value) "{{{
-    " Return the empty string when unable to process link
     return ''
   endfunction "}}}
 endif "}}}
