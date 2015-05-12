@@ -251,13 +251,13 @@ endfunction "}}}
 
 " COMMANDS {{{
 command! -buffer Vimwiki2HTML
-      \ silent w <bar> 
+      \ silent w <bar>
       \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
       \<bar>
       \ if res != '' | echo 'Vimwiki: HTML conversion is done.' | endif
 command! -buffer Vimwiki2HTMLBrowse
-      \ silent w <bar> 
+      \ silent w <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(VimwikiGet('path_html')),
       \         expand('%')))
@@ -287,8 +287,11 @@ command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
-exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+" Make VWS open results in location list, rather than being strict synonym for
+" VimwikiSearch
+exe 'command! -buffer -nargs=* VWS lvimgrep <args>j '.
+      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ').
+      \ '<Bar> lopen'
 
 command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
 
@@ -519,7 +522,7 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 if VimwikiGet('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
-    au BufWritePost <buffer> 
+    au BufWritePost <buffer>
       \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
   augroup END
