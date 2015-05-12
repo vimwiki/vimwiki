@@ -288,10 +288,15 @@ exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
 
 " Make VWS open results in location list, rather than being strict synonym for
-" VimwikiSearch
-exe 'command! -buffer -nargs=* VWS lvimgrep <args>j '.
+" VimwikiSearch. Disable autocommand events during search; restore when done.
+exe 'command! -buffer -nargs=* VWS '.
+      \ 'let s:origvalue=&eventignore '.
+      \ '<Bar>set eventignore=all '.
+      \ '<Bar>lvimgrep <args>j '.
       \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ').
-      \ '<Bar> lopen'
+      \ '<Bar>let &eventignore=s:origvalue '.
+      \ '<Bar>unlet s:origvalue '.
+      \ '<Bar> lopen '
 
 command! -buffer -nargs=1 VimwikiGoto call vimwiki#base#goto("<args>")
 
