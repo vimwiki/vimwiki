@@ -422,7 +422,7 @@ function! s:tag_wikilink(value) "{{{
     elseif link_infos.scheme ==# 'local'
       let html_link = vimwiki#path#relpath(fnamemodify(s:current_html_file,
             \ ':h'), link_infos.filename)
-    else
+    elseif link_infos.scheme =~# '\mwiki\d\+\|diary'
       " wiki links are always relative to the current file
       let html_link = vimwiki#path#relpath(
             \ fnamemodify(s:current_wiki_file, ':h'),
@@ -430,6 +430,8 @@ function! s:tag_wikilink(value) "{{{
       if html_link !~ '\m/$'
         let html_link .= '.html'
       endif
+    else " other schemes, like http, are left untouched
+      let html_link = link_infos.filename
     endif
 
     " generate html output
