@@ -760,7 +760,8 @@ absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
 
-Links to directories (ending with a "/") are also supported: >
+Links to subdirectories inside the wiki directory are also supported. They
+end with a "/": >
   [[a subdirectory/|Other files]]
 Use |g:vimwiki_dir_link| to control the behavior when opening directories.
 
@@ -1154,6 +1155,7 @@ using absolute or relative paths with extension: >
   [[file:~/a/b/c/music.mp3]]
   [[file:../assets/data.csv|data (CSV)]]
   [[local:C:/Users/somebody/d/e/f/music.mp3]]
+  [[file:/home/user/documents/|Link to a directory]]
 
 In Vim, "file:" and "local:" behave the same, i.e. you can use them with both
 relative and absolute links. When converted to HTML, however, "file:" links
