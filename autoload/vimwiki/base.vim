@@ -692,9 +692,9 @@ function! s:jump_to_anchor(anchor) "{{{
     let anchor_tag = substitute(g:vimwiki_{VimwikiGet('syntax')}_tag_match,
           \ '__Tag__', "\\='".segment."'", '')
 
-    if         !search(anchor_header, 'Wc')
+    if         !search(anchor_tag, 'Wc')
+          \ && !search(anchor_header, 'Wc')
           \ && !search(anchor_bold, 'Wc')
-          \ && !search(anchor_tag, 'Wc')
       call setpos('.', oldpos)
       break
     endif
