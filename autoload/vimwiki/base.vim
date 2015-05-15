@@ -1164,6 +1164,9 @@ function! vimwiki#base#go_back_link() "{{{
     let prev_word = b:vimwiki_prev_link
     execute ":e ".substitute(prev_word[0], '\s', '\\\0', 'g')
     call setpos('.', prev_word[1])
+  else
+    " maybe we came here by jumping to a tag -> pop from the tag stack
+    silent! pop!
   endif
 endfunction " }}}
 
