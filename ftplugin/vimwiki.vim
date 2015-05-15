@@ -310,7 +310,8 @@ command! -buffer VimwikiDiaryNextDay call vimwiki#diary#goto_next_day()
 command! -buffer VimwikiDiaryPrevDay call vimwiki#diary#goto_prev_day()
 
 " tags commands
-command! -buffer VimwikiRebuildTags call vimwiki#tags#update_tags(1)
+command! -buffer -bang
+      \ VimwikiRebuildTags call vimwiki#tags#update_tags(1, '<bang>')
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiSearchTags VimwikiSearch /:<args>:/
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
@@ -652,7 +653,7 @@ endif
 if VimwikiGet('auto_tags')
   " Automatically update tags metadata on page write.
   augroup vimwiki
-    au BufWritePost <buffer> call vimwiki#tags#update_tags(0)
+    au BufWritePost <buffer> call vimwiki#tags#update_tags(0, '')
   augroup END
 endif
 " AUTOCOMMANDS }}}
