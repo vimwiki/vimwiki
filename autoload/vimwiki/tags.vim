@@ -234,7 +234,7 @@ function! s:write_tags_metadata(metadata) "{{{
     endfor
   endfor
   call sort(tags)
-  call insert(tags, "!_TAG_FILE_SORTED\t1\t{anything}")
+  call insert(tags, "!_TAG_FILE_SORTED\t1\t")
   call writefile(tags, metadata_path)
 endfunction " }}}
 

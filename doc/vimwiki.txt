@@ -1632,7 +1632,7 @@ See |g:vimwiki_use_calendar| option to turn it off/on.
 ==============================================================================
 12. Anchors                                                  *vimwiki-anchors*
 
-Every header and every bold text is an anchor. To jump to it, use a wikilink
+Every header, tag, and bold text is an anchor. To jump to it, use a wikilink
 of the form >
   [[file#anchor]]
 
