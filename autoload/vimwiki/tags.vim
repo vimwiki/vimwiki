@@ -41,7 +41,8 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     call s:write_tags_metadata(metadata)
   else " full rebuild
     let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
-    let tags_file_last_modification = getftime(s:metadata_file_path())
+    let tags_file_last_modification =
+          \ getftime(vimwiki#tags#metadata_file_path())
     let metadata = vimwiki#tags#load_tags_metadata()
     for file in files
       if all_files || getftime(file) >= tags_file_last_modification
@@ -134,16 +135,16 @@ function! s:scan_tags(lines, page_name) "{{{
   return entries
 endfunction " }}}
 
-" s:metadata_file_path
+" vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path
-function! s:metadata_file_path() abort "{{{
+function! vimwiki#tags#metadata_file_path() abort "{{{
   return fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p')
 endfunction " }}}
 
 " vimwiki#tags#load_tags_metadata
 "   Loads tags metadata from file, returns a dictionary
 function! vimwiki#tags#load_tags_metadata() abort "{{{
-  let metadata_path = s:metadata_file_path()
+  let metadata_path = vimwiki#tags#metadata_file_path()
   if !filereadable(metadata_path)
     return {}
   endif
@@ -214,7 +215,7 @@ endfunction " }}}
 " s:write_tags_metadata
 "   Saves metadata object into a file. Throws exceptions in case of problems.
 function! s:write_tags_metadata(metadata) "{{{
-  let metadata_path = s:metadata_file_path()
+  let metadata_path = vimwiki#tags#metadata_file_path()
   let tags = []
   for pagename in keys(a:metadata)
     for entry in a:metadata[pagename]
