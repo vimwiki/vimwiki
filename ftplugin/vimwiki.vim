@@ -67,8 +67,7 @@ function! Complete_wikifiles(findstart, base)
       return []
     elseif s:line_context == ':'
       " Tags completion
-      let metadata = vimwiki#tags#load_tags_metadata()
-      let tags = vimwiki#tags#get_tags(metadata)
+      let tags = vimwiki#tags#get_tags()
       if a:base != ''
         call filter(tags,
             \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )

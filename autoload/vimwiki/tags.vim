@@ -32,7 +32,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     " Collect tags in current file
     let tags = s:scan_tags(getline(1, '$'), page_name)
     " Load metadata file
-    let metadata = vimwiki#tags#load_tags_metadata()
+    let metadata = s:load_tags_metadata()
     " Drop old tags
     let metadata = s:remove_page_from_tags(metadata, page_name)
     " Merge in the new ones
@@ -43,7 +43,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
     let tags_file_last_modification =
           \ getftime(vimwiki#tags#metadata_file_path())
-    let metadata = vimwiki#tags#load_tags_metadata()
+    let metadata = s:load_tags_metadata()
     for file in files
       if all_files || getftime(file) >= tags_file_last_modification
         let page_name = fnamemodify(file, ':t:r')
@@ -141,9 +141,9 @@ function! vimwiki#tags#metadata_file_path() abort "{{{
   return fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p')
 endfunction " }}}
 
-" vimwiki#tags#load_tags_metadata
+" s:load_tags_metadata
 "   Loads tags metadata from file, returns a dictionary
-function! vimwiki#tags#load_tags_metadata() abort "{{{
+function! s:load_tags_metadata() abort "{{{
   let metadata_path = vimwiki#tags#metadata_file_path()
   if !filereadable(metadata_path)
     return {}
@@ -239,10 +239,11 @@ function! s:write_tags_metadata(metadata) "{{{
 endfunction " }}}
 
 " vimwiki#tags#get_tags
-"   Returns list of unique tags found in metadata
-function! vimwiki#tags#get_tags(metadata) "{{{
+"   Returns list of unique tags found in the .tags file
+function! vimwiki#tags#get_tags() "{{{
+  let metadata = s:load_tags_metadata()
   let tags = {}
-  for entries in values(a:metadata)
+  for entries in values(metadata)
     for entry in entries
       let tags[entry.tagname] = 1
     endfor
@@ -258,7 +259,7 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
   let need_all_tags = (a:0 == 0)
   let specific_tags = a:000
 
-  let metadata = vimwiki#tags#load_tags_metadata()
+  let metadata = s:load_tags_metadata()
 
   call append(line('$'), [
         \ '',
@@ -295,8 +296,7 @@ endfunction " }}}
 function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort " {{{
   " We can safely ignore args if we use -custom=complete option, Vim engine
   " will do the job of filtering.
-  let metadata = vimwiki#tags#load_tags_metadata()
-  let taglist = vimwiki#tags#get_tags(metadata)
+  let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
 endfunction " }}}
 
