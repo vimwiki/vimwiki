@@ -119,11 +119,11 @@ function! s:scan_tags(lines, page_name) "{{{
         let entry = {}
         let entry.tagname  = tag
         let entry.lineno   = line_nr
-        if line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-          let entry.link   = page_name . '#' . current_complete_anchor
-        elseif header_line_nr < 0
-          " Tag appeared before the first header
+        if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
+          " Tag appeared at the top of the file
           let entry.link   = page_name
+        elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+          let entry.link   = page_name . '#' . current_complete_anchor
         else
           let entry.link   = page_name . '#' . tag
         endif
