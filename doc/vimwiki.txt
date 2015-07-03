@@ -773,7 +773,7 @@ which opens up a popup menu with all the wiki files starting with "ind".
 Raw URLs~
 
 Raw URLs are also supported: >
-  http://code.google.com/p/vimwiki
+  https://github.com/vimwiki/vimwiki.git
   mailto:habamax@gmail.com
   ftp://vim.org
 
@@ -2623,7 +2623,7 @@ Your help in making vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
 everything is welcomed.
 
-Issues can be filed at http://code.google.com/p/vimwiki/issues .
+Issues can be filed at https://github.com/vimwiki/vimwiki.git .
 
 
 ==============================================================================
@@ -2632,10 +2632,12 @@ Issues can be filed at http://code.google.com/p/vimwiki/issues .
     - Maxim Kim <habamax@gmail.com> as original author.
     - Stuart Andrews
     - Tomas Pospichal
-    - See the http://code.google.com/p/vimwiki/people/list for the others.
+    - See the following sites for more: 
+        https://github.com/vimwiki/vimwiki/graphs/contributors
+        http://code.google.com/p/vimwiki/people/list
 
-Web: http://code.google.com/p/vimwiki/
-Mail-List: https://groups.google.com/forum/#!forum/vimwiki
+Web: https://github.com/vimwiki/vimwiki.git
+Issues: https://github.com/vimwiki/vimwiki/issues
 Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
@@ -2671,6 +2673,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
     * Always jump to previous link on <S-Tab>, not to beginning of link
     * Issue #27: Fix <CR> on a visual selection sometimes not working
     * Various small fixes
+    * Corrected website links in documentation
 
 2.1~
 
