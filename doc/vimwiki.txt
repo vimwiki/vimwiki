@@ -2623,7 +2623,7 @@ Your help in making vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
 everything is welcomed.
 
-Issues can be filed at https://github.com/vimwiki/vimwiki.git .
+Issues can be filed at https://github.com/vimwiki/vimwiki/issues/ .
 
 
 ==============================================================================
@@ -2637,7 +2637,7 @@ Issues can be filed at https://github.com/vimwiki/vimwiki.git .
         http://code.google.com/p/vimwiki/people/list
 
 Web: https://github.com/vimwiki/vimwiki.git
-Issues: https://github.com/vimwiki/vimwiki/issues
+Mail-List: https://groups.google.com/forum/#!forum/vimwiki
 Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
