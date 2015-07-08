@@ -177,15 +177,20 @@ endfunction "}}}
 " for long enough "text", the string's length is within s:tolerance of "len"
 " (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
 function! s:shorten_text(text, len) "{{{ returns [string, spare]
-  let spare_len = a:len - strlen(a:text)
+  " strlen() returns lenght in bytes, not in characters, so we'll have to do a
+  " trick here -- replace all non-spaces with dot, calculate lengths and
+  " indexes on it, then use original string to break at selected index.
+  let text_pattern = substitute(a:text, '\m\S', '.', 'g')
+  let spare_len = a:len - strlen(text_pattern)
   if (spare_len + s:tolerance >= 0)
     return [a:text, spare_len]
   endif
   " try to break on a space; assumes a:len-s:ell_len >= s:tolerance
   let newlen = a:len - s:ell_len
-  let idx = strridx(a:text, ' ', newlen + s:tolerance)
+  let idx = strridx(text_pattern, ' ', newlen + s:tolerance)
   let break_idx = (idx + s:tolerance >= newlen) ? idx : newlen
-  return [a:text[0:break_idx].s:ellipsis, newlen - break_idx]
+  return [matchstr(a:text, '\m^.\{'.break_idx.'\}').s:ellipsis,
+        \ newlen - break_idx]
 endfunction "}}}
 
 function! VimwikiFoldText() "{{{
