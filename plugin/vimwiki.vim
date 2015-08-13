@@ -388,6 +388,7 @@ let s:vimwiki_defaults.index = 'index'
 let s:vimwiki_defaults.ext = '.wiki'
 let s:vimwiki_defaults.maxhi = 0
 let s:vimwiki_defaults.syntax = 'default'
+let s:vimwiki_defaults.toc_header = 'Contents'
 
 let s:vimwiki_defaults.template_path = '~/vimwiki/templates/'
 let s:vimwiki_defaults.template_default = 'default'
@@ -436,7 +437,6 @@ call s:default('dir_link', '')
 call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
 call s:default('user_htmls', '')
 call s:default('autowriteall', 1)
-call s:default('toc_header', 'Contents')
 
 call s:default('html_header_numbering', 0)
 call s:default('html_header_numbering_sym', '')
