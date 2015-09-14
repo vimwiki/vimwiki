@@ -23,6 +23,15 @@ function! vimwiki#u#is_windows() "{{{
   return has("win32") || has("win64") || has("win95") || has("win16")
 endfunction "}}}
 
+function! vimwiki#u#is_macos()
+  if has("mac") || has("macunix") || has("gui_mac")
+    return 1
+  endif
+  " that still doesn't mean we are not on Mac OS
+  let os = substitute(system('uname'), '\n', '', '')
+  return os == 'Darwin' || os == 'Mac'
+endfunction
+
 function! vimwiki#u#time(starttime) "{{{
   " measure the elapsed time and cut away miliseconds and smaller
   return matchstr(reltimestr(reltime(a:starttime)),'\d\+\(\.\d\d\)\=')
