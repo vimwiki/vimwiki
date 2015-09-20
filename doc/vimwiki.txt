@@ -1629,8 +1629,8 @@ If you don't want the TOC to sit in the very first line, e.g. because you have
 a modeline there, put the magic header in the second or third line and run
 :VimwikiTOC to update the TOC.
 
-If your language is not english, set the option |g:vimwiki_toc_header| to your
-favorite translation.
+If your language is not english, set the option |vimwiki-option-toc_header| to
+your favorite translation.
 
 If you want to keep the TOC up to date automatically, use the option
 |vimwiki-option-auto_toc|.
@@ -1773,6 +1773,17 @@ Description~
 Set this option to 1 to automatically update the table of contents when the
 current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
+
+
+*vimwiki-option-toc_header*
+------------------------------------------------------------------------------
+
+A string with the magic header that tells vimwiki where the Table of Contents
+is located in the file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'toc_header': 'Index'}]
+
+The default is 'Contents'.
 
 
 *vimwiki-option-index*
@@ -2573,16 +2584,6 @@ let g:vimwiki_diary_months = {
       \ }
 
 ------------------------------------------------------------------------------
-*g:vimwiki_toc_header*
-
-A string with the magic header that tells vimwiki where the Table of Contents
-is located in the file. You can change it to the appropriate word in your
-mother tongue like this: >
-  let g:vimwiki_toc_header = 'Inhalt'
-
-The default is 'Contents'.
-
-------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*
 
 A string which specifies the prefix for all global mappings (and some local).
@@ -2657,7 +2658,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
         * the function base#resolve_scheme() now also returns the anchor
           (important for custom VimwikiLinkHandlers)
         * new local option |vimwiki-option-auto_toc|
-        * new global option |g:vimwiki_toc_header|
+        * new local option |vimwiki-option-toc_header|
     * List editing capabilities, see |vimwiki-lists|:
         * support for auto incrementing numbered lists
         * more key maps for list manipulation, see |vimwiki-list-manipulation|

@@ -1613,7 +1613,7 @@ function! vimwiki#base#table_of_contents(create)
 
   " look for existing TOC
   let toc_header = '^\s*'.substitute(g:vimwiki_rxH1_Template, '__Header__',
-        \ '\='."'".g:vimwiki_toc_header."'", '').'\s*$'
+        \ '\='."'".VimwikiGet('toc_header')."'", '').'\s*$'
   let toc_line = 0
   let lnum = 1
   while lnum <= &modelines + 2 && lnum <= line('$')
@@ -1678,7 +1678,7 @@ function! vimwiki#base#table_of_contents(create)
 
   " write new TOC
   call append(toc_line-1, whitespaces . substitute(g:vimwiki_rxH1_Template,
-        \ '__Header__', '\='."'".g:vimwiki_toc_header."'", ''))
+        \ '__Header__', '\='."'".VimwikiGet('toc_header')."'", ''))
 
   let startindent = repeat(' ', vimwiki#lst#get_list_margin())
   let indentstring = repeat(' ', vimwiki#u#sw())

@@ -993,7 +993,7 @@ function! s:process_tag_h(line, id) "{{{
     let h_id = s:safe_html_anchor(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# g:vimwiki_toc_header
+    if h_text !=# VimwikiGet('toc_header')
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
