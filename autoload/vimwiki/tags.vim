@@ -261,10 +261,6 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
 
   let metadata = s:load_tags_metadata()
 
-  call append(line('$'), [
-        \ '',
-        \ substitute(g:vimwiki_rxH1_Template, '__Header__', 'Generated Tags', '') ])
-
   " make a dictionary { tag_name: [tag_links, ...] }
   let tags_entries = {}
   for entries in values(metadata)
@@ -277,19 +273,28 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
     endfor
   endfor
 
+  let lines = []
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
         \ vimwiki#lst#default_symbol().' '
   for tagname in sort(keys(tags_entries))
     if need_all_tags || index(specific_tags, tagname) != -1
-      call append(line('$'), [
+      call extend(lines, [
             \ '',
             \ substitute(g:vimwiki_rxH2_Template, '__Header__', tagname, ''),
             \ '' ])
       for taglink in tags_entries[tagname]
-        call append(line('$'), bullet . '[[' . taglink . ']]')
+        call add(lines, bullet .
+              \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', taglink, ''))
       endfor
     endif
   endfor
+
+  let links_rx = '\m\%(^\s*$\)\|\%('.g:vimwiki_rxH2.'\)\|\%(^\s*'
+        \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
+        \ .g:vimwiki_rxWikiLink.'$\)'
+
+  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx,
+        \ line('$')+1, 1)
 endfunction " }}}
 
 " vimwiki#tags#complete_tags

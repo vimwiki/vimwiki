@@ -121,18 +121,16 @@ fun! s:group_links(links) "{{{
   return result
 endfun "}}}
 
-fun! s:sort(lst) "{{{
+function! s:sort(lst) "{{{
   if VimwikiGet("diary_sort") ==? 'desc'
     return reverse(sort(a:lst))
   else
     return sort(a:lst)
   endif
-endfun "}}}
+endfunction "}}}
 
-fun! s:format_diary(...) "{{{
+function! s:format_diary(...) "{{{
   let result = []
-
-  call add(result, substitute(g:vimwiki_rxH1_Template, '__Header__', VimwikiGet('diary_header'), ''))
 
   if a:0
     let g_files = s:group_links(s:get_diary_links(a:1))
@@ -140,17 +138,14 @@ fun! s:format_diary(...) "{{{
     let g_files = s:group_links(s:get_diary_links())
   endif
 
-  " for year in s:rev(sort(keys(g_files)))
   for year in s:sort(keys(g_files))
     call add(result, '')
     call add(result, substitute(g:vimwiki_rxH2_Template, '__Header__', year , ''))
 
-    " for month in s:rev(sort(keys(g_files[year])))
     for month in s:sort(keys(g_files[year]))
       call add(result, '')
       call add(result, substitute(g:vimwiki_rxH3_Template, '__Header__', s:get_month_name(month), ''))
 
-      " for [fl, cap] in s:rev(sort(items(g_files[year][month])))
       for [fl, cap] in s:sort(items(g_files[year][month]))
         if empty(cap)
           let entry = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', fl, '')
@@ -165,46 +160,8 @@ fun! s:format_diary(...) "{{{
 
     endfor
   endfor
-  call add(result, '')
 
   return result
-endfun "}}}
-
-function! s:delete_diary_section() "{{{
-  " remove diary section
-  let old_pos = getpos('.')
-  let ln_start = -1
-  let ln_end = -1
-  call cursor(1, 1)
-  if search(substitute(g:vimwiki_rxH1_Template, '__Header__', VimwikiGet('diary_header'), ''), 'Wc')
-    let ln_start = line('.')
-    if search(g:vimwiki_rxH1, 'W')
-      let ln_end = line('.') - 1
-    else
-      let ln_end = line('$')
-    endif
-  endif
-
-  if ln_start < 0 || ln_end < 0
-    call setpos('.', old_pos)
-    return
-  endif
-
-  if !&readonly
-    exe ln_start.",".ln_end."delete _"
-  endif
-
-  call setpos('.', old_pos)
-endfunction "}}}
-
-function! s:insert_diary_section() "{{{
-  if !&readonly
-    let ln = line('.')
-    call append(ln, s:format_diary())
-    if ln == 1 && getline(ln) == ''
-      1,1delete
-    endif
-  endif
 endfunction "}}}
 
 " Diary index stuff }}}
@@ -300,8 +257,9 @@ function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
   if vimwiki#path#is_equal(current_file, diary_file)
-    call s:delete_diary_section()
-    call s:insert_diary_section()
+    let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.g:vimwiki_rxHeader.'\)'
+    call vimwiki#base#update_listing_in_buffer(s:format_diary(),
+          \ VimwikiGet('diary_header'), content_rx, line('$')+1, 1)
   else
     echom "vimwiki: You can generate diary links only in a diary index page!"
   endif
