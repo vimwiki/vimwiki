@@ -13,8 +13,8 @@ let g:vimwiki_default_header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\
 let g:vimwiki_default_bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
 let g:vimwiki_default_bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
 let g:vimwiki_default_wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let g:vimwiki_default_tag_search = '\(^\|\s\)\zs:\([^:[:space:]]\+:\)\+\ze\(\s\|$\)'
-let g:vimwiki_default_tag_match =  '\(^\|\s\):\([^:[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)'
+let g:vimwiki_default_tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
+let g:vimwiki_default_tag_match =  '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)'
 
 let g:vimwiki_markdown_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
 let g:vimwiki_markdown_header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
