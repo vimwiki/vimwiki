@@ -705,8 +705,10 @@ il                      A single list item.
     window.
 
 *:VimwikiRebuildTags*
-    Iterates over all files in a current wiki and rebuilds tags metadata (to
-    enable tags related commands).
+    Rebuilds the tags metadata file for the current wiki file.
+    Necessary for all tags related commands: |vimwiki-syntax-tags|.
+
+    :VimwikiRebuildTags! does the same for all files in the current wiki.
 
 *:VimwikiSearchTags*
     Searches over the pages in current wiki and finds all locations of a given
