@@ -88,3 +88,4 @@ let g:vimwiki_rxMathStart = '\$\$'
 let g:vimwiki_rxMathEnd = '\$\$'
 
 let g:vimwiki_rxComment = '^\s*%%.*$'
+let g:vimwiki_rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='

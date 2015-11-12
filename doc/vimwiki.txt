@@ -38,6 +38,7 @@ CONTENTS                                                    *vimwiki-contents*
         5.12. Schemes                |vimwiki-syntax-schemes|
         5.13. Transclusions          |vimwiki-syntax-transclude|
         5.14. Thumbnails             |vimwiki-syntax-thumbnails|
+        5.15. Tags                   |vimwiki-syntax-tags|
     6. Folding/Outline               |vimwiki-folding|
     7. Placeholders                  |vimwiki-placeholders|
     8. Lists                         |vimwiki-lists|
@@ -595,7 +596,7 @@ il                      A single list item.
 *:VimwikiGoto*
     Goto link provided by an argument. For example: >
         :VimwikiGoto HelloWorld
-<   opens opens/creates HelloWorld wiki page.
+<    opens opens/creates HelloWorld wiki page.
 
     Supports |cmdline-completion| for link name.
 
@@ -702,6 +703,21 @@ il                      A single list item.
     and links to external files actually exist. It checks also if all wiki
     files are reachable from the index file. Errors are shown in the quickfix
     window.
+
+*:VimwikiRebuildTags*
+    Rebuilds the tags metadata file for the current wiki file.
+    Necessary for all tags related commands: |vimwiki-syntax-tags|.
+
+    :VimwikiRebuildTags! does the same for all files in the current wiki.
+
+*:VimwikiSearchTags*
+    Searches over the pages in current wiki and finds all locations of a given
+    tag.  Supports |cmdline-completion|.
+
+*:VimwikiGenerateTags*
+    Similar to |:VimwikiGenerateLinks|.  In the current buffer, appends tags
+    and references to all their instances.  Supports |cmdline-completion|.  If
+    no arguments (tags) are specified, outputs all tags.
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
@@ -1227,6 +1243,45 @@ in HTML: >
   <img src="http://../thumbnail.jpg /></a>
 
 
+------------------------------------------------------------------------------
+5.15. Tags                                                *vimwiki-syntax-tags*
+
+Tags~
+>
+Vimwiki supports notion of tags.  A tag is a sequence of non-space characters
+between two colons: >
+        :tag-example:
+<
+It is allowed to concatenate multiple tags in one line: >
+        :tag-one:tag-two:
+<
+A tag can be placed anywhere in a file (except for header line, and wikilink).
+If placed under a header, within 5 lines below it, the header is then "tagged"
+with this tag, and tag search commands will jump to this specific header.
+Otherwise the entire page is tagged, and search commands will jump
+accordingly.
+
+Typing tags can be simplified by using Vim's omni completion (see
+|compl-omni|) like so: >
+  :ind<C-X><C-O>
+which opens up a popup menu with all tags defined in the wiki starting with
+"ind".
+
+Tags are also treated as |vimwiki-anchors| (similar to bold text).
+
+Note that tag search/jump/completion commands need certain metadata saved in
+the wiki folder.  This metadata can be manually updated by running
+|:VimwikiRebuildTags|.  There is an option |vimwiki-option-auto_tags|, when
+enabled, tags metadata will be auto-updated on each page save.
+
+Once tags metadata has been built, one can use Vim's built-in tag search 
+functionality (see |tagsrch.txt|).
+
+Tags-related commands and options:
+   * |:VimwikiRebuildTags|
+   * |:VimwikiGenerateTags|
+   * |:VimwikiSearchTags|
+   * |vimwiki-option-auto_tags|
 
 
 ==============================================================================
@@ -1581,12 +1636,13 @@ See |g:vimwiki_use_calendar| option to turn it off/on.
 ==============================================================================
 12. Anchors                                                  *vimwiki-anchors*
 
-Every header and every bold text is an anchor. To jump to it, use a wikilink
+Every header, tag, and bold text is an anchor. To jump to it, use a wikilink
 of the form >
   [[file#anchor]]
 
 For example, consider the following file "Todo.wiki": >
   = My tasks =
+  :todo-lists:
   == Home ==
     - [ ] bathe my dog
   == Work ==
@@ -1601,6 +1657,9 @@ Then, to jump from your index.wiki directly to your knitting projects, use: >
 
 Or, to jump to an individual project, use this link: >
   [[Todo#pig]]
+
+Or, to jump to a tag, use this link: >
+  [[Todo#todo-lists]]
 
 If there are multiple instances of an anchor, you can use the long form which
 consists of the complete header hierarchy, separated by '#': >
@@ -2047,6 +2106,18 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 
 Note: if you use MediaWiki syntax, you probably would like to set this option
 to 0, because every indented line is considered verbatim text.
+
+
+*vimwiki-option-auto_tags*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+auto_tags       0                 0, 1
+
+Description~
+Set this option to 1 to automatically update the tags metadata when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_tags': 1}]
+
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
@@ -2646,6 +2717,7 @@ Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 ???~
 
+    * Support for tags.
     * Support for wiki links absolute to the wiki root
     * The "file:" and "local:" schemes semantic changed slightly
     * Added the |VimwikiLinkConverter| function

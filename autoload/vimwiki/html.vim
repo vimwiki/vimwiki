@@ -289,6 +289,27 @@ function! s:tag_strong(value, header_ids) "{{{
         \ .id.'">'.text.'</strong>'
 endfunction "}}}
 
+function! s:tag_tags(value, header_ids) "{{{
+  let complete_id = ''
+  for level in range(6)
+    if a:header_ids[level][0] != ''
+      let complete_id .= a:header_ids[level][0].'-'
+    endif
+  endfor
+  if a:header_ids[5][0] == ''
+    let complete_id = complete_id[:-2]
+  endif
+  let complete_id = s:safe_html_anchor(complete_id)
+
+  let result = []
+  for tag in split(a:value, ':')
+    let id = s:safe_html_anchor(tag)
+    call add(result, '<span id="'.complete_id.'-'.id.'"></span><span class="tag" id="'
+          \ .id.'">'.tag.'</span>')
+  endfor
+  return join(result)
+endfunction "}}}
+
 function! s:tag_todo(value) "{{{
   return '<span class="todo">'.a:value.'</span>'
 endfunction "}}}
@@ -554,6 +575,7 @@ function! s:process_tags_typefaces(line, header_ids) "{{{
   let line = s:make_tag(line, g:vimwiki_rxSubScript, 's:tag_sub')
   let line = s:make_tag(line, g:vimwiki_rxCode, 's:tag_code')
   let line = s:make_tag(line, g:vimwiki_rxEqIn, 's:tag_eqin')
+  let line = s:make_tag(line, g:vimwiki_rxTags, 's:tag_tags', a:header_ids)
   return line
 endfunction " }}}
 

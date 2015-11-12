@@ -31,26 +31,49 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
 
+exe "setlocal tags+=" . vimwiki#tags#metadata_file_path()
+
 " MISC }}}
 
 " COMPLETION {{{
 function! Complete_wikifiles(findstart, base)
   if a:findstart == 1
-    let column = col('.')-1
+    let column = col('.')-2
     let line = getline('.')[:column]
-    let startoflink = match(line, '\[\[\zs[^\\[]*$')
+    let startoflink = match(line, '\[\[\zs[^\\[\]]*$')
     if startoflink != -1
+      let s:line_context = '['
       return startoflink
     endif
     if VimwikiGet('syntax') ==? 'markdown'
-      let startofinlinelink = match(line, '\[.*\](\zs.*$')
+      let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
+        let s:line_context = '['
         return startofinlinelink
       endif
     endif
+    let startoftag = match(line, ':\zs[^:[:space:]]*$')
+    if startoftag != -1
+      let s:line_context = ':'
+      return startoftag
+    endif
+    let s:line_context = ''
     return -1
   else
-    if a:base !~# '#'
+    " Completion works for wikilinks/anchors, and for tags. s:line_content
+    " tells us, which string came before a:base. There seems to be no easier
+    " solution, because calling col('.') here returns garbage.
+    if s:line_context == ''
+      return []
+    elseif s:line_context == ':'
+      " Tags completion
+      let tags = vimwiki#tags#get_tags()
+      if a:base != ''
+        call filter(tags,
+            \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
+      endif
+      return tags
+    elseif a:base !~# '#'
       " we look for wiki files
 
       if a:base =~# '^wiki\d:'
@@ -289,6 +312,14 @@ command! -buffer VimwikiTableMoveColumnRight call vimwiki#tbl#move_column_right(
 " diary commands
 command! -buffer VimwikiDiaryNextDay call vimwiki#diary#goto_next_day()
 command! -buffer VimwikiDiaryPrevDay call vimwiki#diary#goto_prev_day()
+
+" tags commands
+command! -buffer -bang
+      \ VimwikiRebuildTags call vimwiki#tags#update_tags(1, '<bang>')
+command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
+      \ VimwikiSearchTags VimwikiSearch /:<args>:/
+command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
+      \ VimwikiGenerateTags call vimwiki#tags#generate_tags(<f-args>)
 
 " COMMANDS }}}
 
@@ -620,6 +651,13 @@ if VimwikiGet('auto_toc')
   " Automatically update the TOC *before* the file is written
   augroup vimwiki
     au BufWritePre <buffer> call vimwiki#base#table_of_contents(0)
+  augroup END
+endif
+
+if VimwikiGet('auto_tags')
+  " Automatically update tags metadata on page write.
+  augroup vimwiki
+    au BufWritePost <buffer> call vimwiki#tags#update_tags(0, '')
   augroup END
 endif
 " AUTOCOMMANDS }}}
