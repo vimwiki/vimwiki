@@ -766,13 +766,13 @@ function! vimwiki#base#check_links() "{{{
                 \'text': "there is no such anchor: ".target_anchor})
         endif
       else
-        if target_file =~ '/$'  " maybe it's a link to a directory
+        if target_file =~ '\m/$'  " maybe it's a link to a directory
           if !isdirectory(target_file)
             call add(errors, {'filename':wikifile, 'lnum':lnum, 'col':col,
                   \'text': "there is no such directory: ".target_file})
           endif
-        else
-          if filereadable(target_file) " maybe it's a non-wiki file
+        else  " maybe it's a non-wiki file
+          if filereadable(target_file)
             let anchors_of_files[target_file] = []
           else
             call add(errors, {'filename':wikifile, 'lnum':lnum, 'col':col,
@@ -783,33 +783,50 @@ function! vimwiki#base#check_links() "{{{
     endfor
   endfor
 
+
+  " Check which wiki files are reachable from at least one of the index files.
+  " First, all index files are marked as reachable. Then, pick a reachable file
+  " and mark all files to which it links as reachable, too. Repeat until the
+  " links of all reachable files have been checked.
+
+  " Map every wiki file to a number. 0 means not reachable from any index file,
+  " 1 means reachable, but the outgoing links are not checked yet, 2 means
+  " reachable and done.
   let reachable_wikifiles = {}
+
+  " first, all files are considered not reachable
   for wikifile in keys(links_of_files)
     let reachable_wikifiles[wikifile] = 0
   endfor
+
+  " mark every index file as reachable
   for idx in range(len(g:vimwiki_list))
     let index_file = VimwikiGet('path', idx) . VimwikiGet('index', idx) .
           \ VimwikiGet('ext', idx)
-    let reachable_wikifiles[index_file] = 1
+    if filereadable(index_file)
+      let reachable_wikifiles[index_file] = 1
+    endif
   endfor
+
   while 1
-    let visit_wikifile = ''
+    let next_unvisited_wikifile = ''
     for wf in keys(reachable_wikifiles)
       if reachable_wikifiles[wf] == 1
-        let visit_wikifile = wf
+        let next_unvisited_wikifile = wf
         let reachable_wikifiles[wf] = 2
         break
       endif
     endfor
-    if visit_wikifile == ''
+    if next_unvisited_wikifile == ''
       break
     endif
-    for [target_file, target_anchor, lnum, col] in links_of_files[visit_wikifile]
+    for [target_file, target_anchor, lnum, col] in links_of_files[next_unvisited_wikifile]
       if has_key(reachable_wikifiles, target_file) && reachable_wikifiles[target_file] == 0
         let reachable_wikifiles[target_file] = 1
       endif
     endfor
   endwhile
+
   for wf in keys(reachable_wikifiles)
     if reachable_wikifiles[wf] == 0
       call add(errors, {'text':wf." is not reachable from the index file"})
@@ -817,7 +834,7 @@ function! vimwiki#base#check_links() "{{{
   endfor
 
   if empty(errors)
-    echom 'vimwiki: all links are OK'
+    echom 'Vimwiki: all links are OK'
   else
     call setqflist(errors, 'r')
     copen
