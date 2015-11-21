@@ -62,7 +62,6 @@ endfunction " }}}
 function! s:scan_tags(lines, page_name) "{{{
 
   let entries = []
-  let page_name = a:page_name
 
   " Code wireframe to scan for headers -- borrowed from
   " vimwiki#base#get_anchors(), with minor modifications.
@@ -73,7 +72,7 @@ function! s:scan_tags(lines, page_name) "{{{
   let anchor_level = ['', '', '', '', '', '', '']
   let current_complete_anchor = ''
 
-  let PROXIMITY_LINES_NR = 5
+  let PROXIMITY_LINES_NR = 2
   let header_line_nr = - (2 * PROXIMITY_LINES_NR)
 
   for line_nr in range(1, len(a:lines))
@@ -121,11 +120,13 @@ function! s:scan_tags(lines, page_name) "{{{
         let entry.lineno   = line_nr
         if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
           " Tag appeared at the top of the file
-          let entry.link   = page_name
+          let entry.link   = a:page_name
         elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-          let entry.link   = page_name . '#' . current_complete_anchor
+          " Tag appeared right below a header
+          let entry.link   = a:page_name . '#' . current_complete_anchor
         else
-          let entry.link   = page_name . '#' . tag
+          " Tag stands on its own
+          let entry.link   = a:page_name . '#' . tag
         endif
         call add(entries, entry)
       endfor
