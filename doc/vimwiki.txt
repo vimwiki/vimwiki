@@ -2064,7 +2064,7 @@ For an example and further instructions, refer to the following script:
   $VIMHOME/autoload/vimwiki/customwiki2html.sh
 
 An alternative converter was developed by Jason6Anderson, and can
-be located at http://code.google.com/p/vimwiki/issues/detail?id=384
+be located at https://github.com/vimwiki-backup/vimwiki/issues/384
 
 To use the internal wiki2html converter, use an empty string (the default).
 
@@ -2688,12 +2688,27 @@ https://groups.google.com/forum/#!forum/vimwiki
 ==============================================================================
 14. Developers                                            *vimwiki-developers*
 
-    - Maxim Kim <habamax@gmail.com> as original author.
-    - Stuart Andrews
+Contributors and their Github usernames in roughly chronological order:
+
+    - Maxim Kim (habamax) <habamax@gmail.com> as original author
+    - Stuart Andrews (tub78)
     - Tomas Pospichal
-    - See the following sites for more:
-        https://github.com/vimwiki/vimwiki/graphs/contributors
-        http://code.google.com/p/vimwiki/people/list
+    - Daniel Schemala (EinfachToll) as current maintainer
+    - Larry Hynes (larryhynes)
+    - Hector Arciga (harciga)
+    - Alexey Radkov (lyokha)
+    - Aaron Franks (af)
+    - Dan Bernier (danbernier)
+    - Carl Helmertz (chelmertz)
+    - Karl Yngve Lervåg (lervag)
+    - Patrick Davey (patrickdavey)
+    - Ivan Tishchenko (t7ko)
+    - 修昊 (Svtter)
+    - Marcelo D Montu (mMontu)
+    - John Kaul
+
+See the following site for more:
+    http://code.google.com/p/vimwiki/people/list
 
 Web: https://github.com/vimwiki/vimwiki.git
 Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226

@@ -183,7 +183,7 @@ function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   " string. Aim to support *all* special characters, forcing the user to choose
   "   names that are compatible with any external restrictions that they
   "   encounter (e.g. filesystem, wiki conventions, other syntaxes, ...).
-  "   See: http://code.google.com/p/vimwiki/issues/detail?id=316
+  "   See: https://github.com/vimwiki-backup/vimwiki/issues/316
   " Change / to [/\\] to allow "Windows paths" 
   return '\V\%('.join(a:files, '\|').'\)\m'
 endfunction "}}}
