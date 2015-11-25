@@ -48,7 +48,7 @@ CONTENTS                                                             *vimwiki*
         12.3. Per-Wiki Options       |vimwiki-local-options|
         12.4. Global Options         |vimwiki-global-options|
     13. Contributing                 |vimwiki-contributing|
-    14. Developers                   |vimwiki-developers|
+    14. Development                  |vimwiki-development|
     15. Changelog                    |vimwiki-changelog|
     16. License                      |vimwiki-license|
 
@@ -2677,7 +2677,7 @@ Before filing a bug or starting to write a patch, check the latest development
 version from https://github.com/vimwiki/vimwiki/tree/dev to see if your
 problem is already fixed.
 
-Issues can be filed at https://github.com/vimwiki/vimwiki/issues/ .
+Issues can be filed at https://github.com/vimwiki/vimwiki/issues/.
 
 If you want to provide a pull request on GitHub, please start from the dev
 branch, not from the master branch.
@@ -2685,12 +2685,19 @@ branch, not from the master branch.
 For questions, discussions, praise or rants there is a mailing list:
 https://groups.google.com/forum/#!forum/vimwiki
 
+
 ==============================================================================
-14. Developers                                            *vimwiki-developers*
+14. Development                                          *vimwiki-development*
+
+Homepage: http://vimwiki.github.io/
+Github: https://github.com/vimwiki/vimwiki/
+Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
+Old homepage: http://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
     - Maxim Kim (habamax) <habamax@gmail.com> as original author
+    - the people here: http://code.google.com/p/vimwiki/people/list
     - Stuart Andrews (tub78)
     - Tomas Pospichal
     - Daniel Schemala (EinfachToll) as current maintainer
@@ -2706,12 +2713,6 @@ Contributors and their Github usernames in roughly chronological order:
     - 修昊 (Svtter)
     - Marcelo D Montu (mMontu)
     - John Kaul
-
-See the following site for more:
-    http://code.google.com/p/vimwiki/people/list
-
-Web: https://github.com/vimwiki/vimwiki.git
-Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
 
 
 ==============================================================================
@@ -2754,7 +2755,7 @@ Changed:~
       behavior.
 
 Removed:~
-    * the %toc placeholder is now useless. Use |vimwiki-toc| instead.
+    * the %toc placeholder is now useless, use |vimwiki-toc| instead
     * the global option g:vimwiki_auto_checkbox is now useless and removed
 
 Fixed:~
@@ -2786,7 +2787,8 @@ Fixed:~
 
 Issue numbers starting with '#' are issues from
 https://github.com/vimwiki/vimwiki/issues/, all others from
-http://code.google.com/p/vimwiki/issues/list
+http://code.google.com/p/vimwiki/issues/list. They may be accessible from
+https://github.com/vimwiki-backup/vimwiki/issues.
 
 2.1~
 
