@@ -380,7 +380,7 @@ function! vimwiki#base#system_open_link(url) "{{{
     execute 'silent ! start "Title" /B ' . url
   endfunction
   function! s:macunix_handler(url)
-    execute '!open ' . shellescape(a:url, 1)
+    call system('open ' . shellescape(a:url).' &')
   endfunction
   function! s:linux_handler(url)
     call system('xdg-open ' . shellescape(a:url).' &')
