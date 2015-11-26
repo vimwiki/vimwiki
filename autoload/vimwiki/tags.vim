@@ -213,6 +213,38 @@ function! s:merge_tags(metadata, pagename, file_metadata) "{{{
   return metadata
 endfunction " }}}
 
+" s:tags_entry_cmp
+"   Compares two actual lines from tags file.  Return value is in strcmp style.
+"   See help on sort() -- that's what this function is going to be used for.
+"   See also s:write_tags_metadata below -- that's where we compose these tags
+"   file lines.
+"
+"   This function is needed for tags sorting, since plain sort() compares line
+"   numbers as strings, not integers, and so, for example, tag at line 14
+"   preceeds the same tag on the same page at line 9.  (Because string "14" is
+"   alphabetically 'less than' string "9".)
+function! s:tags_entry_cmp(i1, i2) "{{{
+  let items = []
+  for orig_item in [a:i1, a:i2]
+    let fields = split(orig_item, "\t")
+    let item = {}
+    let item.text = fields[0]."\t".fields[1]
+    let item.lineno = 0 + matchstr(fields[2], '\m\d\+')
+    call add(items, item)
+  endfor
+  if items[0].text > items[1].text
+    return 1
+  elseif items[0].text < items[1].text
+    return -1
+  elseif items[0].lineno > items[1].lineno
+    return 1
+  elseif items[0].lineno < items[1].lineno
+    return -1
+  else
+    return 0
+  endif
+endfunction " }}}
+
 " s:write_tags_metadata
 "   Saves metadata object into a file. Throws exceptions in case of problems.
 function! s:write_tags_metadata(metadata) "{{{
@@ -234,7 +266,7 @@ function! s:write_tags_metadata(metadata) "{{{
             \)
     endfor
   endfor
-  call sort(tags)
+  call sort(tags, "s:tags_entry_cmp")
   call insert(tags, "!_TAG_FILE_SORTED\t1\t")
   call writefile(tags, metadata_path)
 endfunction " }}}
