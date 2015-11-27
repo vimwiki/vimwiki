@@ -1147,9 +1147,12 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   let cursor_line = old_cursor_pos[1]
   let is_cursor_after_listing = 0
 
+  let is_fold_closed = 1
+
   let lines_diff = 0
 
   if already_there
+    let is_fold_closed = ( foldclosed(start_lnum) > 1 )
     " delete the old listing
     let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
     let end_lnum = start_lnum + 1
@@ -1187,6 +1190,12 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
     call append(start_lnum - 1, '')
     let lines_diff += 1
+  endif
+
+  " Open fold, if needed
+  if !is_fold_closed
+    exe start_lnum
+    norm zo
   endif
 
   if is_cursor_after_listing
