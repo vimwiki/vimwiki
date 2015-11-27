@@ -1143,8 +1143,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     return
   endif
 
-  let old_cursor_pos = getpos('.')
-  let cursor_line = old_cursor_pos[1]
+  let winview_save = winsaveview()
+  let cursor_line = winview_save.lnum
   let is_cursor_after_listing = 0
 
   let is_fold_closed = 1
@@ -1199,9 +1199,9 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   endif
 
   if is_cursor_after_listing
-    let old_cursor_pos[1] += lines_diff
+    let winview_save.lnum += lines_diff
   endif
-  call setpos('.', old_cursor_pos)
+  call winrestview(winview_save)
 endfunction "}}}
 
 " WIKI link following functions {{{
