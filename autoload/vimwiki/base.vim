@@ -1284,6 +1284,7 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     echom "--- Goto_index g:curr_idx=".g:vimwiki_current_idx." ww_idx=".idx.""
   endif
 
+  call Validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
         \ VimwikiGet('path', idx).VimwikiGet('index', idx).
         \ VimwikiGet('ext', idx),
