@@ -2744,6 +2744,8 @@ New:~
     * Add Chinese Readme file
 
 Changed:~
+    * Wiki files must not contain # anymore, because # is used to separate the
+      file from an anchor in a link.
     * replace the function vimwiki#base#resolve_scheme() by
       vimwiki#base#resolve_link() (relevant if you have a custom
       |VimwikiLinkHandler| which used this function)
