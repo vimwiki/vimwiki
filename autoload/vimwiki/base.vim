@@ -1175,6 +1175,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     let whitespaces_in_first_line = ''
   endif
 
+  let start_of_listing = start_lnum
+
   " write new listing
   let new_header = whitespaces_in_first_line
         \ . substitute(g:vimwiki_rxH1_Template,
@@ -1193,9 +1195,9 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   endif
 
   " Open fold, if needed
-  if !is_fold_closed
-    exe start_lnum
-    norm zo
+  if !is_fold_closed && foldclosed(start_of_listing)
+    exe start_of_listing
+    norm! zo
   endif
 
   if is_cursor_after_listing
