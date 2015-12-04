@@ -1152,7 +1152,7 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   let lines_diff = 0
 
   if already_there
-    let is_fold_closed = ( foldclosed(start_lnum) > 1 )
+    let is_fold_closed = ( foldclosed(start_lnum) > -1 )
     " delete the old listing
     let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
     let end_lnum = start_lnum + 1
@@ -1195,7 +1195,7 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   endif
 
   " Open fold, if needed
-  if !is_fold_closed && foldclosed(start_of_listing)
+  if !is_fold_closed && ( foldclosed(start_of_listing) > -1 )
     exe start_of_listing
     norm! zo
   endif
