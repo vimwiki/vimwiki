@@ -1143,20 +1143,39 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     return
   endif
 
-  let old_cursor_pos = getpos('.')
+  let winview_save = winsaveview()
+  let cursor_line = winview_save.lnum
+  let is_cursor_after_listing = 0
+
+  let is_fold_closed = 1
+
+  let lines_diff = 0
 
   if already_there
+    let is_fold_closed = ( foldclosed(start_lnum) > -1 )
     " delete the old listing
     let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
     let end_lnum = start_lnum + 1
     while end_lnum <= line('$') && getline(end_lnum) =~# a:content_regex
       let end_lnum += 1
     endwhile
+    let is_cursor_after_listing = ( cursor_line >= end_lnum )
+    " We'll be removing a range.  But, apparently, if folds are enabled, Vim
+    " won't let you remove a range that overlaps with closed fold -- the entire
+    " fold gets deleted.  So we temporarily disable folds, and then reenable
+    " them right back.
+    let foldenable_save = &l:foldenable
+    setlo nofoldenable
     silent exe start_lnum.','.string(end_lnum - 1).'delete _'
+    let &l:foldenable = foldenable_save
+    let lines_diff = 0 - (end_lnum - start_lnum)
   else
     let start_lnum = a:default_lnum
+    let is_cursor_after_listing = ( cursor_line > a:default_lnum )
     let whitespaces_in_first_line = ''
   endif
+
+  let start_of_listing = start_lnum
 
   " write new listing
   let new_header = whitespaces_in_first_line
@@ -1164,6 +1183,7 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
         \ '__Header__', '\='."'".a:start_header."'", '')
   call append(start_lnum - 1, new_header)
   let start_lnum += 1
+  let lines_diff += 1 + len(a:strings)
   for string in a:strings
     call append(start_lnum - 1, string)
     let start_lnum += 1
@@ -1171,9 +1191,19 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   " append an empty line if there is not one
   if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
     call append(start_lnum - 1, '')
+    let lines_diff += 1
   endif
 
-  call setpos('.', old_cursor_pos)
+  " Open fold, if needed
+  if !is_fold_closed && ( foldclosed(start_of_listing) > -1 )
+    exe start_of_listing
+    norm! zo
+  endif
+
+  if is_cursor_after_listing
+    let winview_save.lnum += lines_diff
+  endif
+  call winrestview(winview_save)
 endfunction "}}}
 
 " WIKI link following functions {{{
