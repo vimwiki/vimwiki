@@ -83,7 +83,7 @@ fun! s:read_captions(files) "{{{
   return result
 endfun "}}}
 
-fun! s:get_diary_links(...) "{{{
+fun! s:get_diary_links() "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
   let files = split(s_files, '\n')
@@ -92,9 +92,6 @@ fun! s:get_diary_links(...) "{{{
   " remove backup files (.wiki~)
   call filter(files, 'v:val !~# ''.*\~$''')
 
-  if a:0
-    call add(files, a:1)
-  endif
   let links_with_captions = s:read_captions(files)
 
   return links_with_captions
@@ -129,14 +126,10 @@ function! s:sort(lst) "{{{
   endif
 endfunction "}}}
 
-function! s:format_diary(...) "{{{
+function! s:format_diary() "{{{
   let result = []
 
-  if a:0
-    let g_files = s:group_links(s:get_diary_links(a:1))
-  else
-    let g_files = s:group_links(s:get_diary_links())
-  endif
+  let g_files = s:group_links(s:get_diary_links())
 
   for year in s:sort(keys(g_files))
     call add(result, '')
