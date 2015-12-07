@@ -10,14 +10,12 @@ elseif exists("b:current_syntax")
 endif
 
 "TODO do nothing if ...? (?)
-let g:starttime = reltime()  " start the clock
 if VimwikiGet('maxhi')
   let b:existing_wikifiles =
         \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
   let b:existing_wikidirs  =
         \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
 endif
-let s:timescans = vimwiki#u#time(g:starttime)  "XXX
   "let b:xxx = 1
   "TODO ? update wikilink syntax group here if really needed (?) for :e and such
   "if VimwikiGet('maxhi')
@@ -46,8 +44,6 @@ let g:vimwiki_rxWeblinkUrl = g:vimwiki_rxWebProtocols .
 " }}}
 
 call vimwiki#u#reload_regexes()
-
-let s:time0 = vimwiki#u#time(g:starttime)  "XXX
 
 " LINKS: setup of larger regexes {{{
 
@@ -246,16 +242,12 @@ if VimwikiGet('maxhi')
   call s:add_target_syntax_OFF(g:vimwiki_rxWikiIncl)
 
   " Subsequently, links verified on vimwiki's path are highlighted as existing
-  let s:time01 = vimwiki#u#time(g:starttime)  "XXX
   call s:highlight_existing_links()
-  let s:time02 = vimwiki#u#time(g:starttime)  "XXX
 else
-  let s:time01 = vimwiki#u#time(g:starttime)  "XXX
   " Wikilink
   call s:add_target_syntax_ON(g:vimwiki_rxWikiLink, 'VimwikiLink')
   " WikiIncl
   call s:add_target_syntax_ON(g:vimwiki_rxWikiIncl, 'VimwikiLink')
-  let s:time02 = vimwiki#u#time(g:starttime)  "XXX
 endif
 
 " Weblink
@@ -613,6 +605,3 @@ call vimwiki#base#nested_syntax('tex',
 
 
 syntax spell toplevel
-
-let s:timeend = vimwiki#u#time(g:starttime)  "XXX
-call VimwikiLog_extend('timing',['syntax:scans',s:timescans],['syntax:regexloaded',s:time0],['syntax:beforeHLexisting',s:time01],['syntax:afterHLexisting',s:time02],['syntax:end',s:timeend])

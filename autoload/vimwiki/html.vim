@@ -1367,9 +1367,6 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
 endfunction " }}}
 
 function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
-
-  let starttime = reltime()  " start the clock
-
   let done = 0
 
   let wikifile = fnamemodify(a:wikifile, ":p")
@@ -1496,7 +1493,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
 
     let html_lines = s:html_insert_contents(html_lines, ldest) " %contents%
-    
+
     "" make html file.
     call writefile(html_lines, path_html.htmlfile)
     let done = 1
@@ -1507,10 +1504,6 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     echomsg 'vimwiki: conversion to HTML is not supported for this syntax!!!'
     return
   endif
-
-  " measure the elapsed time 
-  let time1 = vimwiki#u#time(starttime)  "XXX
-  call VimwikiLog_extend('html',[htmlfile,time1])
 
   return path_html.htmlfile
 endfunction "}}}

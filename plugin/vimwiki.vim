@@ -11,18 +11,6 @@ let g:loaded_vimwiki = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-" Logging and performance instrumentation "{{{
-let g:VimwikiLog = {}
-let g:VimwikiLog.path = 0           " # of calls to VimwikiGet with path or path_html
-let g:VimwikiLog.path_html = 0      " # of calls to path_html()
-let g:VimwikiLog.normalize_path = 0 " # of calls to normalize_path()
-let g:VimwikiLog.subdir = 0         " # of calls to vimwiki#base#subdir()
-let g:VimwikiLog.timing = []        " various timing measurements
-let g:VimwikiLog.html = []          " html conversion timing
-function! VimwikiLog_extend(what,...)  "{{{
-  call extend(g:VimwikiLog[a:what],a:000)
-endfunction "}}}
-"}}}
 
 " HELPER functions {{{
 function! s:default(varname, value) "{{{
@@ -36,14 +24,12 @@ function! s:path_html(idx) "{{{
   if !empty(path_html)
     return path_html
   else
-    let g:VimwikiLog.path_html += 1  "XXX
     let path = VimwikiGet('path', a:idx)
     return substitute(path, '[/\\]\+$', '', '').'_html/'
   endif
 endfunction "}}}
 
 function! s:normalize_path(path) "{{{
-  let g:VimwikiLog.normalize_path += 1  "XXX
   " resolve doesn't work quite right with symlinks ended with / or \
   let path = substitute(a:path, '[/\\]\+$', '', '')
   if path !~# '^scp:'
@@ -85,7 +71,6 @@ function! s:setup_buffer_leave() "{{{
 endfunction "}}}
 
 function! s:setup_filetype() "{{{
-  let time0 = reltime()  " start the clock  "XXX
   " Find what wiki current buffer belongs to.
   let path = expand('%:p:h')
   let idx = vimwiki#base#find_wiki(path)
@@ -115,12 +100,9 @@ function! s:setup_filetype() "{{{
 
   unlet! b:vimwiki_fs_rescan
   set filetype=vimwiki
-  let time1 = vimwiki#u#time(time0)  "XXX
-  call VimwikiLog_extend('timing',['plugin:setup_filetype:time1',time1])
 endfunction "}}}
 
 function! s:setup_buffer_enter() "{{{
-  let time0 = reltime()  " start the clock  "XXX
   if !vimwiki#base#recall_buffer_state()
     " Find what wiki current buffer belongs to.
     " If wiki does not exist in g:vimwiki_list -- add new wiki there with
@@ -170,7 +152,6 @@ function! s:setup_buffer_enter() "{{{
     endif
     let b:vimwiki_fs_rescan = 1
   endif
-  let time1 = vimwiki#u#time(time0)  "XXX
 
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
@@ -200,8 +181,6 @@ function! s:setup_buffer_enter() "{{{
   if g:vimwiki_menu != ""
     exe 'nmenu enable '.g:vimwiki_menu.'.Table'
   endif
-  "let time2 = vimwiki#u#time(time0)  "XXX
-  call VimwikiLog_extend('timing',['plugin:setup_buffer_enter:time1',time1])
 endfunction "}}}
 
 function! s:setup_buffer_reenter() "{{{

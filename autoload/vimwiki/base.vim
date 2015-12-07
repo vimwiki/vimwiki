@@ -185,7 +185,6 @@ endfunction "}}}
 " vimwiki#base#subdir
 "FIXME TODO slow and faulty
 function! vimwiki#base#subdir(path, filename) "{{{
-  let g:VimwikiLog.subdir += 1  "XXX
   let path = a:path
   " ensure that we are not fooled by a symbolic link
   "FIXME if we are not "fooled", we end up in a completely different wiki?

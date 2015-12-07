@@ -32,11 +32,6 @@ function! vimwiki#u#is_macos()
   return os == 'Darwin' || os == 'Mac'
 endfunction
 
-function! vimwiki#u#time(starttime) "{{{
-  " measure the elapsed time and cut away miliseconds and smaller
-  return matchstr(reltimestr(reltime(a:starttime)),'\d\+\(\.\d\d\)\=')
-endfunction "}}}
-
 function! vimwiki#u#count_first_sym(line) "{{{
   let first_sym = matchstr(a:line, '\S')
   return len(matchstr(a:line, first_sym.'\+'))
