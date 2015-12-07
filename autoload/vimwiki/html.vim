@@ -396,11 +396,6 @@ function! s:tag_wikiincl(value) "{{{
 
     let link_infos = vimwiki#base#resolve_link(url_0)
 
-    " TODO: migrate non-essential debugging messages into g:VimwikiLog
-    if g:vimwiki_debug > 1
-      echom string(link_infos)
-    endif
-
     if link_infos.scheme =~# '\mlocal\|wiki\d\+\|diary'
       let url = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'),
             \ link_infos.filename)
@@ -453,12 +448,6 @@ function! s:tag_wikilink(value) "{{{
       endif
     else " other schemes, like http, are left untouched
       let html_link = link_infos.filename
-    endif
-
-    " generate html output
-    " TODO: migrate non-essential debugging messages into g:VimwikiLog
-    if g:vimwiki_debug > 1
-      echom string(link_infos)
     endif
 
     if link_infos.anchor != ''
@@ -1403,10 +1392,6 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
     let lsource = readfile(wikifile)
     let ldest = []
 
-    "if g:vimwiki_debug
-    "  echo 'Generating HTML ... '
-    "endif
-
     call vimwiki#path#mkdir(path_html)
 
     " nohtml placeholder -- to skip html generation.
@@ -1526,9 +1511,6 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
   " measure the elapsed time 
   let time1 = vimwiki#u#time(starttime)  "XXX
   call VimwikiLog_extend('html',[htmlfile,time1])
-  "if g:vimwiki_debug
-  "  echon "\r".htmlfile.' written (time: '.time1.'s)'
-  "endif
 
   return path_html.htmlfile
 endfunction "}}}

@@ -141,18 +141,12 @@ endfunction " }}}
 
 " vimwiki#base#cache_buffer_state
 function! vimwiki#base#cache_buffer_state() "{{{
-  if !exists('g:vimwiki_current_idx') && g:vimwiki_debug
-    echo "[Vimwiki Internal Error]: Missing global state variable: 'g:vimwiki_current_idx'"
-  endif
   let b:vimwiki_idx = g:vimwiki_current_idx
 endfunction "}}}
 
 " vimwiki#base#recall_buffer_state
 function! vimwiki#base#recall_buffer_state() "{{{
   if !exists('b:vimwiki_idx')
-    if g:vimwiki_debug
-      echo "[Vimwiki Internal Error]: Missing buffer state variable: 'b:vimwiki_idx'"
-    endif
     return 0
   else
     let g:vimwiki_current_idx = b:vimwiki_idx
@@ -403,10 +397,6 @@ endfunction "}}}
 " vimwiki#base#open_link
 function! vimwiki#base#open_link(cmd, link, ...) "{{{
   let link_infos = vimwiki#base#resolve_link(a:link)
-
-  if g:vimwiki_debug
-    echom 'open_link:' string(link_infos)
-  endif
 
   if link_infos.filename == ''
     echom 'Vimwiki Error: Unable to resolve link!'
@@ -1310,10 +1300,6 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     let cmd = 'edit'
   endif
 
-  if g:vimwiki_debug == 3
-    echom "--- Goto_index g:curr_idx=".g:vimwiki_current_idx." ww_idx=".idx.""
-  endif
-
   call Validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
         \ VimwikiGet('path', idx).VimwikiGet('index', idx).
@@ -1909,9 +1895,6 @@ function! s:normalize_link_syntax_n() " {{{
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLinkTemplate2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink, sub)
-    if g:vimwiki_debug > 1
-      echomsg "WikiLink: ".lnk." Sub: ".sub
-    endif
     return
   endif
   
@@ -1919,9 +1902,6 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
   if !empty(lnk)
     " NO-OP !!
-    if g:vimwiki_debug > 1
-      echomsg "WikiIncl: ".lnk." Sub: ".lnk
-    endif
     return
   endif
 
@@ -1938,9 +1918,6 @@ function! s:normalize_link_syntax_n() " {{{
             \ g:vimwiki_WikiLinkTemplate1)
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
-    if g:vimwiki_debug > 1
-      echomsg "Word: ".lnk." Sub: ".sub
-    endif
     return
   endif
 

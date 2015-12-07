@@ -177,9 +177,6 @@ let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature {{{
 function! s:add_target_syntax_ON(target, type) " {{{
-  if g:vimwiki_debug > 1
-    echom '[vimwiki_debug] syntax target > '.a:target
-  endif
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match '.a:type.'T `'
@@ -189,9 +186,6 @@ function! s:add_target_syntax_ON(target, type) " {{{
 endfunction "}}}
 
 function! s:add_target_syntax_OFF(target) " {{{
-  if g:vimwiki_debug > 1
-    echom '[vimwiki_debug] syntax target > '.a:target
-  endif
   let prefix0 = 'syntax match VimwikiNoExistsLink `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,VimwikiLinkChar'
   let prefix1 = 'syntax match VimwikiNoExistsLinkT `'
@@ -344,14 +338,6 @@ execute 'syn match VimwikiSubScript contained /'.g:vimwiki_char_subscript.'/'.s:
 " }}}
 
 " concealed link parts " {{{
-if g:vimwiki_debug > 1
-  echom 'WikiLink Prefix: '.s:rx_wikilink_prefix
-  echom 'WikiLink Suffix: '.s:rx_wikilink_suffix
-  echom 'WikiLink Prefix1: '.s:rx_wikilink_prefix1
-  echom 'WikiLink Suffix1: '.s:rx_wikilink_suffix1
-  echom 'WikiIncl Prefix: '.g:vimwiki_rxWikiInclPrefix1
-  echom 'WikiIncl Suffix: '.g:vimwiki_rxWikiInclSuffix1
-endif
 
 " define the conceal attribute for links only if Vim is new enough to handle it
 " and the user has g:vimwiki_url_maxsave > 0

@@ -2595,19 +2595,6 @@ Default: 15
 
 
 ------------------------------------------------------------------------------
-*g:vimwiki_debug*
-
-Controls verbosity of debugging output, for example, the diagnostic
-information about HTML conversion.
-
-Value           Description~
-0               Do not show debug messages.
-1               Show debug messages.
-
-Default: 0
-
-
-------------------------------------------------------------------------------
 *g:vimwiki_diary_months*
 
 It is a |Dictionary| with the numbers of months and corresponding names. Diary
@@ -2717,6 +2704,13 @@ Contributors and their Github usernames in roughly chronological order:
 
 ==============================================================================
 15. Changelog                                              *vimwiki-changelog*
+
+???~
+
+Removed:~
+    * Removed the option g:vimwiki_debug, which probably nobody used. If you
+      want it back, file an issue at Github.
+
 
 2.2~
 
