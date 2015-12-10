@@ -2700,21 +2700,28 @@ Contributors and their Github usernames in roughly chronological order:
     - 修昊 (Svtter)
     - Marcelo D Montu (mMontu)
     - John Kaul
+    - Hongbo Liu (hiberabyss)
 
 
 ==============================================================================
 15. Changelog                                              *vimwiki-changelog*
 
-2.2.1~
+
+2.2.1 (2015-12-10)~
 
 Removed:~
     * Removed the option g:vimwiki_debug, which probably nobody used. If you
       want it back, file an issue at Github.
 
 Fixed:~
-    * don't do random things when the user has remapped the z key
+    * Don't do random things when the user has remapped the z key
+    * Don't ask for confirmation when following an URL in MacOS
+    * Always jump to the first occurrence of a tag in a file
+    * Don't move the cursor when updating the TOC
+    * Fix some issues with the TOC when folding is enabled
 
-2.2~
+
+2.2 (2015-11-25)~
 
 New:~
     * Support for anchors, see |vimwiki-anchors|
