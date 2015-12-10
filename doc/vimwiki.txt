@@ -2705,12 +2705,14 @@ Contributors and their Github usernames in roughly chronological order:
 ==============================================================================
 15. Changelog                                              *vimwiki-changelog*
 
-???~
+2.2.1~
 
 Removed:~
     * Removed the option g:vimwiki_debug, which probably nobody used. If you
       want it back, file an issue at Github.
 
+Fixed:~
+    * don't do random things when the user has remapped the z key
 
 2.2~
 

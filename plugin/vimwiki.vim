@@ -169,7 +169,7 @@ function! s:setup_buffer_enter() "{{{
     setlocal foldtext=VimwikiFoldText()
   else
     setlocal fdm=manual
-    exe "normal zE"
+    normal! zE
   endif
 
   " And conceal level too.
