@@ -196,6 +196,24 @@ See also |:VimwikiMakeDiaryNote|
 See also |:VimwikiTabMakeDiaryNote|
 
 
+[count]<Leader>w<Leader>y or <Plug>VimwikiMakeYesterdayDiaryNote
+        Open diary wiki-file for yesterday of the [count]'s wiki.
+
+        <Leader>w<Leader>y opens diary wiki-file for yesterday in the first
+        wiki from |g:vimwiki_list|.
+        1<Leader>w<Leader>y as above opens diary wiki-file for yesterday in
+        the first wiki from |g:vimwiki_list|.
+        2<Leader>w<Leader>y opens diary wiki-file for yesterday in the second
+        wiki from |g:vimwiki_list|.
+        3<Leader>w<Leader>y opens diary wiki-file for yesterday in the third
+        wiki from |g:vimwiki_list|.
+        etc.
+        To remap: >
+        :nmap <Leader>dy <Plug>VimwikiMakeYesterdayDiaryNote
+<
+See also |:VimwikiMakeYesterdayDiaryNote|
+
+
 ------------------------------------------------------------------------------
 3.2. Local mappings
 
@@ -566,6 +584,9 @@ il                      A single list item.
 
 *:VimwikiTabMakeDiaryNote*
     Open diary wiki-file for today of the current wiki in a new tab.
+
+*:VimwikiMakeYesterdayDiaryNote*
+    Open diary wiki-file for yesterday of the current wiki.
 
 
 ------------------------------------------------------------------------------
