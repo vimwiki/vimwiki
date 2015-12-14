@@ -31,7 +31,7 @@ execute 'setlocal suffixesadd='.VimwikiGet('ext')
 setlocal isfname-=[,]
 " gf}}}
 
-exe "setlocal tags+=" . vimwiki#tags#metadata_file_path()
+exe "setlocal tags+=" . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 " MISC }}}
 
