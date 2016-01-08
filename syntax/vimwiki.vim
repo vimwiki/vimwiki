@@ -588,6 +588,9 @@ let b:current_syntax="vimwiki"
 
 " EMBEDDED syntax setup "{{{
 let s:nested = VimwikiGet('nested_syntaxes')
+if empty(s:nested) && exists('g:vimwiki_nested_syntaxes')
+  let s:nested = g:vimwiki_nested_syntaxes
+endif
 if !empty(s:nested)
   for [s:hl_syntax, s:vim_syntax] in items(s:nested)
     call vimwiki#base#nested_syntax(s:vim_syntax,
