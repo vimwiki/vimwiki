@@ -2704,28 +2704,47 @@ Old homepage: http://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
-    - Maxim Kim (habamax) <habamax@gmail.com> as original author
+    - Maxim Kim (@habamax) <habamax@gmail.com> as original author
     - the people here: http://code.google.com/p/vimwiki/people/list
-    - Stuart Andrews (tub78)
+    - Stuart Andrews (@tub78)
     - Tomas Pospichal
-    - Daniel Schemala (EinfachToll) as current maintainer
-    - Larry Hynes (larryhynes)
-    - Hector Arciga (harciga)
-    - Alexey Radkov (lyokha)
-    - Aaron Franks (af)
-    - Dan Bernier (danbernier)
-    - Carl Helmertz (chelmertz)
-    - Karl Yngve Lervåg (lervag)
-    - Patrick Davey (patrickdavey)
-    - Ivan Tishchenko (t7ko)
-    - 修昊 (Svtter)
-    - Marcelo D Montu (mMontu)
+    - Daniel Schemala (@EinfachToll) as current maintainer
+    - Larry Hynes (@larryhynes)
+    - Hector Arciga (@harciga)
+    - Alexey Radkov (@lyokha)
+    - Aaron Franks (@af)
+    - Dan Bernier (@danbernier)
+    - Carl Helmertz (@chelmertz)
+    - Karl Yngve Lervåg (@lervag)
+    - Patrick Davey (@patrickdavey)
+    - Ivan Tishchenko (@t7ko)
+    - 修昊 (@Svtter)
+    - Marcelo D Montu (@mMontu)
     - John Kaul
-    - Hongbo Liu (hiberabyss)
+    - Hongbo Liu (@hiberabyss)
+    - @Tomsod
+    - @wangzq
 
 
 ==============================================================================
 15. Changelog                                              *vimwiki-changelog*
+
+
+Issue numbers starting with '#' are issues from
+https://github.com/vimwiki/vimwiki/issues/, all others from
+http://code.google.com/p/vimwiki/issues/list. They may be accessible from
+https://github.com/vimwiki-backup/vimwiki/issues.
+
+
+???~
+
+New:
+    * Add |:VimwikiMakeYesterdayDiaryNote| command
+
+Fixed:
+    * Issue #176: Fix issue when the wiki path contains spaces
+    * Also look for tags in wiki files in subdirectories
+    * Locate the .tags file correctly on Windows
 
 
 2.2.1 (2015-12-10)~
@@ -2735,7 +2754,7 @@ Removed:~
       want it back, file an issue at Github.
 
 Fixed:~
-    * Don't do random things when the user has remapped the z key
+    * Issue #175: Don't do random things when the user has remapped the z key
     * Don't ask for confirmation when following an URL in MacOS
     * Always jump to the first occurrence of a tag in a file
     * Don't move the cursor when updating the TOC
@@ -2810,11 +2829,6 @@ Fixed:~
     * Various small fixes
     * Corrected website links in documentation. code.google is dead, long live
       Github!
-
-Issue numbers starting with '#' are issues from
-https://github.com/vimwiki/vimwiki/issues/, all others from
-http://code.google.com/p/vimwiki/issues/list. They may be accessible from
-https://github.com/vimwiki-backup/vimwiki/issues.
 
 2.1~
 
