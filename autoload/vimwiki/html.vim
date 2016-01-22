@@ -1046,6 +1046,8 @@ function! s:process_tag_h(line, id) "{{{
       let h_part .= '>'
     endif
 
+    let h_text = s:process_inline_tags(h_text, a:id)
+
     let line = h_part.h_text.'</h'.h_level.'></div>'
 
     let processed = 1
@@ -1251,8 +1253,6 @@ function! s:parse_line(line, state) " {{{
       let state.math = s:close_tag_math(state.math, res_lines)
       let state.quote = s:close_tag_quote(state.quote, res_lines)
       let state.para = s:close_tag_para(state.para, res_lines)
-
-      let line = s:process_inline_tags(line, state.header_ids)
 
       call add(res_lines, line)
     endif
