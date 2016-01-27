@@ -1940,6 +1940,20 @@ or in: >
  }}}
 
 
+*vimwiki-option-automatic_nested_syntaxes*
+------------------------------------------------------------------------------
+Key                       Default value~
+automatic_nested_syntaxes 1            
+
+Description~
+Allows for smaller |vimwiki-option-nested_syntaxes| dictionaries, by turning
+entry for python on the previous example unnecessary: >
+  let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
+
+It requires that the file is reloaded (|:edit|) after new |filetype| is
+included in a file.
+
+
 *vimwiki-option-diary_rel_path*
 ------------------------------------------------------------------------------
 Key             Default value~
