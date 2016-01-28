@@ -1965,6 +1965,18 @@ function! vimwiki#base#normalize_link(is_visual_mode) "{{{
   endif
 endfunction "}}}
 
+" vimwiki#base#detect_nested_syntax
+function! vimwiki#base#detect_nested_syntax() "{{{
+  let last_word = '\v.*<(\w+)\s*$'
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "{{{" && v:val =~ last_word'), 
+        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
+  let dict = {}
+  for elem in lines
+    exe "let dict.".elem." = elem"
+  endfor
+  return dict
+endfunction "}}}
+
 " }}}
 
 " Command completion functions {{{
