@@ -1972,7 +1972,7 @@ function! vimwiki#base#detect_nested_syntax() "{{{
         \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
   let dict = {}
   for elem in lines
-    exe "let dict.".elem." = elem"
+    let dict[elem] = elem
   endfor
   return dict
 endfunction "}}}

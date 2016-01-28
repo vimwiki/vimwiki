@@ -2017,16 +2017,24 @@ or in: >
 
 *vimwiki-option-automatic_nested_syntaxes*
 ------------------------------------------------------------------------------
-Key                       Default value~
-automatic_nested_syntaxes 1            
+Key                        Default value~
+automatic_nested_syntaxes  1
 
 Description~
-Allows for smaller |vimwiki-option-nested_syntaxes| dictionaries, by turning
-entry for python on the previous example unnecessary: >
-  let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp'}
+If set, the nested syntaxes (|vimwiki-option-nested_syntaxes|) are
+automatically derived when opening a buffer.
+Just write your preformatted text in your file like this >
+ {{{xxx
+ my preformatted text
+ }}}
 
-It requires that the file is reloaded (|:edit|) after new |filetype| is
-included in a file.
+where xxx is a Vim filetype.
+
+Note that you may have to reload the file (|:edit|) to see the highlight.
+
+Since every file is scanned for the markers of preformatted text when it is
+opened, it can be slow when you have huge files. In this case, set this option
+to 0.
 
 
 *vimwiki-option-diary_rel_path*
