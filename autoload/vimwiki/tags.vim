@@ -317,7 +317,7 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
             \ '',
             \ substitute(g:vimwiki_rxH2_Template, '__Header__', tagname, ''),
             \ '' ])
-      for taglink in tags_entries[tagname]
+      for taglink in sort(tags_entries[tagname])
         call add(lines, bullet .
               \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', taglink, ''))
       endfor
