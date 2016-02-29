@@ -38,7 +38,7 @@ function! vimwiki#u#count_first_sym(line) "{{{
 endfunction "}}}
 
 function! vimwiki#u#escape(string) "{{{
-  return escape(a:string, '.*[]\^$')
+  return escape(a:string, '~.*[]\^$')
 endfunction "}}}
 
 " Load concrete Wiki syntax: sets regexes and templates for headers and links
