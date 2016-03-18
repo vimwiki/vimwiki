@@ -1,11 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki syntax file
-" MediaWiki syntax
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
-
-" placeholder for math environments
-let b:vimwiki_mathEnv = ""
+" Desc: Defines mediaWiki syntax
+" Home: https://github.com/vimwiki/vimwiki/
 
 " text: $ equation_inline $
 let g:vimwiki_rxEqIn = '\$[^$`]\+\$'
@@ -53,12 +49,16 @@ let g:vimwiki_rxHR = '^-----*$'
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let g:vimwiki_rxTableSep = '|'
 
-" Bulleted list items start with whitespace(s), then '*'
-" highlight only bullets and digits.
-let g:vimwiki_rxListBullet = '^\s*\*\+\s\%([^*]*$\)\@='
-let g:vimwiki_rxListNumber = '^\s*#\+\s'
-
+" Lists
+let g:vimwiki_bullet_types = { '*':1, '#':1 }
+let g:vimwiki_number_types = []
+let g:vimwiki_list_markers = ['*', '#']
 let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
+call vimwiki#lst#setup_marker_infos()
+
+let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
+let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.g:vimwiki_listsyms.']\)\]\s\)\?'
+let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms_list[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|\s.*\)\)*'
 
 " Preformatted text
 let g:vimwiki_rxPreStart = '<pre>'
@@ -69,3 +69,4 @@ let g:vimwiki_rxMathStart = '{{\$'
 let g:vimwiki_rxMathEnd = '}}\$'
 
 let g:vimwiki_rxComment = '^\s*%%.*$'
+let g:vimwiki_rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
