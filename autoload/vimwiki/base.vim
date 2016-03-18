@@ -1736,10 +1736,27 @@ endfunction " }}}
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
   " collect new headers
+  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
   let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   for lnum in range(1, line('$'))
     let line_content = getline(lnum)
+    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki_rxPreEnd) ||
+          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki_rxMathEnd)
+      let is_inside_pre_or_math = 0
+      continue
+    endif
+    if is_inside_pre_or_math > 0
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxPreStart
+      let is_inside_pre_or_math = 1
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxMathStart
+      let is_inside_pre_or_math = 2
+      continue
+    endif
     if line_content !~# g:vimwiki_rxHeader
       continue
     endif
