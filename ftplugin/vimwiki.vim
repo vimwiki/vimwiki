@@ -173,9 +173,9 @@ function! VimwikiFoldLevel(lnum) "{{{
   if line =~# g:vimwiki_rxHeader
     return '>'.vimwiki#u#count_first_sym(line)
   " Code block folding...
-  elseif line =~# '^\s*'.g:vimwiki_rxPreStart
+  elseif line =~# g:vimwiki_rxPreStart
     return 'a1'
-  elseif line =~# '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+  elseif line =~# g:vimwiki_rxPreEnd
     return 's1'
   else
     return "="
@@ -221,7 +221,7 @@ function! VimwikiFoldText() "{{{
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
   let len_text = ' ['.fold_len.'] '
-  if line !~# '^\s*'.g:vimwiki_rxPreStart
+  if line !~# g:vimwiki_rxPreStart
     let [main_text, spare_len] = s:shorten_text(main_text, 50)
     return main_text.len_text
   else

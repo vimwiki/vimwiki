@@ -315,6 +315,12 @@ endfor
 
 " }}}
 
+let g:vimwiki_rxPreStart = '^\s*'.g:vimwiki_rxPreStart
+let g:vimwiki_rxPreEnd = '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+
+let g:vimwiki_rxMathStart = '^\s*'.g:vimwiki_rxMathStart
+let g:vimwiki_rxMathEnd = '^\s*'.g:vimwiki_rxMathEnd.'\s*$'
+
 " possibly concealed chars " {{{
 let s:conceal = exists("+conceallevel") ? ' conceal' : ''
 
@@ -444,11 +450,11 @@ execute 'syntax match VimwikiCodeT /'.g:vimwiki_rxCode.'/ contained contains=Vim
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.g:vimwiki_rxHR.'/'
 
-execute 'syntax region VimwikiPre start=/^\s*'.g:vimwiki_rxPreStart.
-      \ '/ end=/^\s*'.g:vimwiki_rxPreEnd.'\s*$/ contains=@Spell'
+execute 'syntax region VimwikiPre start=/'.g:vimwiki_rxPreStart.
+      \ '/ end=/'.g:vimwiki_rxPreEnd.'/ contains=@Spell'
 
-execute 'syntax region VimwikiMath start=/^\s*'.g:vimwiki_rxMathStart.
-      \ '/ end=/^\s*'.g:vimwiki_rxMathEnd.'\s*$/ contains=@Spell'
+execute 'syntax region VimwikiMath start=/'.g:vimwiki_rxMathStart.
+      \ '/ end=/'.g:vimwiki_rxMathEnd.'/ contains=@Spell'
 
 
 " placeholders
@@ -594,16 +600,16 @@ endif
 if !empty(s:nested)
   for [s:hl_syntax, s:vim_syntax] in items(s:nested)
     call vimwiki#base#nested_syntax(s:vim_syntax,
-          \ '^\s*'.g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
+          \ g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
           \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
-          \ '^\s*'.g:vimwiki_rxPreEnd, 'VimwikiPre')
+          \ g:vimwiki_rxPreEnd, 'VimwikiPre')
   endfor
 endif
 " LaTeX
 call vimwiki#base#nested_syntax('tex', 
-      \ '^\s*'.g:vimwiki_rxMathStart.'\%(.*[[:blank:][:punct:]]\)\?'.
+      \ g:vimwiki_rxMathStart.'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
-      \ '^\s*'.g:vimwiki_rxMathEnd, 'VimwikiMath')
+      \ g:vimwiki_rxMathEnd, 'VimwikiMath')
 "}}}
 
 
