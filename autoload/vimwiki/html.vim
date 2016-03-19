@@ -80,9 +80,10 @@ function! s:create_default_CSS(path) " {{{
     if default_css != ''
       let lines = readfile(default_css)
       call writefile(lines, css_full_name)
-      echomsg 'Vimwiki: Default style.css has been created'
+      return 1
     endif
   endif
+  return 0
 endfunction "}}}
 
 function! s:template_full_name(name) "{{{
@@ -1366,7 +1367,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'))
 endfunction " }}}
 
-function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
+function! s:convert_file(path_html, wikifile) "{{{
   let done = 0
 
   let wikifile = fnamemodify(a:wikifile, ":p")
@@ -1456,13 +1457,13 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
     if nohtml
       echon "\r"."%nohtml placeholder found"
-      return
+      return ''
     endif
 
     call s:remove_blank_lines(ldest)
 
-    "" process end of file
-    "" close opened tags if any
+    " process end of file
+    " close opened tags if any
     let lines = []
     call s:close_tag_quote(state.quote, lines)
     call s:close_tag_para(state.para, lines)
@@ -1494,7 +1495,6 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
     let html_lines = s:html_insert_contents(html_lines, ldest) " %contents%
 
-    "" make html file.
     call writefile(html_lines, path_html.htmlfile)
     let done = 1
 
@@ -1502,12 +1502,19 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
 
   if done == 0
     echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
-    return
+    return ''
   endif
 
   return path_html.htmlfile
 endfunction "}}}
 
+function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
+  let result = s:convert_file(a:path_html, a:wikifile)
+  if result != ''
+    call s:create_default_CSS(a:path_html)
+  endif
+  return result
+endfunction "}}}
 
 function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   if !s:syntax_supported() && !s:use_custom_wiki2html()
@@ -1549,7 +1556,7 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
     if !s:is_html_uptodate(wikifile)
       echomsg 'Vimwiki: Processing '.wikifile
 
-      call vimwiki#html#Wiki2HTML(path_html, wikifile)
+      call s:convert_file(path_html, wikifile)
     else
       echomsg 'Vimwiki: Skipping '.wikifile
     endif
@@ -1558,7 +1565,10 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   call VimwikiSet('subdir', current_subdir)
   call VimwikiSet('invsubdir', current_invsubdir)
 
-  call s:create_default_CSS(path_html)
+  let created = s:create_default_CSS(path_html)
+  if created
+    echomsg 'Vimwiki: Default style.css has been created'
+  endif
   echomsg 'Vimwiki: HTML exported to '.path_html
   echomsg 'Vimwiki: Done!'
 
