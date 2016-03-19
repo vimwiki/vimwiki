@@ -80,7 +80,7 @@ function! s:create_default_CSS(path) " {{{
     if default_css != ''
       let lines = readfile(default_css)
       call writefile(lines, css_full_name)
-      echomsg "Default style.css has been created."
+      echomsg 'Vimwiki: Default style.css has been created'
     endif
   endif
 endfunction "}}}
@@ -112,7 +112,7 @@ function! s:get_html_template(template) "{{{
       let lines = readfile(template_name)
       return lines
     catch /E484/
-      echomsg 'vimwiki: html template '.template_name.
+      echomsg 'Vimwiki: HTML template '.template_name.
             \ ' does not exist!'
     endtry
   endif
@@ -171,7 +171,7 @@ function! s:delete_html_files(path) "{{{
     try
       call delete(fname)
     catch
-      echomsg 'vimwiki: Cannot delete '.fname
+      echomsg 'Vimwiki Error: Cannot delete '.fname
     endtry
   endfor
 endfunction "}}}
@@ -1501,7 +1501,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
   endif
 
   if done == 0
-    echomsg 'vimwiki: conversion to HTML is not supported for this syntax!!!'
+    echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
     return
   endif
 
@@ -1511,11 +1511,11 @@ endfunction "}}}
 
 function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   if !s:syntax_supported() && !s:use_custom_wiki2html()
-    echomsg 'vimwiki: conversion to HTML is not supported for this syntax!!!'
+    echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
     return
   endif
 
-  echomsg 'Saving vimwiki files...'
+  echomsg 'Vimwiki: Saving Vimwiki files ...'
   let save_eventignore = &eventignore
   let &eventignore = "all"
   let cur_buf = bufname('%')
@@ -1526,10 +1526,10 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   let path_html = expand(a:path_html)
   call vimwiki#path#mkdir(path_html)
 
-  echomsg 'Deleting non-wiki html files...'
+  echomsg 'Vimwiki: Deleting non-wiki html files ...'
   call s:delete_html_files(path_html)
 
-  echomsg 'Converting wiki to html files...'
+  echomsg 'Vimwiki: Converting wiki to html files ...'
   let setting_more = &more
   setlocal nomore
 
@@ -1547,11 +1547,11 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
     call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir))
 
     if !s:is_html_uptodate(wikifile)
-      echomsg 'Processing '.wikifile
+      echomsg 'Vimwiki: Processing '.wikifile
 
       call vimwiki#html#Wiki2HTML(path_html, wikifile)
     else
-      echomsg 'Skipping '.wikifile
+      echomsg 'Vimwiki: Skipping '.wikifile
     endif
   endfor
   " reset 'subdir' state variable
@@ -1559,8 +1559,8 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   call VimwikiSet('invsubdir', current_invsubdir)
 
   call s:create_default_CSS(path_html)
-  echomsg 'HTML exported to '.path_html
-  echomsg 'Done!'
+  echomsg 'Vimwiki: HTML exported to '.path_html
+  echomsg 'Vimwiki: Done!'
 
   let &more = setting_more
 endfunction "}}}

@@ -2356,7 +2356,7 @@ A second example handles a new scheme, "vfile:", which behaves similar to
     endif
     let link_infos = vimwiki#base#resolve_link(link)
     if link_infos.filename == ''
-      echom 'Vimwiki Error: Unable to resolve link!'
+      echomsg 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
       exe 'tabnew ' . fnameescape(link_infos.filename)
