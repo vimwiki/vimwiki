@@ -1921,6 +1921,15 @@ function! s:normalize_link_syntax_n() " {{{
     return
   endif
 
+  " try Weblink
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
+  if !empty(lnk)
+    let sub = vimwiki#base#normalize_link_helper(lnk,
+          \ lnk, '', g:vimwiki_WikiLinkTemplate2)
+    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
+    return
+  endif
+
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
