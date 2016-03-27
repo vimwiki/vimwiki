@@ -139,7 +139,7 @@ endfunction " }}}
 " vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p')
+  return fnameescape(fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p'))
 endfunction " }}}
 
 " s:load_tags_metadata
