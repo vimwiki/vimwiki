@@ -14,7 +14,7 @@
 ==============================================================================
 CONTENTS                                                             *vimwiki*
 
-    1. Intro                         |vimwiki|
+    1. Intro                         |vimwiki-intro|
     2. Prerequisites                 |vimwiki-prerequisites|
     3. Mappings                      |vimwiki-mappings|
         3.1. Global mappings         |vimwiki-global-mappings|
