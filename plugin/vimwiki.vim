@@ -309,43 +309,43 @@ command! VimwikiShowVersion call s:get_version()
 
 let s:map_prefix = vimwiki#vars#get_global('map_prefix')
 
-if !hasmapto('<Plug>VimwikiIndex')
+if !hasmapto('<Plug>VimwikiIndex') && maparg(s:map_prefix.'w', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'w <Plug>VimwikiIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
 
-if !hasmapto('<Plug>VimwikiTabIndex')
+if !hasmapto('<Plug>VimwikiTabIndex') && maparg(s:map_prefix.'t', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'t <Plug>VimwikiTabIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabIndex :VimwikiTabIndex<CR>
 
-if !hasmapto('<Plug>VimwikiUISelect')
+if !hasmapto('<Plug>VimwikiUISelect') && maparg(s:map_prefix.'s', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'s <Plug>VimwikiUISelect'
 endif
 nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
 
-if !hasmapto('<Plug>VimwikiDiaryIndex')
+if !hasmapto('<Plug>VimwikiDiaryIndex') && maparg(s:map_prefix.'i', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'i <Plug>VimwikiDiaryIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryIndex :VimwikiDiaryIndex<CR>
 
-if !hasmapto('<Plug>VimwikiDiaryGenerateLinks')
+if !hasmapto('<Plug>VimwikiDiaryGenerateLinks') && maparg(s:map_prefix.'<Leader>i', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateLinks<CR>
 
-if !hasmapto('<Plug>VimwikiMakeDiaryNote')
+if !hasmapto('<Plug>VimwikiMakeDiaryNote') && maparg(s:map_prefix.'<Leader>w', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
 
-if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
+if !hasmapto('<Plug>VimwikiTabMakeDiaryNote') && maparg(s:map_prefix.'<Leader>t', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
       \ :VimwikiTabMakeDiaryNote<CR>
 
-if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
+if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote') && maparg(s:map_prefix.'<Leader>y', 'n') == ""
   exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
