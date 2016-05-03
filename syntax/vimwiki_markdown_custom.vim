@@ -130,10 +130,15 @@ let g:vimwiki_rxWeblinkMatchDescr0 = g:vimwiki_rxWeblinkMatchDescr
 " LINKS: Setup weblink1 regexps {{{
 let g:vimwiki_rxWeblink1Prefix = '['
 let g:vimwiki_rxWeblink1Suffix = ')'
+let g:vimwiki_rxWeblink1Ext = ''
+if g:vimwiki_markdown_link_include_extension
+  let g:vimwiki_rxWeblink1Ext = '.md'
+endif
+
 let g:vimwiki_rxWeblink1Separator = ']('
 " [DESCRIPTION](URL)
 let g:vimwiki_Weblink1Template = g:vimwiki_rxWeblink1Prefix . '__LinkDescription__'. 
-      \ g:vimwiki_rxWeblink1Separator. '__LinkUrl__'.
+      \ g:vimwiki_rxWeblink1Separator. '__LinkUrl__'. g:vimwiki_rxWeblink1Ext .
       \ g:vimwiki_rxWeblink1Suffix
 
 let s:valid_chars = '[^\\]'
