@@ -2698,6 +2698,19 @@ Value           Description~
 Default: 0
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_link_include_extension*
+
+When set to 1, appends .md to links when using markdown to improve
+compatibility with other markdown software.
+
+Value           Description~
+0               Do not append .md suffix to links.
+1               Append .md suffix to links.
+
+Default: 0
+
+
 ==============================================================================
 13. Contributing                                        *vimwiki-contributing*
 
