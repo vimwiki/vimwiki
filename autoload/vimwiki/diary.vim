@@ -161,7 +161,7 @@ endfunction "}}}
 
 function! vimwiki#diary#make_note(wnum, ...) "{{{
   if a:wnum > len(g:vimwiki_list)
-    echom "vimwiki: Wiki ".a:wnum." is not registered in g:vimwiki_list!"
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
 
@@ -191,7 +191,7 @@ endfunction "}}}
 
 function! vimwiki#diary#goto_diary_index(wnum) "{{{
   if a:wnum > len(g:vimwiki_list)
-    echom "vimwiki: Wiki ".a:wnum." is not registered in g:vimwiki_list!"
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
 
@@ -254,7 +254,7 @@ function! vimwiki#diary#generate_diary_section() "{{{
     call vimwiki#base#update_listing_in_buffer(s:format_diary(),
           \ VimwikiGet('diary_header'), content_rx, line('$')+1, 1)
   else
-    echom "vimwiki: You can generate diary links only in a diary index page!"
+    echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
   endif
 endfunction "}}}
 

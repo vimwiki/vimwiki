@@ -390,7 +390,7 @@ function! vimwiki#base#system_open_link(url) "{{{
       return
     endif
   endtry
-  echomsg 'Default Vimwiki link handler was unable to open the HTML file!'
+  echomsg 'Vimwiki Error: Default Vimwiki link handler was unable to open the HTML file!'
 endfunction "}}}
 
 " vimwiki#base#open_link
@@ -398,7 +398,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
   let link_infos = vimwiki#base#resolve_link(a:link)
 
   if link_infos.filename == ''
-    echom 'Vimwiki Error: Unable to resolve link!'
+    echomsg 'Vimwiki Error: Unable to resolve link!'
     return
   endif
 
@@ -505,7 +505,7 @@ function! vimwiki#base#backlinks() "{{{
   endfor
 
   if empty(locations)
-    echom 'vimwiki: no other file links to this file'
+    echomsg 'Vimwiki: No other file links to this file'
   else
     call setloclist(0, locations, 'r')
     lopen
@@ -823,7 +823,7 @@ function! vimwiki#base#check_links() "{{{
   endfor
 
   if empty(errors)
-    echom 'Vimwiki: all links are OK'
+    echomsg 'Vimwiki: All links are OK'
   else
     call setqflist(errors, 'r')
     copen
@@ -846,8 +846,8 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   let ok = vimwiki#path#mkdir(dir, 1)
 
   if !ok
-    echom ' '
-    echom 'Vimwiki: Unable to edit file in non-existent directory: '.dir
+    echomsg ' '
+    echomsg 'Vimwiki Error: Unable to edit file in non-existent directory: '.dir
     return
   endif
 
@@ -880,7 +880,7 @@ endfunction " }}}
 function! vimwiki#base#search_word(wikiRx, cmd) "{{{
   let match_line = search(a:wikiRx, 's'.a:cmd)
   if match_line == 0
-    echomsg 'vimwiki: Wiki link not found.'
+    echomsg 'Vimwiki: Wiki link not found'
   endif
 endfunction " }}}
 
@@ -1281,7 +1281,7 @@ endfunction " }}}
 " vimwiki#base#goto_index
 function! vimwiki#base#goto_index(wnum, ...) "{{{
   if a:wnum > len(g:vimwiki_list)
-    echom "vimwiki: Wiki ".a:wnum." is not registered in g:vimwiki_list!"
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
 
@@ -1319,7 +1319,7 @@ function! vimwiki#base#delete_link() "{{{
   try
     call delete(fname)
   catch /.*/
-    echomsg 'vimwiki: Cannot delete "'.expand('%:t:r').'"!'
+    echomsg 'Vimwiki Error: Cannot delete "'.expand('%:t:r').'"!'
     return
   endtry
 
@@ -1340,7 +1340,7 @@ function! vimwiki#base#rename_link() "{{{
 
   " there is no file (new one maybe)
   if glob(expand('%:p')) == ''
-    echomsg 'vimwiki: Cannot rename "'.expand('%:p').
+    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:p').
           \'". It does not exist! (New file? Save it before renaming.)'
     return
   endif
@@ -1354,13 +1354,13 @@ function! vimwiki#base#rename_link() "{{{
 
   if new_link =~# '[/\\]'
     " It is actually doable but I do not have free time to do it.
-    echomsg 'vimwiki: Cannot rename to a filename with path!'
+    echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
     return
   endif
 
   " check new_fname - it should be 'good', not empty
   if substitute(new_link, '\s', '', 'g') == ''
-    echomsg 'vimwiki: Cannot rename to an empty filename!'
+    echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
     return
   endif
 
@@ -1375,19 +1375,19 @@ function! vimwiki#base#rename_link() "{{{
   " do not rename if file with such name exists
   let fname = glob(new_fname)
   if fname != ''
-    echomsg 'vimwiki: Cannot rename to "'.new_fname.
+    echomsg 'Vimwiki Error: Cannot rename to "'.new_fname.
           \ '". File with that name exist!'
     return
   endif
   " rename wiki link file
   try
-    echomsg "Renaming ".VimwikiGet('path').old_fname." to ".new_fname
+    echomsg 'Vimwiki: Renaming '.VimwikiGet('path').old_fname.' to '.new_fname
     let res = rename(expand('%:p'), expand(new_fname))
     if res != 0
       throw "Cannot rename!"
     end
   catch /.*/
-    echomsg 'vimwiki: Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"'
+    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"'
     return
   endtry
 
@@ -1428,7 +1428,7 @@ function! vimwiki#base#rename_link() "{{{
         \ cur_buffer[1]])
   " execute 'bwipeout '.escape(cur_buffer[0], ' ')
 
-  echomsg old_fname." is renamed to ".new_fname
+  echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
 
   let &more = setting_more
 endfunction " }}}
@@ -1736,10 +1736,27 @@ endfunction " }}}
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
   " collect new headers
+  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
   let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   for lnum in range(1, line('$'))
     let line_content = getline(lnum)
+    if (is_inside_pre_or_math == 1 && line_content =~# g:vimwiki_rxPreEnd) ||
+          \ (is_inside_pre_or_math == 2 && line_content =~# g:vimwiki_rxMathEnd)
+      let is_inside_pre_or_math = 0
+      continue
+    endif
+    if is_inside_pre_or_math > 0
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxPreStart
+      let is_inside_pre_or_math = 1
+      continue
+    endif
+    if line_content =~# g:vimwiki_rxMathStart
+      let is_inside_pre_or_math = 2
+      continue
+    endif
     if line_content !~# g:vimwiki_rxHeader
       continue
     endif
@@ -1904,6 +1921,15 @@ function! s:normalize_link_syntax_n() " {{{
     return
   endif
 
+  " try Weblink
+  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
+  if !empty(lnk)
+    let sub = vimwiki#base#normalize_link_helper(lnk,
+          \ lnk, '', g:vimwiki_WikiLinkTemplate2)
+    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
+    return
+  endif
+
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
@@ -1963,6 +1989,18 @@ function! vimwiki#base#normalize_link(is_visual_mode) "{{{
       call s:normalize_link_syntax_v()
     endif
   endif
+endfunction "}}}
+
+" vimwiki#base#detect_nested_syntax
+function! vimwiki#base#detect_nested_syntax() "{{{
+  let last_word = '\v.*<(\w+)\s*$'
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "{{{" && v:val =~ last_word'), 
+        \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
+  let dict = {}
+  for elem in lines
+    let dict[elem] = elem
+  endfor
+  return dict
 endfunction "}}}
 
 " }}}

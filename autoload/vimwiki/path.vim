@@ -148,3 +148,22 @@ function! vimwiki#path#is_absolute(path) "{{{
     return a:path =~# '\m^/\|\~/'
   endif
 endfunction "}}}
+
+
+" Combine a directory and a file into one path, doesn't generate duplicate
+" path separator in case the directory is also having an ending / or \. This
+" is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
+" valid path.
+if vimwiki#u#is_windows()
+  function! vimwiki#path#join_path(directory, file)
+    let directory = vimwiki#path#chomp_slash(a:directory)
+    let file = substitute(a:file, '\m^[\\/]\+', '', '')
+    return directory . '/' . file
+  endfunction
+else
+  function! vimwiki#path#join_path(directory, file)
+    let directory = substitute(a:directory, '\m/\+$', '', '')
+    let file = substitute(a:file, '\m^/\+', '', '')
+    return directory . '/' . file
+  endfunction
+endif

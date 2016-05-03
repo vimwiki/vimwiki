@@ -376,10 +376,10 @@ endfunction "}}}
 "If there is no second argument, 0 is returned at a header, otherwise the
 "header is skipped
 function! s:get_next_line(lnum, ...) "{{{
-  if getline(a:lnum) =~# '^\s*'.g:vimwiki_rxPreStart
+  if getline(a:lnum) =~# g:vimwiki_rxPreStart
     let cur_ln = a:lnum + 1
     while cur_ln <= line('$') &&
-          \ getline(cur_ln) !~# '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+          \ getline(cur_ln) !~# g:vimwiki_rxPreEnd
       let cur_ln += 1
     endwhile
     let next_line = cur_ln
@@ -404,10 +404,10 @@ endfunction "}}}
 function! s:get_prev_line(lnum) "{{{
   let prev_line = prevnonblank(a:lnum-1)
 
-  if getline(prev_line) =~# '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+  if getline(prev_line) =~# g:vimwiki_rxPreEnd
     let cur_ln = a:lnum - 1
     while 1
-      if cur_ln == 0 || getline(cur_ln) =~# '^\s*'.g:vimwiki_rxPreStart
+      if cur_ln == 0 || getline(cur_ln) =~# g:vimwiki_rxPreStart
         break
       endif
       let cur_ln -= 1

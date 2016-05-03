@@ -41,12 +41,14 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     call s:write_tags_metadata(metadata)
   else " full rebuild
     let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
+    let wiki_base_dir = VimwikiGet('path', g:vimwiki_current_idx)
     let tags_file_last_modification =
           \ getftime(vimwiki#tags#metadata_file_path())
     let metadata = s:load_tags_metadata()
     for file in files
       if all_files || getftime(file) >= tags_file_last_modification
-        let page_name = fnamemodify(file, ':t:r')
+        let subdir = vimwiki#base#subdir(wiki_base_dir, file)
+        let page_name = subdir . fnamemodify(file, ':t:r')
         let tags = s:scan_tags(readfile(file), page_name)
         let metadata = s:remove_page_from_tags(metadata, page_name)
         let metadata = s:merge_tags(metadata, page_name, tags)
@@ -139,7 +141,7 @@ endfunction " }}}
 " vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(VimwikiGet('path') . '/' . s:TAGS_METADATA_FILE_NAME, ':p')
+  return fnamemodify(vimwiki#path#join_path(VimwikiGet('path'), s:TAGS_METADATA_FILE_NAME), ':p')
 endfunction " }}}
 
 " s:load_tags_metadata
@@ -315,7 +317,7 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
             \ '',
             \ substitute(g:vimwiki_rxH2_Template, '__Header__', tagname, ''),
             \ '' ])
-      for taglink in tags_entries[tagname]
+      for taglink in sort(tags_entries[tagname])
         call add(lines, bullet .
               \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', taglink, ''))
       endfor

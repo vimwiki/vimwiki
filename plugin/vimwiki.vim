@@ -334,6 +334,7 @@ let s:vimwiki_defaults.template_default = 'default'
 let s:vimwiki_defaults.template_ext = '.tpl'
 
 let s:vimwiki_defaults.nested_syntaxes = {}
+let s:vimwiki_defaults.automatic_nested_syntaxes = 1
 let s:vimwiki_defaults.auto_export = 0
 let s:vimwiki_defaults.auto_toc = 0
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
@@ -464,6 +465,8 @@ command! -count=1 VimwikiMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1)
 command! -count=1 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1, 1)
+command! -count=1 VimwikiMakeYesterdayDiaryNote
+      \ call vimwiki#diary#make_note(v:count1, 0, strftime(VimwikiGet('diary_link_fmt', v:count1 - 1), localtime() - 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
@@ -505,6 +508,12 @@ if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
 endif
 nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
       \ :VimwikiTabMakeDiaryNote<CR>
+
+if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
+  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
+endif
+nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
+      \ :VimwikiMakeYesterdayDiaryNote<CR>
 
 "}}}
 

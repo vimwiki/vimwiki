@@ -415,7 +415,6 @@ function! vimwiki#tbl#goto_prev_col() "{{{
   let newcol = s:get_indent(lnum)
   let max_lens = s:get_cell_max_lens(lnum)
   let prev_cell_len = 0
-  echom string(max_lens) 
   for cell_len in values(max_lens)
     let delta = cell_len + 3 " +3 == 2 spaces + 1 separator |<space>...<space>
     if newcol + delta > curcol-1
