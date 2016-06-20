@@ -111,6 +111,7 @@ function! s:get_html_template(template) "{{{
     let template_name = s:template_full_name(a:template)
     try
       let lines = readfile(template_name)
+      let lines = s:get_html_template_include(lines)
       return lines
     catch /E484/
       echomsg 'Vimwiki: HTML template '.template_name.
@@ -125,7 +126,23 @@ function! s:get_html_template(template) "{{{
   endif
 
   let lines = readfile(default_tpl)
+  let lines = s:get_html_template_include(lines)
   return lines
+endfunction "}}}
+
+function! s:get_html_template_include(lines) "{{{
+  let html_lines=[]
+  for line in a:lines
+    if line =~# '%include'
+      let template = []
+      let template = split(line)
+      let include_lines = s:get_html_template(template[-1])
+      call extend(html_lines, include_lines)
+    else
+      call add(html_lines, line)
+    endif
+  endfor
+  return html_lines
 endfunction "}}}
 
 function! s:safe_html_preformatted(line) "{{{

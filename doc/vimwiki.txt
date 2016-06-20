@@ -1916,6 +1916,11 @@ where
 
   %content% is replaced by a wiki file content.
 
+It is possible to include a template in another template.
+Consider you have a template named 'head.html' that you'd like to have
+in the template 'person.html' then add >
+    %include head.html
+to that template.
 
 The default template will be applied to all wiki pages unless a page specifies
 a template. Consider you have wiki page named 'Maxim.wiki' and you want apply
