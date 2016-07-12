@@ -156,15 +156,15 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding ==? 'expr'
+  if g:vimwiki_folding =~? '^expr.*'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'list' || g:vimwiki_folding ==? 'lists'
+  elseif g:vimwiki_folding =~? '^list.*' || g:vimwiki_folding ==? '^lists.*'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'syntax'
+  elseif g:vimwiki_folding =~? '^syntax.*'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
   else
@@ -445,6 +445,14 @@ augroup vimwiki
     if g:vimwiki_table_auto_fmt
       exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."))'
       exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
+    endif
+    if g:vimwiki_folding =~? ':quick$'
+      " from http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
+      " Don't screw up folds when inserting text that might affect them, until
+      " leaving insert mode. Foldmethod is local to the window. Protect against
+      " screwing up folding when switching between windows.
+      exe 'autocmd InsertEnter *'.s:ext.' if !exists("w:last_fdm") | let w:last_fdm=&foldmethod | setlocal foldmethod=manual | endif'
+      exe 'autocmd InsertLeave,WinLeave *'.s:ext.' if exists("w:last_fdm") | let &l:foldmethod=w:last_fdm | unlet w:last_fdm | endif'
     endif
   endfor
 augroup END

@@ -2288,6 +2288,8 @@ Limitations:
   - 'list' is intended to work with lists nicely indented with 'shiftwidth'.
   - 'syntax' is only available for the default syntax so far.
 
+The options above can be suffixed with ':quick' (e.g.: 'expr:quick') in order
+to use some workarounds to make folds work faster.
 
 ------------------------------------------------------------------------------
 *g:vimwiki_list_ignore_newline*
