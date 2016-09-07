@@ -1082,7 +1082,7 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort "{{
 
   " A workaround to Issue 236: tell vimwiki to think in maths when encountering
   " maths blocks like {{$ }}$
-  if ft =~ 'tex'
+  if ft =~? 'tex'
     let group='texMathZoneGroup'
   endif
 
