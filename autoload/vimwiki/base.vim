@@ -863,6 +863,13 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort "{{
   else
     unlet b:current_syntax
   endif
+
+  " A workaround to Issue 236: tell vimwiki to think in maths when encountering
+  " maths blocks like {{$ }}$
+  if ft =~ 'tex'
+    let group='texMathZoneGroup'
+  endif
+
   execute 'syntax region textSnip'.ft.
         \ ' matchgroup='.a:textSnipHl.
         \ ' start="'.a:start.'" end="'.a:end.'"'.
