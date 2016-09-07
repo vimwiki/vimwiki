@@ -1,8 +1,7 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Desc: Link functions for markdown syntax
-" Author: Stuart Andrews <stu.andrews@gmail.com> (.. i.e. don't blame Maxim!)
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
 
 " MISC helper functions {{{
@@ -17,7 +16,8 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
-    execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
+    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
@@ -66,48 +66,11 @@ function! vimwiki#markdown_base#open_reflink(link) " {{{
     return 0
   endif
 endfunction " }}}
-
-" s:normalize_path
-" s:path_html
-" vimwiki#base#apply_wiki_options
-" vimwiki#base#read_wiki_options
-" vimwiki#base#validate_wiki_options
-" vimwiki#base#setup_buffer_state
-" vimwiki#base#cache_buffer_state
-" vimwiki#base#recall_buffer_state
-" vimwiki#base#print_wiki_state
-" vimwiki#base#mkdir
-" vimwiki#base#file_pattern
-" vimwiki#base#branched_pattern
-" vimwiki#base#subdir
-" vimwiki#base#current_subdir
-" vimwiki#base#invsubdir
-" vimwiki#base#resolve_scheme
-" vimwiki#base#system_open_link
-" vimwiki#base#open_link
-" vimwiki#base#generate_links
-" vimwiki#base#goto
-" vimwiki#base#backlinks
-" vimwiki#base#get_links
-" vimwiki#base#edit_file
-" vimwiki#base#search_word
-" vimwiki#base#matchstr_at_cursor
-" vimwiki#base#replacestr_at_cursor
-" s:print_wiki_list
-" s:update_wiki_link
-" s:update_wiki_links_dir
-" s:tail_name
-" s:update_wiki_links
-" s:get_wiki_buffers
-" s:open_wiki_buffer
-" vimwiki#base#nested_syntax
 " }}}
 
 " WIKI link following functions {{{
-" vimwiki#base#find_next_link
-" vimwiki#base#find_prev_link
 
-" vimwiki#base#follow_link
+" vimwiki#markdown_base#follow_link
 function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
   " to VimwikiLinkHandler, or failing that, the default open_link handler
   " echom "markdown_base#follow_link"
@@ -118,11 +81,11 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     " XXX: @Maxim: most likely!  I am still working on a seemless way to
     " integrate regexp's without complicating syntax/vimwiki.vim
   else
-    if a:split == "split"
+    if a:split ==# "split"
       let cmd = ":split "
-    elseif a:split == "vsplit"
+    elseif a:split ==# "vsplit"
       let cmd = ":vsplit "
-    elseif a:split == "tabnew"
+    elseif a:split ==# "tabnew"
       let cmd = ":tabnew "
     else
       let cmd = ":e "
@@ -145,6 +108,8 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     if lnk != ""
       if !VimwikiLinkHandler(lnk)
         if !vimwiki#markdown_base#open_reflink(lnk)
+          " remove the extension from the filename if exists
+          let lnk = substitute(lnk, VimwikiGet('ext').'$', '', '')
           call vimwiki#base#open_link(cmd, lnk)
         endif
       endif
@@ -160,29 +125,7 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
 
 endfunction " }}}
 
-" vimwiki#base#go_back_link
-" vimwiki#base#goto_index
-" vimwiki#base#delete_link
-" vimwiki#base#rename_link
-" vimwiki#base#ui_select
-
-" TEXT OBJECTS functions {{{
-" vimwiki#base#TO_header
-" vimwiki#base#TO_table_cell
-" vimwiki#base#TO_table_col
-" }}}
-
-" HEADER functions {{{
-" vimwiki#base#AddHeaderLevel
-" vimwiki#base#RemoveHeaderLevel
-"}}}
-
 " LINK functions {{{
-" vimwiki#base#apply_template
-
-" s:clean_url
-" vimwiki#base#normalize_link_helper
-" vimwiki#base#normalize_imagelink_helper
 
 " s:normalize_link_syntax_n
 function! s:normalize_link_syntax_n() " {{{
@@ -192,9 +135,6 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
   if !empty(lnk)
     " NO-OP !!
-    if g:vimwiki_debug > 1
-      echomsg "WikiIncl: ".lnk." Sub: ".lnk
-    endif
     return
   endif
 
@@ -205,9 +145,6 @@ function! s:normalize_link_syntax_n() " {{{
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLink1Template2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink0, sub)
-    if g:vimwiki_debug > 1
-      echomsg "WikiLink: ".lnk." Sub: ".sub
-    endif
     return
   endif
   
@@ -218,9 +155,6 @@ function! s:normalize_link_syntax_n() " {{{
           \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
           \ g:vimwiki_WikiLinkTemplate2)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink1, sub)
-    if g:vimwiki_debug > 1
-      echomsg "WikiLink: ".lnk." Sub: ".sub
-    endif
     return
   endif
   
@@ -231,9 +165,6 @@ function! s:normalize_link_syntax_n() " {{{
           \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
           \ g:vimwiki_Weblink1Template)
     call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
-    if g:vimwiki_debug > 1
-      echomsg "WebLink: ".lnk." Sub: ".sub
-    endif
     return
   endif
 
@@ -244,11 +175,8 @@ function! s:normalize_link_syntax_n() " {{{
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
           \ g:vimwiki_rxWord, '',
-          \ g:vimwiki_WikiLinkTemplate1)
+          \ g:vimwiki_Weblink1Template)
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
-    if g:vimwiki_debug > 1
-      echomsg "Word: ".lnk." Sub: ".sub
-    endif
     return
   endif
 
@@ -266,9 +194,10 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let visual_selection = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".visual_selection."'", '')
+    let link = substitute(g:vimwiki_Weblink1Template, '__LinkUrl__', '\='."'".visual_selection."'", '')
+    let link = substitute(link, '__LinkDescription__', '\='."'".visual_selection."'", '')
 
-    call setreg('"', visual_selection, 'v')
+    call setreg('"', link, 'v')
 
     " paste result
     norm! `>pgvd
