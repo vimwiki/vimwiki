@@ -2316,6 +2316,19 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_use_mapping*
+
+Enable or disable mapping for this plugin.
+
+Value           Description~
+0               Disable mapping.
+1               Enable mapping.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+
 *VimwikiLinkHandler*
 
 A customizable link handler can be defined to override Vimwiki's behavior when
