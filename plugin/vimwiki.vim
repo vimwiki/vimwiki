@@ -370,6 +370,7 @@ call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
+call s:default('use_mapping', 1)
 call s:default('use_calendar', 1)
 call s:default('table_mappings', 1)
 call s:default('table_auto_fmt', 1)
@@ -473,6 +474,7 @@ command! VimwikiDiaryGenerateLinks
 "}}}
 
 " MAPPINGS {{{
+if g:vimwiki_use_mapping
 if !hasmapto('<Plug>VimwikiIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
 endif
@@ -514,7 +516,7 @@ if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
       \ :VimwikiMakeYesterdayDiaryNote<CR>
-
+endif
 "}}}
 
 " MENU {{{
