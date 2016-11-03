@@ -448,7 +448,7 @@ augroup vimwiki
     endif
   endfor
   " patch for markdown syntax
-  autocmd BufNewFile,BufEnter *.md set filetype=markdown
+  autocmd BufNewFile,BufNew,BufEnter,BufReadPost *.md set filetype=markdown
 augroup END
 "}}}
 
