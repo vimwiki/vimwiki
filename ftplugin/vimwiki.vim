@@ -333,6 +333,7 @@ if g:vimwiki_use_mouse
   nnoremap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackLink<CR>
 endif
 
+let s:vimwiki_override_cr = get(g:, 'vimwiki_prevent_cr_remap', '0') != 1
 
 if !hasmapto('<Plug>Vimwiki2HTML')
   exe 'nmap <buffer> '.g:vimwiki_map_prefix.'h <Plug>Vimwiki2HTML'
@@ -346,19 +347,19 @@ endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTMLBrowse :Vimwiki2HTMLBrowse<CR>
 
-if !hasmapto('<Plug>VimwikiFollowLink')
+if !hasmapto('<Plug>VimwikiFollowLink') && s:vimwiki_override_cr
   nmap <silent><buffer> <CR> <Plug>VimwikiFollowLink
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiFollowLink :VimwikiFollowLink<CR>
 
-if !hasmapto('<Plug>VimwikiSplitLink')
+if !hasmapto('<Plug>VimwikiSplitLink') && s:vimwiki_override_cr
   nmap <silent><buffer> <S-CR> <Plug>VimwikiSplitLink
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiSplitLink :VimwikiSplitLink<CR>
 
-if !hasmapto('<Plug>VimwikiVSplitLink')
+if !hasmapto('<Plug>VimwikiVSplitLink') && s:vimwiki_override_cr
   nmap <silent><buffer> <C-CR> <Plug>VimwikiVSplitLink
 endif
 nnoremap <silent><script><buffer>
@@ -376,13 +377,13 @@ endif
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiNormalizeLinkVisual :<C-U>VimwikiNormalizeLink 1<CR>
 
-if !hasmapto('<Plug>VimwikiNormalizeLinkVisualCR')
+if !hasmapto('<Plug>VimwikiNormalizeLinkVisualCR') && s:vimwiki_override_cr
   vmap <silent><buffer> <CR> <Plug>VimwikiNormalizeLinkVisualCR
 endif
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiNormalizeLinkVisualCR :<C-U>VimwikiNormalizeLink 1<CR>
 
-if !hasmapto('<Plug>VimwikiTabnewLink')
+if !hasmapto('<Plug>VimwikiTabnewLink') && s:vimwiki_override_cr
   nmap <silent><buffer> <D-CR> <Plug>VimwikiTabnewLink
   nmap <silent><buffer> <C-S-CR> <Plug>VimwikiTabnewLink
 endif
@@ -564,10 +565,10 @@ function! s:CR(normal, just_mrkr) "{{{
   call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction "}}}
 
-if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn'
+if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn' && s:vimwiki_override_cr
   inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
 endif
-if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn'
+if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn' && s:vimwiki_override_cr
   inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
 endif
 
