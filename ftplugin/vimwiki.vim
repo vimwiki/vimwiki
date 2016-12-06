@@ -564,13 +564,14 @@ function! s:CR(normal, just_mrkr) "{{{
   call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction "}}}
 
-if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn'
-  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+if !hasmapto('VimwikiReturn', 'i')
+  if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn'
+    inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+  endif
+  if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn'
+    inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+  endif
 endif
-if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn'
-  inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
-endif
-
 
 "Table mappings
  if g:vimwiki_table_mappings
