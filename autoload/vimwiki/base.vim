@@ -228,7 +228,11 @@ function! vimwiki#base#system_open_link(url) "{{{
     else
       let url = shellescape(a:url, 1)
     endif
-    execute 'silent ! start "Title" /B ' . url
+    if &l:shell ==? "powershell"
+      execute 'silent ! start ' . a:url
+    else
+      execute 'silent ! start "Title" /B ' . a:url
+    endif
   endfunction
   function! s:macunix_handler(url)
     call system('open ' . shellescape(a:url).' &')
