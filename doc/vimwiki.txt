@@ -363,7 +363,7 @@ glh                     Decrease the level of a list item.
 gLh                     Decrease the level of a list item and all child items.
                         To remap: >
                         :map << <Plug>VimwikiDecreaseLvlSingleItem
-                        :map >>> <Plug>VimwikiDecreaseLvlWholeItem
+                        :map <<< <Plug>VimwikiDecreaseLvlWholeItem
 <
                         *vimwiki_glr* *vimwiki_gLr*
 glr                     Renumber list items if the cursor is on a numbered
