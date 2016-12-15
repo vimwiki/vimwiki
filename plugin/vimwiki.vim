@@ -447,8 +447,6 @@ augroup vimwiki
       exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
     endif
   endfor
-  " patch for markdown syntax
-  " autocmd SessionLoadPost,BufNewFile,BufNew,BufEnter *.md set filetype=markdown
 augroup END
 "}}}
 
