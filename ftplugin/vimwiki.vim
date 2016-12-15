@@ -644,9 +644,6 @@ if VimwikiGet('auto_export')
     au BufWritePost <buffer>
       \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
       \                             expand('%'))
-    au! BufWritePost <buffer>
-      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
-      \                             expand('%'))
   augroup END
 endif
 
