@@ -130,6 +130,13 @@ Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=23
     cd bundle
     git clone https://github.com/vimwiki/vimwiki.git
 
+Installation using [Vundle](https://github.com/VundleVim/Vundle.vim)
+------------------------------------------------------------------------------
+
+Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run
+
+    vim +PluginInstall +qall
+
 Or download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was installed.
