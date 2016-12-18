@@ -1301,12 +1301,14 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     let idx = 0
   endif
 
-  if a:1 == 1
-    let cmd = 'tabedit'
-  elseif a:1 == 2
-    let cmd = 'split'
-  elseif a:1 == 3
-    let cmd = 'vsplit'
+  if a:0
+    if a:1 == 1
+      let cmd = 'tabedit'
+    elseif a:1 == 2
+      let cmd = 'split'
+    elseif a:1 == 3
+      let cmd = 'vsplit'
+    endif
   else
     let cmd = 'edit'
   endif
