@@ -1325,15 +1325,17 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     let idx = 0
   endif
 
-  if a:0 == 1
+  if a:1 == 1
     let cmd = 'tabedit'
-  elseif a:0 == 2
-    let cmd = 'sp'
-  elseif a:0 == 3
-    let cmd = 'vsp'
+  elseif a:1 == 2
+    let cmd = 'split'
+  elseif a:1 == 3
+    let cmd = 'vsplit'
   else
     let cmd = 'edit'
   endif
+
+  echomsg 'Passed argument '.a:0.'. Using cmd '.cmd
 
   call Validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
