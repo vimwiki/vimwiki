@@ -1311,8 +1311,6 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     let cmd = 'edit'
   endif
 
-  echomsg 'Passed argument '.a:0.'. Using cmd '.cmd
-
   call Validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
         \ VimwikiGet('path', idx).VimwikiGet('index', idx).
