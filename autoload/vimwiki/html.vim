@@ -1417,8 +1417,8 @@ function! s:convert_file(path_html, wikifile) "{{{
     " prepare constants for s:safe_html_line()
     let s:lt_pattern = '<'
     let s:gt_pattern = '>'
-    if g:vimwiki_valid_html_tags != ''
-      let tags = join(split(g:vimwiki_valid_html_tags, '\s*,\s*'), '\|')
+    if vimwiki#vars#get_global('valid_html_tags') != ''
+      let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
       let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!' 
       let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
     endif

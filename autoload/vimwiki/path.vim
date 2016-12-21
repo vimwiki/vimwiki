@@ -127,8 +127,8 @@ function! vimwiki#path#mkdir(path, ...) "{{{
     endif
 
     let path = vimwiki#path#chomp_slash(path)
-    if vimwiki#u#is_windows() && !empty(g:vimwiki_w32_dir_enc)
-      let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
+    if vimwiki#u#is_windows() && !empty(vimwiki#vars#get_global('w32_dir_enc'))
+      let path = iconv(path, &enc, vimwiki#vars#get_global('w32_dir_enc'))
     endif
 
     if a:0 && a:1 && input("Vimwiki: Make new directory: "

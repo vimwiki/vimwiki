@@ -297,8 +297,8 @@ call s:add_target_syntax_ON(g:vimwiki_rxWeblink1, 'VimwikiWeblink1')
 " WikiLink
 " All remaining schemes are highlighted automatically
 let s:rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
-      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').
+      \ join(split(vimwiki#vars#get_global('schemes'), '\s*,\s*'), '\|').'\|'.
+      \ join(split(vimwiki#vars#get_global('web_schemes1'), '\s*,\s*'), '\|').
       \ '\):'
 
 " a) match [nonwiki-scheme-URL]

@@ -363,26 +363,6 @@ call s:default('list', [s:vimwiki_defaults])
 
 call s:default('current_idx', 0)
 
-" Scheme regexes should be defined even if syntax file is not loaded yet
-" cause users should be able to <leader>w<leader>w without opening any
-" vimwiki file first
-" Scheme regexes {{{
-call s:default('schemes', 'wiki\d\+,diary,local')
-call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
-        \ 'rsync,imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp')
-call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
-
-let s:rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
-      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\|'. 
-      \ join(split(g:vimwiki_web_schemes2, '\s*,\s*'), '\|').
-      \ '\)'
-
-call s:default('rxSchemeUrl', s:rxSchemes.':.*')
-call s:default('rxSchemeUrlMatchScheme', '\zs'.s:rxSchemes.'\ze:.*')
-call s:default('rxSchemeUrlMatchUrl', s:rxSchemes.':\zs.*\ze')
-" scheme regexes }}}
-
 for s:idx in range(len(g:vimwiki_list))
   call Validate_wiki_options(s:idx)
 endfor

@@ -253,7 +253,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
   let link_text = a:link_text
 
   " if link is schemeless add wikiN: scheme
-  if link_text !~# g:vimwiki_rxSchemeUrl
+  if link_text !~# vimwiki#vars#get_global('rxSchemeUrl')
     let link_text = 'wiki'.source_wiki.':'.link_text
   endif
 
@@ -267,7 +267,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
 
 
   " extract scheme
-  let link_infos.scheme = matchstr(link_text, g:vimwiki_rxSchemeUrlMatchScheme)
+  let link_infos.scheme = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchScheme'))
   if link_infos.scheme == '' || link_text == ''
     let link_infos.filename = ''   " malformed link
     return link_infos
@@ -276,7 +276,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     let link_infos.filename = link_text  " unknown scheme, may be a weblink
     return link_infos
   endif
-  let link_text = matchstr(link_text, g:vimwiki_rxSchemeUrlMatchUrl)
+  let link_text = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchUrl'))
 
   let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' ||
         \ link_infos.scheme ==# 'diary'

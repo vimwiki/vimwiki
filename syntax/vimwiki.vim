@@ -22,27 +22,6 @@ endif
   " ...
   "endif
 
-" LINKS: assume this is common to all syntaxes "{{{
-
-" LINKS: WebLinks {{{
-" match URL for common protocols;
-" see http://en.wikipedia.org/wiki/URI_scheme  http://tools.ietf.org/html/rfc3986
-let g:vimwiki_rxWebProtocols = ''.
-      \ '\%('.
-        \ '\%('.
-          \ '\%('.join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').'\):'.
-          \ '\%(//\)'.
-        \ '\)'.
-      \ '\|'.
-        \ '\%('.join(split(g:vimwiki_web_schemes2, '\s*,\s*'), '\|').'\):'.
-      \ '\)'
-"
-let g:vimwiki_rxWeblinkUrl = g:vimwiki_rxWebProtocols .
-    \ '\S\{-1,}'. '\%(([^ \t()]*)\)\='
-" }}}
-
-" }}}
-
 call vimwiki#u#reload_regexes()
 
 " LINKS: setup of larger regexes {{{
@@ -155,7 +134,7 @@ let g:vimwiki_rxWikiInclSuffix1 = g:vimwiki_rxWikiInclArgs.
 " the whitespace.
 " Stuart, could you check it with markdown templated links? [](http://...), as
 " the last bracket is the part of URL now?
-let g:vimwiki_rxWeblink = '\<'. g:vimwiki_rxWeblinkUrl . '\S*'
+let g:vimwiki_rxWeblink = '\<'. vimwiki#vars#get_global('rxWeblinkUrl') . '\S*'
 " 0a) match URL within URL
 let g:vimwiki_rxWeblinkMatchUrl = g:vimwiki_rxWeblink
 " 0b) match DESCRIPTION within URL
@@ -256,8 +235,8 @@ call s:add_target_syntax_ON(g:vimwiki_rxWeblink, 'VimwikiLink')
 " WikiLink
 " All remaining schemes are highlighted automatically
 let s:rxSchemes = '\%('.
-      \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
-      \ join(split(g:vimwiki_web_schemes1, '\s*,\s*'), '\|').
+      \ join(split(vimwiki#vars#get_global('schemes'), '\s*,\s*'), '\|').'\|'.
+      \ join(split(vimwiki#vars#get_global('web_schemes1'), '\s*,\s*'), '\|').
       \ '\):'
 
 " a) match [[nonwiki-scheme-URL]]
