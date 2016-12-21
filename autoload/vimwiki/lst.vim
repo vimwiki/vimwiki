@@ -1499,7 +1499,7 @@ function! vimwiki#lst#setup_marker_infos() "{{{
   endif
 
   "the user can set the listsyms as string, but vimwiki needs a list
-  let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
+  let g:vimwiki_listsyms_list = split(vimwiki#vars#get_global('listsyms'), '\zs')
 endfunction "}}}
 
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{

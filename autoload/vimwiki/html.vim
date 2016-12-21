@@ -157,7 +157,7 @@ function! s:delete_html_files(path) "{{{
   let htmlfiles = split(glob(a:path.'**/*.html'), '\n')
   for fname in htmlfiles
     " ignore user html files, e.g. search.html,404.html
-    if stridx(g:vimwiki_user_htmls, fnamemodify(fname, ":t")) >= 0
+    if stridx(vimwiki#vars#get_global('user_htmls'), fnamemodify(fname, ":t")) >= 0
       continue
     endif
 
@@ -933,7 +933,7 @@ function! s:process_tag_list(line, lists) "{{{
           \ substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
   elseif in_list && a:line =~# '^\s\+\S\+'
-    if g:vimwiki_list_ignore_newline
+    if vimwiki#vars#get_global('list_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, '<br />'.a:line)
@@ -1005,7 +1005,7 @@ function! s:process_tag_h(line, id) "{{{
     let h_id = s:safe_html_anchor(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# g:vimwiki_toc_header
+    if h_text !=# vimwiki#vars#get_global('toc_header')
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 

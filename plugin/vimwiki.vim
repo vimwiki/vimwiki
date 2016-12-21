@@ -65,8 +65,8 @@ function! s:setup_buffer_leave() "{{{
   let &autowriteall = s:vimwiki_autowriteall
 
   " Set up menu
-  if g:vimwiki_menu != ""
-    exe 'nmenu disable '.g:vimwiki_menu.'.Table'
+  if vimwiki#vars#get_global('menu') != ""
+    exe 'nmenu disable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction "}}}
 
@@ -171,8 +171,8 @@ function! s:setup_buffer_enter() "{{{
   endif
 
   " Set up menu
-  if g:vimwiki_menu != ""
-    exe 'nmenu enable '.g:vimwiki_menu.'.Table'
+  if vimwiki#vars#get_global('menu') != ""
+    exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction "}}}
 
@@ -360,21 +360,6 @@ let s:vimwiki_defaults.auto_tags = 0
 
 " DEFAULT options {{{
 call s:default('list', [s:vimwiki_defaults])
-call s:default('use_mouse', 0)
-call s:default('menu', 'Vimwiki')
-call s:default('list_ignore_newline', 1)
-call s:default('listsyms', ' .oOX')
-call s:default('use_calendar', 1)
-call s:default('table_mappings', 1)
-call s:default('table_auto_fmt', 1)
-call s:default('w32_dir_enc', '')
-call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
-call s:default('user_htmls', '')
-call s:default('toc_header', 'Contents')
-
-call s:default('url_maxsave', 15)
-
-call s:default('map_prefix', '<Leader>w')
 
 call s:default('current_idx', 0)
 
@@ -420,7 +405,7 @@ augroup vimwiki
     exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
-    if g:vimwiki_table_auto_fmt
+    if vimwiki#vars#get_global('table_auto_fmt')
       exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."))'
       exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
     endif
@@ -452,43 +437,43 @@ command! VimwikiDiaryGenerateLinks
 
 " MAPPINGS {{{
 if !hasmapto('<Plug>VimwikiIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'w <Plug>VimwikiIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
 
 if !hasmapto('<Plug>VimwikiTabIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'t <Plug>VimwikiTabIndex'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'t <Plug>VimwikiTabIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabIndex :VimwikiTabIndex<CR>
 
 if !hasmapto('<Plug>VimwikiUISelect')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'s <Plug>VimwikiUISelect'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'s <Plug>VimwikiUISelect'
 endif
 nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryIndex')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'i <Plug>VimwikiDiaryIndex'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'i <Plug>VimwikiDiaryIndex'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryIndex :VimwikiDiaryIndex<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryGenerateLinks')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
 endif
 nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateLinks<CR>
 
 if !hasmapto('<Plug>VimwikiMakeDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'<Leader>w <Plug>VimwikiMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
 
 if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
       \ :VimwikiTabMakeDiaryNote<CR>
 
 if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
-  exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
+  exe 'nmap <silent><unique> '.vimwiki#vars#get_global('map_prefix').'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
       \ :VimwikiMakeYesterdayDiaryNote<CR>
@@ -519,14 +504,14 @@ function! s:build_table_menu(topmenu)
 endfunction
 
 
-if !empty(g:vimwiki_menu)
-  call s:build_menu(g:vimwiki_menu)
-  call s:build_table_menu(g:vimwiki_menu)
+if !empty(vimwiki#vars#get_global('menu'))
+  call s:build_menu(vimwiki#vars#get_global('menu'))
+  call s:build_table_menu(vimwiki#vars#get_global('menu'))
 endif
 " }}}
 
 " CALENDAR Hook "{{{
-if g:vimwiki_use_calendar
+if vimwiki#vars#get_global('use_calendar')
   let g:calendar_action = 'vimwiki#diary#calendar_action'
   let g:calendar_sign = 'vimwiki#diary#calendar_sign'
 endif

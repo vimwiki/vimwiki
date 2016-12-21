@@ -344,10 +344,10 @@ let s:options = ' contained transparent contains=NONE'
 "
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
 " VimwikiLinkRest group is left undefined if link shortening is not desired
-if exists("+conceallevel") && g:vimwiki_url_maxsave > 0
+if exists("+conceallevel") && vimwiki#vars#get_global('url_maxsave') > 0
   let s:options .= s:conceal
   execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
-        \.'\%([/#?]\w\|\S\{'.g:vimwiki_url_maxsave.'}\)`'.' cchar=~'.s:options
+        \.'\%([/#?]\w\|\S\{'.vimwiki#vars#get_global('url_maxsave').'}\)`'.' cchar=~'.s:options
 endif
 
 " VimwikiLinkChar is for syntax markers (and also URL when a description
@@ -464,8 +464,8 @@ syntax match VimwikiPlaceholder /^\s*%template\%(\s.*\)\?$/ contains=VimwikiPlac
 syntax match VimwikiPlaceholderParam /\s.*/ contained
 
 " html tags
-if g:vimwiki_valid_html_tags != ''
-  let s:html_tags = join(split(g:vimwiki_valid_html_tags, '\s*,\s*'), '\|')
+if vimwiki#vars#get_global('valid_html_tags') != ''
+  let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
   execute 'syntax match VimwikiBold #\c<b>.\{-}</b># contains=VimwikiHTMLTag'
   execute 'syntax match VimwikiItalic #\c<i>.\{-}</i># contains=VimwikiHTMLTag'

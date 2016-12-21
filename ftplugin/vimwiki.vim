@@ -324,7 +324,7 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
 " COMMANDS }}}
 
 " KEYBINDINGS {{{
-if g:vimwiki_use_mouse
+if vimwiki#vars#get_global('use_mouse')
   nmap <buffer> <S-LeftMouse> <NOP>
   nmap <buffer> <C-LeftMouse> <NOP>
   nnoremap <silent><buffer> <2-LeftMouse> :call vimwiki#base#follow_link("nosplit", "\<lt>2-LeftMouse>")<CR>
@@ -335,13 +335,13 @@ endif
 
 
 if !hasmapto('<Plug>Vimwiki2HTML')
-  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'h <Plug>Vimwiki2HTML'
+  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'h <Plug>Vimwiki2HTML'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTML :Vimwiki2HTML<CR>
 
 if !hasmapto('<Plug>Vimwiki2HTMLBrowse')
-  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'hh <Plug>Vimwiki2HTMLBrowse'
+  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'hh <Plug>Vimwiki2HTMLBrowse'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTMLBrowse :Vimwiki2HTMLBrowse<CR>
@@ -408,13 +408,13 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiPrevLink :VimwikiPrevLink<CR>
 
 if !hasmapto('<Plug>VimwikiDeleteLink')
-  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'d <Plug>VimwikiDeleteLink'
+  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'d <Plug>VimwikiDeleteLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiDeleteLink :VimwikiDeleteLink<CR>
 
 if !hasmapto('<Plug>VimwikiRenameLink')
-  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'r <Plug>VimwikiRenameLink'
+  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'r <Plug>VimwikiRenameLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
@@ -553,7 +553,7 @@ endfor
 
 
 function! s:CR(normal, just_mrkr) "{{{
-  if g:vimwiki_table_mappings
+  if vimwiki#vars#get_global('table_mappings')
     let res = vimwiki#tbl#kbd_cr()
     if res != ""
       exe "normal! " . res . "\<Right>"
@@ -574,7 +574,7 @@ if !hasmapto('VimwikiReturn', 'i')
 endif
 
 "Table mappings
- if g:vimwiki_table_mappings
+ if vimwiki#vars#get_global('table_mappings')
    inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
    inoremap <expr> <buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
  endif

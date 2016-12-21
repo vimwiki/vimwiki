@@ -1771,7 +1771,7 @@ function! vimwiki#base#table_of_contents(create)
     endif
     let h_level = vimwiki#u#count_first_sym(line_content)
     let h_text = vimwiki#u#trim(matchstr(line_content, g:vimwiki_rxHeader))
-    if h_text ==# g:vimwiki_toc_header  " don't include the TOC's header itself
+    if h_text ==# vimwiki#vars#get_global('toc_header')  " don't include the TOC's header itself
       continue
     endif
     let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
@@ -1811,7 +1811,7 @@ function! vimwiki#base#table_of_contents(create)
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines, g:vimwiki_toc_header, links_rx,
+  call vimwiki#base#update_listing_in_buffer(lines, vimwiki#vars#get_global('toc_header'), links_rx,
         \ 1, a:create)
 endfunction
 "}}}
