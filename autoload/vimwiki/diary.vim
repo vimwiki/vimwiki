@@ -55,7 +55,7 @@ function! s:get_position_links(link) "{{{
 endfunction "}}}
 
 fun! s:get_month_name(month) "{{{
-  return g:vimwiki_diary_months[str2nr(a:month)]
+  return vimwiki#vars#get_global('diary_months')[str2nr(a:month)]
 endfun "}}}
 
 " Helpers }}}

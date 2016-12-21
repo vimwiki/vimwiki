@@ -1023,11 +1023,11 @@ function! s:process_tag_h(line, id) "{{{
       let h_number .= a:id[h_level-1][1]
       let h_complete_id .= a:id[h_level-1][0]
 
-      if g:vimwiki_html_header_numbering
+      if vimwiki#vars#get_global('html_header_numbering')
         let num = matchstr(h_number,
-              \ '^\(\d.\)\{'.(g:vimwiki_html_header_numbering-1).'}\zs.*')
+              \ '^\(\d.\)\{'.(vimwiki#vars#get_global('html_header_numbering')-1).'}\zs.*')
         if !empty(num)
-          let num .= g:vimwiki_html_header_numbering_sym
+          let num .= vimwiki#vars#get_global('html_header_numbering_sym')
         endif
         let h_text = num.' '.h_text
       endif

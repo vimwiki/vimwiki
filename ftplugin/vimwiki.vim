@@ -22,8 +22,8 @@ let b:undo_ftplugin = "setlocal ".
 
 setlocal commentstring=%%%s
 
-if g:vimwiki_conceallevel && exists("+conceallevel")
-  let &l:conceallevel = g:vimwiki_conceallevel
+if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+  let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
 
 " GOTO FILE: gf {{{

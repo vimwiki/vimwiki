@@ -18,8 +18,8 @@ function! s:vimwiki_get_known_syntaxes() " {{{
       let syntaxes[wiki.syntax] = 1
     endif
   endfor
-  " append map g:vimwiki_ext2syntax
-  for syn in values(g:vimwiki_ext2syntax)
+  " also consider the syntaxes from g:vimwiki_ext2syntax
+  for syn in values(vimwiki#vars#get_global('ext2syntax'))
     let syntaxes[syn] = 1
   endfor
   return keys(syntaxes)
@@ -131,7 +131,7 @@ function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variable
   call VimwikiSet('subdir', subdir, a:idx)
   call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir), a:idx)
 
-  if g:vimwiki_auto_chdir == 1
+  if vimwiki#vars#get_global('auto_chdir') == 1
     exe 'lcd' VimwikiGet('path')
   endif
 
@@ -322,8 +322,8 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     let link_infos.filename = root_dir . link_text
 
     if vimwiki#path#is_link_to_dir(link_text)
-      if g:vimwiki_dir_link != ''
-        let link_infos.filename .= g:vimwiki_dir_link .
+      if vimwiki#vars#get_global('dir_link') != ''
+        let link_infos.filename .= vimwiki#vars#get_global('dir_link') .
               \ VimwikiGet('ext', link_infos.index)
       endif
     else
@@ -1745,6 +1745,7 @@ endfunction " }}}
 function! vimwiki#base#table_of_contents(create)
   " collect new headers
   let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
+  let numbering = vimwiki#vars#get_global('html_header_numbering')
   let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   for lnum in range(1, line('$'))
@@ -1784,11 +1785,11 @@ function! vimwiki#base#table_of_contents(create)
     endfor
     let h_complete_id .= headers_levels[h_level-1][0]
 
-    if g:vimwiki_html_header_numbering > 0
-          \ && g:vimwiki_html_header_numbering <= h_level
+    if numbering > 0
+          \ && numbering <= h_level
       let h_number = join(map(copy(headers_levels[
-            \ g:vimwiki_html_header_numbering-1 : h_level-1]), 'v:val[1]'), '.')
-      let h_number .= g:vimwiki_html_header_numbering_sym
+            \ numbering-1 : h_level-1]), 'v:val[1]'), '.')
+      let h_number .= vimwiki#vars#get_global('html_header_numbering_sym')
       let h_text = h_number.' '.h_text
     endif
 

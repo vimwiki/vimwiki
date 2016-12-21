@@ -75,7 +75,7 @@ function! s:setup_filetype() "{{{
   let path = expand('%:p:h')
   let idx = vimwiki#base#find_wiki(path)
 
-  if idx == -1 && g:vimwiki_global_ext == 0
+  if idx == -1 && vimwiki#vars#get_global('global_ext') == 0
     return
   endif
   "XXX when idx = -1? (an orphan page has been detected)
@@ -86,11 +86,7 @@ function! s:setup_filetype() "{{{
   if idx == -1
     let ext = '.'.expand('%:e')
     " lookup syntax using g:vimwiki_ext2syntax
-    if has_key(g:vimwiki_ext2syntax, ext)
-      let syn = g:vimwiki_ext2syntax[ext]
-    else
-      let syn = s:vimwiki_defaults.syntax
-    endif
+    let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, s:vimwiki_defaults.syntax)
     call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
     let idx = len(g:vimwiki_list) - 1
     call Validate_wiki_options(idx)
@@ -113,7 +109,7 @@ function! s:setup_buffer_enter() "{{{
 
     " The buffer's file is not in the path and user *does NOT* want his wiki
     " extension to be global -- Do not add new wiki.
-    if idx == -1 && g:vimwiki_global_ext == 0
+    if idx == -1 && vimwiki#vars#get_global('global_ext') == 0
       return
     endif
 
@@ -123,11 +119,7 @@ function! s:setup_buffer_enter() "{{{
     if idx == -1
       let ext = '.'.expand('%:e')
       " lookup syntax using g:vimwiki_ext2syntax
-      if has_key(g:vimwiki_ext2syntax, ext)
-        let syn = g:vimwiki_ext2syntax[ext]
-      else
-        let syn = s:vimwiki_defaults.syntax
-      endif
+      let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, s:vimwiki_defaults.syntax)
       call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
       let idx = len(g:vimwiki_list) - 1
       call Validate_wiki_options(idx)
@@ -156,15 +148,16 @@ function! s:setup_buffer_enter() "{{{
   " Settings foldmethod, foldexpr and foldtext are local to window. Thus in a
   " new tab with the same buffer folding is reset to vim defaults. So we
   " insist vimwiki folding here.
-  if g:vimwiki_folding ==? 'expr'
+  let foldmethod = vimwiki#vars#get_global('folding')
+  if foldmethod ==? 'expr'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'list' || g:vimwiki_folding ==? 'lists'
+  elseif foldmethod ==? 'list' || foldmethod ==? 'lists'
     setlocal fdm=expr
     setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
     setlocal foldtext=VimwikiFoldText()
-  elseif g:vimwiki_folding ==? 'syntax'
+  elseif foldmethod ==? 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
   else
@@ -173,8 +166,8 @@ function! s:setup_buffer_enter() "{{{
   endif
 
   " And conceal level too.
-  if g:vimwiki_conceallevel && exists("+conceallevel")
-    let &conceallevel = g:vimwiki_conceallevel
+  if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+    let &conceallevel = vimwiki#vars#get_global('conceallevel')
   endif
 
   " Set up menu
@@ -191,7 +184,7 @@ function! s:setup_buffer_reenter() "{{{
   if !exists("s:vimwiki_autowriteall")
     let s:vimwiki_autowriteall = &autowriteall
   endif
-  let &autowriteall = g:vimwiki_autowriteall
+  let &autowriteall = vimwiki#vars#get_global('autowriteall')
 endfunction "}}}
 
 function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
@@ -200,7 +193,7 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   hi def VimwikiItalic term=italic cterm=italic gui=italic
   hi def VimwikiBoldItalic term=bold cterm=bold gui=bold,italic
   hi def VimwikiUnderline gui=underline
-  if g:vimwiki_hl_headers == 1
+  if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
       execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold' 
     endfor
@@ -288,14 +281,20 @@ function! s:vimwiki_get_known_extensions() " {{{
       let extensions['.wiki'] = 1
     endif
   endfor
-  " append map g:vimwiki_ext2syntax
-  for ext in keys(g:vimwiki_ext2syntax)
+  " append extensions from g:vimwiki_ext2syntax
+  for ext in keys(vimwiki#vars#get_global('ext2syntax'))
     let extensions[ext] = 1
   endfor
   return keys(extensions)
 endfunction " }}}
 
 " }}}
+
+
+" Initialization of Vimwiki starts here. Make sure everything below does not
+" cause autoload/base to be loaded
+
+call vimwiki#vars#init()
 
 " CALLBACK functions "{{{
 " User can redefine it.
@@ -362,43 +361,22 @@ let s:vimwiki_defaults.auto_tags = 0
 " DEFAULT options {{{
 call s:default('list', [s:vimwiki_defaults])
 call s:default('use_mouse', 0)
-call s:default('folding', '')
 call s:default('menu', 'Vimwiki')
-call s:default('global_ext', 1)
-call s:default('ext2syntax', {}) " syntax map keyed on extension
-call s:default('hl_headers', 0)
-call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
 call s:default('use_calendar', 1)
 call s:default('table_mappings', 1)
 call s:default('table_auto_fmt', 1)
 call s:default('w32_dir_enc', '')
-call s:default('CJK_length', 0)
-call s:default('dir_link', '')
 call s:default('valid_html_tags', 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em')
 call s:default('user_htmls', '')
-call s:default('autowriteall', 1)
 call s:default('toc_header', 'Contents')
 
-call s:default('html_header_numbering', 0)
-call s:default('html_header_numbering_sym', '')
-call s:default('conceallevel', 2)
 call s:default('url_maxsave', 15)
-
-call s:default('diary_months', 
-      \ {
-      \ 1: 'January', 2: 'February', 3: 'March', 
-      \ 4: 'April', 5: 'May', 6: 'June',
-      \ 7: 'July', 8: 'August', 9: 'September',
-      \ 10: 'October', 11: 'November', 12: 'December'
-      \ })
 
 call s:default('map_prefix', '<Leader>w')
 
 call s:default('current_idx', 0)
-
-call s:default('auto_chdir', 0)
 
 " Scheme regexes should be defined even if syntax file is not loaded yet
 " cause users should be able to <leader>w<leader>w without opening any
@@ -540,7 +518,7 @@ function! s:build_table_menu(topmenu)
   exe 'nmenu disable '.a:topmenu.'.Table'
 endfunction
 
-"XXX make sure anything below does not cause autoload/base to be loaded
+
 if !empty(g:vimwiki_menu)
   call s:build_menu(g:vimwiki_menu)
   call s:build_table_menu(g:vimwiki_menu)
