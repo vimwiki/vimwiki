@@ -113,10 +113,11 @@ function! vimwiki#lst#default_symbol() "{{{
 endfunction "}}}
 
 function! vimwiki#lst#get_list_margin() "{{{
-  if VimwikiGet('list_margin') < 0
+  let list_margin = vimwiki#vars#get_wikilocal('list_margin')
+  if list_margin < 0
     return &sw
   else
-    return VimwikiGet('list_margin')
+    return list_margin
   endif
 endfunction "}}}
 

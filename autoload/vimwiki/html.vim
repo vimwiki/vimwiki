@@ -1348,13 +1348,13 @@ function! s:parse_line(line, state) " {{{
 endfunction " }}}
 
 function! s:use_custom_wiki2html() "{{{
-  let custom_wiki2html = VimwikiGet('custom_wiki2html')
+  let custom_wiki2html = vimwiki#vars#get_wikilocal('custom_wiki2html')
   return !empty(custom_wiki2html) && (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction " }}}
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
   call vimwiki#path#mkdir(a:path)
-  echomsg system(VimwikiGet('custom_wiki2html'). ' '.
+  echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ VimwikiGet('syntax'). ' '.
       \ strpart(VimwikiGet('ext'), 1). ' '.

@@ -655,7 +655,7 @@ if VimwikiGet('auto_toc')
   augroup END
 endif
 
-if VimwikiGet('auto_tags')
+if vimwiki#vars#get_wikilocal('auto_tags')
   " Automatically update tags metadata on page write.
   augroup vimwiki
     au BufWritePost <buffer> call vimwiki#tags#update_tags(0, '')

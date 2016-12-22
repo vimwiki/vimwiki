@@ -105,7 +105,6 @@ function! s:populate_wikilocal_options()
         \ 'custom_wiki2html': '',
         \ 'diary_header': 'Diary',
         \ 'diary_index': 'diary',
-        \ 'diary_link_fmt': '%Y-%m-%d',
         \ 'diary_rel_path': 'diary/',
         \ 'diary_sort': 'desc',
         \ 'ext': '.wiki',
@@ -217,12 +216,18 @@ function! vimwiki#vars#get_global(key)
 endfunction
 
 
-function! vimwiki#vars#get_wikilocal(wiki_nr, key)
-  return g:vimwiki_wikilocal_vars[a:wiki_nr][a:key]
+" the second argument can be a wiki number. When absent, the wiki of the currently active buffer is
+" used
+function! vimwiki#vars#get_wikilocal(key, ...)
+  if a:0
+    return g:vimwiki_wikilocal_vars[a:1][a:key]
+  else
+    return g:vimwiki_wikilocal_vars[vimwiki#vars#get_bufferlocal('wiki_nr')][a:key]
+  endif
 endfunction
 
 
-function! vimwiki#vars#set_wikilocal(wiki_nr, key, value)
+function! vimwiki#vars#set_wikilocal(key, value, wiki_nr)
   if a:wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
     call insert(g:vimwiki_wikilocal_vars, {}, -1)
   endif

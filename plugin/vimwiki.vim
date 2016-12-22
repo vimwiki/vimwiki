@@ -44,8 +44,8 @@ function! Validate_wiki_options(idx) " {{{
   call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
   call VimwikiSet('template_path',
         \ s:normalize_path(VimwikiGet('template_path', a:idx)), a:idx)
-  call VimwikiSet('diary_rel_path',
-        \ s:normalize_path(VimwikiGet('diary_rel_path', a:idx)), a:idx)
+  call vimwiki#vars#set_wikilocal('diary_rel_path',
+        \ s:normalize_path(vimwiki#vars#get_wikilocal('diary_rel_path', a:idx)), a:idx)
 endfunction " }}}
 
 function! s:vimwiki_idx() " {{{
@@ -339,23 +339,6 @@ let s:vimwiki_defaults.auto_toc = 0
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
 " file.
 let s:vimwiki_defaults.temp = 0
-
-" diary
-let s:vimwiki_defaults.diary_rel_path = 'diary/'
-let s:vimwiki_defaults.diary_index = 'diary'
-let s:vimwiki_defaults.diary_header = 'Diary'
-let s:vimwiki_defaults.diary_sort = 'desc'
-
-" Do not change this! Will wait till vim become more datetime awareable.
-let s:vimwiki_defaults.diary_link_fmt = '%Y-%m-%d'
-
-" NEW! in v2.0
-" custom_wiki2html
-let s:vimwiki_defaults.custom_wiki2html = ''
-"
-let s:vimwiki_defaults.list_margin = -1
-
-let s:vimwiki_defaults.auto_tags = 0
 "}}}
 
 " DEFAULT options {{{
@@ -409,7 +392,7 @@ command! -count=1 VimwikiMakeDiaryNote
 command! -count=1 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0, strftime(VimwikiGet('diary_link_fmt', v:count1 - 1), localtime() - 60*60*24))
+      \ call vimwiki#diary#make_note(v:count1, 0, vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
