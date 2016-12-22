@@ -101,6 +101,7 @@ function! s:populate_wikilocal_options()
         \ 'auto_export': 0,
         \ 'auto_tags': 0,
         \ 'auto_toc': 0,
+        \ 'automatic_nested_syntaxes': 1,
         \ 'css_name': 'style.css',
         \ 'custom_wiki2html': '',
         \ 'diary_header': 'Diary',

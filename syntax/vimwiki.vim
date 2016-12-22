@@ -572,8 +572,8 @@ call vimwiki#u#reload_regexes_custom()
 let b:current_syntax="vimwiki"
 
 " EMBEDDED syntax setup "{{{
-let s:nested = VimwikiGet('nested_syntaxes')
-if VimwikiGet('automatic_nested_syntaxes')
+let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
+if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
   let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), "keep")
 endif
 if !empty(s:nested)

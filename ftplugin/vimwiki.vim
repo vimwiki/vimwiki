@@ -639,7 +639,7 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 " KEYBINDINGS }}}
 
 " AUTOCOMMANDS {{{
-if VimwikiGet('auto_export')
+if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
     au BufWritePost <buffer>
@@ -648,7 +648,7 @@ if VimwikiGet('auto_export')
   augroup END
 endif
 
-if VimwikiGet('auto_toc')
+if vimwiki#vars#get_wikilocal('auto_toc')
   " Automatically update the TOC *before* the file is written
   augroup vimwiki
     au BufWritePre <buffer> call vimwiki#base#table_of_contents(0)

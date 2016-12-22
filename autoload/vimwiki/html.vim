@@ -88,13 +88,13 @@ endfunction "}}}
 
 function! s:template_full_name(name) "{{{
   if a:name == ''
-    let name = VimwikiGet('template_default')
+    let name = vimwiki#vars#get_wikilocal('template_default')
   else
     let name = a:name
   endif
 
-  let fname = expand(VimwikiGet('template_path').
-        \ name.VimwikiGet('template_ext'))
+  let fname = expand(vimwiki#vars#get_wikilocal('template_path').
+        \ name . vimwiki#vars#get_wikilocal('template_ext'))
 
   if filereadable(fname)
     return fname
@@ -1361,9 +1361,9 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
       \ shellescape(s:default_CSS_full_name(a:path)). ' '.
-      \ (len(VimwikiGet('template_path'))    > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
-      \ (len(VimwikiGet('template_default')) > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
-      \ (len(VimwikiGet('template_ext'))     > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
+      \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ? shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
+      \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ? vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
+      \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ? vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
       \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'))
 endfunction " }}}
 
