@@ -280,7 +280,7 @@ endfunction "}}}
 
 
 " use max highlighting - could be quite slow if there are too many wikifiles
-if VimwikiGet('maxhi')
+if vimwiki#vars#get_wikilocal('maxhi')
   " WikiLink
   call s:add_target_syntax_OFF(g:vimwiki_rxWikiLink1, 'VimwikiWikiLink1')
 

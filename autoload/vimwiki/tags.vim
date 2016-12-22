@@ -41,7 +41,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     call s:write_tags_metadata(metadata)
   else " full rebuild
     let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
-    let wiki_base_dir = VimwikiGet('path', g:vimwiki_current_idx)
+    let wiki_base_dir = vimwiki#vars#get_wikilocal('path', g:vimwiki_current_idx)
     let tags_file_last_modification =
           \ getftime(vimwiki#tags#metadata_file_path())
     let metadata = s:load_tags_metadata()
@@ -141,7 +141,7 @@ endfunction " }}}
 " vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(vimwiki#path#join_path(VimwikiGet('path'), s:TAGS_METADATA_FILE_NAME), ':p')
+  return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'), s:TAGS_METADATA_FILE_NAME), ':p')
 endfunction " }}}
 
 " s:load_tags_metadata

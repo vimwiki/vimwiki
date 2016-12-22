@@ -245,18 +245,18 @@ endfunction "}}}
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
       \                             expand('%'))
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '.expand(VimwikiGet('path_html')) | endif
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: ' . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
-      \         expand(VimwikiGet('path_html')),
+      \         expand(vimwiki#vars#get_wikilocal('path_html')),
       \         expand('%')))
 command! -buffer VimwikiAll2HTML
-      \ call vimwiki#html#WikiAll2HTML(expand(VimwikiGet('path_html')))
+      \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')))
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
@@ -279,10 +279,10 @@ command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 
 exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
-      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext'), ' ')
 
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext'), ' ')
 
 command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
@@ -643,7 +643,7 @@ if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
     au BufWritePost <buffer>
-      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ call vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
       \                             expand('%'))
   augroup END
 endif

@@ -68,7 +68,7 @@ endfunction " }}}
 
 function! s:default_CSS_full_name(path) " {{{
   let path = expand(a:path)
-  let css_full_name = path.VimwikiGet('css_name')
+  let css_full_name = path . vimwiki#vars#get_wikilocal('css_name')
   return css_full_name
 endfunction "}}}
 
@@ -162,8 +162,8 @@ function! s:delete_html_files(path) "{{{
     endif
 
     " delete if there is no corresponding wiki file
-    let subdir = vimwiki#base#subdir(VimwikiGet('path_html'), fname)
-    let wikifile = VimwikiGet('path').subdir.
+    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path_html'), fname)
+    let wikifile = vimwiki#vars#get_wikilocal('path').subdir.
           \fnamemodify(fname, ":t:r").VimwikiGet('ext')
     if filereadable(wikifile)
       continue
@@ -231,7 +231,7 @@ function! s:is_html_uptodate(wikifile) "{{{
   endif
 
   let wikifile = fnamemodify(a:wikifile, ":p")
-  let htmlfile = expand(VimwikiGet('path_html').VimwikiGet('subdir').
+  let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') . VimwikiGet('subdir') .
         \fnamemodify(wikifile, ":t:r").".html")
 
   if getftime(wikifile) <= getftime(htmlfile) && tpl_time <= getftime(htmlfile)
@@ -1483,7 +1483,7 @@ function! s:convert_file(path_html, wikifile) "{{{
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(VimwikiGet('subdir')) .'", "g")')
 
-    let css_name = expand(VimwikiGet('css_name'))
+    let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
     let css_name = substitute(css_name, '\', '/', 'g')
     call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
 
@@ -1544,12 +1544,12 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   let current_subdir = VimwikiGet('subdir')
   let current_invsubdir = VimwikiGet('invsubdir')
 
-  let wikifiles = split(glob(VimwikiGet('path').'**/*'.VimwikiGet('ext')), '\n')
+  let wikifiles = split(glob(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext')), '\n')
   for wikifile in wikifiles
     let wikifile = fnamemodify(wikifile, ":p")
 
     " temporarily adjust 'subdir' and 'invsubdir' state variables
-    let subdir = vimwiki#base#subdir(VimwikiGet('path'), wikifile)
+    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), wikifile)
     call VimwikiSet('subdir', subdir)
     call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir))
 
@@ -1583,10 +1583,9 @@ function! s:binary_exists(fname) "{{{
   return executable(expand(a:fname))
 endfunction "}}}
 
-" uses VimwikiGet('path')
 function! s:get_wikifile_url(wikifile) "{{{
-  return VimwikiGet('path_html').
-    \ vimwiki#base#subdir(VimwikiGet('path'), a:wikifile).
+  return vimwiki#vars#get_wikilocal('path_html') .
+    \ vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), a:wikifile).
     \ fnamemodify(a:wikifile, ":t:r").'.html'
 endfunction "}}}
 

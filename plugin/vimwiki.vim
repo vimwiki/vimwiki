@@ -20,11 +20,11 @@ function! s:default(varname, value) "{{{
 endfunction "}}}
 
 function! s:path_html(idx) "{{{
-  let path_html = VimwikiGet('path_html', a:idx)
+  let path_html = vimwiki#vars#get_wikilocal('path_html', a:idx)
   if !empty(path_html)
     return path_html
   else
-    let path = VimwikiGet('path', a:idx)
+    let path = vimwiki#vars#get_wikilocal('path', a:idx)
     return substitute(path, '[/\\]\+$', '', '').'_html/'
   endif
 endfunction "}}}
@@ -40,8 +40,8 @@ function! s:normalize_path(path) "{{{
 endfunction "}}}
 
 function! Validate_wiki_options(idx) " {{{
-  call VimwikiSet('path', s:normalize_path(VimwikiGet('path', a:idx)), a:idx)
-  call VimwikiSet('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
+  call vimwiki#vars#set_wikilocal('path', s:normalize_path(vimwiki#vars#get_wikilocal('path', a:idx)), a:idx)
+  call vimwiki#vars#set_wikilocal('path_html', s:normalize_path(s:path_html(a:idx)), a:idx)
   call vimwiki#vars#set_wikilocal('template_path',
         \ s:normalize_path(vimwiki#vars#get_wikilocal('template_path', a:idx)), a:idx)
   call vimwiki#vars#set_wikilocal('diary_rel_path',
@@ -139,7 +139,7 @@ function! s:setup_buffer_enter() "{{{
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;
     " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
-    if exists("b:vimwiki_fs_rescan") && VimwikiGet('maxhi')
+    if exists("b:vimwiki_fs_rescan") && vimwiki#vars#get_wikilocal('maxhi')
       set syntax=vimwiki
     endif
     let b:vimwiki_fs_rescan = 1
@@ -320,12 +320,8 @@ endif "}}}
 
 " DEFAULT wiki {{{
 let s:vimwiki_defaults = {}
-let s:vimwiki_defaults.path = '~/vimwiki/'
-let s:vimwiki_defaults.path_html = ''   " '' is replaced by derived path.'_html/'
-let s:vimwiki_defaults.css_name = 'style.css'
 let s:vimwiki_defaults.index = 'index'
 let s:vimwiki_defaults.ext = '.wiki'
-let s:vimwiki_defaults.maxhi = 0
 let s:vimwiki_defaults.syntax = 'default'
 
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
@@ -439,7 +435,7 @@ nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
 function! s:build_menu(topmenu)
   let idx = 0
   while idx < len(g:vimwiki_list)
-    let norm_path = fnamemodify(VimwikiGet('path', idx), ':h:t')
+    let norm_path = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
     let norm_path = escape(norm_path, '\ \.')
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#base#goto_index('.(idx + 1).')<CR>'

@@ -22,7 +22,7 @@ endfunction "}}}
 
 function! s:diary_path(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return VimwikiGet('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
+  return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
 endfunction "}}}
 
 function! s:diary_index(...) "{{{
@@ -84,7 +84,7 @@ endfun "}}}
 
 fun! s:get_diary_links() "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(VimwikiGet('path').vimwiki#vars#get_wikilocal('diary_rel_path').'*'.VimwikiGet('ext'))
+  let s_files = glob(vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').'*'.VimwikiGet('ext'))
   let files = split(s_files, '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
@@ -171,7 +171,7 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
     let idx = 0
   endif
 
-  call vimwiki#path#mkdir(VimwikiGet('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx))
+  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx))
 
   if a:0 && a:1 == 1
     let cmd = 'tabedit'
@@ -285,7 +285,7 @@ endfunction "}}}
 function vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
-  let sfile = VimwikiGet('path').vimwiki#vars#get_wikilocal('diary_rel_path').
+  let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
         \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
   return filereadable(expand(sfile))
 endfunction "}}}

@@ -9,18 +9,14 @@ elseif exists("b:current_syntax")
   finish
 endif
 
-"TODO do nothing if ...? (?)
-if VimwikiGet('maxhi')
+
+if vimwiki#vars#get_wikilocal('maxhi')
   let b:existing_wikifiles =
         \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
   let b:existing_wikidirs  =
         \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
 endif
-  "let b:xxx = 1
-  "TODO ? update wikilink syntax group here if really needed (?) for :e and such
-  "if VimwikiGet('maxhi')
-  " ...
-  "endif
+
 
 call vimwiki#u#reload_regexes()
 
@@ -214,7 +210,7 @@ endfunction "}}}
 
 
 " use max highlighting - could be quite slow if there are too many wikifiles
-if VimwikiGet('maxhi')
+if vimwiki#vars#get_wikilocal('maxhi')
   " WikiLink
   call s:add_target_syntax_OFF(g:vimwiki_rxWikiLink)
   " WikiIncl
