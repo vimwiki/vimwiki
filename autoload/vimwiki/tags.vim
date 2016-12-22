@@ -261,7 +261,7 @@ function! s:write_tags_metadata(metadata) "{{{
       let entry_data = substitute(entry_data, "\n", '\\n', 'g')
       call add(tags,
             \   entry.tagname  . "\t"
-            \ . pagename . VimwikiGet('ext') . "\t"
+            \ . pagename . vimwiki#vars#get_wikilocal('ext') . "\t"
             \ . entry.lineno
             \ . ';"'
             \ . "\t" . "vimwiki:" . entry_data

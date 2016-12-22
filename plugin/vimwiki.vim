@@ -274,12 +274,9 @@ endfunction "}}}
 function! s:vimwiki_get_known_extensions() " {{{
   " Getting all extensions that different wikis could have
   let extensions = {}
-  for wiki in g:vimwiki_list
-    if has_key(wiki, 'ext')
-      let extensions[wiki.ext] = 1
-    else
-      let extensions['.wiki'] = 1
-    endif
+  for idx in range(vimwiki#vars#number_of_wikis())
+    let ext = vimwiki#vars#get_wikilocal('ext', idx)
+    let extensions[ext] = 1
   endfor
   " append extensions from g:vimwiki_ext2syntax
   for ext in keys(vimwiki#vars#get_global('ext2syntax'))
@@ -320,8 +317,6 @@ endif "}}}
 
 " DEFAULT wiki {{{
 let s:vimwiki_defaults = {}
-let s:vimwiki_defaults.index = 'index'
-let s:vimwiki_defaults.ext = '.wiki'
 let s:vimwiki_defaults.syntax = 'default'
 
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki

@@ -27,7 +27,7 @@ endfunction "}}}
 
 function! s:diary_index(...) "{{{
   let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).VimwikiGet('ext', idx)
+  return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx)
 endfunction "}}}
 
 function! vimwiki#diary#diary_date_link(...) "{{{
@@ -84,7 +84,7 @@ endfun "}}}
 
 fun! s:get_diary_links() "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').'*'.VimwikiGet('ext'))
+  let s_files = glob(vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
   let files = split(s_files, '\n')
   call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
@@ -286,7 +286,7 @@ function vimwiki#diary#calendar_sign(day, month, year) "{{{
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
-        \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
+        \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
 endfunction "}}}
 

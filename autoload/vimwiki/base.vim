@@ -324,10 +324,10 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     if vimwiki#path#is_link_to_dir(link_text)
       if vimwiki#vars#get_global('dir_link') != ''
         let link_infos.filename .= vimwiki#vars#get_global('dir_link') .
-              \ VimwikiGet('ext', link_infos.index)
+              \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     else
-      let link_infos.filename .= VimwikiGet('ext', link_infos.index)
+      let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
     endif
 
   elseif link_infos.scheme ==# 'diary'
@@ -337,7 +337,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
           \ vimwiki#vars#get_wikilocal('path', link_infos.index) .
           \ vimwiki#vars#get_wikilocal('diary_rel_path', link_infos.index) .
           \ link_text .
-          \ VimwikiGet('ext', link_infos.index)
+          \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
   elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local')
         \ && is_relative
     let link_infos.filename = simplify(root_dir . link_text)
@@ -437,9 +437,9 @@ function! vimwiki#base#get_globlinks_escaped() abort "{{{only get links from the
   let orig_pwd = getcwd()
   lcd! %:h
   " all path are relative to the current file's location 
-  let globlinks = glob('*'.VimwikiGet('ext'),1)."\n"
+  let globlinks = glob('*'.vimwiki#vars#get_wikilocal('ext'), 1)."\n"
   " remove extensions
-  let globlinks = substitute(globlinks, '\'.VimwikiGet('ext').'\ze\n', '', 'g')
+  let globlinks = substitute(globlinks, '\'.vimwiki#vars#get_wikilocal('ext').'\ze\n', '', 'g')
   " restore the original working directory
   exe 'lcd! '.orig_pwd
   " convert to a List
@@ -481,7 +481,7 @@ function! vimwiki#base#goto(...) "{{{
   let anchor = a:0 > 1 ? a:2 : ''
 
   call vimwiki#base#edit_file(':e',
-        \ vimwiki#vars#get_wikilocal('path') . key . VimwikiGet('ext'),
+        \ vimwiki#vars#get_wikilocal('path') . key . vimwiki#vars#get_wikilocal('ext'),
         \ anchor)
 endfunction "}}}
 
@@ -526,7 +526,7 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   if a:directories_only
     let ext = '/'
   else
-    let ext = VimwikiGet('ext', wiki_nr)
+    let ext = vimwiki#vars#get_wikilocal('ext', wiki_nr)
   endif
   " if current wiki is temporary -- was added by an arbitrary wiki file then do
   " not search wiki files in subdirectories. Or it would hang the system if
@@ -790,8 +790,8 @@ function! vimwiki#base#check_links() "{{{
 
   " mark every index file as reachable
   for idx in range(len(g:vimwiki_list))
-    let index_file = vimwiki#vars#get_wikilocal('path', idx) . VimwikiGet('index', idx) .
-          \ VimwikiGet('ext', idx)
+    let index_file = vimwiki#vars#get_wikilocal('path', idx) . vimwiki#vars#get_wikilocal('index', idx) .
+          \ vimwiki#vars#get_wikilocal('ext', idx)
     if filereadable(index_file)
       let reachable_wikifiles[index_file] = 1
     endif
@@ -976,7 +976,7 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
   let old_fname_r = vimwiki#base#apply_template(
         \ g:vimwiki_WikiLinkMatchUrlTemplate, old_fname, '', '')
 
-  let files = split(glob(vimwiki#vars#get_wikilocal('path').a:dir.'*'.VimwikiGet('ext')), '\n')
+  let files = split(glob(vimwiki#vars#get_wikilocal('path').a:dir.'*'.vimwiki#vars#get_wikilocal('ext')), '\n')
   for fname in files
     call s:update_wiki_link(fname, old_fname_r, new_fname)
   endfor
@@ -1030,7 +1030,7 @@ function! s:get_wiki_buffers() "{{{
   while bcount<=bufnr("$")
     if bufexists(bcount)
       let bname = fnamemodify(bufname(bcount), ":p")
-      if bname =~# VimwikiGet('ext')."$"
+      if bname =~# vimwiki#vars#get_wikilocal('ext')."$"
         let bitem = [bname, getbufvar(bname, "vimwiki_prev_link")]
         call add(blist, bitem)
       endif
@@ -1309,8 +1309,8 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
 
   call Validate_wiki_options(idx)
   call vimwiki#base#edit_file(cmd,
-        \ vimwiki#vars#get_wikilocal('path', idx).VimwikiGet('index', idx).
-        \ VimwikiGet('ext', idx),
+        \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('index', idx).
+        \ vimwiki#vars#get_wikilocal('ext', idx),
         \ '')
   call vimwiki#base#setup_buffer_state(idx)
 endfunction "}}}
@@ -1378,7 +1378,7 @@ function! vimwiki#base#rename_link() "{{{
   endif
   
   let new_link = subdir.new_link
-  let new_fname = vimwiki#vars#get_wikilocal('path') . new_link . VimwikiGet('ext')
+  let new_fname = vimwiki#vars#get_wikilocal('path') . new_link . vimwiki#vars#get_wikilocal('ext')
 
   " do not rename if file with such name exists
   let fname = glob(new_fname)
@@ -1886,7 +1886,7 @@ endfunction " }}}
 
 " s:normalize_link_in_diary
 function! s:normalize_link_in_diary(lnk) " {{{
-  let link = a:lnk . VimwikiGet('ext')
+  let link = a:lnk . vimwiki#vars#get_wikilocal('ext')
   let link_wiki = vimwiki#vars#get_wikilocal('path') . '/' . link
   let link_diary = vimwiki#vars#get_wikilocal('path') . '/'
         \ . vimwiki#vars#get_wikilocal('diary_rel_path') . '/' . link

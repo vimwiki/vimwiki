@@ -27,7 +27,7 @@ if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
 endif
 
 " GOTO FILE: gf {{{
-execute 'setlocal suffixesadd='.VimwikiGet('ext')
+execute 'setlocal suffixesadd='.vimwiki#vars#get_wikilocal('ext')
 setlocal isfname-=[,]
 " gf}}}
 
@@ -279,10 +279,10 @@ command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 
 exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)

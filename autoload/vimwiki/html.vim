@@ -164,7 +164,7 @@ function! s:delete_html_files(path) "{{{
     " delete if there is no corresponding wiki file
     let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path_html'), fname)
     let wikifile = vimwiki#vars#get_wikilocal('path').subdir.
-          \fnamemodify(fname, ":t:r").VimwikiGet('ext')
+          \fnamemodify(fname, ":t:r").vimwiki#vars#get_wikilocal('ext')
     if filereadable(wikifile)
       continue
     endif
@@ -1357,7 +1357,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
   echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ VimwikiGet('syntax'). ' '.
-      \ strpart(VimwikiGet('ext'), 1). ' '.
+      \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
       \ shellescape(s:default_CSS_full_name(a:path)). ' '.
@@ -1544,7 +1544,7 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   let current_subdir = VimwikiGet('subdir')
   let current_invsubdir = VimwikiGet('invsubdir')
 
-  let wikifiles = split(glob(vimwiki#vars#get_wikilocal('path').'**/*'.VimwikiGet('ext')), '\n')
+  let wikifiles = split(glob(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext')), '\n')
   for wikifile in wikifiles
     let wikifile = fnamemodify(wikifile, ":p")
 
