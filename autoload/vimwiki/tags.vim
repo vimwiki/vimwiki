@@ -68,8 +68,9 @@ function! s:scan_tags(lines, page_name) "{{{
   " Code wireframe to scan for headers -- borrowed from
   " vimwiki#base#get_anchors(), with minor modifications.
 
-  let rxheader = g:vimwiki_{VimwikiGet('syntax')}_header_search
-  let rxtag = g:vimwiki_{VimwikiGet('syntax')}_tag_search
+  let syntax = vimwiki#vars#get_wikilocal('syntax')
+  let rxheader = g:vimwiki_{syntax}_header_search
+  let rxtag = g:vimwiki_{syntax}_tag_search
 
   let anchor_level = ['', '', '', '', '', '', '']
   let current_complete_anchor = ''

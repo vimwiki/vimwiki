@@ -86,7 +86,7 @@ function! s:setup_filetype() "{{{
   if idx == -1
     let ext = '.'.expand('%:e')
     " lookup syntax using g:vimwiki_ext2syntax
-    let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, s:vimwiki_defaults.syntax)
+    let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, vimwiki#vars#get_wikilocal_default('syntax'))
     call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
     let idx = len(g:vimwiki_list) - 1
     call Validate_wiki_options(idx)
@@ -119,7 +119,7 @@ function! s:setup_buffer_enter() "{{{
     if idx == -1
       let ext = '.'.expand('%:e')
       " lookup syntax using g:vimwiki_ext2syntax
-      let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, s:vimwiki_defaults.syntax)
+      let syn = get(vimwiki#vars#get_global('ext2syntax'), ext, vimwiki#vars#get_wikilocal_default('syntax'))
       call add(g:vimwiki_list, {'path': path, 'ext': ext, 'syntax': syn, 'temp': 1})
       let idx = len(g:vimwiki_list) - 1
       call Validate_wiki_options(idx)
@@ -317,7 +317,6 @@ endif "}}}
 
 " DEFAULT wiki {{{
 let s:vimwiki_defaults = {}
-let s:vimwiki_defaults.syntax = 'default'
 
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
 " file.

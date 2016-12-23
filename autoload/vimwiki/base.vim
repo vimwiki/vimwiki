@@ -13,10 +13,9 @@ function! s:vimwiki_get_known_syntaxes() " {{{
   " Getting all syntaxes that different wikis could have
   let syntaxes = {}
   let syntaxes['default'] = 1
-  for wiki in g:vimwiki_list
-    if has_key(wiki, 'syntax')
-      let syntaxes[wiki.syntax] = 1
-    endif
+  for wiki_nr in range(vimwiki#vars#number_of_wikis())
+    let wiki_syntax = vimwiki#vars#get_wikilocal('syntax', wiki_nr)
+    let syntaxes[wiki_syntax] = 1
   endfor
   " also consider the syntaxes from g:vimwiki_ext2syntax
   for syn in values(vimwiki#vars#get_global('ext2syntax'))
@@ -490,7 +489,7 @@ function! vimwiki#base#backlinks() "{{{
   let current_filename = expand("%:p")
   let locations = []
   for idx in range(len(g:vimwiki_list))
-    let syntax = VimwikiGet('syntax', idx)
+    let syntax = vimwiki#vars#get_wikilocal('syntax', idx)
     let wikifiles = vimwiki#base#find_files(idx, 0)
     for source_file in wikifiles
       let links = s:get_links(source_file, idx)
@@ -675,14 +674,17 @@ function! s:jump_to_anchor(anchor) "{{{
   let anchor = vimwiki#u#escape(a:anchor)
 
   let segments = split(anchor, '#', 0)
+
+  let current_syntax = vimwiki#vars#get_wikilocal('syntax')
+
   for segment in segments
 
     let anchor_header = substitute(
-          \ g:vimwiki_{VimwikiGet('syntax')}_header_match,
+          \ g:vimwiki_{current_syntax}_header_match,
           \ '__Header__', "\\='".segment."'", '')
-    let anchor_bold = substitute(g:vimwiki_{VimwikiGet('syntax')}_bold_match,
+    let anchor_bold = substitute(g:vimwiki_{current_syntax}_bold_match,
           \ '__Text__', "\\='".segment."'", '')
-    let anchor_tag = substitute(g:vimwiki_{VimwikiGet('syntax')}_tag_match,
+    let anchor_tag = substitute(g:vimwiki_{current_syntax}_tag_match,
           \ '__Tag__', "\\='".segment."'", '')
 
     if         !search(anchor_tag, 'Wc')
@@ -704,7 +706,7 @@ function! s:get_links(wikifile, idx) "{{{
     return []
   endif
 
-  let syntax = VimwikiGet('syntax', a:idx)
+  let syntax = vimwiki#vars#get_wikilocal('syntax', a:idx)
   let rx_link = g:vimwiki_{syntax}_wikilink
   let links = []
   let lnum = 0
@@ -736,7 +738,7 @@ function! vimwiki#base#check_links() "{{{
   let links_of_files = {}
   let errors = []
   for idx in range(len(g:vimwiki_list))
-    let syntax = VimwikiGet('syntax', idx)
+    let syntax = vimwiki#vars#get_wikilocal('syntax', idx)
     let wikifiles = vimwiki#base#find_files(idx, 0)
     for wikifile in wikifiles
       let links_of_files[wikifile] = s:get_links(wikifile, idx)
@@ -1222,15 +1224,15 @@ endfunction " }}}
 " vimwiki#base#follow_link
 function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
   " to VimwikiLinkHandler, or failing that, the default open_link handler
-  if exists('*vimwiki#'.VimwikiGet('syntax').'_base#follow_link')
+  if exists('*vimwiki#'.vimwiki#vars#get_wikilocal('syntax').'_base#follow_link')
     " Syntax-specific links
     " XXX: @Stuart: do we still need it?
     " XXX: @Maxim: most likely!  I am still working on a seemless way to
     " integrate regexp's without complicating syntax/vimwiki.vim
     if a:0
-      call vimwiki#{VimwikiGet('syntax')}_base#follow_link(a:split, a:1)
+      call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#follow_link(a:split, a:1)
     else
-      call vimwiki#{VimwikiGet('syntax')}_base#follow_link(a:split)
+      call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#follow_link(a:split)
     endif
   else
     if a:split ==# "split"
@@ -1987,9 +1989,9 @@ endfunction " }}}
 
 " vimwiki#base#normalize_link
 function! vimwiki#base#normalize_link(is_visual_mode) "{{{
-  if exists('*vimwiki#'.VimwikiGet('syntax').'_base#normalize_link')
+  if exists('*vimwiki#'.vimwiki#vars#get_wikilocal('syntax').'_base#normalize_link')
     " Syntax-specific links
-    call vimwiki#{VimwikiGet('syntax')}_base#normalize_link(a:is_visual_mode)
+    call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#normalize_link(a:is_visual_mode)
   else
     if !a:is_visual_mode
       call s:normalize_link_syntax_n()

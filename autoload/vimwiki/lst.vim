@@ -188,7 +188,7 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if VimwikiGet('syntax') !=? 'media'
+  if vimwiki#vars#get_wikilocal('syntax') !=? 'media'
     let level = indent(a:lnum)
   else
     let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
@@ -922,7 +922,7 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum,
@@ -944,7 +944,7 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_indent = 0
-  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
@@ -966,7 +966,7 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if VimwikiGet('syntax') ==? 'media' && item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr,
@@ -1112,7 +1112,7 @@ endfunction "}}}
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') !=? 'media'
+    if indent(a:item.lnum) == 0 && vimwiki#vars#get_wikilocal('syntax') !=? 'media'
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1193,7 +1193,7 @@ endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
-  if a:item.type == 0 || VimwikiGet('syntax') ==? 'media'
+  if a:item.type == 0 || vimwiki#vars#get_wikilocal('syntax') ==? 'media'
     return
   endif
 
@@ -1223,7 +1223,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( VimwikiGet('syntax') !=? 'media' ? indent(a:from) : 0 )
+  let new_indent = ( vimwiki#vars#get_wikilocal('syntax') !=? 'media' ? indent(a:from) : 0 )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))

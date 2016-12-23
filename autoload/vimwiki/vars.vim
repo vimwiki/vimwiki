@@ -228,6 +228,11 @@ function! vimwiki#vars#get_wikilocal(key, ...)
 endfunction
 
 
+function! vimwiki#vars#get_wikilocal_default(key)
+  return g:vimwiki_wikilocal_vars[-1][a:key]
+endfunction
+
+
 function! vimwiki#vars#set_wikilocal(key, value, wiki_nr)
   if a:wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
     call insert(g:vimwiki_wikilocal_vars, {}, -1)

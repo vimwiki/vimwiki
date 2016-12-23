@@ -26,7 +26,7 @@ function! s:root_path(subdir) "{{{
 endfunction "}}}
 
 function! s:syntax_supported() " {{{
-  return VimwikiGet('syntax') ==? "default"
+  return vimwiki#vars#get_wikilocal('syntax') ==? "default"
 endfunction " }}}
 
 function! s:remove_blank_lines(lines) " {{{
@@ -1356,7 +1356,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
   call vimwiki#path#mkdir(a:path)
   echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
-      \ VimwikiGet('syntax'). ' '.
+      \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
