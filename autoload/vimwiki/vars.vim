@@ -125,17 +125,21 @@ function! s:populate_wikilocal_options()
 
   if exists('g:vimwiki_list')
     for users_options in g:vimwiki_list
-      let new_options_dict = {}
+      let new_wiki_settings = {}
       for key in keys(default_values)
         if has_key(users_options, key)
-          let new_options_dict[key] = users_options[key]
+          let new_wiki_settings[key] = users_options[key]
         elseif exists('g:vimwiki_'.key)
-          let new_options_dict[key] = g:vimwiki_{key}
+          let new_wiki_settings[key] = g:vimwiki_{key}
         else
-          let new_options_dict[key] = default_values[key]
+          let new_wiki_settings[key] = default_values[key]
         endif
       endfor
-      call add(g:vimwiki_wikilocal_vars, new_options_dict)
+
+      " is it a temporary wiki? No, it's not.
+      let new_wiki_settings.temp = 0
+
+      call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
     endfor
   endif
 
@@ -148,26 +152,27 @@ function! s:populate_wikilocal_options()
       let temporary_options_dict[key] = default_values[key]
     endif
   endfor
-  call add(g:vimwiki_wikilocal_vars, default_values)
+  let temporary_options_dict.temp = 1
+  call add(g:vimwiki_wikilocal_vars, temporary_options_dict)
 
-  call s:validate_options()
+  call s:validate_settings()
 endfunction
 
 
-function! s:validate_options()
-  for options_dict in g:vimwiki_wikilocal_vars
-    let options_dict['path'] = s:normalize_path(options_dict['path'])
+function! s:validate_settings()
+  for wiki_settings in g:vimwiki_wikilocal_vars
+    let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
 
-    let path_html = options_dict['path_html']
+    let path_html = wiki_settings['path_html']
     if !empty(path_html)
-      let options_dict['path_html'] = s:normalize_path(path_html)
+      let wiki_settings['path_html'] = s:normalize_path(path_html)
     else
-      let options_dict['path_html'] = s:normalize_path(
-            \ substitute(options_dict['path'], '[/\\]\+$', '', '').'_html/')
+      let wiki_settings['path_html'] = s:normalize_path(
+            \ substitute(wiki_settings['path'], '[/\\]\+$', '', '').'_html/')
     endif
 
-    let options_dict['template_path'] =  s:normalize_path(options_dict['template_path'])
-    let options_dict['diary_rel_path'] =  s:normalize_path(options_dict['diary_rel_path'])
+    let wiki_settings['template_path'] =  s:normalize_path(wiki_settings['template_path'])
+    let wiki_settings['diary_rel_path'] =  s:normalize_path(wiki_settings['diary_rel_path'])
   endfor
 endfunction
 
@@ -240,6 +245,15 @@ function! vimwiki#vars#set_wikilocal(key, value, wiki_nr)
   let g:vimwiki_wikilocal_vars[a:wiki_nr][a:key] = a:value
 endfunction
 
+
+function! vimwiki#vars#add_temporary_wiki(settings)
+  let new_temp_wiki_settings = copy(g:vimwiki_wikilocal_vars[-1])
+  for [key, value] in items(a:settings)
+    let new_temp_wiki_settings[key] = value
+  endfor
+  call insert(g:vimwiki_wikilocal_vars, new_temp_wiki_settings, -1)
+  call s:validate_settings()
+endfunction
 
 " number of registered wikis + temporary
 function! vimwiki#vars#number_of_wikis()

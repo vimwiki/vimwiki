@@ -530,7 +530,7 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   " if current wiki is temporary -- was added by an arbitrary wiki file then do
   " not search wiki files in subdirectories. Or it would hang the system if
   " wiki file was created in $HOME or C:/ dirs.
-  if VimwikiGet('temp', wiki_nr)
+  if vimwiki#vars#get_wikilocal('temp', wiki_nr)
     let pattern = '*'.ext
   else
     let pattern = '**/*'.ext
@@ -1290,13 +1290,13 @@ endfunction " }}}
 
 " vimwiki#base#goto_index
 function! vimwiki#base#goto_index(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
+  if a:wnum > vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in your Vimwiki settings!'
     return
   endif
 
   " usually a:wnum is greater then 0 but with the following command it is == 0:
-  " vim -n -c "exe 'VimwikiIndex' | echo g:vimwiki_current_idx"
+  " vim -n -c ":VimwikiIndex"
   if a:wnum > 0
     let idx = a:wnum - 1
   else
@@ -1309,12 +1309,11 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
     let cmd = 'edit'
   endif
 
-  call Validate_wiki_options(idx)
-  call vimwiki#base#edit_file(cmd,
-        \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('index', idx).
-        \ vimwiki#vars#get_wikilocal('ext', idx),
-        \ '')
-  call vimwiki#base#setup_buffer_state(idx)
+  let index_file = vimwiki#vars#get_wikilocal('path', idx).
+        \ vimwiki#vars#get_wikilocal('index', idx).
+        \ vimwiki#vars#get_wikilocal('ext', idx)
+
+  call vimwiki#base#edit_file(cmd, index_file, '')
 endfunction "}}}
 
 " vimwiki#base#delete_link
