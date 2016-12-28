@@ -80,6 +80,106 @@ function! s:populate_global_variables()
         \ '\)'
 
   let g:vimwiki_global_vars['rxWeblinkUrl'] = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
+
+  let wikilink_prefix = '[['
+  let wikilink_suffix = ']]'
+  let wikilink_separator = '|'
+  let g:vimwiki_global_vars.rx_wikilink_prefix = vimwiki#u#escape(wikilink_prefix)
+  let g:vimwiki_global_vars.rx_wikilink_suffix = vimwiki#u#escape(wikilink_suffix)
+  let g:vimwiki_global_vars.rx_wikilink_separator = vimwiki#u#escape(wikilink_separator)
+
+  " templates for the creation of wiki links
+  " [[URL]]
+  let g:vimwiki_global_vars.WikiLinkTemplate1 = wikilink_prefix . '__LinkUrl__'. wikilink_suffix
+  " [[URL|DESCRIPTION]]
+  let g:vimwiki_global_vars.WikiLinkTemplate2 = wikilink_prefix . '__LinkUrl__'. wikilink_separator
+        \ . '__LinkDescription__' . wikilink_suffix
+
+  " template for matching all wiki links with a given target file
+  let g:vimwiki_global_vars.WikiLinkMatchUrlTemplate =
+        \ g:vimwiki_global_vars.rx_wikilink_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+        \ g:vimwiki_global_vars.rx_wikilink_suffix .
+        \ '\|' .
+        \ g:vimwiki_global_vars.rx_wikilink_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+        \ g:vimwiki_global_vars.rx_wikilink_separator .
+        \ '.*' .
+        \ g:vimwiki_global_vars.rx_wikilink_suffix
+
+  let valid_chars = '[^\\\]]'
+  let g:vimwiki_global_vars.rxWikiLinkUrl = valid_chars.'\{-}'
+  let g:vimwiki_global_vars.rxWikiLinkDescr = valid_chars.'\{-}'
+
+  " this regexp defines what can form a link when the user presses <CR> in the
+  " buffer (and not on a link) to create a link
+  " basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
+  " non-Ascii characters
+  let g:vimwiki_global_vars.rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
+
+  " [[URL]], or [[URL|DESCRIPTION]]
+  " a) match [[URL|DESCRIPTION]]
+  let g:vimwiki_global_vars.rxWikiLink = g:vimwiki_global_vars.rx_wikilink_prefix.
+        \ g:vimwiki_global_vars.rxWikiLinkUrl.'\%('.g:vimwiki_global_vars.rx_wikilink_separator.
+        \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
+  " b) match URL within [[URL|DESCRIPTION]]
+  let g:vimwiki_global_vars.rxWikiLinkMatchUrl = g:vimwiki_global_vars.rx_wikilink_prefix.
+        \ '\zs'. g:vimwiki_global_vars.rxWikiLinkUrl.'\ze\%('. g:vimwiki_global_vars.rx_wikilink_separator.
+        \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
+  " c) match DESCRIPTION within [[URL|DESCRIPTION]]
+  let g:vimwiki_global_vars.rxWikiLinkMatchDescr = g:vimwiki_global_vars.rx_wikilink_prefix.
+        \ g:vimwiki_global_vars.rxWikiLinkUrl . g:vimwiki_global_vars.rx_wikilink_separator.'\%('.
+        \ '\zs'. g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'. g:vimwiki_global_vars.rx_wikilink_suffix
+
+  let rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl .
+        \ g:vimwiki_global_vars.rx_wikilink_separator
+  let rx_wikilink_suffix1 = g:vimwiki_global_vars.rx_wikilink_suffix
+
+  let g:vimwiki_global_vars.rxWikiInclPrefix = '{{'
+  let g:vimwiki_global_vars.rxWikiInclSuffix = '}}'
+  let g:vimwiki_global_vars.rxWikiInclSeparator = '|'
+  " '{{__LinkUrl__}}'
+  let g:vimwiki_global_vars.WikiInclTemplate1 = g:vimwiki_global_vars.rxWikiInclPrefix . '__LinkUrl__'.
+        \ g:vimwiki_global_vars.rxWikiInclSuffix
+  " '{{__LinkUrl____LinkDescription__}}'
+  let g:vimwiki_global_vars.WikiInclTemplate2 = g:vimwiki_global_vars.rxWikiInclPrefix . '__LinkUrl__'.
+        \ '__LinkDescription__'.
+        \ g:vimwiki_global_vars.rxWikiInclSuffix
+
+  let valid_chars = '[^\\\}]'
+  let g:vimwiki_global_vars.rxWikiInclUrl = valid_chars.'\{-}'
+  let g:vimwiki_global_vars.rxWikiInclArg = valid_chars.'\{-}'
+  let g:vimwiki_global_vars.rxWikiInclArgs = '\%('. g:vimwiki_global_vars.rxWikiInclSeparator.
+        \ g:vimwiki_global_vars.rxWikiInclArg. '\)'.'\{-}'
+
+  " *. {{URL}[{...}]}  - i.e.  {{URL}}, {{URL|ARG1}}, {{URL|ARG1|ARG2}}, etc.
+  " *a) match {{URL}[{...}]}
+  let g:vimwiki_global_vars.rxWikiIncl = g:vimwiki_global_vars.rxWikiInclPrefix.
+        \ g:vimwiki_global_vars.rxWikiInclUrl.
+        \ g:vimwiki_global_vars.rxWikiInclArgs. g:vimwiki_global_vars.rxWikiInclSuffix
+  " *b) match URL within {{URL}[{...}]}
+  let g:vimwiki_global_vars.rxWikiInclMatchUrl = g:vimwiki_global_vars.rxWikiInclPrefix.
+        \ '\zs'. g:vimwiki_global_vars.rxWikiInclUrl . '\ze'.
+        \ g:vimwiki_global_vars.rxWikiInclArgs . g:vimwiki_global_vars.rxWikiInclSuffix
+
+  let g:vimwiki_global_vars.rxWikiInclPrefix1 = g:vimwiki_global_vars.rxWikiInclPrefix.
+        \ g:vimwiki_global_vars.rxWikiInclUrl . g:vimwiki_global_vars.rxWikiInclSeparator
+  let g:vimwiki_global_vars.rxWikiInclSuffix1 = g:vimwiki_global_vars.rxWikiInclArgs.
+        \ g:vimwiki_global_vars.rxWikiInclSuffix
+
+  " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
+  " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
+  " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
+  let g:vimwiki_global_vars.rxWeblink = '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '\S*'
+  " 0a) match URL within URL
+  let g:vimwiki_global_vars.rxWeblinkMatchUrl = g:vimwiki_global_vars.rxWeblink
+  " 0b) match DESCRIPTION within URL
+  let g:vimwiki_global_vars.rxWeblinkMatchDescr = ''
+
+  let g:vimwiki_global_vars.rxAnyLink = g:vimwiki_global_vars.rxWikiLink.'\|'.
+      \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_global_vars.rxWeblink
+
+  let g:vimwiki_global_vars.rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
 endfunction
 
 
@@ -177,11 +277,83 @@ function! s:validate_settings()
 endfunction
 
 
-" TODO
-function! s:populate_syntax_vars(syntax)
+function! vimwiki#vars#populate_syntax_vars(syntax)
   if !exists('g:vimwiki_syntax_variables')
     let g:vimwiki_syntax_variables = {}
   endif
+  if !has_key(g:vimwiki_syntax_variables, a:syntax)
+    let g:vimwiki_syntax_variables[a:syntax] = {}
+  endif
+
+  execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
+
+  " generic stuff
+  let header_symbol = g:vimwiki_syntax_variables[a:syntax].rxH
+  if g:vimwiki_syntax_variables[a:syntax].symH
+    " symmetric headers
+    for i in range(1,6)
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Template = repeat(header_symbol, i).' __Header__ '.repeat(header_symbol, i)
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i} = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Start = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_End = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{1,'.i.'}\s*$'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxHeader = '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
+  else
+    " asymmetric
+    for i in range(1,6)
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Template = repeat(header_symbol, i).' __Header__'
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i} = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Start = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_End = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxHeader = '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
+  endif
+
+  let g:vimwiki_syntax_variables[a:syntax].rxPreStart = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreStart
+  let g:vimwiki_rxPreEnd = '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+
+  let g:vimwiki_rxMathStart = '^\s*'.g:vimwiki_rxMathStart
+  let g:vimwiki_rxMathEnd = '^\s*'.g:vimwiki_rxMathEnd.'\s*$'
+
+  " list stuff
+  let rx_bullet_chars = '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
+
+  let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars = g:vimwiki_syntax_variables[a:syntax].recurring_bullets ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
+
+  let s:number_kinds = []
+  let s:number_divisors = ""
+  for i in g:vimwiki_number_types
+    call add(s:number_kinds, i[0])
+    let s:number_divisors .= vimwiki#u#escape(i[1])
+  endfor
+
+  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
+        \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
+
+  "create regexp for bulleted list items
+  let g:vimwiki_rxListBullet = join( map(keys(bullet_types),
+        \'vimwiki#u#escape(v:val).repeat("\\+", bullet_types[v:val])'
+        \ ) , '\|')
+
+  "create regex for numbered list items
+  if !empty(g:vimwiki_number_types)
+    let g:vimwiki_rxListNumber = '\C\%('
+    for type in g:vimwiki_number_types[:-2]
+      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
+            \ vimwiki#u#escape(type[1]) . '\|'
+    endfor
+    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
+          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
+  else
+    "regex that matches nothing
+    let g:vimwiki_rxListNumber = '$^'
+  endif
+
+  "the user can set the listsyms as string, but vimwiki needs a list
+  let g:vimwiki_listsyms_list = split(vimwiki#vars#get_global('listsyms'), '\zs')
+  let s:default_syntax.rxListItemWithoutCB = '^\s*\%(\('.s:default_syntax.rxListBullet.'\)\|\('.s:default_syntax.rxListNumber.'\)\)\s'
+  let s:default_syntax.rxListItem = s:default_syntax.rxListItemWithoutCB . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms').']\)\]\s\)\?'
+  let s:default_syntax.rxListItemAndChildren = '^\(\s*\)\%('.s:default_syntax.rxListBullet.'\|'.s:default_syntax.rxListNumber.'\)\s\+\['.s:default_syntax.listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
 endfunction
 
 
@@ -191,12 +363,17 @@ function! vimwiki#vars#init()
 endfunction
 
 
-function! vimwiki#vars#get_syntaxlocal(syntax, key)
-  if !exists('g:vimwiki_syntax_variables') || !has_key(g:vimwiki_syntax_variables, a:syntax)
-    call s:populate_syntax_vars(a:syntax)
+function! vimwiki#vars#get_syntaxlocal(key, ...)
+  if a:0
+    let syntax = a:1
+  else
+    let syntax = vimwiki#vars#get_wikilocal('syntax')
+  endif
+  if !exists('g:vimwiki_syntax_variables') || !has_key(g:vimwiki_syntax_variables, syntax)
+    call vimwiki#vars#populate_syntax_vars(syntax)
   endif
 
-  return g:vimwiki_syntax_variables[a:syntax][a:key]
+  return g:vimwiki_syntax_variables[syntax][a:key]
 endfunction
 
 

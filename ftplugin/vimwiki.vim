@@ -7,8 +7,6 @@ if exists("b:did_ftplugin")
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
-call vimwiki#u#reload_regexes()
-call vimwiki#u#reload_omni_regexes()
 
 " UNDO list {{{
 " Reset the following options to undo this plugin.
@@ -78,7 +76,7 @@ function! Complete_wikifiles(findstart, base)
 
       if a:base =~# '^wiki\d:'
         let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
-        if wikinumber >= len(g:vimwiki_list)
+        if wikinumber >= vimwiki#vars#number_of_wikis()
           return []
         endif
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
@@ -141,7 +139,7 @@ setlocal formatoptions-=2
 setlocal formatoptions+=n
 
 "Create 'formatlistpat'
-let &formatlistpat = g:vimwiki_rxListItem
+let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
 
 if !empty(&langmap)
   " Valid only if langmap is a comma separated pairs of chars
@@ -532,7 +530,7 @@ endif
 noremap <silent><script><buffer>
     \ <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
 
-for s:char in keys(g:vimwiki_bullet_types)
+for s:char in keys(vimwiki#vars#get_syntaxlocal('bullet_types'))
   if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
     exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
   endif

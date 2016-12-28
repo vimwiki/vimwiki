@@ -188,7 +188,7 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if vimwiki#vars#get_wikilocal('syntax') !=? 'media'
+  if !vimwiki#vars#get_wikilocal('recurring_bullets')
     let level = indent(a:lnum)
   else
     let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
@@ -922,7 +922,7 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && a:item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('recurring_bullets') && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum,
@@ -944,7 +944,7 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_indent = 0
-  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && a:item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('recurring_bullets') && a:item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
@@ -966,7 +966,7 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if vimwiki#vars#get_wikilocal('syntax') ==? 'media' && item.type == 1 &&
+  if vimwiki#vars#get_wikilocal('recurring_bullets') && item.type == 1 &&
         \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr,
@@ -1112,7 +1112,7 @@ endfunction "}}}
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && vimwiki#vars#get_wikilocal('syntax') !=? 'media'
+    if indent(a:item.lnum) == 0 && !vimwiki#vars#get_wikilocal('recurring_bullets')
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1193,7 +1193,7 @@ endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
-  if a:item.type == 0 || vimwiki#vars#get_wikilocal('syntax') ==? 'media'
+  if a:item.type == 0 || vimwiki#vars#get_wikilocal('recurring_bullets')
     return
   endif
 
@@ -1223,7 +1223,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( vimwiki#vars#get_wikilocal('syntax') !=? 'media' ? indent(a:from) : 0 )
+  let new_indent = ( vimwiki#vars#get_wikilocal('recurring_bullets') ? 0 : indent(a:from) )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))
@@ -1460,49 +1460,6 @@ endfunction "}}}
 "handle keys }}}
 
 "misc stuff {{{
-function! vimwiki#lst#setup_marker_infos() "{{{
-  let s:rx_bullet_chars = '['.join(keys(g:vimwiki_bullet_types), '').']\+'
-
-  let s:multiple_bullet_chars = []
-  for i in keys(g:vimwiki_bullet_types)
-    if g:vimwiki_bullet_types[i] == 1
-      call add(s:multiple_bullet_chars, i)
-    endif
-  endfor
-
-  let s:number_kinds = []
-  let s:number_divisors = ""
-  for i in g:vimwiki_number_types
-    call add(s:number_kinds, i[0])
-    let s:number_divisors .= vimwiki#u#escape(i[1])
-  endfor
-
-  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
-        \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
-
-  "create regexp for bulleted list items
-  let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_types),
-        \'vimwiki#u#escape(v:val).repeat("\\+", g:vimwiki_bullet_types[v:val])'
-        \ ) , '\|')
-
-  "create regex for numbered list items
-  if !empty(g:vimwiki_number_types)
-    let g:vimwiki_rxListNumber = '\C\%('
-    for type in g:vimwiki_number_types[:-2]
-      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
-            \ vimwiki#u#escape(type[1]) . '\|'
-    endfor
-    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
-          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
-  else
-    "regex that matches nothing
-    let g:vimwiki_rxListNumber = '$^'
-  endif
-
-  "the user can set the listsyms as string, but vimwiki needs a list
-  let g:vimwiki_listsyms_list = split(vimwiki#vars#get_global('listsyms'), '\zs')
-endfunction "}}}
-
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
   let lnum = prevnonblank('.')
   let item = s:get_corresponding_item(lnum)

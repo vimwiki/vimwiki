@@ -16,7 +16,7 @@ set cpo&vim
 function! s:setup_buffer_leave() "{{{
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
-  if vimwiki#vars#get_buffer_var('wiki_nr') == -1
+  if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
     return
   endif
 
@@ -78,7 +78,7 @@ endfunction "}}}
 function! s:setup_buffer_enter() "{{{
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
-  if vimwiki#vars#get_buffer_var('wiki_nr') == -1
+  if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
     return
   endif
 

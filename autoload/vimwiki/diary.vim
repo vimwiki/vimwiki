@@ -159,7 +159,7 @@ endfunction "}}}
 " Diary index stuff }}}
 
 function! vimwiki#diary#make_note(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
+  if a:wnum > vimwiki#vars#number_of_wikis()
     echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
@@ -189,7 +189,7 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
 endfunction "}}}
 
 function! vimwiki#diary#goto_diary_index(wnum) "{{{
-  if a:wnum > len(g:vimwiki_list)
+  if a:wnum > vimwiki#vars#number_of_wikis()
     echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
