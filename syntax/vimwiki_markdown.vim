@@ -69,15 +69,12 @@ let g:vimwiki_rxHR = '^-----*$'
 let g:vimwiki_rxTableSep = '|'
 
 " Lists
-let g:vimwiki_bullet_types = { '-':0, '*':0, '+':0 }
+let g:vimwiki_bullet_types = ['-', '*', '+']
+let s:media_syntax.recurring_bullets = 0
 let g:vimwiki_number_types = ['1.']
 let g:vimwiki_list_markers = ['-', '*', '+', '1.']
 let g:vimwiki_rxListDefine = '::\%(\s\|$\)'
 call vimwiki#lst#setup_marker_infos()
-
-let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
-let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms').']\)\]\s\)\?'
-let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
 
 " Preformatted text
 let g:vimwiki_rxPreStart = '```'

@@ -310,50 +310,59 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   endif
 
   let g:vimwiki_syntax_variables[a:syntax].rxPreStart = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreStart
-  let g:vimwiki_rxPreEnd = '^\s*'.g:vimwiki_rxPreEnd.'\s*$'
+  let g:vimwiki_syntax_variables[a:syntax].rxPreEnd = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreEnd.'\s*$'
 
-  let g:vimwiki_rxMathStart = '^\s*'.g:vimwiki_rxMathStart
-  let g:vimwiki_rxMathEnd = '^\s*'.g:vimwiki_rxMathEnd.'\s*$'
+  let g:vimwiki_syntax_variables[a:syntax].rxMathStart = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathStart
+  let g:vimwiki_syntax_variables[a:syntax].rxMathEnd = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
 
   " list stuff
   let rx_bullet_chars = '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
 
   let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars = g:vimwiki_syntax_variables[a:syntax].recurring_bullets ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
 
-  let s:number_kinds = []
-  let s:number_divisors = ""
-  for i in g:vimwiki_number_types
-    call add(s:number_kinds, i[0])
-    let s:number_divisors .= vimwiki#u#escape(i[1])
+  let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
+  let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
+  for i in g:vimwiki_syntax_variables[a:syntax].number_types
+    call add(g:vimwiki_syntax_variables[a:syntax].number_kinds, i[0])
+    let g:vimwiki_syntax_variables[a:syntax].number_divisors .= vimwiki#u#escape(i[1])
   endfor
 
-  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
+  let char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
   "create regexp for bulleted list items
-  let g:vimwiki_rxListBullet = join( map(keys(bullet_types),
-        \'vimwiki#u#escape(v:val).repeat("\\+", bullet_types[v:val])'
+  if !empty(g:vimwiki_syntax_variables[a:syntax].bullet_types)
+    let g:vimwiki_syntax_variables[a:syntax].rxListBullet = join( map(g:vimwiki_syntax_variables[a:syntax].bullet_types,
+        \'vimwiki#u#escape(v:val).repeat("\\+", g:vimwiki_syntax_variables[a:syntax].recurring_bullets)'
         \ ) , '\|')
-
-  "create regex for numbered list items
-  if !empty(g:vimwiki_number_types)
-    let g:vimwiki_rxListNumber = '\C\%('
-    for type in g:vimwiki_number_types[:-2]
-      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
-            \ vimwiki#u#escape(type[1]) . '\|'
-    endfor
-    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
-          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
   else
     "regex that matches nothing
-    let g:vimwiki_rxListNumber = '$^'
+    let g:vimwiki_syntax_variables[a:syntax].rxListBullet = '$^'
+  endif
+
+  "create regex for numbered list items
+  if !empty(g:vimwiki_syntax_variables[a:syntax].number_types)
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '\C\%('
+    for type in g:vimwiki_syntax_variables[a:syntax].number_types[:-2]
+      let g:vimwiki_syntax_variables[a:syntax].rxListNumber .= char_to_rx[type[0]] .
+            \ vimwiki#u#escape(type[1]) . '\|'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber .= char_to_rx[g:vimwiki_syntax_variables[a:syntax].number_types[-1][0]].
+          \ vimwiki#u#escape(g:vimwiki_syntax_variables[a:syntax].number_types[-1][1]) . '\)'
+  else
+    "regex that matches nothing
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '$^'
   endif
 
   "the user can set the listsyms as string, but vimwiki needs a list
-  let g:vimwiki_listsyms_list = split(vimwiki#vars#get_global('listsyms'), '\zs')
-  let s:default_syntax.rxListItemWithoutCB = '^\s*\%(\('.s:default_syntax.rxListBullet.'\)\|\('.s:default_syntax.rxListNumber.'\)\)\s'
-  let s:default_syntax.rxListItem = s:default_syntax.rxListItemWithoutCB . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms').']\)\]\s\)\?'
-  let s:default_syntax.rxListItemAndChildren = '^\(\s*\)\%('.s:default_syntax.rxListBullet.'\|'.s:default_syntax.rxListNumber.'\)\s\+\['.s:default_syntax.listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+  let g:vimwiki_syntax_variables[a:syntax].listsyms_list = split(vimwiki#vars#get_global('listsyms'), '\zs')
+  let g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\|\('.g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\)\s'
+  let g:vimwiki_syntax_variables[a:syntax].rxListItem = g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms').']\)\]\s\)\?'
+  if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
+    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren = '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\['.g:vimwiki_syntax_variables[a:syntax].listsyms_list[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
+  else
+    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'.g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\['.g:vimwiki_syntax_variables[a:syntax].listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+  endif
 endfunction
 
 
