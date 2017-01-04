@@ -24,98 +24,6 @@ function! s:vimwiki_get_known_syntaxes() " {{{
   return keys(syntaxes)
 endfunction " }}}
 
-" vimwiki#base#apply_wiki_options
-function! vimwiki#base#apply_wiki_options(options) " {{{ Update the current
-  " wiki using the options dictionary
-  for kk in keys(a:options)
-    let g:vimwiki_list[g:vimwiki_current_idx][kk] = a:options[kk]
-  endfor
-  call Validate_wiki_options(g:vimwiki_current_idx)
-  call vimwiki#base#setup_buffer_state(g:vimwiki_current_idx)
-endfunction " }}}
-
-" vimwiki#base#read_wiki_options
-function! vimwiki#base#read_wiki_options(check) " {{{ Attempt to read wiki
-  " options from the current page's directory, or its ancesters.  If a file
-  "   named vimwiki.vimrc is found, which declares a wiki-options dictionary
-  "   named g:local_wiki, a message alerts the user that an update has been
-  "   found and may be applied.  If the argument check=1, the user is queried
-  "   before applying the update to the current wiki's option.
-
-  " Save global vimwiki options ... after all, the global list is often
-  "   initialized for the first time in vimrc files, and we don't want to
-  "   overwrite !!  (not to mention all the other globals ...)
-  let l:vimwiki_list = deepcopy(g:vimwiki_list, 1)
-  "
-  if a:check > 1
-    call vimwiki#base#print_wiki_state()
-    echo " \n"
-  endif
-  "
-  let g:local_wiki = {}
-  let done = 0
-  " ... start the wild-goose chase!
-  for invsubdir in ['.', '..', '../..', '../../..']
-    " other names are possible, but most vimrc files will cause grief!
-    for nm in ['vimwiki.vimrc']
-      " TODO: use an alternate strategy, instead of source, to read options
-      if done
-        continue
-      endif
-      "
-      let local_wiki_options_filename = expand('%:p:h').'/'.invsubdir.'/'.nm
-      if !filereadable(local_wiki_options_filename)
-        continue
-      endif
-      "
-      echo "\nFound file : ".local_wiki_options_filename
-      let query = "Vimwiki: Check for options in this file [Y]es/[n]o? "
-      if a:check > 0 && input(query) =~? '^n')
-        continue
-      endif
-      "
-      try
-        execute 'source '.local_wiki_options_filename
-      catch
-      endtry
-      if empty(g:local_wiki)
-        continue
-      endif
-      "
-      if a:check > 0
-        echo "\n\nFound wiki options\n  g:local_wiki = ".string(g:local_wiki)
-        let query = "Vimwiki: Apply these options [Y]es/[n]o? "
-        if input(query) =~? '^n'
-          let g:local_wiki = {}
-          continue
-        endif
-      endif
-      "
-      " restore global list
-      " - this prevents corruption by g:vimwiki_list in options_file
-      let g:vimwiki_list = deepcopy(l:vimwiki_list, 1)
-      "
-      call vimwiki#base#apply_wiki_options(g:local_wiki)
-      let done = 1
-    endfor
-  endfor
-  if !done
-    "
-    " restore global list, if no local options were found
-    " - this prevents corruption by g:vimwiki_list in options_file
-    let g:vimwiki_list = deepcopy(l:vimwiki_list, 1)
-    "
-  endif
-  if a:check > 1
-    echo " \n "
-    if done
-      call vimwiki#base#print_wiki_state()
-    else
-      echo "Vimwiki: No options were applied."
-    endif
-  endif
-endfunction " }}}
-
 " vimwiki#base#setup_buffer_state
 function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variables
   " Only call this function *after* opening a wiki page.
@@ -152,24 +60,6 @@ function! vimwiki#base#recall_buffer_state() "{{{
     return 1
   endif
 endfunction " }}}
-
-" vimwiki#base#print_wiki_state
-function! vimwiki#base#print_wiki_state() "{{{ print wiki options
-  "   and buffer state variables
-  let g_width = 18
-  let b_width = 18
-  echo "- Wiki Options (idx=".g:vimwiki_current_idx.") -"
-  for kk in VimwikiGetOptionNames()
-      echo "  '".kk."': ".repeat(' ', g_width-len(kk)).string(VimwikiGet(kk))
-  endfor
-  if !exists('b:vimwiki_list')
-    return
-  endif
-  echo "- Cached Variables -"
-  for kk in keys(b:vimwiki_list)
-    echo "  '".kk."': ".repeat(' ', b_width-len(kk)).string(b:vimwiki_list[kk])
-  endfor
-endfunction "}}}
 
 " vimwiki#base#file_pattern
 function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
