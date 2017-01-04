@@ -131,9 +131,9 @@ function! s:populate_global_variables()
         \ g:vimwiki_global_vars.rxWikiLinkUrl . g:vimwiki_global_vars.rx_wikilink_separator.'\%('.
         \ '\zs'. g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'. g:vimwiki_global_vars.rx_wikilink_suffix
 
-  let rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl .
+  let g:vimwiki_global_vars.rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl .
         \ g:vimwiki_global_vars.rx_wikilink_separator
-  let rx_wikilink_suffix1 = g:vimwiki_global_vars.rx_wikilink_suffix
+  let g:vimwiki_global_vars.rx_wikilink_suffix1 = g:vimwiki_global_vars.rx_wikilink_suffix
 
   let g:vimwiki_global_vars.rxWikiInclPrefix = '{{'
   let g:vimwiki_global_vars.rxWikiInclSuffix = '}}'
@@ -180,6 +180,13 @@ function! s:populate_global_variables()
       \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_global_vars.rxWeblink
 
   let g:vimwiki_global_vars.rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
+
+  " default colors when headers of different levels are highlighted differently
+  " not making it yet another option; needed by ColorScheme autocommand
+  let g:vimwiki_global_vars.hcolor_guifg_light = ['#aa5858', '#507030', '#1030a0', '#103040', '#505050', '#636363']
+  let g:vimwiki_global_vars.hcolor_ctermfg_light = ['DarkRed', 'DarkGreen', 'DarkBlue', 'Black', 'Black', 'Black']
+  let g:vimwiki_global_vars.hcolor_guifg_dark = ['#e08090', '#80e090', '#6090e0', '#c0c0f0', '#e0e0f0', '#f0f0f0']
+  let g:vimwiki_global_vars.hcolor_ctermfg_dark = ['Red', 'Green', 'Blue', 'White', 'White', 'White']
 endfunction
 
 
@@ -292,19 +299,19 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   if g:vimwiki_syntax_variables[a:syntax].symH
     " symmetric headers
     for i in range(1,6)
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Template = repeat(header_symbol, i).' __Header__ '.repeat(header_symbol, i)
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i} = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Start = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_End = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{1,'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] = repeat(header_symbol, i).' __Header__ '.repeat(header_symbol, i)
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'.header_symbol.'\{1,'.i.'}\s*$'
     endfor
     let g:vimwiki_syntax_variables[a:syntax].rxHeader = '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
   else
     " asymmetric
     for i in range(1,6)
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Template = repeat(header_symbol, i).' __Header__'
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i} = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_Start = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
-      let g:vimwiki_syntax_variables[a:syntax].rxH{i}_End = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] = repeat(header_symbol, i).' __Header__'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] = '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] = '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
     endfor
     let g:vimwiki_syntax_variables[a:syntax].rxHeader = '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
   endif

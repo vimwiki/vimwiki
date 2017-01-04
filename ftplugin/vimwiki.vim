@@ -530,7 +530,7 @@ endif
 noremap <silent><script><buffer>
     \ <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
 
-for s:char in keys(vimwiki#vars#get_syntaxlocal('bullet_types'))
+for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
   if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
     exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
   endif
@@ -539,7 +539,7 @@ for s:char in keys(vimwiki#vars#get_syntaxlocal('bullet_types'))
   endif
 endfor
 
-for s:typ in g:vimwiki_number_types
+for s:typ in vimwiki#vars#get_syntaxlocal('number_types')
   if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>')
     exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
   endif

@@ -12,9 +12,9 @@ endif
 
 if vimwiki#vars#get_wikilocal('maxhi')
   let b:existing_wikifiles =
-        \ vimwiki#base#get_wikilinks(g:vimwiki_current_idx, 1)
+        \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1)
   let b:existing_wikidirs  =
-        \ vimwiki#base#get_wiki_directories(g:vimwiki_current_idx)
+        \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr'))
 endif
 
 let s:current_syntax = vimwiki#vars#get_wikilocal('syntax')
@@ -140,7 +140,7 @@ call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 " Header levels, 1-6
 for s:i in range(1,6)
   
-  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.si, s:current_syntax).'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,@Spell'
+  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,@Spell'
   execute 'syntax region VimwikiH'.s:i.'Folding start=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_Start', s:current_syntax).
         \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_End', s:current_syntax).'/me=s-1 transparent fold'
 endfor
@@ -240,48 +240,48 @@ execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_syntaxlocal('rxListItem').'/'
 
 if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'\s*\['.g:vimwiki_listsyms_list[4].'\]\s.*$/ '.
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'\s*\['.vimwiki#vars#get_syntaxlocal('listsyms_list')[4].'\]\s.*$/ '.
         \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
-  execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemAndChildren.'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemAndChildren').'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 endif
 
 
-execute 'syntax match VimwikiEqIn /'.g:vimwiki_rxEqIn.'/ contains=VimwikiEqInChar'
-execute 'syntax match VimwikiEqInT /'.g:vimwiki_rxEqIn.'/ contained contains=VimwikiEqInCharT'
+execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').'/ contains=VimwikiEqInChar'
+execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').'/ contained contains=VimwikiEqInCharT'
 
-execute 'syntax match VimwikiBold /'.g:vimwiki_rxBold.'/ contains=VimwikiBoldChar,@Spell'
-execute 'syntax match VimwikiBoldT /'.g:vimwiki_rxBold.'/ contained contains=VimwikiBoldCharT,@Spell'
+execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').'/ contains=VimwikiBoldChar,@Spell'
+execute 'syntax match VimwikiBoldT /'.vimwiki#vars#get_syntaxlocal('rxBold').'/ contained contains=VimwikiBoldCharT,@Spell'
 
-execute 'syntax match VimwikiItalic /'.g:vimwiki_rxItalic.'/ contains=VimwikiItalicChar,@Spell'
-execute 'syntax match VimwikiItalicT /'.g:vimwiki_rxItalic.'/ contained contains=VimwikiItalicCharT,@Spell'
+execute 'syntax match VimwikiItalic /'.vimwiki#vars#get_syntaxlocal('rxItalic').'/ contains=VimwikiItalicChar,@Spell'
+execute 'syntax match VimwikiItalicT /'.vimwiki#vars#get_syntaxlocal('rxItalic').'/ contained contains=VimwikiItalicCharT,@Spell'
 
-execute 'syntax match VimwikiBoldItalic /'.g:vimwiki_rxBoldItalic.'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiBoldItalicT /'.g:vimwiki_rxBoldItalic.'/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
+execute 'syntax match VimwikiBoldItalic /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiBoldItalicT /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').'/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
 
-execute 'syntax match VimwikiItalicBold /'.g:vimwiki_rxItalicBold.'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiItalicBoldT /'.g:vimwiki_rxItalicBold.'/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
+execute 'syntax match VimwikiItalicBold /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').'/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiItalicBoldT /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').'/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
 
-execute 'syntax match VimwikiDelText /'.g:vimwiki_rxDelText.'/ contains=VimwikiDelTextChar,@Spell'
-execute 'syntax match VimwikiDelTextT /'.g:vimwiki_rxDelText.'/ contained contains=VimwikiDelTextChar,@Spell'
+execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').'/ contains=VimwikiDelTextChar,@Spell'
+execute 'syntax match VimwikiDelTextT /'.vimwiki#vars#get_syntaxlocal('rxDelText').'/ contained contains=VimwikiDelTextChar,@Spell'
 
-execute 'syntax match VimwikiSuperScript /'.g:vimwiki_rxSuperScript.'/ contains=VimwikiSuperScriptChar,@Spell'
-execute 'syntax match VimwikiSuperScriptT /'.g:vimwiki_rxSuperScript.'/ contained contains=VimwikiSuperScriptCharT,@Spell'
+execute 'syntax match VimwikiSuperScript /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').'/ contains=VimwikiSuperScriptChar,@Spell'
+execute 'syntax match VimwikiSuperScriptT /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').'/ contained contains=VimwikiSuperScriptCharT,@Spell'
 
-execute 'syntax match VimwikiSubScript /'.g:vimwiki_rxSubScript.'/ contains=VimwikiSubScriptChar,@Spell'
-execute 'syntax match VimwikiSubScriptT /'.g:vimwiki_rxSubScript.'/ contained contains=VimwikiSubScriptCharT,@Spell'
+execute 'syntax match VimwikiSubScript /'.vimwiki#vars#get_syntaxlocal('rxSubScript').'/ contains=VimwikiSubScriptChar,@Spell'
+execute 'syntax match VimwikiSubScriptT /'.vimwiki#vars#get_syntaxlocal('rxSubScript').'/ contained contains=VimwikiSubScriptCharT,@Spell'
 
-execute 'syntax match VimwikiCode /'.g:vimwiki_rxCode.'/ contains=VimwikiCodeChar'
-execute 'syntax match VimwikiCodeT /'.g:vimwiki_rxCode.'/ contained contains=VimwikiCodeCharT'
+execute 'syntax match VimwikiCode /'.vimwiki#vars#get_syntaxlocal('rxCode').'/ contains=VimwikiCodeChar'
+execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').'/ contained contains=VimwikiCodeCharT'
 
 " <hr> horizontal rule
-execute 'syntax match VimwikiHR /'.g:vimwiki_rxHR.'/'
+execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
-execute 'syntax region VimwikiPre start=/'.g:vimwiki_rxPreStart.
-      \ '/ end=/'.g:vimwiki_rxPreEnd.'/ contains=@Spell'
+execute 'syntax region VimwikiPre start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@Spell'
 
-execute 'syntax region VimwikiMath start=/'.g:vimwiki_rxMathStart.
-      \ '/ end=/'.g:vimwiki_rxMathEnd.'/ contains=@Spell'
+execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@Spell'
 
 
 " placeholders
@@ -298,11 +298,11 @@ if vimwiki#vars#get_global('valid_html_tags') != ''
   execute 'syntax match VimwikiItalic #\c<i>.\{-}</i># contains=VimwikiHTMLTag'
   execute 'syntax match VimwikiUnderline #\c<u>.\{-}</u># contains=VimwikiHTMLTag'
 
-  execute 'syntax match VimwikiComment /'.g:vimwiki_rxComment.'/ contains=@Spell'
+  execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').'/ contains=@Spell'
 endif
 
 " tags
-execute 'syntax match VimwikiTag /'.g:vimwiki_rxTags.'/'
+execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
 
 " }}}
 
@@ -317,14 +317,8 @@ if vimwiki#vars#get_global('hl_headers') == 0
     execute 'hi def link VimwikiHeader'.s:i.' Title'
   endfor
 else
-  " default colors when headers of different levels are highlighted differently 
-  " not making it yet another option; needed by ColorScheme autocommand
-  let g:vimwiki_hcolor_guifg_light = ['#aa5858','#507030','#1030a0','#103040','#505050','#636363']
-  let g:vimwiki_hcolor_ctermfg_light = ['DarkRed','DarkGreen','DarkBlue','Black','Black','Black']
-  let g:vimwiki_hcolor_guifg_dark = ['#e08090','#80e090','#6090e0','#c0c0f0','#e0e0f0','#f0f0f0']
-  let g:vimwiki_hcolor_ctermfg_dark = ['Red','Green','Blue','White','White','White']
   for s:i in range(1,6)
-    execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[s:i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[s:i-1].' term=bold cterm=bold'
+    execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='.vimwiki#vars#get_global('hcolor_guifg_'.&bg)[s:i-1].' gui=bold ctermfg='.vimwiki#vars#get_global('ctermfg_'.&bg)[s:i-1].' term=bold cterm=bold'
   endfor
 endif
 "}}}
@@ -427,16 +421,16 @@ endif
 if !empty(s:nested)
   for [s:hl_syntax, s:vim_syntax] in items(s:nested)
     call vimwiki#base#nested_syntax(s:vim_syntax,
-          \ g:vimwiki_rxPreStart.'\%(.*[[:blank:][:punct:]]\)\?'.
+          \ vimwiki#vars#get_syntaxlocal('rxPreStart').'\%(.*[[:blank:][:punct:]]\)\?'.
           \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
-          \ g:vimwiki_rxPreEnd, 'VimwikiPre')
+          \ vimwiki#vars#get_syntaxlocal('rxPreEnd'), 'VimwikiPre')
   endfor
 endif
 " LaTeX
 call vimwiki#base#nested_syntax('tex', 
-      \ g:vimwiki_rxMathStart.'\%(.*[[:blank:][:punct:]]\)\?'.
+      \ vimwiki#vars#get_syntaxlocal('rxMathStart').'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
-      \ g:vimwiki_rxMathEnd, 'VimwikiMath')
+      \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')
 "}}}
 
 

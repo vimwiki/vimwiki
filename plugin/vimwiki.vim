@@ -141,7 +141,7 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   hi def VimwikiUnderline gui=underline
   if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
-      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.g:vimwiki_hcolor_guifg_{&bg}[i-1].' gui=bold ctermfg='.g:vimwiki_hcolor_ctermfg_{&bg}[i-1].' term=bold cterm=bold' 
+      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.vimwiki#vars#get_global('hcolor_guifg_'.&bg)[i-1].' gui=bold ctermfg='.vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[i-1].' term=bold cterm=bold' 
     endfor
   endif
 endfunction "}}}
