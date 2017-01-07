@@ -17,20 +17,20 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   " construct list of references using vimgrep
   try
     " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
-    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    noautocmd execute 'vimgrep #'.vimwiki#vars#get_syntaxlocal('rxMkdRef').'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
   " 
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-    let descr = matchstr(matchline, g:vimwiki_rxMkdRefMatchDescr)
-    let url = matchstr(matchline, g:vimwiki_rxMkdRefMatchUrl)
+    let descr = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchDescr'))
+    let url = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchUrl'))
     if descr != '' && url != ''
       let mkd_refs[descr] = url
     endif
   endfor
-  call VimwikiSet('markdown_refs', mkd_refs)
+  call vimwiki#vars#set_bufferlocal('markdown_refs', mkd_refs)
   return mkd_refs
 endfunction "}}}
 
@@ -39,7 +39,7 @@ endfunction "}}}
 function! vimwiki#markdown_base#get_reflinks() " {{{
   let done = 1
   try
-    let mkd_refs = VimwikiGet('markdown_refs')
+    let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   catch
     " work-around hack
     let done = 0
@@ -92,17 +92,17 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     endif
 
     " try WikiLink
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
-          \ g:vimwiki_rxWikiLinkMatchUrl)
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiLink')),
+          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'))
     " try WikiIncl
     if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl),
-          \ g:vimwiki_rxWikiInclMatchUrl)
+      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
+          \ vimwiki#vars#get_global('rxWikiInclMatchUrl'))
     endif
     " try Weblink
     if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
-            \ g:vimwiki_rxWeblinkMatchUrl)
+      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWeblink')),
+            \ vimwiki#vars#get_global('rxWeblinkMatchUrl'))
     endif
 
     if lnk != ""
@@ -132,50 +132,50 @@ function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
   " try WikiIncl
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl'))
   if !empty(lnk)
     " NO-OP !!
     return
   endif
 
   " try WikiLink0: replace with WikiLink1
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
-          \ g:vimwiki_WikiLink1Template2)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink0, sub)
+          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('WikiLink1Template2'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'), sub)
     return
   endif
   
   " try WikiLink1: replace with WikiLink0
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
-          \ g:vimwiki_WikiLinkTemplate2)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink1, sub)
+          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_global('WikiLinkTemplate2'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), sub)
     return
   endif
   
   " try Weblink
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWeblink'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
-          \ g:vimwiki_Weblink1Template)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
+          \ vimwiki#vars#get_global('rxWeblinkMatchUrl'), vimwiki#vars#get_global('rxWeblinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_global('rxWeblink'), sub)
     return
   endif
 
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWord, '',
-          \ g:vimwiki_Weblink1Template)
+          \ vimwiki#vars#get_global('rxWord'), '',
+          \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
@@ -194,7 +194,7 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = substitute(g:vimwiki_Weblink1Template, '__LinkUrl__', '\='."'".visual_selection."'", '')
+    let link = substitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'), '__LinkUrl__', '\='."'".visual_selection."'", '')
     let link = substitute(link, '__LinkDescription__', '\='."'".visual_selection."'", '')
 
     call setreg('"', link, 'v')

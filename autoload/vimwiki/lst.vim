@@ -109,7 +109,7 @@ else
 endif "}}}
 
 function! vimwiki#lst#default_symbol() "{{{
-  return g:vimwiki_list_markers[0]
+  return vimwiki#vars#get_syntaxlocal('list_markers')[0]
 endfunction "}}}
 
 function! vimwiki#lst#get_list_margin() "{{{
@@ -124,16 +124,16 @@ endfunction "}}}
 "Returns: the column where the text of a line starts (possible list item
 "markers and checkboxes are skipped)
 function! s:text_begin(lnum) "{{{
-  return s:string_length(matchstr(getline(a:lnum), g:vimwiki_rxListItem))
+  return s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem')))
 endfunction "}}}
 
 "Returns: 2 if there is a marker and text
 " 1 for a marker and no text
 " 0 for no marker at all (empty line or only text)
 function! s:line_has_marker(lnum) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*$'
+  if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*$'
     return 1
-  elseif getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*\S'
+  elseif getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*\S'
     return 2
   else
     return 0
@@ -157,7 +157,7 @@ function! s:get_item(lnum) "{{{
     return item
   endif
 
-  let matches = matchlist(getline(a:lnum), g:vimwiki_rxListItem)
+  let matches = matchlist(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem'))
   if matches == [] ||
         \ (matches[1] == '' && matches[2] == '') ||
         \ (matches[1] != '' && matches[2] != '')
@@ -377,10 +377,10 @@ endfunction "}}}
 "If there is no second argument, 0 is returned at a header, otherwise the
 "header is skipped
 function! s:get_next_line(lnum, ...) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxPreStart
+  if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     let cur_ln = a:lnum + 1
     while cur_ln <= line('$') &&
-          \ getline(cur_ln) !~# g:vimwiki_rxPreEnd
+          \ getline(cur_ln) !~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
       let cur_ln += 1
     endwhile
     let next_line = cur_ln
@@ -388,12 +388,12 @@ function! s:get_next_line(lnum, ...) "{{{
     let next_line = nextnonblank(a:lnum+1)
   endif
 
-  if a:0 > 0 && getline(next_line) =~# g:vimwiki_rxHeader
+  if a:0 > 0 && getline(next_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let next_line = s:get_next_line(next_line, 1)
   endif
 
   if next_line < 0 || next_line > line('$') ||
-        \ (getline(next_line) =~# g:vimwiki_rxHeader && a:0 == 0)
+        \ (getline(next_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader') && a:0 == 0)
     return 0
   endif
 
@@ -405,10 +405,10 @@ endfunction "}}}
 function! s:get_prev_line(lnum) "{{{
   let prev_line = prevnonblank(a:lnum-1)
 
-  if getline(prev_line) =~# g:vimwiki_rxPreEnd
+  if getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     let cur_ln = a:lnum - 1
     while 1
-      if cur_ln == 0 || getline(cur_ln) =~# g:vimwiki_rxPreStart
+      if cur_ln == 0 || getline(cur_ln) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
         break
       endif
       let cur_ln -= 1
@@ -417,7 +417,7 @@ function! s:get_prev_line(lnum) "{{{
   endif
 
   if prev_line < 0 || prev_line > line('$') ||
-        \ getline(prev_line) =~# g:vimwiki_rxHeader
+        \ getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     return 0
   endif
 
@@ -694,7 +694,7 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  return index(g:vimwiki_listsyms_list, state) * 25
+  return index(vimwiki#vars#get_syntaxlocal('listsyms_list'), state) * 25
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -731,15 +731,15 @@ endfunction "}}}
 function! s:rate_to_state(rate) "{{{
   let state = ''
   if a:rate == 100
-    let state = g:vimwiki_listsyms_list[4]
+    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[4]
   elseif a:rate == 0
-    let state = g:vimwiki_listsyms_list[0]
+    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
   elseif a:rate >= 67
-    let state = g:vimwiki_listsyms_list[3]
+    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[3]
   elseif a:rate >= 34
-    let state = g:vimwiki_listsyms_list[2]
+    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[2]
   else
-    let state = g:vimwiki_listsyms_list[1]
+    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[1]
   endif
   return state
 endfunction "}}}
@@ -793,7 +793,7 @@ function! s:create_cb(item) "{{{
   endif
 
   let new_item = a:item
-  let new_item.cb = g:vimwiki_listsyms_list[0]
+  let new_item.cb = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
   call s:substitute_rx_in_line(new_item.lnum,
         \ vimwiki#u#escape(new_item.mrkr) . '\zs\ze', ' [' . new_item.cb . ']')
 
@@ -1081,31 +1081,33 @@ function! s:get_idx_list_markers(item) "{{{
   else
     let m = s:guess_kind_of_numbered_item(a:item) . a:item.mrkr[-1:]
   endif
-  return index(g:vimwiki_list_markers, m)
+  return index(vimwiki#vars#get_syntaxlocal('list_markers'), m)
 endfunction "}}}
 
 "changes the marker of the given item to the next in g:vimwiki_list_markers
 function! s:get_next_mrkr(item) "{{{
+  let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
-    let new_mrkr = g:vimwiki_list_markers[0]
+    let new_mrkr = markers[0]
   else
     let idx = s:get_idx_list_markers(a:item)
-    let new_mrkr = g:vimwiki_list_markers[(idx+1) % len(g:vimwiki_list_markers)]
+    let new_mrkr = markers[(idx+1) % len(markers)]
   endif
   return new_mrkr
 endfunction "}}}
 
 "changes the marker of the given item to the previous in g:vimwiki_list_markers
 function! s:get_prev_mrkr(item) "{{{
+  let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
-    return g:vimwiki_list_markers[-1]
+    return markers[-1]
   endif
   let idx = s:get_idx_list_markers(a:item)
   if idx == -1
-    return g:vimwiki_list_markers[-1]
+    return markers[-1]
   else
-    return g:vimwiki_list_markers[(idx - 1 + len(g:vimwiki_list_markers)) %
-          \ len(g:vimwiki_list_markers)]
+    return markers[(idx - 1 + len(markers)) %
+          \ len(markers)]
   endif
 endfunction "}}}
 
@@ -1260,7 +1262,7 @@ function! s:create_marker(lnum) "{{{
     call s:clone_marker_from_to(new_sibling.lnum, a:lnum)
   else
     let cur_item = s:get_item(a:lnum)
-    call s:set_new_mrkr(cur_item, g:vimwiki_list_markers[0])
+    call s:set_new_mrkr(cur_item, vimwiki#vars#get_syntaxlocal('list_markers')[0])
     call s:adjust_numbered_list(cur_item, 0, 0)
   endif
 endfunction "}}}

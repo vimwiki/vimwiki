@@ -24,43 +24,6 @@ function! s:vimwiki_get_known_syntaxes() " {{{
   return keys(syntaxes)
 endfunction " }}}
 
-" vimwiki#base#setup_buffer_state
-function! vimwiki#base#setup_buffer_state(idx) " {{{ Init page-specific variables
-  " Only call this function *after* opening a wiki page.
-  if a:idx < 0
-    return
-  endif
-
-  let g:vimwiki_current_idx = a:idx
-
-  " The following state depends on the current active wiki page
-  let subdir = vimwiki#base#current_subdir(a:idx)
-  call VimwikiSet('subdir', subdir, a:idx)
-  call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir), a:idx)
-
-  if vimwiki#vars#get_global('auto_chdir') == 1
-    exe 'lcd' vimwiki#vars#get_wikilocal('path')
-  endif
-
-  " update cache
-  call vimwiki#base#cache_buffer_state()
-endfunction " }}}
-
-" vimwiki#base#cache_buffer_state
-function! vimwiki#base#cache_buffer_state() "{{{
-  let b:vimwiki_idx = g:vimwiki_current_idx
-endfunction "}}}
-
-" vimwiki#base#recall_buffer_state
-function! vimwiki#base#recall_buffer_state() "{{{
-  if !exists('b:vimwiki_idx')
-    return 0
-  else
-    let g:vimwiki_current_idx = b:vimwiki_idx
-    return 1
-  endif
-endfunction " }}}
-
 " vimwiki#base#file_pattern
 function! vimwiki#base#file_pattern(files) "{{{ Get search regex from glob()
   " string. Aim to support *all* special characters, forcing the user to choose
@@ -97,8 +60,8 @@ function! vimwiki#base#subdir(path, filename) "{{{
 endfunction "}}}
 
 " vimwiki#base#current_subdir
-function! vimwiki#base#current_subdir(idx)"{{{
-  return vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path', a:idx), expand('%:p'))
+function! vimwiki#base#current_subdir()"{{{
+  return vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), expand('%:p'))
 endfunction"}}}
 
 " vimwiki#base#invsubdir
@@ -1229,7 +1192,7 @@ endfunction "}}}
 " vimwiki#base#rename_link
 " Rename current file, update all links to it
 function! vimwiki#base#rename_link() "{{{
-  let subdir = VimwikiGet('subdir')
+  let subdir = vimwiki#vars#get_bufferlocal('subdir')
   let old_fname = subdir.expand('%:t')
 
   " there is no file (new one maybe)

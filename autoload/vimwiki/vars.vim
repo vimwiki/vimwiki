@@ -401,11 +401,18 @@ function! vimwiki#vars#get_bufferlocal(key)
   elseif a:key ==# 'wiki_nr'
     let b:vimwiki_wiki_nr = vimwiki#base#find_wiki(expand('%:p'))
     return b:vimwiki_wiki_nr
+  elseif a:key ==# 'subdir'
+    let b:vimwiki_subdir = vimwiki#base#current_subdir()
+    return b:vimwiki_subdir
+  elseif a:key ==# 'invsubdir'
+    let subdir = vimwiki#vars#get_bufferlocal('subdir')
+    let b:vimwiki_invsubdir = vimwiki#base#invsubdir(subdir)
+    return b:vimwiki_invsubdir
   endif
 endfunction
 
 
-function! vimwiki#vars#set_buffer_var(key, value)
+function! vimwiki#vars#set_bufferlocal(key, value)
   let b:vimwiki_{a:key} = a:value
 endfunction
 

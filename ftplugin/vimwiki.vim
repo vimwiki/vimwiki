@@ -86,7 +86,7 @@ function! Complete_wikifiles(findstart, base)
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
       else " current wiki
-        let wikinumber = g:vimwiki_current_idx
+        let wikinumber = vimwiki#vars#get_bufferlocal('wiki_nr')
         let prefix = a:base
         let scheme = ''
       endif
@@ -168,12 +168,12 @@ function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
 
   " Header/section folding...
-  if line =~# g:vimwiki_rxHeader
+  if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     return '>'.vimwiki#u#count_first_sym(line)
   " Code block folding...
-  elseif line =~# g:vimwiki_rxPreStart
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     return 'a1'
-  elseif line =~# g:vimwiki_rxPreEnd
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     return 's1'
   else
     return "="
@@ -219,7 +219,7 @@ function! VimwikiFoldText() "{{{
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
   let len_text = ' ['.fold_len.'] '
-  if line !~# g:vimwiki_rxPreStart
+  if line !~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     let [main_text, spare_len] = s:shorten_text(main_text, 50)
     return main_text.len_text
   else

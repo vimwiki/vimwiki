@@ -21,12 +21,12 @@ function! s:prefix_zero(num) "{{{
 endfunction "}}}
 
 function! s:diary_path(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
+  let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
 endfunction "}}}
 
 function! s:diary_index(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
+  let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx)
 endfunction "}}}
 
@@ -62,14 +62,15 @@ endfun "}}}
 " Diary index stuff {{{
 fun! s:read_captions(files) "{{{
   let result = {}
+  let rx_header = vimwiki#vars#get_syntaxlocal('rxHeader')
   for fl in a:files
     " remove paths and extensions
     let fl_key = fnamemodify(fl, ':t:r')
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
-        if line =~# g:vimwiki_rxHeader && !has_key(result, fl_key)
-          let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+        if line =~# rx_header && !has_key(result, fl_key)
+          let result[fl_key] = vimwiki#u#trim(matchstr(line, rx_header))
         endif
       endfor
     endif
@@ -132,19 +133,19 @@ function! s:format_diary() "{{{
 
   for year in s:sort(keys(g_files))
     call add(result, '')
-    call add(result, substitute(g:vimwiki_rxH2_Template, '__Header__', year , ''))
+    call add(result, substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', year , ''))
 
     for month in s:sort(keys(g_files[year]))
       call add(result, '')
-      call add(result, substitute(g:vimwiki_rxH3_Template, '__Header__', s:get_month_name(month), ''))
+      call add(result, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'), '__Header__', s:get_month_name(month), ''))
 
       for [fl, cap] in s:sort(items(g_files[year][month]))
         if empty(cap)
-          let entry = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', fl, '')
+          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
           call add(result, repeat(' ', &sw).'* '.entry)
         else
-          let entry = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__', fl, '')
+          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
           call add(result, repeat(' ', &sw).'* '.entry)
         endif
@@ -185,7 +186,6 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
   endif
 
   call vimwiki#base#open_link(cmd, link, s:diary_index(idx))
-  call vimwiki#base#setup_buffer_state(idx)
 endfunction "}}}
 
 function! vimwiki#diary#goto_diary_index(wnum) "{{{
@@ -202,7 +202,6 @@ function! vimwiki#diary#goto_diary_index(wnum) "{{{
   endif
 
   call vimwiki#base#edit_file('e', s:diary_index(idx), '')
-  call vimwiki#base#setup_buffer_state(idx)
 endfunction "}}}
 
 function! vimwiki#diary#goto_next_day() "{{{
@@ -249,7 +248,7 @@ function! vimwiki#diary#generate_diary_section() "{{{
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
   if vimwiki#path#is_equal(current_file, diary_file)
-    let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.g:vimwiki_rxHeader.'\)'
+    let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)'
     call vimwiki#base#update_listing_in_buffer(s:format_diary(),
           \ vimwiki#vars#get_wikilocal('diary_header'), content_rx, line('$')+1, 1)
   else
@@ -278,7 +277,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
   endif
 
   " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(g:vimwiki_current_idx+1, 0, link)
+  call vimwiki#diary#make_note(vimwiki#vars#get_bufferlocal('wiki_nr')+1, 0, link)
 endfunction "}}}
 
 " Sign function.

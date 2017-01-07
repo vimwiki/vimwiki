@@ -19,7 +19,7 @@ let s:textwidth = &tw
 
 " Misc functions {{{
 function! s:rxSep() "{{{
-  return g:vimwiki_rxTableSep
+  return vimwiki#vars#get_syntaxlocal('rxTableSep')
 endfunction "}}}
 
 function! s:wide_len(str) "{{{
