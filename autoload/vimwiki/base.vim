@@ -1992,8 +1992,8 @@ function! vimwiki#base#normalize_link(is_visual_mode) "{{{
   else
     if !a:is_visual_mode
       call s:normalize_link_syntax_n()
-    elseif visualmode() ==# 'v' && line("'<") == line("'>")
-      " action undefined for 'line-wise' or 'multi-line' visual mode selections
+    elseif line("'<") == line("'>")
+      " action undefined for multi-line visual mode selections
       call s:normalize_link_syntax_v()
     endif
   endif
