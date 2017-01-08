@@ -1974,7 +1974,7 @@ function! s:normalize_link_syntax_v() " {{{
     endif
 
     " Put substitution in register " and change text
-    call setreg('"', sub, 'v')
+    call setreg('"', substitute(sub, '\n', '', ''), visualmode())
     normal! `>""pgvd
   finally
     call setreg('"', rv, rt)

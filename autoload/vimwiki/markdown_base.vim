@@ -197,7 +197,7 @@ function! s:normalize_link_syntax_v() " {{{
     let link = substitute(g:vimwiki_Weblink1Template, '__LinkUrl__', '\=visual_selection', '')
     let link = substitute(link, '__LinkDescription__', '\=visual_selection', '')
 
-    call setreg('"', link, 'v')
+    call setreg('"', substitute(link, '\n', '', ''), visualmode())
 
     " paste result
     norm! `>pgvd
