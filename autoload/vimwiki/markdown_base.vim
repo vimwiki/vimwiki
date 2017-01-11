@@ -8,7 +8,7 @@
 
 " vimwiki#markdown_base#reset_mkd_refs
 function! vimwiki#markdown_base#reset_mkd_refs() "{{{
-  call VimwikiClear('markdown_refs')
+  call vimwiki#vars#set_bufferlocal('markdown_refs', {})
 endfunction "}}}
 
 " vimwiki#markdown_base#scan_reflinks
@@ -92,8 +92,8 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     endif
 
     " try WikiLink
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiLink')),
-          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'))
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
     " try WikiIncl
     if lnk == ""
       let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
@@ -142,7 +142,7 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_syntaxlocal('WikiLink1Template2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'), sub)
     return
@@ -152,7 +152,7 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_global('WikiLinkTemplate2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), sub)
     return

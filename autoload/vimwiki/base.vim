@@ -824,7 +824,7 @@ function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
   let new_fname = a:new_fname
 
   let old_fname_r = vimwiki#base#apply_template(
-        \ vimwiki#vars#get_global('WikiLinkMatchUrlTemplate'), old_fname, '', '')
+        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate'), old_fname, '', '')
 
   let files = split(glob(vimwiki#vars#get_wikilocal('path').a:dir.'*'.vimwiki#vars#get_wikilocal('ext')), '\n')
   for fname in files
@@ -1056,7 +1056,7 @@ endfunction "}}}
 " WIKI link following functions {{{
 " vimwiki#base#find_next_link
 function! vimwiki#base#find_next_link() "{{{
-  call vimwiki#base#search_word(vimwiki#vars#get_global('rxAnyLink'), '')
+  call vimwiki#base#search_word(vimwiki#vars#get_syntaxlocal('rxAnyLink'), '')
 endfunction " }}}
 
 " vimwiki#base#find_prev_link
@@ -1064,9 +1064,9 @@ function! vimwiki#base#find_prev_link() "{{{
   "Jump 2 times if the cursor is in the middle of a link
   if synIDattr(synID(line('.'), col('.'), 0), "name") =~# "VimwikiLink.*" &&
         \ synIDattr(synID(line('.'), col('.')-1, 0), "name") =~# "VimwikiLink.*"
-    call vimwiki#base#search_word(vimwiki#vars#get_global('rxAnyLink'), 'b')
+    call vimwiki#base#search_word(vimwiki#vars#get_syntaxlocal('rxAnyLink'), 'b')
   endif
-  call vimwiki#base#search_word(vimwiki#vars#get_global('rxAnyLink'), 'b')
+  call vimwiki#base#search_word(vimwiki#vars#get_syntaxlocal('rxAnyLink'), 'b')
 endfunction " }}}
 
 " vimwiki#base#follow_link
@@ -1094,8 +1094,8 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
     endif
 
     " try WikiLink
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiLink')),
-          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'))
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
     " try WikiIncl
     if lnk == ""
       let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
@@ -1221,7 +1221,7 @@ function! vimwiki#base#rename_link() "{{{
     return
   endif
 
-  let url = matchstr(new_link, vimwiki#vars#get_global('rxWikiLinkMatchUrl'))
+  let url = matchstr(new_link, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   if url != ''
     let new_link = url
   endif
@@ -1763,12 +1763,12 @@ endfunction " }}}
 function! s:normalize_link_syntax_n() " {{{
 
   " try WikiLink
-  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiLink'))
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_global('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_global('WikiLinkTemplate2'))
-    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_global('rxWikiLink'), sub)
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink'), sub)
     return
   endif
   

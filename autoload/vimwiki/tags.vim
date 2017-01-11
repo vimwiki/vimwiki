@@ -326,7 +326,7 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
 
   let links_rx = '\m\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH2').'\)\|\%(^\s*'
         \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
-        \ .vimwiki#vars#get_global('rxWikiLink').'$\)'
+        \ .vimwiki#vars#get_syntaxlocal('rxWikiLink').'$\)'
 
   call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx,
         \ line('$')+1, 1)

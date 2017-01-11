@@ -424,7 +424,7 @@ function! s:tag_wikilink(value) "{{{
   " [[url#a1#a2]]             -> <a href="url.html#a1-a2">url#a1#a2</a>
   " [[#a1#a2]]                -> <a href="#a1-a2">#a1#a2</a>
   let str = a:value
-  let url = matchstr(str, vimwiki#vars#get_global('rxWikiLinkMatchUrl'))
+  let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   let descr = matchstr(str, vimwiki#vars#get_global('rxWikiLinkMatchDescr'))
   let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
 
@@ -571,7 +571,7 @@ endfunction " }}}
 
 function! s:process_tags_links(line) " {{{
   let line = a:line
-  let line = s:make_tag(line, vimwiki#vars#get_global('rxWikiLink'), 's:tag_wikilink')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxWikiLink'), 's:tag_wikilink')
   let line = s:make_tag(line, vimwiki#vars#get_global('rxWikiIncl'), 's:tag_wikiincl')
   let line = s:make_tag(line, vimwiki#vars#get_global('rxWeblink'), 's:tag_weblink')
   return line

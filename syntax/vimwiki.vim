@@ -88,7 +88,7 @@ endfunction "}}}
 " use max highlighting - could be quite slow if there are too many wikifiles
 if vimwiki#vars#get_wikilocal('maxhi')
   " WikiLink
-  call s:add_target_syntax_OFF(vimwiki#vars#get_global('rxWikiLink'))
+  call s:add_target_syntax_OFF(vimwiki#vars#get_syntaxlocal('rxWikiLink'))
   " WikiIncl
   call s:add_target_syntax_OFF(vimwiki#vars#get_global('rxWikiIncl'))
 
@@ -96,7 +96,7 @@ if vimwiki#vars#get_wikilocal('maxhi')
   call s:highlight_existing_links()
 else
   " Wikilink
-  call s:add_target_syntax_ON(vimwiki#vars#get_global('rxWikiLink'), 'VimwikiLink')
+  call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWikiLink'), 'VimwikiLink')
   " WikiIncl
   call s:add_target_syntax_ON(vimwiki#vars#get_global('rxWikiIncl'), 'VimwikiLink')
 endif
