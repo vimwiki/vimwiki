@@ -10,13 +10,6 @@ elseif exists("b:current_syntax")
 endif
 
 
-if vimwiki#vars#get_wikilocal('maxhi')
-  let b:existing_wikifiles =
-        \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1)
-  let b:existing_wikidirs  =
-        \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr'))
-endif
-
 let s:current_syntax = vimwiki#vars#get_wikilocal('syntax')
 
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
@@ -46,10 +39,10 @@ function! s:highlight_existing_links() "{{{
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
   " Links are set up upon BufEnter (see plugin/...)
-  let safe_links = '\%('.vimwiki#base#file_pattern(b:existing_wikifiles) .
+  let safe_links = '\%('.vimwiki#base#file_pattern(vimwiki#vars#get_bufferlocal('existing_wikifiles')) .
         \ '\%(#[^|]*\)\?\|#[^|]*\)'
   " Wikilink Dirs set up upon BufEnter (see plugin/...)
-  let safe_dirs = vimwiki#base#file_pattern(b:existing_wikidirs)
+  let safe_dirs = vimwiki#base#file_pattern(vimwiki#vars#get_bufferlocal('existing_wikidirs'))
 
   " match [[URL]]
   let target = vimwiki#base#apply_template(
@@ -102,7 +95,7 @@ else
 endif
 
 " Weblink
-call s:add_target_syntax_ON(vimwiki#vars#get_global('rxWeblink'), 'VimwikiLink')
+call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink'), 'VimwikiLink')
 
 " WikiLink
 " All remaining schemes are highlighted automatically

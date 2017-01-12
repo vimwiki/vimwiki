@@ -101,8 +101,8 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     endif
     " try Weblink
     if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWeblink')),
-            \ vimwiki#vars#get_global('rxWeblinkMatchUrl'))
+      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink')),
+            \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
     endif
 
     if lnk != ""
@@ -142,7 +142,7 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_syntaxlocal('WikiLink1Template2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'), sub)
     return
@@ -152,19 +152,19 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_global('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_global('WikiLinkTemplate2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), sub)
     return
   endif
   
   " try Weblink
-  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWeblink'))
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_global('rxWeblinkMatchUrl'), vimwiki#vars#get_global('rxWeblinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'),
           \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
-    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_global('rxWeblink'), sub)
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'), sub)
     return
   endif
 

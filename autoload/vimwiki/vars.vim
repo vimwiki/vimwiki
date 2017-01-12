@@ -79,7 +79,7 @@ function! s:populate_global_variables()
           \ '\%('.join(split(web_schemes2, '\s*,\s*'), '\|').'\):'.
         \ '\)'
 
-  let g:vimwiki_global_vars['rxWeblinkUrl'] = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
+  let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
 
   let wikilink_prefix = '[['
   let wikilink_suffix = ']]'
@@ -104,12 +104,6 @@ function! s:populate_global_variables()
   " basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
   " non-Ascii characters
   let g:vimwiki_global_vars.rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
-
-  " [[URL]], or [[URL|DESCRIPTION]]
-  " c) match DESCRIPTION within [[URL|DESCRIPTION]]
-  let g:vimwiki_global_vars.rxWikiLinkMatchDescr = g:vimwiki_global_vars.rx_wikilink_prefix.
-        \ g:vimwiki_global_vars.rxWikiLinkUrl . g:vimwiki_global_vars.rx_wikilink_separator.'\%('.
-        \ '\zs'. g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'. g:vimwiki_global_vars.rx_wikilink_suffix
 
   let g:vimwiki_global_vars.rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl .
         \ g:vimwiki_global_vars.rx_wikilink_separator
@@ -146,15 +140,6 @@ function! s:populate_global_variables()
         \ g:vimwiki_global_vars.rxWikiInclUrl . g:vimwiki_global_vars.rxWikiInclSeparator
   let g:vimwiki_global_vars.rxWikiInclSuffix1 = g:vimwiki_global_vars.rxWikiInclArgs.
         \ g:vimwiki_global_vars.rxWikiInclSuffix
-
-  " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
-  " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
-  " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
-  let g:vimwiki_global_vars.rxWeblink = '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '\S*'
-  " 0a) match URL within URL
-  let g:vimwiki_global_vars.rxWeblinkMatchUrl = g:vimwiki_global_vars.rxWeblink
-  " 0b) match DESCRIPTION within URL
-  let g:vimwiki_global_vars.rxWeblinkMatchDescr = ''
 
   let g:vimwiki_global_vars.rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
 
@@ -348,6 +333,15 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'.g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\['.g:vimwiki_syntax_variables[a:syntax].listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 
+  " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
+  " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
+  " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblink = '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '\S*'
+  " 0a) match URL within URL
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchUrl = g:vimwiki_syntax_variables[a:syntax].rxWeblink
+  " 0b) match DESCRIPTION within URL
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchDescr = ''
+
   " template for matching all wiki links with a given target file
   let g:vimwiki_syntax_variables[a:syntax].WikiLinkMatchUrlTemplate =
         \ g:vimwiki_global_vars.rx_wikilink_prefix .
@@ -365,11 +359,15 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
         \ g:vimwiki_global_vars.rxWikiLinkUrl.'\%('.g:vimwiki_global_vars.rx_wikilink_separator.
         \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
   let g:vimwiki_syntax_variables[a:syntax].rxAnyLink = g:vimwiki_syntax_variables[a:syntax].rxWikiLink.'\|'.
-      \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_global_vars.rxWeblink
+      \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_syntax_variables[a:syntax].rxWeblink
   " b) match URL within [[URL|DESCRIPTION]]
   let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchUrl = g:vimwiki_global_vars.rx_wikilink_prefix.
         \ '\zs'. g:vimwiki_global_vars.rxWikiLinkUrl.'\ze\%('. g:vimwiki_global_vars.rx_wikilink_separator.
         \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
+  " c) match DESCRIPTION within [[URL|DESCRIPTION]]
+  let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchDescr = g:vimwiki_global_vars.rx_wikilink_prefix.
+        \ g:vimwiki_global_vars.rxWikiLinkUrl . g:vimwiki_global_vars.rx_wikilink_separator.'\%('.
+        \ '\zs'. g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'. g:vimwiki_global_vars.rx_wikilink_suffix
 
   if a:syntax ==# 'markdown'
     call s:populate_extra_markdown_vars()
@@ -381,11 +379,11 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax = g:vimwiki_syntax_variables['markdown']
 
   " 0a) match [[URL|DESCRIPTION]]
-  let mkd_syntax.vimwiki_rxWikiLink0 = mkd_syntax.rxWikiLink
+  let mkd_syntax.rxWikiLink0 = mkd_syntax.rxWikiLink
   " 0b) match URL within [[URL|DESCRIPTION]]
-  let mkd_syntax.vimwiki_rxWikiLink0MatchUrl = mkd_syntax.rxWikiLinkMatchUrl
+  let mkd_syntax.rxWikiLink0MatchUrl = mkd_syntax.rxWikiLinkMatchUrl
   " 0c) match DESCRIPTION within [[URL|DESCRIPTION]]
-  let mkd_syntax.vimwiki_rxWikiLink0MatchDescr = g:vimwiki_global_vars.rxWikiLinkMatchDescr
+  let mkd_syntax.rxWikiLink0MatchDescr = g:vimwiki_global_vars.rxWikiLinkMatchDescr
 
   let wikilink_md_prefix = '['
   let wikilink_md_suffix = ']'
@@ -401,59 +399,124 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.WikiLink1Template2 = wikilink_md_prefix. '__LinkDescription__'.
         \ wikilink_md_separator. '__LinkUrl__'. wikilink_md_suffix
   let mkd_syntax.WikiLinkMatchUrlTemplate .=
-      \ '\|' .
-      \ mkd_syntax.rx_wikilink_md_prefix .
-      \ '.*' .
-      \ rx_wikilink_md_separator .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ mkd_syntax.rx_wikilink_md_suffix .
-      \ '\|' .
-      \ mkd_syntax.rx_wikilink_md_prefix .
-      \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-      \ rx_wikilink_md_separator .
-      \ mkd_syntax.rx_wikilink_md_suffix
+        \ '\|' .
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '.*' .
+        \ rx_wikilink_md_separator .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
+        \ rx_wikilink_md_separator .
+        \ mkd_syntax.rx_wikilink_md_suffix
 
-let valid_chars = '[^\\\[\]]'
-let mkd_syntax.rxWikiLink1Url = valid_chars.'\{-}'
-let mkd_syntax.rxWikiLink1Descr = valid_chars.'\{-}'
-let mkd_syntax.rxWikiLink1InvalidPrefix = '[\]\[]\@<!'
-let mkd_syntax.rxWikiLink1InvalidSuffix = '[\]\[]\@!'
-let mkd_syntax.rx_wikilink_md_prefix = mkd_syntax.rxWikiLink1InvalidPrefix.
-      \ mkd_syntax.rx_wikilink_md_prefix
-let mkd_syntax.rx_wikilink_md_suffix = mkd_syntax.rx_wikilink_md_suffix.
-      \ mkd_syntax.rxWikiLink1InvalidSuffix
+  let valid_chars = '[^\\\[\]]'
+  let mkd_syntax.rxWikiLink1Url = valid_chars.'\{-}'
+  let mkd_syntax.rxWikiLink1Descr = valid_chars.'\{-}'
+  let mkd_syntax.rxWikiLink1InvalidPrefix = '[\]\[]\@<!'
+  let mkd_syntax.rxWikiLink1InvalidSuffix = '[\]\[]\@!'
+  let mkd_syntax.rx_wikilink_md_prefix = mkd_syntax.rxWikiLink1InvalidPrefix.
+        \ mkd_syntax.rx_wikilink_md_prefix
+  let mkd_syntax.rx_wikilink_md_suffix = mkd_syntax.rx_wikilink_md_suffix.
+        \ mkd_syntax.rxWikiLink1InvalidSuffix
 
-" 1. match [URL][], [DESCRIPTION][URL]
-let mkd_syntax.rxWikiLink1 = mkd_syntax.rx_wikilink_md_prefix.
-    \ mkd_syntax.rxWikiLink1Url. mkd_syntax.rx_wikilink_md_separator.
-    \ mkd_syntax.rx_wikilink_md_suffix.
-    \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
-    \ mkd_syntax.rxWikiLink1Descr . mkd_syntax.rx_wikilink_md_separator.
-    \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
-" 2. match URL within [URL][], [DESCRIPTION][URL]
-let mkd_syntax.rxWikiLink1MatchUrl = mkd_syntax.rx_wikilink_md_prefix.
-    \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_separator.
-    \ mkd_syntax.rx_wikilink_md_suffix.
-    \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
-    \ mkd_syntax.rxWikiLink1Descr. mkd_syntax.rx_wikilink_md_separator.
-    \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_suffix
-" 3. match DESCRIPTION within [DESCRIPTION][URL]
-let mkd_syntax.rxWikiLink1MatchDescr = mkd_syntax.rx_wikilink_md_prefix.
-    \ '\zs'. mkd_syntax.rxWikiLink1Descr.'\ze'. mkd_syntax.rx_wikilink_md_separator.
-    \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
+  " 1. match [URL][], [DESCRIPTION][URL]
+  let mkd_syntax.rxWikiLink1 = mkd_syntax.rx_wikilink_md_prefix.
+        \ mkd_syntax.rxWikiLink1Url. mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rx_wikilink_md_suffix.
+        \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
+        \ mkd_syntax.rxWikiLink1Descr . mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
+  " 2. match URL within [URL][], [DESCRIPTION][URL]
+  let mkd_syntax.rxWikiLink1MatchUrl = mkd_syntax.rx_wikilink_md_prefix.
+        \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rx_wikilink_md_suffix.
+        \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
+        \ mkd_syntax.rxWikiLink1Descr. mkd_syntax.rx_wikilink_md_separator.
+        \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_suffix
+  " 3. match DESCRIPTION within [DESCRIPTION][URL]
+  let mkd_syntax.rxWikiLink1MatchDescr = mkd_syntax.rx_wikilink_md_prefix.
+        \ '\zs'. mkd_syntax.rxWikiLink1Descr.'\ze'. mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
 
-let mkd_syntax.rxWikiLink1Prefix1 = mkd_syntax.rx_wikilink_md_prefix
-let mkd_syntax.rxWikiLink1Suffix1 = mkd_syntax.rx_wikilink_md_separator.
-      \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
+  let mkd_syntax.rxWikiLink1Prefix1 = mkd_syntax.rx_wikilink_md_prefix
+  let mkd_syntax.rxWikiLink1Suffix1 = mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
 
-" 1. match ANY wikilink
-let mkd_syntax.rxWikiLink = ''.
-    \ mkd_syntax.rxWikiLink0.'\|'.
-    \ mkd_syntax.rxWikiLink1
-" 2. match URL within ANY wikilink
-let mkd_syntax.rxWikiLinkMatchUrl = ''.
-    \ g:vimwiki_rxWikiLink0MatchUrl.'\|'.
-    \ g:vimwiki_rxWikiLink1MatchUrl
+  " 1. match ANY wikilink
+  let mkd_syntax.rxWikiLink = mkd_syntax.rxWikiLink0 . '\|' . mkd_syntax.rxWikiLink1
+  " 2. match URL within ANY wikilink
+  let mkd_syntax.rxWikiLinkMatchUrl = mkd_syntax.rxWikiLink0MatchUrl . '\|' .
+        \ mkd_syntax.rxWikiLink1MatchUrl
+  " 3. match DESCRIPTION within ANY wikilink
+  let mkd_syntax.rxWikiLinkMatchDescr = mkd_syntax.rxWikiLink0MatchDescr . '\|' .
+        \ mkd_syntax.rxWikiLink1MatchDescr
+
+  " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
+  let mkd_syntax.rxWeblink0 = mkd_syntax.rxWeblink
+  " 0a) match URL within URL
+  let mkd_syntax.rxWeblinkMatchUrl0 = mkd_syntax.rxWeblinkMatchUrl
+  " 0b) match DESCRIPTION within URL
+  let mkd_syntax.rxWeblinkMatchDescr0 = mkd_syntax.rxWeblinkMatchDescr
+
+  let mkd_syntax.rxWeblink1Prefix = '['
+  let mkd_syntax.rxWeblink1Suffix = ')'
+  let mkd_syntax.rxWeblink1Separator = ']('
+  " [DESCRIPTION](URL)
+  let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'.
+        \ mkd_syntax.rxWeblink1Suffix
+
+  let valid_chars = '[^\\]'
+
+  let mkd_syntax.rxWeblink1Prefix = vimwiki#u#escape(mkd_syntax.rxWeblink1Prefix)
+  let mkd_syntax.rxWeblink1Suffix = vimwiki#u#escape(mkd_syntax.rxWeblink1Suffix)
+  let mkd_syntax.rxWeblink1Separator = vimwiki#u#escape(mkd_syntax.rxWeblink1Separator)
+  let mkd_syntax.rxWeblink1Url = valid_chars.'\{-}'
+  let mkd_syntax.rxWeblink1Descr = valid_chars.'\{-}'
+
+  " 1. [DESCRIPTION](URL)
+  " 1a) match [DESCRIPTION](URL)
+  let mkd_syntax.rxWeblink1 = mkd_syntax.rxWeblink1Prefix.
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Separator.
+        \ mkd_syntax.rxWeblink1Descr . mkd_syntax.rxWeblink1Suffix
+  " 1b) match URL within [DESCRIPTION](URL)
+  let mkd_syntax.rxWeblink1MatchUrl = mkd_syntax.rxWeblink1Prefix.
+        \ mkd_syntax.rxWeblink1Descr. mkd_syntax.rxWeblink1Separator.
+        \ '\zs' . mkd_syntax.rxWeblink1Url . '\ze' . mkd_syntax.rxWeblink1Suffix
+  " 1c) match DESCRIPTION within [DESCRIPTION](URL)
+  let mkd_syntax.rxWeblink1MatchDescr = mkd_syntax.rxWeblink1Prefix.
+        \ '\zs'.mkd_syntax.rxWeblink1Descr.'\ze'. mkd_syntax.rxWeblink1Separator.
+        \ mkd_syntax.rxWeblink1Url. mkd_syntax.rxWeblink1Suffix
+
+  " TODO: image links too !!
+  let mkd_syntax.rxWeblink1Prefix1 = mkd_syntax.rxWeblink1Prefix
+  let mkd_syntax.rxWeblink1Suffix1 = mkd_syntax.rxWeblink1Separator.
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Suffix
+
+  " *a) match ANY weblink
+  let mkd_syntax.rxWeblink = ''.
+        \ mkd_syntax.rxWeblink1.'\|'.
+        \ mkd_syntax.rxWeblink0
+  " *b) match URL within ANY weblink
+  let mkd_syntax.rxWeblinkMatchUrl = ''.
+        \ mkd_syntax.rxWeblink1MatchUrl.'\|'.
+        \ mkd_syntax.rxWeblinkMatchUrl0
+  " *c) match DESCRIPTION within ANY weblink
+  let mkd_syntax.rxWeblinkMatchDescr = ''.
+        \ mkd_syntax.rxWeblink1MatchDescr.'\|'.
+        \ mkd_syntax.rxWeblinkMatchDescr0
+
+  let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
+        \ g:vimwiki_rxWikiIncl.'\|'.mkd_syntax.rxWeblink
+
+  let mkd_syntax.rxMkdRef = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)'.
+        \ mkd_syntax.rxWeblink0
+  let g:vimwiki_rxMkdRefMatchDescr = '\[\zs'.g:vimwiki_global_vars.rxWikiLinkDescr.'\ze]:\%(\s\+\|\n\)'.
+        \ mkd_syntax.rxWeblink0
+  let g:vimwiki_rxMkdRefMatchUrl = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)\zs'.
+        \ mkd_syntax.rxWeblink0.'\ze'
 endfunction
 
 
@@ -492,6 +555,14 @@ function! vimwiki#vars#get_bufferlocal(key)
     let subdir = vimwiki#vars#get_bufferlocal('subdir')
     let b:vimwiki_invsubdir = vimwiki#base#invsubdir(subdir)
     return b:vimwiki_invsubdir
+  elseif a:key ==# 'existing_wikifiles'
+    let b:vimwiki_existing_wikifiles =
+        \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1)
+    return b:vimwiki_existing_wikifiles
+  elseif a:key ==# 'existing_wikidirs'
+    let b:vimwiki_existing_wikidirs =
+        \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr'))
+    return b:vimwiki_existing_wikidirs
   endif
 endfunction
 

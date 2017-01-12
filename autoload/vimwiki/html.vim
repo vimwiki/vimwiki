@@ -375,8 +375,8 @@ endfunction "}}}
 function! s:tag_weblink(value) "{{{
   " Weblink Template -> <a href="url">descr</a>
   let str = a:value
-  let url = matchstr(str, vimwiki#vars#get_global('rxWeblinkMatchUrl'))
-  let descr = matchstr(str, vimwiki#vars#get_global('rxWeblinkMatchDescr'))
+  let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
+  let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'))
   let line = vimwiki#html#linkify_link(url, descr)
   return line
 endfunction "}}}
@@ -425,7 +425,7 @@ function! s:tag_wikilink(value) "{{{
   " [[#a1#a2]]                -> <a href="#a1-a2">#a1#a2</a>
   let str = a:value
   let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
-  let descr = matchstr(str, vimwiki#vars#get_global('rxWikiLinkMatchDescr'))
+  let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'))
   let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
 
   let line = VimwikiLinkConverter(url, s:current_wiki_file,
@@ -573,7 +573,7 @@ function! s:process_tags_links(line) " {{{
   let line = a:line
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxWikiLink'), 's:tag_wikilink')
   let line = s:make_tag(line, vimwiki#vars#get_global('rxWikiIncl'), 's:tag_wikiincl')
-  let line = s:make_tag(line, vimwiki#vars#get_global('rxWeblink'), 's:tag_weblink')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxWeblink'), 's:tag_weblink')
   return line
 endfunction " }}}
 
