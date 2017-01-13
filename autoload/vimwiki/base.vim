@@ -722,7 +722,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " a:1 -- previous vimwiki link to save
   " a:2 -- should we update previous link
   if a:0 && a:2 && len(a:1) > 0
-    let b:vimwiki_prev_link = a:1
+    call vimwiki#vars#set_bufferlocal('prev_link', a:1)
   endif
 endfunction " }}}
 
@@ -880,8 +880,10 @@ function! s:get_wiki_buffers() "{{{
   while bcount<=bufnr("$")
     if bufexists(bcount)
       let bname = fnamemodify(bufname(bcount), ":p")
+      " this may find buffers that are not part of the current wiki, but that
+      " doesn't hurt
       if bname =~# vimwiki#vars#get_wikilocal('ext')."$"
-        let bitem = [bname, getbufvar(bname, "vimwiki_prev_link")]
+        let bitem = [bname, vimwiki#vars#get_bufferlocal('prev_link', bcount)]
         call add(blist, bitem)
       endif
     endif
@@ -894,7 +896,7 @@ endfunction " }}}
 function! s:open_wiki_buffer(item) "{{{
   call vimwiki#base#edit_file(':e', a:item[0], '')
   if !empty(a:item[1])
-    call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
+    call vimwiki#vars#set_bufferlocal('prev_link', a:item[1], a:item[0])
   endif
 endfunction " }}}
 
@@ -1125,11 +1127,11 @@ endfunction " }}}
 
 " vimwiki#base#go_back_link
 function! vimwiki#base#go_back_link() "{{{
-  if exists("b:vimwiki_prev_link")
+  let prev_link = vimwiki#vars#get_bufferlocal('prev_link')
+  if prev_link !=# ''
     " go back to saved wiki link
-    let prev_word = b:vimwiki_prev_link
-    execute ":e ".substitute(prev_word[0], '\s', '\\\0', 'g')
-    call setpos('.', prev_word[1])
+    execute ":e ".substitute(prev_link[0], '\s', '\\\0', 'g')
+    call setpos('.', prev_link[1])
   else
     " maybe we came here by jumping to a tag -> pop from the tag stack
     silent! pop!
@@ -1251,7 +1253,7 @@ function! vimwiki#base#rename_link() "{{{
   let &buftype="nofile"
 
   let cur_buffer = [expand('%:p'),
-        \getbufvar(expand('%:p'), "vimwiki_prev_link")]
+        \ vimwiki#vars#get_bufferlocal('prev_link')]
 
   let blist = s:get_wiki_buffers()
 

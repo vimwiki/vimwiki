@@ -66,11 +66,11 @@ function! s:setup_new_wiki_buffer() "{{{
 
   " to force a rescan of the filesystem which may have changed
   " and update VimwikiLinks syntax group that depends on it;
-  " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
-  if exists('b:vimwiki_fs_rescan') && vimwiki#vars#get_wikilocal('maxhi')
+  " 'fs_rescan' indicates that setup_filetype() has not been run
+  if vimwiki#vars#get_bufferlocal('fs_rescan') == 1 && vimwiki#vars#get_wikilocal('maxhi')
     set syntax=vimwiki
   endif
-  let b:vimwiki_fs_rescan = 1
+  call vimwiki#vars#set_bufferlocal('fs_rescan', 1)
 endfunction "}}}
 
 
@@ -90,11 +90,11 @@ function! s:setup_buffer_enter() "{{{
   elseif &syntax ==? 'vimwiki'
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;
-    " b:vimwiki_fs_rescan indicates that setup_filetype() has not been run
-    if exists("b:vimwiki_fs_rescan") && vimwiki#vars#get_wikilocal('maxhi')
+    " 'fs_rescan' indicates that setup_filetype() has not been run
+    if vimwiki#vars#get_bufferlocal('fs_rescan') == 1 && vimwiki#vars#get_wikilocal('maxhi')
       set syntax=vimwiki
     endif
-    let b:vimwiki_fs_rescan = 1
+    call vimwiki#vars#set_bufferlocal('fs_rescan', 1)
   endif
 
   " The settings foldmethod, foldexpr and foldtext are local to window. Thus in

@@ -540,35 +540,40 @@ function! vimwiki#vars#get_syntaxlocal(key, ...)
 endfunction
 
 
-" Get a variable for the buffer we are currently in.
+" Get a variable for the buffer we are currently in or for the given buffer (number or name).
 " Populate the variable, if it doesn't exist.
-function! vimwiki#vars#get_bufferlocal(key)
-  if exists('b:vimwiki_'.a:key)
-    return b:vimwiki_{a:key}
+function! vimwiki#vars#get_bufferlocal(key, ...)
+  let buffer = a:0 ? a:1 : '%'
+
+  let value = getbufvar(buffer, 'vimwiki_'.a:key, '/\/\')
+  if type(value) != 1 || value !=# '/\/\'
+    return value
   elseif a:key ==# 'wiki_nr'
-    let b:vimwiki_wiki_nr = vimwiki#base#find_wiki(expand('%:p'))
-    return b:vimwiki_wiki_nr
+    call setbufvar(buffer, 'vimwiki_wiki_nr', vimwiki#base#find_wiki(expand('%:p')))
   elseif a:key ==# 'subdir'
-    let b:vimwiki_subdir = vimwiki#base#current_subdir()
-    return b:vimwiki_subdir
+    call setbufvar(buffer, 'vimwiki_subdir', vimwiki#base#current_subdir())
   elseif a:key ==# 'invsubdir'
     let subdir = vimwiki#vars#get_bufferlocal('subdir')
-    let b:vimwiki_invsubdir = vimwiki#base#invsubdir(subdir)
-    return b:vimwiki_invsubdir
+    call setbufvar(buffer, 'vimwiki_invsubdir', vimwiki#base#invsubdir(subdir))
   elseif a:key ==# 'existing_wikifiles'
-    let b:vimwiki_existing_wikifiles =
-        \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1)
-    return b:vimwiki_existing_wikifiles
+    call setbufvar(buffer, 'vimwiki_existing_wikifiles',
+          \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1))
   elseif a:key ==# 'existing_wikidirs'
-    let b:vimwiki_existing_wikidirs =
-        \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr'))
-    return b:vimwiki_existing_wikidirs
+    call setbufvar(buffer, 'vimwiki_existing_wikidirs',
+        \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr')))
+  elseif a:key ==# 'prev_link'
+    call setbufvar(buffer, 'vimwiki_prev_link', '')
+  elseif a:key ==# 'fs_rescan'
+    call setbufvar(buffer, 'vimwiki_fs_rescan', 0)
   endif
+
+  return getbufvar(buffer, 'vimwiki_'.a:key)
 endfunction
 
 
-function! vimwiki#vars#set_bufferlocal(key, value)
-  let b:vimwiki_{a:key} = a:value
+function! vimwiki#vars#set_bufferlocal(key, value, ...)
+  let buffer = a:0 ? a:1 : '%'
+  call setbufvar(buffer, 'vimwiki_' . a:key, a:value)
 endfunction
 
 
