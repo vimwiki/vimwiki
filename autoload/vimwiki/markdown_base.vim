@@ -6,11 +6,6 @@
 
 " MISC helper functions {{{
 
-" vimwiki#markdown_base#reset_mkd_refs
-function! vimwiki#markdown_base#reset_mkd_refs() "{{{
-  call vimwiki#vars#set_bufferlocal('markdown_refs', {})
-endfunction "}}}
-
 " vimwiki#markdown_base#scan_reflinks
 function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
@@ -35,29 +30,12 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
 endfunction "}}}
 
 
-" vimwiki#markdown_base#get_reflinks
-function! vimwiki#markdown_base#get_reflinks() " {{{
-  let done = 1
-  try
-    let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
-  catch
-    " work-around hack
-    let done = 0
-    " ... the following command does not work inside catch block !?
-    " > let mkd_refs = vimwiki#markdown_base#scan_reflinks()
-  endtry
-  if !done
-    let mkd_refs = vimwiki#markdown_base#scan_reflinks()
-  endif
-  return mkd_refs
-endfunction "}}}
-
 " vimwiki#markdown_base#open_reflink
 " try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) " {{{
   " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
-  let mkd_refs = vimwiki#markdown_base#get_reflinks()
+  let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   if has_key(mkd_refs, link)
     let url = mkd_refs[link]
     call vimwiki#base#system_open_link(url)

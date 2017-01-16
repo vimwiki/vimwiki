@@ -383,7 +383,7 @@ function! s:populate_extra_markdown_vars()
   " 0b) match URL within [[URL|DESCRIPTION]]
   let mkd_syntax.rxWikiLink0MatchUrl = mkd_syntax.rxWikiLinkMatchUrl
   " 0c) match DESCRIPTION within [[URL|DESCRIPTION]]
-  let mkd_syntax.rxWikiLink0MatchDescr = g:vimwiki_global_vars.rxWikiLinkMatchDescr
+  let mkd_syntax.rxWikiLink0MatchDescr = mkd_syntax.rxWikiLinkMatchDescr
 
   let wikilink_md_prefix = '['
   let wikilink_md_suffix = ']'
@@ -423,25 +423,25 @@ function! s:populate_extra_markdown_vars()
 
   " 1. match [URL][], [DESCRIPTION][URL]
   let mkd_syntax.rxWikiLink1 = mkd_syntax.rx_wikilink_md_prefix.
-        \ mkd_syntax.rxWikiLink1Url. mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Url. rx_wikilink_md_separator.
         \ mkd_syntax.rx_wikilink_md_suffix.
         \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
-        \ mkd_syntax.rxWikiLink1Descr . mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Descr . rx_wikilink_md_separator.
         \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
   " 2. match URL within [URL][], [DESCRIPTION][URL]
   let mkd_syntax.rxWikiLink1MatchUrl = mkd_syntax.rx_wikilink_md_prefix.
-        \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_separator.
+        \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. rx_wikilink_md_separator.
         \ mkd_syntax.rx_wikilink_md_suffix.
         \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
-        \ mkd_syntax.rxWikiLink1Descr. mkd_syntax.rx_wikilink_md_separator.
+        \ mkd_syntax.rxWikiLink1Descr. rx_wikilink_md_separator.
         \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_suffix
   " 3. match DESCRIPTION within [DESCRIPTION][URL]
   let mkd_syntax.rxWikiLink1MatchDescr = mkd_syntax.rx_wikilink_md_prefix.
-        \ '\zs'. mkd_syntax.rxWikiLink1Descr.'\ze'. mkd_syntax.rx_wikilink_md_separator.
+        \ '\zs'. mkd_syntax.rxWikiLink1Descr.'\ze'. rx_wikilink_md_separator.
         \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
 
   let mkd_syntax.rxWikiLink1Prefix1 = mkd_syntax.rx_wikilink_md_prefix
-  let mkd_syntax.rxWikiLink1Suffix1 = mkd_syntax.rx_wikilink_md_separator.
+  let mkd_syntax.rxWikiLink1Suffix1 = rx_wikilink_md_separator.
         \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
 
   " 1. match ANY wikilink
@@ -508,14 +508,14 @@ function! s:populate_extra_markdown_vars()
         \ mkd_syntax.rxWeblink1MatchDescr.'\|'.
         \ mkd_syntax.rxWeblinkMatchDescr0
 
-  let g:vimwiki_rxAnyLink = g:vimwiki_rxWikiLink.'\|'.
-        \ g:vimwiki_rxWikiIncl.'\|'.mkd_syntax.rxWeblink
+  let mkd_syntax.rxAnyLink = mkd_syntax.rxWikiLink.'\|'.
+        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.mkd_syntax.rxWeblink
 
   let mkd_syntax.rxMkdRef = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)'.
         \ mkd_syntax.rxWeblink0
-  let g:vimwiki_rxMkdRefMatchDescr = '\[\zs'.g:vimwiki_global_vars.rxWikiLinkDescr.'\ze]:\%(\s\+\|\n\)'.
+  let mkd_syntax.rxMkdRefMatchDescr = '\[\zs'.g:vimwiki_global_vars.rxWikiLinkDescr.'\ze]:\%(\s\+\|\n\)'.
         \ mkd_syntax.rxWeblink0
-  let g:vimwiki_rxMkdRefMatchUrl = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)\zs'.
+  let mkd_syntax.rxMkdRefMatchUrl = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)\zs'.
         \ mkd_syntax.rxWeblink0.'\ze'
 endfunction
 
@@ -562,9 +562,13 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
     call setbufvar(buffer, 'vimwiki_existing_wikidirs',
         \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr')))
   elseif a:key ==# 'prev_link'
-    call setbufvar(buffer, 'vimwiki_prev_link', '')
+    call setbufvar(buffer, 'vimwiki_prev_link', [])
   elseif a:key ==# 'fs_rescan'
     call setbufvar(buffer, 'vimwiki_fs_rescan', 0)
+  elseif a:key ==# 'markdown_refs'
+    call setbufvar(buffer, 'vimwiki_markdown_refs', vimwiki#markdown_base#scan_reflinks())
+  else
+    echoerr 'Vimwiki Error: unknown buffer variable ' . string(a:key)
   endif
 
   return getbufvar(buffer, 'vimwiki_'.a:key)

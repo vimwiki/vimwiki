@@ -559,7 +559,7 @@ function! s:process_tags_typefaces(line, header_ids) "{{{
   let line = a:line
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxItalic'), 's:tag_em')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxBold'), 's:tag_strong', a:header_ids)
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxTodo'), 's:tag_todo')
+  let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxDelText'), 's:tag_strike')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSuperScript'), 's:tag_super')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSubScript'), 's:tag_sub')

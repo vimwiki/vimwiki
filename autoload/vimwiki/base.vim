@@ -81,7 +81,7 @@ function! vimwiki#base#find_wiki(path) "{{{
       return idx
     endif
     let idx += 1
-  endwhile
+  endfor
 
   " an orphan page has been detected
   return -1
@@ -1128,7 +1128,7 @@ endfunction " }}}
 " vimwiki#base#go_back_link
 function! vimwiki#base#go_back_link() "{{{
   let prev_link = vimwiki#vars#get_bufferlocal('prev_link')
-  if prev_link !=# ''
+  if !empty(prev_link)
     " go back to saved wiki link
     execute ":e ".substitute(prev_link[0], '\s', '\\\0', 'g')
     call setpos('.', prev_link[1])
