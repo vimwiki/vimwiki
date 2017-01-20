@@ -861,11 +861,11 @@ function! s:process_tag_list(line, lists) "{{{
     if !empty(chk) && len(chk[1]) > 0
       let completion = index(g:vimwiki_listsyms_list, chk[1])
       let n = len(g:vimwiki_listsyms_list)
-      if completion >= 0 && completion < n-1
-        let completion = float2nr(ceil(completion * 4.0 / (n-1) ))
+      if completion == 0
+        let st_tag = '<li class="done0">'
+      elseif completion > 0 && completion < n
+        let completion = float2nr(round(completion / (n-1.0) * 3.0 + 0.5 ))
         let st_tag = '<li class="done'.completion.'">'
-      elseif completion == n-1
-        let st_tag = '<li class="done4">'
       endif
     endif
     return [st_tag, '']
