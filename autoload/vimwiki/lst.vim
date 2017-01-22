@@ -693,7 +693,8 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  return index(g:vimwiki_listsyms_list, state) * 25
+  let n=len(g:vimwiki_listsyms_list)
+  return index(g:vimwiki_listsyms_list, state) * 100/(n-1)
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -729,16 +730,14 @@ endfunction "}}}
 "Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate) "{{{
   let state = ''
+  let n=len(g:vimwiki_listsyms_list)
   if a:rate == 100
-    let state = g:vimwiki_listsyms_list[4]
+    let state = g:vimwiki_listsyms_list[n-1]
   elseif a:rate == 0
     let state = g:vimwiki_listsyms_list[0]
-  elseif a:rate >= 67
-    let state = g:vimwiki_listsyms_list[3]
-  elseif a:rate >= 34
-    let state = g:vimwiki_listsyms_list[2]
   else
-    let state = g:vimwiki_listsyms_list[1]
+    let index = float2nr(ceil(a:rate/100.0*(n-2)))
+    let state = g:vimwiki_listsyms_list[index]
   endif
   return state
 endfunction "}}}

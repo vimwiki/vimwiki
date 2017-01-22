@@ -2245,11 +2245,11 @@ Default: 'Vimwiki'
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
 
-String of 5 symbols to show the progression of todo list items.
+String of at least two symbols to show the progression of todo list items.
 Default value is ' .oOX'.
 
 The first char is for 0% done items.
-The fifth is for 100% done items.
+The last is for 100% done items.
 
 You can set it to some more fancy symbols like this:
 >

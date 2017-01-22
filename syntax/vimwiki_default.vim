@@ -80,7 +80,7 @@ call vimwiki#lst#setup_marker_infos()
 
 let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
 let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.g:vimwiki_listsyms.']\)\]\s\)\?'
-let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+let g:vimwiki_rxListItemAndChildren = '^\(\s*\)\%('.g:vimwiki_rxListBullet.'\|'.g:vimwiki_rxListNumber.'\)\s\+\['.g:vimwiki_listsyms_list[-1].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
 
 " Preformatted text
 let g:vimwiki_rxPreStart = '{{{'
