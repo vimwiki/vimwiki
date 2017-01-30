@@ -983,7 +983,11 @@ function! s:process_tag_para(line, para) "{{{
       let para = 1
     endif
     let processed = 1
-    call add(lines, a:line)
+    if g:vimwiki_text_ignore_newline == 1
+      call add(lines, a:line)
+    else
+      call add(lines, a:line."<br />")
+    endif
   elseif para && a:line =~# '^\s*$'
     call add(lines, "</p>")
     let para = 0

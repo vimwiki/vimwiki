@@ -2303,6 +2303,19 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_text_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in text.
+
+Value           Description~
+0               Newlines in text are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_use_calendar*
 
 Create new or open existing diary wiki-file for the date selected in Calendar.
