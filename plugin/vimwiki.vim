@@ -337,6 +337,7 @@ let s:vimwiki_defaults.nested_syntaxes = {}
 let s:vimwiki_defaults.automatic_nested_syntaxes = 1
 let s:vimwiki_defaults.auto_export = 0
 let s:vimwiki_defaults.auto_toc = 0
+let s:vimwiki_defaults.markdown_toc = 0
 " is wiki temporary -- was added to g:vimwiki_list by opening arbitrary wiki
 " file.
 let s:vimwiki_defaults.temp = 0
