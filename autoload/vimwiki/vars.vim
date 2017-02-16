@@ -285,7 +285,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   let g:vimwiki_syntax_variables[a:syntax].rxMathEnd = '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
 
   " list stuff
-  let rx_bullet_chars = '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
+  let g:vimwiki_syntax_variables[a:syntax].rx_bullet_chars = '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
 
   let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars = g:vimwiki_syntax_variables[a:syntax].recurring_bullets ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
 

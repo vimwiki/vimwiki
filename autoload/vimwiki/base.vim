@@ -1747,7 +1747,7 @@ function! s:normalize_link_in_diary(lnk) " {{{
 
   if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
     let str = a:lnk
-    let rxUrl = vimwiki#vars#get_syntaxlocal('rxWord')
+    let rxUrl = vimwiki#vars#get_global('rxWord')
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   else
@@ -1793,13 +1793,13 @@ function! s:normalize_link_syntax_n() " {{{
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
-  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWord'))
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
     if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(lnk)
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
-            \ vimwiki#vars#get_syntaxlocal('rxWord'), '',
+            \ vimwiki#vars#get_global('rxWord'), '',
             \ vimwiki#vars#get_global('WikiLinkTemplate1'))
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)

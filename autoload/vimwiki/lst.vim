@@ -188,10 +188,10 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if !vimwiki#vars#get_wikilocal('recurring_bullets')
+  if !vimwiki#vars#get_syntaxlocal('recurring_bullets')
     let level = indent(a:lnum)
   else
-    let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
+    let level = s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_syntaxlocal(rx_bullet_chars)))-1
     if level < 0
       let level = (indent(a:lnum) == 0) ? 0 : 9999
     endif
@@ -207,17 +207,19 @@ function! s:guess_kind_of_numbered_item(item) "{{{
   let number_chars = a:item.mrkr[:-2]
   let divisor = a:item.mrkr[-1:]
 
+  let number_kinds = vimwiki#vars#get_syntaxlocal('number_kinds')
+
   if number_chars =~# '\d\+'
     return '1'
   endif
   if number_chars =~# '\l\+'
-    if number_chars !~# '^[ivxlcdm]\+' || index(s:number_kinds, 'i') == -1
+    if number_chars !~# '^[ivxlcdm]\+' || index(number_kinds, 'i') == -1
       return 'a'
     else
 
       let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
-        if index(s:number_kinds, 'a') == -1 ||
+        if index(number_kinds, 'a') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
               \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
           return 'i'
@@ -225,7 +227,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
           return 'a'
         endif
       else
-        if number_chars =~# 'i\+' || index(s:number_kinds, 'a') == -1
+        if number_chars =~# 'i\+' || index(number_kinds, 'a') == -1
           return 'i'
         else
           return 'a'
@@ -235,13 +237,13 @@ function! s:guess_kind_of_numbered_item(item) "{{{
     endif
   endif
   if number_chars =~# '\u\+'
-    if number_chars !~# '^[IVXLCDM]\+' || index(s:number_kinds, 'I') == -1
+    if number_chars !~# '^[IVXLCDM]\+' || index(number_kinds, 'I') == -1
       return 'A'
     else
 
       let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
-        if index(s:number_kinds, 'A') == -1 ||
+        if index(number_kinds, 'A') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
               \ s:increment_I(item_above.mrkr[:-2]) ==# number_chars
           return 'I'
@@ -249,7 +251,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
           return 'A'
         endif
       else
-        if number_chars =~# 'I\+' || index(s:number_kinds, 'A') == -1
+        if number_chars =~# 'I\+' || index(number_kinds, 'A') == -1
           return 'I'
         else
           return 'A'
@@ -264,8 +266,9 @@ function! s:regexp_of_marker(item) "{{{
   if a:item.type == 1
     return vimwiki#u#escape(a:item.mrkr)
   elseif a:item.type == 2
+    let number_divisors = vimwiki#vars#get_syntaxlocal('number_divisors')
     for ki in ['d', 'u', 'l']
-      let match = matchstr(a:item.mrkr, '\'.ki.'\+['.s:number_divisors.']')
+      let match = matchstr(a:item.mrkr, '\'.ki.'\+['.number_divisors.']')
       if match != ''
         return '\'.ki.'\+'.vimwiki#u#escape(match[-1:])
       endif
@@ -922,8 +925,8 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if vimwiki#vars#get_wikilocal('recurring_bullets') && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum,
             \ s:first_char(a:item.mrkr), '')
@@ -944,8 +947,8 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_indent = 0
-  if vimwiki#vars#get_wikilocal('recurring_bullets') && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
     let additional_indent = 1
@@ -966,8 +969,8 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if vimwiki#vars#get_wikilocal('recurring_bullets') && item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr,
             \ item.mrkr . s:first_char(item.mrkr))
@@ -1114,7 +1117,7 @@ endfunction "}}}
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && !vimwiki#vars#get_wikilocal('recurring_bullets')
+    if indent(a:item.lnum) == 0 && !vimwiki#vars#get_syntaxlocal('recurring_bullets')
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1136,7 +1139,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
     endif
 
     "handle markers like ***
-    if index(s:multiple_bullet_chars, s:first_char(new_mrkr)) > -1
+    if index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(new_mrkr)) > -1
       "use *** if the item above has *** too
       let item_above = s:get_prev_list_item(cur_item, 1)
       if item_above.type == 1 &&
@@ -1151,7 +1154,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
         else
           "if the old is ### and the new is * use ***
           if cur_item.type == 1 &&
-                \ index(s:multiple_bullet_chars,s:first_char(cur_item.mrkr))>-1
+                \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(cur_item.mrkr))>-1
             let new_mrkr = repeat(new_mrkr, s:string_length(cur_item.mrkr))
           else
             "use *** if the parent item has **
@@ -1195,7 +1198,7 @@ endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
-  if a:item.type == 0 || vimwiki#vars#get_wikilocal('recurring_bullets')
+  if a:item.type == 0 || vimwiki#vars#get_syntaxlocal('recurring_bullets')
     return
   endif
 
@@ -1207,7 +1210,7 @@ function! s:adjust_mrkr(item) "{{{
 
   "if possible, set e.g. *** if parent has ** as marker
   if neighbor_item.type == 0 && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     let parent_item = s:get_parent(a:item)
     if parent_item.type == 1 &&
           \ s:first_char(parent_item.mrkr) ==# s:first_char(a:item.mrkr)
@@ -1225,7 +1228,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( vimwiki#vars#get_wikilocal('recurring_bullets') ? 0 : indent(a:from) )
+  let new_indent = ( vimwiki#vars#get_syntaxlocal('recurring_bullets') ? 0 : indent(a:from) )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))
