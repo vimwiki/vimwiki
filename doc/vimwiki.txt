@@ -1281,40 +1281,50 @@ Tags-related commands and options:
 6. Folding/Outline                                           *vimwiki-folding*
 
 Vimwiki can fold or outline sections using headers and preformatted blocks.
-Alternatively, one can fold list subitems instead.
+Alternatively, one can fold list subitems instead. Folding is not enabled
+by default, and requires the |g:vimwiki_folding| variable to be set.
 
-Example for list folding:
+Example for list folding with |g:vimwiki_folding| set to 'list':
+
 = My current task =
-  * [ ] Do stuff 1
-    * [ ] Do substuff 1.1
-    * [ ] Do substuff 1.2
-      * [ ] Do substuff 1.2.1
-      * [ ] Do substuff 1.2.2
-    * [ ] Do substuff 1.3
-  * [ ] Do stuff 2
-  * [ ] Do stuff 3
+* [ ] Do stuff 1
+  * [ ] Do substuff 1.1
+  * [ ] Do substuff 1.2
+    * [ ] Do substuff 1.2.1
+    * [ ] Do substuff 1.2.2
+  * [ ] Do substuff 1.3
+* [ ] Do stuff 2
+* [ ] Do stuff 3
 
 Hit |zM| :
-= My current task = [8] --------------------------------------~
+= My current task =
+* [ ] Do stuff 1 [6] --------------------------------------~
+* [ ] Do stuff 2
+* [ ] Do stuff 3
 
 Hit |zr| :
-= My current task =~
-  * [ ] Do stuff 1 [5] --------------------------------------~
-  * [ ] Do stuff 2~
-  * [ ] Do stuff 3~
+= My current task =
+* [ ] Do stuff 1
+  * [ ] Do substuff 1.1
+  * [ ] Do substuff 1.2 [3] -------------------------------~
+  * [ ] Do substuff 1.3
+* [ ] Do stuff 2
+* [ ] Do stuff 3
 
-Hit |zr| one more time:
-= My current task =~
-  * [ ] Do stuff 1~
-    * [ ] Do substuff 1.1~
-    * [ ] Do substuff 1.2 [2] -------------------------------~
-    * [ ] Do substuff 1.3~
-  * [ ] Do stuff 2~
-  * [ ] Do stuff 3~
+Hit |zr| one more time :
+= My current task =
+* [ ] Do stuff 1
+  * [ ] Do substuff 1.1
+  * [ ] Do substuff 1.2
+    * [ ] Do substuff 1.2.1
+    * [ ] Do substuff 1.2.2
+  * [ ] Do substuff 1.3
+* [ ] Do stuff 2
+* [ ] Do stuff 3
 
 Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
-For MediaWiki, * or # should be in the first column.
+For MediaWiki syntax, * or # should be in the first column.
 
 To turn folding on/off check |g:vimwiki_folding|.
 
