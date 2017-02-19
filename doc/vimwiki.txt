@@ -2255,11 +2255,11 @@ Default: 'Vimwiki'
 ------------------------------------------------------------------------------
 *g:vimwiki_listsyms*
 
-String of 5 symbols to show the progression of todo list items.
+String of at least two symbols to show the progression of todo list items.
 Default value is ' .oOX'.
 
 The first char is for 0% done items.
-The fifth is for 100% done items.
+The last is for 100% done items.
 
 You can set it to some more fancy symbols like this:
 >
@@ -2307,6 +2307,19 @@ Convert newlines to <br />s in multiline list items.
 
 Value           Description~
 0               Newlines in a list item are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_text_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in text.
+
+Value           Description~
+0               Newlines in text are converted to <br />s.
 1               Ignore newlines.
 
 Default: 1
