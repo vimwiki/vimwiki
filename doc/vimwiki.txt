@@ -854,7 +854,7 @@ Raw URLs are also supported: >
 
 External files~
 
-The "file:" and "local:" schemes allow you to directly link to arbitray
+The "file:" and "local:" schemes allow you to directly link to arbitrary
 resources using absolute or relative paths: >
   [[file:/home/somebody/a/b/c/music.mp3]]
   [[file:C:/Users/somebody/d/e/f/music.mp3]]
