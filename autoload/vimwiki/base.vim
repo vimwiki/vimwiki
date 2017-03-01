@@ -247,7 +247,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     let source_file = a:1
   else
     let source_wiki = g:vimwiki_current_idx
-    let source_file = expand('%:p')
+    let source_file = vimwiki#path#current_wiki_file()
   endif
 
   let link_text = a:link_text
@@ -406,7 +406,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
         \ || link_infos.scheme =~# 'diary'
 
   let update_prev_link = is_wiki_link &&
-        \ !vimwiki#path#is_equal(link_infos.filename, expand('%:p'))
+        \ !vimwiki#path#is_equal(link_infos.filename, vimwiki#path#current_wiki_file())
 
   let vimwiki_prev_link = []
   " update previous link for wiki pages
@@ -414,7 +414,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
     if a:0
       let vimwiki_prev_link = [a:1, []]
     elseif &ft ==# 'vimwiki'
-      let vimwiki_prev_link = [expand('%:p'), getpos('.')]
+      let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
     endif
   endif
 

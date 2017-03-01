@@ -75,13 +75,19 @@ function! vimwiki#path#path_common_pfx(path1, path2) "{{{
 endfunction "}}}
 
 function! vimwiki#path#wikify_path(path) "{{{
-  let result = resolve(expand(a:path, ':p'))
+  let result = resolve(fnamemodify(a:path, ':p'))
   if vimwiki#u#is_windows()
     let result = substitute(result, '\\', '/', 'g')
   endif
   let result = vimwiki#path#chomp_slash(result)
   return result
 endfunction "}}}
+
+
+function! vimwiki#path#current_wiki_file()
+  return vimwiki#path#wikify_path(expand('%:p'))
+endfunction
+
 
 " Returns: the relative path from a:dir to a:file
 function! vimwiki#path#relpath(dir, file) "{{{
