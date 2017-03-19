@@ -70,61 +70,6 @@ endfunction " }}}
 
 " WIKI link following functions {{{
 
-" vimwiki#markdown_base#follow_link
-function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
-  " to VimwikiLinkHandler, or failing that, the default open_link handler
-  " echom "markdown_base#follow_link"
-
-  if 0
-    " Syntax-specific links
-    " XXX: @Stuart: do we still need it?
-    " XXX: @Maxim: most likely!  I am still working on a seemless way to
-    " integrate regexp's without complicating syntax/vimwiki.vim
-  else
-    if a:split ==# "split"
-      let cmd = ":split "
-    elseif a:split ==# "vsplit"
-      let cmd = ":vsplit "
-    elseif a:split ==# "tabnew"
-      let cmd = ":tabnew "
-    else
-      let cmd = ":e "
-    endif
-
-    " try WikiLink
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink),
-          \ g:vimwiki_rxWikiLinkMatchUrl)
-    " try WikiIncl
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl),
-          \ g:vimwiki_rxWikiInclMatchUrl)
-    endif
-    " try Weblink
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink),
-            \ g:vimwiki_rxWeblinkMatchUrl)
-    endif
-
-    if lnk != ""
-      if !VimwikiLinkHandler(lnk)
-        if !vimwiki#markdown_base#open_reflink(lnk)
-          " remove the extension from the filename if exists
-          let lnk = substitute(lnk, VimwikiGet('ext').'$', '', '')
-          call vimwiki#base#open_link(cmd, lnk)
-        endif
-      endif
-      return
-    endif
-
-    if a:0 > 0
-      execute "normal! ".a:1
-    else		
-      call vimwiki#base#normalize_link(0)
-    endif
-  endif
-
-endfunction " }}}
-
 " LINK functions {{{
 
 " s:normalize_link_syntax_n
