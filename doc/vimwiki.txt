@@ -755,9 +755,10 @@ Warning: this is currently unstable and likely to change.
 
 To map them to a key, use >
  nnoremap <C-K> :call vimwiki#base#function_name(arg1, arg2)<CR>
+<
 
-
-vimwiki#base#follow_link({split}, {reuse}, {move_cursor})         *follow_link*
+                                                          *vimwiki-follow_link*
+vimwiki#base#follow_link({split}, {reuse}, {move_cursor})
     Open the link under the cursor. {split} can have the following values:
         'nosplit'       open the link in the current window
         'vsplit'        open in a vertically split window
