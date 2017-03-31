@@ -28,7 +28,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
   let all_files = a:all_files != ''
   if !a:full_rebuild
     " Updating for one page (current)
-    let page_name = vimwiki#vars#get_bufferlocal('subdir') . expand('%:t:r')
+    let page_name = s:page_name(vimwiki#path#current_file())
     " Collect tags in current file
     let tags = s:scan_tags(getline(1, '$'), page_name)
     " Load metadata file
@@ -41,14 +41,12 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     call s:write_tags_metadata(metadata)
   else " full rebuild
     let files = vimwiki#base#find_files(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
-    let wiki_base_dir = vimwiki#vars#get_wikilocal('path')
     let tags_file_last_modification =
-          \ getftime(vimwiki#tags#metadata_file_path())
+          \ getftime(vimwiki#path#to_string(vimwiki#tags#metadata_file_path()))
     let metadata = s:load_tags_metadata()
     for file in files
-      if all_files || getftime(file) >= tags_file_last_modification
-        let subdir = vimwiki#base#subdir(wiki_base_dir, file)
-        let page_name = subdir . fnamemodify(file, ':t:r')
+      if all_files || getftime(vimwiki#path#to_string(file)) >= tags_file_last_modification
+        let page_name = s:page_name(file)
         let tags = s:scan_tags(readfile(file), page_name)
         let metadata = s:remove_page_from_tags(metadata, page_name)
         let metadata = s:merge_tags(metadata, page_name, tags)
@@ -57,6 +55,12 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     call s:write_tags_metadata(metadata)
   endif
 endfunction " }}}
+
+function! s:page_name(file_obj)
+  let wiki_base_dir = vimwiki#vars#get_wikilocal('path')
+  let segment = vimwiki#path#subtract(wiki_base_dir, a:file_obj)
+  return vimwiki#path#to_string(segment)
+endfunction
 
 " s:scan_tags
 "   Scans the list of text lines (argument) and produces tags metadata as a
@@ -139,9 +143,9 @@ function! s:scan_tags(lines, page_name) "{{{
 endfunction " }}}
 
 " vimwiki#tags#metadata_file_path
-"   Returns tags metadata file path
+"   Returns tags metadata file path object
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'), s:TAGS_METADATA_FILE_NAME), ':p')
+  return vimwiki#path#join(vimwiki#vars#get_wikilocal('path'), vimwiki#path#from_segment_file(s:TAGS_METADATA_FILE_NAME))
 endfunction " }}}
 
 " s:load_tags_metadata

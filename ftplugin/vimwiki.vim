@@ -29,7 +29,7 @@ execute 'setlocal suffixesadd='.vimwiki#vars#get_wikilocal('ext')
 setlocal isfname-=[,]
 " gf}}}
 
-exe "setlocal tags+=" . escape(vimwiki#tags#metadata_file_path(), ' \|"')
+exe "setlocal tags+=" . escape(vimwiki#path#to_string(vimwiki#tags#metadata_file_path()), ' \|"')
 
 " MISC }}}
 
@@ -106,7 +106,7 @@ function! Complete_wikifiles(findstart, base)
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
-      let wikifile = link_infos.filename
+      let wikifile = link_infos.path
       let syntax = vimwiki#vars#get_wikilocal('syntax', link_infos.index)
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 
@@ -243,18 +243,17 @@ endfunction "}}}
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
-      \                             expand('%'))
+      \ let res = vimwiki#html#Wiki2HTML(vimwiki#vars#get_wikilocal('path_html'), vimwiki#path#current_file())
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: ' . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: ' . vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
-      \         expand(vimwiki#vars#get_wikilocal('path_html')),
-      \         expand('%')))
+      \         vimwiki#vars#get_wikilocal('path_html'),
+      \         vimwiki#path#current_file()))
 command! -buffer VimwikiAll2HTML
-      \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')))
+      \ call vimwiki#html#WikiAll2HTML(vimwiki#vars#get_wikilocal('path_html'))
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
@@ -277,10 +276,10 @@ command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 
 exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
+      \ escape(vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path')).'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
+      \ escape(vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path')).'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
@@ -641,8 +640,7 @@ if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
     au BufWritePost <buffer>
-      \ call vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
-      \                             expand('%'))
+      \ call vimwiki#html#Wiki2HTML(vimwiki#vars#get_wikilocal('path_html'), vimwiki#path#current_file())
   augroup END
 endif
 

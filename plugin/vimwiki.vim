@@ -30,8 +30,9 @@ endfunction "}}}
 
 " create a new temporary wiki for the current buffer
 function! s:create_temporary_wiki()
-  let path = expand('%:p:h')
-  let ext = '.'.expand('%:e')
+  let current_file = vimwiki#path#current_file()
+  let path = vimwiki#path#directory(current_file)
+  let ext = '.'.vimwiki#path#extension(current_file)
 
   let syntax_mapping = vimwiki#vars#get_global('ext2syntax')
   if has_key(syntax_mapping, ext)
@@ -124,7 +125,7 @@ function! s:setup_buffer_enter() "{{{
 
   " lcd as well
   if vimwiki#vars#get_global('auto_chdir')
-    exe 'lcd' vimwiki#vars#get_wikilocal('path')
+    exe 'lcd' vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path'))
   endif
 
   " Set up menu
@@ -292,8 +293,8 @@ nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
 " MENU {{{
 function! s:build_menu(topmenu)
   for idx in range(vimwiki#vars#number_of_wikis())
-    let norm_path = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
-    let norm_path = escape(norm_path, '\ \.')
+    let norm_path = vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path', idx))
+    let norm_path = escape(norm_path, '\ .')
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#base#goto_index('.idx.')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.

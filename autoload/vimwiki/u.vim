@@ -61,3 +61,8 @@ else
     return &sw
   endfunc
 endif "}}}
+
+
+function vimwiki#u#error(message)
+  echom 'Vimwiki Error: ' . a:message
+endfunction

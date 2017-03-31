@@ -22,7 +22,7 @@ let g:loaded_vimwiki_html_auto = 1
 
 " UTILITY "{{{
 function! s:root_path(subdir) "{{{
-  return repeat('../', len(split(a:subdir, '[/\\]')))
+  return vimwiki#path#relpath(vimwiki#vars#get_wikilocal('path'), a:subdir)
 endfunction "}}}
 
 function! s:syntax_supported() " {{{
@@ -49,41 +49,20 @@ function! s:is_img_link(lnk) "{{{
   return 0
 endfunction "}}}
 
-function! s:has_abs_path(fname) "{{{
-  if a:fname =~# '\(^.:\)\|\(^/\)'
+function! s:default_CSS_full_name(target_dir) " {{{
+  return vimwiki#path#join(path, vimwiki#vars#get_wikilocal('css_name'))
+endfunction "}}}
+
+" Returns: 1 if it was createt, 0 if it already existed
+function! s:create_default_CSS(target_dir) " {{{
+  let css_full_name = s:default_CSS_full_name(a:target_dir)
+  if vimwiki#path#exists(css_full_name)
+    return 0
+  else
+    let default_css = vimwiki#path#find_autoload_file('style.css')
+    call vimwiki#path#copy_file(default_css, css_full_name)
     return 1
   endif
-  return 0
-endfunction "}}}
-
-function! s:find_autoload_file(name) " {{{
-  for path in split(&runtimepath, ',')
-    let fname = path.'/autoload/vimwiki/'.a:name
-    if glob(fname) != ''
-      return fname
-    endif
-  endfor
-  return ''
-endfunction " }}}
-
-function! s:default_CSS_full_name(path) " {{{
-  let path = expand(a:path)
-  let css_full_name = path . vimwiki#vars#get_wikilocal('css_name')
-  return css_full_name
-endfunction "}}}
-
-function! s:create_default_CSS(path) " {{{
-  let css_full_name = s:default_CSS_full_name(a:path)
-  if glob(css_full_name) == ""
-    call vimwiki#path#mkdir(fnamemodify(css_full_name, ':p:h'))
-    let default_css = s:find_autoload_file('style.css')
-    if default_css != ''
-      let lines = readfile(default_css)
-      call writefile(lines, css_full_name)
-      return 1
-    endif
-  endif
-  return 0
 endfunction "}}}
 
 function! s:template_full_name(name) "{{{
@@ -93,11 +72,12 @@ function! s:template_full_name(name) "{{{
     let name = a:name
   endif
 
-  let fname = expand(vimwiki#vars#get_wikilocal('template_path').
-        \ name . vimwiki#vars#get_wikilocal('template_ext'))
+  let filename = vimwiki#path#from_segment_file(name . vimwiki#vars#get_wikilocal('template_ext'))
 
-  if filereadable(fname)
-    return fname
+  let template_file = vimwiki#path#to_string(vimwiki#path#join(vimwiki#vars#get_wikilocal('template_path'), filename))
+
+  if filereadable(template_file)
+    return template_file
   else
     return ''
   endif
@@ -113,7 +93,7 @@ function! s:get_html_template(template) "{{{
       let lines = readfile(template_name)
       return lines
     catch /E484/
-      echomsg 'Vimwiki: HTML template '.template_name.
+      echomsg 'Vimwiki: HTML template ' . template_name .
             \ ' does not exist!'
     endtry
   endif
@@ -121,7 +101,7 @@ function! s:get_html_template(template) "{{{
   let default_tpl = s:template_full_name('')
 
   if default_tpl == ''
-    let default_tpl = s:find_autoload_file('default.tpl')
+    let default_tpl = vimwiki#path#to_string(vimwiki#path#find_autoload_file('default.tpl'))
   endif
 
   let lines = readfile(default_tpl)
@@ -154,7 +134,7 @@ function! s:safe_html_line(line) "{{{
 endfunction "}}}
 
 function! s:delete_html_files(path) "{{{
-  let htmlfiles = split(glob(a:path.'**/*.html'), '\n')
+  let htmlfiles = vimwiki#path#files_in_dir_recursive(a:path, 'html')
   for fname in htmlfiles
     " ignore user html files, e.g. search.html,404.html
     if stridx(vimwiki#vars#get_global('user_htmls'), fnamemodify(fname, ":t")) >= 0
@@ -1508,10 +1488,10 @@ function! s:convert_file(path_html, wikifile) "{{{
   return path_html.htmlfile
 endfunction "}}}
 
-function! vimwiki#html#Wiki2HTML(path_html, wikifile) "{{{
-  let result = s:convert_file(a:path_html, a:wikifile)
+function! vimwiki#html#Wiki2HTML(output_dir, wikifile) "{{{
+  let result = s:convert_file(a:output_dir, a:wikifile)
   if result != ''
-    call s:create_default_CSS(a:path_html)
+    call s:create_default_CSS(a:output_dir)
   endif
   return result
 endfunction "}}}
