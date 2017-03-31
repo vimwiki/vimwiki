@@ -167,6 +167,8 @@ function! s:setup_buffer_enter() "{{{
   elseif g:vimwiki_folding ==? 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
+  elseif g:vimwiki_folding ==? 'custom'
+    " do nothing
   else
     setlocal fdm=manual
     normal! zE

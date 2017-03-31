@@ -2321,6 +2321,8 @@ Value           Description~
 'expr'          Folding based on expression (folds sections and code blocks)
 'syntax'        Folding based on syntax (folds sections; slower than 'expr')
 'list'          Folding based on expression (folds list subitems; much slower)
+'custom'        Leave the folding settings as they are (e.g. set by another
+                plugin)
 
 Default: ''
 
