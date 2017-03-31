@@ -122,6 +122,11 @@ Make sure you have these settings in your vimrc file:
 Without them Vimwiki will not work properly.
 
 
+Installation using [Vim packages](http://vimhelp.appspot.com/repeat.txt.html#packages) (since Vim 7.4.1528)
+------------------------------------------------------------------------------
+
+    git clone https://github.com/vimwiki/vimwiki.git ~/.vim/pack/plugins/start/vimwiki
+
 Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=2332)
 ------------------------------------------------------------------------------
 
