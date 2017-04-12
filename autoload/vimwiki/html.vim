@@ -636,6 +636,7 @@ function! s:close_tag_table(table, ldest, header_ids) "{{{
       let n_cells = len(row)
       if n_cells > max_cells
         let max_cells = n_cells
+        let g:my_max_cells = n_cells
       end
     endfor
 
@@ -702,12 +703,43 @@ function! s:close_tag_table(table, ldest, header_ids) "{{{
       endif
 
       call add(a:ldest, '<' . tag_name . rowspan_attr . colspan_attr .'>')
-      call add(a:ldest, s:process_inline_tags(cell.body, a:header_ids))
+      if cell.body  =~ '&nbsp;'
+        call add(a:ldest, '<br /><br />')
+      else
+        call add(a:ldest, s:process_inline_tags(cell.body, a:header_ids))
+      endif
       call add(a:ldest, '</'. tag_name . '>')
     endfor
 
     call add(a:ldest, '</tr>')
   endfunction "}}}
+
+  function! s:close_tag_one_row(row, header, ldest) "{{{
+
+    " Close tag of columns
+    for cell in a:row
+      if cell.rowspan == 0 || cell.colspan == 0
+        continue
+      endif
+
+      if cell.rowspan > 1
+        let rowspan_attr = ' rowspan="' . cell.rowspan . '"'
+      else "cell.rowspan == 1
+        let rowspan_attr = ''
+      endif
+      if cell.colspan > 1
+        let colspan_attr = ' colspan="' . cell.colspan . '"'
+      else "cell.colspan == 1
+        let colspan_attr = ''
+      endif
+      if cell.body  =~ '&nbsp;'
+        call add(a:ldest, '<br /><br />')
+      else 
+        call add(a:ldest, cell.body)
+      endif 
+    endfor
+  endfunction "}}}
+
 
   let table = a:table
   let ldest = a:ldest
@@ -738,13 +770,29 @@ function! s:close_tag_table(table, ldest, header_ids) "{{{
           call s:close_tag_row(row, 1, ldest, a:header_ids)
         endif
       endfor
-      for row in table[head+1 :]
-        call s:close_tag_row(row, 0, ldest, a:header_ids)
-      endfor
+      if (g:my_max_cells == 1 &&  g:vimwiki_one_column_one_row == 1)
+        call add(ldest, "<tr><td>")
+        for row in table[head+1 :]
+          call s:close_tag_one_row(row, 0, ldest)
+        endfor
+        call add(ldest, "</td></tr>")
+      else
+        for row in table[head+1 :]
+          call s:close_tag_row(row, 0, ldest, a:header_ids)
+        endfor
+      endif
     else
-      for row in table[1 :]
-        call s:close_tag_row(row, 0, ldest, a:header_ids)
-      endfor
+      if (g:my_max_cells == 1 &&  g:vimwiki_one_column_one_row == 1)
+        call add(ldest, "<tr><td>")
+        for row in table[1 :]
+          call s:close_tag_one_row(row, 0, ldest)
+        endfor
+        call add(ldest, "</td></tr>")
+      else
+        for row in table[1 :]
+          call s:close_tag_row(row, 0, ldest, a:header_ids)
+        endfor
+      endif
     endif
     call add(ldest, "</table>")
     let table = []
