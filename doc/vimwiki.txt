@@ -742,8 +742,9 @@ Vimwiki file.
 
 *:VimwikiGenerateTags* tagname1 tagname2 ...
     Creates or updates an overview on all tags of the wiki with links to all
-    their instances.  Supports |cmdline-completion|.  If
-    no arguments (tags) are specified, outputs all tags.
+    their instances.  Supports |cmdline-completion|.  If no arguments (tags)
+    are specified, outputs all tags.  To make this command work properly, make
+    sure the tags have been built (see |vimwiki-build-tags|).
 
 ------------------------------------------------------------------------------
 4.3. Functions                                              *vimwiki-functions*
@@ -1296,8 +1297,9 @@ which opens up a popup menu with all tags defined in the wiki starting with
 
 Tags are also treated as |vimwiki-anchors| (similar to bold text).
 
-Note that tag search/jump/completion commands need certain metadata saved in
-the wiki folder.  This metadata file can be manually updated by running
+                                                          *vimwiki-build-tags*
+Note that the tag search/jump/completion commands need certain metadata saved
+in the wiki folder.  This metadata file can be manually updated by running
 |:VimwikiRebuildTags|.  When the option |vimwiki-option-auto_tags| is enabled,
 the tags metadata will be auto-updated on each page save.
 
