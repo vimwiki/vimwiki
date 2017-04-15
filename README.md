@@ -2,7 +2,7 @@ A Personal Wiki For Vim
 ==============================================================================
 
 ![screenshot1](doc/screenshot_1.png)
-![screenshot2](doc/screenshot_2.png)
+![screenshot2](doc/screenshot_2.png) *
 
 Intro
 ------------------------------------------------------------------------------
@@ -145,3 +145,7 @@ Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run
 Or download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was installed.
+
+----
+\* Screenshots made with the [solarized colorscheme](https://github.com/altercation/vim-colors-solarized)
+and [lightline](https://github.com/itchyny/lightline.vim)

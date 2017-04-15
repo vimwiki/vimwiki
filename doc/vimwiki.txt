@@ -1177,7 +1177,8 @@ This might be useful for coloring program code with external JS tools
 such as Google's syntax highlighter.
 
 You can setup Vimwiki to highlight code snippets in preformatted text.
-See |vimwiki-option-nested_syntaxes|
+See |vimwiki-option-nested_syntaxes| and
+|vimwiki-option-automatic_nested_syntaxes|.
 
 
 ------------------------------------------------------------------------------
@@ -2074,7 +2075,9 @@ Just write your preformatted text in your file like this >
  my preformatted text
  }}}
 
-where xxx is a Vim filetype.
+where xxx is a filetype which is known to Vim. For example, for C++
+highlighting, use "cpp" (not "c++"). For a list of known filetypes, type
+":setf " and hit Ctrl+d.
 
 Note that you may have to reload the file (|:edit|) to see the highlight.
 
