@@ -7,6 +7,8 @@ if exists("g:loaded_vimwiki_auto") || &cp
   finish
 endif
 let g:loaded_vimwiki_auto = 1
+" by default, one column has multiple rows
+let g:vimwiki_one_column_one_row = 0 
 
 " s:vimwiki_get_known_syntaxes
 function! s:vimwiki_get_known_syntaxes() " {{{
@@ -1361,6 +1363,15 @@ function! vimwiki#base#delete_link() "{{{
   " reread buffer => deleted wiki link should appear as non-existent
   if expand('%:p') != ""
     execute "e"
+  endif
+endfunction "}}}
+
+" vimwiki#base#one_column_one_row_toggle
+function! vimwiki#base#one_column_one_row_toggle() "{{{
+  if g:vimwiki_one_column_one_row
+      let g:vimwiki_one_column_one_row = 0
+  else
+      let g:vimwiki_one_column_one_row = 1
   endif
 endfunction "}}}
 

@@ -264,6 +264,7 @@ command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
 command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
 command! -buffer VimwikiRenameLink call vimwiki#base#rename_link()
+command! -buffer VimwikiOneColumnOneRow call vimwiki#base#one_column_one_row_toggle()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
 command! -buffer VimwikiSplitLink call vimwiki#base#follow_link('hsplit', 0, 1)
@@ -418,6 +419,13 @@ if !hasmapto('<Plug>VimwikiRenameLink')
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
+
+if !hasmapto('<Plug>VimwikiOneColumnOneRow')
+  nmap <silent><buffer> <Leader>wz <Plug>VimwikiOneColumnOneRow
+endif
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiOneColumnOneRow :VimwikiOneColumnOneRow<CR>
+
 
 if !hasmapto('<Plug>VimwikiDiaryNextDay')
   nmap <silent><buffer> <C-Down> <Plug>VimwikiDiaryNextDay
