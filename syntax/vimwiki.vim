@@ -413,7 +413,7 @@ execute 'syntax match VimwikiList /'.g:vimwiki_rxListDefine.'/'
 execute 'syntax match VimwikiListTodo /'.g:vimwiki_rxListItem.'/'
 
 if g:vimwiki_hl_cb_checked == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemWithoutCB.'\s*\['.g:vimwiki_listsyms_list[4].'\]\s.*$/ '.
+  execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemWithoutCB.'\s*\['.g:vimwiki_listsyms_list[-1].'\]\s.*$/ '.
         \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 elseif g:vimwiki_hl_cb_checked == 2
   execute 'syntax match VimwikiCheckBoxDone /'.g:vimwiki_rxListItemAndChildren.'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'

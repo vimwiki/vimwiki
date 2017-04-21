@@ -43,7 +43,7 @@ function! s:get_position_links(link) "{{{
   let idx = -1
   let links = []
   if a:link =~# '^\d\{4}-\d\d-\d\d'
-    let links = keys(s:get_diary_links())
+    let links = map(s:get_diary_files(), 'fnamemodify(v:val, ":t:r")')
     " include 'today' into links
     if index(links, s:diary_date_link()) == -1
       call add(links, s:diary_date_link())
@@ -83,7 +83,7 @@ fun! s:read_captions(files) "{{{
   return result
 endfun "}}}
 
-fun! s:get_diary_links() "{{{
+fun! s:get_diary_files() "{{{
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
   let files = split(s_files, '\n')
@@ -92,9 +92,7 @@ fun! s:get_diary_links() "{{{
   " remove backup files (.wiki~)
   call filter(files, 'v:val !~# ''.*\~$''')
 
-  let links_with_captions = s:read_captions(files)
-
-  return links_with_captions
+  return files
 endfun "}}}
 
 fun! s:group_links(links) "{{{
@@ -129,7 +127,9 @@ endfunction "}}}
 function! s:format_diary() "{{{
   let result = []
 
-  let g_files = s:group_links(s:get_diary_links())
+
+  let links_with_captions = s:read_captions(s:get_diary_files())
+  let g_files = s:group_links(links_with_captions)
 
   for year in s:sort(keys(g_files))
     call add(result, '')

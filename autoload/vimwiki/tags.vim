@@ -234,9 +234,9 @@ function! s:tags_entry_cmp(i1, i2) "{{{
     let item.lineno = 0 + matchstr(fields[2], '\m\d\+')
     call add(items, item)
   endfor
-  if items[0].text > items[1].text
+  if items[0].text ># items[1].text
     return 1
-  elseif items[0].text < items[1].text
+  elseif items[0].text <# items[1].text
     return -1
   elseif items[0].lineno > items[1].lineno
     return 1
