@@ -1057,7 +1057,7 @@ function! s:change_level(from_line, to_line, direction, plus_children) "{{{
 endfunction "}}}
 
 function! vimwiki#lst#change_level(from_line, to_line, direction, plus_children) "{{{
-  let cur_col = col('$') - col('.')
+  let cur_col = col('$') - col("'^")
   call s:change_level(a:from_line, a:to_line, a:direction, a:plus_children)
   call cursor('.', col('$') - cur_col)
 endfunction "}}}
