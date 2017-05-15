@@ -1369,10 +1369,11 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
       \ shellescape(s:default_CSS_full_name(a:path)). ' '.
-      \ (len(VimwikiGet('template_path'))    > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
-      \ (len(VimwikiGet('template_default')) > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
-      \ (len(VimwikiGet('template_ext'))     > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
-      \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'))
+      \ (len(VimwikiGet('template_path'))         > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
+      \ (len(VimwikiGet('template_default'))      > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
+      \ (len(VimwikiGet('template_ext'))          > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
+      \ (len(VimwikiGet('subdir'))                > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'). ' '.
+      \ (len(VimwikiGet('custom_wiki2html_args')) > 0 ? VimwikiGet('custom_wiki2html_args')              : '-'))
 endfunction " }}}
 
 function! s:convert_file(path_html, wikifile) "{{{
