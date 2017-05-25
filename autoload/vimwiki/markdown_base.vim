@@ -145,7 +145,7 @@ function! s:normalize_link_syntax_v() " {{{
     call setreg('"', link, 'v')
 
     " paste result
-    norm! `>pgvd
+    norm! `>""pgvd
 
   finally
     call setreg('"', rv, rt)
