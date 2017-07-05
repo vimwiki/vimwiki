@@ -455,21 +455,19 @@ augroup END
 
 " COMMANDS {{{
 command! VimwikiUISelect call vimwiki#base#ui_select()
-" XXX: why not using <count> instead of v:count1?
-" See Issue 324.
-command! -count=1 VimwikiIndex
-      \ call vimwiki#base#goto_index(v:count1)
-command! -count=1 VimwikiTabIndex
-      \ call vimwiki#base#goto_index(v:count1, 1)
+command! -count VimwikiIndex
+      \ call vimwiki#base#goto_index(<count>)
+command! -count VimwikiTabIndex
+      \ call vimwiki#base#goto_index(<count>)
 
-command! -count=1 VimwikiDiaryIndex
-      \ call vimwiki#diary#goto_diary_index(v:count1)
-command! -count=1 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1)
-command! -count=1 VimwikiTabMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 1)
-command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0, strftime(VimwikiGet('diary_link_fmt', v:count1 - 1), localtime() - 60*60*24))
+command! -count VimwikiDiaryIndex
+      \ call vimwiki#diary#goto_diary_index(<count>)
+command! -count VimwikiMakeDiaryNote
+      \ call vimwiki#diary#make_note(<count>)
+command! -count VimwikiTabMakeDiaryNote
+      \ call vimwiki#diary#make_note(<count>)
+command! -count VimwikiMakeYesterdayDiaryNote
+      \ call vimwiki#diary#make_note(<count>, 0, strftime(VimwikiGet('diary_link_fmt', vimwiki#base#get_index(<count>), localtime() - 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
@@ -479,22 +477,22 @@ command! VimwikiDiaryGenerateLinks
 if !hasmapto('<Plug>VimwikiIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'w <Plug>VimwikiIndex'
 endif
-nnoremap <unique><script> <Plug>VimwikiIndex :VimwikiIndex<CR>
+nnoremap <unique><script> <Plug>VimwikiIndex :<C-U>execute v:count."VimwikiIndex"<CR>
 
 if !hasmapto('<Plug>VimwikiTabIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'t <Plug>VimwikiTabIndex'
 endif
-nnoremap <unique><script> <Plug>VimwikiTabIndex :VimwikiTabIndex<CR>
+nnoremap <unique><script> <Plug>VimwikiTabIndex :<C-U>execute v:count."VimwikiTabIndex"<CR>
 
 if !hasmapto('<Plug>VimwikiUISelect')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'s <Plug>VimwikiUISelect'
 endif
-nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
+nnoremap <unique><script> <Plug>VimwikiUISelect :<C-U>execute v:count."VimwikiUISelect"<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryIndex')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'i <Plug>VimwikiDiaryIndex'
 endif
-nnoremap <unique><script> <Plug>VimwikiDiaryIndex :VimwikiDiaryIndex<CR>
+nnoremap <unique><script> <Plug>VimwikiDiaryIndex :<C-U>execute v:count."VimwikiDiaryIndex"<CR>
 
 if !hasmapto('<Plug>VimwikiDiaryGenerateLinks')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
@@ -504,19 +502,19 @@ nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateL
 if !hasmapto('<Plug>VimwikiMakeDiaryNote')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
 endif
-nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :VimwikiMakeDiaryNote<CR>
+nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote :<C-U>execute v:count."VimwikiMakeDiaryNote"<CR>
 
 if !hasmapto('<Plug>VimwikiTabMakeDiaryNote')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
-      \ :VimwikiTabMakeDiaryNote<CR>
+      \ :<C-U>execute v:count."VimwikiTabMakeDiaryNote"<CR>
 
 if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
   exe 'nmap <silent><unique> '.g:vimwiki_map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
-      \ :VimwikiMakeYesterdayDiaryNote<CR>
+      \ :<C-U>execute v:count."VimwikiMakeYesterdayDiaryNote"<CR>
 
 "}}}
 

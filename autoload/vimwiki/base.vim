@@ -1310,8 +1310,7 @@ function! vimwiki#base#go_back_link() "{{{
   endif
 endfunction " }}}
 
-" vimwiki#base#goto_index
-function! vimwiki#base#goto_index(wnum, ...) "{{{
+function! vimwiki#base#get_index(wnum)
   if a:wnum > len(g:vimwiki_list)
     echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
@@ -1320,10 +1319,16 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
   " usually a:wnum is greater then 0 but with the following command it is == 0:
   " vim -n -c "exe 'VimwikiIndex' | echo g:vimwiki_current_idx"
   if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
+    return a:wnum - 1
   endif
+
+  return g:vimwiki_current_idx
+endfunction
+
+
+" vimwiki#base#goto_index
+function! vimwiki#base#goto_index(wnum, ...) "{{{
+  let idx = vimwiki#base#get_index(a:wnum)
 
   if a:0
     let cmd = 'tabedit'

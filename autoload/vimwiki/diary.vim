@@ -160,17 +160,7 @@ endfunction "}}}
 " Diary index stuff }}}
 
 function! vimwiki#diary#make_note(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
-    return
-  endif
-
-  " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
+  let idx = vimwiki#base#get_index(a:wnum)
 
   call vimwiki#path#mkdir(VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx))
 
@@ -190,17 +180,7 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
 endfunction "}}}
 
 function! vimwiki#diary#goto_diary_index(wnum) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
-    return
-  endif
-
-  " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
+  let idx = vimwiki#base#get_index(a:wnum)
 
   call vimwiki#base#edit_file('e', s:diary_index(idx), '')
   call vimwiki#base#setup_buffer_state(idx)
