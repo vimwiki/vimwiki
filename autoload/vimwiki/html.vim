@@ -1505,7 +1505,7 @@ function! s:convert_file(path_html, wikifile) "{{{
     call extend(ldest, lines)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
-    let date = s:process_date(placeholders, "")
+    let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
 
     let html_lines = s:get_html_template(template_name)
 
