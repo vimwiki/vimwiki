@@ -1203,7 +1203,7 @@ function! s:parse_line(line, state) " {{{
 
   " nohtml -- placeholder
   if !processed
-    if line =~# '^\s*%nohtml'
+    if line =~# '\m^\s*%nohtml\s*$'
       let processed = 1
       let state.placeholder = ['nohtml']
     endif
@@ -1211,27 +1211,27 @@ function! s:parse_line(line, state) " {{{
 
   " title -- placeholder
   if !processed
-    if line =~# '^\s*%title'
+    if line =~# '\m^\s*%title\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%title\s\zs.*')
+      let param = matchstr(line, '\m^\s*%title\s\+\zs.*')
       let state.placeholder = ['title', param]
     endif
   endif
 
   " date -- placeholder
   if !processed
-    if line =~# '^\s*%date'
+    if line =~# '\m^\s*%date\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%date\s\zs.*')
+      let param = matchstr(line, '\m^\s*%date\s\+\zs.*')
       let state.placeholder = ['date', param]
     endif
   endif
 
   " html template -- placeholder "{{{
   if !processed
-    if line =~# '^\s*%template'
+    if line =~# '\m^\s*%template\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%template\s\zs.*')
+      let param = matchstr(line, '\m^\s*%template\s\+\zs.*')
       let state.placeholder = ['template', param]
     endif
   endif
