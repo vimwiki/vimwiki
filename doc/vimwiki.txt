@@ -1399,6 +1399,18 @@ into it.
 
 See |vimwiki-option-template_path| for details.
 
+------------------------------------------------------------------------------
+%date                                                           *vimwiki-date*
+
+The date of the wiki page. The value can be used in the HTML template, see
+|vimwiki-option-template_path| for details.
+
+%date 2017-07-08
+%date
+
+If you omit the date after the placeholder, the date of the HTML conversion is
+used.
+
 
 ==============================================================================
 8. Lists                                                       *vimwiki-lists*
@@ -1950,11 +1962,13 @@ Each template could look like: >
         <div class="content">
         %content%
         </div>
+        <p><small>Page created on %date%</small></p>
     </body>
     </html>
 
 where
   %title% is replaced by a wiki page name or by a |vimwiki-title|
+  %date% is replaced with the current date or by |vimwiki-date|
   %root_path% is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
     %root_path% is replaced by '../../../'.
