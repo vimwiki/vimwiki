@@ -448,12 +448,12 @@ vnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 
 if !hasmapto('<Plug>VimwikiIncrementListItem')
-  nmap <silent><buffer> <M-+> <Plug>VimwikiIncrementListItem
-  vmap <silent><buffer> <M-+> <Plug>VimwikiIncrementListItem
+  nmap <silent><buffer> gl+ <Plug>VimwikiIncrementListItem
+  vmap <silent><buffer> gl+ <Plug>VimwikiIncrementListItem
 endif
 if !hasmapto('<Plug>VimwikiDecrementListItem')
-  nmap <silent><buffer> <M--> <Plug>VimwikiDecrementListItem
-  vmap <silent><buffer> <M--> <Plug>VimwikiDecrementListItem
+  nmap <silent><buffer> gl- <Plug>VimwikiDecrementListItem
+  vmap <silent><buffer> gl- <Plug>VimwikiDecrementListItem
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiIncrementListItem :VimwikiIncrementListItem<CR>
