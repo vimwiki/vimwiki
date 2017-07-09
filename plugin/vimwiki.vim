@@ -410,7 +410,7 @@ call s:default('auto_chdir', 0)
 call s:default('schemes', 'wiki\d\+,diary,local')
 call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
         \ 'rsync,imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp')
-call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
+call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel,data')
 
 let s:rxSchemes = '\%('.
       \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 
