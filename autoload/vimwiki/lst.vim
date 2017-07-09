@@ -808,6 +808,78 @@ function! s:remove_cb(item) "{{{
   return item
 endfunction "}}}
 
+
+"Increment checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  let parent_items_of_lines = []
+
+  if from_item.cb != ''
+
+    "if from_line has CB, toggle it and set all siblings to the same new state
+    let rate_first_line = s:get_rate(from_item)
+    let n=len(g:vimwiki_listsyms_list)
+    let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
+
+    for cur_ln in range(from_item.lnum, a:to_line)
+      let cur_item = s:get_item(cur_ln)
+      if cur_item.type != 0 && cur_item.cb != ''
+        call s:set_state_plus_children(cur_item, new_rate)
+        let cur_parent_item = s:get_parent(cur_item)
+        if index(parent_items_of_lines, cur_parent_item) == -1
+          call insert(parent_items_of_lines, cur_parent_item)
+        endif
+      endif
+    endfor
+
+  endif
+
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+
+endfunction "}}}
+"Increment checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#increment_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  let parent_items_of_lines = []
+
+  if from_item.cb != ''
+
+    "if from_line has CB, toggle it and set all siblings to the same new state
+    let rate_first_line = s:get_rate(from_item)
+    let n=len(g:vimwiki_listsyms_list)
+    let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
+
+    for cur_ln in range(from_item.lnum, a:to_line)
+      let cur_item = s:get_item(cur_ln)
+      if cur_item.type != 0 && cur_item.cb != ''
+        call s:set_state_plus_children(cur_item, new_rate)
+        let cur_parent_item = s:get_parent(cur_item)
+        if index(parent_items_of_lines, cur_parent_item) == -1
+          call insert(parent_items_of_lines, cur_parent_item)
+        endif
+      endif
+    endfor
+
+  endif
+
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+
+endfunction "}}}
+
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
