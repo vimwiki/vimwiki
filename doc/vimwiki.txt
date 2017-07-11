@@ -2161,8 +2161,9 @@ The following arguments, in this order, are passed to the script:
 10. root_path : a count of ../ for pages buried in subdirs
     For example, if you have wikilink [[dir1/dir2/dir3/my page in a subdir]]
     then this argument is '../../../'.
-11. custom_args : custom arguments (can be defined in g:vimwiki_list as
-    'custom_wiki2html_args' parameter) that will be passed to the conversion
+11. custom_args : custom arguments that will be passed to the conversion
+    (can be defined in g:vimwiki_list as 'custom_wiki2html_args' parameter,
+    see |vimwiki-option-custom_wiki2html_args|)
     script.
 
 Options 7-11 are experimental and may change in the future.  If any of these
@@ -2176,6 +2177,17 @@ An alternative converter was developed by Jason6Anderson, and can
 be located at https://github.com/vimwiki-backup/vimwiki/issues/384
 
 To use the internal wiki2html converter, use an empty string (the default).
+
+
+vimwiki-option-custom_wiki2html_args
+-----------------------------------------------------------------------------
+Key                     Default value~
+custom_wiki2html_args   ''
+
+Description
+If a custom script is called with |vimwiki-option-custom_wiki2html|, additional
+parameters can be passed by setting them using 'custom_wiki2html_args' in
+|g:vimwiki_list|.
 
 
 *vimwiki-option-list_margin*
