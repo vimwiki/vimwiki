@@ -351,6 +351,16 @@ gL<Space>               Remove checkboxes from all sibling list items.
                         :map <Leader><Space> <Plug>VimwikiRemoveSingleCB
                         :map <Leader><Space> <Plug>VimwikiRemoveCBInList
 <
+                        *vimwiki_gln* *vimwiki_glp*
+gln                     Increase the "done" status of a list checkbox, i.e.
+                        from [ ] to [.] to [o] etc. See |vimwiki-todo-lists|.
+glp                     Decrease the "done" status.
+                        To remap: >
+                        :nmap <M-+> <Plug>VimwikiIncrementListItem
+                        :vmap <M-+> <Plug>VimwikiIncrementListItem
+                        :nmap <M--> <Plug>VimwikiDecrementListItem
+                        :vmap <M--> <Plug>VimwikiDecrementListItem
+
                         *vimwiki_gll* *vimwiki_gLl*
 gll                     Increase the level of a list item.
 gLl                     Increase the level of a list item and all child items.
@@ -1546,7 +1556,7 @@ See |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI|
 
 
-Use glr and gLr, if the numbers of a numbered list are mixed up. See
+Use glr and gLr if the numbers of a numbered list are mixed up. See
 |vimwiki_glr| and |vimwiki_gLr|.
 
 
@@ -1598,6 +1608,9 @@ child items (see also |g:vimwiki_listsyms|): >
     [o] -- 34-66%
     [O] -- 67-99%
     [X] -- 100%
+
+You can use |vimwiki_gln| and |vimwiki_glp| to change the "done" status of a
+checkbox without a childitem.
 
 It is possible to toggle several list items using visual mode. But note that
 instead of toggling every item individually, all items get checked if the
