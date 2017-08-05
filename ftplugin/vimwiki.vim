@@ -443,6 +443,10 @@ if !hasmapto('<Plug>VimwikiToggleListItem')
     vmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
   endif
 endif
+if !hasmapto('<Plug>VimwikiToggleListItemRejected')
+  nmap <silent><buffer> glx <Plug>VimwikiToggleListItemRejected
+  vmap <silent><buffer> glx <Plug>VimwikiToggleListItemRejected
+endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer>
