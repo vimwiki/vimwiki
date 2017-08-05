@@ -843,6 +843,46 @@ function! s:change_cb(from_line, to_line, new_rate) "{{{
 
 endfunction "}}}
 
+"Toggles checkbox between two states in the lines of the given range,
+"creates chceckboxes if there aren't any.
+function! s:toggle_create_cb(from_line, to_line, state1, state2) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  if from_item.cb == ''
+
+    "if from_line has no CB, make a CB in every selected line
+    let parent_items_of_lines = []
+    for cur_ln in range(from_item.lnum, a:to_line)
+      let cur_item = s:get_item(cur_ln)
+      let success = s:create_cb(cur_item)
+
+      if success
+        let cur_parent_item = s:get_parent(cur_item)
+        if index(parent_items_of_lines, cur_parent_item) == -1
+          call insert(parent_items_of_lines, cur_parent_item)
+        endif
+      endif
+    endfor
+
+    for parent_item in parent_items_of_lines
+      call s:update_state(parent_item)
+    endfor
+
+  else
+
+    "if from_line has CB, toggle it and set all siblings to the same new state
+    let rate_first_line = s:get_rate(from_item)
+    let new_rate = rate_first_line == a:state1 ? a:state2 : a:state1
+
+    call s:change_cb(a:from_line, a:to_line, new_rate)
+
+  endif
+
+endfunction "}}}
+
 "Decrement checkbox between [ ] and [X]
 "in the lines of the given range
 function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
@@ -880,81 +920,13 @@ endfunction "}}}
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    return
-  endif
-
-  if from_item.cb == ''
-
-    "if from_line has no CB, make a CB in every selected line
-    let parent_items_of_lines = []
-    for cur_ln in range(from_item.lnum, a:to_line)
-      let cur_item = s:get_item(cur_ln)
-      let success = s:create_cb(cur_item)
-
-      if success
-        let cur_parent_item = s:get_parent(cur_item)
-        if index(parent_items_of_lines, cur_parent_item) == -1
-          call insert(parent_items_of_lines, cur_parent_item)
-        endif
-      endif
-    endfor
-
-    for parent_item in parent_items_of_lines
-      call s:update_state(parent_item)
-    endfor
-
-  else
-
-    "if from_line has CB, toggle it and set all siblings to the same new state
-    let rate_first_line = s:get_rate(from_item)
-    let new_rate = rate_first_line == 100 ? 0 : 100
-
-    call s:change_cb(a:from_line, a:to_line, new_rate)
-
-  endif
-
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
 endfunction "}}}
 
 "Toggles checkbox between [ ] and [-] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_rejected_cb(from_line, to_line) "{{{
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    return
-  endif
-
-  if from_item.cb == ''
-
-    "if from_line has no CB, make a CB in every selected line
-    let parent_items_of_lines = []
-    for cur_ln in range(from_item.lnum, a:to_line)
-      let cur_item = s:get_item(cur_ln)
-      let success = s:create_cb(cur_item)
-
-      if success
-        let cur_parent_item = s:get_parent(cur_item)
-        if index(parent_items_of_lines, cur_parent_item) == -1
-          call insert(parent_items_of_lines, cur_parent_item)
-        endif
-      endif
-    endfor
-
-    for parent_item in parent_items_of_lines
-      call s:update_state(parent_item)
-    endfor
-
-  else
-
-    "if from_line has CB, toggle it and set all siblings to the same new state
-    let rate_first_line = s:get_rate(from_item)
-    let new_rate = rate_first_line == -1 ? 0 : -1
-
-    call s:change_cb(a:from_line, a:to_line, new_rate)
-
-  endif
-
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
 endfunction "}}}
 
 function! vimwiki#lst#remove_cb(first_line, last_line) "{{{
