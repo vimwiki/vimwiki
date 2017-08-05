@@ -451,6 +451,10 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiToggleListItemRejected :VimwikiToggleListItemRejected<CR>
+vnoremap <silent><script><buffer>
+      \ <Plug>VimwikiToggleListItemRejected :VimwikiToggleListItemRejected<CR>
 
 if !hasmapto('<Plug>VimwikiIncrementListItem')
   nmap <silent><buffer> gln <Plug>VimwikiIncrementListItem
