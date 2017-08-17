@@ -57,7 +57,7 @@ function! s:is_table(line) "{{{
 endfunction "}}}
 
 function! s:is_separator(line) "{{{
-  return a:line =~# '^\s*'.s:rxSep().'\(--\+'.s:rxSep().'\)\+\s*$'
+  return a:line =~# '^\s*'.s:rxSep().'\(:\=--\+:\='.s:rxSep().'\)\+\s*$'
 endfunction "}}}
 
 function! s:is_separator_tail(line) "{{{
@@ -234,6 +234,33 @@ function! s:get_rows(lnum) "{{{
   return upper_rows + lower_rows
 endfunction "}}}
 
+function! s:get_cell_aligns(lnum) "{{{
+  let aligns = {}
+  for [lnum, row] in s:get_rows(a:lnum)
+    if s:is_separator(row)
+      let cells = vimwiki#tbl#get_cells(row)
+      for idx in range(len(cells))
+        let cell = cells[idx]
+        if cell =~# '^--\+:'
+          let aligns[idx] = 'right'
+        elseif cell =~# '^:--\+:'
+          let aligns[idx] = 'center'
+        else
+          let aligns[idx] = 'left'
+        endif
+      endfor
+    else
+      let cells = vimwiki#tbl#get_cells(row)
+      for idx in range(len(cells))
+        if !has_key(aligns, idx)
+          let aligns[idx] = 'left'
+        endif
+      endfor
+    endif
+  endfor
+  return aligns
+endfunction "}}}
+
 function! s:get_cell_max_lens(lnum, ...) "{{{
   let max_lens = {}
   for [lnum, row] in s:get_rows(a:lnum)
@@ -261,12 +288,13 @@ function! s:get_aligned_rows(lnum, col1, col2) "{{{
     call add(cells, vimwiki#tbl#get_cells(row))
   endfor
   let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum)
+  let aligns = s:get_cell_aligns(a:lnum)
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)
-      let new_row = s:fmt_sep(max_lens, a:col1, a:col2)
+      let new_row = s:fmt_sep(max_lens, aligns, a:col1, a:col2)
     else
-      let new_row = s:fmt_row(cells[lnum - startlnum], max_lens, a:col1, a:col2)
+      let new_row = s:fmt_row(cells[lnum - startlnum], max_lens, aligns,  a:col1, a:col2)
     endif
     call add(result, [lnum, new_row])
   endfor
@@ -296,19 +324,24 @@ endfunction "}}}
 " }}}
 
 " Format functions {{{
-function! s:fmt_cell(cell, max_len) "{{{
+function! s:fmt_cell(cell, max_len, align) "{{{
   let cell = ' '.a:cell.' '
 
   let diff = a:max_len - s:wide_len(a:cell)
   if diff == 0 && empty(a:cell)
     let diff = 1
   endif
-
-  let cell .= repeat(' ', diff)
+  if a:align == 'left'
+    let cell .= repeat(' ', diff)
+  elseif a:align == 'right'
+    let cell = repeat(' ',diff).cell
+  else 
+    let cell = repeat(' ',diff/2).cell.repeat(' ',diff-diff/2)
+  endif
   return cell
 endfunction "}}}
 
-function! s:fmt_row(cells, max_lens, col1, col2) "{{{
+function! s:fmt_row(cells, max_lens, aligns, col1, col2) "{{{
   let new_line = s:rxSep()
   for idx in range(len(a:cells))
     if idx == a:col1
@@ -317,26 +350,34 @@ function! s:fmt_row(cells, max_lens, col1, col2) "{{{
       let idx = a:col1
     endif
     let value = a:cells[idx]
-    let new_line .= s:fmt_cell(value, a:max_lens[idx]).s:rxSep()
+    let new_line .= s:fmt_cell(value, a:max_lens[idx], a:aligns[idx]).s:rxSep()
   endfor
 
   let idx = len(a:cells)
   while idx < len(a:max_lens)
-    let new_line .= s:fmt_cell('', a:max_lens[idx]).s:rxSep()
+    let new_line .= s:fmt_cell('', a:max_lens[idx], a:aligns[idx]).s:rxSep()
     let idx += 1
   endwhile
   return new_line
 endfunction "}}}
 
-function! s:fmt_cell_sep(max_len) "{{{
+function! s:fmt_cell_sep(max_len, align) "{{{
+  let cell = ''
   if a:max_len == 0
-    return repeat('-', 3)
+    let cell .= '-'
   else
-    return repeat('-', a:max_len+2)
+    let cell .= repeat('-', a:max_len)
+  endif
+  if a:align == 'right'
+    return cell.'-:'
+  elseif a:align == 'left'
+    return cell.'--'
+  else
+    return ':'.cell.':'
   endif
 endfunction "}}}
 
-function! s:fmt_sep(max_lens, col1, col2) "{{{
+function! s:fmt_sep(max_lens, aligns, col1, col2) "{{{
   let new_line = s:rxSep()
   for idx in range(len(a:max_lens))
     if idx == a:col1
@@ -344,7 +385,7 @@ function! s:fmt_sep(max_lens, col1, col2) "{{{
     elseif idx == a:col2
       let idx = a:col1
     endif
-    let new_line .= s:fmt_cell_sep(a:max_lens[idx]).s:rxSep()
+    let new_line .= s:fmt_cell_sep(a:max_lens[idx], a:aligns[idx]).s:rxSep()
   endfor
   return new_line
 endfunction "}}}
