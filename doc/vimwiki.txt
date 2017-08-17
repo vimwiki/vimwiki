@@ -1658,6 +1658,15 @@ values: >
 
 To indent table indent the first row. Then format it with 'gqq'.
 
+You can specify horizontal alignment for columns in the separator.  The
+default is left-align.  >
+
+ | Date       |  Item  |   Price |
+ |------------|:------:|--------:|
+ | yest       | Coffee |  $15.00 |
+ | 2017-02-13 |  Tea   |   $2.10 |
+ | 2017-03-14 |  Cake  | $143.12 |
+<
 
 ==============================================================================
 10. Diary                                                      *vimwiki-diary*
