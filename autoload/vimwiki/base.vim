@@ -1273,7 +1273,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...) "{{{
 
       " remove the extension from the filename if exists, because non-vimwiki
       " markdown files usually include the extension in links
-      let lnk = substitute(lnk, VimwikiGet('ext').'$', '', '')
+      let lnk = substitute(lnk, '\'.VimwikiGet('ext').'$', '', '')
     endif
 
     let current_tab_page = tabpagenr()
