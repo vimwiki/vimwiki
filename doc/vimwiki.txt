@@ -458,10 +458,10 @@ gLI                     Change the symbol of the current list to
 <
                         *vimwiki_glx*
 glx                     Toggle checkbox of a list item disabled/off.
-                        Maps to |:VimwikiToggleListItemRejected|.
+                        Maps to |:VimwikiToggleRejectedListItem|.
                         See |vimwiki-todo-lists|.
                         To remap: >
-                        :map <Leader>tx <Plug>VimwikiToggleListItemRejected
+                        :map <Leader>tx <Plug>VimwikiToggleRejectedListItem
 <
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
@@ -663,7 +663,7 @@ Vimwiki file.
     Toggle checkbox of a list item on/off.
     See |vimwiki-todo-lists|.
 
-*:VimwikiToggleListItemRejected*
+*:VimwikiToggleRejectedListItem*
     Toggle checkbox of a list item disabled/off.
     See |vimwiki-todo-lists|.
 
