@@ -1676,7 +1676,8 @@ function! vimwiki#lst#fold_level(lnum)
 endfunction
 
 
-" Remove all lines containing task that are done
+
+" Remove lines containing task that are done
 function! vimwiki#lst#remove_done(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
@@ -1702,4 +1703,26 @@ function! vimwiki#lst#remove_done(first_line, last_line)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
   endfor
+endfunction "}}}
+
+" Remove all lines containing task that are done in current list
+function! vimwiki#lst#remove_done_in_list() "{{{
+  let first_item = s:get_first_item_in_list(
+        \ s:get_corresponding_item(line('.')), 0)
+
+  let cur_item = first_item
+  while 1
+    let next_item = s:get_next_list_item(cur_item, 0)
+    if s:remove_done(cur_item)
+      let next_item.lnum -= 1
+    endif
+
+    if next_item.type == 0
+      break
+    else
+      let cur_item = next_item
+    endif
+  endwhile
+
+  call s:update_state(s:get_parent(first_item))
 endfunction
