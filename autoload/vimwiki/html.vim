@@ -876,6 +876,8 @@ function! s:process_tag_list(line, lists) "{{{
       let n = len(g:vimwiki_listsyms_list)
       if completion == 0
         let st_tag = '<li class="done0">'
+      elseif completion == -1 && chk[1] == g:vimwiki_listsym_rejected
+        let st_tag = '<li class="rejected">'
       elseif completion > 0 && completion < n
         let completion = float2nr(round(completion / (n-1.0) * 3.0 + 0.5 ))
         let st_tag = '<li class="done'.completion.'">'
