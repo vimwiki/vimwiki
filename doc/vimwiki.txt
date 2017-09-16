@@ -1552,6 +1552,10 @@ after a list using letters or vice versa, Vimwiki will get confused because
 it cannot distinguish which is which (at least if the types are both upper
 case or both lower case).
 
+You can add additional list-types in your vimrc by setting the variable 
+  let g:vimwiki_additional_bullet_types = { "→": 0}
+Corresponding mapings will not be set.
+
 See |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI|
 
