@@ -1675,3 +1675,31 @@ function! vimwiki#lst#fold_level(lnum)
   return '='
 endfunction
 
+
+" Remove all lines containing task that are done
+function! vimwiki#lst#remove_done(first_line, last_line)
+  let first_item = s:get_corresponding_item(a:first_line)
+  let last_item = s:get_corresponding_item(a:last_line)
+
+  if first_item.type == 0 || last_item.type == 0
+    return
+  endif
+
+  let parent_items_of_lines = []
+  let cur_ln = first_item.lnum
+  while 1
+    if cur_ln <= 0 || cur_ln > last_item.lnum | break | endif
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type != 0 && s:get_rate(cur_item) == 100
+      let cur_parent_item = s:get_parent(cur_item)
+      if index(parent_items_of_lines, cur_parent_item) == -1
+        call insert(parent_items_of_lines, cur_parent_item)
+      endif
+      exe cur_ln.'delete _'
+    endif
+    let cur_ln = s:get_next_line(cur_ln)
+  endwhile
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+endfunction
