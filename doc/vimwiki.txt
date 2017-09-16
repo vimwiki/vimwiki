@@ -714,6 +714,12 @@ Vimwiki file.
 *:VimwikiDeleteLink*
     Delete the wiki page you are in.
 
+*:VimwikiRemoveDone*
+    In selection: Remove Todo-list-items marked as done.
+
+*:VimwikiRemoveDoneInList*
+    In current Todo-List: Remove Todo-list-items marked as done.
+
 *:VimwikiRenameLink*
     Rename the wiki page you are in.
 
