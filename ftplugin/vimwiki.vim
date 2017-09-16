@@ -293,6 +293,7 @@ command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
 command! -buffer VimwikiRenumberAllLists call vimwiki#lst#adjust_whole_buffer()
 command! -buffer VimwikiListToggle call vimwiki#lst#toggle_list_item()
 command! -buffer -range VimwikiRemoveDone call vimwiki#lst#remove_done(<line1>, <line2>)
+command! -buffer VimwikiRemoveDoneInList call vimwiki#lst#remove_done_in_list()
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)

@@ -1712,7 +1712,25 @@ function! vimwiki#lst#fold_level(lnum) abort
 endfunction
 
 
-" Remove all lines containing task that are done
+function! s:remove_done(item)
+  let item = a:item
+  if item.type == 0 || item.cb ==# '' || s:get_rate(item) != 100
+    return 0
+  else
+    let num_removed_lines = 1
+    let child = s:get_first_child(item)
+    while child.type != 0
+      exec child.lnum.'delete _'
+      let child = s:get_first_child(item)
+      let num_removed_lines += 1
+    endwhile
+    exec item.lnum.'delete _'
+    return num_removed_lines
+  endif
+endfunction
+
+
+" Remove lines containing task that are done
 function! vimwiki#lst#remove_done(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
@@ -1738,4 +1756,28 @@ function! vimwiki#lst#remove_done(first_line, last_line)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
   endfor
+endfunction
+
+" Remove all lines containing task that are done in current list
+function! vimwiki#lst#remove_done_in_list()
+  let item = s:get_corresponding_item(line('.'))
+  if item.type == 0
+    return
+  endif
+  let first_item = s:get_first_item_in_list(l:item, 0)
+
+  let cur_item = first_item
+  while 1
+    let next_item = s:get_next_list_item(cur_item, 0)
+    let l:lines_removed = s:remove_done(cur_item)
+
+    if next_item.type == 0
+      break
+    else
+      let next_item.lnum -= l:lines_removed
+      let cur_item = next_item
+    endif
+  endwhile
+
+  call s:update_state(s:get_parent(first_item))
 endfunction
