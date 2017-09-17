@@ -1509,11 +1509,15 @@ endfunction "}}}
 
 "misc stuff {{{
 function! vimwiki#lst#setup_marker_infos() "{{{
-  let s:rx_bullet_chars = '['.join(keys(g:vimwiki_bullet_types), '').']\+'
+  let l:bullet_types=g:vimwiki_bullet_types
+  if exists("g:vimwiki_additional_bullet_types")
+    call extend(l:bullet_types, g:vimwiki_additional_bullet_types)
+  endif
+  let s:rx_bullet_chars = '['.join(keys(l:bullet_types), '').']\+'
 
   let s:multiple_bullet_chars = []
-  for i in keys(g:vimwiki_bullet_types)
-    if g:vimwiki_bullet_types[i] == 1
+  for i in keys(l:bullet_types)
+    if l:bullet_types[i] == 1
       call add(s:multiple_bullet_chars, i)
     endif
   endfor
@@ -1529,8 +1533,8 @@ function! vimwiki#lst#setup_marker_infos() "{{{
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
   "create regexp for bulleted list items
-  let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_types),
-        \'vimwiki#u#escape(v:val).repeat("\\+", g:vimwiki_bullet_types[v:val])'
+  let g:vimwiki_rxListBullet = join( map(keys(l:bullet_types),
+        \'vimwiki#u#escape(v:val).repeat("\\+", l:bullet_types[v:val])'
         \ ) , '\|')
 
   "create regex for numbered list items
