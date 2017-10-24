@@ -1233,14 +1233,9 @@ LaTeX code).
 Note: the highlighting in Vim is automatic. For the rendering in HTML, you
 have two alternative options:
 
-1. using the MathJax server for rendering (needs internet connection).
-Add to your HTML template the following line:
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-2. installing MathJax locally (faster, no internet required). Choose a
-folder on your hard drive and save MathJax in it. Then add to your HTML
-template the following line:
+1. installing MathJax locally (Recommended: faster, no internet required).
+Choose a folder on your hard drive and save MathJax in it. Then add to your
+HTML template the following line:
 
 <script type="text/javascript" src="<mathjax_folder>/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
@@ -1254,6 +1249,11 @@ template folder. For instance, a sensible folder structure could be:
   - mathjax
 
 In this case, <mathjax_folder> would be "../mathjax" (without quotes).
+
+2. Loading MathJax from a CDN-server (needs internet connection).
+Add to your HTML template the following line:
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/config/TeX-AMS-MML_HTMLorMML.js"></script>
 
 
 ------------------------------------------------------------------------------
