@@ -96,6 +96,11 @@ normal mode:
  * `<Tab>` -- Find next wiki link
  * `<Shift-Tab>` -- Find previous wiki link
 
+You can disable <leader>w(w,t,s,d,r) mappings with setting:
+
+    let g:vimwiki_default_mappings='0'
+
+
 For more keys, see `:h vimwiki-mappings`
 
 
