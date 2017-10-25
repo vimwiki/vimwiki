@@ -2854,6 +2854,19 @@ Contributors and their Github usernames in roughly chronological order:
     - @wangzq
     - Jinzhou Zhang (@lotabout)
     - Michael Riley (@optik-aper)
+    - Irfan Sharif (@irfansharif)
+    - John Conroy (@jconroy77)
+    - Christian Rondeau (@christianrondeau)
+    - Alex Thorne (@thornecc)
+    - Shafqat Bhuiyan (@priomsrb)
+    - Bradley Cicenas (@bcicen)
+    - Michael Thessel (@MichaelThessel)
+    - Michael F. Schönitzer (@nudin)
+    - @sqlwwx
+    - Guilherme Salazar (@salazar)
+    - Daniel Trnka (@trnila)
+    - Yuchen Pei (@ycpei)
+    - @maqiv
 
 
 ==============================================================================
