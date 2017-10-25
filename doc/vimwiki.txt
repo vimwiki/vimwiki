@@ -3114,7 +3114,7 @@ http://code.google.com/p/vimwiki/issues/list
 ==============================================================================
 16. License                                                  *vimwiki-license*
 
-The MIT Licence
+The MIT License
 http://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2008-2010 Maxim Kim
