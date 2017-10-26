@@ -1996,7 +1996,7 @@ function! s:normalize_link_syntax_v() " {{{
       let sub = s:normalize_link_in_diary(@")
     else
       let sub = substitute(g:vimwiki_WikiLinkTemplate1,
-            \ '__LinkUrl__', '\=' . "'" . @" . "'", '')
+            \ '__LinkUrl__', @", '')
     endif
 
     " Put substitution in register " and change text
