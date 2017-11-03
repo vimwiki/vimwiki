@@ -1337,6 +1337,7 @@ function! vimwiki#base#goto_index(wnum, ...) "{{{
         \ VimwikiGet('ext', idx),
         \ '')
   call vimwiki#base#setup_buffer_state(idx)
+  cd %:h
 endfunction "}}}
 
 " vimwiki#base#delete_link
