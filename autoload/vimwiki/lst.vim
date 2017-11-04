@@ -693,6 +693,9 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
+  if state == g:vimwiki_listsym_rejected
+    return -1
+  endif
   let n=len(g:vimwiki_listsyms_list)
   return index(g:vimwiki_listsyms_list, state) * 100/(n-1)
 endfunction "}}}
@@ -735,6 +738,8 @@ function! s:rate_to_state(rate) "{{{
     let state = g:vimwiki_listsyms_list[n-1]
   elseif a:rate == 0
     let state = g:vimwiki_listsyms_list[0]
+  elseif a:rate == -1
+    let state = g:vimwiki_listsym_rejected
   else
     let index = float2nr(ceil(a:rate/100.0*(n-2)))
     let state = g:vimwiki_listsyms_list[index]
@@ -759,8 +764,11 @@ function! s:update_state(item) "{{{
       break
     endif
     if child_item.cb != ''
-      let count_children_with_cb += 1
-      let sum_children_rate += s:get_rate(child_item)
+      let rate = s:get_rate(child_item)
+      if rate != -1
+        let count_children_with_cb += 1
+        let sum_children_rate += rate
+      endif
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
@@ -835,6 +843,46 @@ function! s:change_cb(from_line, to_line, new_rate) "{{{
 
 endfunction "}}}
 
+"Toggles checkbox between two states in the lines of the given range,
+"creates chceckboxes if there aren't any.
+function! s:toggle_create_cb(from_line, to_line, state1, state2) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  if from_item.cb == ''
+
+    "if from_line has no CB, make a CB in every selected line
+    let parent_items_of_lines = []
+    for cur_ln in range(from_item.lnum, a:to_line)
+      let cur_item = s:get_item(cur_ln)
+      let success = s:create_cb(cur_item)
+
+      if success
+        let cur_parent_item = s:get_parent(cur_item)
+        if index(parent_items_of_lines, cur_parent_item) == -1
+          call insert(parent_items_of_lines, cur_parent_item)
+        endif
+      endif
+    endfor
+
+    for parent_item in parent_items_of_lines
+      call s:update_state(parent_item)
+    endfor
+
+  else
+
+    "if from_line has CB, toggle it and set all siblings to the same new state
+    let rate_first_line = s:get_rate(from_item)
+    let new_rate = rate_first_line == a:state1 ? a:state2 : a:state1
+
+    call s:change_cb(a:from_line, a:to_line, new_rate)
+
+  endif
+
+endfunction "}}}
+
 "Decrement checkbox between [ ] and [X]
 "in the lines of the given range
 function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
@@ -872,41 +920,13 @@ endfunction "}}}
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    return
-  endif
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
+endfunction "}}}
 
-  if from_item.cb == ''
-
-    "if from_line has no CB, make a CB in every selected line
-    let parent_items_of_lines = []
-    for cur_ln in range(from_item.lnum, a:to_line)
-      let cur_item = s:get_item(cur_ln)
-      let success = s:create_cb(cur_item)
-
-      if success
-        let cur_parent_item = s:get_parent(cur_item)
-        if index(parent_items_of_lines, cur_parent_item) == -1
-          call insert(parent_items_of_lines, cur_parent_item)
-        endif
-      endif
-    endfor
-
-    for parent_item in parent_items_of_lines
-      call s:update_state(parent_item)
-    endfor
-
-  else
-
-    "if from_line has CB, toggle it and set all siblings to the same new state
-    let rate_first_line = s:get_rate(from_item)
-    let new_rate = rate_first_line == 100 ? 0 : 100
-
-    call s:change_cb(a:from_line, a:to_line, new_rate)
-
-  endif
-
+"Toggles checkbox between [ ] and [-] or creates one
+"in the lines of the given range
+function! vimwiki#lst#toggle_rejected_cb(from_line, to_line) "{{{
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
 endfunction "}}}
 
 function! vimwiki#lst#remove_cb(first_line, last_line) "{{{
@@ -1549,6 +1569,10 @@ function! vimwiki#lst#setup_marker_infos() "{{{
 
   "the user can set the listsyms as string, but vimwiki needs a list
   let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
+
+  if match(g:vimwiki_listsyms, g:vimwiki_listsym_rejected) != -1
+    echomsg "Warning: g:vimwiki_listsyms and g:vimwiki_listsym_rejected overlap"
+  endif
 endfunction "}}}
 
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
