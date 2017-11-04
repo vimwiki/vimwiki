@@ -840,7 +840,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " then
   " [[test*file]]...
   " you'll have E77: Too many file names
-  let fname = escape(a:filename, '% *|#')
+  let fname = escape(a:filename, '% *|#`')
   let dir = fnamemodify(a:filename, ":p:h")
 
   let ok = vimwiki#path#mkdir(dir, 1)
