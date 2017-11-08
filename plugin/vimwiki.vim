@@ -31,7 +31,7 @@ endfunction "}}}
 " create a new temporary wiki for the current buffer
 function! s:create_temporary_wiki()
   let current_file = vimwiki#path#current_file()
-  let path = vimwiki#path#directory(current_file)
+  let path = vimwiki#path#directory_of_file(current_file)
   let ext = '.'.vimwiki#path#extension(current_file)
 
   let syntax_mapping = vimwiki#vars#get_global('ext2syntax')

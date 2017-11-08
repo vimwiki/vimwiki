@@ -168,38 +168,43 @@ else
 endif
 
 
+"----------------------------------------------------------
+" Path manipulation, i.e. do stuff with the paths of (not necessarily existing) files
+"----------------------------------------------------------
 
-"XXX das kann man aber Einheitstesten!
-" XXX überlegen, ob wir auch n Objekt für Wikilinks  machen
-" Alternativ kann man auch einen Dateipfad als Ordner + Dateinamen modellieren
-" The used data types are
+
+" The used data types are (with their internal representation)
 " - directory object: a dictionary with the following entries:
-"     - 'protocoll' -- how to access the file. Supportet are 'scp' or 'file'
+"     - 'protocoll' -- how to access the file. Supported are 'scp' or 'file'
 "     - 'is_unix' -- 1 if it's supposed to be a unix-like path
 "     - 'path' -- a list containing the directory names starting at the root
-" - file object: a list [directory_object, file name]
+" - file object: a list [dir_obj, file name]
 " - file segment: representing e.g. a relative path. Is a list where the first
 "   element is a list of directory names and the second the file name
+" - directory segment: a list of directory names
 
-" create and return a path object from a string. It is assumed that the given
-" path is abolute and points to a file (not a directory)
-function! vimwiki#path#from_absolute_file(filepath)
+
+" create and return a file object from a string. It is assumed that the given
+" path is absolute and points to a file (not a directory)
+function! vimwiki#path#file_obj(filepath)
   let filename = fnamemodify(a:filepath, ':p:t')
   let path = fnamemodify(a:filepath, ':p:h')
-  return [vimwiki#path#from_absolute_dir(path), filename]
+  return [vimwiki#path#dir_obj(path), filename]
 endfunction
 
 
-function! vimwiki#path#from_absolute_dir(filepath)
-  if a:filepath =~# '^scp:'
-    let filepath = a:filepath[4:]
+" create and return a dir object from a string. The given path should be
+" absolute and point to a directory.
+function! vimwiki#path#dir_obj(dirpath)
+  if a:dirpath =~# '^scp:'
+    let dirpath = a:dirpath[4:]
     let protocoll = 'scp'
   else
-    let filepath = resolve(a:filepath)
+    let dirpath = resolve(a:dirpath)
     let protocoll = 'file'
   endif
-  let path = split(vimwiki#path#chomp_slash(filepath), '\m[/\\]', 1)
-  let is_unix = filepath[0] ==# '/'
+  let path = split(vimwiki#path#chomp_slash(dirpath), '\m[/\\]', 1)
+  let is_unix = dirpath[0] ==# '/'
   let result = {
     \ 'is_unix' : is_unix,
     \ 'protocoll' : protocoll,
@@ -208,43 +213,56 @@ function! vimwiki#path#from_absolute_dir(filepath)
   return result
 endfunction
 
-function! vimwiki#path#current_file()
-  return vimwiki#path#from_absolute_file(expand('%:p'))
-endfunction
 
 function! vimwiki#path#extension(file_object)
   return fnamemodify(a:file_object[1], ':e')
 endfunction
 
+
 " Returns: the dir of the file object as dir object
-function! vimwiki#path#directory(file_object)
+function! vimwiki#path#directory_of_file(file_object)
   return copy(a:file_object[0])
 endfunction
 
+
+" Returns: the file_obj's file name as a string
 function! vimwiki#path#filename(file_object)
   return a:file_object[1]
 endfunction
 
-" XXX überlegen, ob man das scp vorne dranpackt
-function! vimwiki#path#to_string(path)
-  let dir_obj = type(a:path) == 4 ? a:path : a:path[0]
+
+" Returns: the dir_obj or file_obj as string, ready to be used with the regular
+" path handling functions in Vim
+function! vimwiki#path#to_string(obj)
+  let dir_obj = type(a:obj) == 4 ? a:obj : a:obj[0]
   let separator = dir_obj.is_unix ? '/' : '\'
   let address = join(dir_obj.path, separator) . separator
-  if type(a:path) == 3
+  if type(a:obj) == 3
     let address .= a:path[1]
   endif
   return address
 endfunction
 
 
+" Returns: the given a:dir_obj with a:str appended to the dir name
+function! vimwiki#path#append_to_dirname(dir_obj, str)
+  let a:dir_obj.path[-1] .= a:str
+  return a:dir_obj
+endfunction
+
+
 " Assume it is not an absolute path
 function! vimwiki#path#from_segment_file(path_segment)
   let filename = fnamemodify(a:path_segment, ':t')
-  let path = fnamemodify(a:filepath, ':h')
+  let path = fnamemodify(a:path_segment, ':h')
   let path_list = (path ==# '.' ? [] : split(path, '\m[/\\]', 1))
   return [path_list, filename]
 endfunction
 
+" Assume it is not an absolute path
+function! vimwiki#path#from_segment_dir(path_segment)
+  return split(a:path_segment, '\m[/\\]', 1)
+endfunction
 
 function! vimwiki#path#join(dir_path, file_segment)
   let new_dir_object = copy(a:dir_path)
@@ -252,17 +270,13 @@ function! vimwiki#path#join(dir_path, file_segment)
   return [new_dir_object, a:file_segment[1]]
 endfunction
 
-
-function! vimwiki#path#exists(object)
-  if type(a:object) == 4
-    return isdirectory(vimwiki#path#to_string(a:object))
-  else
-    " glob() checks whether or not a file exists (readable, writable or not)
-    return glob(vimwiki#path#to_string(a:file_object)) != ''
-  endif
+function! vimwiki#path#join_dir(dir_path, dir_segment)
+  let new_dir_object = copy(a:dir_path)
+  let new_dir_object.path += a:dir_segment
+  return new_dir_object
 endfunction
 
-" returns the segment s, so that jon(dir, s) == file
+" returns the segment s, so that join(dir, s) == file
 " we just assume the file is somewhere in dir
 function! vimwiki#path#subtract(dir_object, file_object)
   let path_rest = a:file_object[0].path[len(a:dir_object.path):]
@@ -292,11 +306,31 @@ function! vimwiki#path#relpath(dir1_object, dir2_object)
   return result
 endfunction
 
+
+"-----------------
+" File manipulation, i.e. do stuff with actually existing files
+"-----------------
+
+
+function! vimwiki#path#current_file()
+  return vimwiki#path#file_obj(expand('%:p'))
+endfunction
+
+function! vimwiki#path#exists(object)
+  if type(a:object) == 4
+    return isdirectory(vimwiki#path#to_string(a:object))
+  else
+    " glob() checks whether or not a file exists (readable or writable)
+    return glob(vimwiki#path#to_string(a:object)) != ''
+  endif
+endfunction
+
 " this must be outside a function, because only outside a function <sfile> expands
 " to the directory where this file is in
 let s:vimwiki_autoload_dir = expand('<sfile>:p:h')
+
 function! vimwiki#path#find_autoload_file(filename)
-  let autoload_dir = vimwiki#path#from_absolute_dir(s:vimwiki_autoload_dir)
+  let autoload_dir = vimwiki#path#dir_obj(s:vimwiki_autoload_dir)
   let filename_obj = vimwiki#path#from_segment_file(a:filename)
   let file = vimwiki#path#join(autoload_dir, filename_obj)
   if !vimwiki#path#exists(file)

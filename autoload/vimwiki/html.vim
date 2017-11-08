@@ -53,7 +53,7 @@ function! s:default_CSS_full_name(target_dir) " {{{
   return vimwiki#path#join(path, vimwiki#vars#get_wikilocal('css_name'))
 endfunction "}}}
 
-" Returns: 1 if it was createt, 0 if it already existed
+" Returns: 1 if it was created, 0 if it already existed
 function! s:create_default_CSS(target_dir) " {{{
   let css_full_name = s:default_CSS_full_name(a:target_dir)
   if vimwiki#path#exists(css_full_name)

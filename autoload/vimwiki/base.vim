@@ -185,8 +185,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     let link_infos.index = source_wiki
 
     let link_infos.filename =
-          \ vimwiki#vars#get_wikilocal('path', link_infos.index) .
-          \ vimwiki#vars#get_wikilocal('diary_rel_path', link_infos.index) .
+          \ vimwiki#vars#get_wikilocal('diary_path', link_infos.index) .
           \ link_text .
           \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
   elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local')
@@ -367,7 +366,7 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   if wiki_nr >= 0
     let root_directory = vimwiki#vars#get_wikilocal('path', wiki_nr)
   else
-    let root_directory = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path')
+    let root_directory = vimwiki#vars#get_wikilocal('diary_path')
     let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
   endif
   if a:directories_only
@@ -395,7 +394,7 @@ function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
   if a:wiki_nr == vimwiki#vars#get_bufferlocal('wiki_nr')
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   elseif a:wiki_nr < 0
-    let cwd = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path')
+    let cwd = vimwiki#vars#get_wikilocal('diary_path')
   else
     let cwd = vimwiki#vars#get_wikilocal('path', a:wiki_nr)
   endif
@@ -410,7 +409,7 @@ function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
       if a:wiki_nr == vimwiki#vars#get_bufferlocal('wiki_nr')
         let cwd = vimwiki#vars#get_wikilocal('path')
       elseif a:wiki_nr < 0
-        let cwd = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path')
+        let cwd = vimwiki#vars#get_wikilocal('diary_path')
       endif
       let wikifile = fnamemodify(wikifile, ':r') " strip extension
       let wikifile = '/'.vimwiki#path#relpath(cwd, wikifile)
@@ -1707,9 +1706,9 @@ endfunction " }}}
 " s:is_diary_file
 function! s:is_diary_file(filename) " {{{
   let file_path = vimwiki#path#path_norm(a:filename)
-  let rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
-  let diary_path = vimwiki#path#path_norm(vimwiki#vars#get_wikilocal('path') . rel_path)
-  return rel_path != ''
+  let diary_path = vimwiki#path#path_norm(vimwiki#vars#get_wikilocal('diary_path'))
+  return vimwiki#path#equal(vimwiki#vars#get_wikilocal('path'),
+        \ vimwiki#vars#get_wikilocal('diary_path'))
         \ && file_path =~# '^'.vimwiki#u#escape(diary_path)
 endfunction " }}}
 
@@ -1739,8 +1738,7 @@ endfunction " }}}
 function! s:normalize_link_in_diary(lnk) " {{{
   let link = a:lnk . vimwiki#vars#get_wikilocal('ext')
   let link_wiki = vimwiki#vars#get_wikilocal('path') . '/' . link
-  let link_diary = vimwiki#vars#get_wikilocal('path') . '/'
-        \ . vimwiki#vars#get_wikilocal('diary_rel_path') . '/' . link
+  let link_diary = vimwiki#vars#get_wikilocal('diary_path') . '/' . link
   let link_exists_in_diary = filereadable(link_diary)
   let link_exists_in_wiki = filereadable(link_wiki)
   let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
@@ -1751,8 +1749,10 @@ function! s:normalize_link_in_diary(lnk) " {{{
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   else
-    let depth = len(split(vimwiki#vars#get_wikilocal('diary_rel_path'), '/'))
-    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
+    let relative_link =
+          \ vimwiki#path#relpath(vimwiki#vars#get_wikilocal('diary_path'),
+          \ vimwiki#vars#get_wikilocal('path'))
+    let str = relative_link . a:lnk . '|' . a:lnk
     let rxUrl = '^.*\ze|'
     let rxDesc = '|\zs.*$'
     let template = vimwiki#vars#get_global('WikiLinkTemplate2')

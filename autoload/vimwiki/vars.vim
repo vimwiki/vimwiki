@@ -152,19 +152,8 @@ function! s:populate_global_variables()
 endfunction
 
 
-function! s:normalize_path(path) "{{{
-  " trim trailing / and \ because otherwise resolve() doesn't work quite right
-  let path = substitute(a:path, '[/\\]\+$', '', '')
-  if path !~# '^scp:'
-    return resolve(expand(path)).'/'
-  else
-    return path.'/'
-  endif
-endfunction "}}}
-
-
-" g:vimwiki_wikilocal_vars is a list of dictionaries. One dict for every registered wiki. The last
-" dictionary contains default values (used for temporary wikis)
+" g:vimwiki_wikilocal_vars is a list of dictionaries: one dict for every registered wiki plus one
+" (the last in the list) which contains the default values (used for temporary wikis).
 function! s:populate_wikilocal_options()
   let default_values = {
         \ 'auto_export': 0,
@@ -230,18 +219,19 @@ endfunction
 
 function! s:validate_settings()
   for wiki_settings in g:vimwiki_wikilocal_vars
-    let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
+    let wiki_settings['path'] = vimwiki#path#dir_obj(wiki_settings['path'])
 
     let path_html = wiki_settings['path_html']
     if !empty(path_html)
-      let wiki_settings['path_html'] = s:normalize_path(path_html)
+      let wiki_settings['path_html'] = vimwiki#path#dir_obj(path_html)
     else
-      let wiki_settings['path_html'] = s:normalize_path(
-            \ substitute(wiki_settings['path'], '[/\\]\+$', '', '').'_html/')
+      let wiki_settings['path_html'] = vimwiki#path#append_to_dirname(wiki_settings['path'],
+            \ '_html')
     endif
 
-    let wiki_settings['template_path'] =  s:normalize_path(wiki_settings['template_path'])
-    let wiki_settings['diary_rel_path'] =  s:normalize_path(wiki_settings['diary_rel_path'])
+    let wiki_settings['template_path'] =  vimwiki#path#dir_obj(wiki_settings['template_path'])
+    let wiki_settings['diary_path'] =  vimwiki#path#join_dir(wiki_settings['path'],
+          \ vimwiki#path#from_segment_dir(wiki_settings['diary_rel_path']))
   endfor
 endfunction
 
