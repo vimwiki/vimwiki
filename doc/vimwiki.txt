@@ -1922,6 +1922,19 @@ current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
 
 
+*vimwiki-option-markdown_toc*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+markdown_toc    0                 0, 1
+
+Description~
+Set this option to 1 to use Markdown toc format [DESCRIPTION](URL).
+
+To use Markdown toc format: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'syntax': 'markdown',
+                       \ 'ext': '.md', 'markdown_toc': 1}]
+
+
 *vimwiki-option-index*
 ------------------------------------------------------------------------------
 Key             Default value~
