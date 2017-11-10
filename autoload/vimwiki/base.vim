@@ -8,6 +8,13 @@ if exists("g:loaded_vimwiki_auto") || &cp
 endif
 let g:loaded_vimwiki_auto = 1
 
+" s:safesubstitute
+function! s:safesubstitute(text, search, replace, mode) "{{{
+  " Substitute regexp but do not interpret replace
+  let escaped = escape(a:replace, '\&')
+  return substitute(a:text, a:search, escaped, a:mode)
+endfunction " }}}
+
 " s:vimwiki_get_known_syntaxes
 function! s:vimwiki_get_known_syntaxes() " {{{
   " Getting all syntaxes that different wikis could have
@@ -465,7 +472,7 @@ function! vimwiki#base#generate_links() "{{{
     let abs_filepath = vimwiki#path#abs_path_of_link(link)
     if !s:is_diary_file(abs_filepath)
       call add(lines, bullet.
-            \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', '\='."'".link."'", ''))
+            \ s:safesubstitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', link, ''))
     endif
   endfor
 
@@ -677,13 +684,13 @@ function! s:jump_to_anchor(anchor) "{{{
   let segments = split(anchor, '#', 0)
   for segment in segments
 
-    let anchor_header = substitute(
+    let anchor_header = s:safesubstitute(
           \ g:vimwiki_{VimwikiGet('syntax')}_header_match,
-          \ '__Header__', "\\='".segment."'", '')
-    let anchor_bold = substitute(g:vimwiki_{VimwikiGet('syntax')}_bold_match,
-          \ '__Text__', "\\='".segment."'", '')
-    let anchor_tag = substitute(g:vimwiki_{VimwikiGet('syntax')}_tag_match,
-          \ '__Tag__', "\\='".segment."'", '')
+          \ '__Header__', segment, '')
+    let anchor_bold = s:safesubstitute(g:vimwiki_{VimwikiGet('syntax')}_bold_match,
+          \ '__Text__', segment, '')
+    let anchor_tag = s:safesubstitute(g:vimwiki_{VimwikiGet('syntax')}_tag_match,
+          \ '__Tag__', segment, '')
 
     if         !search(anchor_tag, 'Wc')
           \ && !search(anchor_header, 'Wc')
@@ -1176,8 +1183,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
 
   " write new listing
   let new_header = whitespaces_in_first_line
-        \ . substitute(g:vimwiki_rxH1_Template,
-        \ '__Header__', '\='."'".a:start_header."'", '')
+        \ . s:safesubstitute(g:vimwiki_rxH1_Template,
+        \ '__Header__', a:start_header, '')
   call append(start_lnum - 1, new_header)
   let start_lnum += 1
   let lines_diff += 1 + len(a:strings)
@@ -1832,9 +1839,9 @@ function! vimwiki#base#table_of_contents(create)
   for [lvl, link, desc] in headers
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
-          \ '\='."'".'#'.esc_link."'", '')
-    let link = substitute(link, '__LinkDescription__', '\='."'".esc_desc."'", '')
+    let link = s:safesubstitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__',
+          \ '#'.esc_link, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', esc_desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
 
@@ -1855,13 +1862,13 @@ endfunction
 function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle) "{{{
   let lnk = a:template
   if a:rxUrl != ""
-    let lnk = substitute(lnk, '__LinkUrl__', '\='."'".a:rxUrl."'", 'g')
+    let lnk = s:safesubstitute(lnk, '__LinkUrl__', a:rxUrl, 'g')
   endif
   if a:rxDesc != ""
-    let lnk = substitute(lnk, '__LinkDescription__', '\='."'".a:rxDesc."'", 'g')
+    let lnk = s:safesubstitute(lnk, '__LinkDescription__', a:rxDesc, 'g')
   endif
   if a:rxStyle != ""
-    let lnk = substitute(lnk, '__LinkStyle__', '\='."'".a:rxStyle."'", 'g')
+    let lnk = s:safesubstitute(lnk, '__LinkStyle__', a:rxStyle, 'g')
   endif
   return lnk
 endfunction " }}}
@@ -1900,8 +1907,8 @@ function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) " {{{
   if descr == ""
     let descr = s:clean_url(url)
   endif
-  let lnk = substitute(template, '__LinkDescription__', '\="'.descr.'"', '')
-  let lnk = substitute(lnk, '__LinkUrl__', '\="'.url.'"', '')
+  let lnk = s:safesubstitute(template, '__LinkDescription__', descr, '')
+  let lnk = s:safesubstitute(lnk, '__LinkUrl__', url, '')
   return lnk
 endfunction " }}}
 
@@ -1909,7 +1916,7 @@ endfunction " }}}
 function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, template) "{{{
   let lnk = vimwiki#base#normalize_link_helper(a:str, a:rxUrl, a:rxDesc, a:template)
   let style = matchstr(a:str, a:rxStyle)
-  let lnk = substitute(lnk, '__LinkStyle__', '\="'.style.'"', '')
+  let lnk = s:safesubstitute(lnk, '__LinkStyle__', style, '')
   return lnk
 endfunction " }}}
 
@@ -2001,8 +2008,8 @@ function! s:normalize_link_syntax_v() " {{{
     if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(@")
     else
-      let sub = substitute(g:vimwiki_WikiLinkTemplate1,
-            \ '__LinkUrl__', '\=' . "'" . @" . "'", '')
+      let sub = s:safesubstitute(g:vimwiki_WikiLinkTemplate1,
+            \ '__LinkUrl__', @", '')
     endif
 
     " Put substitution in register " and change text
