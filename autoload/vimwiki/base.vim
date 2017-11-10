@@ -676,6 +676,7 @@ function! s:jump_to_anchor(anchor) "{{{
 
   let segments = split(anchor, '#', 0)
   for segment in segments
+    let segment = substitute(segment, "'", "''", 'g')
 
     let anchor_header = substitute(
           \ g:vimwiki_{VimwikiGet('syntax')}_header_match,
