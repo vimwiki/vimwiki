@@ -61,8 +61,9 @@ function! s:setup_new_wiki_buffer() "{{{
     endif
   endif
 
-  " this makes that ftplugin/vimwiki.vim is sourced
-  set filetype=vimwiki
+  " this makes that ftplugin/vimwiki.vim and afterwards syntax/vimwiki.vim are
+  " sourced
+  setfiletype vimwiki
 
   " to force a rescan of the filesystem which may have changed
   " and update VimwikiLinks syntax group that depends on it;
@@ -86,7 +87,7 @@ function! s:setup_buffer_enter() "{{{
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
   if &filetype == ''
-    set filetype=vimwiki
+    setfiletype vimwiki
   elseif &syntax ==? 'vimwiki'
     " to force a rescan of the filesystem which may have changed
     " and update VimwikiLinks syntax group that depends on it;

@@ -192,6 +192,7 @@ function! s:populate_wikilocal_options()
 
   let g:vimwiki_wikilocal_vars = []
 
+  " set the wiki-local variables according to g:vimwiki_list (or the default settings)
   if exists('g:vimwiki_list')
     for users_options in g:vimwiki_list
       let new_wiki_settings = {}
@@ -205,8 +206,7 @@ function! s:populate_wikilocal_options()
         endif
       endfor
 
-      " is it a temporary wiki? No, it's not.
-      let new_wiki_settings.temp = 0
+      let new_wiki_settings.is_temporary_wiki = 0
 
       call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
     endfor
@@ -221,7 +221,7 @@ function! s:populate_wikilocal_options()
       let temporary_options_dict[key] = default_values[key]
     endif
   endfor
-  let temporary_options_dict.temp = 1
+  let temporary_options_dict.is_temporary_wiki = 1
   call add(g:vimwiki_wikilocal_vars, temporary_options_dict)
 
   call s:validate_settings()
@@ -250,9 +250,12 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   if !exists('g:vimwiki_syntax_variables')
     let g:vimwiki_syntax_variables = {}
   endif
-  if !has_key(g:vimwiki_syntax_variables, a:syntax)
-    let g:vimwiki_syntax_variables[a:syntax] = {}
+
+  if has_key(g:vimwiki_syntax_variables, a:syntax)
+    return
   endif
+
+  let g:vimwiki_syntax_variables[a:syntax] = {}
 
   execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
 

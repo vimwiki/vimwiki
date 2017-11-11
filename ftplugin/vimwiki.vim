@@ -13,7 +13,8 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 let b:undo_ftplugin = "setlocal ".
       \ "suffixesadd< isfname< formatlistpat< ".
       \ "formatoptions< foldtext< ".
-      \ "foldmethod< foldexpr< commentstring< "
+      \ "foldmethod< foldexpr< commentstring< tags< omnifunc< autoindent< ".
+      \ "smartindent< cindent< comments< formatoptions<"
 " UNDO }}}
 
 " MISC STUFF {{{

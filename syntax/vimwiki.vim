@@ -311,7 +311,9 @@ if vimwiki#vars#get_global('hl_headers') == 0
   endfor
 else
   for s:i in range(1,6)
-    execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='.vimwiki#vars#get_global('hcolor_guifg_'.&bg)[s:i-1].' gui=bold ctermfg='.vimwiki#vars#get_global('ctermfg_'.&bg)[s:i-1].' term=bold cterm=bold'
+    execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='
+          \ .vimwiki#vars#get_global('hcolor_guifg_'.&bg)[s:i-1].' gui=bold ctermfg='
+          \ .vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[s:i-1].' term=bold cterm=bold'
   endfor
 endif
 "}}}

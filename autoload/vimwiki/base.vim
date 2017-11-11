@@ -378,7 +378,7 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   " if current wiki is temporary -- was added by an arbitrary wiki file then do
   " not search wiki files in subdirectories. Or it would hang the system if
   " wiki file was created in $HOME or C:/ dirs.
-  if vimwiki#vars#get_wikilocal('temp', wiki_nr)
+  if vimwiki#vars#get_wikilocal('is_temporary_wiki', wiki_nr)
     let pattern = '*'.ext
   else
     let pattern = '**/*'.ext
@@ -707,11 +707,15 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
   " getpos() directly after this command. Strange.
   if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
     execute a:command.' '.fname
+
+    " If the opened file was not already loaded by Vim, an autocommand is
+    " triggered at this point
+
     " Make sure no other plugin takes ownership over the new file. Vimwiki
     " rules them all! Well, except for directories, which may be opened with
     " Netrw
     if &filetype != 'vimwiki' && fname !~ '\m/$'
-      set filetype=vimwiki
+      setfiletype vimwiki
     endif
   endif
   if a:anchor != ''
