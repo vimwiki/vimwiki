@@ -65,7 +65,7 @@ fun! s:read_captions(files) "{{{
   let result = {}
   for fl in a:files
     " remove paths and extensions
-    let fl_key = fnamemodify(fl, ':t:r')
+    let fl_key = substitute(fnamemodify(fl, ':t'), VimwikiGet('ext').'$', '', '')
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
@@ -174,8 +174,14 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
 
   call vimwiki#path#mkdir(VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx))
 
-  if a:0 && a:1 == 1
-    let cmd = 'tabedit'
+  if a:0
+    if a:1 == 1
+      let cmd = 'tabedit'
+    elseif a:2 == 2
+      let cmd = 'split'
+    elseif a:3 == 3
+      let cmd = 'vsplit'
+    endif
   else
     let cmd = 'edit'
   endif
