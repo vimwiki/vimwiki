@@ -456,6 +456,13 @@ gLI                     Change the symbol of the current list to
                         noremap glo :VimwikiChangeSymbolTo I)<CR>
                         noremap glO :VimwikiChangeSymbolInListTo I)<CR>
 <
+                        *vimwiki_glx*
+glx                     Toggle checkbox of a list item disabled/off.
+                        Maps to |:VimwikiToggleRejectedListItem|.
+                        See |vimwiki-todo-lists|.
+                        To remap: >
+                        :map <Leader>tx <Plug>VimwikiToggleRejectedListItem
+<
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
@@ -654,6 +661,10 @@ Vimwiki file.
 
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
+    See |vimwiki-todo-lists|.
+
+*:VimwikiToggleRejectedListItem*
+    Toggle checkbox of a list item disabled/off.
     See |vimwiki-todo-lists|.
 
 *:VimwikiListChangeLevel* CMD
@@ -1233,14 +1244,9 @@ LaTeX code).
 Note: the highlighting in Vim is automatic. For the rendering in HTML, you
 have two alternative options:
 
-1. using the MathJax server for rendering (needs internet connection).
-Add to your HTML template the following line:
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-2. installing MathJax locally (faster, no internet required). Choose a
-folder on your hard drive and save MathJax in it. Then add to your HTML
-template the following line:
+1. installing MathJax locally (Recommended: faster, no internet required).
+Choose a folder on your hard drive and save MathJax in it. Then add to your
+HTML template the following line:
 
 <script type="text/javascript" src="<mathjax_folder>/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
@@ -1254,6 +1260,11 @@ template folder. For instance, a sensible folder structure could be:
   - mathjax
 
 In this case, <mathjax_folder> would be "../mathjax" (without quotes).
+
+2. Loading MathJax from a CDN-server (needs internet connection).
+Add to your HTML template the following line:
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/config/TeX-AMS-MML_HTMLorMML.js"></script>
 
 
 ------------------------------------------------------------------------------
@@ -1624,6 +1635,10 @@ checked.
 Use gl<Space> (see |vimwiki_gl<Space>|) to remove a single checkbox and
 gL<Space> (see |vimwiki_gL<Space>|) to remove all checkboxes of the list the
 cursor is in.
+
+You can mark an item as rejected ("won't do") with
+|vimwiki_glx|. A rejected item will not influence the status of it's
+parents.
 
 
 ==============================================================================
@@ -2350,6 +2365,19 @@ You can set it to some more fancy symbols like this:
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_listsym_rejected*
+
+Character that is used to show that an item of a todo list will not be done.
+Default value is '-'.
+
+The character used here may not be part of g:vimwiki_listsyms.
+
+You can set it to some more fancy symbols like this:
+>
+   let g:vimwiki_listsym_rejected = '✗'
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_use_mouse*
 
 Use local mouse mappings from |vimwiki-local-mappings|.
@@ -2858,6 +2886,19 @@ Contributors and their Github usernames in roughly chronological order:
     - @wangzq
     - Jinzhou Zhang (@lotabout)
     - Michael Riley (@optik-aper)
+    - Irfan Sharif (@irfansharif)
+    - John Conroy (@jconroy77)
+    - Christian Rondeau (@christianrondeau)
+    - Alex Thorne (@thornecc)
+    - Shafqat Bhuiyan (@priomsrb)
+    - Bradley Cicenas (@bcicen)
+    - Michael Thessel (@MichaelThessel)
+    - Michael F. Schönitzer (@nudin)
+    - @sqlwwx
+    - Guilherme Salazar (@salazar)
+    - Daniel Trnka (@trnila)
+    - Yuchen Pei (@ycpei)
+    - @maqiv
 
 
 ==============================================================================
@@ -3105,10 +3146,11 @@ http://code.google.com/p/vimwiki/issues/list
 ==============================================================================
 16. License                                                  *vimwiki-license*
 
-The MIT Licence
+The MIT License
 http://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2008-2010 Maxim Kim
+              2013-2017 Daniel Schemala
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
