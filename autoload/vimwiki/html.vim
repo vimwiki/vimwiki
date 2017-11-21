@@ -209,6 +209,19 @@ function! s:save_vimwiki_buffer() "{{{
   endif
 endfunction "}}}
 
+" get date.
+function! s:process_date(placeholders, default_date) "{{{
+  if !empty(a:placeholders)
+    for [placeholder, row, idx] in a:placeholders
+      let [type, param] = placeholder
+      if type ==# 'date' && !empty(param)
+        return param
+      endif
+    endfor
+  endif
+  return a:default_date
+endfunction "}}}
+
 " get title.
 function! s:process_title(placeholders, default_title) "{{{
   if !empty(a:placeholders)
@@ -860,7 +873,13 @@ function! s:process_tag_list(line, lists) "{{{
     let chk = matchlist(a:line, a:rx_list)
     if !empty(chk) && len(chk[1]) > 0
       let completion = index(g:vimwiki_listsyms_list, chk[1])
-      if completion >= 0 && completion <=4
+      let n = len(g:vimwiki_listsyms_list)
+      if completion == 0
+        let st_tag = '<li class="done0">'
+      elseif completion == -1 && chk[1] == g:vimwiki_listsym_rejected
+        let st_tag = '<li class="rejected">'
+      elseif completion > 0 && completion < n
+        let completion = float2nr(round(completion / (n-1.0) * 3.0 + 0.5 ))
         let st_tag = '<li class="done'.completion.'">'
       endif
     endif
@@ -979,7 +998,11 @@ function! s:process_tag_para(line, para) "{{{
       let para = 1
     endif
     let processed = 1
-    call add(lines, a:line)
+    if g:vimwiki_text_ignore_newline == 1
+      call add(lines, a:line)
+    else
+      call add(lines, a:line."<br />")
+    endif
   elseif para && a:line =~# '^\s*$'
     call add(lines, "</p>")
     let para = 0
@@ -1182,7 +1205,7 @@ function! s:parse_line(line, state) " {{{
 
   " nohtml -- placeholder
   if !processed
-    if line =~# '^\s*%nohtml'
+    if line =~# '\m^\s*%nohtml\s*$'
       let processed = 1
       let state.placeholder = ['nohtml']
     endif
@@ -1190,18 +1213,27 @@ function! s:parse_line(line, state) " {{{
 
   " title -- placeholder
   if !processed
-    if line =~# '^\s*%title'
+    if line =~# '\m^\s*%title\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%title\s\zs.*')
+      let param = matchstr(line, '\m^\s*%title\s\+\zs.*')
       let state.placeholder = ['title', param]
+    endif
+  endif
+
+  " date -- placeholder
+  if !processed
+    if line =~# '\m^\s*%date\%(\s.*\)\?$'
+      let processed = 1
+      let param = matchstr(line, '\m^\s*%date\s\+\zs.*')
+      let state.placeholder = ['date', param]
     endif
   endif
 
   " html template -- placeholder "{{{
   if !processed
-    if line =~# '^\s*%template'
+    if line =~# '\m^\s*%template\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%template\s\zs.*')
+      let param = matchstr(line, '\m^\s*%template\s\+\zs.*')
       let state.placeholder = ['template', param]
     endif
   endif
@@ -1361,10 +1393,11 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
       \ shellescape(s:default_CSS_full_name(a:path)). ' '.
-      \ (len(VimwikiGet('template_path'))    > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
-      \ (len(VimwikiGet('template_default')) > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
-      \ (len(VimwikiGet('template_ext'))     > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
-      \ (len(VimwikiGet('subdir'))           > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'))
+      \ (len(VimwikiGet('template_path'))         > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
+      \ (len(VimwikiGet('template_default'))      > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
+      \ (len(VimwikiGet('template_ext'))          > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
+      \ (len(VimwikiGet('subdir'))                > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'). ' '.
+      \ (len(VimwikiGet('custom_wiki2html_args')) > 0 ? VimwikiGet('custom_wiki2html_args')              : '-'))
 endfunction " }}}
 
 function! s:convert_file(path_html, wikifile) "{{{
@@ -1475,11 +1508,13 @@ function! s:convert_file(path_html, wikifile) "{{{
     call extend(ldest, lines)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
+    let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
 
     let html_lines = s:get_html_template(template_name)
 
     " processing template variables (refactor to a function)
     call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
+    call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(VimwikiGet('subdir')) .'", "g")')
 

@@ -167,6 +167,8 @@ function! s:setup_buffer_enter() "{{{
   elseif g:vimwiki_folding ==? 'syntax'
     setlocal fdm=syntax
     setlocal foldtext=VimwikiFoldText()
+  elseif g:vimwiki_folding ==? 'custom'
+    " do nothing
   else
     setlocal fdm=manual
     normal! zE
@@ -369,7 +371,9 @@ call s:default('ext2syntax', {}) " syntax map keyed on extension
 call s:default('hl_headers', 0)
 call s:default('hl_cb_checked', 0)
 call s:default('list_ignore_newline', 1)
+call s:default('text_ignore_newline', 1)
 call s:default('listsyms', ' .oOX')
+call s:default('listsym_rejected', '-')
 call s:default('use_calendar', 1)
 call s:default('table_mappings', 1)
 call s:default('table_auto_fmt', 1)
@@ -407,7 +411,7 @@ call s:default('auto_chdir', 0)
 call s:default('schemes', 'wiki\d\+,diary,local')
 call s:default('web_schemes1', 'http,https,file,ftp,gopher,telnet,nntp,ldap,'.
         \ 'rsync,imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp')
-call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel')
+call s:default('web_schemes2', 'mailto,news,xmpp,sip,sips,doi,urn,tel,data')
 
 let s:rxSchemes = '\%('.
       \ join(split(g:vimwiki_schemes, '\s*,\s*'), '\|').'\|'. 

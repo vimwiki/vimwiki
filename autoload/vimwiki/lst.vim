@@ -693,7 +693,11 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  return index(g:vimwiki_listsyms_list, state) * 25
+  if state == g:vimwiki_listsym_rejected
+    return -1
+  endif
+  let n=len(g:vimwiki_listsyms_list)
+  return index(g:vimwiki_listsyms_list, state) * 100/(n-1)
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -729,16 +733,16 @@ endfunction "}}}
 "Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate) "{{{
   let state = ''
+  let n=len(g:vimwiki_listsyms_list)
   if a:rate == 100
-    let state = g:vimwiki_listsyms_list[4]
+    let state = g:vimwiki_listsyms_list[n-1]
   elseif a:rate == 0
     let state = g:vimwiki_listsyms_list[0]
-  elseif a:rate >= 67
-    let state = g:vimwiki_listsyms_list[3]
-  elseif a:rate >= 34
-    let state = g:vimwiki_listsyms_list[2]
+  elseif a:rate == -1
+    let state = g:vimwiki_listsym_rejected
   else
-    let state = g:vimwiki_listsyms_list[1]
+    let index = float2nr(ceil(a:rate/100.0*(n-2)))
+    let state = g:vimwiki_listsyms_list[index]
   endif
   return state
 endfunction "}}}
@@ -760,8 +764,11 @@ function! s:update_state(item) "{{{
       break
     endif
     if child_item.cb != ''
-      let count_children_with_cb += 1
-      let sum_children_rate += s:get_rate(child_item)
+      let rate = s:get_rate(child_item)
+      if rate != -1
+        let count_children_with_cb += 1
+        let sum_children_rate += rate
+      endif
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
@@ -809,15 +816,40 @@ function! s:remove_cb(item) "{{{
   return item
 endfunction "}}}
 
-"Toggles checkbox between [ ] and [X] or creates one
+"Change state of checkbox
 "in the lines of the given range
-function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
+function! s:change_cb(from_line, to_line, new_rate) "{{{
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
   endif
 
   let parent_items_of_lines = []
+
+  for cur_ln in range(from_item.lnum, a:to_line)
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type != 0 && cur_item.cb != ''
+      call s:set_state_plus_children(cur_item, a:new_rate)
+      let cur_parent_item = s:get_parent(cur_item)
+      if index(parent_items_of_lines, cur_parent_item) == -1
+        call insert(parent_items_of_lines, cur_parent_item)
+      endif
+    endif
+  endfor
+
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+
+endfunction "}}}
+
+"Toggles checkbox between two states in the lines of the given range,
+"creates chceckboxes if there aren't any.
+function! s:toggle_create_cb(from_line, to_line, state1, state2) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
 
   if from_item.cb == ''
 
@@ -835,29 +867,66 @@ function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
       endif
     endfor
 
+    for parent_item in parent_items_of_lines
+      call s:update_state(parent_item)
+    endfor
+
   else
 
     "if from_line has CB, toggle it and set all siblings to the same new state
     let rate_first_line = s:get_rate(from_item)
-    let new_rate = rate_first_line == 100 ? 0 : 100
+    let new_rate = rate_first_line == a:state1 ? a:state2 : a:state1
 
-    for cur_ln in range(from_item.lnum, a:to_line)
-      let cur_item = s:get_item(cur_ln)
-      if cur_item.type != 0 && cur_item.cb != ''
-        call s:set_state_plus_children(cur_item, new_rate)
-        let cur_parent_item = s:get_parent(cur_item)
-        if index(parent_items_of_lines, cur_parent_item) == -1
-          call insert(parent_items_of_lines, cur_parent_item)
-        endif
-      endif
-    endfor
+    call s:change_cb(a:from_line, a:to_line, new_rate)
 
   endif
 
-  for parent_item in parent_items_of_lines
-    call s:update_state(parent_item)
-  endfor
+endfunction "}}}
 
+"Decrement checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  "if from_line has CB, decrement it and set all siblings to the same new state
+  let rate_first_line = s:get_rate(from_item)
+  let n=len(g:vimwiki_listsyms_list)
+  let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
+
+  call s:change_cb(a:from_line, a:to_line, new_rate)
+
+endfunction "}}}
+
+"Increment checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#increment_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  "if from_line has CB, increment it and set all siblings to the same new state
+  let rate_first_line = s:get_rate(from_item)
+  let n=len(g:vimwiki_listsyms_list)
+  let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
+
+  call s:change_cb(a:from_line, a:to_line, new_rate)
+
+endfunction "}}}
+
+"Toggles checkbox between [ ] and [X] or creates one
+"in the lines of the given range
+function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
+endfunction "}}}
+
+"Toggles checkbox between [ ] and [-] or creates one
+"in the lines of the given range
+function! vimwiki#lst#toggle_rejected_cb(from_line, to_line) "{{{
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
 endfunction "}}}
 
 function! vimwiki#lst#remove_cb(first_line, last_line) "{{{
@@ -1500,6 +1569,10 @@ function! vimwiki#lst#setup_marker_infos() "{{{
 
   "the user can set the listsyms as string, but vimwiki needs a list
   let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
+
+  if match(g:vimwiki_listsyms, g:vimwiki_listsym_rejected) != -1
+    echomsg "Warning: g:vimwiki_listsyms and g:vimwiki_listsym_rejected overlap"
+  endif
 endfunction "}}}
 
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
