@@ -146,8 +146,8 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = Safesubstitute(g:vimwiki_Weblink1Template, '__LinkUrl__', visual_selection, '')
-    let link = Safesubstitute(link, '__LinkDescription__', visual_selection, '')
+    let link = s:safesubstitute(g:vimwiki_Weblink1Template, '__LinkUrl__', visual_selection, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
     call setreg('"', link, 'v')
 
