@@ -3,7 +3,7 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 " Quit if syntax file is already loaded
-if version < 600
+if v:version < 600
   syntax clear
 elseif exists("b:current_syntax")
   finish
@@ -132,10 +132,12 @@ call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 " Header levels, 1-6
 for s:i in range(1,6)
-  
-  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,@Spell'
-  execute 'syntax region VimwikiH'.s:i.'Folding start=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_Start', s:current_syntax).
-        \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_End', s:current_syntax).'/me=s-1 transparent fold'
+  execute 'syntax match VimwikiHeader'.s:i
+      \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).'/'
+      \ . ' contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,@Spell'
+  execute 'syntax region VimwikiH'.s:i.'Folding'
+        \ . ' start=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_Start', s:current_syntax).'/'
+        \ . ' end=/'.vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_End', s:current_syntax).'/me=s-1 transparent fold'
 endfor
 
 
@@ -233,8 +235,9 @@ execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_syntaxlocal('rxListItem').'/'
 
 if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'\s*\['.vimwiki#vars#get_syntaxlocal('listsyms_list')[4].'\]\s.*$/ '.
-        \ 'contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+  execute 'syntax match VimwikiCheckBoxDone '
+        \ . ' /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'\s*\['.vimwiki#vars#get_syntaxlocal('listsyms_list')[4].'\]\s.*$/'
+        \ . ' contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemAndChildren').'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 endif

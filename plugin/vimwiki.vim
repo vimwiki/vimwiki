@@ -83,6 +83,9 @@ function! s:setup_buffer_enter() "{{{
     return
   endif
 
+  " 'autowriteall' is a global Vim option, so in order to change it only for
+  " Vimwiki buffers, we need to set it here (when the cursor enters the buffer)
+  " and reset it when the cursor leaves the buffer
   let s:vimwiki_autowriteall_saved = &autowriteall
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
@@ -166,7 +169,7 @@ endfunction " }}}
 
 
 " Initialization of Vimwiki starts here. Make sure everything below does not
-" cause autoload/base to be loaded
+" cause autoload/vimwiki/base.vim to be loaded
 
 call vimwiki#vars#init()
 
