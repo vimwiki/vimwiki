@@ -61,17 +61,16 @@ function! s:setup_new_wiki_buffer() "{{{
     endif
   endif
 
+  if vimwiki#vars#get_wikilocal('maxhi')
+    call vimwiki#vars#set_bufferlocal('existing_wikifiles', vimwiki#base#get_wikilinks(wiki_nr, 1))
+    call vimwiki#vars#set_bufferlocal('existing_wikidirs',
+          \ vimwiki#base#get_wiki_directories(wiki_nr))
+  endif
+
   " this makes that ftplugin/vimwiki.vim and afterwards syntax/vimwiki.vim are
   " sourced
   setfiletype vimwiki
 
-  " to force a rescan of the filesystem which may have changed
-  " and update VimwikiLinks syntax group that depends on it;
-  " 'fs_rescan' indicates that setup_filetype() has not been run
-  if vimwiki#vars#get_bufferlocal('fs_rescan') == 1 && vimwiki#vars#get_wikilocal('maxhi')
-    set syntax=vimwiki
-  endif
-  call vimwiki#vars#set_bufferlocal('fs_rescan', 1)
 endfunction "}}}
 
 
@@ -91,14 +90,6 @@ function! s:setup_buffer_enter() "{{{
 
   if &filetype == ''
     setfiletype vimwiki
-  elseif &syntax ==? 'vimwiki'
-    " to force a rescan of the filesystem which may have changed
-    " and update VimwikiLinks syntax group that depends on it;
-    " 'fs_rescan' indicates that setup_filetype() has not been run
-    if vimwiki#vars#get_bufferlocal('fs_rescan') == 1 && vimwiki#vars#get_wikilocal('maxhi')
-      set syntax=vimwiki
-    endif
-    call vimwiki#vars#set_bufferlocal('fs_rescan', 1)
   endif
 
   " The settings foldmethod, foldexpr and foldtext are local to window. Thus in
