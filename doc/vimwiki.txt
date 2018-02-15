@@ -222,7 +222,7 @@ To remap one of these keys, either put it in your .vimrc like this >
 or, the better way, put it in a file .vim/ftplugin/vimwiki.vim like this >
     :nmap <silent><buffer> <Leader>wc <Plug>Vimwiki2HTML
 
-The latter has the advantage that the mapping is local to viwiki buffers in
+The latter has the advantage that the mapping is local to Vimwiki buffers in
 every case.
 
 Also note that some keys work in normal mode as well as in visual mode. If you
@@ -814,7 +814,7 @@ which opens up a popup menu with all the wiki files starting with "ind".
 When |vimwiki-option-maxhi| equals 1, a distinct highlighting style is used to
 identify wikilinks whose targets are not found.
 
-Interwiki:~
+Interwiki~
 
 If you maintain more than one wiki, you can create interwiki links between
 them by adding a numbered prefix "wikiX:" in front of a link: >
@@ -825,14 +825,10 @@ or: >
 The number behind "wiki" is in the range 0..N-1 and identifies the destination
 wiki in |g:vimwiki_list|.
 
-Diary:~
+Diary~
 
-The "diary:" scheme is used to concisely link to diary entries: >
+The "diary:" scheme is used to link to diary entries: >
   [[diary:2012-03-05]]
-
-This scheme precludes explicit inclusion of |vimwiki-option-diary_rel_path|,
-and is most useful on subwiki pages to avoid links such as: >
-  [[../../diary/2012-03-05]]
 
 Anchors~
 

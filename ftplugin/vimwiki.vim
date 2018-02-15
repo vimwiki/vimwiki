@@ -238,7 +238,8 @@ command! -buffer Vimwiki2HTML
       \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
       \                             expand('%'))
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: ' . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '
+      \      . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
@@ -281,11 +282,15 @@ command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
 
 " list commands
 command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
-command! -buffer -range -nargs=1 VimwikiChangeSymbolTo call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
-command! -buffer -range -nargs=1 VimwikiListChangeSymbolI call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
-command! -buffer -nargs=1 VimwikiChangeSymbolInListTo call vimwiki#lst#change_marker_in_list(<f-args>)
+command! -buffer -range -nargs=1 VimwikiChangeSymbolTo
+      \ call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
+command! -buffer -range -nargs=1 VimwikiListChangeSymbolI
+      \ call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
+command! -buffer -nargs=1 VimwikiChangeSymbolInListTo
+      \ call vimwiki#lst#change_marker_in_list(<f-args>)
 command! -buffer -range VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
-command! -buffer -range -nargs=+ VimwikiListChangeLvl call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
+command! -buffer -range -nargs=+ VimwikiListChangeLvl
+      \ call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
 command! -buffer -range VimwikiRemoveSingleCB call vimwiki#lst#remove_cb(<line1>, <line2>)
 command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
 command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()

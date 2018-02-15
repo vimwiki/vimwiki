@@ -49,7 +49,9 @@ function! s:create_temporary_wiki()
 endfunction
 
 
-" this is called when Vim opens a new buffer with a known wiki extension
+" This function is called when Vim opens a new buffer with a known wiki
+" extension. Both when the buffer has never been opened in this session and
+" when it has.
 function! s:setup_new_wiki_buffer() "{{{
   let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
   if wiki_nr == -1    " it's not in a known wiki directory
@@ -82,51 +84,15 @@ function! s:setup_buffer_enter() "{{{
     return
   endif
 
-  " 'autowriteall' is a global Vim option, so in order to change it only for
-  " Vimwiki buffers, we need to set it here (when the cursor enters the buffer)
-  " and reset it when the cursor leaves the buffer
-  let s:vimwiki_autowriteall_saved = &autowriteall
-  let &autowriteall = vimwiki#vars#get_global('autowriteall')
-
   if &filetype == ''
     setfiletype vimwiki
   endif
 
-  " The settings foldmethod, foldexpr and foldtext are local to window. Thus in
-  " a new tab with the same buffer folding is reset to vim defaults. So we
-  " insist vimwiki folding here.
-  let foldmethod = vimwiki#vars#get_global('folding')
-  if foldmethod ==? 'expr'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod ==? 'list' || foldmethod ==? 'lists'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod ==? 'syntax'
-    setlocal foldmethod=syntax
-    setlocal foldtext=VimwikiFoldText()
-  else
-    setlocal foldmethod=manual
-    normal! zE
-  endif
+  call s:set_global_options()
 
-  " And conceal level too.
-  if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
-    let &conceallevel = vimwiki#vars#get_global('conceallevel')
-  endif
-
-  " lcd as well
-  if vimwiki#vars#get_global('auto_chdir')
-    exe 'lcd' vimwiki#vars#get_wikilocal('path')
-  endif
-
-  " Set up menu
-  if vimwiki#vars#get_global('menu') !=# ''
-    exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
-  endif
+  call s:set_windowlocal_options()
 endfunction "}}}
+
 
 function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   " on colorscheme change because they are not linked to Vim-predefined groups
@@ -136,7 +102,10 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
   hi def VimwikiUnderline gui=underline
   if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
-      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='.vimwiki#vars#get_global('hcolor_guifg_'.&bg)[i-1].' gui=bold ctermfg='.vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[i-1].' term=bold cterm=bold' 
+      execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='
+            \ . vimwiki#vars#get_global('hcolor_guifg_'.&bg)[i-1]
+            \ .' gui=bold ctermfg='.vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[i-1]
+            \ .' term=bold cterm=bold'
     endfor
   endif
 endfunction "}}}
@@ -155,6 +124,50 @@ function! s:vimwiki_get_known_extensions() " {{{
   endfor
   return keys(extensions)
 endfunction " }}}
+
+
+" Set settings which are global for Vim, but should only be executed for
+" Vimwiki buffers. So they must be set when the cursor enters a Vimwiki buffer
+" and reset when the cursor leaves the buffer.
+function! s:set_global_options()
+  let s:vimwiki_autowriteall_saved = &autowriteall
+  let &autowriteall = vimwiki#vars#get_global('autowriteall')
+
+  if vimwiki#vars#get_global('menu') !=# ''
+    exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
+  endif
+endfunction
+
+
+" Set settings which are local to a window. In a new tab they would be reset to
+" Vim defaults. So we enforce our settings here when the cursor enters a
+" Vimwiki buffer.
+function! s:set_windowlocal_options()
+  let foldmethod = vimwiki#vars#get_global('folding')
+  if foldmethod ==? 'expr'
+    setlocal foldmethod=expr
+    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+    setlocal foldtext=VimwikiFoldText()
+  elseif foldmethod ==? 'list' || foldmethod ==? 'lists'
+    setlocal foldmethod=expr
+    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
+    setlocal foldtext=VimwikiFoldText()
+  elseif foldmethod ==? 'syntax'
+    setlocal foldmethod=syntax
+    setlocal foldtext=VimwikiFoldText()
+  else
+    setlocal foldmethod=manual
+    normal! zE
+  endif
+
+  if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+    let &conceallevel = vimwiki#vars#get_global('conceallevel')
+  endif
+
+  if vimwiki#vars#get_global('auto_chdir')
+    exe 'lcd' vimwiki#vars#get_wikilocal('path')
+  endif
+endfunction
 
 " }}}
 
@@ -201,8 +214,8 @@ endif
 augroup vimwiki
   autocmd!
   for s:ext in s:known_extensions
-    exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
+    exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
     exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
     " Format tables when exit from insert mode. Do not use textwidth to
