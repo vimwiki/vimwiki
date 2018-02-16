@@ -98,7 +98,7 @@ function! vimwiki#base#resolve_link(link_text, ...) "{{{
     let source_file = a:1
   else
     let source_wiki = vimwiki#vars#get_bufferlocal('wiki_nr')
-    let source_file = expand('%:p')
+    let source_file = vimwiki#path#current_wiki_file()
   endif
 
   let link_text = a:link_text
@@ -257,7 +257,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
         \ || link_infos.scheme =~# 'diary'
 
   let update_prev_link = is_wiki_link &&
-        \ !vimwiki#path#is_equal(link_infos.filename, expand('%:p'))
+        \ !vimwiki#path#is_equal(link_infos.filename, vimwiki#path#current_wiki_file())
 
   let vimwiki_prev_link = []
   " update previous link for wiki pages
@@ -265,7 +265,7 @@ function! vimwiki#base#open_link(cmd, link, ...) "{{{
     if a:0
       let vimwiki_prev_link = [a:1, []]
     elseif &ft ==# 'vimwiki'
-      let vimwiki_prev_link = [expand('%:p'), getpos('.')]
+      let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
     endif
   endif
 
@@ -1076,57 +1076,81 @@ function! vimwiki#base#find_prev_link() "{{{
 endfunction " }}}
 
 " vimwiki#base#follow_link
-function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
-  " to VimwikiLinkHandler, or failing that, the default open_link handler
-  if exists('*vimwiki#'.vimwiki#vars#get_wikilocal('syntax').'_base#follow_link')
-    " Syntax-specific links
-    " XXX: @Stuart: do we still need it?
-    " XXX: @Maxim: most likely!  I am still working on a seemless way to
-    " integrate regexp's without complicating syntax/vimwiki.vim
-    if a:0
-      call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#follow_link(a:split, a:1)
-    else
-      call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#follow_link(a:split)
+function! vimwiki#base#follow_link(split, reuse, move_cursor, ...) "{{{
+  " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
+  " default open_link handler
+
+  " try WikiLink
+  let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
+        \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
+  " try WikiIncl
+  if lnk == ""
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiIncl')),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiInclMatchUrl'))
+  endif
+  " try Weblink
+  if lnk == ""
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink')),
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
+  endif
+
+  if lnk != ""    " cursor is indeed on a link
+    let processed_by_user_defined_handler = VimwikiLinkHandler(lnk)
+    if processed_by_user_defined_handler
+      return
     endif
-  else
-    if a:split ==# "split"
+
+    if a:split ==# "hsplit"
       let cmd = ":split "
     elseif a:split ==# "vsplit"
       let cmd = ":vsplit "
-    elseif a:split ==# "tabnew"
+    elseif a:split ==# "tab"
       let cmd = ":tabnew "
     else
       let cmd = ":e "
     endif
 
-    " try WikiLink
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
-          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
-    " try WikiIncl
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
-          \ vimwiki#vars#get_global('rxWikiInclMatchUrl'))
-    endif
-    " try Weblink
-    if lnk == ""
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink')),
-            \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
-    endif
-
-    if lnk != ""
-      if !VimwikiLinkHandler(lnk)
-        call vimwiki#base#open_link(cmd, lnk)
+    " if we want to and can reuse a split window, jump to that window and open
+    " the new file there
+    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && a:reuse
+      let previous_window_nr = winnr('#')
+      if previous_window_nr > 0 && previous_window_nr != winnr()
+        execute previous_window_nr . 'wincmd w'
+        let cmd = ':e'
       endif
-      return
     endif
 
+
+    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+      let processed_by_markdown_reflink = vimwiki#markdown_base#open_reflink(lnk)
+      if processed_by_markdown_reflink
+        return
+      endif
+
+      " remove the extension from the filename if exists, because non-vimwiki
+      " markdown files usually include the extension in links
+      let lnk = substitute(lnk, vimwiki#vars#get_wikilocal('ext').'$', '', '')
+    endif
+
+    let current_tab_page = tabpagenr()
+
+    call vimwiki#base#open_link(cmd, lnk)
+
+    if !a:move_cursor
+      if (a:split ==# 'hsplit' || a:split ==# 'vsplit')
+        execute 'wincmd p'
+      elseif a:split ==# 'tab'
+        execute 'tabnext ' . current_tab_page
+      endif
+    endif
+
+  else
     if a:0 > 0
       execute "normal! ".a:1
     else		
       call vimwiki#base#normalize_link(0)
     endif
   endif
-
 endfunction " }}}
 
 " vimwiki#base#go_back_link
