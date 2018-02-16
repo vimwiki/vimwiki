@@ -47,6 +47,7 @@ function! s:populate_global_variables()
         \ 'html_header_numbering': 0,
         \ 'html_header_numbering_sym': '',
         \ 'list_ignore_newline': 1,
+        \ 'text_ignore_newline': 1,
         \ 'listsyms': ' .oOX',
         \ 'map_prefix': '<Leader>w',
         \ 'menu': 'Vimwiki',
@@ -384,13 +385,13 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
           \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[4].'\]\s.*\%(\n\%(\1\%('
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\%('
           \ .g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
   else
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
           \ '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'
           \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[4].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))

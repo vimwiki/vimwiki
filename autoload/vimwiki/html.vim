@@ -860,7 +860,11 @@ function! s:process_tag_list(line, lists) "{{{
     let chk = matchlist(a:line, a:rx_list)
     if !empty(chk) && len(chk[1]) > 0
       let completion = index(vimwiki#vars#get_syntaxlocal('listsyms_list'), chk[1])
-      if completion >= 0 && completion <=4
+      let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+      if completion == 0
+        let st_tag = '<li class="done0">'
+      elseif completion > 0 && completion < n
+        let completion = float2nr(round(completion / (n-1.0) * 3.0 + 0.5 ))
         let st_tag = '<li class="done'.completion.'">'
       endif
     endif
@@ -979,7 +983,11 @@ function! s:process_tag_para(line, para) "{{{
       let para = 1
     endif
     let processed = 1
-    call add(lines, a:line)
+    if vimwiki#vars#get_global('text_ignore_newline')
+      call add(lines, a:line)
+    else
+      call add(lines, a:line."<br />")
+    endif
   elseif para && a:line =~# '^\s*$'
     call add(lines, "</p>")
     let para = 0

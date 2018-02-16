@@ -697,7 +697,8 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  return index(vimwiki#vars#get_syntaxlocal('listsyms_list'), state) * 25
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  return index(vimwiki#vars#get_syntaxlocal('listsyms_list'), state) * 100/(n-1)
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -732,17 +733,16 @@ endfunction "}}}
 
 "Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate) "{{{
+  let listsyms_list = vimwiki#vars#get_syntaxlocal('listsyms_list')
   let state = ''
+  let n = len(listsyms_list)
   if a:rate == 100
-    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[4]
+    let state = listsyms_list[n-1]
   elseif a:rate == 0
-    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
-  elseif a:rate >= 67
-    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[3]
-  elseif a:rate >= 34
-    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[2]
+    let state = listsyms_list[0]
   else
-    let state = vimwiki#vars#get_syntaxlocal('listsyms_list')[1]
+    let index = float2nr(ceil(a:rate/100.0*(n-2)))
+    let state = listsyms_list[index]
   endif
   return state
 endfunction "}}}
