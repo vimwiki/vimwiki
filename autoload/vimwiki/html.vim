@@ -209,6 +209,19 @@ function! s:save_vimwiki_buffer() "{{{
   endif
 endfunction "}}}
 
+" get date.
+function! s:process_date(placeholders, default_date) "{{{
+  if !empty(a:placeholders)
+    for [placeholder, row, idx] in a:placeholders
+      let [type, param] = placeholder
+      if type ==# 'date' && !empty(param)
+        return param
+      endif
+    endfor
+  endif
+  return a:default_date
+endfunction "}}}
+
 " get title.
 function! s:process_title(placeholders, default_title) "{{{
   if !empty(a:placeholders)
@@ -1190,7 +1203,7 @@ function! s:parse_line(line, state) " {{{
 
   " nohtml -- placeholder
   if !processed
-    if line =~# '^\s*%nohtml'
+    if line =~# '\m^\s*%nohtml\s*$'
       let processed = 1
       let state.placeholder = ['nohtml']
     endif
@@ -1198,18 +1211,27 @@ function! s:parse_line(line, state) " {{{
 
   " title -- placeholder
   if !processed
-    if line =~# '^\s*%title'
+    if line =~# '\m^\s*%title\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%title\s\zs.*')
+      let param = matchstr(line, '\m^\s*%title\s\+\zs.*')
       let state.placeholder = ['title', param]
+    endif
+  endif
+
+  " date -- placeholder
+  if !processed
+    if line =~# '\m^\s*%date\%(\s.*\)\?$'
+      let processed = 1
+      let param = matchstr(line, '\m^\s*%date\s\+\zs.*')
+      let state.placeholder = ['date', param]
     endif
   endif
 
   " html template -- placeholder "{{{
   if !processed
-    if line =~# '^\s*%template'
+    if line =~# '\m^\s*%template\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '^\s*%template\s\zs.*')
+      let param = matchstr(line, '\m^\s*%template\s\+\zs.*')
       let state.placeholder = ['template', param]
     endif
   endif
@@ -1483,11 +1505,13 @@ function! s:convert_file(path_html, wikifile) "{{{
     call extend(ldest, lines)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
+    let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
 
     let html_lines = s:get_html_template(template_name)
 
     " processing template variables (refactor to a function)
     call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
+    call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
 

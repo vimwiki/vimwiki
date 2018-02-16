@@ -155,6 +155,8 @@ function! s:set_windowlocal_options()
   elseif foldmethod ==? 'syntax'
     setlocal foldmethod=syntax
     setlocal foldtext=VimwikiFoldText()
+  elseif foldmethod ==? 'custom'
+    " do nothing
   else
     setlocal foldmethod=manual
     normal! zE

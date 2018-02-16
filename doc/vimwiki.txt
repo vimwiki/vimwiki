@@ -742,8 +742,9 @@ Vimwiki file.
 
 *:VimwikiGenerateTags* tagname1 tagname2 ...
     Creates or updates an overview on all tags of the wiki with links to all
-    their instances.  Supports |cmdline-completion|.  If
-    no arguments (tags) are specified, outputs all tags.
+    their instances.  Supports |cmdline-completion|.  If no arguments (tags)
+    are specified, outputs all tags.  To make this command work properly, make
+    sure the tags have been built (see |vimwiki-build-tags|).
 
 ------------------------------------------------------------------------------
 4.3. Functions                                              *vimwiki-functions*
@@ -755,9 +756,10 @@ Warning: this is currently unstable and likely to change.
 
 To map them to a key, use >
  nnoremap <C-K> :call vimwiki#base#function_name(arg1, arg2)<CR>
+<
 
-
-vimwiki#base#follow_link({split}, {reuse}, {move_cursor})         *follow_link*
+                                                          *vimwiki-follow_link*
+vimwiki#base#follow_link({split}, {reuse}, {move_cursor})
     Open the link under the cursor. {split} can have the following values:
         'nosplit'       open the link in the current window
         'vsplit'        open in a vertically split window
@@ -1171,7 +1173,8 @@ This might be useful for coloring program code with external JS tools
 such as Google's syntax highlighter.
 
 You can setup Vimwiki to highlight code snippets in preformatted text.
-See |vimwiki-option-nested_syntaxes|
+See |vimwiki-option-nested_syntaxes| and
+|vimwiki-option-automatic_nested_syntaxes|.
 
 
 ------------------------------------------------------------------------------
@@ -1291,8 +1294,9 @@ which opens up a popup menu with all tags defined in the wiki starting with
 
 Tags are also treated as |vimwiki-anchors| (similar to bold text).
 
-Note that tag search/jump/completion commands need certain metadata saved in
-the wiki folder.  This metadata file can be manually updated by running
+                                                          *vimwiki-build-tags*
+Note that the tag search/jump/completion commands need certain metadata saved
+in the wiki folder.  This metadata file can be manually updated by running
 |:VimwikiRebuildTags|.  When the option |vimwiki-option-auto_tags| is enabled,
 the tags metadata will be auto-updated on each page save.
 
@@ -1390,6 +1394,18 @@ To apply a concrete HTML template to a wiki page, place:
 into it.
 
 See |vimwiki-option-template_path| for details.
+
+------------------------------------------------------------------------------
+%date                                                           *vimwiki-date*
+
+The date of the wiki page. The value can be used in the HTML template, see
+|vimwiki-option-template_path| for details.
+
+%date 2017-07-08
+%date
+
+If you omit the date after the placeholder, the date of the HTML conversion is
+used.
 
 
 ==============================================================================
@@ -1942,11 +1958,13 @@ Each template could look like: >
         <div class="content">
         %content%
         </div>
+        <p><small>Page created on %date%</small></p>
     </body>
     </html>
 
 where
   %title% is replaced by a wiki page name or by a |vimwiki-title|
+  %date% is replaced with the current date or by |vimwiki-date|
   %root_path% is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
     %root_path% is replaced by '../../../'.
@@ -2067,7 +2085,9 @@ Just write your preformatted text in your file like this >
  my preformatted text
  }}}
 
-where xxx is a Vim filetype.
+where xxx is a filetype which is known to Vim. For example, for C++
+highlighting, use "cpp" (not "c++"). For a list of known filetypes, type
+":setf " and hit Ctrl+d.
 
 Note that you may have to reload the file (|:edit|) to see the highlight.
 
@@ -2316,6 +2336,8 @@ Value           Description~
 'expr'          Folding based on expression (folds sections and code blocks)
 'syntax'        Folding based on syntax (folds sections; slower than 'expr')
 'list'          Folding based on expression (folds list subitems; much slower)
+'custom'        Leave the folding settings as they are (e.g. set by another
+                plugin)
 
 Default: ''
 

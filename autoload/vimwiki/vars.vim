@@ -77,7 +77,7 @@ function! s:populate_global_variables()
   let g:vimwiki_global_vars.schemes = 'wiki\d\+,diary,local'
   let g:vimwiki_global_vars.web_schemes1 = 'http,https,file,ftp,gopher,telnet,nntp,ldap,rsync'.
         \ ',imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp'
-  let web_schemes2 = 'mailto,news,xmpp,sip,sips,doi,urn,tel'
+  let web_schemes2 = 'mailto,news,xmpp,sip,sips,doi,urn,tel,data'
 
   let rx_schemes = '\%('.
         \ join(split(g:vimwiki_global_vars.schemes, '\s*,\s*'), '\|').'\|'.
