@@ -289,6 +289,8 @@ command! -buffer -range -nargs=1 VimwikiListChangeSymbolI
 command! -buffer -nargs=1 VimwikiChangeSymbolInListTo
       \ call vimwiki#lst#change_marker_in_list(<f-args>)
 command! -buffer -range VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
+command! -buffer -range VimwikiIncrementListItem call vimwiki#lst#increment_cb(<line1>, <line2>)
+command! -buffer -range VimwikiDecrementListItem call vimwiki#lst#decrement_cb(<line1>, <line2>)
 command! -buffer -range -nargs=+ VimwikiListChangeLvl
       \ call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
 command! -buffer -range VimwikiRemoveSingleCB call vimwiki#lst#remove_cb(<line1>, <line2>)
@@ -439,6 +441,23 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
+
+if !hasmapto('<Plug>VimwikiIncrementListItem')
+  nmap <silent><buffer> gln <Plug>VimwikiIncrementListItem
+  vmap <silent><buffer> gln <Plug>VimwikiIncrementListItem
+endif
+if !hasmapto('<Plug>VimwikiDecrementListItem')
+  nmap <silent><buffer> glp <Plug>VimwikiDecrementListItem
+  vmap <silent><buffer> glp <Plug>VimwikiDecrementListItem
+endif
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiIncrementListItem :VimwikiIncrementListItem<CR>
+vnoremap <silent><script><buffer>
+      \ <Plug>VimwikiIncrementListItem :VimwikiIncrementListItem<CR>
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiDecrementListItem :VimwikiDecrementListItem<CR>
+vnoremap <silent><script><buffer>
+      \ <Plug>VimwikiDecrementListItem :VimwikiDecrementListItem<CR>
 
 if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem', 'i')
   imap <silent><buffer> <C-D>

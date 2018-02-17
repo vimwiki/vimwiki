@@ -813,6 +813,67 @@ function! s:remove_cb(item) "{{{
   return item
 endfunction "}}}
 
+"Change state of checkbox
+"in the lines of the given range
+function! s:change_cb(from_line, to_line, new_rate) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  let parent_items_of_lines = []
+
+  for cur_ln in range(from_item.lnum, a:to_line)
+    let cur_item = s:get_item(cur_ln)
+    if cur_item.type != 0 && cur_item.cb != ''
+      call s:set_state_plus_children(cur_item, a:new_rate)
+      let cur_parent_item = s:get_parent(cur_item)
+      if index(parent_items_of_lines, cur_parent_item) == -1
+        call insert(parent_items_of_lines, cur_parent_item)
+      endif
+    endif
+  endfor
+
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+
+endfunction "}}}
+
+"Decrement checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  "if from_line has CB, decrement it and set all siblings to the same new state
+  let rate_first_line = s:get_rate(from_item)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
+
+  call s:change_cb(a:from_line, a:to_line, new_rate)
+
+endfunction "}}}
+
+"Increment checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#increment_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  "if from_line has CB, increment it and set all siblings to the same new state
+  let rate_first_line = s:get_rate(from_item)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
+
+  call s:change_cb(a:from_line, a:to_line, new_rate)
+
+endfunction "}}}
+
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
@@ -820,8 +881,6 @@ function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
   if from_item.type == 0
     return
   endif
-
-  let parent_items_of_lines = []
 
   if from_item.cb == ''
 
@@ -839,28 +898,19 @@ function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
       endif
     endfor
 
+    for parent_item in parent_items_of_lines
+      call s:update_state(parent_item)
+    endfor
+
   else
 
     "if from_line has CB, toggle it and set all siblings to the same new state
     let rate_first_line = s:get_rate(from_item)
     let new_rate = rate_first_line == 100 ? 0 : 100
 
-    for cur_ln in range(from_item.lnum, a:to_line)
-      let cur_item = s:get_item(cur_ln)
-      if cur_item.type != 0 && cur_item.cb != ''
-        call s:set_state_plus_children(cur_item, new_rate)
-        let cur_parent_item = s:get_parent(cur_item)
-        if index(parent_items_of_lines, cur_parent_item) == -1
-          call insert(parent_items_of_lines, cur_parent_item)
-        endif
-      endif
-    endfor
+    call s:change_cb(a:from_line, a:to_line, new_rate)
 
   endif
-
-  for parent_item in parent_items_of_lines
-    call s:update_state(parent_item)
-  endfor
 
 endfunction "}}}
 
