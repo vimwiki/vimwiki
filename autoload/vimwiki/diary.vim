@@ -65,7 +65,7 @@ fun! s:read_captions(files) "{{{
   let rx_header = vimwiki#vars#get_syntaxlocal('rxHeader')
   for fl in a:files
     " remove paths and extensions
-    let fl_key = fnamemodify(fl, ':t:r')
+    let fl_key = substitute(fnamemodify(fl, ':t'), vimwiki#vars#get_wikilocal('ext').'$', '', '')
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
