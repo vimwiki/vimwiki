@@ -6,6 +6,13 @@
 
 " MISC helper functions {{{
 
+" s:safesubstitute
+function! s:safesubstitute(text, search, replace, mode) "{{{
+  " Substitute regexp but do not interpret replace
+  let escaped = escape(a:replace, '\&')
+  return substitute(a:text, a:search, escaped, a:mode)
+endfunction " }}}
+
 " vimwiki#markdown_base#scan_reflinks
 function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
@@ -117,8 +124,9 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = substitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'), '__LinkUrl__', '\='."'".visual_selection."'", '')
-    let link = substitute(link, '__LinkDescription__', '\='."'".visual_selection."'", '')
+    let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
+          \ '__LinkUrl__', visual_selection, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
     call setreg('"', link, 'v')
 

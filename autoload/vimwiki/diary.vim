@@ -174,10 +174,15 @@ function! vimwiki#diary#make_note(wnum, ...) "{{{
 
   call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx))
 
-  if a:0 && a:1 == 1
-    let cmd = 'tabedit'
-  else
-    let cmd = 'edit'
+  let cmd = 'edit'
+  if a:0
+    if a:1 == 1
+      let cmd = 'tabedit'
+    elseif a:1 == 2
+      let cmd = 'split'
+    elseif a:1 == 3
+      let cmd = 'vsplit'
+    endif
   endif
   if a:0>1
     let link = 'diary:'.a:2
