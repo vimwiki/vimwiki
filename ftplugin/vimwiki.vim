@@ -289,6 +289,7 @@ command! -buffer -range -nargs=1 VimwikiListChangeSymbolI
 command! -buffer -nargs=1 VimwikiChangeSymbolInListTo
       \ call vimwiki#lst#change_marker_in_list(<f-args>)
 command! -buffer -range VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
+command! -buffer -range VimwikiToggleRejectedListItem call vimwiki#lst#toggle_rejected_cb(<line1>, <line2>)
 command! -buffer -range VimwikiIncrementListItem call vimwiki#lst#increment_cb(<line1>, <line2>)
 command! -buffer -range VimwikiDecrementListItem call vimwiki#lst#decrement_cb(<line1>, <line2>)
 command! -buffer -range -nargs=+ VimwikiListChangeLvl
@@ -437,10 +438,18 @@ if !hasmapto('<Plug>VimwikiToggleListItem')
     vmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
   endif
 endif
+if !hasmapto('<Plug>VimwikiToggleRejectedListItem')
+  nmap <silent><buffer> glx <Plug>VimwikiToggleRejectedListItem
+  vmap <silent><buffer> glx <Plug>VimwikiToggleRejectedListItem
+endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
+nnoremap <silent><script><buffer>
+      \ <Plug>VimwikiToggleRejectedListItem :VimwikiToggleRejectedListItem<CR>
+vnoremap <silent><script><buffer>
+      \ <Plug>VimwikiToggleRejectedListItem :VimwikiToggleRejectedListItem<CR>
 
 if !hasmapto('<Plug>VimwikiIncrementListItem')
   nmap <silent><buffer> gln <Plug>VimwikiIncrementListItem

@@ -456,6 +456,13 @@ gLI                     Change the symbol of the current list to
                         noremap glo :VimwikiChangeSymbolTo I)<CR>
                         noremap glO :VimwikiChangeSymbolInListTo I)<CR>
 <
+                        *vimwiki_glx*
+glx                     Toggle checkbox of a list item disabled/off.
+                        Maps to |:VimwikiToggleRejectedListItem|.
+                        See |vimwiki-todo-lists|.
+                        To remap: >
+                        :map <Leader>tx <Plug>VimwikiToggleRejectedListItem
+<
                         *vimwiki_gqq*  *vimwiki_gww*
 gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
@@ -654,6 +661,10 @@ Vimwiki file.
 
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
+    See |vimwiki-todo-lists|.
+
+*:VimwikiToggleRejectedListItem*
+    Toggle checkbox of a list item disabled/off.
     See |vimwiki-todo-lists|.
 
 *:VimwikiListChangeLevel* CMD
@@ -1617,6 +1628,9 @@ Use gl<Space> (see |vimwiki_gl<Space>|) to remove a single checkbox and
 gL<Space> (see |vimwiki_gL<Space>|) to remove all checkboxes of the list the
 cursor is in.
 
+You can mark an item as rejected ("won't do") with
+|vimwiki_glx|. A rejected item will not influence the status of its parents.
+
 
 ==============================================================================
 9. Tables                                                     *vimwiki-tables*
@@ -2339,6 +2353,19 @@ The last is for 100% done items.
 You can set it to some more fancy symbols like this:
 >
    let g:vimwiki_listsyms = '✗○◐●✓'
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_listsym_rejected*
+
+Character that is used to show that an item of a todo list will not be done.
+Default value is '-'.
+
+The character used here must not be part of |g:vimwiki_listsyms|.
+
+You can set it to a more fancy symbol like this:
+>
+   let g:vimwiki_listsym_rejected = '✗'
 
 
 ------------------------------------------------------------------------------

@@ -49,6 +49,7 @@ function! s:populate_global_variables()
         \ 'list_ignore_newline': 1,
         \ 'text_ignore_newline': 1,
         \ 'listsyms': ' .oOX',
+        \ 'listsym_rejected': '-',
         \ 'map_prefix': '<Leader>w',
         \ 'menu': 'Vimwiki',
         \ 'table_auto_fmt': 1,
@@ -376,12 +377,19 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   "the user can set the listsyms as string, but vimwiki needs a list
   let g:vimwiki_syntax_variables[a:syntax].listsyms_list =
         \ split(vimwiki#vars#get_global('listsyms'), '\zs')
+  if match(vimwiki#vars#get_global('listsyms'), vimwiki#vars#get_global('listsym_rejected')) != -1
+    echomsg 'Vimwiki Warning: the value of g:vimwiki_listsym_rejected ('''
+          \ . vimwiki#vars#get_global('listsym_rejected')
+          \ . ''') must not be a part of g:vimwiki_listsyms (''' .
+          \ . vimwiki#vars#get_global('listsyms') . ''')'
+  endif
   let g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB =
         \ '^\s*\%(\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\|\('
         \ .g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\)\s'
   let g:vimwiki_syntax_variables[a:syntax].rxListItem =
         \ g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB
-        \ . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms').']\)\]\s\)\?'
+        \ . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms')
+        \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
   if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
           \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\['
