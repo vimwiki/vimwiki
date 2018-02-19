@@ -7,27 +7,17 @@ if exists("b:did_ftplugin")
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
-call vimwiki#u#reload_regexes()
-call vimwiki#u#reload_omni_regexes()
-
-" UNDO list {{{
-" Reset the following options to undo this plugin.
-let b:undo_ftplugin = "setlocal ".
-      \ "suffixesadd< isfname< formatlistpat< ".
-      \ "formatoptions< foldtext< ".
-      \ "foldmethod< foldexpr< commentstring< "
-" UNDO }}}
 
 " MISC STUFF {{{
 
 setlocal commentstring=%%%s
 
-if g:vimwiki_conceallevel && exists("+conceallevel")
-  let &l:conceallevel = g:vimwiki_conceallevel
+if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+  let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
 
 " GOTO FILE: gf {{{
-execute 'setlocal suffixesadd='.VimwikiGet('ext')
+execute 'setlocal suffixesadd='.vimwiki#vars#get_wikilocal('ext')
 setlocal isfname-=[,]
 " gf}}}
 
@@ -45,7 +35,7 @@ function! Complete_wikifiles(findstart, base)
       let s:line_context = '['
       return startoflink
     endif
-    if VimwikiGet('syntax') ==? 'markdown'
+    if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
         let s:line_context = '['
@@ -78,7 +68,7 @@ function! Complete_wikifiles(findstart, base)
 
       if a:base =~# '^wiki\d:'
         let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
-        if wikinumber >= len(g:vimwiki_list)
+        if wikinumber >= vimwiki#vars#number_of_wikis()
           return []
         endif
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
@@ -88,7 +78,7 @@ function! Complete_wikifiles(findstart, base)
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
       else " current wiki
-        let wikinumber = g:vimwiki_current_idx
+        let wikinumber = vimwiki#vars#get_bufferlocal('wiki_nr')
         let prefix = a:base
         let scheme = ''
       endif
@@ -109,7 +99,7 @@ function! Complete_wikifiles(findstart, base)
       let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
       let wikifile = link_infos.filename
-      let syntax = VimwikiGet('syntax', link_infos.index)
+      let syntax = vimwiki#vars#get_wikilocal('syntax', link_infos.index)
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 
       let filtered_anchors = []
@@ -141,7 +131,7 @@ setlocal formatoptions-=2
 setlocal formatoptions+=n
 
 "Create 'formatlistpat'
-let &formatlistpat = g:vimwiki_rxListItem
+let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
 
 if !empty(&langmap)
   " Valid only if langmap is a comma separated pairs of chars
@@ -170,12 +160,12 @@ function! VimwikiFoldLevel(lnum) "{{{
   let line = getline(a:lnum)
 
   " Header/section folding...
-  if line =~# g:vimwiki_rxHeader
+  if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     return '>'.vimwiki#u#count_first_sym(line)
   " Code block folding...
-  elseif line =~# g:vimwiki_rxPreStart
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     return 'a1'
-  elseif line =~# g:vimwiki_rxPreEnd
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     return 's1'
   else
     return "="
@@ -221,7 +211,7 @@ function! VimwikiFoldText() "{{{
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
   let len_text = ' ['.fold_len.'] '
-  if line !~# g:vimwiki_rxPreStart
+  if line !~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     let [main_text, spare_len] = s:shorten_text(main_text, 50)
     return main_text.len_text
   else
@@ -245,18 +235,19 @@ endfunction "}}}
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
       \                             expand('%'))
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '.expand(VimwikiGet('path_html')) | endif
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '
+      \      . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
-      \         expand(VimwikiGet('path_html')),
+      \         expand(vimwiki#vars#get_wikilocal('path_html')),
       \         expand('%')))
 command! -buffer VimwikiAll2HTML
-      \ call vimwiki#html#WikiAll2HTML(expand(VimwikiGet('path_html')))
+      \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')))
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
@@ -279,10 +270,10 @@ command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 
 exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
-      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(VimwikiGet('path').'**/*'.VimwikiGet('ext'), ' ')
+      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
 command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
@@ -291,14 +282,18 @@ command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
 
 " list commands
 command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
-command! -buffer -range -nargs=1 VimwikiChangeSymbolTo call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
-command! -buffer -range -nargs=1 VimwikiListChangeSymbolI call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
-command! -buffer -nargs=1 VimwikiChangeSymbolInListTo call vimwiki#lst#change_marker_in_list(<f-args>)
+command! -buffer -range -nargs=1 VimwikiChangeSymbolTo
+      \ call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'n')
+command! -buffer -range -nargs=1 VimwikiListChangeSymbolI
+      \ call vimwiki#lst#change_marker(<line1>, <line2>, <f-args>, 'i')
+command! -buffer -nargs=1 VimwikiChangeSymbolInListTo
+      \ call vimwiki#lst#change_marker_in_list(<f-args>)
 command! -buffer -range VimwikiToggleListItem call vimwiki#lst#toggle_cb(<line1>, <line2>)
 command! -buffer -range VimwikiToggleRejectedListItem call vimwiki#lst#toggle_rejected_cb(<line1>, <line2>)
 command! -buffer -range VimwikiIncrementListItem call vimwiki#lst#increment_cb(<line1>, <line2>)
 command! -buffer -range VimwikiDecrementListItem call vimwiki#lst#decrement_cb(<line1>, <line2>)
-command! -buffer -range -nargs=+ VimwikiListChangeLvl call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
+command! -buffer -range -nargs=+ VimwikiListChangeLvl
+      \ call vimwiki#lst#change_level(<line1>, <line2>, <f-args>)
 command! -buffer -range VimwikiRemoveSingleCB call vimwiki#lst#remove_cb(<line1>, <line2>)
 command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
 command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
@@ -327,7 +322,7 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
 " COMMANDS }}}
 
 " KEYBINDINGS {{{
-if g:vimwiki_use_mouse
+if vimwiki#vars#get_global('use_mouse')
   nmap <buffer> <S-LeftMouse> <NOP>
   nmap <buffer> <C-LeftMouse> <NOP>
   nnoremap <silent><buffer> <2-LeftMouse> :call vimwiki#base#follow_link('nosplit', 0, 1, "\<lt>2-LeftMouse>")<CR>
@@ -338,13 +333,13 @@ endif
 
 
 if !hasmapto('<Plug>Vimwiki2HTML')
-  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'h <Plug>Vimwiki2HTML'
+  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'h <Plug>Vimwiki2HTML'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTML :Vimwiki2HTML<CR>
 
 if !hasmapto('<Plug>Vimwiki2HTMLBrowse')
-  exe 'nmap <buffer> '.g:vimwiki_map_prefix.'hh <Plug>Vimwiki2HTMLBrowse'
+  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'hh <Plug>Vimwiki2HTMLBrowse'
 endif
 nnoremap <script><buffer>
       \ <Plug>Vimwiki2HTMLBrowse :Vimwiki2HTMLBrowse<CR>
@@ -411,13 +406,13 @@ nnoremap <silent><script><buffer>
       \ <Plug>VimwikiPrevLink :VimwikiPrevLink<CR>
 
 if !hasmapto('<Plug>VimwikiDeleteLink')
-  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'d <Plug>VimwikiDeleteLink'
+  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'d <Plug>VimwikiDeleteLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiDeleteLink :VimwikiDeleteLink<CR>
 
 if !hasmapto('<Plug>VimwikiRenameLink')
-  exe 'nmap <silent><buffer> '.g:vimwiki_map_prefix.'r <Plug>VimwikiRenameLink'
+  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'r <Plug>VimwikiRenameLink'
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
@@ -560,7 +555,7 @@ endif
 noremap <silent><script><buffer>
     \ <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
 
-for s:char in keys(g:vimwiki_bullet_types)
+for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
   if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
     exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
   endif
@@ -569,7 +564,7 @@ for s:char in keys(g:vimwiki_bullet_types)
   endif
 endfor
 
-for s:typ in g:vimwiki_number_types
+for s:typ in vimwiki#vars#get_syntaxlocal('number_types')
   if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>')
     exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
   endif
@@ -581,7 +576,7 @@ endfor
 
 
 function! s:CR(normal, just_mrkr) "{{{
-  if g:vimwiki_table_mappings
+  if vimwiki#vars#get_global('table_mappings')
     let res = vimwiki#tbl#kbd_cr()
     if res != ""
       exe "normal! " . res . "\<Right>"
@@ -602,7 +597,7 @@ if !hasmapto('VimwikiReturn', 'i')
 endif
 
 "Table mappings
- if g:vimwiki_table_mappings
+ if vimwiki#vars#get_global('table_mappings')
    inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
    inoremap <expr> <buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
  endif
@@ -667,23 +662,23 @@ nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
 " KEYBINDINGS }}}
 
 " AUTOCOMMANDS {{{
-if VimwikiGet('auto_export')
+if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
     au BufWritePost <buffer>
-      \ call vimwiki#html#Wiki2HTML(expand(VimwikiGet('path_html')),
+      \ call vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
       \                             expand('%'))
   augroup END
 endif
 
-if VimwikiGet('auto_toc')
+if vimwiki#vars#get_wikilocal('auto_toc')
   " Automatically update the TOC *before* the file is written
   augroup vimwiki
     au BufWritePre <buffer> call vimwiki#base#table_of_contents(0)
   augroup END
 endif
 
-if VimwikiGet('auto_tags')
+if vimwiki#vars#get_wikilocal('auto_tags')
   " Automatically update tags metadata on page write.
   augroup vimwiki
     au BufWritePost <buffer> call vimwiki#tags#update_tags(0, '')
@@ -695,9 +690,4 @@ endif
 " html commands
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
-" }}}
-
-" DEBUGGING {{{
-command! VimwikiPrintWikiState call vimwiki#base#print_wiki_state()
-command! VimwikiReadLocalOptions call vimwiki#base#read_wiki_options(1)
 " }}}

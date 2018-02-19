@@ -109,30 +109,31 @@ else
 endif "}}}
 
 function! vimwiki#lst#default_symbol() "{{{
-  return g:vimwiki_list_markers[0]
+  return vimwiki#vars#get_syntaxlocal('list_markers')[0]
 endfunction "}}}
 
 function! vimwiki#lst#get_list_margin() "{{{
-  if VimwikiGet('list_margin') < 0
+  let list_margin = vimwiki#vars#get_wikilocal('list_margin')
+  if list_margin < 0
     return &sw
   else
-    return VimwikiGet('list_margin')
+    return list_margin
   endif
 endfunction "}}}
 
 "Returns: the column where the text of a line starts (possible list item
 "markers and checkboxes are skipped)
 function! s:text_begin(lnum) "{{{
-  return s:string_length(matchstr(getline(a:lnum), g:vimwiki_rxListItem))
+  return s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem')))
 endfunction "}}}
 
 "Returns: 2 if there is a marker and text
 " 1 for a marker and no text
 " 0 for no marker at all (empty line or only text)
 function! s:line_has_marker(lnum) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*$'
+  if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*$'
     return 1
-  elseif getline(a:lnum) =~# g:vimwiki_rxListItem.'\s*\S'
+  elseif getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*\S'
     return 2
   else
     return 0
@@ -156,7 +157,7 @@ function! s:get_item(lnum) "{{{
     return item
   endif
 
-  let matches = matchlist(getline(a:lnum), g:vimwiki_rxListItem)
+  let matches = matchlist(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem'))
   if matches == [] ||
         \ (matches[1] == '' && matches[2] == '') ||
         \ (matches[1] != '' && matches[2] != '')
@@ -187,10 +188,10 @@ function! s:get_level(lnum) "{{{
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
-  if VimwikiGet('syntax') !=? 'media'
+  if !vimwiki#vars#get_syntaxlocal('recurring_bullets')
     let level = indent(a:lnum)
   else
-    let level = s:string_length(matchstr(getline(a:lnum), s:rx_bullet_chars))-1
+    let level = s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_syntaxlocal(rx_bullet_chars)))-1
     if level < 0
       let level = (indent(a:lnum) == 0) ? 0 : 9999
     endif
@@ -206,17 +207,19 @@ function! s:guess_kind_of_numbered_item(item) "{{{
   let number_chars = a:item.mrkr[:-2]
   let divisor = a:item.mrkr[-1:]
 
+  let number_kinds = vimwiki#vars#get_syntaxlocal('number_kinds')
+
   if number_chars =~# '\d\+'
     return '1'
   endif
   if number_chars =~# '\l\+'
-    if number_chars !~# '^[ivxlcdm]\+' || index(s:number_kinds, 'i') == -1
+    if number_chars !~# '^[ivxlcdm]\+' || index(number_kinds, 'i') == -1
       return 'a'
     else
 
       let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
-        if index(s:number_kinds, 'a') == -1 ||
+        if index(number_kinds, 'a') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'i\+') ||
               \ s:increment_i(item_above.mrkr[:-2]) ==# number_chars
           return 'i'
@@ -224,7 +227,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
           return 'a'
         endif
       else
-        if number_chars =~# 'i\+' || index(s:number_kinds, 'a') == -1
+        if number_chars =~# 'i\+' || index(number_kinds, 'a') == -1
           return 'i'
         else
           return 'a'
@@ -234,13 +237,13 @@ function! s:guess_kind_of_numbered_item(item) "{{{
     endif
   endif
   if number_chars =~# '\u\+'
-    if number_chars !~# '^[IVXLCDM]\+' || index(s:number_kinds, 'I') == -1
+    if number_chars !~# '^[IVXLCDM]\+' || index(number_kinds, 'I') == -1
       return 'A'
     else
 
       let item_above = s:get_prev_list_item(a:item, 0)
       if item_above.type != 0
-        if index(s:number_kinds, 'A') == -1 ||
+        if index(number_kinds, 'A') == -1 ||
               \ (item_above.mrkr[-1:] !=# divisor && number_chars =~# 'I\+') ||
               \ s:increment_I(item_above.mrkr[:-2]) ==# number_chars
           return 'I'
@@ -248,7 +251,7 @@ function! s:guess_kind_of_numbered_item(item) "{{{
           return 'A'
         endif
       else
-        if number_chars =~# 'I\+' || index(s:number_kinds, 'A') == -1
+        if number_chars =~# 'I\+' || index(number_kinds, 'A') == -1
           return 'I'
         else
           return 'A'
@@ -263,8 +266,9 @@ function! s:regexp_of_marker(item) "{{{
   if a:item.type == 1
     return vimwiki#u#escape(a:item.mrkr)
   elseif a:item.type == 2
+    let number_divisors = vimwiki#vars#get_syntaxlocal('number_divisors')
     for ki in ['d', 'u', 'l']
-      let match = matchstr(a:item.mrkr, '\'.ki.'\+['.s:number_divisors.']')
+      let match = matchstr(a:item.mrkr, '\'.ki.'\+['.number_divisors.']')
       if match != ''
         return '\'.ki.'\+'.vimwiki#u#escape(match[-1:])
       endif
@@ -376,10 +380,10 @@ endfunction "}}}
 "If there is no second argument, 0 is returned at a header, otherwise the
 "header is skipped
 function! s:get_next_line(lnum, ...) "{{{
-  if getline(a:lnum) =~# g:vimwiki_rxPreStart
+  if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     let cur_ln = a:lnum + 1
     while cur_ln <= line('$') &&
-          \ getline(cur_ln) !~# g:vimwiki_rxPreEnd
+          \ getline(cur_ln) !~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
       let cur_ln += 1
     endwhile
     let next_line = cur_ln
@@ -387,12 +391,12 @@ function! s:get_next_line(lnum, ...) "{{{
     let next_line = nextnonblank(a:lnum+1)
   endif
 
-  if a:0 > 0 && getline(next_line) =~# g:vimwiki_rxHeader
+  if a:0 > 0 && getline(next_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let next_line = s:get_next_line(next_line, 1)
   endif
 
   if next_line < 0 || next_line > line('$') ||
-        \ (getline(next_line) =~# g:vimwiki_rxHeader && a:0 == 0)
+        \ (getline(next_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader') && a:0 == 0)
     return 0
   endif
 
@@ -404,10 +408,10 @@ endfunction "}}}
 function! s:get_prev_line(lnum) "{{{
   let prev_line = prevnonblank(a:lnum-1)
 
-  if getline(prev_line) =~# g:vimwiki_rxPreEnd
+  if getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     let cur_ln = a:lnum - 1
     while 1
-      if cur_ln == 0 || getline(cur_ln) =~# g:vimwiki_rxPreStart
+      if cur_ln == 0 || getline(cur_ln) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
         break
       endif
       let cur_ln -= 1
@@ -416,7 +420,7 @@ function! s:get_prev_line(lnum) "{{{
   endif
 
   if prev_line < 0 || prev_line > line('$') ||
-        \ getline(prev_line) =~# g:vimwiki_rxHeader
+        \ getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     return 0
   endif
 
@@ -693,11 +697,11 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
-  if state == g:vimwiki_listsym_rejected
+  if state == vimwiki#vars#get_global('listsym_rejected')
     return -1
   endif
-  let n=len(g:vimwiki_listsyms_list)
-  return index(g:vimwiki_listsyms_list, state) * 100/(n-1)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  return index(vimwiki#vars#get_syntaxlocal('listsyms_list'), state) * 100/(n-1)
 endfunction "}}}
 
 "Set state of the list item to [ ] or [o] or whatever
@@ -732,17 +736,18 @@ endfunction "}}}
 
 "Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate) "{{{
+  let listsyms_list = vimwiki#vars#get_syntaxlocal('listsyms_list')
   let state = ''
-  let n=len(g:vimwiki_listsyms_list)
+  let n = len(listsyms_list)
   if a:rate == 100
-    let state = g:vimwiki_listsyms_list[n-1]
+    let state = listsyms_list[n-1]
   elseif a:rate == 0
-    let state = g:vimwiki_listsyms_list[0]
+    let state = listsyms_list[0]
   elseif a:rate == -1
-    let state = g:vimwiki_listsym_rejected
+    let state = vimwiki#vars#get_global('listsym_rejected')
   else
     let index = float2nr(ceil(a:rate/100.0*(n-2)))
-    let state = g:vimwiki_listsyms_list[index]
+    let state = listsyms_list[index]
   endif
   return state
 endfunction "}}}
@@ -799,7 +804,7 @@ function! s:create_cb(item) "{{{
   endif
 
   let new_item = a:item
-  let new_item.cb = g:vimwiki_listsyms_list[0]
+  let new_item.cb = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
   call s:substitute_rx_in_line(new_item.lnum,
         \ vimwiki#u#escape(new_item.mrkr) . '\zs\ze', ' [' . new_item.cb . ']')
 
@@ -893,7 +898,7 @@ function! vimwiki#lst#decrement_cb(from_line, to_line) "{{{
 
   "if from_line has CB, decrement it and set all siblings to the same new state
   let rate_first_line = s:get_rate(from_item)
-  let n=len(g:vimwiki_listsyms_list)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
   let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
@@ -910,7 +915,36 @@ function! vimwiki#lst#increment_cb(from_line, to_line) "{{{
 
   "if from_line has CB, increment it and set all siblings to the same new state
   let rate_first_line = s:get_rate(from_item)
-  let n=len(g:vimwiki_listsyms_list)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
+
+  call s:change_cb(a:from_line, a:to_line, new_rate)
+
+endfunction "}}}
+
+"Toggles checkbox between [ ] and [X] or creates one
+"in the lines of the given range
+function! vimwiki#lst#toggle_cb(from_line, to_line) "{{{
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
+endfunction "}}}
+
+"Toggles checkbox between [ ] and [-] or creates one
+"in the lines of the given range
+function! vimwiki#lst#toggle_rejected_cb(from_line, to_line) "{{{
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
+endfunction "}}}
+
+"Increment checkbox between [ ] and [X]
+"in the lines of the given range
+function! vimwiki#lst#increment_cb(from_line, to_line) "{{{
+  let from_item = s:get_corresponding_item(a:from_line)
+  if from_item.type == 0
+    return
+  endif
+
+  "if from_line has CB, increment it and set all siblings to the same new state
+  let rate_first_line = s:get_rate(from_item)
+  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
   let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
@@ -990,8 +1024,8 @@ endfunction "}}}
 
 function! s:decrease_level(item) "{{{
   let removed_indent = 0
-  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum,
             \ s:first_char(a:item.mrkr), '')
@@ -1012,8 +1046,8 @@ endfunction "}}}
 
 function! s:increase_level(item) "{{{
   let additional_indent = 0
-  if VimwikiGet('syntax') ==? 'media' && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
     let additional_indent = 1
@@ -1034,8 +1068,8 @@ endfunction "}}}
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) "{{{
   let item = s:get_item(a:lnum)
-  if VimwikiGet('syntax') ==? 'media' && item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(item.mrkr)) > -1
+  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && item.type == 1 &&
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr,
             \ item.mrkr . s:first_char(item.mrkr))
@@ -1149,38 +1183,40 @@ function! s:get_idx_list_markers(item) "{{{
   else
     let m = s:guess_kind_of_numbered_item(a:item) . a:item.mrkr[-1:]
   endif
-  return index(g:vimwiki_list_markers, m)
+  return index(vimwiki#vars#get_syntaxlocal('list_markers'), m)
 endfunction "}}}
 
 "changes the marker of the given item to the next in g:vimwiki_list_markers
 function! s:get_next_mrkr(item) "{{{
+  let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
-    let new_mrkr = g:vimwiki_list_markers[0]
+    let new_mrkr = markers[0]
   else
     let idx = s:get_idx_list_markers(a:item)
-    let new_mrkr = g:vimwiki_list_markers[(idx+1) % len(g:vimwiki_list_markers)]
+    let new_mrkr = markers[(idx+1) % len(markers)]
   endif
   return new_mrkr
 endfunction "}}}
 
 "changes the marker of the given item to the previous in g:vimwiki_list_markers
 function! s:get_prev_mrkr(item) "{{{
+  let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
-    return g:vimwiki_list_markers[-1]
+    return markers[-1]
   endif
   let idx = s:get_idx_list_markers(a:item)
   if idx == -1
-    return g:vimwiki_list_markers[-1]
+    return markers[-1]
   else
-    return g:vimwiki_list_markers[(idx - 1 + len(g:vimwiki_list_markers)) %
-          \ len(g:vimwiki_list_markers)]
+    return markers[(idx - 1 + len(markers)) %
+          \ len(markers)]
   endif
 endfunction "}}}
 
 function! s:set_new_mrkr(item, new_mrkr) "{{{
   if a:item.type == 0
     call s:substitute_rx_in_line(a:item.lnum, '^\s*\zs\ze', a:new_mrkr.' ')
-    if indent(a:item.lnum) == 0 && VimwikiGet('syntax') !=? 'media'
+    if indent(a:item.lnum) == 0 && !vimwiki#vars#get_syntaxlocal('recurring_bullets')
       call s:set_indent(a:item.lnum, vimwiki#lst#get_list_margin())
     endif
   else
@@ -1202,7 +1238,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
     endif
 
     "handle markers like ***
-    if index(s:multiple_bullet_chars, s:first_char(new_mrkr)) > -1
+    if index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(new_mrkr)) > -1
       "use *** if the item above has *** too
       let item_above = s:get_prev_list_item(cur_item, 1)
       if item_above.type == 1 &&
@@ -1217,7 +1253,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode) "{{{
         else
           "if the old is ### and the new is * use ***
           if cur_item.type == 1 &&
-                \ index(s:multiple_bullet_chars,s:first_char(cur_item.mrkr))>-1
+                \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(cur_item.mrkr))>-1
             let new_mrkr = repeat(new_mrkr, s:string_length(cur_item.mrkr))
           else
             "use *** if the parent item has **
@@ -1261,7 +1297,7 @@ endfunction "}}}
 
 "sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) "{{{
-  if a:item.type == 0 || VimwikiGet('syntax') ==? 'media'
+  if a:item.type == 0 || vimwiki#vars#get_syntaxlocal('recurring_bullets')
     return
   endif
 
@@ -1273,7 +1309,7 @@ function! s:adjust_mrkr(item) "{{{
 
   "if possible, set e.g. *** if parent has ** as marker
   if neighbor_item.type == 0 && a:item.type == 1 &&
-        \ index(s:multiple_bullet_chars, s:first_char(a:item.mrkr)) > -1
+        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(a:item.mrkr)) > -1
     let parent_item = s:get_parent(a:item)
     if parent_item.type == 1 &&
           \ s:first_char(parent_item.mrkr) ==# s:first_char(a:item.mrkr)
@@ -1291,7 +1327,7 @@ function! s:clone_marker_from_to(from, to) "{{{
   if item_from.type == 0 | return | endif
   let new_mrkr = item_from.mrkr . ' '
   call s:substitute_rx_in_line(a:to, '^\s*', new_mrkr)
-  let new_indent = ( VimwikiGet('syntax') !=? 'media' ? indent(a:from) : 0 )
+  let new_indent = ( vimwiki#vars#get_syntaxlocal('recurring_bullets') ? 0 : indent(a:from) )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
     call s:create_cb(s:get_item(a:to))
@@ -1328,7 +1364,7 @@ function! s:create_marker(lnum) "{{{
     call s:clone_marker_from_to(new_sibling.lnum, a:lnum)
   else
     let cur_item = s:get_item(a:lnum)
-    call s:set_new_mrkr(cur_item, g:vimwiki_list_markers[0])
+    call s:set_new_mrkr(cur_item, vimwiki#vars#get_syntaxlocal('list_markers')[0])
     call s:adjust_numbered_list(cur_item, 0, 0)
   endif
 endfunction "}}}
@@ -1528,53 +1564,6 @@ endfunction "}}}
 "handle keys }}}
 
 "misc stuff {{{
-function! vimwiki#lst#setup_marker_infos() "{{{
-  let s:rx_bullet_chars = '['.join(keys(g:vimwiki_bullet_types), '').']\+'
-
-  let s:multiple_bullet_chars = []
-  for i in keys(g:vimwiki_bullet_types)
-    if g:vimwiki_bullet_types[i] == 1
-      call add(s:multiple_bullet_chars, i)
-    endif
-  endfor
-
-  let s:number_kinds = []
-  let s:number_divisors = ""
-  for i in g:vimwiki_number_types
-    call add(s:number_kinds, i[0])
-    let s:number_divisors .= vimwiki#u#escape(i[1])
-  endfor
-
-  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
-        \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
-
-  "create regexp for bulleted list items
-  let g:vimwiki_rxListBullet = join( map(keys(g:vimwiki_bullet_types),
-        \'vimwiki#u#escape(v:val).repeat("\\+", g:vimwiki_bullet_types[v:val])'
-        \ ) , '\|')
-
-  "create regex for numbered list items
-  if !empty(g:vimwiki_number_types)
-    let g:vimwiki_rxListNumber = '\C\%('
-    for type in g:vimwiki_number_types[:-2]
-      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
-            \ vimwiki#u#escape(type[1]) . '\|'
-    endfor
-    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
-          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
-  else
-    "regex that matches nothing
-    let g:vimwiki_rxListNumber = '$^'
-  endif
-
-  "the user can set the listsyms as string, but vimwiki needs a list
-  let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
-
-  if match(g:vimwiki_listsyms, g:vimwiki_listsym_rejected) != -1
-    echomsg "Warning: g:vimwiki_listsyms and g:vimwiki_listsym_rejected overlap"
-  endif
-endfunction "}}}
-
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
   let lnum = prevnonblank('.')
   let item = s:get_corresponding_item(lnum)
