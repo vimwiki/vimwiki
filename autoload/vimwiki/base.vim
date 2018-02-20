@@ -1093,8 +1093,8 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...) "{{{
         \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   " try WikiIncl
   if lnk == ""
-    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiIncl')),
-          \ vimwiki#vars#get_syntaxlocal('rxWikiInclMatchUrl'))
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
+          \ vimwiki#vars#get_global('rxWikiInclMatchUrl'))
   endif
   " try Weblink
   if lnk == ""
