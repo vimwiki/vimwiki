@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
