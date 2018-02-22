@@ -145,7 +145,7 @@ endfunction " }}}
 " vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path object
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return vimwiki#path#join(vimwiki#vars#get_wikilocal('path'), vimwiki#path#from_segment_file(s:TAGS_METADATA_FILE_NAME))
+  return vimwiki#path#join(vimwiki#vars#get_wikilocal('path'), vimwiki#path#file_segment(s:TAGS_METADATA_FILE_NAME))
 endfunction " }}}
 
 " s:load_tags_metadata

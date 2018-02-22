@@ -49,8 +49,8 @@ function! s:is_img_link(lnk) "{{{
   return 0
 endfunction "}}}
 
-function! s:default_CSS_full_name(target_dir) " {{{
-  return vimwiki#path#join(path, vimwiki#vars#get_wikilocal('css_name'))
+function! s:default_CSS_full_name(path) " {{{
+  return vimwiki#path#join(a:path, vimwiki#vars#get_wikilocal('css_name'))
 endfunction "}}}
 
 " Returns: 1 if it was created, 0 if it already existed
@@ -72,7 +72,7 @@ function! s:template_full_name(name) "{{{
     let name = a:name
   endif
 
-  let filename = vimwiki#path#from_segment_file(name . vimwiki#vars#get_wikilocal('template_ext'))
+  let filename = vimwiki#path#file_segment(name . vimwiki#vars#get_wikilocal('template_ext'))
 
   let template_file = vimwiki#path#to_string(vimwiki#path#join(vimwiki#vars#get_wikilocal('template_path'), filename))
 

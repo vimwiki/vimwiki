@@ -48,6 +48,8 @@ function! s:populate_global_variables()
     endif
   endfor
 
+  call s:validate_global_settings()
+
   " non-configurable global variables
 
   " Scheme regexes should be defined even if syntax file is not loaded yet cause users should be
@@ -152,6 +154,27 @@ function! s:populate_global_variables()
 endfunction
 
 
+function! s:validate_global_settings()
+  let g:vimwiki_global_vars.dir_link =
+        \ vimwiki#path#file_segment(g:vimwiki_global_vars.dir_link)
+
+  for extension in g:vimwiki_global_vars.ext2syntax
+    if extension[0] != '.'
+      let g:vimwiki_global_vars.ext2syntax['.'.extension] =
+      g:vimwiki_global_vars.ext2syntax[extension]
+      call remove(g:vimwiki_global_vars.ext2syntax, extension)
+    endif
+  endfor
+
+  let new_user_htmls = []
+  for file_name in split(g:vimwiki_global_vars.user_htmls, ',')
+    let trimmed = vimwiki#u#trim(file_name)
+    call add(new_user_htmls, vimwiki#path#file_segment(trimmed))
+  endfor
+  let g:vimwiki_global_vars.user_htmls = new_user_htmls
+endfunction
+
+
 " g:vimwiki_wikilocal_vars is a list of dictionaries: one dict for every registered wiki plus one
 " (the last in the list) which contains the default values (used for temporary wikis).
 function! s:populate_wikilocal_options()
@@ -213,12 +236,16 @@ function! s:populate_wikilocal_options()
   let temporary_options_dict.temp = 1
   call add(g:vimwiki_wikilocal_vars, temporary_options_dict)
 
-  call s:validate_settings()
+  call s:validate_wikilocal_settings()
 endfunction
 
 
-function! s:validate_settings()
+function! s:validate_wikilocal_settings()
   for wiki_settings in g:vimwiki_wikilocal_vars
+    let wiki_settings.css_name = vimwiki#path#file_segment(wiki_settings.css_name)
+
+    let wiki_settings.custom_wiki2html = vimwiki#path#file_object(wiki_settings.custom_wiki2html)
+
     let wiki_settings['path'] = vimwiki#path#dir_obj(wiki_settings['path'])
 
     let path_html = wiki_settings['path_html']
@@ -231,7 +258,7 @@ function! s:validate_settings()
 
     let wiki_settings['template_path'] =  vimwiki#path#dir_obj(wiki_settings['template_path'])
     let wiki_settings['diary_path'] =  vimwiki#path#join_dir(wiki_settings['path'],
-          \ vimwiki#path#from_segment_dir(wiki_settings['diary_rel_path']))
+          \ vimwiki#path#dir_segment(wiki_settings['diary_rel_path']))
   endfor
 endfunction
 
@@ -606,7 +633,7 @@ function! vimwiki#vars#add_temporary_wiki(settings)
     let new_temp_wiki_settings[key] = value
   endfor
   call insert(g:vimwiki_wikilocal_vars, new_temp_wiki_settings, -1)
-  call s:validate_settings()
+  call s:validate_wikilocal_settings()
 endfunction
 
 " number of registered wikis + temporary

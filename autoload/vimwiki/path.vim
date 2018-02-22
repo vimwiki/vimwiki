@@ -169,19 +169,28 @@ endif
 
 
 "----------------------------------------------------------
-" Path manipulation, i.e. do stuff with the paths of (not necessarily existing) files
+" Path manipulation, i.e. functions which do stuff with the paths of (not necessarily existing) files
 "----------------------------------------------------------
 
 
-" The used data types are (with their internal representation)
-" - directory object: a dictionary with the following entries:
-"     - 'protocoll' -- how to access the file. Supported are 'scp' or 'file'
-"     - 'is_unix' -- 1 if it's supposed to be a unix-like path
-"     - 'path' -- a list containing the directory names starting at the root
-" - file object: a list [dir_obj, file name]
-" - file segment: representing e.g. a relative path. Is a list where the first
-"   element is a list of directory names and the second the file name
-" - directory segment: a list of directory names
+" The used data types are
+"
+" - directory object:
+"    - used for an absolute path to a directory
+"    - internally, it is a dictionary with the following entries:
+"      - 'protocoll' -- how to access the file. Supported are 'scp' or 'file'
+"      - 'is_unix' -- 1 if it's supposed to be a unix-like path
+"      - 'path' -- a list containing the directory names starting at the root
+" - file object:
+"    - for an absolute path to a file
+"    - internally a list [dir_obj, file name]
+" - file segment:
+"    - for a relative path to a file or a part of an absolute path
+"    - internally a list where the first element is a list of directory names and the second the
+"      file name
+" - directory segment:
+"    - for a relative path to a directory or a part of an absolute path
+"    - internally a list of directory names
 
 
 " create and return a file object from a string. It is assumed that the given
@@ -214,6 +223,21 @@ function! vimwiki#path#dir_obj(dirpath)
 endfunction
 
 
+" Assume it is not an absolute path
+function! vimwiki#path#file_segment(path_segment)
+  let filename = fnamemodify(a:path_segment, ':t')
+  let path = fnamemodify(a:path_segment, ':h')
+  let path_list = (path ==# '.' ? [] : split(path, '\m[/\\]', 1))
+  return [path_list, filename]
+endfunction
+
+
+" Assume it is not an absolute path
+function! vimwiki#path#dir_segment(path_segment)
+  return split(a:path_segment, '\m[/\\]', 1)
+endfunction
+
+
 function! vimwiki#path#extension(file_object)
   return fnamemodify(a:file_object[1], ':e')
 endfunction
@@ -231,16 +255,26 @@ function! vimwiki#path#filename(file_object)
 endfunction
 
 
-" Returns: the dir_obj or file_obj as string, ready to be used with the regular
-" path handling functions in Vim
+" Returns: the dir_obj, file_obj, file segment or dir segment as string, ready
+" to be used with the regular path handling functions in Vim
 function! vimwiki#path#to_string(obj)
-  let dir_obj = type(a:obj) == 4 ? a:obj : a:obj[0]
-  let separator = dir_obj.is_unix ? '/' : '\'
-  let address = join(dir_obj.path, separator) . separator
-  if type(a:obj) == 3
-    let address .= a:path[1]
+  if type(a:obj) == 4   " dir object
+    let separator = a:obj.is_unix ? '/' : '\'
+    let address = join(dir_obj.path, separator) . separator
+    return address
+  elseif type(a:obj[0]) == 4  " file object
+    let dir_obj = type(a:obj) == 4 ? a:obj : a:obj[0]
+    let separator = a:obj[0].is_unix ? '/' : '\'
+    let address = join(a:obj[0].path, separator) . separator . a:obj[1]
+    return address
+  elseif type(a:obj[0]) == 3  " file segment
+    " XXX: what about the separator?
+    return join(a:obj[0], '/') . '/' . a:obj[1]
+  elseif type(a:obj[0]) == 1  " directory segment
+    return join(a:obj, '/') . '/'
+  else
+    call vimwiki#u#error('Invalid argument ' . string(a:obj))
   endif
-  return address
 endfunction
 
 
@@ -251,37 +285,29 @@ function! vimwiki#path#append_to_dirname(dir_obj, str)
 endfunction
 
 
-" Assume it is not an absolute path
-function! vimwiki#path#from_segment_file(path_segment)
-  let filename = fnamemodify(a:path_segment, ':t')
-  let path = fnamemodify(a:path_segment, ':h')
-  let path_list = (path ==# '.' ? [] : split(path, '\m[/\\]', 1))
-  return [path_list, filename]
-endfunction
-
-" Assume it is not an absolute path
-function! vimwiki#path#from_segment_dir(path_segment)
-  return split(a:path_segment, '\m[/\\]', 1)
-endfunction
-
-function! vimwiki#path#join(dir_path, file_segment)
-  let new_dir_object = copy(a:dir_path)
+" Returns a file object made from a dir object plus a file semgent
+function! vimwiki#path#join(dir_obje, file_segment)
+  let new_dir_object = copy(a:dir_obj)
   let new_dir_object.path += a:file_segment[0]
   return [new_dir_object, a:file_segment[1]]
 endfunction
 
+
+" Returns a dir object made from a dir object plus a dir semgent
 function! vimwiki#path#join_dir(dir_path, dir_segment)
   let new_dir_object = copy(a:dir_path)
   let new_dir_object.path += a:dir_segment
   return new_dir_object
 endfunction
 
-" returns the segment s, so that join(dir, s) == file
+
+" returns the file segment fs, so that join(dir, fs) == file
 " we just assume the file is somewhere in dir
 function! vimwiki#path#subtract(dir_object, file_object)
   let path_rest = a:file_object[0].path[len(a:dir_object.path):]
   return [path_rest, file_object[1]]
 endfunction
+
 
 " Returns: the relative path from a:dir to a:file
 function! vimwiki#path#relpath(dir1_object, dir2_object)
@@ -331,7 +357,7 @@ let s:vimwiki_autoload_dir = expand('<sfile>:p:h')
 
 function! vimwiki#path#find_autoload_file(filename)
   let autoload_dir = vimwiki#path#dir_obj(s:vimwiki_autoload_dir)
-  let filename_obj = vimwiki#path#from_segment_file(a:filename)
+  let filename_obj = vimwiki#path#file_segment(a:filename)
   let file = vimwiki#path#join(autoload_dir, filename_obj)
   if !vimwiki#path#exists(file)
     echom 'Vimwiki Error: ' . vimwiki#path#to_string(file) . ' not found'
