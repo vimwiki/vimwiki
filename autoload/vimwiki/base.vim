@@ -253,7 +253,12 @@ endfunction "}}}
 
 " vimwiki#base#open_link
 function! vimwiki#base#open_link(cmd, link, ...) "{{{
-  let link_infos = vimwiki#base#resolve_link(a:link)
+  let link_infos = {}
+  if a:0
+    let link_infos = vimwiki#base#resolve_link(a:link, a:1)
+  else
+    let link_infos = vimwiki#base#resolve_link(a:link)
+  endif
 
   if link_infos.filename == ''
     echomsg 'Vimwiki Error: Unable to resolve link!'
