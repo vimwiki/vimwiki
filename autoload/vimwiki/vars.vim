@@ -206,13 +206,22 @@ function! s:populate_wikilocal_options()
 
   let g:vimwiki_wikilocal_vars = []
 
+  let default_wiki_settings = {}
+  for key in keys(default_values)
+    if exists('g:vimwiki_'.key)
+      let default_wiki_settings[key] = g:vimwiki_{key}
+    else
+      let default_wiki_settings[key] = default_values[key]
+    endif
+  endfor
+
   " set the wiki-local variables according to g:vimwiki_list (or the default settings)
   if exists('g:vimwiki_list')
-    for users_options in g:vimwiki_list
+    for users_wiki_settings in g:vimwiki_list
       let new_wiki_settings = {}
       for key in keys(default_values)
-        if has_key(users_options, key)
-          let new_wiki_settings[key] = users_options[key]
+        if has_key(users_wiki_settings, key)
+          let new_wiki_settings[key] = users_wiki_settings[key]
         elseif exists('g:vimwiki_'.key)
           let new_wiki_settings[key] = g:vimwiki_{key}
         else
@@ -224,19 +233,17 @@ function! s:populate_wikilocal_options()
 
       call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
     endfor
+  else
+    " if the user hasn't registered any wiki, we register one wiki using the default values
+    let new_wiki_settings = deepcopy(default_wiki_settings)
+    let new_wiki_settings.is_temporary_wiki = 0
+    call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
   endif
 
   " default values for temporary wikis
-  let temporary_options_dict = {}
-  for key in keys(default_values)
-    if exists('g:vimwiki_'.key)
-      let temporary_options_dict[key] = g:vimwiki_{key}
-    else
-      let temporary_options_dict[key] = default_values[key]
-    endif
-  endfor
-  let temporary_options_dict.is_temporary_wiki = 1
-  call add(g:vimwiki_wikilocal_vars, temporary_options_dict)
+  let temporary_wiki_settings = deepcopy(default_wiki_settings)
+  let temporary_wiki_settings.is_temporary_wiki = 1
+  call add(g:vimwiki_wikilocal_vars, temporary_wiki_settings)
 
   call s:validate_settings()
 endfunction
