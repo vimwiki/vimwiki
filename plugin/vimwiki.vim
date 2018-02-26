@@ -84,7 +84,7 @@ function! s:setup_buffer_enter() "{{{
     return
   endif
 
-  if &filetype == ''
+  if &filetype != 'vimwiki'
     setfiletype vimwiki
   endif
 
