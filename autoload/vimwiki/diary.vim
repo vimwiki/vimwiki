@@ -143,11 +143,11 @@ function! s:format_diary() "{{{
         if empty(cap)
           let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
+          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
         else
           let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
+          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
         endif
       endfor
 
