@@ -124,6 +124,14 @@ function! s:sort(lst) "{{{
   endif
 endfunction "}}}
 
+function! s:get_diary_indent() "{{{
+  if VimwikiGet('syntax') == 'markdown'
+    return ''
+  else
+    return repeat(' ', &sw)
+  endif
+endfunction "}}}
+
 function! s:format_diary() "{{{
   let result = []
 
@@ -143,11 +151,11 @@ function! s:format_diary() "{{{
         if empty(cap)
           let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
+          call add(result, s:get_diary_indent().'* '.entry)
         else
           let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
+          call add(result, s:get_diary_indent().'* '.entry)
         endif
       endfor
 
