@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki autoload plugin file
 
 
@@ -28,7 +28,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
   let all_files = a:all_files != ''
   if !a:full_rebuild
     " Updating for one page (current)
-    let page_name = VimwikiGet('subdir') . expand('%:t:r')
+    let page_name = vimwiki#vars#get_bufferlocal('subdir') . expand('%:t:r')
     " Collect tags in current file
     let tags = s:scan_tags(getline(1, '$'), page_name)
     " Load metadata file
@@ -40,8 +40,8 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     " Save
     call s:write_tags_metadata(metadata)
   else " full rebuild
-    let files = vimwiki#base#find_files(g:vimwiki_current_idx, 0)
-    let wiki_base_dir = VimwikiGet('path', g:vimwiki_current_idx)
+    let files = vimwiki#base#find_files(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
+    let wiki_base_dir = vimwiki#vars#get_wikilocal('path')
     let tags_file_last_modification =
           \ getftime(vimwiki#tags#metadata_file_path())
     let metadata = s:load_tags_metadata()
@@ -68,8 +68,8 @@ function! s:scan_tags(lines, page_name) "{{{
   " Code wireframe to scan for headers -- borrowed from
   " vimwiki#base#get_anchors(), with minor modifications.
 
-  let rxheader = g:vimwiki_{VimwikiGet('syntax')}_header_search
-  let rxtag = g:vimwiki_{VimwikiGet('syntax')}_tag_search
+  let rxheader = vimwiki#vars#get_syntaxlocal('header_search')
+  let rxtag = vimwiki#vars#get_syntaxlocal('tag_search')
 
   let anchor_level = ['', '', '', '', '', '', '']
   let current_complete_anchor = ''
@@ -141,7 +141,7 @@ endfunction " }}}
 " vimwiki#tags#metadata_file_path
 "   Returns tags metadata file path
 function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(vimwiki#path#join_path(VimwikiGet('path'), s:TAGS_METADATA_FILE_NAME), ':p')
+  return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'), s:TAGS_METADATA_FILE_NAME), ':p')
 endfunction " }}}
 
 " s:load_tags_metadata
@@ -261,7 +261,7 @@ function! s:write_tags_metadata(metadata) "{{{
       let entry_data = substitute(entry_data, "\n", '\\n', 'g')
       call add(tags,
             \   entry.tagname  . "\t"
-            \ . pagename . VimwikiGet('ext') . "\t"
+            \ . pagename . vimwiki#vars#get_wikilocal('ext') . "\t"
             \ . entry.lineno
             \ . ';"'
             \ . "\t" . "vimwiki:" . entry_data
@@ -315,18 +315,18 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
     if need_all_tags || index(specific_tags, tagname) != -1
       call extend(lines, [
             \ '',
-            \ substitute(g:vimwiki_rxH2_Template, '__Header__', tagname, ''),
+            \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', tagname, ''),
             \ '' ])
       for taglink in sort(tags_entries[tagname])
         call add(lines, bullet .
-              \ substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', taglink, ''))
+              \ substitute(vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', taglink, ''))
       endfor
     endif
   endfor
 
-  let links_rx = '\m\%(^\s*$\)\|\%('.g:vimwiki_rxH2.'\)\|\%(^\s*'
+  let links_rx = '\m\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH2').'\)\|\%(^\s*'
         \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
-        \ .g:vimwiki_rxWikiLink.'$\)'
+        \ .vimwiki#vars#get_syntaxlocal('rxWikiLink').'$\)'
 
   call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx,
         \ line('$')+1, 1)

@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki autoload plugin file
 " Desc: Export to HTML
 " Home: https://github.com/vimwiki/vimwiki/
@@ -26,7 +26,7 @@ function! s:root_path(subdir) "{{{
 endfunction "}}}
 
 function! s:syntax_supported() " {{{
-  return VimwikiGet('syntax') ==? "default"
+  return vimwiki#vars#get_wikilocal('syntax') ==? "default"
 endfunction " }}}
 
 function! s:remove_blank_lines(lines) " {{{
@@ -68,7 +68,7 @@ endfunction " }}}
 
 function! s:default_CSS_full_name(path) " {{{
   let path = expand(a:path)
-  let css_full_name = path.VimwikiGet('css_name')
+  let css_full_name = path . vimwiki#vars#get_wikilocal('css_name')
   return css_full_name
 endfunction "}}}
 
@@ -88,13 +88,13 @@ endfunction "}}}
 
 function! s:template_full_name(name) "{{{
   if a:name == ''
-    let name = VimwikiGet('template_default')
+    let name = vimwiki#vars#get_wikilocal('template_default')
   else
     let name = a:name
   endif
 
-  let fname = expand(VimwikiGet('template_path').
-        \ name.VimwikiGet('template_ext'))
+  let fname = expand(vimwiki#vars#get_wikilocal('template_path').
+        \ name . vimwiki#vars#get_wikilocal('template_ext'))
 
   if filereadable(fname)
     return fname
@@ -157,14 +157,14 @@ function! s:delete_html_files(path) "{{{
   let htmlfiles = split(glob(a:path.'**/*.html'), '\n')
   for fname in htmlfiles
     " ignore user html files, e.g. search.html,404.html
-    if stridx(g:vimwiki_user_htmls, fnamemodify(fname, ":t")) >= 0
+    if stridx(vimwiki#vars#get_global('user_htmls'), fnamemodify(fname, ":t")) >= 0
       continue
     endif
 
     " delete if there is no corresponding wiki file
-    let subdir = vimwiki#base#subdir(VimwikiGet('path_html'), fname)
-    let wikifile = VimwikiGet('path').subdir.
-          \fnamemodify(fname, ":t:r").VimwikiGet('ext')
+    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path_html'), fname)
+    let wikifile = vimwiki#vars#get_wikilocal('path').subdir.
+          \fnamemodify(fname, ":t:r").vimwiki#vars#get_wikilocal('ext')
     if filereadable(wikifile)
       continue
     endif
@@ -244,7 +244,7 @@ function! s:is_html_uptodate(wikifile) "{{{
   endif
 
   let wikifile = fnamemodify(a:wikifile, ":p")
-  let htmlfile = expand(VimwikiGet('path_html').VimwikiGet('subdir').
+  let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') . vimwiki#vars#get_bufferlocal('subdir') .
         \fnamemodify(wikifile, ":t:r").".html")
 
   if getftime(wikifile) <= getftime(htmlfile) && tpl_time <= getftime(htmlfile)
@@ -358,12 +358,12 @@ endfunction "}}}
 "   match n-th ARG within {{URL[|ARG1|ARG2|...]}} " {{{
 " *c,d,e),...
 function! vimwiki#html#incl_match_arg(nn_index)
-  let rx = g:vimwiki_rxWikiInclPrefix. g:vimwiki_rxWikiInclUrl
-  let rx = rx. repeat(g:vimwiki_rxWikiInclSeparator. g:vimwiki_rxWikiInclArg, a:nn_index-1)
+  let rx = vimwiki#vars#get_global('rxWikiInclPrefix'). vimwiki#vars#get_global('rxWikiInclUrl')
+  let rx = rx. repeat(vimwiki#vars#get_global('rxWikiInclSeparator'). vimwiki#vars#get_global('rxWikiInclArg'), a:nn_index-1)
   if a:nn_index > 0
-    let rx = rx. g:vimwiki_rxWikiInclSeparator. '\zs'. g:vimwiki_rxWikiInclArg. '\ze'
+    let rx = rx. vimwiki#vars#get_global('rxWikiInclSeparator'). '\zs'. vimwiki#vars#get_global('rxWikiInclArg'). '\ze'
   endif
-  let rx = rx. g:vimwiki_rxWikiInclArgs. g:vimwiki_rxWikiInclSuffix
+  let rx = rx. vimwiki#vars#get_global('rxWikiInclArgs'). vimwiki#vars#get_global('rxWikiInclSuffix')
   return rx
 endfunction
 "}}}
@@ -372,7 +372,7 @@ function! vimwiki#html#linkify_link(src, descr) "{{{
   let src_str = ' href="'.s:safe_html_anchor(a:src).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
   let descr = (descr == "" ? a:src : descr)
-  let descr_str = (descr =~# g:vimwiki_rxWikiIncl
+  let descr_str = (descr =~# vimwiki#vars#get_global('rxWikiIncl')
         \ ? s:tag_wikiincl(descr) 
         \ : descr)
   return '<a'.src_str.'>'.descr_str.'</a>'
@@ -388,8 +388,8 @@ endfunction "}}}
 function! s:tag_weblink(value) "{{{
   " Weblink Template -> <a href="url">descr</a>
   let str = a:value
-  let url = matchstr(str, g:vimwiki_rxWeblinkMatchUrl)
-  let descr = matchstr(str, g:vimwiki_rxWeblinkMatchDescr)
+  let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
+  let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'))
   let line = vimwiki#html#linkify_link(url, descr)
   return line
 endfunction "}}}
@@ -404,7 +404,7 @@ function! s:tag_wikiincl(value) "{{{
   let line = VimwikiWikiIncludeHandler(str)
   " otherwise, assume image transclusion
   if line == ''
-    let url_0 = matchstr(str, g:vimwiki_rxWikiInclMatchUrl)
+    let url_0 = matchstr(str, vimwiki#vars#get_global('rxWikiInclMatchUrl'))
     let descr = matchstr(str, vimwiki#html#incl_match_arg(1))
     let verbatim_str = matchstr(str, vimwiki#html#incl_match_arg(2))
 
@@ -437,8 +437,8 @@ function! s:tag_wikilink(value) "{{{
   " [[url#a1#a2]]             -> <a href="url.html#a1-a2">url#a1#a2</a>
   " [[#a1#a2]]                -> <a href="#a1-a2">#a1#a2</a>
   let str = a:value
-  let url = matchstr(str, g:vimwiki_rxWikiLinkMatchUrl)
-  let descr = matchstr(str, g:vimwiki_rxWikiLinkMatchDescr)
+  let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
+  let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'))
   let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
 
   let line = VimwikiLinkConverter(url, s:current_wiki_file,
@@ -527,16 +527,16 @@ function! s:make_tag(line, regexp, func, ...) "{{{
   " Exclude preformatted text and href links.
   " FIXME 
   let patt_splitter = '\(`[^`]\+`\)\|'.
-                    \ '\('.g:vimwiki_rxPreStart.'.\+'.g:vimwiki_rxPreEnd.'\)\|'.
+                    \ '\('.vimwiki#vars#get_syntaxlocal('rxPreStart').'.\+'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'\)\|'.
                     \ '\(<a href.\{-}</a>\)\|'.
                     \ '\(<img src.\{-}/>\)\|'.
                     \ '\(<pre.\{-}</pre>\)\|'.
-      	            \ '\('.g:vimwiki_rxEqIn.'\)'
+                    \ '\('.vimwiki#vars#get_syntaxlocal('rxEqIn').'\)'
 
   "FIXME FIXME !!! these can easily occur on the same line!
   "XXX  {{{ }}} ??? obsolete
   if '`[^`]\+`' ==# a:regexp || '{{{.\+}}}' ==# a:regexp ||
-        \ g:vimwiki_rxEqIn ==# a:regexp
+        \ vimwiki#vars#get_syntaxlocal('rxEqIn') ==# a:regexp
     let res_line = s:subst_func(a:line, a:regexp, a:func)
   else
     let pos = 0
@@ -570,23 +570,23 @@ endfunction " }}}
 
 function! s:process_tags_typefaces(line, header_ids) "{{{
   let line = a:line
-  let line = s:make_tag(line, g:vimwiki_rxItalic, 's:tag_em')
-  let line = s:make_tag(line, g:vimwiki_rxBold, 's:tag_strong', a:header_ids)
-  let line = s:make_tag(line, g:vimwiki_rxTodo, 's:tag_todo')
-  let line = s:make_tag(line, g:vimwiki_rxDelText, 's:tag_strike')
-  let line = s:make_tag(line, g:vimwiki_rxSuperScript, 's:tag_super')
-  let line = s:make_tag(line, g:vimwiki_rxSubScript, 's:tag_sub')
-  let line = s:make_tag(line, g:vimwiki_rxCode, 's:tag_code')
-  let line = s:make_tag(line, g:vimwiki_rxEqIn, 's:tag_eqin')
-  let line = s:make_tag(line, g:vimwiki_rxTags, 's:tag_tags', a:header_ids)
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxItalic'), 's:tag_em')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxBold'), 's:tag_strong', a:header_ids)
+  let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxDelText'), 's:tag_strike')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSuperScript'), 's:tag_super')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSubScript'), 's:tag_sub')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxCode'), 's:tag_code')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxEqIn'), 's:tag_eqin')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxTags'), 's:tag_tags', a:header_ids)
   return line
 endfunction " }}}
 
 function! s:process_tags_links(line) " {{{
   let line = a:line
-  let line = s:make_tag(line, g:vimwiki_rxWikiLink, 's:tag_wikilink')
-  let line = s:make_tag(line, g:vimwiki_rxWikiIncl, 's:tag_wikiincl')
-  let line = s:make_tag(line, g:vimwiki_rxWeblink, 's:tag_weblink')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxWikiLink'), 's:tag_wikilink')
+  let line = s:make_tag(line, vimwiki#vars#get_global('rxWikiIncl'), 's:tag_wikiincl')
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxWeblink'), 's:tag_weblink')
   return line
 endfunction " }}}
 
@@ -872,11 +872,11 @@ function! s:process_tag_list(line, lists) "{{{
     let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
     if !empty(chk) && len(chk[1]) > 0
-      let completion = index(g:vimwiki_listsyms_list, chk[1])
-      let n = len(g:vimwiki_listsyms_list)
+      let completion = index(vimwiki#vars#get_syntaxlocal('listsyms_list'), chk[1])
+      let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
       if completion == 0
         let st_tag = '<li class="done0">'
-      elseif completion == -1 && chk[1] == g:vimwiki_listsym_rejected
+      elseif completion == -1 && chk[1] == vimwiki#vars#get_global('listsym_rejected')
         let st_tag = '<li class="rejected">'
       elseif completion > 0 && completion < n
         let completion = float2nr(round(completion / (n-1.0) * 3.0 + 0.5 ))
@@ -892,7 +892,7 @@ function! s:process_tag_list(line, lists) "{{{
   " text.
   " XXX necessary? in *bold* text, no space must follow the first *
   if !in_list
-    let pos = match(a:line, '^\s*'.g:vimwiki_rxBold)
+    let pos = match(a:line, '^\s*'.vimwiki#vars#get_syntaxlocal('rxBold'))
     if pos != -1
       return [0, []]
     endif
@@ -952,7 +952,7 @@ function! s:process_tag_list(line, lists) "{{{
           \ substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
   elseif in_list && a:line =~# '^\s\+\S\+'
-    if g:vimwiki_list_ignore_newline
+    if vimwiki#vars#get_global('list_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, '<br />'.a:line)
@@ -998,7 +998,7 @@ function! s:process_tag_para(line, para) "{{{
       let para = 1
     endif
     let processed = 1
-    if g:vimwiki_text_ignore_newline == 1
+    if vimwiki#vars#get_global('text_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, a:line."<br />")
@@ -1017,18 +1017,18 @@ function! s:process_tag_h(line, id) "{{{
   let h_text = ''
   let h_id = ''
 
-  if a:line =~# g:vimwiki_rxHeader
+  if a:line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let h_level = vimwiki#u#count_first_sym(a:line)
   endif
   if h_level > 0
 
-    let h_text = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+    let h_text = vimwiki#u#trim(matchstr(line, vimwiki#vars#get_syntaxlocal('rxHeader')))
     let h_number = ''
     let h_complete_id = ''
     let h_id = s:safe_html_anchor(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# g:vimwiki_toc_header
+    if h_text !=# vimwiki#vars#get_global('toc_header')
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
@@ -1046,11 +1046,11 @@ function! s:process_tag_h(line, id) "{{{
       let h_number .= a:id[h_level-1][1]
       let h_complete_id .= a:id[h_level-1][0]
 
-      if g:vimwiki_html_header_numbering
+      if vimwiki#vars#get_global('html_header_numbering')
         let num = matchstr(h_number,
-              \ '^\(\d.\)\{'.(g:vimwiki_html_header_numbering-1).'}\zs.*')
+              \ '^\(\d.\)\{'.(vimwiki#vars#get_global('html_header_numbering')-1).'}\zs.*')
         if !empty(num)
-          let num .= g:vimwiki_html_header_numbering_sym
+          let num .= vimwiki#vars#get_global('html_header_numbering_sym')
         endif
         let h_text = num.' '.h_text
       endif
@@ -1198,7 +1198,7 @@ function! s:parse_line(line, state) " {{{
   "}}}
 
   if !processed
-    if line =~# g:vimwiki_rxComment
+    if line =~# vimwiki#vars#get_syntaxlocal('rxComment')
       let processed = 1
     endif
   endif
@@ -1380,24 +1380,24 @@ function! s:parse_line(line, state) " {{{
 endfunction " }}}
 
 function! s:use_custom_wiki2html() "{{{
-  let custom_wiki2html = VimwikiGet('custom_wiki2html')
+  let custom_wiki2html = vimwiki#vars#get_wikilocal('custom_wiki2html')
   return !empty(custom_wiki2html) && (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction " }}}
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
   call vimwiki#path#mkdir(a:path)
-  echomsg system(VimwikiGet('custom_wiki2html'). ' '.
+  echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
-      \ VimwikiGet('syntax'). ' '.
-      \ strpart(VimwikiGet('ext'), 1). ' '.
+      \ vimwiki#vars#get_wikilocal('syntax'). ' '.
+      \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
       \ shellescape(s:default_CSS_full_name(a:path)). ' '.
-      \ (len(VimwikiGet('template_path'))         > 1 ? shellescape(expand(VimwikiGet('template_path'))) : '-'). ' '.
-      \ (len(VimwikiGet('template_default'))      > 0 ? VimwikiGet('template_default')                   : '-'). ' '.
-      \ (len(VimwikiGet('template_ext'))          > 0 ? VimwikiGet('template_ext')                       : '-'). ' '.
-      \ (len(VimwikiGet('subdir'))                > 0 ? shellescape(s:root_path(VimwikiGet('subdir')))   : '-'). ' '.
-      \ (len(VimwikiGet('custom_wiki2html_args')) > 0 ? VimwikiGet('custom_wiki2html_args')              : '-'))
+      \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ? shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
+      \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ? vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
+      \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ? vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
+      \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ? shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
+      \ (len(vimwiki#vars#get_global('custom_wiki2html_args')) > 0 ? vimwiki#vars#get_global('custom_wiki2html_args') : '-'))
 endfunction " }}}
 
 function! s:convert_file(path_html, wikifile) "{{{
@@ -1405,7 +1405,7 @@ function! s:convert_file(path_html, wikifile) "{{{
 
   let wikifile = fnamemodify(a:wikifile, ":p")
 
-  let path_html = expand(a:path_html).VimwikiGet('subdir') 
+  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
   let htmlfile = fnamemodify(wikifile, ":t:r").'.html'
 
   " the currently processed file name is needed when processing links
@@ -1450,8 +1450,8 @@ function! s:convert_file(path_html, wikifile) "{{{
     " prepare constants for s:safe_html_line()
     let s:lt_pattern = '<'
     let s:gt_pattern = '>'
-    if g:vimwiki_valid_html_tags != ''
-      let tags = join(split(g:vimwiki_valid_html_tags, '\s*,\s*'), '\|')
+    if vimwiki#vars#get_global('valid_html_tags') != ''
+      let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
       let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!' 
       let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
     endif
@@ -1516,9 +1516,9 @@ function! s:convert_file(path_html, wikifile) "{{{
     call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
     call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
-          \ s:root_path(VimwikiGet('subdir')) .'", "g")')
+          \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
 
-    let css_name = expand(VimwikiGet('css_name'))
+    let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
     let css_name = substitute(css_name, '\', '/', 'g')
     call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
 
@@ -1576,17 +1576,17 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
   setlocal nomore
 
   " temporarily adjust current_subdir global state variable
-  let current_subdir = VimwikiGet('subdir')
-  let current_invsubdir = VimwikiGet('invsubdir')
+  let current_subdir = vimwiki#vars#get_bufferlocal('subdir')
+  let current_invsubdir = vimwiki#vars#get_bufferlocal('invsubdir')
 
-  let wikifiles = split(glob(VimwikiGet('path').'**/*'.VimwikiGet('ext')), '\n')
+  let wikifiles = split(glob(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext')), '\n')
   for wikifile in wikifiles
     let wikifile = fnamemodify(wikifile, ":p")
 
     " temporarily adjust 'subdir' and 'invsubdir' state variables
-    let subdir = vimwiki#base#subdir(VimwikiGet('path'), wikifile)
-    call VimwikiSet('subdir', subdir)
-    call VimwikiSet('invsubdir', vimwiki#base#invsubdir(subdir))
+    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), wikifile)
+    call vimwiki#vars#set_bufferlocal('subdir', subdir)
+    call vimwiki#vars#set_bufferlocal('invsubdir', vimwiki#base#invsubdir(subdir))
 
     if !s:is_html_uptodate(wikifile)
       echomsg 'Vimwiki: Processing '.wikifile
@@ -1597,8 +1597,8 @@ function! vimwiki#html#WikiAll2HTML(path_html) "{{{
     endif
   endfor
   " reset 'subdir' state variable
-  call VimwikiSet('subdir', current_subdir)
-  call VimwikiSet('invsubdir', current_invsubdir)
+  call vimwiki#vars#set_bufferlocal('subdir', current_subdir)
+  call vimwiki#vars#set_bufferlocal('invsubdir', current_invsubdir)
 
   let created = s:create_default_CSS(path_html)
   if created
@@ -1618,10 +1618,9 @@ function! s:binary_exists(fname) "{{{
   return executable(expand(a:fname))
 endfunction "}}}
 
-" uses VimwikiGet('path')
 function! s:get_wikifile_url(wikifile) "{{{
-  return VimwikiGet('path_html').
-    \ vimwiki#base#subdir(VimwikiGet('path'), a:wikifile).
+  return vimwiki#vars#get_wikilocal('path_html') .
+    \ vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), a:wikifile).
     \ fnamemodify(a:wikifile, ":t:r").'.html'
 endfunction "}}}
 

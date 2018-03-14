@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki autoload plugin file
 " Desc: Link functions for markdown syntax
 " Home: https://github.com/vimwiki/vimwiki/
@@ -13,58 +13,36 @@ function! s:safesubstitute(text, search, replace, mode) "{{{
   return substitute(a:text, a:search, escaped, a:mode)
 endfunction " }}}
 
-" vimwiki#markdown_base#reset_mkd_refs
-function! vimwiki#markdown_base#reset_mkd_refs() "{{{
-  call VimwikiClear('markdown_refs')
-endfunction "}}}
-
 " vimwiki#markdown_base#scan_reflinks
 function! vimwiki#markdown_base#scan_reflinks() " {{{
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
     " Why noautocmd? Because https://github.com/vimwiki/vimwiki/issues/121
-    noautocmd execute 'vimgrep #'.g:vimwiki_rxMkdRef.'#j %'
+    noautocmd execute 'vimgrep #'.vimwiki#vars#get_syntaxlocal('rxMkdRef').'#j %'
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
   " 
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
-    let descr = matchstr(matchline, g:vimwiki_rxMkdRefMatchDescr)
-    let url = matchstr(matchline, g:vimwiki_rxMkdRefMatchUrl)
+    let descr = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchDescr'))
+    let url = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchUrl'))
     if descr != '' && url != ''
       let mkd_refs[descr] = url
     endif
   endfor
-  call VimwikiSet('markdown_refs', mkd_refs)
+  call vimwiki#vars#set_bufferlocal('markdown_refs', mkd_refs)
   return mkd_refs
 endfunction "}}}
 
-
-" vimwiki#markdown_base#get_reflinks
-function! vimwiki#markdown_base#get_reflinks() " {{{
-  let done = 1
-  try
-    let mkd_refs = VimwikiGet('markdown_refs')
-  catch
-    " work-around hack
-    let done = 0
-    " ... the following command does not work inside catch block !?
-    " > let mkd_refs = vimwiki#markdown_base#scan_reflinks()
-  endtry
-  if !done
-    let mkd_refs = vimwiki#markdown_base#scan_reflinks()
-  endif
-  return mkd_refs
-endfunction "}}}
 
 " vimwiki#markdown_base#open_reflink
 " try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) " {{{
   " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
-  let mkd_refs = vimwiki#markdown_base#get_reflinks()
+  let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   if has_key(mkd_refs, link)
     let url = mkd_refs[link]
     call vimwiki#base#system_open_link(url)
@@ -84,50 +62,50 @@ function! s:normalize_link_syntax_n() " {{{
   let lnum = line('.')
 
   " try WikiIncl
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiIncl)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl'))
   if !empty(lnk)
     " NO-OP !!
     return
   endif
 
   " try WikiLink0: replace with WikiLink1
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink0)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
-          \ g:vimwiki_WikiLink1Template2)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink0, sub)
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('WikiLink1Template2'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'), sub)
     return
   endif
   
   " try WikiLink1: replace with WikiLink0
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWikiLink1)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWikiLinkMatchUrl, g:vimwiki_rxWikiLinkMatchDescr,
-          \ g:vimwiki_WikiLinkTemplate2)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWikiLink1, sub)
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_global('WikiLinkTemplate2'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), sub)
     return
   endif
   
   " try Weblink
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWeblink)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWeblinkMatchUrl, g:vimwiki_rxWeblinkMatchDescr,
-          \ g:vimwiki_Weblink1Template)
-    call vimwiki#base#replacestr_at_cursor(g:vimwiki_rxWeblink, sub)
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+    call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'), sub)
     return
   endif
 
   " try Word (any characters except separators)
   " rxWord is less permissive than rxWikiLinkUrl which is used in
   " normalize_link_syntax_v
-  let lnk = vimwiki#base#matchstr_at_cursor(g:vimwiki_rxWord)
+  let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ g:vimwiki_rxWord, '',
-          \ g:vimwiki_Weblink1Template)
+          \ vimwiki#vars#get_global('rxWord'), '',
+          \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
@@ -146,7 +124,8 @@ function! s:normalize_link_syntax_v() " {{{
   try
     norm! gvy
     let visual_selection = @"
-    let link = s:safesubstitute(g:vimwiki_Weblink1Template, '__LinkUrl__', visual_selection, '')
+    let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
+          \ '__LinkUrl__', visual_selection, '')
     let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
     call setreg('"', link, 'v')

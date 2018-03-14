@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki autoload plugin file
 " Desc: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
@@ -43,17 +43,12 @@ endfunction "}}}
 
 " Load concrete Wiki syntax: sets regexes and templates for headers and links
 function vimwiki#u#reload_regexes() "{{{
-  execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'.vim'
-endfunction "}}}
-
-" Load omnipresent Wiki syntax
-function vimwiki#u#reload_omni_regexes() "{{{
-  execute 'runtime! syntax/omnipresent_syntax.vim'
+  execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'.vim'
 endfunction "}}}
 
 " Load syntax-specific functionality
 function vimwiki#u#reload_regexes_custom() "{{{
-  execute 'runtime! syntax/vimwiki_'.VimwikiGet('syntax').'_custom.vim'
+  execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'_custom.vim'
 endfunction "}}}
 
 " Backward compatible version of the built-in function shiftwidth()

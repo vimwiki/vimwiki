@@ -222,7 +222,7 @@ To remap one of these keys, either put it in your .vimrc like this >
 or, the better way, put it in a file .vim/ftplugin/vimwiki.vim like this >
     :nmap <silent><buffer> <Leader>wc <Plug>Vimwiki2HTML
 
-The latter has the advantage that the mapping is local to viwiki buffers in
+The latter has the advantage that the mapping is local to Vimwiki buffers in
 every case.
 
 Also note that some keys work in normal mode as well as in visual mode. If you
@@ -868,7 +868,7 @@ which opens up a popup menu with all the wiki files starting with "ind".
 When |vimwiki-option-maxhi| equals 1, a distinct highlighting style is used to
 identify wikilinks whose targets are not found.
 
-Interwiki:~
+Interwiki~
 
 If you maintain more than one wiki, you can create interwiki links between
 them by adding a numbered prefix "wikiX:" in front of a link: >
@@ -879,14 +879,10 @@ or: >
 The number behind "wiki" is in the range 0..N-1 and identifies the destination
 wiki in |g:vimwiki_list|.
 
-Diary:~
+Diary~
 
-The "diary:" scheme is used to concisely link to diary entries: >
+The "diary:" scheme is used to link to diary entries: >
   [[diary:2012-03-05]]
-
-This scheme precludes explicit inclusion of |vimwiki-option-diary_rel_path|,
-and is most useful on subwiki pages to avoid links such as: >
-  [[../../diary/2012-03-05]]
 
 Anchors~
 
@@ -1633,8 +1629,7 @@ gL<Space> (see |vimwiki_gL<Space>|) to remove all checkboxes of the list the
 cursor is in.
 
 You can mark an item as rejected ("won't do") with
-|vimwiki_glx|. A rejected item will not influence the status of it's
-parents.
+|vimwiki_glx|. A rejected item will not influence the status of its parents.
 
 
 ==============================================================================
@@ -2366,9 +2361,9 @@ You can set it to some more fancy symbols like this:
 Character that is used to show that an item of a todo list will not be done.
 Default value is '-'.
 
-The character used here may not be part of g:vimwiki_listsyms.
+The character used here must not be part of |g:vimwiki_listsyms|.
 
-You can set it to some more fancy symbols like this:
+You can set it to a more fancy symbol like this:
 >
    let g:vimwiki_listsym_rejected = '✗'
 

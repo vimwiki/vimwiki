@@ -1,4 +1,4 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
 " Vimwiki autoload plugin file
 " Desc: Tables
 " | Easily | manageable | text  | tables | !       |
@@ -19,7 +19,7 @@ let s:textwidth = &tw
 
 " Misc functions {{{
 function! s:rxSep() "{{{
-  return g:vimwiki_rxTableSep
+  return vimwiki#vars#get_syntaxlocal('rxTableSep')
 endfunction "}}}
 
 function! s:wide_len(str) "{{{
@@ -29,7 +29,7 @@ function! s:wide_len(str) "{{{
   endif
 
   " get str display width in vim ver < 7.2
-  if !g:vimwiki_CJK_length
+  if !vimwiki#vars#get_global('CJK_length')
     let ret = strlen(substitute(a:str, '.', 'x', 'g'))
   else
     let savemodified = &modified
