@@ -690,14 +690,6 @@ endfunction "}}}
 
 " vimwiki#base#edit_file
 function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
-  " XXX: Should we allow * in filenames!?
-  " Maxim: It is allowed, escaping here is for vim to be able to open files
-  " which have that symbols.
-  " Try to remove * from escaping and open&save :
-  " [[testBLAfile]]...
-  " then
-  " [[test*file]]...
-  " you'll have E77: Too many file names
   let fname = escape(a:filename, '% *|#`')
   let dir = fnamemodify(a:filename, ":p:h")
 
@@ -709,12 +701,24 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) "{{{
     return
   endif
 
-  " check if the file we want to open is already the current file
+  " Check if the file we want to open is already the current file
   " which happens if we jump to an achor in the current file.
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
   if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
-    execute a:command.' '.fname
+    try
+      if &autowriteall && !&hidden  " in this case, the file is saved before switching to the
+        " new buffer. This causes Vim to show two messages in the command line which triggers
+        " the annoying hit-enter prompt. Solution: show no messages at all.
+        silent execute a:command fname
+      else
+        execute a:command fname
+      endif
+    catch /E37:/
+      echomsg 'Vimwiki: The current file is modified. Hint: Take a look at'
+            \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
+      return
+    endtry
 
     " If the opened file was not already loaded by Vim, an autocommand is
     " triggered at this point
@@ -1166,7 +1170,7 @@ function! vimwiki#base#go_back_link() "{{{
   let prev_link = vimwiki#vars#get_bufferlocal('prev_link')
   if !empty(prev_link)
     " go back to saved wiki link
-    execute ":e ".substitute(prev_link[0], '\s', '\\\0', 'g')
+    call vimwiki#base#edit_file(':e ', prev_link[0], '')
     call setpos('.', prev_link[1])
   else
     " maybe we came here by jumping to a tag -> pop from the tag stack
