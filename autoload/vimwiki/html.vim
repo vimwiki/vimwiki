@@ -786,6 +786,14 @@ function! s:process_tag_pre(line, pre) "{{{
   let lines = []
   let pre = a:pre
   let processed = 0
+
+  let code_tag_start = '<pre>'
+  let code_tag_end   = '</pre>'
+  if exists('g:vimwiki_code_highlight_tags')
+    let code_tag_start = g:vimwiki_code_highlight_tags['start']
+    let code_tag_end   = g:vimwiki_code_highlight_tags['end']
+  endif
+
   "XXX huh?
   "if !pre[0] && a:line =~# '^\s*{{{[^\(}}}\)]*\s*$'
   if !pre[0] && a:line =~# '^\s*{{{'
@@ -793,15 +801,16 @@ function! s:process_tag_pre(line, pre) "{{{
     "FIXME class cannot contain arbitrary strings
     let class = substitute(class, '\s\+$', '', 'g')
     if class != ""
-      call add(lines, "<pre ".class.">")
+      let code_tag_start_pre = substitute(code_tag_start, '>$', ' ', '')
+      call add(lines, code_tag_start_pre.class.'>')
     else
-      call add(lines, "<pre>")
+      call add(lines, code_tag_start)
     endif
     let pre = [1, len(matchstr(a:line, '^\s*\ze{{{'))]
     let processed = 1
   elseif pre[0] && a:line =~# '^\s*}}}\s*$'
     let pre = [0, 0]
-    call add(lines, "</pre>")
+    call add(lines, code_tag_end)
     let processed = 1
   elseif pre[0]
     let processed = 1

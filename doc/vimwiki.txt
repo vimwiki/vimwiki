@@ -1193,6 +1193,23 @@ Result of HTML export: >
 This might be useful for coloring program code with external JS tools
 such as Google's syntax highlighter.
 
+If you want to customize the generated tag name, example `<pre><code>`, just
+set `let g:vimwiki_code_highlight_tags = { 'start': '<pre><code>', 'end': '</code></pre>' }`
+
+Example
+{{{class="language-python" >
+ def hello(world):
+     for x in range(10):
+         print("Hello {0} number {1}".format(world, x))
+}}}
+
+Result of HTML export: >
+ <pre><code class="language-python">
+ def hello(world):
+     for x in range(10):
+         print("Hello {0} number {1}".format(world, x))
+ </code></pre>
+
 You can setup Vimwiki to highlight code snippets in preformatted text.
 See |vimwiki-option-nested_syntaxes| and
 |vimwiki-option-automatic_nested_syntaxes|.
