@@ -2731,8 +2731,12 @@ Default: 2
 ------------------------------------------------------------------------------
 *g:vimwiki_autowriteall*
 
-In Vim 'autowriteall' is a global setting. With g:vimwiki_autowriteall Vimwiki
-makes it local to its buffers.
+Automatically save a modified wiki buffer when switching wiki pages. Has the
+same effect like setting the Vim option 'autowriteall', but it works for wiki
+files only, while the Vim option is global.
+Hint: if you're just annoyed that you have to save files manually to switch
+wiki pages, consider setting the Vim option 'hidden' which makes that modified
+files don't need to be saved.
 
 Value           Description~
 0               autowriteall is off
