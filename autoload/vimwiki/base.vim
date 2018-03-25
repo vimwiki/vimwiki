@@ -1180,6 +1180,11 @@ endfunction " }}}
 
 " vimwiki#base#goto_index
 function! vimwiki#base#goto_index(wnum, ...) "{{{
+  if a:wnum > vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in your Vimwiki settings!'
+    return
+  endif
+
   " usually a:wnum is greater then 0 but with the following command it is == 0:
   " vim -n -c ":VimwikiIndex"
   if a:wnum > 0
