@@ -295,7 +295,7 @@ if vimwiki#vars#get_global('valid_html_tags') != ''
   execute 'syntax match VimwikiItalic #\c<i>.\{-}</i># contains=VimwikiHTMLTag'
   execute 'syntax match VimwikiUnderline #\c<u>.\{-}</u># contains=VimwikiHTMLTag'
 
-  execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').'/ contains=@Spell'
+  execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').'/ contains=@Spell,VimwikiTodo'
 endif
 
 " tags
