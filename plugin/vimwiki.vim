@@ -247,6 +247,8 @@ command! -count=1 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
       \ call vimwiki#diary#make_note(v:count1, 0, vimwiki#diary#diary_date_link(localtime() - 60*60*24))
+command! -count=1 VimwikiMakeTomorrowDiaryNote
+      \ call vimwiki#diary#make_note(v:count1, 0, vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
@@ -296,6 +298,12 @@ if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote')
 endif
 nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
       \ :VimwikiMakeYesterdayDiaryNote<CR>
+
+if !hasmapto('<Plug>VimwikiMakeTomorrowDiaryNote')
+  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>m <Plug>VimwikiMakeTomorrowDiaryNote'
+endif
+nnoremap <unique><script> <Plug>VimwikiMakeTomorrowDiaryNote
+      \ :VimwikiMakeTomorrowDiaryNote<CR>
 
 "}}}
 
