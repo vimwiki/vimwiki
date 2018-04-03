@@ -399,14 +399,16 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
         \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
   if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
-          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\%('
+          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\%('
           \ .g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
   else
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
           \ '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'
-          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
