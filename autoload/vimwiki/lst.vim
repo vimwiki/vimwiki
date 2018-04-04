@@ -1401,7 +1401,8 @@ endfunction "}}}
 function! s:cr_on_empty_list_item(lnum, behavior) "{{{
   if a:behavior == 1
     "just make a new list item
-    normal! gi
+    normal! gi
+
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     startinsert!
     return
@@ -1457,7 +1458,8 @@ endfunction "}}}
 function! s:cr_on_empty_line(lnum, behavior) "{{{
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
-  normal! gix
+  normal! gi
+x
   if a:behavior == 2 || a:behavior == 3
     call s:create_marker(a:lnum+1)
   endif
@@ -1466,7 +1468,8 @@ endfunction "}}}
 function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
   if a:insert_new_marker
     "the ultimate feature of this script: make new marker on <CR>
-    normal! gi
+    normal! gi
+
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
     if !a:not_at_eol && getline(a:lnum) =~# ':$'
@@ -1475,7 +1478,8 @@ function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
   else
     " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
     "indent this line so that it becomes the continuation of the line above
-    normal! gi
+    normal! gi
+
     let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
     call s:indent_multiline(prev_line, a:lnum+1)
   endif
@@ -1564,6 +1568,58 @@ endfunction "}}}
 "handle keys }}}
 
 "misc stuff {{{
+
+function! vimwiki#lst#setup_marker_infos() "{{{
+  let l:bullet_types=g:vimwiki_bullet_types
+  if exists("g:vimwiki_additional_bullet_types")
+    call extend(l:bullet_types, g:vimwiki_additional_bullet_types)
+  endif
+  let s:rx_bullet_chars = '['.join(keys(l:bullet_types), '').']\+'
+
+  let s:multiple_bullet_chars = []
+  for i in keys(l:bullet_types)
+    if l:bullet_types[i] == 1
+      call add(s:multiple_bullet_chars, i)
+    endif
+  endfor
+
+  let s:number_kinds = []
+  let s:number_divisors = ""
+  for i in g:vimwiki_number_types
+    call add(s:number_kinds, i[0])
+    let s:number_divisors .= vimwiki#u#escape(i[1])
+  endfor
+
+  let s:char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
+        \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
+
+  "create regexp for bulleted list items
+  let g:vimwiki_rxListBullet = join( map(keys(l:bullet_types),
+        \'vimwiki#u#escape(v:val).repeat("\\+", l:bullet_types[v:val])'
+        \ ) , '\|')
+
+  "create regex for numbered list items
+  if !empty(g:vimwiki_number_types)
+    let g:vimwiki_rxListNumber = '\C\%('
+    for type in g:vimwiki_number_types[:-2]
+      let g:vimwiki_rxListNumber .= s:char_to_rx[type[0]] .
+            \ vimwiki#u#escape(type[1]) . '\|'
+    endfor
+    let g:vimwiki_rxListNumber .= s:char_to_rx[g:vimwiki_number_types[-1][0]].
+          \ vimwiki#u#escape(g:vimwiki_number_types[-1][1]) . '\)'
+  else
+    "regex that matches nothing
+    let g:vimwiki_rxListNumber = '$^'
+  endif
+
+  "the user can set the listsyms as string, but vimwiki needs a list
+  let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
+
+  if match(g:vimwiki_listsyms, g:vimwiki_listsym_rejected) != -1
+    echomsg "Warning: g:vimwiki_listsyms and g:vimwiki_listsym_rejected overlap"
+  endif
+endfunction "}}}
+
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
   let lnum = prevnonblank('.')
   let item = s:get_corresponding_item(lnum)
