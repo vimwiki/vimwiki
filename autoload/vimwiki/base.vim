@@ -1093,6 +1093,7 @@ function! vimwiki#base#find_prev_link() "{{{
 endfunction " }}}
 
 " vimwiki#base#follow_link
+" This is an API function, that is, remappable by the user. Don't change the signature.
 function! vimwiki#base#follow_link(split, reuse, move_cursor, ...) "{{{
   " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
   " default open_link handler
@@ -1356,48 +1357,82 @@ endfunction "}}}
 
 " TEXT OBJECTS functions {{{
 
-" vimwiki#base#TO_header
-function! vimwiki#base#TO_header(inner, visual) "{{{
-  if !search('^\(=\+\).\+\1\s*$', 'bcW')
+function! vimwiki#base#TO_header(inner, including_subheaders, count)
+  let headers = s:collect_headers()
+  if empty(headers)
     return
   endif
-  
-  let sel_start = line("'<")
-  let sel_end = line("'>")
-  let block_start = line(".")
-  let advance = 0
 
-  let level = vimwiki#u#count_first_sym(getline('.'))
+  let current_line = line('.')
 
-  let is_header_selected = sel_start == block_start 
-        \ && sel_start != sel_end
-
-  if a:visual && is_header_selected
-    if level > 1
-      let level -= 1
-      call search('^\(=\{'.level.'\}\).\+\1\s*$', 'bcW')
-    else
-      let advance = 1
-    endif
-  endif
-
-  normal! V
-
-  if a:visual && is_header_selected
-    call cursor(sel_end + advance, 0)
-  endif
-
-  if search('^\(=\{1,'.level.'}\).\+\1\s*$', 'W')
-    call cursor(line('.') - 1, 0)
+  " look for the header under which the cursor sits
+  if current_line >= headers[-1][0]
+    let current_header_index = len(headers) - 1
   else
-    call cursor(line('$'), 0)
+    let current_header_index = -1
+    while headers[current_header_index+1][0] <= current_line
+      let current_header_index += 1
+    endwhile
   endif
 
-  if a:inner && getline(line('.')) =~# '^\s*$'
-    let lnum = prevnonblank(line('.') - 1)
-    call cursor(lnum, 0)
+  if current_header_index < 0
+    return
   endif
-endfunction "}}}
+
+  " from which to which header
+  if !a:including_subheaders && a:count <= 1
+    let first_line = headers[current_header_index][0]
+    let last_line = current_header_index == len(headers)-1 ? line('$') :
+          \ headers[current_header_index + 1][0] - 1
+  else
+    let first_header_index = current_header_index
+    for _ in range(a:count - 1)
+      let parent = s:get_another_header(headers, first_header_index, -1, '<')
+      if parent < 0
+        break
+      else
+        let first_header_index = parent
+      endif
+    endfor
+
+    let next_sibling_or_higher = s:get_another_header(headers, first_header_index, +1, '<=')
+
+    let first_line = headers[first_header_index][0]
+    let last_line =
+          \ next_sibling_or_higher >= 0 ? headers[next_sibling_or_higher][0] - 1 : line('$')
+  endif
+
+  if a:inner
+    let first_line += 1
+    let last_line = prevnonblank(last_line)
+  endif
+
+  if first_line > last_line
+    " this can happen e.g. when doing vih on a header with another header in the very next line
+    return
+  endif
+
+  call cursor(first_line, 1)
+  normal! V
+  call cursor(last_line, 1)
+endfunction
+
+
+function! s:get_another_header(headers, current_index, direction, operation)
+  let current_level = a:headers[a:current_index][1]
+  let index = a:current_index + a:direction
+
+  while 1
+    if index < 0 || index >= len(a:headers)
+      return -1
+    endif
+    if eval('a:headers[index][1] ' . a:operation . ' current_level')
+      return index
+    endif
+    let index += a:direction
+  endwhile
+endfunction
+
 
 " vimwiki#base#TO_table_cell
 function! vimwiki#base#TO_table_cell(inner, visual) "{{{
@@ -1642,6 +1677,42 @@ function! vimwiki#base#RemoveHeaderLevel() "{{{
   endif
 endfunction " }}}
 
+
+" Returns all the headers in the current buffer as a list of the form
+" [[line_number, header_level, header_text], [...], [...], ...]
+function! s:collect_headers()
+  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
+  let headers = []
+  for lnum in range(1, line('$'))
+    let line_content = getline(lnum)
+    if (is_inside_pre_or_math == 1 && line_content =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')) ||
+       \ (is_inside_pre_or_math == 2 && line_content =~# vimwiki#vars#get_syntaxlocal('rxMathEnd'))
+      let is_inside_pre_or_math = 0
+      continue
+    endif
+    if is_inside_pre_or_math > 0
+      continue
+    endif
+    if line_content =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
+      let is_inside_pre_or_math = 1
+      continue
+    endif
+    if line_content =~# vimwiki#vars#get_syntaxlocal('rxMathStart')
+      let is_inside_pre_or_math = 2
+      continue
+    endif
+    if line_content !~# vimwiki#vars#get_syntaxlocal('rxHeader')
+      continue
+    endif
+    let header_level = vimwiki#u#count_first_sym(line_content)
+    let header_text = vimwiki#u#trim(matchstr(line_content, vimwiki#vars#get_syntaxlocal('rxHeader')))
+    call add(headers, [lnum, header_level, header_text])
+  endfor
+
+  return headers
+endfunction
+
+
 " a:create == 1: creates or updates TOC in current file
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
@@ -1687,10 +1758,8 @@ function! vimwiki#base#table_of_contents(create)
     endfor
     let h_complete_id .= headers_levels[h_level-1][0]
 
-    if numbering > 0
-          \ && numbering <= h_level
-      let h_number = join(map(copy(headers_levels[
-            \ numbering-1 : h_level-1]), 'v:val[1]'), '.')
+    if numbering > 0 && numbering <= h_level
+      let h_number = join(map(copy(headers_levels[numbering-1 : h_level-1]), 'v:val[1]'), '.')
       let h_number .= vimwiki#vars#get_global('html_header_numbering_sym')
       let h_text = h_number.' '.h_text
     endif

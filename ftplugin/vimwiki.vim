@@ -620,11 +620,17 @@ nnoremap <silent><script><buffer>
 
 
 " Text objects {{{
-onoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 0)<CR>
-vnoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 1)<CR>
+onoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
+vnoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
 
-onoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 0)<CR>
-vnoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 1)<CR>
+onoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
+vnoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
+
+onoremap <silent><buffer> aH :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
+vnoremap <silent><buffer> aH :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
+
+onoremap <silent><buffer> iH :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
+vnoremap <silent><buffer> iH :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
 
 onoremap <silent><buffer> a\ :<C-U>call vimwiki#base#TO_table_cell(0, 0)<CR>
 vnoremap <silent><buffer> a\ :<C-U>call vimwiki#base#TO_table_cell(0, 1)<CR>
