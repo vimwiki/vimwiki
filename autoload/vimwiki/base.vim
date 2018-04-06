@@ -1365,15 +1365,7 @@ function! vimwiki#base#TO_header(inner, including_subheaders, count)
 
   let current_line = line('.')
 
-  " look for the header under which the cursor sits
-  if current_line >= headers[-1][0]
-    let current_header_index = len(headers) - 1
-  else
-    let current_header_index = -1
-    while headers[current_header_index+1][0] <= current_line
-      let current_header_index += 1
-    endwhile
-  endif
+  let current_header_index = s:current_header(headers, current_line)
 
   if current_header_index < 0
     return
@@ -1415,22 +1407,6 @@ function! vimwiki#base#TO_header(inner, including_subheaders, count)
   call cursor(first_line, 1)
   normal! V
   call cursor(last_line, 1)
-endfunction
-
-
-function! s:get_another_header(headers, current_index, direction, operation)
-  let current_level = a:headers[a:current_index][1]
-  let index = a:current_index + a:direction
-
-  while 1
-    if index < 0 || index >= len(a:headers)
-      return -1
-    endif
-    if eval('a:headers[index][1] ' . a:operation . ' current_level')
-      return index
-    endif
-    let index += a:direction
-  endwhile
 endfunction
 
 
@@ -1710,6 +1686,93 @@ function! s:collect_headers()
   endfor
 
   return headers
+endfunction
+
+
+function! s:current_header(headers, line_number)
+  if empty(a:headers)
+    return -1
+  endif
+
+  if a:line_number >= a:headers[-1][0]
+    return len(a:headers) - 1
+  endif
+
+  let current_header_index = -1
+  while a:headers[current_header_index+1][0] <= a:line_number
+    let current_header_index += 1
+  endwhile
+  return current_header_index
+endfunction
+
+
+function! s:get_another_header(headers, current_index, direction, operation)
+  if empty(a:headers) || a:current_index < 0
+    return -1
+  endif
+  let current_level = a:headers[a:current_index][1]
+  let index = a:current_index + a:direction
+
+  while 1
+    if index < 0 || index >= len(a:headers)
+      return -1
+    endif
+    if eval('a:headers[index][1] ' . a:operation . ' current_level')
+      return index
+    endif
+    let index += a:direction
+  endwhile
+endfunction
+
+
+function! vimwiki#base#goto_parent_header()
+  let headers = s:collect_headers()
+  let current_header_index = s:current_header(headers, line('.'))
+  let parent_header = s:get_another_header(headers, current_header_index, -1, '<')
+  if parent_header >= 0
+    call cursor(headers[parent_header][0], 1)
+  else
+    echo 'Vimwiki: no parent header found'
+  endif
+endfunction
+
+
+function! vimwiki#base#goto_next_header()
+  let headers = s:collect_headers()
+  let current_header_index = s:current_header(headers, line('.'))
+  if current_header_index >= 0 && current_header_index < len(headers) - 1
+    call cursor(headers[current_header_index + 1][0], 1)
+  else
+    echo 'Vimwiki: no next header found'
+  endif
+endfunction
+
+
+function! vimwiki#base#goto_prev_header()
+  let headers = s:collect_headers()
+  let current_header_index = s:current_header(headers, line('.'))
+  " if the cursor already was on a header, jump to the previous one
+  if current_header_index >= 1 && headers[current_header_index][0] == line('.')
+    let current_header_index -= 1
+  endif
+  if current_header_index >= 0
+    call cursor(headers[current_header_index][0], 1)
+  else
+    echom 'Vimwiki: no previous header found'
+  endif
+endfunction
+
+
+function! vimwiki#base#goto_sibling(direction)
+  let headers = s:collect_headers()
+  let current_header_index = s:current_header(headers, line('.'))
+  let next_potential_sibling = s:get_another_header(headers, current_header_index, a:direction, '<=')
+  if next_potential_sibling >= 0 && headers[next_potential_sibling][1] ==
+        \ headers[current_header_index][1]
+    call cursor(headers[next_potential_sibling][0], 1)
+  else
+    echo 'Vimwiki: no sibling header found'
+  endif
 endfunction
 
 

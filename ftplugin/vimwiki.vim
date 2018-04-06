@@ -662,6 +662,36 @@ endif
 nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
       \<C-U>call vimwiki#base#RemoveHeaderLevel()<CR>
 
+if !hasmapto('<Plug>VimwikiGoToParentHeader')
+  nmap <silent><buffer> ]u <Plug>VimwikiGoToParentHeader
+  nmap <silent><buffer> [u <Plug>VimwikiGoToParentHeader
+endif
+nnoremap <silent><buffer> <Plug>VimwikiGoToParentHeader :
+      \<C-u>call vimwiki#base#goto_parent_header()<CR>
+
+if !hasmapto('<Plug>VimwikiGoToNextHeader')
+  nmap <silent><buffer> ]] <Plug>VimwikiGoToNextHeader
+endif
+nnoremap <silent><buffer> <Plug>VimwikiGoToNextHeader :
+      \<C-u>call vimwiki#base#goto_next_header()<CR>
+
+if !hasmapto('<Plug>VimwikiGoToPrevHeader')
+  nmap <silent><buffer> [[ <Plug>VimwikiGoToPrevHeader
+endif
+nnoremap <silent><buffer> <Plug>VimwikiGoToPrevHeader :
+      \<C-u>call vimwiki#base#goto_prev_header()<CR>
+
+if !hasmapto('<Plug>VimwikiGoToNextSiblingHeader')
+  nmap <silent><buffer> ]= <Plug>VimwikiGoToNextSiblingHeader
+endif
+nnoremap <silent><buffer> <Plug>VimwikiGoToNextSiblingHeader :
+      \<C-u>call vimwiki#base#goto_sibling(+1)<CR>
+
+if !hasmapto('<Plug>VimwikiGoToPrevSiblingHeader')
+  nmap <silent><buffer> [= <Plug>VimwikiGoToPrevSiblingHeader
+endif
+nnoremap <silent><buffer> <Plug>VimwikiGoToPrevSiblingHeader :
+      \<C-u>call vimwiki#base#goto_sibling(-1)<CR>
 
 " }}}
 

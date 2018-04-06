@@ -325,6 +325,34 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap -- <Plug>VimwikiRemoveHeaderLevel
 <
+                        *vimwiki_[[*
+[[                      Go to the previous header in the buffer.
+                        To remap: >
+                        :nmap <- <Plug>VimwikiGoToPrevHeader
+<
+                        *vimwiki_]]*
+]]                      Go to the next header in the buffer.
+                        To remap: >
+                        :nmap -> <Plug>VimwikiGoToNextHeader
+<
+                        *vimwiki_[=*
+[=                      Go to the previous header which has the same level as
+                        the header the cursor is currently under.
+                        To remap: >
+                        :nmap <= <Plug>VimwikiGoToPrevSiblingHeader
+<
+                        *vimwiki_]=*
+]=                      Go to the next header which has the same level as the
+                        header the cursor is currently under.
+                        To remap: >
+                        :nmap => <Plug>VimwikiGoToNextSiblingHeader
+<
+                        *vimwiki_]u*  *vimwiki_[u*
+]u [u                   Go one level up -- that is, to the parent header of
+                        the header the cursor is currently under.
+                        To remap: >
+                        :nmap -^ <Plug>VimwikiGoToParentHeader
+<
                         *vimwiki_+*
 +                       Create and/or decorate links.  Depending on the
                         context, this command will: convert words into
