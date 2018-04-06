@@ -564,12 +564,22 @@ INSERT MODE                                            *vimwiki-list-mappings*
 ------------------------------------------------------------------------------
 3.3. Text objects                                       *vimwiki-text-objects*
 
-ah                      A section segment (the area between two consecutive
-                        headings) including trailing empty lines.
-ih                      A section segment without trailing empty lines.
+ah                      A header including its content up to the next header.
+ih                      The content under a header (like 'ah', but excluding
+                        the header itself and trailing empty lines).
 
-You can type 'vah' to select a section segment with its contents or 'dah' to
-delete it or 'yah' to yank it or 'cah' to change it.
+aH                      A header including all of its subheaders. When [count]
+                        is 2, include the parent header, when [count] is 3,
+                        the grandparent and so on.
+iH                      Like 'aH', but excluding the header itself and
+                        trailing empty lines.
+
+Examples:
+- type 'cih' to change the content under the current header
+- 'daH' deletes an entire header plus its content including the content of all
+  of its subheaders
+- 'v2aH' selects the parent header of the header the cursor is under plus all
+  of the content of all of its subheaders
 
 a\                      A cell in a table.
 i\                      An inner cell in a table.
