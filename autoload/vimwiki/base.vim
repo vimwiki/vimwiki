@@ -1783,34 +1783,13 @@ endfunction
 " a:create == 1: creates or updates TOC in current file
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
-  " collect new headers
-  let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
+  let headers = s:collect_headers()
   let numbering = vimwiki#vars#get_global('html_header_numbering')
-  let headers = []
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-  for lnum in range(1, line('$'))
-    let line_content = getline(lnum)
-    if (is_inside_pre_or_math == 1 && line_content =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')) ||
-          \ (is_inside_pre_or_math == 2 && line_content =~# vimwiki#vars#get_syntaxlocal('rxMathEnd'))
-      let is_inside_pre_or_math = 0
-      continue
-    endif
-    if is_inside_pre_or_math > 0
-      continue
-    endif
-    if line_content =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
-      let is_inside_pre_or_math = 1
-      continue
-    endif
-    if line_content =~# vimwiki#vars#get_syntaxlocal('rxMathStart')
-      let is_inside_pre_or_math = 2
-      continue
-    endif
-    if line_content !~# vimwiki#vars#get_syntaxlocal('rxHeader')
-      continue
-    endif
-    let h_level = vimwiki#u#count_first_sym(line_content)
-    let h_text = vimwiki#u#trim(matchstr(line_content, vimwiki#vars#get_syntaxlocal('rxHeader')))
+  let complete_header_infos = []
+  for header in headers
+    let h_text = header[2]
+    let h_level = header[1]
     if h_text ==# vimwiki#vars#get_global('toc_header')  " don't include the TOC's header itself
       continue
     endif
@@ -1831,14 +1810,14 @@ function! vimwiki#base#table_of_contents(create)
       let h_text = h_number.' '.h_text
     endif
 
-    call add(headers, [h_level, h_complete_id, h_text])
+    call add(complete_header_infos, [h_level, h_complete_id, h_text])
   endfor
 
   let lines = []
   let startindent = repeat(' ', vimwiki#lst#get_list_margin())
   let indentstring = repeat(' ', vimwiki#u#sw())
   let bullet = vimwiki#lst#default_symbol().' '
-  for [lvl, link, desc] in headers
+  for [lvl, link, desc] in complete_header_infos
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
     let link = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__',
