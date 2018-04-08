@@ -370,6 +370,7 @@ endfunction
 
 function! vimwiki#html#linkify_link(src, descr) "{{{
   let file_str = split(a:src, '#')[0]
+  let file_str = substitute(file_str, '"', '\&quot;', 'g')
   let anchor_str = join(split(a:src, '#')[1:], '%23')
   let src_str = ' href="'.file_str.'#'.s:safe_html_anchor(anchor_str).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
