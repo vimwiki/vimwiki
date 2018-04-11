@@ -187,6 +187,7 @@ function! s:populate_wikilocal_options()
         \ 'automatic_nested_syntaxes': 1,
         \ 'css_name': 'style.css',
         \ 'custom_wiki2html': '',
+        \ 'custom_wiki2html_args': '',
         \ 'diary_header': 'Diary',
         \ 'diary_index': 'diary',
         \ 'diary_rel_path': 'diary/',

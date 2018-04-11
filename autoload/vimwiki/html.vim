@@ -1397,7 +1397,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) "{{{
       \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ? vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ? vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ? shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
-      \ (len(vimwiki#vars#get_global('custom_wiki2html_args')) > 0 ? vimwiki#vars#get_global('custom_wiki2html_args') : '-'))
+      \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ? vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
 endfunction " }}}
 
 function! s:convert_file(path_html, wikifile) "{{{
