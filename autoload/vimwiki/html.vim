@@ -134,13 +134,11 @@ function! s:safe_html_preformatted(line) "{{{
   return line
 endfunction "}}}
 
-function! s:safe_html_anchor(string) "{{{
-  let string = substitute(a:string, '"', '\&quot;', 'g')
-  let string = substitute(string, "'", '\&#39;', 'g')
-  let string = substitute(string, '/', '\&#47;', 'g')
-  let string = substitute(string, '\t', ' ', 'g') " &#9; doesn't work
-  return string
-endfunction "}}}
+
+function! s:escape_html_attribute(string)
+  return substitute(a:string, '"', '\&quot;', 'g')
+endfunction
+
 
 function! s:safe_html_line(line) "{{{
   " escape & < > when producing HTML text
@@ -288,7 +286,7 @@ endfunction "}}}
 
 function! s:tag_strong(value, header_ids) "{{{
   let text = s:mid(a:value, 1)
-  let id = s:safe_html_anchor(text)
+  let id = s:escape_html_attribute(text)
   let complete_id = ''
   for l in range(6)
     if a:header_ids[l][0] != ''
@@ -299,7 +297,7 @@ function! s:tag_strong(value, header_ids) "{{{
     let complete_id = complete_id[:-2]
   endif
   let complete_id .= '-'.id
-  return '<span id="'.s:safe_html_anchor(complete_id).'"></span><strong id="'
+  return '<span id="'.s:escape_html_attribute(complete_id).'"></span><strong id="'
         \ .id.'">'.text.'</strong>'
 endfunction "}}}
 
@@ -313,11 +311,11 @@ function! s:tag_tags(value, header_ids) "{{{
   if a:header_ids[5][0] == ''
     let complete_id = complete_id[:-2]
   endif
-  let complete_id = s:safe_html_anchor(complete_id)
+  let complete_id = s:escape_html_attribute(complete_id)
 
   let result = []
   for tag in split(a:value, ':')
-    let id = s:safe_html_anchor(tag)
+    let id = s:escape_html_attribute(tag)
     call add(result, '<span id="'.complete_id.'-'.id.'"></span><span class="tag" id="'
           \ .id.'">'.tag.'</span>')
   endfor
@@ -369,7 +367,7 @@ endfunction
 "}}}
 
 function! vimwiki#html#linkify_link(src, descr) "{{{
-  let src_str = ' href="'.s:safe_html_anchor(a:src).'"'
+  let src_str = ' href="'.s:escape_html_attribute(a:src).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
   let descr = (descr == "" ? a:src : descr)
   let descr_str = (descr =~# vimwiki#vars#get_global('rxWikiIncl')
@@ -450,8 +448,8 @@ function! s:tag_wikilink(value) "{{{
       " external file links are always absolute
       let html_link = link_infos.filename
     elseif link_infos.scheme ==# 'local'
-      let html_link = vimwiki#path#relpath(fnamemodify(s:current_html_file,
-            \ ':h'), link_infos.filename)
+      let html_link = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'),
+            \ link_infos.filename)
     elseif link_infos.scheme =~# '\mwiki\d\+\|diary'
       " wiki links are always relative to the current file
       let html_link = vimwiki#path#relpath(
@@ -471,7 +469,7 @@ function! s:tag_wikilink(value) "{{{
     let line = html_link
   endif
 
-  let line =vimwiki#html#linkify_link(line, descr)
+  let line = vimwiki#html#linkify_link(line, descr)
   return line
 endfunction "}}}
 "}}}
@@ -1025,7 +1023,7 @@ function! s:process_tag_h(line, id) "{{{
     let h_text = vimwiki#u#trim(matchstr(line, vimwiki#vars#get_syntaxlocal('rxHeader')))
     let h_number = ''
     let h_complete_id = ''
-    let h_id = s:safe_html_anchor(h_text)
+    let h_id = s:escape_html_attribute(h_text)
     let centered = (a:line =~# '^\s')
 
     if h_text !=# vimwiki#vars#get_global('toc_header')
@@ -1054,7 +1052,7 @@ function! s:process_tag_h(line, id) "{{{
         endif
         let h_text = num.' '.h_text
       endif
-      let h_complete_id = s:safe_html_anchor(h_complete_id)
+      let h_complete_id = s:escape_html_attribute(h_complete_id)
       let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
 
     else
