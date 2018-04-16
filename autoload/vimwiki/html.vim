@@ -369,7 +369,10 @@ endfunction
 "}}}
 
 function! vimwiki#html#linkify_link(src, descr) "{{{
-  let src_str = ' href="'.s:safe_html_anchor(a:src).'"'
+  let file_str = split(a:src, '#')[0]
+  let file_str = substitute(file_str, '"', '\&quot;', 'g')
+  let anchor_str = join(split(a:src, '#')[1:], '%23')
+  let src_str = ' href="'.file_str.'#'.s:safe_html_anchor(anchor_str).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
   let descr = (descr == "" ? a:src : descr)
   let descr_str = (descr =~# vimwiki#vars#get_global('rxWikiIncl')
@@ -433,6 +436,7 @@ function! s:tag_wikilink(value) "{{{
   " [[url|descr]]             -> <a href="url.html">descr</a>
   " [[url|{{...}}]]           -> <a href="url.html"> ... </a>
   " [[fileurl.ext|descr]]     -> <a href="fileurl.ext">descr</a>
+  " [[dirurl/url|descr]]      -> <a href="dirurl/url.html">descr</a>
   " [[dirurl/|descr]]         -> <a href="dirurl/index.html">descr</a>
   " [[url#a1#a2]]             -> <a href="url.html#a1-a2">url#a1#a2</a>
   " [[#a1#a2]]                -> <a href="#a1-a2">#a1#a2</a>
