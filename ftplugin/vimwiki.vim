@@ -51,7 +51,7 @@ function! Complete_wikifiles(findstart, base)
     return -1
   else
     " Completion works for wikilinks/anchors, and for tags. s:line_content
-    " tells us, which string came before a:base. There seems to be no easier
+    " tells us which string came before a:base. There seems to be no easier
     " solution, because calling col('.') here returns garbage.
     if s:line_context == ''
       return []

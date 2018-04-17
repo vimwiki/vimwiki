@@ -77,7 +77,9 @@ function! vimwiki#base#invsubdir(subdir) " {{{
 endfunction " }}}
 
 
-" Returns: the number of the wiki a file belongs to
+" Returns: the number of the wiki a file belongs to or -1 if it doesn't belong
+" to any registered wiki.
+" The path can be the full path or just the directory of the file
 function! vimwiki#base#find_wiki(path) "{{{
   let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
   for idx in range(vimwiki#vars#number_of_wikis())
@@ -1881,14 +1883,12 @@ endfunction " }}}
 
 " vimwiki#base#normalize_link_helper
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) " {{{
-  let str = a:str
-  let url = matchstr(str, a:rxUrl)
-  let descr = matchstr(str, a:rxDesc)
-  let template = a:template
+  let url = matchstr(a:str, a:rxUrl)
+  let descr = matchstr(a:str, a:rxDesc)
   if descr == ""
     let descr = s:clean_url(url)
   endif
-  let lnk = s:safesubstitute(template, '__LinkDescription__', descr, '')
+  let lnk = s:safesubstitute(a:template, '__LinkDescription__', descr, '')
   let lnk = s:safesubstitute(lnk, '__LinkUrl__', url, '')
   return lnk
 endfunction " }}}
@@ -1978,8 +1978,8 @@ endfunction " }}}
 function! s:normalize_link_syntax_v() " {{{
   let sel_save = &selection
   let &selection = "old"
-  let rv = @"
-  let rt = getregtype('"')
+  let default_register_save = @"
+  let registertype_save = getregtype('"')
 
   try
     " Save selected text to register "
@@ -1997,7 +1997,7 @@ function! s:normalize_link_syntax_v() " {{{
     call setreg('"', sub, 'v')
     normal! `>""pgvd
   finally
-    call setreg('"', rv, rt)
+    call setreg('"', default_register_save, registertype_save)
     let &selection = sel_save
   endtry
 endfunction " }}}

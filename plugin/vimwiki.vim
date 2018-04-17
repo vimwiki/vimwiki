@@ -232,8 +232,8 @@ augroup END
 
 " COMMANDS {{{
 command! VimwikiUISelect call vimwiki#base#ui_select()
-" XXX: why not using <count> instead of v:count1?
-" See Issue 324.
+" why not using <count> instead of v:count1?
+" See https://github.com/vimwiki-backup/vimwiki/issues/324
 command! -count=1 VimwikiIndex
       \ call vimwiki#base#goto_index(v:count1)
 command! -count=1 VimwikiTabIndex
