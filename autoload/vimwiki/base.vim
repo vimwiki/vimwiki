@@ -1748,6 +1748,8 @@ function! vimwiki#base#goto_next_header()
   let current_header_index = s:current_header(headers, line('.'))
   if current_header_index >= 0 && current_header_index < len(headers) - 1
     call cursor(headers[current_header_index + 1][0], 1)
+  elseif current_header_index < 0 && !empty(headers)  " we're above the first header
+    call cursor(headers[0][0], 1)
   else
     echo 'Vimwiki: no next header found'
   endif
@@ -1764,7 +1766,7 @@ function! vimwiki#base#goto_prev_header()
   if current_header_index >= 0
     call cursor(headers[current_header_index][0], 1)
   else
-    echom 'Vimwiki: no previous header found'
+    echo 'Vimwiki: no previous header found'
   endif
 endfunction
 
