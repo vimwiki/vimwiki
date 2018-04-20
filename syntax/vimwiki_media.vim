@@ -1,9 +1,11 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki syntax file
-" Desc: Defines mediaWiki syntax
+" Description: Defines mediaWiki syntax
 " Home: https://github.com/vimwiki/vimwiki/
 
+
 " see the comments in vimwiki_default.vim for some info about this file
+
 
 let s:media_syntax = g:vimwiki_syntax_variables['media']
 
@@ -78,5 +80,6 @@ let s:media_syntax.bold_match = '''''''__Text__'''''''
 " ^- this strange looking thing is equivalent to "'''__Text__'''" but since we later
 " want to call escape() on this string, we must keep it in single quotes
 let s:media_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let s:media_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)' " XXX rework to mediawiki categories format?
-let s:media_syntax.tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)' " XXX rework to mediawiki categories format?
+let s:media_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
+let s:media_syntax.tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
+      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'

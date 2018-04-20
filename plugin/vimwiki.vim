@@ -1,19 +1,21 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
+
 
 if exists("g:loaded_vimwiki") || &cp
   finish
 endif
 let g:loaded_vimwiki = 1
 
+
 let s:old_cpo = &cpo
 set cpo&vim
 
 
 " this is called when the cursor leaves the buffer
-function! s:setup_buffer_leave() "{{{
+function! s:setup_buffer_leave()
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
   if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
@@ -25,7 +27,7 @@ function! s:setup_buffer_leave() "{{{
   if vimwiki#vars#get_global('menu') != ""
     exe 'nmenu disable '.vimwiki#vars#get_global('menu').'.Table'
   endif
-endfunction "}}}
+endfunction
 
 
 " create a new temporary wiki for the current buffer
@@ -52,7 +54,7 @@ endfunction
 " This function is called when Vim opens a new buffer with a known wiki
 " extension. Both when the buffer has never been opened in this session and
 " when it has.
-function! s:setup_new_wiki_buffer() "{{{
+function! s:setup_new_wiki_buffer()
   let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
   if wiki_nr == -1    " it's not in a known wiki directory
     if vimwiki#vars#get_global('global_ext')
@@ -73,11 +75,11 @@ function! s:setup_new_wiki_buffer() "{{{
   " sourced
   setfiletype vimwiki
 
-endfunction "}}}
+endfunction
 
 
 " this is called when the cursor enters the buffer
-function! s:setup_buffer_enter() "{{{
+function! s:setup_buffer_enter()
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
   if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
@@ -91,10 +93,11 @@ function! s:setup_buffer_enter() "{{{
   call s:set_global_options()
 
   call s:set_windowlocal_options()
-endfunction "}}}
+endfunction
 
 
-function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
+function! s:setup_cleared_syntax()
+  " highlight groups that get cleared
   " on colorscheme change because they are not linked to Vim-predefined groups
   hi def VimwikiBold term=bold cterm=bold gui=bold
   hi def VimwikiItalic term=italic cterm=italic gui=italic
@@ -108,10 +111,10 @@ function! s:setup_cleared_syntax() "{{{ highlight groups that get cleared
             \ .' term=bold cterm=bold'
     endfor
   endif
-endfunction "}}}
+endfunction
 
 
-function! s:vimwiki_get_known_extensions() " {{{
+function! s:vimwiki_get_known_extensions()
   " Getting all extensions that different wikis could have
   let extensions = {}
   for idx in range(vimwiki#vars#number_of_wikis())
@@ -123,7 +126,7 @@ function! s:vimwiki_get_known_extensions() " {{{
     let extensions[ext] = 1
   endfor
   return keys(extensions)
-endfunction " }}}
+endfunction
 
 
 " Set settings which are global for Vim, but should only be executed for
@@ -171,7 +174,7 @@ function! s:set_windowlocal_options()
   endif
 endfunction
 
-" }}}
+
 
 
 " Initialization of Vimwiki starts here. Make sure everything below does not
@@ -179,30 +182,30 @@ endfunction
 
 call vimwiki#vars#init()
 
-" CALLBACK functions "{{{
-" User can redefine it.
-if !exists("*VimwikiLinkHandler") "{{{
+
+" Define callback functions which the user can redefine
+if !exists("*VimwikiLinkHandler")
   function VimwikiLinkHandler(url)
     return 0
   endfunction
-endif "}}}
+endif
 
-if !exists("*VimwikiLinkConverter") "{{{
+if !exists("*VimwikiLinkConverter")
   function VimwikiLinkConverter(url, source, target)
     " Return the empty string when unable to process link
     return ''
   endfunction
-endif "}}}
+endif
 
-if !exists("*VimwikiWikiIncludeHandler") "{{{
-  function! VimwikiWikiIncludeHandler(value) "{{{
+if !exists("*VimwikiWikiIncludeHandler")
+  function! VimwikiWikiIncludeHandler(value)
     return ''
-  endfunction "}}}
-endif "}}}
-" CALLBACK }}}
+  endfunction
+endif
 
 
-" AUTOCOMMANDS for all known wiki extensions {{{
+
+" Define autocommands for all known wiki extensions
 
 let s:known_extensions = s:vimwiki_get_known_extensions()
 
@@ -228,9 +231,9 @@ augroup vimwiki
     endif
   endfor
 augroup END
-"}}}
 
-" COMMANDS {{{
+
+
 command! VimwikiUISelect call vimwiki#base#ui_select()
 " why not using <count> instead of v:count1?
 " See https://github.com/vimwiki-backup/vimwiki/issues/324
@@ -246,15 +249,17 @@ command! -count=1 VimwikiMakeDiaryNote
 command! -count=1 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(v:count1, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0, vimwiki#diary#diary_date_link(localtime() - 60*60*24))
+      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 command! -count=1 VimwikiMakeTomorrowDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0, vimwiki#diary#diary_date_link(localtime() + 60*60*24))
+      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
-"}}}
 
-" MAPPINGS {{{
+
+
 let s:map_prefix = vimwiki#vars#get_global('map_prefix')
 
 if !hasmapto('<Plug>VimwikiIndex')
@@ -305,9 +310,9 @@ endif
 nnoremap <unique><script> <Plug>VimwikiMakeTomorrowDiaryNote
       \ :VimwikiMakeTomorrowDiaryNote<CR>
 
-"}}}
 
-" MENU {{{
+
+
 function! s:build_menu(topmenu)
   for idx in range(vimwiki#vars#number_of_wikis())
     let norm_path = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
@@ -324,7 +329,8 @@ function! s:build_table_menu(topmenu)
   exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
   exe 'nmenu '.a:topmenu.'.Table.Format<tab>gqq gqq'
   exe 'nmenu '.a:topmenu.'.Table.Move\ column\ left<tab><A-Left> :VimwikiTableMoveColumnLeft<CR>'
-  exe 'nmenu '.a:topmenu.'.Table.Move\ column\ right<tab><A-Right> :VimwikiTableMoveColumnRight<CR>'
+  exe 'nmenu '.a:topmenu.
+        \ '.Table.Move\ column\ right<tab><A-Right> :VimwikiTableMoveColumnRight<CR>'
   exe 'nmenu disable '.a:topmenu.'.Table'
 endfunction
 
@@ -333,14 +339,13 @@ if !empty(vimwiki#vars#get_global('menu'))
   call s:build_menu(vimwiki#vars#get_global('menu'))
   call s:build_table_menu(vimwiki#vars#get_global('menu'))
 endif
-" }}}
 
-" CALENDAR Hook "{{{
+
+" Hook for calendar.vim
 if vimwiki#vars#get_global('use_calendar')
   let g:calendar_action = 'vimwiki#diary#calendar_action'
   let g:calendar_sign = 'vimwiki#diary#calendar_sign'
 endif
-"}}}
 
 
 let &cpo = s:old_cpo

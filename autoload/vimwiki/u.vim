@@ -1,9 +1,9 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-" Desc: Utility functions
+" Description: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
 
-function! vimwiki#u#trim(string, ...) "{{{
+function! vimwiki#u#trim(string, ...)
   let chars = ''
   if a:0 > 0
     let chars = a:1
@@ -11,17 +11,20 @@ function! vimwiki#u#trim(string, ...) "{{{
   let res = substitute(a:string, '^[[:space:]'.chars.']\+', '', '')
   let res = substitute(res, '[[:space:]'.chars.']\+$', '', '')
   return res
-endfunction "}}}
+endfunction
+
 
 " Builtin cursor doesn't work right with unicode characters.
-function! vimwiki#u#cursor(lnum, cnum) "{{{
+function! vimwiki#u#cursor(lnum, cnum)
   exe a:lnum
   exe 'normal! 0'.a:cnum.'|'
-endfunction "}}}
+endfunction
 
-function! vimwiki#u#is_windows() "{{{
+
+function! vimwiki#u#is_windows()
   return has("win32") || has("win64") || has("win95") || has("win16")
-endfunction "}}}
+endfunction
+
 
 function! vimwiki#u#is_macos()
   if has("mac") || has("macunix") || has("gui_mac")
@@ -32,27 +35,32 @@ function! vimwiki#u#is_macos()
   return os == 'Darwin' || os == 'Mac'
 endfunction
 
-function! vimwiki#u#count_first_sym(line) "{{{
+
+function! vimwiki#u#count_first_sym(line)
   let first_sym = matchstr(a:line, '\S')
   return len(matchstr(a:line, first_sym.'\+'))
-endfunction "}}}
+endfunction
 
-function! vimwiki#u#escape(string) "{{{
+
+function! vimwiki#u#escape(string)
   return escape(a:string, '~.*[]\^$')
-endfunction "}}}
+endfunction
+
 
 " Load concrete Wiki syntax: sets regexes and templates for headers and links
-function vimwiki#u#reload_regexes() "{{{
+function vimwiki#u#reload_regexes()
   execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'.vim'
-endfunction "}}}
+endfunction
+
 
 " Load syntax-specific functionality
-function vimwiki#u#reload_regexes_custom() "{{{
+function vimwiki#u#reload_regexes_custom()
   execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'_custom.vim'
-endfunction "}}}
+endfunction
+
 
 " Backward compatible version of the built-in function shiftwidth()
-if exists('*shiftwidth') "{{{
+if exists('*shiftwidth')
   func vimwiki#u#sw()
     return shiftwidth()
   endfunc
@@ -60,4 +68,5 @@ else
   func vimwiki#u#sw()
     return &sw
   endfunc
-endif "}}}
+endif
+

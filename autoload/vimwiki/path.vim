@@ -1,15 +1,15 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-" Desc: Path manipulation functions
+" Description: Path manipulation functions
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-function! vimwiki#path#chomp_slash(str) "{{{
+function! vimwiki#path#chomp_slash(str)
   return substitute(a:str, '[/\\]\+$', '', '')
-endfunction "}}}
+endfunction
+
 
 " Define path-compare function, either case-sensitive or not, depending on OS.
-"{{{ " function! vimwiki#path#is_equal(p1, p2)
 if vimwiki#u#is_windows()
   function! vimwiki#path#is_equal(p1, p2)
     return a:p1 ==? a:p2
@@ -18,10 +18,11 @@ else
   function! vimwiki#path#is_equal(p1, p2)
     return a:p1 ==# a:p2
   endfunction
-endif "}}}
+endif
+
 
 " collapse sections like /a/b/../c to /a/c
-function! vimwiki#path#normalize(path) "{{{
+function! vimwiki#path#normalize(path)
   let path = a:path
   while 1
     let result = substitute(path, '/[^/]\+/\.\.', '', '')
@@ -31,9 +32,10 @@ function! vimwiki#path#normalize(path) "{{{
     let path = result
   endwhile
   return result
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#path_norm(path) "{{{
+
+function! vimwiki#path#path_norm(path)
   " /-slashes
   if a:path !~# '^scp:'
     let path = substitute(a:path, '\', '/', 'g')
@@ -44,21 +46,24 @@ function! vimwiki#path#path_norm(path) "{{{
   else
     return a:path
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#is_link_to_dir(link) "{{{
+
+function! vimwiki#path#is_link_to_dir(link)
   " Check if link is to a directory.
   " It should be ended with \ or /.
   return a:link =~# '\m[/\\]$'
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#abs_path_of_link(link) "{{{
+
+function! vimwiki#path#abs_path_of_link(link)
   return vimwiki#path#normalize(expand("%:p:h").'/'.a:link)
-endfunction "}}}
+endfunction
+
 
 " return longest common path prefix of 2 given paths.
 " '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
-function! vimwiki#path#path_common_pfx(path1, path2) "{{{
+function! vimwiki#path#path_common_pfx(path1, path2)
   let p1 = split(a:path1, '[/\\]', 1)
   let p2 = split(a:path2, '[/\\]', 1)
 
@@ -72,16 +77,17 @@ function! vimwiki#path#path_common_pfx(path1, path2) "{{{
   else
     return join(p1[: idx-1], '/')
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#path#wikify_path(path) "{{{
+
+function! vimwiki#path#wikify_path(path)
   let result = resolve(fnamemodify(a:path, ':p'))
   if vimwiki#u#is_windows()
     let result = substitute(result, '\\', '/', 'g')
   endif
   let result = vimwiki#path#chomp_slash(result)
   return result
-endfunction "}}}
+endfunction
 
 
 function! vimwiki#path#current_wiki_file()
@@ -90,7 +96,7 @@ endfunction
 
 
 " Returns: the relative path from a:dir to a:file
-function! vimwiki#path#relpath(dir, file) "{{{
+function! vimwiki#path#relpath(dir, file)
   let result = []
   let dir = split(a:dir, '/')
   let file = split(a:file, '/')
@@ -112,12 +118,13 @@ function! vimwiki#path#relpath(dir, file) "{{{
     let result_path .= '/'
   endif
   return result_path
-endfunction "}}}
+endfunction
+
 
 " If the optional argument provided and nonzero,
-" it will ask before creating a directory 
+" it will ask before creating a directory
 " Returns: 1 iff directory exists or successfully created
-function! vimwiki#path#mkdir(path, ...) "{{{
+function! vimwiki#path#mkdir(path, ...)
   let path = expand(a:path)
 
   if path =~# '^scp:'
@@ -137,23 +144,23 @@ function! vimwiki#path#mkdir(path, ...) "{{{
       let path = iconv(path, &enc, vimwiki#vars#get_global('w32_dir_enc'))
     endif
 
-    if a:0 && a:1 && input("Vimwiki: Make new directory: "
-          \ .path."\n [y]es/[N]o? ") !~? '^y'
+    if a:0 && a:1 && input("Vimwiki: Make new directory: ".path."\n [y]es/[N]o? ") !~? '^y'
       return 0
     endif
 
     call mkdir(path, "p")
     return 1
   endif
-endfunction " }}}
+endfunction
 
-function! vimwiki#path#is_absolute(path) "{{{
+
+function! vimwiki#path#is_absolute(path)
   if vimwiki#u#is_windows()
     return a:path =~? '\m^\a:'
   else
     return a:path =~# '\m^/\|\~/'
   endif
-endfunction "}}}
+endfunction
 
 
 " Combine a directory and a file into one path, doesn't generate duplicate
@@ -173,3 +180,4 @@ else
     return directory . '/' . file
   endfunction
 endif
+

@@ -2,6 +2,8 @@
 " Vimwiki autoload plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 
+
+
 " ------------------------------------------------------------------------------------------------
 " This file provides functions to manage the various state variables which are needed during a
 " Vimwiki session.
@@ -268,7 +270,7 @@ function! s:validate_settings()
 endfunction
 
 
-function! s:normalize_path(path) "{{{
+function! s:normalize_path(path)
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
   if path !~# '^scp:'
@@ -276,7 +278,7 @@ function! s:normalize_path(path) "{{{
   else
     return path.'/'
   endif
-endfunction "}}}
+endfunction
 
 
 function! vimwiki#vars#populate_syntax_vars(syntax)
@@ -703,7 +705,9 @@ function! vimwiki#vars#add_temporary_wiki(settings)
   call s:validate_settings()
 endfunction
 
+
 " number of registered wikis + temporary
 function! vimwiki#vars#number_of_wikis()
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction
+
