@@ -357,7 +357,7 @@ endfunction
 
 "   match n-th ARG within {{URL[|ARG1|ARG2|...]}}
 " *c,d,e),...
-function! vimwiki#html#incl_match_arg(nn_index)
+function! s:incl_match_arg(nn_index)
   let rx = vimwiki#vars#get_global('rxWikiInclPrefix'). vimwiki#vars#get_global('rxWikiInclUrl')
   let rx = rx . repeat(vimwiki#vars#get_global('rxWikiInclSeparator') .
         \ vimwiki#vars#get_global('rxWikiInclArg'), a:nn_index-1)
@@ -371,7 +371,7 @@ function! vimwiki#html#incl_match_arg(nn_index)
 endfunction
 
 
-function! vimwiki#html#linkify_link(src, descr)
+function! s:linkify_link(src, descr)
   let src_str = ' href="'.s:escape_html_attribute(a:src).'"'
   let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
   let descr = (descr == "" ? a:src : descr)
@@ -382,7 +382,7 @@ function! vimwiki#html#linkify_link(src, descr)
 endfunction
 
 
-function! vimwiki#html#linkify_image(src, descr, verbatim_str)
+function! s:linkify_image(src, descr, verbatim_str)
   let src_str = ' src="'.a:src.'"'
   let descr_str = (a:descr != '' ? ' alt="'.a:descr.'"' : '')
   let verbatim_str = (a:verbatim_str != '' ? ' '.a:verbatim_str : '')
@@ -395,7 +395,7 @@ function! s:tag_weblink(value)
   let str = a:value
   let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
   let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'))
-  let line = vimwiki#html#linkify_link(url, descr)
+  let line = s:linkify_link(url, descr)
   return line
 endfunction
 
@@ -411,8 +411,8 @@ function! s:tag_wikiincl(value)
   " otherwise, assume image transclusion
   if line == ''
     let url_0 = matchstr(str, vimwiki#vars#get_global('rxWikiInclMatchUrl'))
-    let descr = matchstr(str, vimwiki#html#incl_match_arg(1))
-    let verbatim_str = matchstr(str, vimwiki#html#incl_match_arg(2))
+    let descr = matchstr(str, s:incl_match_arg(1))
+    let verbatim_str = matchstr(str, s:incl_match_arg(2))
 
     let link_infos = vimwiki#base#resolve_link(url_0)
 
@@ -428,7 +428,7 @@ function! s:tag_wikiincl(value)
     endif
 
     let url = escape(url, '#')
-    let line = vimwiki#html#linkify_image(url, descr, verbatim_str)
+    let line = s:linkify_image(url, descr, verbatim_str)
   endif
   return line
 endfunction
@@ -476,7 +476,7 @@ function! s:tag_wikilink(value)
     let line = html_link
   endif
 
-  let line = vimwiki#html#linkify_link(line, descr)
+  let line = s:linkify_link(line, descr)
   return line
 endfunction
 
