@@ -227,8 +227,6 @@ execute 'syn match VimwikiSuperScriptT contained /'
 execute 'syn match VimwikiSubScriptT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_subscript').'/'
 
-" Emoticons
-"syntax match VimwikiEmoticons /\%((.)\|:[()|$@]\|:-[DOPS()\]|$@]\|;)\|:'(\)/
 
 execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
 
@@ -239,7 +237,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiNoExistsLinkT,
-                           \ VimwikiEmoticons,
                            \ VimwikiTodo,
                            \ VimwikiBoldT,
                            \ VimwikiItalicT,
@@ -411,7 +408,6 @@ hi def link VimwikiLinkT VimwikiLink
 hi def link VimwikiList Identifier
 hi def link VimwikiListTodo VimwikiList
 hi def link VimwikiCheckBoxDone Comment
-hi def link VimwikiEmoticons Character
 hi def link VimwikiHR Identifier
 hi def link VimwikiTag Keyword
 
