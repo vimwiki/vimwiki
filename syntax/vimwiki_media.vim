@@ -1,72 +1,85 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki syntax file
-" Desc: Defines mediaWiki syntax
+" Description: Defines mediaWiki syntax
 " Home: https://github.com/vimwiki/vimwiki/
 
+
+" see the comments in vimwiki_default.vim for some info about this file
+
+
+let s:media_syntax = g:vimwiki_syntax_variables['media']
+
 " text: $ equation_inline $
-let g:vimwiki_rxEqIn = '\$[^$`]\+\$'
-let g:vimwiki_char_eqin = '\$'
+let s:media_syntax.rxEqIn = '\$[^$`]\+\$'
+let s:media_syntax.char_eqin = '\$'
 
 " text: '''strong'''
-let g:vimwiki_rxBold = "'''[^']\\+'''"
-let g:vimwiki_char_bold = "'''"
+let s:media_syntax.rxBold = "'''[^']\\+'''"
+let s:media_syntax.char_bold = "'''"
 
 " text: ''emphasis''
-let g:vimwiki_rxItalic = "''[^']\\+''"
-let g:vimwiki_char_italic = "''"
+let s:media_syntax.rxItalic = "''[^']\\+''"
+let s:media_syntax.char_italic = "''"
 
 " text: '''''strong italic'''''
-let g:vimwiki_rxBoldItalic = "'''''[^']\\+'''''"
-let g:vimwiki_rxItalicBold = g:vimwiki_rxBoldItalic
-let g:vimwiki_char_bolditalic = "'''''"
-let g:vimwiki_char_italicbold = g:vimwiki_char_bolditalic
+let s:media_syntax.rxBoldItalic = "'''''[^']\\+'''''"
+let s:media_syntax.rxItalicBold = s:media_syntax.rxBoldItalic
+let s:media_syntax.char_bolditalic = "'''''"
+let s:media_syntax.char_italicbold = s:media_syntax.char_bolditalic
 
 " text: `code`
-let g:vimwiki_rxCode = '`[^`]\+`'
-let g:vimwiki_char_code = '`'
+let s:media_syntax.rxCode = '`[^`]\+`'
+let s:media_syntax.char_code = '`'
 
 " text: ~~deleted text~~
-let g:vimwiki_rxDelText = '\~\~[^~]\+\~\~'
-let g:vimwiki_char_deltext = '\~\~'
+let s:media_syntax.rxDelText = '\~\~[^~]\+\~\~'
+let s:media_syntax.char_deltext = '\~\~'
 
 " text: ^superscript^
-let g:vimwiki_rxSuperScript = '\^[^^]\+\^'
-let g:vimwiki_char_superscript = '^'
+let s:media_syntax.rxSuperScript = '\^[^^]\+\^'
+let s:media_syntax.char_superscript = '^'
 
 " text: ,,subscript,,
-let g:vimwiki_rxSubScript = ',,[^,]\+,,'
-let g:vimwiki_char_subscript = ',,'
+let s:media_syntax.rxSubScript = ',,[^,]\+,,'
+let s:media_syntax.char_subscript = ',,'
 
 " generic headers
-let g:vimwiki_rxH = '='
-let g:vimwiki_symH = 1
+let s:media_syntax.rxH = '='
+let s:media_syntax.symH = 1
 
 
 
 " <hr>, horizontal rule
-let g:vimwiki_rxHR = '^-----*$'
+let s:media_syntax.rxHR = '^-----*$'
 
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
-let g:vimwiki_rxTableSep = '|'
+let s:media_syntax.rxTableSep = '|'
 
 " Lists
-let g:vimwiki_bullet_types = { '*':1, '#':1 }
-let g:vimwiki_number_types = []
-let g:vimwiki_list_markers = ['*', '#']
-let g:vimwiki_rxListDefine = '^\%(;\|:\)\s'
-call vimwiki#lst#setup_marker_infos()
-
-let g:vimwiki_rxListItemWithoutCB = '^\s*\%(\('.g:vimwiki_rxListBullet.'\)\|\('.g:vimwiki_rxListNumber.'\)\)\s'
-let g:vimwiki_rxListItem = g:vimwiki_rxListItemWithoutCB . '\+\%(\[\(['.g:vimwiki_listsyms.']\)\]\s\)\?'
-let g:vimwiki_rxListItemAndChildren = '^\('.g:vimwiki_rxListBullet.'\)\s\+\['.g:vimwiki_listsyms_list[4].'\]\s.*\%(\n\%(\1\%('.g:vimwiki_rxListBullet.'\).*\|^$\|\s.*\)\)*'
+let s:media_syntax.bullet_types = ['*', '#']
+let s:media_syntax.recurring_bullets = 1
+let s:media_syntax.number_types = []
+let s:media_syntax.list_markers = ['*', '#']
+let s:media_syntax.rxListDefine = '^\%(;\|:\)\s'
 
 " Preformatted text
-let g:vimwiki_rxPreStart = '<pre>'
-let g:vimwiki_rxPreEnd = '<\/pre>'
+let s:media_syntax.rxPreStart = '<pre>'
+let s:media_syntax.rxPreEnd = '<\/pre>'
 
 " Math block
-let g:vimwiki_rxMathStart = '{{\$'
-let g:vimwiki_rxMathEnd = '}}\$'
+let s:media_syntax.rxMathStart = '{{\$'
+let s:media_syntax.rxMathEnd = '}}\$'
 
-let g:vimwiki_rxComment = '^\s*%%.*$'
-let g:vimwiki_rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
+let s:media_syntax.rxComment = '^\s*%%.*$'
+let s:media_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
+
+let s:media_syntax.header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
+let s:media_syntax.header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
+let s:media_syntax.bold_search = "'''\\zs[^']\\+\\ze'''"
+let s:media_syntax.bold_match = '''''''__Text__'''''''
+" ^- this strange looking thing is equivalent to "'''__Text__'''" but since we later
+" want to call escape() on this string, we must keep it in single quotes
+let s:media_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
+let s:media_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
+let s:media_syntax.tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
+      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'
