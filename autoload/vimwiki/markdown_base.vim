@@ -122,7 +122,7 @@ function! s:normalize_link_syntax_v()
           \ '__LinkUrl__', visual_selection, '')
     let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
-    call setreg('"', link, 'v')
+    call setreg('"', substitute(link, '\n', '', ''), visualmode())
 
     " paste result
     norm! `>""pgvd
@@ -141,8 +141,8 @@ function! vimwiki#markdown_base#normalize_link(is_visual_mode)
   else
     if !a:is_visual_mode
       call s:normalize_link_syntax_n()
-    elseif visualmode() ==# 'v' && line("'<") == line("'>")
-      " action undefined for 'line-wise' or 'multi-line' visual mode selections
+    elseif line("'<") == line("'>")
+      " action undefined for multi-line visual mode selections
       call s:normalize_link_syntax_v()
     endif
   endif
