@@ -338,12 +338,16 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
         \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
 
   " list stuff
+  let l:bullet_types = g:vimwiki_syntax_variables[a:syntax].bullet_types
+  if exists("g:vimwiki_additional_bullet_types")
+    call extend(l:bullet_types, g:vimwiki_additional_bullet_types)
+  endif
   let g:vimwiki_syntax_variables[a:syntax].rx_bullet_chars =
-        \ '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
+        \ '['.join(l:bullet_types, '').']\+'
 
   let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars =
         \ g:vimwiki_syntax_variables[a:syntax].recurring_bullets
-        \ ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
+        \ ? l:bullet_types : []
 
   let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
   let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
@@ -356,9 +360,9 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
   "create regexp for bulleted list items
-  if !empty(g:vimwiki_syntax_variables[a:syntax].bullet_types)
+  if !empty(l:bullet_types)
     let g:vimwiki_syntax_variables[a:syntax].rxListBullet =
-          \ join( map(g:vimwiki_syntax_variables[a:syntax].bullet_types,
+          \ join( map(l:bullet_types,
           \'vimwiki#u#escape(v:val).'
           \ .'repeat("\\+", g:vimwiki_syntax_variables[a:syntax].recurring_bullets)'
           \ ) , '\|')

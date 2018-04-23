@@ -1482,7 +1482,11 @@ function! s:convert_file(path_html, wikifile)
     endif
 
     " prepare regexps for lists
-    let s:bullets = '[*-]'
+    if exists("g:vimwiki_additional_bullet_types")
+      let s:bullets = '[*-'. join(keys(g:vimwiki_additional_bullet_types), '') . ']'
+    else
+      let s:bullets = '[*-]'
+    endif
     let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
 
     for line in lsource
