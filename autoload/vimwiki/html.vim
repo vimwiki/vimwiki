@@ -1483,7 +1483,7 @@ function! s:convert_file(path_html, wikifile)
 
     " prepare regexps for lists
     if exists("g:vimwiki_additional_bullet_types")
-      let s:bullets = '[*-'. join(keys(g:vimwiki_additional_bullet_types), '') . ']'
+      let s:bullets = '[*-'. join(g:vimwiki_additional_bullet_types, '') . ']'
     else
       let s:bullets = '[*-]'
     endif
