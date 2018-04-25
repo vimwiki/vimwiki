@@ -302,7 +302,7 @@ endfunction " }}}
 function! vimwiki#base#generate_links() "{{{
   let lines = []
 
-  let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
+  let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0, 0)
   call sort(links)
 
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
@@ -358,7 +358,9 @@ function! vimwiki#base#backlinks() "{{{
   endif
 endfunction "}}}
 
-" Returns: a list containing all files of the given wiki as absolute file path.
+
+" XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX kann das weg?
+" Returns: a list containing all files of the given wiki as file objects.
 " If the given wiki number is negative, the diary of the current wiki is used
 " If the second argument is not zero, only directories are found
 function! vimwiki#base#find_files(wiki_nr, directories_only)
@@ -387,10 +389,14 @@ endfunction
 
 " Returns: a list containing the links to get from the current file to all wiki
 " files in the given wiki.
-" If the given wiki number is negative, the diary of the current wiki is used.
-" If also_absolute_links is nonzero, also return links of the form /file
-function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links)
-  let files = vimwiki#base#find_files(a:wiki_nr, 0)
+" If a:diary_only is nonzero, the diary of the wiki is used.
+" If a:also_absolute_links is nonzero, also return links of the form /file.
+function! vimwiki#base#get_wikilinks(wiki_nr, diary_only, also_absolute_links)
+  if a:diary_only
+    let files = vimwiki#path#files_in_dir_recursive(vimwiki#vars#get_wikilocal('diary_path'))
+  else
+    let files = vimwiki#path#files_in_dir_recursive(vimwiki#vars#get_wikilocal('path'))
+  endif
   if a:wiki_nr == vimwiki#vars#get_bufferlocal('wiki_nr')
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   elseif a:wiki_nr < 0

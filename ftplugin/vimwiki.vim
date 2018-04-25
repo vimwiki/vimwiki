@@ -79,19 +79,22 @@ function! Complete_wikifiles(findstart, base)
         if wikinumber >= vimwiki#vars#number_of_wikis()
           return []
         endif
+        let diary = 0
         let prefix = matchstr(a:base, '^wiki\d:\zs.*')
         let scheme = matchstr(a:base, '^wiki\d:\ze')
       elseif a:base =~# '^diary:'
-        let wikinumber = -1
+        let wikinumber = vimwiki#vars#get_bufferlocal('wiki_nr')
+        let diary = 1
         let prefix = matchstr(a:base, '^diary:\zs.*')
         let scheme = matchstr(a:base, '^diary:\ze')
       else " current wiki
         let wikinumber = vimwiki#vars#get_bufferlocal('wiki_nr')
+        let diary = 0
         let prefix = a:base
         let scheme = ''
       endif
 
-      let links = vimwiki#base#get_wikilinks(wikinumber, 1)
+      let links = vimwiki#base#get_wikilinks(wikinumber, diary, 1)
       let result = []
       for wikifile in links
         if wikifile =~ '^'.vimwiki#u#escape(prefix)
@@ -104,7 +107,9 @@ function! Complete_wikifiles(findstart, base)
       " we look for anchors in the given wikifile
 
       let segments = split(a:base, '#', 1)
-      let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
+      let given_wikifile = segments[0] == '' ?
+            \ vimwiki#path#filename_without_extension(vimwiki#path#current_file())
+            \ : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
       let wikifile = link_infos.path
       let syntax = vimwiki#vars#get_wikilocal('syntax', link_infos.index)
@@ -661,6 +666,6 @@ endif
 
 " PASTE, CAT URL {{{
 " html commands
-command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
-command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
+command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(vimwiki#path#current_file())
+command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(vimwiki#path#current_file())
 " }}}

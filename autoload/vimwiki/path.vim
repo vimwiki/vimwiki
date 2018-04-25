@@ -209,7 +209,7 @@ function! vimwiki#path#dir_obj(dirpath)
     let dirpath = a:dirpath[4:]
     let protocoll = 'scp'
   else
-    let dirpath = resolve(a:dirpath)
+    let dirpath = resolve(fnamemodify(a:dirpath, ':p'))
     let protocoll = 'file'
   endif
   let path = split(vimwiki#path#chomp_slash(dirpath), '\m[/\\]', 1)
@@ -240,6 +240,11 @@ endfunction
 
 function! vimwiki#path#extension(file_object)
   return fnamemodify(a:file_object[1], ':e')
+endfunction
+
+
+function! vimwiki#path#filename_without_extension(file_object)
+  return fnamemodify(a:file_object[1], ':r')
 endfunction
 
 
@@ -286,7 +291,7 @@ endfunction
 
 
 " Returns a file object made from a dir object plus a file semgent
-function! vimwiki#path#join(dir_obje, file_segment)
+function! vimwiki#path#join(dir_obj, file_segment)
   let new_dir_object = copy(a:dir_obj)
   let new_dir_object.path += a:file_segment[0]
   return [new_dir_object, a:file_segment[1]]
@@ -378,5 +383,8 @@ endfunction
 
 " Returns: a list of all files somewhere in a:dir_obj with extension a:ext
 function! vimwiki#path#files_in_dir_recursive(dir_obj, ext)
-  let htmlfiles = split(glob(a:path.'**/*.html'), '\n')
+  let separator = a:dir_obj.is_unix ? '/' : '\'
+  let glob_expression = vimwiki#path#to_string(a:dir_obj) . '**' . separator . '*.' . a:ext
+  let file_strings = split(glob(glob_expression), '\n')
+  return map(file_strings, 'vimwiki#path#file_obj(v:val)')
 endfunction

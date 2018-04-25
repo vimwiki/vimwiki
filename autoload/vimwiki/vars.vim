@@ -161,7 +161,7 @@ function! s:validate_global_settings()
   for extension in g:vimwiki_global_vars.ext2syntax
     if extension[0] != '.'
       let g:vimwiki_global_vars.ext2syntax['.'.extension] =
-      g:vimwiki_global_vars.ext2syntax[extension]
+            \ g:vimwiki_global_vars.ext2syntax[extension]
       call remove(g:vimwiki_global_vars.ext2syntax, extension)
     endif
   endfor
@@ -566,7 +566,7 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
   if type(value) != 1 || value !=# '/\/\'
     return value
   elseif a:key ==# 'wiki_nr'
-    call setbufvar(buffer, 'vimwiki_wiki_nr', vimwiki#base#find_wiki(expand('%:p')))
+    call setbufvar(buffer, 'vimwiki_wiki_nr', vimwiki#base#find_wiki(vimwiki#path#current_file()))
   elseif a:key ==# 'subdir'
     call setbufvar(buffer, 'vimwiki_subdir', vimwiki#base#current_subdir())
   elseif a:key ==# 'invsubdir'
@@ -574,7 +574,7 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
     call setbufvar(buffer, 'vimwiki_invsubdir', vimwiki#base#invsubdir(subdir))
   elseif a:key ==# 'existing_wikifiles'
     call setbufvar(buffer, 'vimwiki_existing_wikifiles',
-          \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1))
+          \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0, 1))
   elseif a:key ==# 'existing_wikidirs'
     call setbufvar(buffer, 'vimwiki_existing_wikidirs',
         \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr')))
