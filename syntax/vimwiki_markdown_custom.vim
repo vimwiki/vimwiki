@@ -4,41 +4,44 @@
 
 
 
-
-" LINKS: highlighting is complicated due to "nonexistent" links feature {{{
-function! s:add_target_syntax_ON(target, type) " {{{
+function! s:add_target_syntax_ON(target, type)
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match '.a:type.'T `'
   let suffix1 = '` display contained'
   execute prefix0. a:target. suffix0
   execute prefix1. a:target. suffix1
-endfunction "}}}
+endfunction
 
-function! s:add_target_syntax_OFF(target, type) " {{{
+
+function! s:add_target_syntax_OFF(target, type)
   let prefix0 = 'syntax match VimwikiNoExistsLink `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match VimwikiNoExistsLinkT `'
   let suffix1 = '` display contained'
   execute prefix0. a:target. suffix0
   execute prefix1. a:target. suffix1
-endfunction "}}}
+endfunction
 
-function! s:wrap_wikilink1_rx(target) "{{{
+
+function! s:wrap_wikilink1_rx(target)
   return vimwiki#vars#get_syntaxlocal('rxWikiLink1InvalidPrefix') . a:target.
         \ vimwiki#vars#get_syntaxlocal('rxWikiLink1InvalidSuffix')
-endfunction "}}}
+endfunction
 
-function! s:existing_mkd_refs() "{{{
+
+function! s:existing_mkd_refs()
   return keys(vimwiki#markdown_base#scan_reflinks())
-endfunction "}}}
+endfunction
 
-function! s:highlight_existing_links() "{{{
+
+function! s:highlight_existing_links()
   " Wikilink1
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
   " Links are set up upon BufEnter (see plugin/...)
-  let safe_links = '\%('.vimwiki#base#file_pattern(vimwiki#vars#get_bufferlocal('existing_wikifiles')) .
+  let safe_links = '\%('.
+        \ vimwiki#base#file_pattern(vimwiki#vars#get_bufferlocal('existing_wikifiles')) .
         \ '\%(#[^|]*\)\?\|#[^|]*\)'
   " Wikilink1 Dirs set up upon BufEnter (see plugin/...)
   let safe_dirs = vimwiki#base#file_pattern(vimwiki#vars#get_bufferlocal('existing_wikidirs'))
@@ -78,7 +81,7 @@ function! s:highlight_existing_links() "{{{
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
         \ safe_reflinks, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
-endfunction "}}}
+endfunction
 
 
 " use max highlighting - could be quite slow if there are too many wikifiles
@@ -93,8 +96,10 @@ else
   call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), 'VimwikiWikiLink1')
 endif
 
+
 " Weblink
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink1'), 'VimwikiWeblink1')
+
 
 " WikiLink
 " All remaining schemes are highlighted automatically
@@ -106,26 +111,28 @@ let s:rxSchemes = '\%('.
 " a) match [nonwiki-scheme-URL]
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template1')),
-      \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'), vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+      \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'),
+      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
 call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 " b) match [DESCRIPTION][nonwiki-scheme-URL]
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
-      \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'), vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+      \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'),
+      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
 call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
-" }}}
 
 
-" generic headers "{{{
 
 " Header levels, 1-6
 for s:i in range(1,6)
-  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i).'/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i).
+              \ '/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
+              \ 'VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endfor
 
-" }}}
 
-" concealed chars " {{{
+
+" concealed chars
 if exists("+conceallevel")
   syntax conceal on
 endif
@@ -136,24 +143,26 @@ syntax spell toplevel
 " is present) and may be concealed
 let s:options = ' contained transparent contains=NONE'
 " conceal wikilink1
-execute 'syn match VimwikiWikiLink1Char /'.vimwiki#vars#get_syntaxlocal('rx_wikilink_md_prefix').'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.vimwiki#vars#get_syntaxlocal('rx_wikilink_md_suffix').'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.vimwiki#vars#get_syntaxlocal('rxWikiLink1Prefix1').'/'.s:options
-execute 'syn match VimwikiWikiLink1Char /'.vimwiki#vars#get_syntaxlocal('rxWikiLink1Suffix1').'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.
+            \ vimwiki#vars#get_syntaxlocal('rx_wikilink_md_prefix').'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.
+            \ vimwiki#vars#get_syntaxlocal('rx_wikilink_md_suffix').'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.
+            \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Prefix1').'/'.s:options
+execute 'syn match VimwikiWikiLink1Char /'.
+            \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Suffix1').'/'.s:options
 
 " conceal weblink1
-execute 'syn match VimwikiWeblink1Char "'.vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
-execute 'syn match VimwikiWeblink1Char "'.vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
+execute 'syn match VimwikiWeblink1Char "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
+execute 'syn match VimwikiWeblink1Char "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
 
 if exists("+conceallevel")
   syntax conceal off
 endif
-" }}}
 
-" non concealed chars " {{{
-" }}}
 
-" main syntax groups {{{
 
 " Tables
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
@@ -162,7 +171,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiWeblink1T,
                            \ VimwikiWikiLink1T,
                            \ VimwikiNoExistsLinkT,
-                           \ VimwikiEmoticons,
                            \ VimwikiTodo,
                            \ VimwikiBoldT,
                            \ VimwikiItalicT,
@@ -175,22 +183,12 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiEqInT,
                            \ @Spell
 
-" }}}
-
-" header groups highlighting "{{{
-"}}}
 
 
-" syntax group highlighting "{{{ 
+" syntax group highlighting
 hi def link VimwikiWeblink1 VimwikiLink
 hi def link VimwikiWeblink1T VimwikiLink
 
 hi def link VimwikiWikiLink1 VimwikiLink
 hi def link VimwikiWikiLink1T VimwikiLink
-"}}}
 
-
-
-" EMBEDDED syntax setup "{{{
-"}}}
-"
