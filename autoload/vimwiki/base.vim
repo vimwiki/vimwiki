@@ -82,18 +82,23 @@ endfunction
 " to any registered wiki.
 " The path can be the full path or just the directory of the file
 function! vimwiki#base#find_wiki(path)
+  let bestmatch = -1
+  let bestlen = 0
   let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
   for idx in range(vimwiki#vars#number_of_wikis())
     let idx_path = expand(vimwiki#vars#get_wikilocal('path', idx))
     let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#is_equal(vimwiki#path#path_common_pfx(idx_path, path), idx_path)
-      return idx
+    let common_pfx = vimwiki#path#path_common_pfx(idx_path, path)
+    if vimwiki#path#is_equal(common_pfx, idx_path)
+      if len(common_pfx) > bestlen
+        let bestlen = len(common_pfx)
+        let bestmatch = idx
+      endif
     endif
     let idx += 1
   endfor
 
-  " an orphan page has been detected
-  return -1
+  return bestmatch
 endfunction
 
 
