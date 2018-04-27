@@ -1816,7 +1816,11 @@ function! vimwiki#base#table_of_contents(create)
   for [lvl, link, desc] in complete_header_infos
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__',
+    let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+    endif
+    let link = s:safesubstitute(link_tpl, '__LinkUrl__',
           \ '#'.esc_link, '')
     let link = s:safesubstitute(link, '__LinkDescription__', esc_desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
