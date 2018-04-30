@@ -209,9 +209,23 @@ endif
 " create and return a file object from a string. It is assumed that the given
 " path is absolute and points to a file (not a directory)
 function! vimwiki#path#file_obj(filepath)
-  let filename = fnamemodify(a:filepath, ':p:t')
-  let path = fnamemodify(a:filepath, ':p:h')
-  return [vimwiki#path#dir_obj(path), filename]
+  if a:filepath == ''
+    return vimwiki#path#null_file()
+  else
+    let filename = fnamemodify(a:filepath, ':p:t')
+    let path = fnamemodify(a:filepath, ':p:h')
+    return [vimwiki#path#dir_obj(path), filename]
+  endif
+endfunction
+
+
+function! vimwiki#path#null_file()
+  return []
+endfunction
+
+
+function! vimwiki#path#is_null(file)
+  return empty(a:file)
 endfunction
 
 
@@ -253,6 +267,13 @@ endfunction
 
 function! vimwiki#path#extension(file_object)
   return fnamemodify(a:file_object[1], ':e')
+endfunction
+
+
+function! vimwiki#path#set_extension(file_obj, new_ext)
+  let new_filename = vimwiki#path#filename_without_extension(a:file_obj) . '.' . a:new_ext
+  let a:file_obj[1] = new_filename
+  return a:file_obj
 endfunction
 
 
@@ -328,6 +349,7 @@ endfunction
 
 
 " Returns: the relative path from a:dir to a:file
+" XXX wenn die beiden identisch sind, sollte . rauskommen
 function! vimwiki#path#relpath(dir1_object, dir2_object)
   let dir1_path = copy(a:dir1_object.path)
   let dir2_path = copy(a:dir2_object.path)
@@ -360,14 +382,24 @@ function! vimwiki#path#current_file()
   return vimwiki#path#file_obj(expand('%:p'))
 endfunction
 
+
 function! vimwiki#path#exists(object)
   if type(a:object) == 4
     return isdirectory(vimwiki#path#to_string(a:object))
   else
+    if vimwiki#path#is_null(a:object)
+      return 0
+    endif
     " glob() checks whether or not a file exists (readable or writable)
     return glob(vimwiki#path#to_string(a:object)) != ''
   endif
 endfunction
+
+
+function! vimwiki#path#is_executable(file)
+  return vimwiki#path#exists(a:file) && executable(vimwiki#path#to_string(a:file))
+endfunction
+
 
 " this must be outside a function, because only outside a function <sfile> expands
 " to the directory where this file is in

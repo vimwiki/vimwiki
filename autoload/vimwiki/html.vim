@@ -10,8 +10,8 @@ endif
 let g:loaded_vimwiki_html_auto = 1
 
 
-function! s:root_path(subdir)
-  return vimwiki#path#relpath(vimwiki#vars#get_wikilocal('path'), a:subdir)
+function! s:path_from_subdir_to_root(subdir)
+  return vimwiki#path#relpath(a:subdir, vimwiki#vars#get_wikilocal('path_html'))
 endfunction
 
 
@@ -43,14 +43,31 @@ function! s:is_img_link(lnk)
 endfunction
 
 
-function! s:default_CSS_full_name(path)
-  return vimwiki#path#join(a:path, vimwiki#vars#get_wikilocal('css_name'))
+function! s:corresponding_html_file(wiki_file)
+  let relative_wiki_path = vimwiki#path#subtract(vimwiki#vars#get_wikilocal('path'), a:wiki_file)
+  let html_file = vimwiki#path#join(vimwiki#vars#get_wikilocal('path_html'), relative_wiki_path)
+  let html_file = vimwiki#path#set_extension(html_file, 'html')
+  return html_file
+endfunction
+
+
+function! s:corresponding_wiki_file(html_file)
+  let html_path = vimwiki#path#subtract(vimwiki#vars#get_wikilocal('path_html'), a:html_file)
+  let wiki_file = vimwiki#path#join(vimwiki#vars#get_wikilocal('path'), html_path)
+  let wiki_file = vimwiki#path#set_extension(wiki_file, vimwiki#vars#get_wikilocal('ext'))
+  return wiki_file
+endfunction
+
+
+function! s:default_CSS_full_name()
+  return vimwiki#path#join(vimwiki#vars#get_wikilocal('path_html'),
+        \ vimwiki#vars#get_wikilocal('css_name'))
 endfunction
 
 
 " Returns: 1 if it was created, 0 if it already existed
-function! s:create_default_CSS(target_dir)
-  let css_full_name = s:default_CSS_full_name(a:target_dir)
+function! s:create_default_CSS()
+  let css_full_name = s:default_CSS_full_name()
   if vimwiki#path#exists(css_full_name)
     return 0
   else
@@ -62,46 +79,31 @@ endfunction
 
 
 function! s:template_full_name(name)
-  if a:name == ''
-    let name = vimwiki#vars#get_wikilocal('template_default')
-  else
-    let name = a:name
-  endif
-
   let filename = vimwiki#path#file_segment(name . vimwiki#vars#get_wikilocal('template_ext'))
-
-  let template_file = vimwiki#path#to_string(vimwiki#path#join(vimwiki#vars#get_wikilocal('template_path'), filename))
-
-  if filereadable(template_file)
-    return template_file
-  else
-    return ''
-  endif
+  let template_file = vimwiki#path#join(vimwiki#vars#get_wikilocal('template_path'), filename)
+  return template_file
 endfunction
 
 
-function! s:get_html_template(template)
-  " TODO: refactor it!!!
-  let lines=[]
-
-  if a:template != ''
-    let template_name = s:template_full_name(a:template)
+function! s:get_html_template(template_name)
+  if a:template_name != ''
+    let template_file = s:template_full_name(a:template)
     try
-      let lines = readfile(template_name)
+      let lines = readfile(vimwiki#path#to_string(template_file))
       return lines
     catch /E484/
-      echomsg 'Vimwiki: HTML template '.template_name. ' does not exist!'
+      echomsg 'Vimwiki: HTML template '.vimwiki#path#to_string(template_file). ' does not exist!'
     endtry
+    return []
+  else
+    let default_template_file =
+          \ s:template_full_name(vimwiki#vars#get_wikilocal('template_default'))
+    if !vimwiki#path#exists(default_template_file)
+      let default_template_file = vimwiki#path#find_autoload_file('default.tpl')
+    endif
+    let lines = readfile(default_tpl)
+    return lines
   endif
-
-  let default_tpl = s:template_full_name('')
-
-  if default_tpl == ''
-    let default_tpl = vimwiki#path#to_string(vimwiki#path#find_autoload_file('default.tpl'))
-  endif
-
-  let lines = readfile(default_tpl)
-  return lines
 endfunction
 
 
@@ -129,26 +131,25 @@ function! s:safe_html_line(line)
 endfunction
 
 
-function! s:delete_html_files(path)
-  let htmlfiles = vimwiki#path#files_in_dir_recursive(a:path, 'html')
-  for fname in htmlfiles
+function! s:delete_html_files()
+  let htmlfiles =
+        \ vimwiki#path#files_in_dir_recursive(vimwiki#vars#get_wikilocal('path_html'), 'html')
+  for html_file in htmlfiles
+
     " ignore user html files, e.g. search.html,404.html
-    if stridx(vimwiki#vars#get_global('user_htmls'), fnamemodify(fname, ":t")) >= 0
+    if index(vimwiki#vars#get_global('user_htmls'), vimwiki#path#filename(html_file)) >= 0
       continue
     endif
 
     " delete if there is no corresponding wiki file
-    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path_html'), fname)
-    let wikifile = vimwiki#vars#get_wikilocal('path').subdir.
-          \fnamemodify(fname, ":t:r").vimwiki#vars#get_wikilocal('ext')
-    if filereadable(wikifile)
+    if vimwiki#path#exists(s:corresponding_wiki_file(html_file))
       continue
     endif
 
     try
-      call delete(fname)
+      call delete(vimwiki#path#to_string(html_file))
     catch
-      echomsg 'Vimwiki Error: Cannot delete '.fname
+      echomsg 'Vimwiki Error: Cannot delete '.vimwiki#path#to_string(html_file)
     endtry
   endfor
 endfunction
@@ -216,21 +217,15 @@ endfunction
 
 
 function! s:is_html_uptodate(wikifile)
-  let tpl_time = -1
+  let htmlfile_ftime = getftime(vimwiki#path#to_string(s:corresponding_html_file(a:wikifile)))
 
-  let tpl_file = s:template_full_name('')
-  if tpl_file != ''
-    let tpl_time = getftime(tpl_file)
-  endif
+  " The HTML file should also be considered out of date if the default template has been changed in
+  " the meantime. This is not completely correct, because the wiki file could use a template which
+  " is not the default one. But it's better than nothing.
+  let tpl_file = s:template_full_name(vimwiki#vars#get_wikilocal('template_default'))
+  let tpl_time = getftime(tpl_file)
 
-  let wikifile = fnamemodify(a:wikifile, ":p")
-  let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') .
-        \ vimwiki#vars#get_bufferlocal('subdir') . fnamemodify(wikifile, ":t:r").".html")
-
-  if getftime(wikifile) <= getftime(htmlfile) && tpl_time <= getftime(htmlfile)
-    return 1
-  endif
-  return 0
+  return getftime(wikifile) <= htmlfile_ftime && tpl_time <= htmlfile_ftime
 endfunction
 
 
@@ -395,17 +390,18 @@ function! s:tag_wikiincl(value)
     let link_infos = vimwiki#base#resolve_link(url_0)
 
     if link_infos.scheme =~# '\mlocal\|wiki\d\+\|diary'
-      let url = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'), link_infos.filename)
+      let url = vimwiki#path#relpath(vimwiki#path#directory_of_file(s:current_html_file),
+            \ link_infos.filename)
       " strip the .html extension when we have wiki links, so that the user can
       " simply write {{image.png}} to include an image from the wiki directory
       if link_infos.scheme =~# '\mwiki\d\+\|diary'
-        let url = fnamemodify(url, ':r')
+        let url = vimwiki#path#filename_without_extension(url)
       endif
     else
-      let url = link_infos.filename
+      let url = link_infos.file
     endif
 
-    let url = escape(url, '#')
+    let url = escape(vimwiki#path#to_string(url), '#')
     let line = s:linkify_image(url, descr, verbatim_str)
   endif
   return line
@@ -431,20 +427,17 @@ function! s:tag_wikilink(value)
 
     if link_infos.scheme ==# 'file'
       " external file links are always absolute
-      let html_link = link_infos.filename
+      let html_link = vimwiki#path#to_string(link_infos.file)
     elseif link_infos.scheme ==# 'local'
-      let html_link = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'),
-            \ link_infos.filename)
+      let html_link = vimwiki#path#to_string(vimwiki#path#relpath(
+            \ vimwiki#path#directory_of_file(s:current_html_file), link_infos.file))
     elseif link_infos.scheme =~# '\mwiki\d\+\|diary'
       " wiki links are always relative to the current file
-      let html_link = vimwiki#path#relpath(
-            \ fnamemodify(s:current_wiki_file, ':h'),
-            \ fnamemodify(link_infos.filename, ':r'))
-      if html_link !~ '\m/$'
-        let html_link .= '.html'
-      endif
+      let target_html_file = s:corresponding_html_file(link_infos.file)
+      let html_link = vimwiki#path#to_string(vimwiki#path#relpath(
+            \ vimwiki#path#directory_of_file(s:current_html_file), target_html_file))
     else " other schemes, like http, are left untouched
-      let html_link = link_infos.filename
+      let html_link = vimwiki#path#to_string(link_infos.file)
     endif
 
     if link_infos.anchor != ''
@@ -1376,57 +1369,61 @@ endfunction
 
 function! s:use_custom_wiki2html()
   let custom_wiki2html = vimwiki#vars#get_wikilocal('custom_wiki2html')
-  return !empty(custom_wiki2html) &&
-        \ (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
+  return vimwiki#path#is_executable(custom_wiki2html)
 endfunction
 
 
-function! vimwiki#html#CustomWiki2HTML(path, wikifile, force)
-  call vimwiki#path#mkdir(a:path)
-  echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
-      \ a:force. ' '.
-      \ vimwiki#vars#get_wikilocal('syntax'). ' '.
-      \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
-      \ shellescape(a:path). ' '.
-      \ shellescape(a:wikifile). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
-      \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ?
-      \     shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
-      \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
-      \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
-      \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
-      \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
-      \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
+function! s:call_custom_wiki2HTML(output_dir, wikifile, force)
+  call vimwiki#path#mkdir(a:output_dir)
+
+  let arguments = [
+        \ a:force,
+        \ vimwiki#vars#get_wikilocal('syntax'),
+        \ strpart(vimwiki#vars#get_wikilocal('ext'), 1),
+        \ vimwiki#path#to_string(a:output_dir),
+        \ vimwiki#path#to_string(a:wikifile),
+        \ vimwiki#path#to_string(s:default_CSS_full_name()),
+        \ vimwiki#path#to_string(vimwiki#vars#get_wikilocal('template_path')),
+        \ vimwiki#vars#get_wikilocal('template_default'),
+        \ vimwiki#vars#get_wikilocal('template_ext'),
+        \ vimwiki#path#to_string(s:path_from_subdir_to_root(a:output_dir)),
+        \ vimwiki#vars#get_wikilocal('custom_wiki2html_args')
+        \ ]
+
+  for i in range(len(arguments))
+    if arguments[i] =~# '\m^\s*$'
+      let arguments[i] = '-'
+    endif
+    let arguments[i] = shellescape(arguments[i])
+  endfor
+
+  echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '. join(arguments, ' '))
 endfunction
 
 
-function! s:convert_file(path_html, wikifile)
+function! s:convert_file(wikifile)
   let done = 0
 
-  let wikifile = fnamemodify(a:wikifile, ":p")
-
-  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
-  let htmlfile = fnamemodify(wikifile, ":t:r").'.html'
+  let html_file = s:corresponding_html_file(a:wikifile)
 
   " the currently processed file name is needed when processing links
   " yeah yeah, shame on me for using (quasi-) global variables
-  let s:current_wiki_file = wikifile
-  let s:current_html_file = path_html . htmlfile
+  let s:current_wiki_file = a:wikifile
+  let s:current_html_file = html_file
+
+  let output_dir = vimwiki#path#directory_of_file(html_file)
 
   if s:use_custom_wiki2html()
     let force = 1
-    call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
+    call s:call_custom_wiki2HTML(output_dir, wikifile, force)
     let done = 1
   endif
 
   if s:syntax_supported() && done == 0
-    let lsource = readfile(wikifile)
+    let lsource = readfile(vimwiki#path#to_string(a:wikifile))
     let ldest = []
 
-    call vimwiki#path#mkdir(path_html)
+    call vimwiki#path#mkdir(output_dir)
 
     " nohtml placeholder -- to skip html generation.
     let nohtml = 0
@@ -1492,7 +1489,7 @@ function! s:convert_file(path_html, wikifile)
 
     if nohtml
       echon "\r"."%nohtml placeholder found"
-      return ''
+      return vimwiki#path#null_file()
     endif
 
     call s:remove_blank_lines(ldest)
@@ -1509,7 +1506,7 @@ function! s:convert_file(path_html, wikifile)
     call s:close_tag_table(state.table, lines, state.header_ids)
     call extend(ldest, lines)
 
-    let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
+    let title = s:process_title(placeholders, vimwiki#path#filename(a:wikifile))
     let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
 
     let html_lines = s:get_html_template(template_name)
@@ -1518,10 +1515,9 @@ function! s:convert_file(path_html, wikifile)
     call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
     call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
-          \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+          \ s:path_from_subdir_to_root(output_dir) .'", "g")')
 
-    let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
-    let css_name = substitute(css_name, '\', '/', 'g')
+    let css_name = vimwiki#path#to_string(vimwiki#vars#get_wikilocal('css_name'))
     call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
 
     let enc = &fileencoding
@@ -1532,30 +1528,30 @@ function! s:convert_file(path_html, wikifile)
 
     let html_lines = s:html_insert_contents(html_lines, ldest) " %contents%
 
-    call writefile(html_lines, path_html.htmlfile)
+    call writefile(html_lines, vimwiki#path#to_string(html_file))
     let done = 1
 
   endif
 
   if done == 0
     echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
-    return ''
+    return vimwiki#path#null_file()
   endif
 
-  return path_html.htmlfile
+  return html_file
 endfunction
 
 
-function! vimwiki#html#Wiki2HTML(output_dir, wikifile)
-  let result = s:convert_file(a:output_dir, a:wikifile)
-  if result != ''
-    call s:create_default_CSS(a:output_dir)
+function! vimwiki#html#Wiki2HTML(wikifile)
+  let result = s:convert_file(a:wikifile)
+  if !vimwiki#path#is_null(result)
+    call s:create_default_CSS()
   endif
   return result
 endfunction
 
 
-function! vimwiki#html#WikiAll2HTML(path_html)
+function! vimwiki#html#WikiAll2HTML()
   if !s:syntax_supported() && !s:use_custom_wiki2html()
     echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
     return
@@ -1569,76 +1565,45 @@ function! vimwiki#html#WikiAll2HTML(path_html)
   exe 'buffer '.cur_buf
   let &eventignore = save_eventignore
 
-  let path_html = expand(a:path_html)
+  let path_html = vimwiki#vars#get_wikilocal('path_html')
+
   call vimwiki#path#mkdir(path_html)
 
   echomsg 'Vimwiki: Deleting non-wiki html files ...'
-  call s:delete_html_files(path_html)
+  call s:delete_html_files()
 
   echomsg 'Vimwiki: Converting wiki to html files ...'
   let setting_more = &more
   setlocal nomore
 
-  " temporarily adjust current_subdir global state variable
-  let current_subdir = vimwiki#vars#get_bufferlocal('subdir')
-  let current_invsubdir = vimwiki#vars#get_bufferlocal('invsubdir')
-
-  let wikifiles = split(glob(vimwiki#vars#get_wikilocal('path').'**/*'.
-        \ vimwiki#vars#get_wikilocal('ext')), '\n')
+  let wikifiles = vimwiki#path#files_in_dir_recursive(vimwiki#vars#get_wikilocal('path'),
+        \ vimwiki#vars#get_wikilocal('ext'))
   for wikifile in wikifiles
-    let wikifile = fnamemodify(wikifile, ":p")
-
-    " temporarily adjust 'subdir' and 'invsubdir' state variables
-    let subdir = vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), wikifile)
-    call vimwiki#vars#set_bufferlocal('subdir', subdir)
-    call vimwiki#vars#set_bufferlocal('invsubdir', vimwiki#base#invsubdir(subdir))
-
     if !s:is_html_uptodate(wikifile)
-      echomsg 'Vimwiki: Processing '.wikifile
-
-      call s:convert_file(path_html, wikifile)
+      echomsg 'Vimwiki: Processing '.vimwiki#path#to_string(wikifile)
+      call s:convert_file(wikifile)
     else
-      echomsg 'Vimwiki: Skipping '.wikifile
+      echomsg 'Vimwiki: Skipping '.vimwiki#path#to_string(wikifile)
     endif
   endfor
-  " reset 'subdir' state variable
-  call vimwiki#vars#set_bufferlocal('subdir', current_subdir)
-  call vimwiki#vars#set_bufferlocal('invsubdir', current_invsubdir)
 
-  let created = s:create_default_CSS(path_html)
+  let created = s:create_default_CSS()
   if created
     echomsg 'Vimwiki: Default style.css has been created'
   endif
-  echomsg 'Vimwiki: HTML exported to '.path_html
+  echomsg 'Vimwiki: HTML exported to '.vimwiki#path#to_string(path_html)
   echomsg 'Vimwiki: Done!'
 
   let &more = setting_more
 endfunction
 
 
-function! s:file_exists(fname)
-  return !empty(getftype(expand(a:fname)))
-endfunction
-
-
-function! s:binary_exists(fname)
-  return executable(expand(a:fname))
-endfunction
-
-
-function! s:get_wikifile_url(wikifile)
-  return vimwiki#vars#get_wikilocal('path_html') .
-    \ vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), a:wikifile).
-    \ fnamemodify(a:wikifile, ":t:r").'.html'
-endfunction
-
-
 function! vimwiki#html#PasteUrl(wikifile)
-  execute 'r !echo file://'.s:get_wikifile_url(a:wikifile)
+  execute 'r !echo file://'.s:corresponding_html_file(a:wikifile)
 endfunction
 
 
 function! vimwiki#html#CatUrl(wikifile)
-  execute '!echo file://'.s:get_wikifile_url(a:wikifile)
+  execute '!echo file://'.s:corresponding_html_file(a:wikifile)
 endfunction
 

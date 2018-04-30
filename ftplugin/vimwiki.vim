@@ -242,18 +242,18 @@ endfunction
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(vimwiki#vars#get_wikilocal('path_html'), vimwiki#path#current_file())
+      \ let res = vimwiki#html#Wiki2HTML(vimwiki#path#current_file())
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: ' 
+      \ if !vimwiki#path#is_null(res) | echo 'Vimwiki: HTML conversion is done, output: '
       \ . vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path_html')) | endif
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
-      \         vimwiki#vars#get_wikilocal('path_html'),
-      \         vimwiki#path#current_file()))
+      \ let result = vimwiki#html#Wiki2HTML(vimwiki#path#current_file())
+      \ <bar>
+      \ if !vimwiki#path#is_null(result) | call vimwiki#base#system_open_link(result) | endif
 command! -buffer VimwikiAll2HTML
-      \ call vimwiki#html#WikiAll2HTML(vimwiki#vars#get_wikilocal('path_html'))
+      \ call vimwiki#html#WikiAll2HTML()
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
@@ -681,8 +681,7 @@ nnoremap <silent><buffer> <Plug>VimwikiGoToPrevSiblingHeader :
 if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.
   augroup vimwiki
-    au BufWritePost <buffer>
-      \ call vimwiki#html#Wiki2HTML(vimwiki#vars#get_wikilocal('path_html'), vimwiki#path#current_file())
+    au BufWritePost <buffer> call vimwiki#html#Wiki2HTML(vimwiki#path#current_file())
   augroup END
 endif
 

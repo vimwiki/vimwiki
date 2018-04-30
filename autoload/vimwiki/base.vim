@@ -121,7 +121,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
   let link_infos = {
         \ 'index': -1,
         \ 'scheme': '',
-        \ 'filename': '',
+        \ 'filename': '',  " XXX das sollte file heißen und ein file_obj ergeben. Was passiert bei http://bla.blubb?
         \ 'anchor': '',
         \ }
 
