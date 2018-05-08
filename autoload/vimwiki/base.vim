@@ -95,7 +95,6 @@ function! vimwiki#base#find_wiki(path)
         let bestmatch = idx
       endif
     endif
-    let idx += 1
   endfor
 
   return bestmatch
