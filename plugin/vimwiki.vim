@@ -48,6 +48,10 @@ function! s:create_temporary_wiki()
         \ }
 
   call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
+
+  " Update the wiki number of the current buffer, because it may have changed when adding this
+  " temporary wiki.
+  call vimwiki#vars#set_bufferlocal('wiki_nr', vimwiki#base#find_wiki(expand('%:p')))
 endfunction
 
 
