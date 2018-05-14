@@ -13,7 +13,6 @@ let g:loaded_vimwiki = 1
 let s:old_cpo = &cpo
 set cpo&vim
 
-let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
 
 " this is called when the cursor leaves the buffer
 function! s:setup_buffer_leave()
