@@ -47,10 +47,11 @@ CONTENTS                                                             *vimwiki*
         12.2. Temporary Wiki         |vimwiki-temporary-wiki|
         12.3. Per-Wiki Options       |vimwiki-local-options|
         12.4. Global Options         |vimwiki-global-options|
-    13. Contributing                 |vimwiki-contributing|
-    14. Development                  |vimwiki-development|
-    15. Changelog                    |vimwiki-changelog|
-    16. License                      |vimwiki-license|
+    13. Getting help                 |vimwiki-help|
+    14. Contributing & Bug reports   |vimwiki-contributing|
+    15. Development                  |vimwiki-development|
+    16. Changelog                    |vimwiki-changelog|
+    17. License                      |vimwiki-license|
 
 
 ==============================================================================
@@ -2886,9 +2887,17 @@ Value           Description~
 
 Default: 0
 
+==============================================================================
+13. Getting help                                                *vimwiki-help*
+
+For questions, discussions, praise or rants there is a mailing list:
+https://groups.google.com/forum/#!forum/vimwiki
+
+Also, there is the IRC channel #vimwiki on Freenode which can be accessed via
+webchat: https://webchat.freenode.net/?channels=#vimwiki
 
 ==============================================================================
-13. Contributing                                        *vimwiki-contributing*
+14. Contributing & Bug reports                          *vimwiki-contributing*
 
 Your help in making Vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
@@ -2903,12 +2912,8 @@ Issues can be filed at https://github.com/vimwiki/vimwiki/issues/.
 If you want to provide a pull request on GitHub, please start from the dev
 branch, not from the master branch.
 
-For questions, discussions, praise or rants there is a mailing list:
-https://groups.google.com/forum/#!forum/vimwiki
-
-
 ==============================================================================
-14. Development                                          *vimwiki-development*
+15. Development                                          *vimwiki-development*
 
 Homepage: http://vimwiki.github.io/
 Github: https://github.com/vimwiki/vimwiki/
@@ -2955,7 +2960,7 @@ Contributors and their Github usernames in roughly chronological order:
 
 
 ==============================================================================
-15. Changelog                                              *vimwiki-changelog*
+16. Changelog                                              *vimwiki-changelog*
 
 
 Issue numbers starting with '#' are issues from
@@ -3197,7 +3202,7 @@ http://code.google.com/p/vimwiki/issues/list
     * First public version.
 
 ==============================================================================
-16. License                                                  *vimwiki-license*
+17. License                                                  *vimwiki-license*
 
 The MIT License
 http://www.opensource.org/licenses/mit-license.php
