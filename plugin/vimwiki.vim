@@ -14,6 +14,13 @@ let s:old_cpo = &cpo
 set cpo&vim
 
 
+if exists('g:vimwiki_autowriteall')
+  let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
+else
+  let s:vimwiki_autowriteall_saved = 1
+endif
+
+
 " this is called when the cursor leaves the buffer
 function! s:setup_buffer_leave()
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
