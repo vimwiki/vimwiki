@@ -49,13 +49,6 @@ function! vimwiki#path#path_norm(path)
 endfunction
 
 
-function! vimwiki#path#is_link_to_dir(link)
-  " Check if link is to a directory.
-  " It should be ended with \ or /.
-  return a:link =~# '\m[/\\]$'
-endfunction
-
-
 function! vimwiki#path#abs_path_of_link(link)
   return vimwiki#path#normalize(expand("%:p:h").'/'.a:link)
 endfunction
@@ -153,11 +146,11 @@ function! vimwiki#path#mkdir(dir_obj, ...)
 endfunction
 
 
-function! vimwiki#path#is_absolute(path)
+function! vimwiki#path#is_absolute(path_string)
   if vimwiki#u#is_windows()
-    return a:path =~? '\m^\a:'
+    return a:path_string =~? '\m^\a:'
   else
-    return a:path =~# '\m^/\|\~/'
+    return a:path_string =~# '\m^/\|\~/'
   endif
 endfunction
 
@@ -370,6 +363,21 @@ function! vimwiki#path#relpath(dir1_object, dir2_object)
     \ 'path' : result_path,
     \}
   return result
+endfunction
+
+
+function! vimwiki#path#is_file_in_dir(file, dir)
+  let file_path_segments = a:file[0].path
+  let dir_path_segments = a:dir.path
+  if len(dir_path_segments) > len(file_path_segments)
+    return 0
+  endif
+  for i in range(len(a:dir.path))
+    if !vimwiki#path#is_equal(a:dir.path[i], file_path_segments[i])
+      return 0
+    endif
+  endfor
+  return 1
 endfunction
 
 

@@ -100,7 +100,7 @@ function! Complete_wikifiles(findstart, base)
             \ vimwiki#path#filename_without_extension(vimwiki#path#current_file())
             \ : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
-      let wikifile = link_infos.path
+      let wikifile = link_infos.target
       let syntax = vimwiki#vars#get_wikilocal('syntax', link_infos.index)
       let anchors = vimwiki#base#get_anchors(wikifile, syntax)
 

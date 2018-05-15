@@ -668,11 +668,6 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
     return value
   elseif a:key ==# 'wiki_nr'
     call setbufvar(buffer, 'vimwiki_wiki_nr', vimwiki#base#find_wiki(vimwiki#path#current_file()))
-  elseif a:key ==# 'subdir'
-    call setbufvar(buffer, 'vimwiki_subdir', vimwiki#base#current_subdir())
-  elseif a:key ==# 'invsubdir'
-    let subdir = vimwiki#vars#get_bufferlocal('subdir')
-    call setbufvar(buffer, 'vimwiki_invsubdir', vimwiki#base#invsubdir(subdir))
   elseif a:key ==# 'existing_wikifiles'
     call setbufvar(buffer, 'vimwiki_existing_wikifiles',
           \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0, 1))

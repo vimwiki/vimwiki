@@ -43,53 +43,13 @@ function! vimwiki#base#file_pattern(files)
 endfunction
 
 
-"FIXME TODO slow and faulty
-function! vimwiki#base#subdir(path, filename)
-  let path = a:path
-  " ensure that we are not fooled by a symbolic link
-  "FIXME if we are not "fooled", we end up in a completely different wiki?
-  if a:filename !~# '^scp:'
-    let filename = resolve(a:filename)
-  else
-    let filename = a:filename
-  endif
-  let idx = 0
-  "FIXME this can terminate in the middle of a path component!
-  while path[idx] ==? filename[idx]
-    let idx = idx + 1
-  endwhile
-
-  let p = split(strpart(filename, idx), '[/\\]')
-  let res = join(p[:-2], '/')
-  if len(res) > 0
-    let res = res.'/'
-  endif
-  return res
-endfunction
-
-
-function! vimwiki#base#current_subdir()
-  return vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), expand('%:p'))
-endfunction
-
-
-function! vimwiki#base#invsubdir(subdir)
-  return substitute(a:subdir, '[^/\.]\+/', '../', 'g')
-endfunction
-
-
 " Returns: the number of the wiki a file belongs to or -1 if it doesn't belong
 " to any registered wiki.
-" The path can be the full path or just the directory of the file
-function! vimwiki#base#find_wiki(path)
-  let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
+function! vimwiki#base#find_wiki(file)
   for idx in range(vimwiki#vars#number_of_wikis())
-    let idx_path = expand(vimwiki#vars#get_wikilocal('path', idx))
-    let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#is_equal(vimwiki#path#path_common_pfx(idx_path, path), idx_path)
+    if vimwiki#path#is_file_in_dir(a:file, vimwiki#vars#get_wikilocal('path', idx))
       return idx
     endif
-    let idx += 1
   endfor
 
   " an orphan page has been detected
@@ -97,10 +57,9 @@ function! vimwiki#base#find_wiki(path)
 endfunction
 
 
-" THE central function of Vimwiki. Extract infos about the target from a link.
-" If the second parameter is present, which should be an absolute file path, it
-" is assumed that the link appears in that file. Without it, the current file
-" is used.
+" Extract infos about the target from a link. If the second parameter is present, which should be a
+" file object, it is assumed that the link appears in that file. Without it, the current file is
+" used.
 function! vimwiki#base#resolve_link(link_text, ...)
   if a:0
     let source_wiki = vimwiki#base#find_wiki(a:1)
@@ -121,7 +80,9 @@ function! vimwiki#base#resolve_link(link_text, ...)
   let link_infos = {
         \ 'index': -1,
         \ 'scheme': '',
-        \ 'filename': '',  " XXX das sollte file heißen und ein file_obj ergeben. Was passiert bei http://bla.blubb?
+        \ 'is_file': 0,   " 1 for a file, 0 for a URL (e.g. when the link was [[http://foo.bar]]),
+        \                 " -1 if the whole link was malformed
+        \ 'target': '',   " this is a file or dir object if is_file == 1, otherwise a string
         \ 'anchor': '',
         \ }
 
@@ -129,13 +90,18 @@ function! vimwiki#base#resolve_link(link_text, ...)
   " extract scheme
   let link_infos.scheme = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchScheme'))
   if link_infos.scheme == '' || link_text == ''
-    let link_infos.filename = ''   " malformed link
+    let link_infos.is_file = -1
     return link_infos
   endif
   if link_infos.scheme !~# '\mwiki\d\+\|diary\|local\|file'
-    let link_infos.filename = link_text  " unknown scheme, may be a weblink
+    " unknown scheme, may be a weblink
+    let link_infos.is_file = 0
+    let link_infos.target = link_text
     return link_infos
   endif
+
+  let link_infos.is_file = 1
+
   let link_text = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchUrl'))
 
   let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme ==# 'diary'
@@ -148,9 +114,11 @@ function! vimwiki#base#resolve_link(link_text, ...)
       let link_infos.anchor = join(split_lnk[1:], '#')
     endif
     if link_text == ''  " because the link was of the form '#anchor'
-      let link_text = fnamemodify(source_file, ':p:t:r')
+      let link_text = vimwiki#path#filename_without_extension(source_file)
     endif
   endif
+
+  let link_tail = vimwiki#path#file_segment(link_text)
 
   " check if absolute or relative path
   if is_wiki_link && link_text[0] == '/'
@@ -162,7 +130,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
     let is_relative = 0
   else
     let is_relative = 1
-    let root_dir = fnamemodify(source_file, ':p:h') . '/'
+    let root_dir = vimwiki#path#directory_of_file(source_file)
   endif
 
 
@@ -170,43 +138,51 @@ function! vimwiki#base#resolve_link(link_text, ...)
   if link_infos.scheme =~# '\mwiki\d\+'
     let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
     if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
-      let link_infos.filename = ''
+      let link_infos.is_file = -1
       return link_infos
     endif
 
-    if !is_relative || link_infos.index != source_wiki
+    if link_text[0] == '/' || link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
-    endif
-
-    let link_infos.filename = root_dir . link_text
-
-    if vimwiki#path#is_link_to_dir(link_text)
-      if vimwiki#vars#get_global('dir_link') != ''
-        let link_infos.filename .= vimwiki#vars#get_global('dir_link') .
-              \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      if link_text != '/'
+        let link_text = link_text[1:]
       endif
     else
-      let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      let root_dir = vimwiki#path#directory_of_file(source_file)
+    endif
+
+    if link_text =~# '\m[/\\]$'
+      if vimwiki#vars#get_global('dir_link') == ''
+        let target_dir = vimwiki#path#dir_segment(link_text)
+        let link_infos.target = vimwiki#path#join_dir(root_dir, target_dir)
+      else
+        let link_text .= vimwiki#vars#get_global('dir_link') .
+              \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
+        let target_file = vimwiki#path#file_segment(link_text)
+        let link_infos.target = vimwiki#path#join(root_dir, target_file)
+      endif
+    else
+      let link_text .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      let target_file = vimwiki#path#file_segment(link_text)
+      let link_infos.target = vimwiki#path#join(root_dir, target_file)
     endif
 
   elseif link_infos.scheme ==# 'diary'
     let link_infos.index = source_wiki
 
-    let link_infos.filename =
-          \ vimwiki#vars#get_wikilocal('diary_path', link_infos.index) .
-          \ link_text .
-          \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
-  elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local') && is_relative
-    let link_infos.filename = simplify(root_dir . link_text)
-  else " absolute file link
-    " collapse repeated leading "/"'s within a link
-    let link_text = substitute(link_text, '\m^/\+', '/', '')
-    " expand ~/
-    let link_text = fnamemodify(link_text, ':p')
-    let link_infos.filename = simplify(link_text)
+    let root_dir = vimwiki#vars#get_wikilocal('diary_path', link_infos.index)
+    let target_file = vimwiki#path#file_segment(link_text .
+          \ vimwiki#vars#get_wikilocal('ext', link_infos.index))
+    let link_infos.target = vimwiki#path#join(root_dir, target_file)
+  elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local') &&
+        \ vimwiki#path#is_absolute(link_text)
+    let link_infos.target = vimwiki#path#file_obj(link_text)
+  else " relative file link
+    let root_dir = vimwiki#path#directory_of_file(source_file)
+    let target_file = vimwiki#path#file_segment(link_text)
+    let link_infos.target = vimwiki#path#join(root_dir, target_file)
   endif
 
-  let link_infos.filename = vimwiki#path#normalize(link_infos.filename)
   return link_infos
 endfunction
 
@@ -262,7 +238,7 @@ function! vimwiki#base#open_link(cmd, link, ...)
     let link_infos = vimwiki#base#resolve_link(a:link)
   endif
 
-  if link_infos.filename == ''
+  if link_infos.is_file == -1
     echomsg 'Vimwiki Error: Unable to resolve link!'
     return
   endif
@@ -270,7 +246,7 @@ function! vimwiki#base#open_link(cmd, link, ...)
   let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme =~# 'diary'
 
   let update_prev_link = is_wiki_link &&
-        \ !vimwiki#path#is_equal(link_infos.filename, vimwiki#path#current_wiki_file())
+        \ !vimwiki#path#is_equal(link_infos.target, vimwiki#path#current_wiki_file())
 
   let vimwiki_prev_link = []
   " update previous link for wiki pages
@@ -284,10 +260,10 @@ function! vimwiki#base#open_link(cmd, link, ...)
 
   " open/edit
   if is_wiki_link
-    call vimwiki#base#edit_file(a:cmd, link_infos.filename, link_infos.anchor,
+    call vimwiki#base#edit_file(a:cmd, link_infos.target, link_infos.anchor,
           \ vimwiki_prev_link, update_prev_link)
   else
-    call vimwiki#base#system_open_link(link_infos.filename)
+    call vimwiki#base#system_open_link(link_infos.target)
   endif
 endfunction
 
@@ -593,7 +569,7 @@ function! s:get_links(wikifile, idx)
       endif
       let link_count += 1
       let target = vimwiki#base#resolve_link(link_text, a:wikifile)
-      if target.filename != '' && target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
+      if target.is_file != -1 && target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
         call add(links, [target.filename, target.anchor, lnum, col])
       endif
     endwhile

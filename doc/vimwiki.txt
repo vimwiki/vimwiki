@@ -2540,11 +2540,11 @@ A second example handles a new scheme, "vfile:", which behaves similar to
       return 0
     endif
     let link_infos = vimwiki#base#resolve_link(link)
-    if link_infos.filename == ''
+    if link_infos.is_file == -1
       echomsg 'Vimwiki Error: Unable to resolve link!'
       return 0
     else
-      exe 'tabnew ' . fnameescape(link_infos.filename)
+      exe 'tabnew ' . fnameescape(vimwiki#path#to_string(link_infos.target))
       return 1
     endif
   endfunction
@@ -2569,11 +2569,12 @@ right place. >
   function! VimwikiLinkConverter(link, source_wiki_file, target_html_file)
     if a:link =~# '^local:'
       let link_infos = vimwiki#base#resolve_link(a:link)
+      let target_file = vimwiki#path#to_string(link_infos.target)
       let html_link = vimwiki#path#relpath(
-                \ fnamemodify(a:source_wiki_file, ':h'), link_infos.filename)
+                \ fnamemodify(a:source_wiki_file, ':h'), target_file)
       let relative_link =
                 \ fnamemodify(a:target_html_file, ':h') . '/' . html_link
-      call system('cp ' . fnameescape(link_infos.filename) .
+      call system('cp ' . fnameescape(target_file) .
                 \ ' ' . fnameescape(relative_link))
       return html_link
     endif

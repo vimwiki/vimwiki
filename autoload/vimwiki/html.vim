@@ -391,14 +391,14 @@ function! s:tag_wikiincl(value)
 
     if link_infos.scheme =~# '\mlocal\|wiki\d\+\|diary'
       let url = vimwiki#path#relpath(vimwiki#path#directory_of_file(s:current_html_file),
-            \ link_infos.filename)
+            \ link_infos.target)
       " strip the .html extension when we have wiki links, so that the user can
       " simply write {{image.png}} to include an image from the wiki directory
       if link_infos.scheme =~# '\mwiki\d\+\|diary'
         let url = vimwiki#path#filename_without_extension(url)
       endif
     else
-      let url = link_infos.file
+      let url = link_infos.target
     endif
 
     let url = escape(vimwiki#path#to_string(url), '#')
@@ -427,17 +427,17 @@ function! s:tag_wikilink(value)
 
     if link_infos.scheme ==# 'file'
       " external file links are always absolute
-      let html_link = vimwiki#path#to_string(link_infos.file)
+      let html_link = vimwiki#path#to_string(link_infos.target)
     elseif link_infos.scheme ==# 'local'
       let html_link = vimwiki#path#to_string(vimwiki#path#relpath(
-            \ vimwiki#path#directory_of_file(s:current_html_file), link_infos.file))
+            \ vimwiki#path#directory_of_file(s:current_html_file), link_infos.target))
     elseif link_infos.scheme =~# '\mwiki\d\+\|diary'
       " wiki links are always relative to the current file
-      let target_html_file = s:corresponding_html_file(link_infos.file)
+      let target_html_file = s:corresponding_html_file(link_infos.target)
       let html_link = vimwiki#path#to_string(vimwiki#path#relpath(
             \ vimwiki#path#directory_of_file(s:current_html_file), target_html_file))
     else " other schemes, like http, are left untouched
-      let html_link = vimwiki#path#to_string(link_infos.file)
+      let html_link = link_infos.target
     endif
 
     if link_infos.anchor != ''
