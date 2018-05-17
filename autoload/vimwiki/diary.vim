@@ -170,21 +170,25 @@ function! s:format_diary()
 endfunction
 
 
+" The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
+" contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
+" is used.
 function! vimwiki#diary#make_note(wnum, ...)
-  if a:wnum > vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
+  if a:wnum == 0
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  else
+    let wiki_nr = a:wnum - 1
+  endif
+
+  if wiki_nr >= vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.wiki_nr.' is not registered in g:vimwiki_list!'
     return
   endif
 
   " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
 
-  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', idx).
-        \ vimwiki#vars#get_wikilocal('diary_rel_path', idx))
+  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', wiki_nr).
+        \ vimwiki#vars#get_wikilocal('diary_rel_path', wiki_nr))
 
   let cmd = 'edit'
   if a:0
@@ -202,7 +206,7 @@ function! vimwiki#diary#make_note(wnum, ...)
     let link = 'diary:'.vimwiki#diary#diary_date_link()
   endif
 
-  call vimwiki#base#open_link(cmd, link, s:diary_index(idx))
+  call vimwiki#base#open_link(cmd, link, s:diary_index(wiki_nr))
 endfunction
 
 
@@ -297,8 +301,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir)
     endif
   endif
 
-  " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(vimwiki#vars#get_bufferlocal('wiki_nr')+1, 0, link)
+  call vimwiki#diary#make_note(0, 0, link)
 endfunction
 
 

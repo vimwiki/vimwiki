@@ -266,14 +266,14 @@ command! -count=1 VimwikiTabIndex
 command! -count=1 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(v:count1)
 command! -count=1 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1)
+      \ call vimwiki#diary#make_note(v:count)
 command! -count=1 VimwikiTabMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 1)
+      \ call vimwiki#diary#make_note(v:count, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 command! -count=1 VimwikiMakeTomorrowDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
@@ -341,7 +341,7 @@ function! s:build_menu(topmenu)
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#base#goto_index('.idx.')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
-          \ ' :call vimwiki#diary#make_note('.idx.')<CR>'
+          \ ' :call vimwiki#diary#make_note('.(idx+1).')<CR>'
   endfor
 endfunction
 
