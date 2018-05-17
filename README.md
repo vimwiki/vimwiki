@@ -146,6 +146,14 @@ Or download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was installed.
 
+
+Getting help
+==============================================================================
+
+Have a question? Visit the IRC channel `#vimwiki` on Freenode ([webchat](https://webchat.freenode.net/?channels=#vimwiki))
+or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
+
+
 ----
 \* Screenshots made with the [solarized colorscheme](https://github.com/altercation/vim-colors-solarized)
 and [lightline](https://github.com/itchyny/lightline.vim)
