@@ -339,7 +339,7 @@ function! s:build_menu(topmenu)
     let norm_path = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
     let norm_path = escape(norm_path, '\ \.')
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
-          \ ' :call vimwiki#base#goto_index('.idx.')<CR>'
+          \ ' :call vimwiki#base#goto_index('.(idx+1).')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
           \ ' :call vimwiki#diary#make_note('.(idx+1).')<CR>'
   endfor
