@@ -77,31 +77,29 @@ function! s:populate_global_variables()
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
   " able to <leader>w<leader>w without opening any vimwiki file first
-  let g:vimwiki_global_vars.schemes = 'wiki\d\+,diary,local'
-  let g:vimwiki_global_vars.web_schemes1 = 'http,https,file,ftp,gopher,telnet,nntp,ldap,rsync'.
-        \ ',imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp'
-  let web_schemes2 = 'mailto,news,xmpp,sip,sips,doi,urn,tel,data'
+  let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
+  let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
+        \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
+        \ 'git', 'ssh', 'fish', 'sftp'], '\|')
+  let web_schemes2 =
+        \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
 
-  let rx_schemes = '\%('.
-        \ join(split(g:vimwiki_global_vars.schemes, '\s*,\s*'), '\|').'\|'.
-        \ join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\|'.
-        \ join(split(web_schemes2, '\s*,\s*'), '\|').
+  let g:vimwiki_global_vars.rxSchemes = '\%('.
+        \ g:vimwiki_global_vars.schemes . '\|'.
+        \ g:vimwiki_global_vars.web_schemes1 . '\|'.
+        \ web_schemes2 .
         \ '\)'
-
-  let g:vimwiki_global_vars.rxSchemeUrl = rx_schemes.':.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchScheme = '\zs'.rx_schemes.'\ze:.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchUrl = rx_schemes.':\zs.*\ze'
 
   " match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
   " http://tools.ietf.org/html/rfc3986
   let rxWebProtocols =
         \ '\%('.
           \ '\%('.
-            \ '\%('.join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\):'.
+            \ '\%('.g:vimwiki_global_vars.web_schemes1 . '\):'.
             \ '\%(//\)'.
           \ '\)'.
         \ '\|'.
-          \ '\%('.join(split(web_schemes2, '\s*,\s*'), '\|').'\):'.
+          \ '\%('.web_schemes2.'\):'.
         \ '\)'
 
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
