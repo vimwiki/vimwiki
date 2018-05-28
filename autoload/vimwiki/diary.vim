@@ -150,17 +150,21 @@ function! s:format_diary()
             \ '__Header__', s:get_month_name(month), ''))
 
       for [fl, cap] in s:sort(items(g_files[year][month]))
-        if empty(cap)
-          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-                \ '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
-        else
-          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate2'),
-                \ '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+
+          if empty(cap) " When using markdown syntax, we should ensure we always have a link description.
+            let cap = fl
+          endif
+        elseif empty(cap)
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
         endif
+
+        let entry = substitute(link_tpl, '__LinkUrl__', fl, '')
+        let entry = substitute(entry, '__LinkDescription__', cap, '')
+        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
       endfor
 
     endfor
