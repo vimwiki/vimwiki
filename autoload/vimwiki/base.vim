@@ -1617,6 +1617,7 @@ function! vimwiki#base#AddHeaderLevel()
     endif
     call setline(lnum, line)
   endif
+  silent! call repeat#set("\<Plug>VimwikiAddHeaderLevel", -1)
 endfunction
 
 
@@ -1650,6 +1651,7 @@ function! vimwiki#base#RemoveHeaderLevel()
 
     call setline(lnum, line)
   endif
+  silent! call repeat#set("\<Plug>VimwikiRemoveHeaderLevel", -1)
 endfunction
 
 
