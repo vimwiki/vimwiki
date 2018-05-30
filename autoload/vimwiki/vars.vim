@@ -2,6 +2,8 @@
 " Vimwiki autoload plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 
+
+
 " ------------------------------------------------------------------------------------------------
 " This file provides functions to manage the various state variables which are needed during a
 " Vimwiki session.
@@ -75,31 +77,29 @@ function! s:populate_global_variables()
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
   " able to <leader>w<leader>w without opening any vimwiki file first
-  let g:vimwiki_global_vars.schemes = 'wiki\d\+,diary,local'
-  let g:vimwiki_global_vars.web_schemes1 = 'http,https,file,ftp,gopher,telnet,nntp,ldap,rsync'.
-        \ ',imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp'
-  let web_schemes2 = 'mailto,news,xmpp,sip,sips,doi,urn,tel,data'
+  let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
+  let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
+        \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
+        \ 'git', 'ssh', 'fish', 'sftp'], '\|')
+  let web_schemes2 =
+        \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
 
-  let rx_schemes = '\%('.
-        \ join(split(g:vimwiki_global_vars.schemes, '\s*,\s*'), '\|').'\|'.
-        \ join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\|'.
-        \ join(split(web_schemes2, '\s*,\s*'), '\|').
+  let g:vimwiki_global_vars.rxSchemes = '\%('.
+        \ g:vimwiki_global_vars.schemes . '\|'.
+        \ g:vimwiki_global_vars.web_schemes1 . '\|'.
+        \ web_schemes2 .
         \ '\)'
-
-  let g:vimwiki_global_vars.rxSchemeUrl = rx_schemes.':.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchScheme = '\zs'.rx_schemes.'\ze:.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchUrl = rx_schemes.':\zs.*\ze'
 
   " match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
   " http://tools.ietf.org/html/rfc3986
   let rxWebProtocols =
         \ '\%('.
           \ '\%('.
-            \ '\%('.join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\):'.
+            \ '\%('.g:vimwiki_global_vars.web_schemes1 . '\):'.
             \ '\%(//\)'.
           \ '\)'.
         \ '\|'.
-          \ '\%('.join(split(web_schemes2, '\s*,\s*'), '\|').'\):'.
+          \ '\%('.web_schemes2.'\):'.
         \ '\)'
 
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
@@ -164,7 +164,7 @@ function! s:populate_global_variables()
   let g:vimwiki_global_vars.rxWikiInclSuffix1 = g:vimwiki_global_vars.rxWikiInclArgs.
         \ g:vimwiki_global_vars.rxWikiInclSuffix
 
-  let g:vimwiki_global_vars.rxTodo = '\C\%(TODO:\|DONE:\|STARTED:\|FIXME:\|FIXED:\|XXX:\)'
+  let g:vimwiki_global_vars.rxTodo = '\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>'
 
   " default colors when headers of different levels are highlighted differently
   " not making it yet another option; needed by ColorScheme autocommand
@@ -187,6 +187,7 @@ function! s:populate_wikilocal_options()
         \ 'automatic_nested_syntaxes': 1,
         \ 'css_name': 'style.css',
         \ 'custom_wiki2html': '',
+        \ 'custom_wiki2html_args': '',
         \ 'diary_header': 'Diary',
         \ 'diary_index': 'diary',
         \ 'diary_rel_path': 'diary/',
@@ -267,7 +268,7 @@ function! s:validate_settings()
 endfunction
 
 
-function! s:normalize_path(path) "{{{
+function! s:normalize_path(path)
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
   if path !~# '^scp:'
@@ -275,7 +276,7 @@ function! s:normalize_path(path) "{{{
   else
     return path.'/'
   endif
-endfunction "}}}
+endfunction
 
 
 function! vimwiki#vars#populate_syntax_vars(syntax)
@@ -399,14 +400,16 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
         \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
   if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
-          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\%('
+          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\%('
           \ .g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
   else
     let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
           \ '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'
-          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1].'\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
@@ -700,7 +703,9 @@ function! vimwiki#vars#add_temporary_wiki(settings)
   call s:validate_settings()
 endfunction
 
+
 " number of registered wikis + temporary
 function! vimwiki#vars#number_of_wikis()
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction
+

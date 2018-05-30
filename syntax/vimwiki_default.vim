@@ -1,12 +1,15 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki syntax file
-" Desc: Defines default syntax
+" Description: Defines default syntax
 " Home: https://github.com/vimwiki/vimwiki/
+
 
 " s:default_syntax is kind of a reference to the dict in
 " g:vimwiki_syntax_variables['default']. It is used here simply as an
 " abbreviation for the latter.
 let s:default_syntax = g:vimwiki_syntax_variables['default']
+
+
 
 " text: $ equation_inline $
 let s:default_syntax.rxEqIn = '\$[^$`]\+\$'
@@ -97,8 +100,11 @@ let s:default_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:''[:space:]]\+:\)\+\%(\s\|$\
 
 let s:default_syntax.header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let s:default_syntax.header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
-let s:default_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
-let s:default_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*'.
+      \ '[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.
+      \ '\%([[:punct:]]\|\s\|$\)\@='
 let s:default_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
 let s:default_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-let s:default_syntax.tag_match =  '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:\([^:[:space:]]\+:\)*\(\s\|$\)'
+let s:default_syntax.tag_match =  '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
+      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'

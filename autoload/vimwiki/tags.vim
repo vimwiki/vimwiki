@@ -1,8 +1,10 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
 
 
 let s:TAGS_METADATA_FILE_NAME = '.tags'
+
+
 
 " Tags metadata in-memory format:
 " metadata := { 'pagename': [entries, ...] }
@@ -19,12 +21,13 @@ let s:TAGS_METADATA_FILE_NAME = '.tags'
 " an optional field, "vimwiki:".  In this field, we encode tab-separated values
 " of missing parameters -- "pagename" and "link".
 
-" vimwiki#tags#update_tags
+
+
 "   Update tags metadata.
 "   a:full_rebuild == 1: re-scan entire wiki
 "   a:full_rebuild == 0: only re-scan current page
 "   a:all_files == '':   only if the file is newer than .tags
-function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
+function! vimwiki#tags#update_tags(full_rebuild, all_files)
   let all_files = a:all_files != ''
   if !a:full_rebuild
     " Updating for one page (current)
@@ -42,8 +45,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
   else " full rebuild
     let files = vimwiki#base#find_files(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
     let wiki_base_dir = vimwiki#vars#get_wikilocal('path')
-    let tags_file_last_modification =
-          \ getftime(vimwiki#tags#metadata_file_path())
+    let tags_file_last_modification = getftime(vimwiki#tags#metadata_file_path())
     let metadata = s:load_tags_metadata()
     for file in files
       if all_files || getftime(file) >= tags_file_last_modification
@@ -56,12 +58,11 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) "{{{
     endfor
     call s:write_tags_metadata(metadata)
   endif
-endfunction " }}}
+endfunction
 
-" s:scan_tags
-"   Scans the list of text lines (argument) and produces tags metadata as a
-"   list of tag entries.
-function! s:scan_tags(lines, page_name) "{{{
+
+"   Scans the list of text lines (argument) and produces tags metadata as a list of tag entries.
+function! s:scan_tags(lines, page_name)
 
   let entries = []
 
@@ -136,17 +137,18 @@ function! s:scan_tags(lines, page_name) "{{{
 
   endfor " loop over lines
   return entries
-endfunction " }}}
+endfunction
 
-" vimwiki#tags#metadata_file_path
+
 "   Returns tags metadata file path
-function! vimwiki#tags#metadata_file_path() abort "{{{
-  return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'), s:TAGS_METADATA_FILE_NAME), ':p')
-endfunction " }}}
+function! vimwiki#tags#metadata_file_path() abort
+  return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'),
+        \ s:TAGS_METADATA_FILE_NAME), ':p')
+endfunction
 
-" s:load_tags_metadata
+
 "   Loads tags metadata from file, returns a dictionary
-function! s:load_tags_metadata() abort "{{{
+function! s:load_tags_metadata() abort
   let metadata_path = vimwiki#tags#metadata_file_path()
   if !filereadable(metadata_path)
     return {}
@@ -193,29 +195,29 @@ function! s:load_tags_metadata() abort "{{{
     endif
   endfor
   return metadata
-endfunction " }}}
+endfunction
 
-" s:remove_page_from_tags
+
 "   Removes all entries for given page from metadata in-place.  Returns updated
 "   metadata (just in case).
-function! s:remove_page_from_tags(metadata, page_name) "{{{
+function! s:remove_page_from_tags(metadata, page_name)
   if has_key(a:metadata, a:page_name)
     call remove(a:metadata, a:page_name)
     return a:metadata
   else
     return a:metadata
   endif
-endfunction " }}}
+endfunction
 
-" s:merge_tags
+
 "   Merges metadata of one file into a:metadata
-function! s:merge_tags(metadata, pagename, file_metadata) "{{{
+function! s:merge_tags(metadata, pagename, file_metadata)
   let metadata = a:metadata
   let metadata[a:pagename] = a:file_metadata
   return metadata
-endfunction " }}}
+endfunction
 
-" s:tags_entry_cmp
+
 "   Compares two actual lines from tags file.  Return value is in strcmp style.
 "   See help on sort() -- that's what this function is going to be used for.
 "   See also s:write_tags_metadata below -- that's where we compose these tags
@@ -225,7 +227,7 @@ endfunction " }}}
 "   numbers as strings, not integers, and so, for example, tag at line 14
 "   preceeds the same tag on the same page at line 9.  (Because string "14" is
 "   alphabetically 'less than' string "9".)
-function! s:tags_entry_cmp(i1, i2) "{{{
+function! s:tags_entry_cmp(i1, i2)
   let items = []
   for orig_item in [a:i1, a:i2]
     let fields = split(orig_item, "\t")
@@ -245,11 +247,11 @@ function! s:tags_entry_cmp(i1, i2) "{{{
   else
     return 0
   endif
-endfunction " }}}
+endfunction
 
-" s:write_tags_metadata
+
 "   Saves metadata object into a file. Throws exceptions in case of problems.
-function! s:write_tags_metadata(metadata) "{{{
+function! s:write_tags_metadata(metadata)
   let metadata_path = vimwiki#tags#metadata_file_path()
   let tags = []
   for pagename in keys(a:metadata)
@@ -271,11 +273,11 @@ function! s:write_tags_metadata(metadata) "{{{
   call sort(tags, "s:tags_entry_cmp")
   call insert(tags, "!_TAG_FILE_SORTED\t1\t")
   call writefile(tags, metadata_path)
-endfunction " }}}
+endfunction
 
-" vimwiki#tags#get_tags
+
 "   Returns list of unique tags found in the .tags file
-function! vimwiki#tags#get_tags() "{{{
+function! vimwiki#tags#get_tags()
   let metadata = s:load_tags_metadata()
   let tags = {}
   for entries in values(metadata)
@@ -284,13 +286,13 @@ function! vimwiki#tags#get_tags() "{{{
     endfor
   endfor
   return keys(tags)
-endfunction " }}}
+endfunction
 
-" vimwiki#tags#generate_tags
+
 "   Similar to vimwiki#base#generate_links.  In the current buffer, appends
 "   tags and references to all their instances.  If no arguments (tags) are
 "   specified, outputs all tags.
-function! vimwiki#tags#generate_tags(...) abort "{{{
+function! vimwiki#tags#generate_tags(...) abort
   let need_all_tags = (a:0 == 0)
   let specific_tags = a:000
 
@@ -309,8 +311,7 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
   endfor
 
   let lines = []
-  let bullet = repeat(' ', vimwiki#lst#get_list_margin()).
-        \ vimwiki#lst#default_symbol().' '
+  let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
   for tagname in sort(keys(tags_entries))
     if need_all_tags || index(specific_tags, tagname) != -1
       call extend(lines, [
@@ -318,8 +319,8 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
             \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', tagname, ''),
             \ '' ])
       for taglink in sort(tags_entries[tagname])
-        call add(lines, bullet .
-              \ substitute(vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', taglink, ''))
+        call add(lines, bullet . substitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
+              \ '__LinkUrl__', taglink, ''))
       endfor
     endif
   endfor
@@ -328,15 +329,14 @@ function! vimwiki#tags#generate_tags(...) abort "{{{
         \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
         \ .vimwiki#vars#get_syntaxlocal('rxWikiLink').'$\)'
 
-  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx,
-        \ line('$')+1, 1)
-endfunction " }}}
+  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx, line('$')+1, 1)
+endfunction
 
-" vimwiki#tags#complete_tags
-function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort " {{{
+
+function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort
   " We can safely ignore args if we use -custom=complete option, Vim engine
   " will do the job of filtering.
   let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
-endfunction " }}}
+endfunction
 

@@ -1,20 +1,17 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=99
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-" Desc: Link functions for markdown syntax
+" Description: Link functions for markdown syntax
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-" MISC helper functions {{{
-
-" s:safesubstitute
-function! s:safesubstitute(text, search, replace, mode) "{{{
+function! s:safesubstitute(text, search, replace, mode)
   " Substitute regexp but do not interpret replace
   let escaped = escape(a:replace, '\&')
   return substitute(a:text, a:search, escaped, a:mode)
-endfunction " }}}
+endfunction
 
-" vimwiki#markdown_base#scan_reflinks
-function! vimwiki#markdown_base#scan_reflinks() " {{{
+
+function! vimwiki#markdown_base#scan_reflinks()
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
@@ -23,7 +20,7 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   catch /^Vim\%((\a\+)\)\=:E480/   " No Match
     "Ignore it, and move on to the next file
   endtry
-  " 
+
   for d in getqflist()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
     let descr = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchDescr'))
@@ -34,12 +31,11 @@ function! vimwiki#markdown_base#scan_reflinks() " {{{
   endfor
   call vimwiki#vars#set_bufferlocal('markdown_refs', mkd_refs)
   return mkd_refs
-endfunction "}}}
+endfunction
 
 
-" vimwiki#markdown_base#open_reflink
 " try markdown reference links
-function! vimwiki#markdown_base#open_reflink(link) " {{{
+function! vimwiki#markdown_base#open_reflink(link)
   " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
   let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
@@ -50,15 +46,10 @@ function! vimwiki#markdown_base#open_reflink(link) " {{{
   else
     return 0
   endif
-endfunction " }}}
-" }}}
+endfunction
 
-" WIKI link following functions {{{
 
-" LINK functions {{{
-
-" s:normalize_link_syntax_n
-function! s:normalize_link_syntax_n() " {{{
+function! s:normalize_link_syntax_n()
   let lnum = line('.')
 
   " try WikiIncl
@@ -72,27 +63,30 @@ function! s:normalize_link_syntax_n() " {{{
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_syntaxlocal('WikiLink1Template2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink0'), sub)
     return
   endif
-  
+
   " try WikiLink1: replace with WikiLink0
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'),
+          \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'),
           \ vimwiki#vars#get_global('WikiLinkTemplate2'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink1'), sub)
     return
   endif
-  
+
   " try Weblink
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'))
   if !empty(lnk)
     let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'), vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'),
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'),
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchDescr'),
           \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
     call vimwiki#base#replacestr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink'), sub)
     return
@@ -110,10 +104,10 @@ function! s:normalize_link_syntax_n() " {{{
     return
   endif
 
-endfunction " }}}
+endfunction
 
-" s:normalize_link_syntax_v
-function! s:normalize_link_syntax_v() " {{{
+
+function! s:normalize_link_syntax_v()
   let lnum = line('.')
   let sel_save = &selection
   let &selection = "old"
@@ -128,7 +122,7 @@ function! s:normalize_link_syntax_v() " {{{
           \ '__LinkUrl__', visual_selection, '')
     let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
-    call setreg('"', link, 'v')
+    call setreg('"', substitute(link, '\n', '', ''), visualmode())
 
     " paste result
     norm! `>""pgvd
@@ -138,25 +132,19 @@ function! s:normalize_link_syntax_v() " {{{
     let &selection = sel_save
   endtry
 
-endfunction " }}}
+endfunction
 
-" vimwiki#base#normalize_link
-function! vimwiki#markdown_base#normalize_link(is_visual_mode) "{{{
+
+function! vimwiki#markdown_base#normalize_link(is_visual_mode)
   if 0
     " Syntax-specific links
   else
     if !a:is_visual_mode
       call s:normalize_link_syntax_n()
-    elseif visualmode() ==# 'v' && line("'<") == line("'>")
-      " action undefined for 'line-wise' or 'multi-line' visual mode selections
+    elseif line("'<") == line("'>")
+      " action undefined for multi-line visual mode selections
       call s:normalize_link_syntax_v()
     endif
   endif
-endfunction "}}}
-
-" }}}
-
-" -------------------------------------------------------------------------
-" Load syntax-specific Wiki functionality
-" -------------------------------------------------------------------------
+endfunction
 
