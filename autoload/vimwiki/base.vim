@@ -1605,9 +1605,8 @@ function! vimwiki#base#AddHeaderLevel(...)
   if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let level = vimwiki#u#count_first_sym(line)
 
-    " sanitize the count
-    let l:count = min([l:vcount, 6-l:level])
-    let l:rrxHdr = repeat(l:rxHdr, l:count)
+    " sanitize the count and repeat
+    let l:rrxHdr = repeat(l:rxHdr, min([l:vcount, 6-l:level]))
     if level < 6
       if vimwiki#vars#get_syntaxlocal('symH')
         let line = substitute(line, '\('.rxHdr.'\+\).\+\1', l:rrxHdr.'&'.l:rrxHdr, '')
@@ -1617,9 +1616,10 @@ function! vimwiki#base#AddHeaderLevel(...)
       call setline(lnum, line)
     endif
   else
-    let line = substitute(line, '^\s*', '&'.rxHdr.' ', '')
+    let l:rrxHdr = repeat(l:rxHdr, min([l:vcount, 6]))
+    let line = substitute(line, '^\s*', '&'.l:rrxHdr.' ', '')
     if vimwiki#vars#get_syntaxlocal('symH')
-      let line = substitute(line, '\s*$', ' '.rxHdr.'&', '')
+      let line = substitute(line, '\s*$', ' '.l:rrxHdr.'&', '')
     endif
     call setline(lnum, line)
   endif
