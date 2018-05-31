@@ -121,6 +121,9 @@ Make sure you have these settings in your vimrc file:
 
 Without them Vimwiki will not work properly.
 
+Optional: the `.` command will work with some functions if
+[repeat.vim](https://github.com/tpope/vim-repeat) is installed.
+
 
 Installation using [Vim packages](http://vimhelp.appspot.com/repeat.txt.html#packages) (since Vim 7.4.1528)
 ------------------------------------------------------------------------------
