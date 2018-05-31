@@ -334,11 +334,13 @@ NORMAL MODE                                           *vimwiki-local-mappings*
 =                       Add header level. Create if needed.
                         There is nothing to indent with '==' command in
                         Vimwiki, so it should be ok to use '=' here.
+                        Takes a count: 2= increases header level by 2.
                         To remap: >
                         :nmap == <Plug>VimwikiAddHeaderLevel
 <
                         *vimwiki_-*
 -                       Remove header level.
+                        Takes a count: 2- decreases header level by 2.
                         To remap: >
                         :nmap -- <Plug>VimwikiRemoveHeaderLevel
 <
@@ -1401,40 +1403,40 @@ by default, and requires the |g:vimwiki_folding| variable to be set.
 Example for list folding with |g:vimwiki_folding| set to 'list':
 
 = My current task =
-* [ ] Do stuff 1
-  * [ ] Do substuff 1.1
-  * [ ] Do substuff 1.2
-    * [ ] Do substuff 1.2.1
-    * [ ] Do substuff 1.2.2
-  * [ ] Do substuff 1.3
-* [ ] Do stuff 2
-* [ ] Do stuff 3
+* [ ] Do stuff 1  #cd0b0e62
+  * [ ] Do substuff 1.1  #e614304b
+  * [ ] Do substuff 1.2  #1b46bbbd
+    * [ ] Do substuff 1.2.1  #be64c225
+    * [ ] Do substuff 1.2.2  #92a9da1e
+  * [ ] Do substuff 1.3  #f87d67b5
+* [ ] Do stuff 2  #6647c35d
+* [ ] Do stuff 3  #86776c43
 
 Hit |zM| :
 = My current task =
-* [ ] Do stuff 1 [6] --------------------------------------~
-* [ ] Do stuff 2
-* [ ] Do stuff 3
+* [ ] Do stuff 1 [6]  #05907d71
+* [ ] Do stuff 2  #395c8dd1
+* [ ] Do stuff 3  #d4632efd
 
 Hit |zr| :
 = My current task =
-* [ ] Do stuff 1
-  * [ ] Do substuff 1.1
-  * [ ] Do substuff 1.2 [3] -------------------------------~
-  * [ ] Do substuff 1.3
-* [ ] Do stuff 2
-* [ ] Do stuff 3
+* [ ] Do stuff 1  #b29f0cfa
+  * [ ] Do substuff 1.1  #91805ea9
+  * [ ] Do substuff 1.2 [3]  #8f0d9c91
+  * [ ] Do substuff 1.3  #4963f6cd
+* [ ] Do stuff 2  #61f964c6
+* [ ] Do stuff 3  #42b9c943
 
 Hit |zr| one more time :
 = My current task =
-* [ ] Do stuff 1
-  * [ ] Do substuff 1.1
-  * [ ] Do substuff 1.2
-    * [ ] Do substuff 1.2.1
-    * [ ] Do substuff 1.2.2
-  * [ ] Do substuff 1.3
-* [ ] Do stuff 2
-* [ ] Do stuff 3
+* [ ] Do stuff 1  #fbcb705d
+  * [ ] Do substuff 1.1  #eca43e78
+  * [ ] Do substuff 1.2  #2903070b
+    * [ ] Do substuff 1.2.1  #0e790407
+    * [ ] Do substuff 1.2.2  #b9423603
+  * [ ] Do substuff 1.3  #255502ac
+* [ ] Do stuff 2  #74cdd611
+* [ ] Do stuff 3  #b27a1a70
 
 Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
@@ -1636,38 +1638,38 @@ You can have todo lists -- lists of items you can check/uncheck.
 
 Consider the following example: >
  = Toggleable list of todo items =
-   * [X] Toggle list item on/off.
-     * [X] Simple toggling between [ ] and [X].
-     * [X] All list's subitems should be toggled on/off appropriately.
-     * [X] Toggle child subitems only if current line is list item
-     * [X] Parent list item should be toggled depending on it's child items.
-   * [X] Make numbered list items toggleable too
-   * [X] Add highlighting to list item boxes
-   * [X] Add [ ] to the next list item created with o, O and <CR>.
+   * [X] Toggle list item on/off.  #6c5c7626
+     * [X] Simple toggling between [ ] and [X].  #03c34a9a
+     * [X] All list's subitems should be toggled on/off appropriately.  #64db1294
+     * [X] Toggle child subitems only if current line is list item  #98f133d3
+     * [X] Parent list item should be toggled depending on it's child items.  #c609685b
+   * [X] Make numbered list items toggleable too  #6e0938e7
+   * [X] Add highlighting to list item boxes  #9fe79ec6
+   * [X] Add [ ] to the next list item created with o, O and <CR>.  #29334eaa
 
 Pressing <C-Space> on the first list item will toggle it and all of its child
 items: >
  = Toggleable list of todo items =
-   * [ ] Toggle list item on/off.
-     * [ ] Simple toggling between [ ] and [X].
-     * [ ] All of a list's subitems should be toggled on/off appropriately.
-     * [ ] Toggle child subitems only if the current line is a list item.
-     * [ ] Parent list item should be toggled depending on their child items.
-   * [X] Make numbered list items toggleable too.
-   * [X] Add highlighting to list item boxes.
-   * [X] Add [ ] to the next list item created using o, O or <CR>.
+   * [ ] Toggle list item on/off.  #961085ab
+     * [ ] Simple toggling between [ ] and [X].  #70bf1ce8
+     * [ ] All of a list's subitems should be toggled on/off appropriately.  #d5e1203f
+     * [ ] Toggle child subitems only if the current line is a list item.  #51f2eedd
+     * [ ] Parent list item should be toggled depending on their child items.  #2b7cd31b
+   * [X] Make numbered list items toggleable too.  #a6d65b1d
+   * [X] Add highlighting to list item boxes.  #821ed989
+   * [X] Add [ ] to the next list item created using o, O or <CR>.  #2d3a9184
 
 Pressing <C-Space> on the third list item will toggle it and adjust all of its
 parent items: >
  = Toggleable list of todo items =
-   * [.] Toggle list item on/off.
-     * [ ] Simple toggling between [ ] and [X].
-     * [X] All of a list's subitems should be toggled on/off appropriately.
-     * [ ] Toggle child subitems only if current line is list item.
-     * [ ] Parent list item should be toggled depending on it's child items.
-   * [ ] Make numbered list items toggleable too.
-   * [ ] Add highlighting to list item boxes.
-   * [ ] Add [ ] to the next list item created using o, O or <CR>.
+   * [.] Toggle list item on/off.  #89380b3e
+     * [ ] Simple toggling between [ ] and [X].  #3ad48d69
+     * [X] All of a list's subitems should be toggled on/off appropriately.  #be0c95ee
+     * [ ] Toggle child subitems only if current line is list item.  #1dbbc745
+     * [ ] Parent list item should be toggled depending on it's child items.  #e7fefd8a
+   * [ ] Make numbered list items toggleable too.  #31db94a3
+   * [ ] Add highlighting to list item boxes.  #a31cc89e
+   * [ ] Add [ ] to the next list item created using o, O or <CR>.  #fe8f7384
 
 Parent items should change when their child items change. If not, use
 |vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
@@ -2330,9 +2332,9 @@ Default: 0
 
 Highlight checked list items with a special color:
 
-  * [X] the whole line can be highlighted with the option set to 1.
+  * [X] the whole line can be highlighted with the option set to 1.  #f7bc0d7e
     * this line is highlighted as well with the option set to 2
-  * [ ] this line is never highlighted
+  * [ ] this line is never highlighted  #89e4c064
 
 Value           Description~
 0               Don't highlight anything.

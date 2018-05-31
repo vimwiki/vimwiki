@@ -1592,7 +1592,9 @@ function! vimwiki#base#TO_table_col(inner, visual)
 endfunction
 
 
-function! vimwiki#base#AddHeaderLevel()
+function! vimwiki#base#AddHeaderLevel(...)
+  " first optional argument is the repeat count
+  let l:vcount = a:0 >= 1 ? a:1 : 1
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
@@ -1602,11 +1604,15 @@ function! vimwiki#base#AddHeaderLevel()
 
   if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let level = vimwiki#u#count_first_sym(line)
+
+    " sanitize the count
+    let l:count = min([l:vcount, 6-l:level])
+    let l:rrxHdr = repeat(l:rxHdr, l:count)
     if level < 6
       if vimwiki#vars#get_syntaxlocal('symH')
-        let line = substitute(line, '\('.rxHdr.'\+\).\+\1', rxHdr.'&'.rxHdr, '')
+        let line = substitute(line, '\('.rxHdr.'\+\).\+\1', l:rrxHdr.'&'.l:rrxHdr, '')
       else
-        let line = substitute(line, '\('.rxHdr.'\+\).\+', rxHdr.'&', '')
+        let line = substitute(line, '\('.rxHdr.'\+\).\+', l:rrxHdr.'&', '')
       endif
       call setline(lnum, line)
     endif
@@ -1617,11 +1623,14 @@ function! vimwiki#base#AddHeaderLevel()
     endif
     call setline(lnum, line)
   endif
-  silent! call repeat#set("\<Plug>VimwikiAddHeaderLevel", -1)
+  " support repeating with repeat.vim
+  silent! call repeat#set("\<Plug>VimwikiAddHeaderLevel", l:vcount)
 endfunction
 
 
-function! vimwiki#base#RemoveHeaderLevel()
+function! vimwiki#base#RemoveHeaderLevel(...)
+  " first optional argument is the repeat count
+  let l:vcount = a:0 >= 1 ? a:1 : 1
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
@@ -1632,7 +1641,7 @@ function! vimwiki#base#RemoveHeaderLevel()
   if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let level = vimwiki#u#count_first_sym(line)
     let old = repeat(rxHdr, level)
-    let new = repeat(rxHdr, level - 1)
+    let new = repeat(rxHdr, max([0, level - l:vcount]))
 
     let chomp = line =~# rxHdr.'\s'
 
@@ -1642,7 +1651,7 @@ function! vimwiki#base#RemoveHeaderLevel()
       let line = substitute(line, old, new, '')
     endif
 
-    if level == 1 && chomp
+    if level - l:vcount <= 0 && chomp
       let line = substitute(line, '^\s', '', 'g')
       let line = substitute(line, '\s$', '', 'g')
     endif
@@ -1651,7 +1660,8 @@ function! vimwiki#base#RemoveHeaderLevel()
 
     call setline(lnum, line)
   endif
-  silent! call repeat#set("\<Plug>VimwikiRemoveHeaderLevel", -1)
+  " support repeating with repeat.vim
+  silent! call repeat#set("\<Plug>VimwikiRemoveHeaderLevel", l:vcount)
 endfunction
 
 
