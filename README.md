@@ -140,7 +140,7 @@ Installation using [Vim-Plug](https://github.com/junegunn/vim-plug)
 
 Add the following to the plugin-configuration in your vimrc:
 
-    Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+    Plug 'vimwiki/vimwiki'
 
 Then run `:PlugInstall`.
 
