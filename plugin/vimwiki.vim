@@ -12,7 +12,7 @@ let g:loaded_vimwiki = 1
 " Set to version number for release, otherwise -1 for dev-branch
 let s:plugin_vers = -1
 
-" Get the plugin the script is installed in
+" Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
 
 let s:old_cpo = &cpo
@@ -191,7 +191,7 @@ function! s:set_windowlocal_options()
 endfunction
 
 
-function!  vimwiki#get_version()
+function! s:get_version()
   if s:plugin_vers != -1
     echo "Stable version: " . s:plugin_vers
   else
@@ -301,7 +301,7 @@ command! -count=1 VimwikiMakeTomorrowDiaryNote
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
 
-command! VimwikiShowVersion call vimwiki#get_version()
+command! VimwikiShowVersion call s:get_version()
 
 
 
