@@ -9,6 +9,11 @@ if exists("g:loaded_vimwiki") || &cp
 endif
 let g:loaded_vimwiki = 1
 
+" Set to version number for release, otherwise -1 for dev-branch
+let s:plugin_vers = -1
+
+" Get the directory the script is installed in
+let s:plugin_dir = expand('<sfile>:p:h:h')
 
 let s:old_cpo = &cpo
 set cpo&vim
@@ -188,6 +193,23 @@ function! s:set_windowlocal_options()
 endfunction
 
 
+function! s:get_version()
+  if s:plugin_vers != -1
+    echo "Stable version: " . s:plugin_vers
+  else
+    let a:plugin_rev    = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --short HEAD")
+    let a:plugin_branch = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --abbrev-ref HEAD")
+    let a:plugin_date   = system("git --git-dir " . s:plugin_dir . "/.git show -s --format=%ci")
+    if v:shell_error == 0
+      echo "Branch: " . a:plugin_branch
+      echo "Revision: " . a:plugin_rev
+      echo "Date: " . a:plugin_date
+    else
+      echo "Unknown version"
+    endif
+  endif
+endfunction
+
 
 
 " Initialization of Vimwiki starts here. Make sure everything below does not
@@ -280,6 +302,8 @@ command! -count=1 VimwikiMakeTomorrowDiaryNote
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
+
+command! VimwikiShowVersion call s:get_version()
 
 
 
