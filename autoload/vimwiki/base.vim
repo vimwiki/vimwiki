@@ -1869,6 +1869,12 @@ function! s:clean_url(url)
   let url = filter(url, 'v:val !=# "https\:"')
   let url = filter(url, 'v:val !=# "file\:"')
   let url = filter(url, 'v:val !=# "xml\:"')
+  let url = filter(url, 'v:val !=# "html"')
+  let url = filter(url, 'v:val !=# "htm"')
+  let url = filter(url, 'v:val !=# "php"')
+  " remove words consisting of only hexadecimal digits or non-word characters
+  let url = filter(url, 'v:val !~  "^\\A\\{4,}$"')
+  let url = filter(url, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
   return join(url, " ")
 endfunction
 
