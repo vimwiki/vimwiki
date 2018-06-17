@@ -135,6 +135,15 @@ Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=23
     cd bundle
     git clone https://github.com/vimwiki/vimwiki.git
 
+Installation using [Vim-Plug](https://github.com/junegunn/vim-plug)
+------------------------------------------------------------------------------
+
+Add the following to the plugin-configuration in your vimrc:
+
+    Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+
+Then run `:PlugInstall`.
+
 Installation using [Vundle](https://github.com/VundleVim/Vundle.vim)
 ------------------------------------------------------------------------------
 
