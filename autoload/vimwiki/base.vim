@@ -1858,20 +1858,17 @@ endfunction
 
 
 function! s:clean_url(url)
-  let url = split(a:url, '/\|=\|-\|&\|?\|\.')
+  " remove protocol and tld
+  let url = substitute(a:url, '^\a\+://', '', '')
+  let url = substitute(url, '^\([^/]\+\).\a\{2,4}/', '\1/', '')
+  let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
-  let url = filter(url, 'v:val !=# "www"')
-  let url = filter(url, 'v:val !=# "com"')
-  let url = filter(url, 'v:val !=# "org"')
-  let url = filter(url, 'v:val !=# "net"')
-  let url = filter(url, 'v:val !=# "edu"')
-  let url = filter(url, 'v:val !=# "http\:"')
-  let url = filter(url, 'v:val !=# "https\:"')
-  let url = filter(url, 'v:val !=# "file\:"')
-  let url = filter(url, 'v:val !=# "xml\:"')
-  let url = filter(url, 'v:val !=# "html"')
-  let url = filter(url, 'v:val !=# "htm"')
-  let url = filter(url, 'v:val !=# "php"')
+  if url[0] == "www"
+    let url = url[1:]
+  endif
+  if url[-1] =~ '^\(htm\|html\|php\)$'
+    let url = url[0:-2]
+  endif
   " remove words consisting of only hexadecimal digits or non-word characters
   let url = filter(url, 'v:val !~  "^\\A\\{4,}$"')
   let url = filter(url, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
