@@ -677,11 +677,23 @@ Vimwiki file.
 *:VimwikiGoBackLink*
     Go back to the wiki page you came from.
 
-*:VimwikiSplitLink*
+*:VimwikiSplitLink* [reuse] [move_cursor]
     Split and follow wiki link (create target wiki page if needed).
 
-*:VimwikiVSplitLink*
+    If the argument 'reuse' is given and nonzero, the link is opened in a
+    possibly existing split window instead of making a new split.
+
+    If 'move_cursor' is given and nonzero, the cursor moves to the window with
+    the opened link, otherwise, it stays in the window with the link.
+
+*:VimwikiVSplitLink* [reuse] [move_cursor]
     Vertical split and follow wiki link (create target wiki page if needed).
+
+    If the argument 'reuse' is given and nonzero, the link is opened in a
+    possibly existing split window instead of making a new split.
+
+    If 'move_cursor' is given and nonzero, the cursor moves to the window with
+    the opened link, otherwise, it stays in the window with the link.
 
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
@@ -828,35 +840,6 @@ Vimwiki file.
     their instances.  Supports |cmdline-completion|.  If no arguments (tags)
     are specified, outputs all tags.  To make this command work properly, make
     sure the tags have been built (see |vimwiki-build-tags|).
-
-------------------------------------------------------------------------------
-4.3. Functions                                              *vimwiki-functions*
-
-Functions to interact with Vimwiki. (It's intended that most commands will be
-replaced with corresponding function calls in the future.)
-Warning: this is currently unstable and likely to change.
-
-
-To map them to a key, use >
- nnoremap <C-K> :call vimwiki#base#function_name(arg1, arg2)<CR>
-<
-
-                                                          *vimwiki-follow_link*
-vimwiki#base#follow_link({split}, {reuse}, {move_cursor})
-    Open the link under the cursor. {split} can have the following values:
-        'nosplit'       open the link in the current window
-        'vsplit'        open in a vertically split window
-        'hsplit'        open in a horizontally split window
-        'tab'           open in a new tab
-
-    If {reuse} is 1 and {split} one of 'vsplit' or 'hsplit', open the link in
-    a possibly existing split window instead of making a new split.
-
-    If {move_cursor} is 1 the cursor moves to the window or tab with the
-    opened link, otherwise, it stays in the window or tab with the link.
-
-    For example, <CR> is per default mapped to
-    vimwiki#base#follow_link('nosplit', 0, 1)
 
 
 ==============================================================================

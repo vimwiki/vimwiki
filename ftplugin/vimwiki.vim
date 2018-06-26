@@ -259,8 +259,8 @@ command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
 command! -buffer VimwikiRenameLink call vimwiki#base#rename_link()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
-command! -buffer VimwikiSplitLink call vimwiki#base#follow_link('hsplit', 0, 1)
-command! -buffer VimwikiVSplitLink call vimwiki#base#follow_link('vsplit', 0, 1)
+command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
+command! -buffer -nargs=* VimwikiVSplitLink call vimwiki#base#follow_link('vsplit', <f-args>)
 
 command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(<f-args>)
 

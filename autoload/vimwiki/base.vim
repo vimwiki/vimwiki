@@ -1101,8 +1101,10 @@ function! vimwiki#base#find_prev_link()
 endfunction
 
 
-" This is an API function, that is, remappable by the user. Don't change the signature.
-function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
+function! vimwiki#base#follow_link(split, ...)
+  let reuse_other_split_window = a:0 >= 1 ? a:1 : 0
+  let move_cursor_to_new_window = a:0 >= 2 ? a:2 : 1
+
   " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
   " default open_link handler
 
@@ -1138,7 +1140,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     " if we want to and can reuse a split window, jump to that window and open
     " the new file there
-    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && a:reuse
+    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && reuse_other_split_window
       let previous_window_nr = winnr('#')
       if previous_window_nr > 0 && previous_window_nr != winnr()
         execute previous_window_nr . 'wincmd w'
@@ -1162,7 +1164,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     call vimwiki#base#open_link(cmd, lnk)
 
-    if !a:move_cursor
+    if !move_cursor_to_new_window
       if (a:split ==# 'hsplit' || a:split ==# 'vsplit')
         execute 'wincmd p'
       elseif a:split ==# 'tab'
@@ -1171,8 +1173,8 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
     endif
 
   else
-    if a:0 > 0
-      execute "normal! ".a:1
+    if a:0 >= 3
+      execute "normal! ".a:3
     else
       call vimwiki#base#normalize_link(0)
     endif
