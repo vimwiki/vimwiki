@@ -1841,6 +1841,12 @@ as described in |vimwiki-register-wiki|, or may be registered on the fly as
 described in |vimwiki-temporary-wiki|.  For a list of per-wiki options, see
 |vimwiki-local-options|.
 
+A note for Vim power users:
+If you have an elaborated Vim setup, where you e.g. load plugins
+conditionally, make sure the settings are set before Vimwiki loads (that is,
+before plugin/vimwiki.vim is sourced). If this is not possible, try this
+command after the Vimwiki settings are (re-) set: >
+  :call vimwiki#vars#init()
 
 ------------------------------------------------------------------------------
 12.1 Registered Wiki                  *g:vimwiki_list* *vimwiki-register-wiki*
