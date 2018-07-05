@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 2.3
+                               Version: 2.4
 
 ==============================================================================
 CONTENTS                                                             *vimwiki*
@@ -877,6 +877,8 @@ is decorated: >
   super^script^
   sub,,script,,
 
+Furthermore, there are a number of words which are highlighted extra flashy:
+TODO, DONE, STARTED, FIXME, FIXED, XXX.
 
 ------------------------------------------------------------------------------
 5.2. Links                                              *vimwiki-syntax-links*
@@ -2247,15 +2249,15 @@ be located at https://github.com/vimwiki-backup/vimwiki/issues/384
 To use the internal wiki2html converter, use an empty string (the default).
 
 
-vimwiki-option-custom_wiki2html_args
+*vimwiki-option-custom_wiki2html_args*
 -----------------------------------------------------------------------------
 Key                     Default value~
 custom_wiki2html_args   ''
 
-Description
+Description~
 If a custom script is called with |vimwiki-option-custom_wiki2html|, additional
-parameters can be passed by setting them using 'custom_wiki2html_args' in
-|g:vimwiki_list|.
+parameters can be passed using this option: >
+  let g:vimwiki_list = [{'path': '~/path/', 'custom_wiki2html_args': 'stuff'}]
 
 
 *vimwiki-option-list_margin*
@@ -2945,6 +2947,20 @@ Contributors and their Github usernames in roughly chronological order:
     - Daniel Trnka (@trnila)
     - Yuchen Pei (@ycpei)
     - @maqiv
+    - @dpc
+    - Drew Hays (@Dru89)
+    - Daniel Etrata (@danetrata)
+    - Keith Haber (@kjhaber)
+    - @beuerle
+    - Silvio Ricardo Cordeiro (@silvioricardoc)
+    - @blyoa
+    - Jonathan McElroy (@jonathanmcelroy)
+    - @PetrusZ
+    - Brian Gianforcaro (@bgianfo)
+    - Ben Burrill (@benburrill)
+    - Zhuang Ma (@mzlogin)
+    - Huy Le (@huynle)
+    - Nick Borden (@hcwndbyw)
 
 
 ==============================================================================
@@ -2957,14 +2973,61 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 
+2.4 (not yet released)~
+
+New:~
+    * Add the option |g:vimwiki_text_ignore_newline|.
+    * |g:vimwiki_listsyms| can have fewer or more than 5 symbols.
+    * glx on a list item marks a checkbox as won't do, see |vimwiki_glx|.
+    * Add the option |g:vimwiki_listsym_rejected| to set the character used
+      for won't-do list items.
+    * gln and glp change the "done" status of a checkbox, see |vimwiki_gln|.
+    * |:VimwikiSplitLink| and |:VimwikiVSplitLink| can now reuse an existing
+      split window and not move the cursor.
+    * Add 'aH' and 'iH' text objects, see |vimwiki-text-objects|.
+    * Add the keys |vimwiki_[[|, |vimwiki_]]|, |vimwiki_[=|, |vimwiki_]=| and
+      |vimwiki_]u| for navigating between headers.
+    * Add the command |:VimwikiMakeTomorrowDiaryNote|.
+    * |g:vimwiki_folding| has a new option 'custom'.
+    * Add the ':quick' option for faster folding, see |g:vimwiki_folding|.
+    * Add the %date placeholder, see |vimwiki-date|.
+    * Add the option |vimwiki-option-custom_wiki2html_args|.
+    * Add support for HTML-style comments when using markdown syntax.
+
+Removed:~
+    * Remove the undocumented and buggy command :VimwikiReadLocalOptions
+      which allowed to store Vimwiki related settings in a local file.
+    * Remove the undocumented command :VimwikiPrintWikiState.
+    * For complicated reasons, Vimwiki doesn't clean up its settings anymore
+      if you change the filetype of a wiki buffer.
+
+Fixed:~
+    * Make |vimwiki-option-automatic_nested_syntaxes| work also for markdown.
+    * Issue #236: Highlight math blocks as TeX math, not TeX.
+    * Issue #264: Don't overwrite mappings to i_<CR> from other plugins.
+    * Fix an error where <BS> sometimes didn't work under Windows.
+    * Issue #302: |:VimwikiDiaryGenerateLinks| had issues with markdown.
+    * Issue #445: Better handling of |'autowriteall'| and |'hidden'|.
+    * Improve 'ah' and 'ih' text objects, see |vimwiki-text-objects|.
+    * Allow opening of links using Powershell.
+    * Allow any visual mode to be used with |vimwiki_+|.
+    * Markdown syntax for |vimwiki-toc| is used, when appropriate.
+    * Wikis can now be in subfolders of other wikis.
+    * Issue #482: |:VimwikiMakeDiaryNote| now uses the diary of the current wiki.
+    * Opening the diary and wikis from the menu works correctly now.
+    * Issue #497: Make |:VimwikiMakeDiaryNote| work outside a wiki buffer.
+    * Use markdown syntax in the diary when appropriate.
+    * Various other minor fixes.
+
+
 2.3 (2016-03-31)~
 
-New:
+New:~
     * Add |:VimwikiMakeYesterdayDiaryNote| command
     * Issue #128: add option |vimwiki-option-automatic_nested_syntaxes|
     * Issue #192: Sort links in the list generated by |:VimwikiGenerateTags|
 
-Fixed:
+Fixed:~
     * Issue #176: Fix issue when the wiki path contains spaces
     * Also look for tags in wiki files in subdirectories
     * Locate the .tags file correctly on Windows
