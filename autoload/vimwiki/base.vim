@@ -1101,8 +1101,10 @@ function! vimwiki#base#find_prev_link()
 endfunction
 
 
-" This is an API function, that is, remappable by the user. Don't change the signature.
-function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
+function! vimwiki#base#follow_link(split, ...)
+  let reuse_other_split_window = a:0 >= 1 ? a:1 : 0
+  let move_cursor_to_new_window = a:0 >= 2 ? a:2 : 1
+
   " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
   " default open_link handler
 
@@ -1138,7 +1140,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     " if we want to and can reuse a split window, jump to that window and open
     " the new file there
-    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && a:reuse
+    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && reuse_other_split_window
       let previous_window_nr = winnr('#')
       if previous_window_nr > 0 && previous_window_nr != winnr()
         execute previous_window_nr . 'wincmd w'
@@ -1162,7 +1164,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     call vimwiki#base#open_link(cmd, lnk)
 
-    if !a:move_cursor
+    if !move_cursor_to_new_window
       if (a:split ==# 'hsplit' || a:split ==# 'vsplit')
         execute 'wincmd p'
       elseif a:split ==# 'tab'
@@ -1171,8 +1173,8 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
     endif
 
   else
-    if a:0 > 0
-      execute "normal! ".a:1
+    if a:0 >= 3
+      execute "normal! ".a:3
     else
       call vimwiki#base#normalize_link(0)
     endif
@@ -1858,17 +1860,20 @@ endfunction
 
 
 function! s:clean_url(url)
-  let url = split(a:url, '/\|=\|-\|&\|?\|\.')
+  " remove protocol and tld
+  let url = substitute(a:url, '^\a\+://', '', '')
+  let url = substitute(url, '^\([^/]\+\).\a\{2,4}/', '\1/', '')
+  let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
-  let url = filter(url, 'v:val !=# "www"')
-  let url = filter(url, 'v:val !=# "com"')
-  let url = filter(url, 'v:val !=# "org"')
-  let url = filter(url, 'v:val !=# "net"')
-  let url = filter(url, 'v:val !=# "edu"')
-  let url = filter(url, 'v:val !=# "http\:"')
-  let url = filter(url, 'v:val !=# "https\:"')
-  let url = filter(url, 'v:val !=# "file\:"')
-  let url = filter(url, 'v:val !=# "xml\:"')
+  if url[0] == "www"
+    let url = url[1:]
+  endif
+  if url[-1] =~ '^\(htm\|html\|php\)$'
+    let url = url[0:-2]
+  endif
+  " remove words consisting of only hexadecimal digits or non-word characters
+  let url = filter(url, 'v:val !~  "^\\A\\{4,}$"')
+  let url = filter(url, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
   return join(url, " ")
 endfunction
 
