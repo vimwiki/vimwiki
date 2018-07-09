@@ -237,7 +237,9 @@ endfunction "}}}
 function! s:get_cell_aligns(lnum) "{{{
   let aligns = {}
   for [lnum, row] in s:get_rows(a:lnum)
+  let found_separator = 0
     if s:is_separator(row)
+      let found_separator = 1
       let cells = vimwiki#tbl#get_cells(row)
       for idx in range(len(cells))
         let cell = cells[idx]
@@ -249,15 +251,15 @@ function! s:get_cell_aligns(lnum) "{{{
           let aligns[idx] = 'left'
         endif
       endfor
-    else
-      let cells = vimwiki#tbl#get_cells(row)
-      for idx in range(len(cells))
-        if !has_key(aligns, idx)
-          let aligns[idx] = 'left'
-        endif
-      endfor
+      return aligns
     endif
   endfor
+  if !found_separator
+    let cells = vimwiki#tbl#get_cells(row)
+    for idx in range(len(cells))
+      let aligns[idx] = 'left'
+    endfor
+  endif
   return aligns
 endfunction "}}}
 

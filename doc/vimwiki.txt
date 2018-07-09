@@ -1658,8 +1658,8 @@ values: >
 
 To indent table indent the first row. Then format it with 'gqq'.
 
-You can specify horizontal alignment for columns in the separator.  The
-default is left-align.  >
+You can specify the type of horizontal alignment for columns in the separator
+using the ':' character. The default is left-align.  >
 
  | Date       |  Item  |   Price |
  |------------|:------:|--------:|
