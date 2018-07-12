@@ -197,7 +197,10 @@ function! vimwiki#base#resolve_link(link_text, ...)
               \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     else
-      let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      let ext = fnamemodify(link_text, ':e')
+      if ext == ''  " append ext iff one not already present
+        let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      endif
     endif
 
   elseif link_infos.scheme ==# 'diary'
@@ -350,9 +353,15 @@ function! vimwiki#base#generate_links()
   for link in links
     let abs_filepath = vimwiki#path#abs_path_of_link(link)
     if !s:is_diary_file(abs_filepath)
-      call add(lines, bullet.
-            \ s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-            \ '__LinkUrl__', link, ''))
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+      else
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+      endif
+
+      let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
+      let entry = s:safesubstitute(entry, '__LinkDescription__', link, '')
+      call add(lines, bullet. entry)
     endif
   endfor
 
@@ -598,7 +607,12 @@ function! s:get_links(wikifile, idx)
   endif
 
   let syntax = vimwiki#vars#get_wikilocal('syntax', a:idx)
-  let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+  if syntax == 'markdown'
+    let rx_link = vimwiki#vars#get_syntaxlocal('rxWeblink1MatchUrl', syntax)
+  else
+    let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+  endif
+
   let links = []
   let lnum = 0
 
@@ -1870,7 +1884,7 @@ function! vimwiki#base#table_of_contents(create)
   let bullet = vimwiki#lst#default_symbol().' '
   for [lvl, link, desc] in complete_header_infos
     if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
     else
       let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
     endif
