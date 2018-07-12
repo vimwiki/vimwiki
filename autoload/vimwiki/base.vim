@@ -1173,7 +1173,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
   else
     if a:0 > 0
       execute "normal! ".a:1
-    else
+    elseif vimwiki#vars#get_global('create_link')
       call vimwiki#base#normalize_link(0)
     endif
   endif

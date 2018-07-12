@@ -2507,6 +2507,18 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_create_link*
+
+Create target wiki page if it does not exist. See |:VimwikiFollowLink|.
+
+Value           Description~
+0               Do not create target wiki page.
+1               Create target wiki page.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
 A customizable link handler can be defined to override Vimwiki's behavior when

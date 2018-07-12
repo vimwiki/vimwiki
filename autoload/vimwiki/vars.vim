@@ -33,6 +33,7 @@ function! s:populate_global_variables()
         \ 'auto_chdir': 0,
         \ 'autowriteall': 1,
         \ 'conceallevel': 2,
+        \ 'create_link': 1,
         \ 'diary_months':
               \ {
               \ 1: 'January', 2: 'February', 3: 'March',
