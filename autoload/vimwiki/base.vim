@@ -1320,11 +1320,22 @@ function! vimwiki#base#rename_link()
     execute ':update'
   endfor
 
+  " activate the renamed buffer
   execute ':b '.escape(cur_buffer[0], ' ')
 
-  " remove wiki buffers
+  " rename the buffer name to the new name
+  " execute ':file '.new_link
+
+  " leave the renamed buffer and remove the rest wiki buffers
+  " the reason we leave the renamed buffer is because the get_wikilocal
+  " function use the current file name to get the vars of current file's
+  " wiki, but after calling rename function, %:p still returns empty
+  " rather than the new full file path, so we just leave the renamed file's
+  " buffer so that %:p would be the renamed full file path
   for bitem in blist
-    execute 'bwipeout '.escape(bitem[0], ' ')
+    if !vimwiki#path#is_equal(bitem[0], cur_buffer[0])
+      execute 'bwipeout '.escape(bitem[0], ' ')
+    endif
   endfor
 
   let setting_more = &more
@@ -1332,6 +1343,12 @@ function! vimwiki#base#rename_link()
 
   " update links
   call s:update_wiki_links(s:tail_name(old_fname), new_link)
+
+  " remove current buffer and reopen it after restoring all
+  " buffers to put it at the end of all buffers, vim does not
+  " support reorder the buffers so need to reopen it to put
+  " it at the end
+  execute 'bwipeout '.escape(cur_buffer[0], ' ')
 
   " restore wiki buffers
   for bitem in blist
@@ -1341,7 +1358,6 @@ function! vimwiki#base#rename_link()
   endfor
 
   call s:open_wiki_buffer([new_fname, cur_buffer[1]])
-  " execute 'bwipeout '.escape(cur_buffer[0], ' ')
 
   echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
 
