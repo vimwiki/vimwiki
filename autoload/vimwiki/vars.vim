@@ -477,8 +477,8 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.rxWikiLink0MatchDescr = mkd_syntax.rxWikiLinkMatchDescr
 
   let wikilink_md_prefix = '['
-  let wikilink_md_suffix = ']'
-  let wikilink_md_separator = ']['
+  let wikilink_md_separator = ']('
+  let wikilink_md_suffix = ')'
   let rx_wikilink_md_separator = vimwiki#u#escape(wikilink_md_separator)
   let mkd_syntax.rx_wikilink_md_prefix = vimwiki#u#escape(wikilink_md_prefix)
   let mkd_syntax.rx_wikilink_md_suffix = vimwiki#u#escape(wikilink_md_suffix)
@@ -512,21 +512,21 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.rx_wikilink_md_suffix = mkd_syntax.rx_wikilink_md_suffix.
         \ mkd_syntax.rxWikiLink1InvalidSuffix
 
-  " 1. match [URL][], [DESCRIPTION][URL]
+  " 1. match [URL][], [DESCRIPTION](URL)
   let mkd_syntax.rxWikiLink1 = mkd_syntax.rx_wikilink_md_prefix.
         \ mkd_syntax.rxWikiLink1Url. rx_wikilink_md_separator.
         \ mkd_syntax.rx_wikilink_md_suffix.
         \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
         \ mkd_syntax.rxWikiLink1Descr . rx_wikilink_md_separator.
         \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
-  " 2. match URL within [URL][], [DESCRIPTION][URL]
+  " 2. match URL within [URL][], [DESCRIPTION](URL)
   let mkd_syntax.rxWikiLink1MatchUrl = mkd_syntax.rx_wikilink_md_prefix.
         \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. rx_wikilink_md_separator.
         \ mkd_syntax.rx_wikilink_md_suffix.
         \ '\|'. mkd_syntax.rx_wikilink_md_prefix.
         \ mkd_syntax.rxWikiLink1Descr. rx_wikilink_md_separator.
         \ '\zs'. mkd_syntax.rxWikiLink1Url. '\ze'. mkd_syntax.rx_wikilink_md_suffix
-  " 3. match DESCRIPTION within [DESCRIPTION][URL]
+  " 3. match DESCRIPTION within [DESCRIPTION](URL)
   let mkd_syntax.rxWikiLink1MatchDescr = mkd_syntax.rx_wikilink_md_prefix.
         \ '\zs'. mkd_syntax.rxWikiLink1Descr.'\ze'. rx_wikilink_md_separator.
         \ mkd_syntax.rxWikiLink1Url . mkd_syntax.rx_wikilink_md_suffix
