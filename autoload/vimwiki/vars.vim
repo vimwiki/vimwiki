@@ -55,6 +55,7 @@ function! s:populate_global_variables()
         \ 'map_prefix': '<Leader>w',
         \ 'menu': 'Vimwiki',
         \ 'table_auto_fmt': 1,
+        \ 'table_reduce_last_col': 0,
         \ 'table_mappings': 1,
         \ 'toc_header': 'Contents',
         \ 'url_maxsave': 15,

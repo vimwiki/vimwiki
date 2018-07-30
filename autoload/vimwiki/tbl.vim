@@ -278,6 +278,10 @@ function! s:get_aligned_rows(lnum, col1, col2)
     call add(cells, vimwiki#tbl#get_cells(row))
   endfor
   let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum)
+  if vimwiki#vars#get_global('table_reduce_last_col')
+    let last_index = keys(max_lens)[-1]
+    let max_lens[last_index] = 1
+  endif
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)

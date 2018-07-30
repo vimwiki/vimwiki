@@ -2640,6 +2640,15 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_table_reduce_last_col*
+
+If set, the last column spearator will not be expanded to fill the cell.
+This permits to see better the table when |'wrap'|
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_w32_dir_enc*
 
 Convert directory name from current 'encoding' into 'g:vimwiki_w32_dir_enc'
