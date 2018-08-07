@@ -157,23 +157,25 @@ endfunction
 " Vim defaults. So we enforce our settings here when the cursor enters a
 " Vimwiki buffer.
 function! s:set_windowlocal_options()
-  let foldmethod = vimwiki#vars#get_global('folding')
-  if foldmethod =~? '^expr.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^syntax.*'
-    setlocal foldmethod=syntax
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^custom.*'
-    " do nothing
-  else
-    setlocal foldmethod=manual
-    normal! zE
+  if !&diff   " if Vim is currently in diff mode, don't interfere with its folding
+    let foldmethod = vimwiki#vars#get_global('folding')
+    if foldmethod =~? '^expr.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^syntax.*'
+      setlocal foldmethod=syntax
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^custom.*'
+      " do nothing
+    else
+      setlocal foldmethod=manual
+      normal! zE
+    endif
   endif
 
   if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
