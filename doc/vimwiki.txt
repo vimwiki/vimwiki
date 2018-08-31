@@ -707,7 +707,7 @@ Vimwiki file.
 *:VimwikiGoto*
     Goto link provided by an argument. For example: >
         :VimwikiGoto HelloWorld
-<    opens opens/creates HelloWorld wiki page.
+<    opens/creates HelloWorld wiki page.
 
     Supports |cmdline-completion| for link name.
 
