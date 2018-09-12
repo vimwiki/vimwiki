@@ -137,7 +137,7 @@ endfunction
 "Returns: the column where the text of a line starts (possible list item
 "markers and checkboxes are skipped)
 function! s:text_begin(lnum)
-  return s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem')))
+  return s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_wikilocal('rxListItem')))
 endfunction
 
 
@@ -145,9 +145,9 @@ endfunction
 " 1 for a marker and no text
 " 0 for no marker at all (empty line or only text)
 function! s:line_has_marker(lnum)
-  if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*$'
+  if getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*$'
     return 1
-  elseif getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxListItem').'\s*\S'
+  elseif getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*\S'
     return 2
   else
     return 0
@@ -172,7 +172,7 @@ function! s:get_item(lnum)
     return item
   endif
 
-  let matches = matchlist(getline(a:lnum), vimwiki#vars#get_syntaxlocal('rxListItem'))
+  let matches = matchlist(getline(a:lnum), vimwiki#vars#get_wikilocal('rxListItem'))
   if matches == [] ||
         \ (matches[1] == '' && matches[2] == '') ||
         \ (matches[1] != '' && matches[2] != '')
@@ -209,7 +209,7 @@ function! s:get_level(lnum)
     let level = indent(a:lnum)
   else
     let level = s:string_length(matchstr(getline(a:lnum),
-          \ vimwiki#vars#get_syntaxlocal(rx_bullet_chars)))-1
+          \ vimwiki#vars#get_wikilocal(rx_bullet_chars)))-1
     if level < 0
       let level = (indent(a:lnum) == 0) ? 0 : 9999
     endif
@@ -744,8 +744,8 @@ function! s:get_rate(item)
   if state == vimwiki#vars#get_global('listsym_rejected')
     return -1
   endif
-  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
-  return index(vimwiki#vars#get_syntaxlocal('listsyms_list'), state) * 100/(n-1)
+  let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
+  return index(vimwiki#vars#get_wikilocal('listsyms_list'), state) * 100/(n-1)
 endfunction
 
 
@@ -820,7 +820,7 @@ endfunction
 
 "Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate)
-  let listsyms_list = vimwiki#vars#get_syntaxlocal('listsyms_list')
+  let listsyms_list = vimwiki#vars#get_wikilocal('listsyms_list')
   let state = ''
   let n = len(listsyms_list)
   if a:rate == 100
@@ -997,7 +997,7 @@ function! vimwiki#lst#decrement_cb(from_line, to_line)
 
   "if from_line has CB, decrement it and set all siblings to the same new state
   let rate_first_line = s:get_rate(from_item)
-  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
   let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
@@ -1015,7 +1015,7 @@ function! vimwiki#lst#increment_cb(from_line, to_line)
 
   "if from_line has CB, increment it and set all siblings to the same new state
   let rate_first_line = s:get_rate(from_item)
-  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+  let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
   let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
@@ -1034,6 +1034,7 @@ endfunction
 "in the lines of the given range
 function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
   return s:toggle_create_cb(a:from_line, a:to_line, -1, 0, -1)
+
 endfunction
 
 
@@ -1101,7 +1102,7 @@ endfunction
 function! s:decrease_level(item)
   let removed_indent = 0
   if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
-        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'),
+        \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum, s:first_char(a:item.mrkr), '')
@@ -1124,7 +1125,7 @@ endfunction
 function! s:increase_level(item)
   let additional_indent = 0
   if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
-        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'),
+        \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
@@ -1148,7 +1149,7 @@ endfunction
 function! s:indent_line_by(lnum, indent_by)
   let item = s:get_item(a:lnum)
   if vimwiki#vars#get_syntaxlocal('recurring_bullets') && item.type == 1 &&
-        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'),
+        \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(item.mrkr)) > -1
     if a:indent_by > 0
       call s:substitute_string_in_line(a:lnum, item.mrkr, item.mrkr . s:first_char(item.mrkr))
@@ -1323,7 +1324,7 @@ function! vimwiki#lst#change_marker(from_line, to_line, new_mrkr, mode)
     endif
 
     "handle markers like ***
-    if index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'), s:first_char(new_mrkr)) > -1
+    if index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'), s:first_char(new_mrkr)) > -1
       "use *** if the item above has *** too
       let item_above = s:get_prev_list_item(cur_item, 1)
       if item_above.type == 1 && s:first_char(item_above.mrkr) ==# s:first_char(new_mrkr)
@@ -1394,7 +1395,7 @@ function! s:adjust_mrkr(item)
 
   "if possible, set e.g. *** if parent has ** as marker
   if neighbor_item.type == 0 && a:item.type == 1 &&
-        \ index(vimwiki#vars#get_syntaxlocal('multiple_bullet_chars'),
+        \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(a:item.mrkr)) > -1
     let parent_item = s:get_parent(a:item)
     if parent_item.type == 1 && s:first_char(parent_item.mrkr) ==# s:first_char(a:item.mrkr)
