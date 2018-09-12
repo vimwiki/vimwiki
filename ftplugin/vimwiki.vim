@@ -127,7 +127,7 @@ setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
 
-let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
+let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 
 
 " ------------------------------------------------
