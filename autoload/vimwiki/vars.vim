@@ -205,6 +205,8 @@ function! s:populate_wikilocal_options()
         \ 'template_ext': '.tpl',
         \ 'template_path': $HOME . '/vimwiki/templates/',
         \ 'bullet_types': [],
+        \ 'listsyms': vimwiki#vars#get_global("listsyms"),
+        \ 'listsym_rejected': vimwiki#vars#get_global("listsym_rejected"),
         \ }
 
   let g:vimwiki_wikilocal_vars = []
@@ -456,14 +458,12 @@ function! vimwiki#vars#populate_list_vars(wiki)
   endif
 
   "the user can set the listsyms as string, but vimwiki needs a list
-  " TODO make a true wikilocal and use global only as fallback for compatibility
-  let a:wiki.listsyms_list =
-        \ split(vimwiki#vars#get_global('listsyms'), '\zs')
-  if match(vimwiki#vars#get_global('listsyms'), vimwiki#vars#get_global('listsym_rejected')) != -1
-    echomsg 'Vimwiki Warning: the value of g:vimwiki_listsym_rejected ('''
-          \ . vimwiki#vars#get_global('listsym_rejected')
-          \ . ''') must not be a part of g:vimwiki_listsyms (''' .
-          \ . vimwiki#vars#get_global('listsyms') . ''')'
+  let a:wiki.listsyms_list = split(a:wiki.listsyms, '\zs')
+
+  if match(a:wiki.listsyms, a:wiki.listsym_rejected) != -1
+    echomsg 'Vimwiki Warning: the value of listsym_rejected ('''
+          \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
+          \ . a:wiki.listsyms . ''')'
   endif
 
   let a:wiki.rxListItemWithoutCB =
@@ -471,20 +471,20 @@ function! vimwiki#vars#populate_list_vars(wiki)
         \ .rxListNumber.'\)\)\s'
   let a:wiki.rxListItem =
         \ a:wiki.rxListItemWithoutCB
-        \ . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms')
-        \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
+        \ . '\+\%(\[\(['.a:wiki.listsyms
+        \ . a:wiki.listsym_rejected.']\)\]\s\)\?'
   if recurring_bullets
     let a:wiki.rxListItemAndChildren =
           \ '^\('.rxListBullet.'\)\s\+\[['
           \ . a:wiki.listsyms_list[-1]
-          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\%('
+          \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\%('
           \ .rxListBullet.'\).*\|^$\|\s.*\)\)*'
   else
     let a:wiki.rxListItemAndChildren =
           \ '^\(\s*\)\%('.rxListBullet.'\|'
           \ . rxListNumber.'\)\s\+\[['
           \ . a:wiki.listsyms_list[-1]
-          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+          \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 endfunction
 
