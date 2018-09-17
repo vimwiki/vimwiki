@@ -1858,6 +1858,11 @@ endfunction
 
 
 function! s:clean_url(url)
+  let wikiPattern = '^wiki[0-9]\+:'
+  if match(a:url, wikiPattern) == 0
+    let end = matchend(a:url, wikiPattern)
+    return a:url[end:]
+  endif
   let url = split(a:url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
   let url = filter(url, 'v:val !=# "www"')
