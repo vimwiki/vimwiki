@@ -1861,7 +1861,8 @@ endfunction
 
 function! s:clean_url(url)
   " remove protocol and tld
-  let url = substitute(a:url, '^\a\+://', '', '')
+  let url = substitute(a:url, '^\a\+\d*:', '', '')
+  let url = substitute(url, '^//', '', '')
   let url = substitute(url, '^\([^/]\+\).\a\{2,4}/', '\1/', '')
   let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
