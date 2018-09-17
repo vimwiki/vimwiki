@@ -125,8 +125,8 @@ function! s:populate_global_variables()
   " this regexp defines what can form a link when the user presses <CR> in the
   " buffer (and not on a link) to create a link
   " basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
-  " non-Ascii characters
-  let g:vimwiki_global_vars.rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]\+'
+  " non-Ascii characters, except that . is not accepted as the last character
+  let g:vimwiki_global_vars.rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]*[^[:blank:]!"$%&''()*+.,:;<=>?\[\]\\^`{}]'
 
   let g:vimwiki_global_vars.rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix .
         \ g:vimwiki_global_vars.rxWikiLinkUrl . g:vimwiki_global_vars.rx_wikilink_separator
