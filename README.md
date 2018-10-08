@@ -1,6 +1,8 @@
 A Personal Wiki For Vim
 ==============================================================================
 
+[中文](README-cn.md)
+
 ![screenshot1](doc/screenshot_1.png)
 ![screenshot2](doc/screenshot_2.png) *
 
