@@ -1533,6 +1533,7 @@ function! s:convert_file(path_html, wikifile)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
     let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
+    let wiki_path = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
 
     let html_lines = s:get_html_template(template_name)
 
@@ -1541,6 +1542,7 @@ function! s:convert_file(path_html, wikifile)
     call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+    call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. wiki_path .'", "g")')
 
     let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
     let css_name = substitute(css_name, '\', '/', 'g')
