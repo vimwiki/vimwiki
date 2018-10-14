@@ -1072,7 +1072,9 @@ function! s:process_tag_h(line, id)
         let h_text = num.' '.h_text
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
-      let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
+      let h_part  = '<div id="'.h_complete_id.'">'
+      let h_part .= '<h'.h_level.' id="'.h_id.'" class="header">'
+      let h_part .= '<a href="#'.h_complete_id.'"'
 
     else
 
@@ -1088,7 +1090,7 @@ function! s:process_tag_h(line, id)
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
-    let line = h_part.h_text.'</h'.h_level.'></div>'
+    let line = h_part.h_text.'</a></h'.h_level.'></div>'
 
     let processed = 1
   endif
