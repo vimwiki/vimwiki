@@ -174,6 +174,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
   if link_infos.scheme =~# '\mwiki\d\+'
     let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
     if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
+      let link_infos.index = -1
       let link_infos.filename = ''
       return link_infos
     endif
@@ -268,7 +269,11 @@ function! vimwiki#base#open_link(cmd, link, ...)
   endif
 
   if link_infos.filename == ''
-    echomsg 'Vimwiki Error: Unable to resolve link!'
+    if link_infos.index == -1
+      echomsg 'Vimwiki Error: No registered wiki ''' . link_infos.scheme . '''.'
+    else
+      echomsg 'Vimwiki Error: Unable to resolve link!'
+    endif
     return
   endif
 
