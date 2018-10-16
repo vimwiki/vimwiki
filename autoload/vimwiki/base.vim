@@ -736,6 +736,9 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
         echomsg 'Vimwiki: The current file is modified. Hint: Take a look at'
               \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
         return
+      catch /E325:/
+        echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
+        return
       endtry
     endif
 
