@@ -1621,7 +1621,6 @@ function! vimwiki#base#AddHeaderLevel()
   endif
 endfunction
 
-
 function! vimwiki#base#RemoveHeaderLevel()
   let lnum = line('.')
   let line = getline(lnum)
@@ -1654,6 +1653,19 @@ function! vimwiki#base#RemoveHeaderLevel()
   endif
 endfunction
 
+
+function! vimwiki#base#ChangeHeaderLevels(increment, count)
+  echomsg(count)
+  let l:count = a:count == 0 ? 1 : count
+
+  for i in range(l:count)
+    if a:increment == 1
+      call vimwiki#base#AddHeaderLevel()
+    else
+      call vimwiki#base#RemoveHeaderLevel()
+    endif
+  endfor
+endfunction
 
 
 " Returns all the headers in the current buffer as a list of the form
