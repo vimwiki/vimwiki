@@ -633,13 +633,16 @@ vnoremap <silent><buffer> il :<C-U>call vimwiki#lst#TO_list_item(1, 1)<CR>
 if !hasmapto('<Plug>VimwikiAddHeaderLevel')
   nmap <silent><buffer> = <Plug>VimwikiAddHeaderLevel
 endif
-nnoremap <silent><buffer> <Plug>VimwikiAddHeaderLevel :<C-U>call vimwiki#base#AddHeaderLevel()<CR>
+command! -count VimwikiAddHeaderLevel
+      \ call vimwiki#base#ChangeHeaderLevels(1, <count>)
+nnoremap <silent><buffer> <Plug>VimwikiAddHeaderLevel :VimwikiAddHeaderLevel<CR>
 
 if !hasmapto('<Plug>VimwikiRemoveHeaderLevel')
   nmap <silent><buffer> - <Plug>VimwikiRemoveHeaderLevel
 endif
-nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
-      \<C-U>call vimwiki#base#RemoveHeaderLevel()<CR>
+command! -count VimwikiRemoveHeaderLevel
+      \ call vimwiki#base#ChangeHeaderLevels(0, <count>)
+nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :VimwikiRemoveHeaderLevel<CR>
 
 if !hasmapto('<Plug>VimwikiGoToParentHeader')
   nmap <silent><buffer> ]u <Plug>VimwikiGoToParentHeader

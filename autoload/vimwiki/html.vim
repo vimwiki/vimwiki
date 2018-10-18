@@ -1078,7 +1078,7 @@ function! s:process_tag_h(line, id)
         let h_text = num.' '.h_text
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
-      let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
+      let h_part = '<div id="'.h_complete_id.'"><a href="#'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
 
     else
 
@@ -1094,7 +1094,7 @@ function! s:process_tag_h(line, id)
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
-    let line = h_part.h_text.'</h'.h_level.'></div>'
+    let line = h_part.h_text.'</h'.h_level.'></a></div>'
 
     let processed = 1
   endif
@@ -1533,6 +1533,7 @@ function! s:convert_file(path_html, wikifile)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
     let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
+    let wiki_path = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
 
     let html_lines = s:get_html_template(template_name)
 
@@ -1541,6 +1542,7 @@ function! s:convert_file(path_html, wikifile)
     call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+    call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. wiki_path .'", "g")')
 
     let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
     let css_name = substitute(css_name, '\', '/', 'g')
