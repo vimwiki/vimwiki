@@ -1078,7 +1078,7 @@ function! s:process_tag_h(line, id)
         let h_text = num.' '.h_text
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
-      let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
+      let h_part = '<div id="'.h_complete_id.'"><a href="#'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
 
     else
 
@@ -1094,7 +1094,7 @@ function! s:process_tag_h(line, id)
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
-    let line = h_part.h_text.'</h'.h_level.'></div>'
+    let line = h_part.h_text.'</h'.h_level.'></a></div>'
 
     let processed = 1
   endif
