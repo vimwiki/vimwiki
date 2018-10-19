@@ -220,22 +220,32 @@ endfunction
 function! vimwiki#base#system_open_link(url)
   " handlers
   function! s:win32_handler(url)
-    "http://vim.wikia.com/wiki/Opening_current_Vim_file_in_your_Windows_browser
-    "disable 'shellslash', otherwise the url will be enclosed in single quotes,
-    "which is problematic
-    "see https://github.com/vimwiki/vimwiki/issues/54#issuecomment-48011289
-    if exists('+shellslash')
-      let old_ssl = &shellslash
-      set noshellslash
-      let url = shellescape(a:url, 1)
-      let &shellslash = old_ssl
+    "Disable shellslash for cmd and command.com, but enable for all other shells
+    "See Issue #560
+    if (&shell =~? "cmd") || (&shell =~? "command.com")
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set noshellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start "Title" /B ' . url
+
     else
-      let url = shellescape(a:url, 1)
-    endif
-    if &l:shell ==? "powershell"
-      execute 'silent ! start ' . a:url
-    else
-      execute 'silent ! start "Title" /B ' . a:url
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set shellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start ' . url
+
     endif
   endfunction
   function! s:macunix_handler(url)
