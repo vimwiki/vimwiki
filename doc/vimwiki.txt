@@ -1475,6 +1475,14 @@ The date of the wiki page. The value can be used in the HTML template, see
 If you omit the date after the placeholder, the date of the HTML conversion is
 used.
 
+------------------------------------------------------------------------------
+%wiki_path%                                                     *vimwiki-path*
+
+The file path to the current wiki file. For example, if you are on page
+a/b.wiki %wiki-path% contains "a/b.wiki".
+
+Mostly useful if you want to link the to raw wiki page from the rendered
+version.
 
 ==============================================================================
 8. Lists                                                       *vimwiki-lists*
