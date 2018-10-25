@@ -872,7 +872,8 @@ function! s:update_wiki_links_dir(wiki_nr, dir, old_fname, new_fname)
   let new_fname = a:new_fname
 
   let old_fname_r = vimwiki#base#apply_template(
-        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate'), old_fname, '', '')
+        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
+           \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_fname, '', '')
 
   let files = split(glob(vimwiki#vars#get_wikilocal('path', a:wiki_nr).a:dir.'*'.
         \ vimwiki#vars#get_wikilocal('ext', a:wiki_nr)), '\n')
