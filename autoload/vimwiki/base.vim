@@ -849,16 +849,16 @@ function! s:update_wiki_link(fname, old, new)
 endfunction
 
 
-function! s:update_wiki_links_dir(dir, old_fname, new_fname)
+function! s:update_wiki_links_dir(wiki_nr, dir, old_fname, new_fname)
   let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
   let new_fname = a:new_fname
 
   let old_fname_r = vimwiki#base#apply_template(
         \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate'), old_fname, '', '')
 
-  let files = split(glob(vimwiki#vars#get_wikilocal('path').a:dir.'*'.
-        \ vimwiki#vars#get_wikilocal('ext')), '\n')
-  for fname in files
+  let files = split(glob(vimwiki#vars#get_wikilocal('path', a:wiki_nr).a:dir.'*'.
+        \ vimwiki#vars#get_wikilocal('ext', a:wiki_nr)), '\n')
+  for fname in l:files
     call s:update_wiki_link(fname, old_fname_r, new_fname)
   endfor
 endfunction
@@ -872,7 +872,7 @@ function! s:tail_name(fname)
 endfunction
 
 
-function! s:update_wiki_links(old_fname, new_fname)
+function! s:update_wiki_links(wiki_nr, old_fname, new_fname)
   let old_fname = a:old_fname
   let new_fname = a:new_fname
 
@@ -898,7 +898,7 @@ function! s:update_wiki_links(old_fname, new_fname)
   while idx < len(dirs_keys)
     let dir = dirs_keys[idx]
     let new_dir = dirs_vals[idx]
-    call s:update_wiki_links_dir(dir, new_dir.old_fname, new_dir.new_fname)
+    call s:update_wiki_links_dir(a:wiki_nr, dir, new_dir.old_fname, new_dir.new_fname)
     let idx = idx + 1
   endwhile
 endfunction
@@ -1290,6 +1290,7 @@ function! vimwiki#base#rename_link()
   endif
 
   let new_link = subdir.new_link
+  let wiki_nr = vimwiki#vars#get_bufferlocal("wiki_nr")
   let new_fname = vimwiki#vars#get_wikilocal('path') . new_link . vimwiki#vars#get_wikilocal('ext')
 
   " do not rename if file with such name exists
@@ -1333,7 +1334,7 @@ function! vimwiki#base#rename_link()
   setlocal nomore
 
   " update links
-  call s:update_wiki_links(s:tail_name(old_fname), new_link)
+  call s:update_wiki_links(wiki_nr, s:tail_name(old_fname), new_link)
 
   " restore wiki buffers
   for bitem in blist
