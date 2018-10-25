@@ -181,6 +181,7 @@ endfunction
 
 function! s:populate_wikilocal_options()
   let default_values = {
+        \ 'auto_diary_index': 0,
         \ 'auto_export': 0,
         \ 'auto_tags': 0,
         \ 'auto_toc': 0,

@@ -2295,6 +2295,17 @@ current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_tags': 1}]
 
 
+*vimwiki-option-auto_diary_index*
+------------------------------------------------------------------------------
+Key               Default value     Values~
+auto_diary_index  0                 0, 1
+
+Description~
+Set this option to 1 to automatically update the diary index when opened.
+See |:VimwikiDiaryGenerateLinks|:  >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_diary_index': 1}]
+
+
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
 
@@ -2899,14 +2910,7 @@ Your help in making Vimwiki better is really appreciated!
 Any help, whether it is a spelling correction or a code snippet to patch --
 everything is welcomed.
 
-Before filing a bug or starting to write a patch, check the latest development
-version from https://github.com/vimwiki/vimwiki/tree/dev to see if your
-problem is already fixed.
-
-Issues can be filed at https://github.com/vimwiki/vimwiki/issues/.
-
-If you want to provide a pull request on GitHub, please start from the dev
-branch, not from the master branch.
+See CONTRIBUTING.md for info about how to file bugs etc.
 
 ==============================================================================
 15. Development                                          *vimwiki-development*

@@ -174,6 +174,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
   if link_infos.scheme =~# '\mwiki\d\+'
     let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
     if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
+      let link_infos.index = -1
       let link_infos.filename = ''
       return link_infos
     endif
@@ -219,22 +220,32 @@ endfunction
 function! vimwiki#base#system_open_link(url)
   " handlers
   function! s:win32_handler(url)
-    "http://vim.wikia.com/wiki/Opening_current_Vim_file_in_your_Windows_browser
-    "disable 'shellslash', otherwise the url will be enclosed in single quotes,
-    "which is problematic
-    "see https://github.com/vimwiki/vimwiki/issues/54#issuecomment-48011289
-    if exists('+shellslash')
-      let old_ssl = &shellslash
-      set noshellslash
-      let url = shellescape(a:url, 1)
-      let &shellslash = old_ssl
+    "Disable shellslash for cmd and command.com, but enable for all other shells
+    "See Issue #560
+    if (&shell =~? "cmd") || (&shell =~? "command.com")
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set noshellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start "Title" /B ' . url
+
     else
-      let url = shellescape(a:url, 1)
-    endif
-    if &l:shell ==? "powershell"
-      execute 'silent ! start ' . a:url
-    else
-      execute 'silent ! start "Title" /B ' . a:url
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set shellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start ' . url
+
     endif
   endfunction
   function! s:macunix_handler(url)
@@ -268,7 +279,11 @@ function! vimwiki#base#open_link(cmd, link, ...)
   endif
 
   if link_infos.filename == ''
-    echomsg 'Vimwiki Error: Unable to resolve link!'
+    if link_infos.index == -1
+      echomsg 'Vimwiki Error: No registered wiki ''' . link_infos.scheme . '''.'
+    else
+      echomsg 'Vimwiki Error: Unable to resolve link!'
+    endif
     return
   endif
 
@@ -730,6 +745,9 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
       catch /E37:/
         echomsg 'Vimwiki: The current file is modified. Hint: Take a look at'
               \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
+        return
+      catch /E325:/
+        echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
         return
       endtry
     endif
@@ -1862,7 +1880,8 @@ endfunction
 
 function! s:clean_url(url)
   " remove protocol and tld
-  let url = substitute(a:url, '^\a\+://', '', '')
+  let url = substitute(a:url, '^\a\+\d*:', '', '')
+  let url = substitute(url, '^//', '', '')
   let url = substitute(url, '^\([^/]\+\).\a\{2,4}/', '\1/', '')
   let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
