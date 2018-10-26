@@ -204,13 +204,6 @@ function! s:subst_func(line, regexp, func, ...)
 endfunction
 
 
-function! s:save_vimwiki_buffer()
-  if &filetype ==? 'vimwiki' && filewritable(expand('%'))
-    silent update
-  endif
-endfunction
-
-
 function! s:process_date(placeholders, default_date)
   if !empty(a:placeholders)
     for [placeholder, row, idx] in a:placeholders
@@ -1586,9 +1579,11 @@ function! vimwiki#html#WikiAll2HTML(path_html)
   echomsg 'Vimwiki: Saving Vimwiki files ...'
   let save_eventignore = &eventignore
   let &eventignore = "all"
-  let cur_buf = bufname('%')
-  bufdo call s:save_vimwiki_buffer()
-  exe 'buffer '.cur_buf
+  try
+    wall
+  catch
+    " just ignore errors
+  endtry
   let &eventignore = save_eventignore
 
   let path_html = expand(a:path_html)
