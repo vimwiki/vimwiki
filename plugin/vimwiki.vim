@@ -231,11 +231,11 @@ endif
 
 augroup vimwiki
   autocmd!
+  autocmd ColorScheme * call s:setup_cleared_syntax()
   for s:ext in s:known_extensions
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
     if vimwiki#vars#get_global('table_auto_fmt')
