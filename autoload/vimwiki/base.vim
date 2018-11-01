@@ -743,7 +743,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
       try
         execute a:command fname
       catch /E37:/
-        echomsg 'Vimwiki: The current file is modified. Hint: Take a look at'
+        echomsg 'Vimwiki: Can''t leave the current buffer, because it is modified. Hint: Take a look at'
               \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
         return
       catch /E325:/
@@ -1292,12 +1292,10 @@ function! vimwiki#base#rename_link()
   let new_link = input('Enter new name: ')
 
   if new_link =~# '[/\\]'
-    " It is actually doable but I do not have free time to do it.
     echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
     return
   endif
 
-  " check new_fname - it should be 'good', not empty
   if substitute(new_link, '\s', '', 'g') == ''
     echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
     return
