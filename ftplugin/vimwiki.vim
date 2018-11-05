@@ -63,13 +63,13 @@ function! Complete_wikifiles(findstart, base)
     elseif a:base !~# '#'
       " we look for wiki files
 
-      if a:base =~# '^wiki\d:'
-        let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
+      if a:base =~# '\m^wiki\d\+:'
+        let wikinumber = eval(matchstr(a:base, '\m^wiki\zs\d\+'))
         if wikinumber >= vimwiki#vars#number_of_wikis()
           return []
         endif
-        let prefix = matchstr(a:base, '^wiki\d:\zs.*')
-        let scheme = matchstr(a:base, '^wiki\d:\ze')
+        let prefix = matchstr(a:base, '\m^wiki\d\+:\zs.*')
+        let scheme = matchstr(a:base, '\m^wiki\d\+:\ze')
       elseif a:base =~# '^diary:'
         let wikinumber = -1
         let prefix = matchstr(a:base, '^diary:\zs.*')
