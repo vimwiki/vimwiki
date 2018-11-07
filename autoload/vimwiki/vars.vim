@@ -198,12 +198,12 @@ function! s:populate_wikilocal_options()
         \ 'list_margin': -1,
         \ 'maxhi': 0,
         \ 'nested_syntaxes': {},
-        \ 'path': '~/vimwiki/',
+        \ 'path': $HOME . '/vimwiki/',
         \ 'path_html': '',
         \ 'syntax': 'default',
         \ 'template_default': 'default',
         \ 'template_ext': '.tpl',
-        \ 'template_path': '~/vimwiki/templates/',
+        \ 'template_path': $HOME . '/vimwiki/templates/',
         \ }
 
   let g:vimwiki_wikilocal_vars = []
