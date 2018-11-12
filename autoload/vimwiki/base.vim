@@ -1017,7 +1017,7 @@ endfunction
 "   will only be updated if it already exists
 function! vimwiki#base#update_listing_in_buffer(strings, start_header,
       \ content_regex, default_lnum, create)
-  " apparently, Vim behaves strange when files change while in diff mode
+  " Vim behaves strangely when files change while in diff mode
   if &diff || &readonly
     return
   endif
@@ -1063,8 +1063,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     " fold gets deleted.  So we temporarily disable folds, and then reenable
     " them right back.
     let foldenable_save = &l:foldenable
-    setlo nofoldenable
-    silent exe start_lnum.','.string(end_lnum - 1).'delete _'
+    setlocal nofoldenable
+    silent exe 'keepjumps ' . start_lnum.','.string(end_lnum - 1).'delete _'
     let &l:foldenable = foldenable_save
     let lines_diff = 0 - (end_lnum - start_lnum)
   else
@@ -1079,16 +1079,16 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   let new_header = whitespaces_in_first_line
         \ . s:safesubstitute(vimwiki#vars#get_syntaxlocal('rxH1_Template'),
         \ '__Header__', a:start_header, '')
-  call append(start_lnum - 1, new_header)
+  keepjumps call append(start_lnum - 1, new_header)
   let start_lnum += 1
   let lines_diff += 1 + len(a:strings)
   for string in a:strings
-    call append(start_lnum - 1, string)
+    keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
   endfor
   " append an empty line if there is not one
   if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
-    call append(start_lnum - 1, '')
+    keepjumps call append(start_lnum - 1, '')
     let lines_diff += 1
   endif
 
