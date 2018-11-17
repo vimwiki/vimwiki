@@ -1003,20 +1003,6 @@ function! vimwiki#lst#increment_cb(from_line, to_line)
 endfunction
 
 
-"Toggles checkbox between [ ] and [X] or creates one
-"in the lines of the given range
-function! vimwiki#lst#toggle_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
-endfunction
-
-
-"Toggles checkbox between [ ] and [-] or creates one
-"in the lines of the given range
-function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
-endfunction
-
-
 function! vimwiki#lst#remove_cb(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
