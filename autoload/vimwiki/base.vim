@@ -1804,13 +1804,31 @@ endfunction
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
   let headers = s:collect_headers()
+  let toc_header_text = vimwiki#vars#get_global('toc_header')
+
+  if !a:create
+    " Do nothing if there is no TOC to update. (This is a small performance optimization -- if
+    " auto_toc == 1, but the current buffer has no TOC but is long, saving the buffer could
+    " otherwise take a few seconds for nothing.)
+    let toc_already_present = 0
+    for entry in headers
+      if entry[2] ==# toc_header_text
+        let toc_already_present = 1
+        break
+      endif
+    endfor
+    if !toc_already_present
+      return
+    endif
+  endif
+
   let numbering = vimwiki#vars#get_global('html_header_numbering')
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   let complete_header_infos = []
   for header in headers
     let h_text = header[2]
     let h_level = header[1]
-    if h_text ==# vimwiki#vars#get_global('toc_header')  " don't include the TOC's header itself
+    if h_text ==# toc_header_text  " don't include the TOC's header itself
       continue
     endif
     let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
@@ -1852,8 +1870,7 @@ function! vimwiki#base#table_of_contents(create)
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines,
-        \ vimwiki#vars#get_global('toc_header'), links_rx, 1, a:create)
+  call vimwiki#base#update_listing_in_buffer(lines, toc_header_text, links_rx, 1, a:create)
 endfunction
 
 
