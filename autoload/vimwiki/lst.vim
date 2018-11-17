@@ -841,13 +841,13 @@ endfunction
 
 "Creates checkbox in a list item.
 "Returns: 1 if successful
-function! s:create_cb(item)
+function! s:create_cb(item, start_rate)
   if a:item.type == 0 || a:item.cb != ''
     return 0
   endif
 
   let new_item = a:item
-  let new_item.cb = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
+  let new_item.cb = s:rate_to_state(a:start_rate)
   call s:substitute_rx_in_line(new_item.lnum,
         \ vimwiki#u#escape(new_item.mrkr) . '\zs\ze', ' [' . new_item.cb . ']')
 
@@ -894,9 +894,9 @@ function! s:change_cb(from_line, to_line, new_rate)
 endfunction
 
 
-"Toggles checkbox between two states in the lines of the given range,
-"creates chceckboxes if there aren't any.
-function! s:toggle_create_cb(from_line, to_line, state1, state2)
+" Toggles checkbox between two states in the lines of the given range, creates chceckboxes (with
+" a:start_rate as state) if there aren't any.
+function! s:toggle_create_cb(from_line, to_line, state1, state2, start_rate)
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -908,7 +908,7 @@ function! s:toggle_create_cb(from_line, to_line, state1, state2)
     let parent_items_of_lines = []
     for cur_ln in range(from_item.lnum, a:to_line)
       let cur_item = s:get_item(cur_ln)
-      let success = s:create_cb(cur_item)
+      let success = s:create_cb(cur_item, a:start_rate)
 
       if success
         let cur_parent_item = s:get_parent(cur_item)
@@ -974,14 +974,14 @@ endfunction
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0, 0)
 endfunction
 
 
 "Toggles checkbox between [ ] and [-] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0, -1)
 endfunction
 
 
@@ -1381,7 +1381,7 @@ function! s:clone_marker_from_to(from, to)
   let new_indent = ( vimwiki#vars#get_syntaxlocal('recurring_bullets') ? 0 : indent(a:from) )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
-    call s:create_cb(s:get_item(a:to))
+    call s:create_cb(s:get_item(a:to), 0)
     call s:update_state(s:get_parent(s:get_item(a:to)))
   endif
   if item_from.type == 2
