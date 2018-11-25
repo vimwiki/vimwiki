@@ -366,7 +366,7 @@ endfunction
 
 function! s:linkify_link(src, descr)
   let src_str = ' href="'.s:escape_html_attribute(a:src).'"'
-  let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
+  let descr = vimwiki#u#trim(a:descr)
   let descr = (descr == "" ? a:src : descr)
   let descr_str = (descr =~# vimwiki#vars#get_global('rxWikiIncl')
         \ ? s:tag_wikiincl(descr)
@@ -438,7 +438,8 @@ function! s:tag_wikilink(value)
   let str = a:value
   let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'))
-  let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
+  let descr = vimwiki#u#trim(descr)
+  let descr = (descr != '' ? descr : url)
 
   let line = VimwikiLinkConverter(url, s:current_wiki_file, s:current_html_file)
   if line == ''
@@ -836,7 +837,7 @@ function! s:process_tag_math(line, math)
     " environment properly
     let s:current_math_env = matchstr(class, '^%\zs\S\+\ze%')
     if s:current_math_env != ""
-      call add(lines, substitute(class, '^%\(\S\+\)%','\\begin{\1}', ''))
+      call add(lines, substitute(class, '^%\(\S\+\)%', '\\begin{\1}', ''))
     elseif class != ""
       call add(lines, "\\\[".class)
     else
