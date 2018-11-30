@@ -299,6 +299,13 @@ function! s:regexp_of_marker(item)
 endfunction
 
 
+" Returns: Whether or not the checkbox of a list item is [X] or [-]
+function! s:is_closed(item)
+  let state = a:item.cb
+  return state ==# vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+        \ || state ==# vimwiki#vars#get_global('listsym_rejected')
+endfunction
+
 " ---------------------------------------------------------
 " functions for navigating between items
 " ---------------------------------------------------------
@@ -756,10 +763,15 @@ function! s:set_state(item, new_rate)
 endfunction
 
 
-"Set state of the list item to [ ] or [o] or whatever
-"Updates the states of its child items
-function! s:set_state_plus_children(item, new_rate)
-  call s:set_state(a:item, a:new_rate)
+" Sets the state of the list item to [ ] or [o] or whatever. Updates the states of its child items.
+" If the new state should be [X] or [-], the state of the current list item is changed to this
+" state, but if a child item already has [X] or [-] it is left alone.
+function! s:set_state_plus_children(item, new_rate, ...)
+  let retain_checked_and_rejected = a:0 > 0 && a:1 > 0
+
+  if !(retain_checked_and_rejected && s:is_closed(a:item))
+    call s:set_state(a:item, a:new_rate)
+  endif
 
   let child_item = s:get_first_child(a:item)
   while 1
@@ -767,7 +779,7 @@ function! s:set_state_plus_children(item, new_rate)
       break
     endif
     if child_item.cb != ''
-      call s:set_state_plus_children(child_item, a:new_rate)
+      call s:set_state_plus_children(child_item, a:new_rate, 1)
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
@@ -866,8 +878,7 @@ function! s:remove_cb(item)
 endfunction
 
 
-"Change state of checkbox
-"in the lines of the given range
+" Change state of the checkboxes in the lines of the given range
 function! s:change_cb(from_line, to_line, new_rate)
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
@@ -894,7 +905,7 @@ function! s:change_cb(from_line, to_line, new_rate)
 endfunction
 
 
-" Toggles checkbox between two states in the lines of the given range, creates chceckboxes (with
+" Toggles checkbox between two states in the lines of the given range, creates checkboxes (with
 " a:start_rate as state) if there aren't any.
 function! s:toggle_create_cb(from_line, to_line, state1, state2, start_rate)
   let from_item = s:get_corresponding_item(a:from_line)
