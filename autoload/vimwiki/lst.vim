@@ -996,24 +996,6 @@ function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
 endfunction
 
 
-"Increment checkbox between [ ] and [X]
-"in the lines of the given range
-function! vimwiki#lst#increment_cb(from_line, to_line)
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    return
-  endif
-
-  "if from_line has CB, increment it and set all siblings to the same new state
-  let rate_first_line = s:get_rate(from_item)
-  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
-  let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
-
-  call s:change_cb(a:from_line, a:to_line, new_rate)
-
-endfunction
-
-
 function! vimwiki#lst#remove_cb(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
