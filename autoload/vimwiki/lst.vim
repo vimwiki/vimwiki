@@ -767,10 +767,42 @@ endfunction
 " If the new state should be [X] or [-], the state of the current list item is changed to this
 " state, but if a child item already has [X] or [-] it is left alone.
 function! s:set_state_plus_children(item, new_rate, ...)
-  let retain_checked_and_rejected = a:0 > 0 && a:1 > 0
+  let retain_state_if_closed = a:0 > 0 && a:1 > 0
 
-  if !(retain_checked_and_rejected && s:is_closed(a:item))
+  if !(retain_state_if_closed && (a:new_rate == 100 || a:new_rate == -1) && s:is_closed(a:item))
     call s:set_state(a:item, a:new_rate)
+  endif
+
+  let all_children_are_done = 1
+  let all_children_are_rejected = 1
+
+  let child_item = s:get_first_child(a:item)
+  while 1
+    if child_item.type == 0
+      break
+    endif
+    if child_item.cb != vimwiki#vars#get_global('listsym_rejected')
+      let all_children_are_rejected = 0
+    endif
+    if child_item.cb != vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+      let all_children_are_done = 0
+    endif
+    if !all_children_are_done && !all_children_are_rejected
+      break
+    endif
+    let child_item = s:get_next_child_item(a:item, child_item)
+  endwhile
+
+  if (a:new_rate == 100 && all_children_are_done) ||
+        \ (a:new_rate == -1) && all_children_are_rejected
+    return
+  endif
+
+  if (a:new_rate == -1 && all_children_are_done) ||
+        \ (a:new_rate == 100 && all_children_are_rejected)
+    let retain_closed_children = 0
+  else
+    let retain_closed_children = 1
   endif
 
   let child_item = s:get_first_child(a:item)
@@ -779,7 +811,7 @@ function! s:set_state_plus_children(item, new_rate, ...)
       break
     endif
     if child_item.cb != ''
-      call s:set_state_plus_children(child_item, a:new_rate, 1)
+      call s:set_state_plus_children(child_item, a:new_rate, retain_closed_children)
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
@@ -814,6 +846,7 @@ function! s:update_state(item)
 
   let sum_children_rate = 0
   let count_children_with_cb = 0
+  let count_rejected_children = 0
 
   let child_item = s:get_first_child(a:item)
 
@@ -823,16 +856,24 @@ function! s:update_state(item)
     endif
     if child_item.cb != ''
       let rate = s:get_rate(child_item)
-      if rate != -1
-        let count_children_with_cb += 1
-        let sum_children_rate += rate
+      if rate == -1
+        " for calculating the parent rate, a [-] item counts as much as a [X] item ...
+        let rate = 100
+        " ... with the exception that a parent with *only* [-] items will be [-] too
+        let count_rejected_children += 1
       endif
+      let count_children_with_cb += 1
+      let sum_children_rate += rate
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
 
   if count_children_with_cb > 0
-    let new_rate = sum_children_rate / count_children_with_cb
+    if count_rejected_children == count_children_with_cb
+      let new_rate = -1
+    else
+      let new_rate = sum_children_rate / count_children_with_cb
+    endif
     call s:set_state_recursively(a:item, new_rate)
   else
     let rate = s:get_rate(a:item)
