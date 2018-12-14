@@ -1898,7 +1898,7 @@ function! s:clean_url(url)
   " remove protocol and tld
   let url = substitute(a:url, '^\a\+\d*:', '', '')
   let url = substitute(url, '^//', '', '')
-  let url = substitute(url, '^\([^/]\+\).\a\{2,4}/', '\1/', '')
+  let url = substitute(url, '^\([^/]\+\)\.\a\{2,4}/', '\1/', '')
   let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
   if url[0] == "www"
@@ -2010,9 +2010,8 @@ function! s:normalize_link_syntax_n()
     if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(lnk)
     else
-      let sub = vimwiki#base#normalize_link_helper(lnk,
-            \ vimwiki#vars#get_global('rxWord'), '',
-            \ vimwiki#vars#get_global('WikiLinkTemplate1'))
+      let sub = s:safesubstitute(
+            \ vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', lnk, '')
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
