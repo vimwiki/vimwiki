@@ -152,14 +152,11 @@ function! vimwiki#base#resolve_link(link_text, ...)
       let link_infos.anchor = join(split_lnk[1:], '#')
     endif
     if link_text == ''  " because the link was of the form '#anchor'
-      if source_file =~ vimwiki#vars#get_wikilocal('ext') . '$'
+      let expected_ext = vimwiki#u#escape(vimwiki#vars#get_wikilocal('ext')).'$'
+      if source_file =~# expected_ext
           " Source file has expected extension. Remove it, it will be added later on
           let ext_len = strlen(vimwiki#vars#get_wikilocal('ext'))
           let link_text = fnamemodify(source_file, ':p:t')[:-ext_len-1]
-      else
-          " Source file has unexpected (or no) extension. A new file with the proper
-          " extension appended will be created
-          " let link_text = fnamemodify(source_file, ':p:t:r')
       endif
 
     endif
