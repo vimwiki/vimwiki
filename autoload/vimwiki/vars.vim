@@ -263,8 +263,13 @@ function! s:validate_settings()
             \ substitute(wiki_settings['path'], '[/\\]\+$', '', '').'_html/')
     endif
 
-    let wiki_settings['template_path'] =  s:normalize_path(wiki_settings['template_path'])
-    let wiki_settings['diary_rel_path'] =  s:normalize_path(wiki_settings['diary_rel_path'])
+    let wiki_settings['template_path'] = s:normalize_path(wiki_settings['template_path'])
+    let wiki_settings['diary_rel_path'] = s:normalize_path(wiki_settings['diary_rel_path'])
+
+    let ext = wiki_settings['ext']
+    if !empty(ext) && ext[0] != '.'
+      let wiki_settings['ext'] = '.' . ext
+    endif
   endfor
 endfunction
 
