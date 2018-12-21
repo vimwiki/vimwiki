@@ -891,11 +891,11 @@ function! s:tail_name(fname)
 endfunction
 
 
-function! s:update_wiki_links(wiki_nr, old_fname, new_fname)
+function! s:update_wiki_links(wiki_nr, old_fname, new_fname,old_fname_relpath)
   let old_fname = a:old_fname
   let new_fname = a:new_fname
 
-  let subdirs = split(a:old_fname, '[/\\]')[: -2]
+  let subdirs = split(a:old_fname_relpath, '[/\\]')[: -2]
 
   " TODO: Use Dictionary here...
   let dirs_keys = ['']
@@ -1351,7 +1351,7 @@ function! vimwiki#base#rename_link()
   setlocal nomore
 
   " update links
-  call s:update_wiki_links(wiki_nr, s:tail_name(old_fname), new_link)
+  call s:update_wiki_links(wiki_nr, s:tail_name(old_fname), s:tail_name(new_link),old_fname)
 
   " restore wiki buffers
   for bitem in blist
