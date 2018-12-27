@@ -1668,7 +1668,7 @@ checkbox without a childitem.
 
 It is possible to toggle several list items using visual mode. But note that
 instead of toggling every item individually, all items get checked if the
-first item is unchecked and all items get unchecked if the first item is
+first item was unchecked and all items get unchecked if the first item was
 checked.
 
 Use gl<Space> (see |vimwiki_gl<Space>|) to remove a single checkbox and
