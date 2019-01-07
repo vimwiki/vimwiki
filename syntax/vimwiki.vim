@@ -488,3 +488,6 @@ call vimwiki#base#nested_syntax('tex',
 
 syntax spell toplevel
 
+syntax sync maxlines=300
+syn sync match VimwikiSyncPat	grouphere  VimwikiH1Folding	"^\s*="
+syn sync match VimwikiSyncPat	grouphere  VimwikiH1Folding	"}}}"
