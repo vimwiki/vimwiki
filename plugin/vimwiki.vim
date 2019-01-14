@@ -268,7 +268,10 @@ augroup vimwiki
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd BufWinEnter,DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
+    exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_win_enter()'
+    if exists('#DiffUpdated')
+      exe 'autocmd DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
+    endif
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
     if vimwiki#vars#get_global('table_auto_fmt')
