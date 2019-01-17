@@ -784,7 +784,7 @@ function! s:set_state_plus_children(item, new_rate, ...)
     if child_item.cb != vimwiki#vars#get_global('listsym_rejected')
       let all_children_are_rejected = 0
     endif
-    if child_item.cb != vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+    if child_item.cb != vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
       let all_children_are_done = 0
     endif
     if !all_children_are_done && !all_children_are_rejected
