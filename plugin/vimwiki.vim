@@ -31,7 +31,7 @@ function! s:setup_buffer_leave()
 
   let &autowriteall = s:vimwiki_autowriteall_saved
 
-  if vimwiki#vars#get_global('menu') != ""
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu disable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
@@ -147,7 +147,7 @@ function! s:set_global_options()
   let s:vimwiki_autowriteall_saved = &autowriteall
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
-  if vimwiki#vars#get_global('menu') !=# ''
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
