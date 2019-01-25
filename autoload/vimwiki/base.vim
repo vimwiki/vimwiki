@@ -1856,15 +1856,14 @@ function! vimwiki#base#table_of_contents(create)
   let indentstring = repeat(' ', vimwiki#u#sw())
   let bullet = vimwiki#lst#default_symbol().' '
   for [lvl, link, desc] in complete_header_infos
-    let esc_link = substitute(link, "'", "''", 'g')
-    let esc_desc = substitute(desc, "'", "''", 'g')
-    let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
     if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
       let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+    else
+      let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
     endif
     let link = s:safesubstitute(link_tpl, '__LinkUrl__',
-          \ '#'.esc_link, '')
-    let link = s:safesubstitute(link, '__LinkDescription__', esc_desc, '')
+          \ '#'.link, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
 
