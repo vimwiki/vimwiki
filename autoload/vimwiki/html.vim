@@ -344,7 +344,17 @@ endfunction
 
 
 function! s:tag_code(value)
-  return '<code>'.s:safe_html_preformatted(s:mid(a:value, 1)).'</code>'
+  let l:retstr = '<code'
+
+  let l:str = s:mid(a:value, 1)
+  let l:match = match(l:str, '^#[a-fA-F0-9]\{6\}$')
+
+  if l:match != -1
+    let l:retstr .= " style='background-color: " . l:str . ";'"
+  endif
+
+  let l:retstr .= '>'.s:safe_html_preformatted(l:str).'</code>'
+  return l:retstr
 endfunction
 
 
