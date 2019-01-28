@@ -149,17 +149,21 @@ function! s:format_diary()
             \ '__Header__', s:get_month_name(month), ''))
 
       for [fl, cap] in s:sort(items(g_files[year][month]))
-        if empty(cap)
-          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-                \ '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
-        else
-          let entry = substitute(vimwiki#vars#get_global('WikiLinkTemplate2'),
-                \ '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+
+          if empty(cap) " When using markdown syntax, we should ensure we always have a link description.
+            let cap = fl
+          endif
+        elseif empty(cap)
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
         endif
+
+        let entry = substitute(link_tpl, '__LinkUrl__', fl, '')
+        let entry = substitute(entry, '__LinkDescription__', cap, '')
+        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
       endfor
 
     endfor
@@ -169,20 +173,27 @@ function! s:format_diary()
 endfunction
 
 
+" The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
+" contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
+" is used.
 function! vimwiki#diary#make_note(wnum, ...)
-  if a:wnum > vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
+  if a:wnum == 0
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+    if wiki_nr < 0  " this happens when e.g. VimwikiMakeDiaryNote was called outside a wiki buffer
+      let wiki_nr = 0
+    endif
+  else
+    let wiki_nr = a:wnum - 1
+  endif
+
+  if wiki_nr >= vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.wiki_nr.' is not registered in g:vimwiki_list!'
     return
   endif
 
   " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
 
-  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('diary_path', idx))
+  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('diary_path', wiki_nr))
 
   let cmd = 'edit'
   if a:0
@@ -200,7 +211,7 @@ function! vimwiki#diary#make_note(wnum, ...)
     let link = 'diary:'.vimwiki#diary#diary_date_link()
   endif
 
-  call vimwiki#base#open_link(cmd, link, s:diary_index(idx))
+  call vimwiki#base#open_link(cmd, link, s:diary_index(wiki_nr))
 endfunction
 
 
@@ -218,6 +229,11 @@ function! vimwiki#diary#goto_diary_index(wnum)
   endif
 
   call vimwiki#base#edit_file('e', s:diary_index(idx), '')
+
+  if vimwiki#vars#get_wikilocal('auto_diary_index')
+    call vimwiki#diary#generate_diary_section()
+    write! " save changes
+  endif
 endfunction
 
 
@@ -295,8 +311,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir)
     endif
   endif
 
-  " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(vimwiki#vars#get_bufferlocal('wiki_nr')+1, 0, link)
+  call vimwiki#diary#make_note(0, 0, link)
 endfunction
 
 

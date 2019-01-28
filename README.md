@@ -105,6 +105,19 @@ Commands
  * `:Vimwiki2HTML` -- Convert current wiki link to HTML
  * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML
  * `:help vimwiki-commands` -- list all commands
+ * `:help vimwiki` -- General vimwiki help docs
+
+
+Changing Wiki Syntax
+------------------------------------------------------------------------------
+
+ Vimwiki currently ships with 3 syntaxes: Vimwiki (default), Markdown (markdown), and MediaWiki (media)
+
+ If you would prefer to use either Markdown or MediaWiki syntaxes, set the following option in your .vimrc:
+ ```
+     let g:vimwiki_list = [{'path': '~/vimwiki/',
+                           \ 'syntax': 'markdown', 'ext': '.md'}]
+ ```
 
 
 Installation
@@ -135,6 +148,15 @@ Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=23
     cd bundle
     git clone https://github.com/vimwiki/vimwiki.git
 
+Installation using [Vim-Plug](https://github.com/junegunn/vim-plug)
+------------------------------------------------------------------------------
+
+Add the following to the plugin-configuration in your vimrc:
+
+    Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+
+Then run `:PlugInstall`.
+
 Installation using [Vundle](https://github.com/VundleVim/Vundle.vim)
 ------------------------------------------------------------------------------
 
@@ -145,6 +167,14 @@ Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run
 Or download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was installed.
+
+
+Getting help
+==============================================================================
+
+Have a question? Visit the IRC channel `#vimwiki` on Freenode ([webchat](https://webchat.freenode.net/?channels=#vimwiki))
+or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
+
 
 ----
 \* Screenshots made with the [solarized colorscheme](https://github.com/altercation/vim-colors-solarized)

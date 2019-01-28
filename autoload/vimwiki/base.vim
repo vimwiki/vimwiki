@@ -46,14 +46,20 @@ endfunction
 " Returns: the number of the wiki a file belongs to or -1 if it doesn't belong
 " to any registered wiki.
 function! vimwiki#base#find_wiki(file)
+  let bestmatch = -1
+  let bestlen = 0
   for idx in range(vimwiki#vars#number_of_wikis())
-    if vimwiki#path#is_file_in_dir(a:file, vimwiki#vars#get_wikilocal('path', idx))
-      return idx
+    let wiki_path = expand(vimwiki#vars#get_wikilocal('path', idx))
+    let common_prefix = vimwiki#path#path_common_pfx(wiki_path, a:file)
+    if vimwiki#path#is_equal(common_prefix, wiki_path)
+      if len(common_prefix) > bestlen
+        let bestlen = len(common_prefix)
+        let bestmatch = idx
+      endif
     endif
   endfor
 
-  " an orphan page has been detected
-  return -1
+  return bestmatch
 endfunction
 
 
@@ -71,14 +77,9 @@ function! vimwiki#base#resolve_link(link_text, ...)
 
   let link_text = a:link_text
 
-  " if link is schemeless add wikiN: scheme
-  if link_text !~# vimwiki#vars#get_global('rxSchemeUrl')
-    let link_text = 'wiki'.source_wiki.':'.link_text
-  endif
-
 
   let link_infos = {
-        \ 'index': -1,
+        \ 'index': 0,
         \ 'scheme': '',
         \ 'is_file': 0,   " 1 for a file, 0 for a URL (e.g. when the link was [[http://foo.bar]]),
         \                 " -1 if the whole link was malformed
@@ -86,23 +87,28 @@ function! vimwiki#base#resolve_link(link_text, ...)
         \ 'anchor': '',
         \ }
 
-
-  " extract scheme
-  let link_infos.scheme = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchScheme'))
-  if link_infos.scheme == '' || link_text == ''
+  if link_text == ''
     let link_infos.is_file = -1
     return link_infos
   endif
-  if link_infos.scheme !~# '\mwiki\d\+\|diary\|local\|file'
-    " unknown scheme, may be a weblink
-    let link_infos.is_file = 0
-    let link_infos.target = link_text
-    return link_infos
+
+  let scheme = matchstr(link_text, '^\zs'.vimwiki#vars#get_global('rxSchemes').'\ze:')
+  if scheme == ''
+    let link_infos.scheme = 'wiki'.source_wiki
+  else
+    let link_infos.scheme = scheme
+
+    if link_infos.scheme !~# '\mwiki\d\+\|diary\|local\|file'
+      " unknown scheme, may be a weblink
+      let link_infos.is_file = 0
+      let link_infos.target = link_text
+      return link_infos
+    endif
+
+    let link_infos.is_file = 1
+
+    let link_text = matchstr(link_text, '^'.vimwiki#vars#get_global('rxSchemes').':\zs.*\ze')
   endif
-
-  let link_infos.is_file = 1
-
-  let link_text = matchstr(link_text, vimwiki#vars#get_global('rxSchemeUrlMatchUrl'))
 
   let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme ==# 'diary'
 
@@ -139,6 +145,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
     let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
     if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
       let link_infos.is_file = -1
+      let link_infos.index = -1
       return link_infos
     endif
 
@@ -190,22 +197,32 @@ endfunction
 function! vimwiki#base#system_open_link(url)
   " handlers
   function! s:win32_handler(url)
-    "http://vim.wikia.com/wiki/Opening_current_Vim_file_in_your_Windows_browser
-    "disable 'shellslash', otherwise the url will be enclosed in single quotes,
-    "which is problematic
-    "see https://github.com/vimwiki/vimwiki/issues/54#issuecomment-48011289
-    if exists('+shellslash')
-      let old_ssl = &shellslash
-      set noshellslash
-      let url = shellescape(a:url, 1)
-      let &shellslash = old_ssl
+    "Disable shellslash for cmd and command.com, but enable for all other shells
+    "See Issue #560
+    if (&shell =~? "cmd") || (&shell =~? "command.com")
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set noshellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start "Title" /B ' . url
+
     else
-      let url = shellescape(a:url, 1)
-    endif
-    if &l:shell ==? "powershell"
-      execute 'silent ! start ' . a:url
-    else
-      execute 'silent ! start "Title" /B ' . a:url
+
+      if exists('+shellslash')
+        let old_ssl = &shellslash
+        set shellslash
+        let url = shellescape(a:url, 1)
+        let &shellslash = old_ssl
+      else
+        let url = shellescape(a:url, 1)
+      endif
+      execute 'silent ! start ' . url
+
     endif
   endfunction
   function! s:macunix_handler(url)
@@ -239,7 +256,11 @@ function! vimwiki#base#open_link(cmd, link, ...)
   endif
 
   if link_infos.is_file == -1
-    echomsg 'Vimwiki Error: Unable to resolve link!'
+    if link_infos.index == -1
+      echomsg 'Vimwiki Error: No registered wiki ''' . link_infos.scheme . '''.'
+    else
+      echomsg 'Vimwiki Error: Unable to resolve link!'
+    endif
     return
   endif
 
@@ -696,19 +717,22 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
   if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
-    try
-      if &autowriteall && !&hidden  " in this case, the file is saved before switching to the
-        " new buffer. This causes Vim to show two messages in the command line which triggers
-        " the annoying hit-enter prompt. Solution: show no messages at all.
-        silent execute a:command fname
-      else
+    if &autowriteall && !&hidden  " in this case, the file is saved before switching to the
+      " new buffer. This causes Vim to show two messages in the command line which triggers
+      " the annoying hit-enter prompt. Solution: show no messages at all.
+      silent execute a:command fname
+    else
+      try
         execute a:command fname
-      endif
-    catch /E37:/
-      echomsg 'Vimwiki: The current file is modified. Hint: Take a look at'
-            \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
-      return
-    endtry
+      catch /E37:/
+        echomsg 'Vimwiki: Can''t leave the current buffer, because it is modified. Hint: Take a look at'
+              \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
+        return
+      catch /E325:/
+        echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
+        return
+      endtry
+    endif
 
     " If the opened file was not already loaded by Vim, an autocommand is
     " triggered at this point
@@ -825,16 +849,17 @@ function! s:update_wiki_link(fname, old, new)
 endfunction
 
 
-function! s:update_wiki_links_dir(dir, old_fname, new_fname)
+function! s:update_wiki_links_dir(wiki_nr, dir, old_fname, new_fname)
   let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
   let new_fname = a:new_fname
 
   let old_fname_r = vimwiki#base#apply_template(
-        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate'), old_fname, '', '')
+        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
+           \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_fname, '', '')
 
-  let files = split(glob(vimwiki#vars#get_wikilocal('path').a:dir.'*'.
-        \ vimwiki#vars#get_wikilocal('ext')), '\n')
-  for fname in files
+  let files = split(glob(vimwiki#vars#get_wikilocal('path', a:wiki_nr).a:dir.'*'.
+        \ vimwiki#vars#get_wikilocal('ext', a:wiki_nr)), '\n')
+  for fname in l:files
     call s:update_wiki_link(fname, old_fname_r, new_fname)
   endfor
 endfunction
@@ -848,11 +873,11 @@ function! s:tail_name(fname)
 endfunction
 
 
-function! s:update_wiki_links(old_fname, new_fname)
+function! s:update_wiki_links(wiki_nr, old_fname, new_fname,old_fname_relpath)
   let old_fname = a:old_fname
   let new_fname = a:new_fname
 
-  let subdirs = split(a:old_fname, '[/\\]')[: -2]
+  let subdirs = split(a:old_fname_relpath, '[/\\]')[: -2]
 
   " TODO: Use Dictionary here...
   let dirs_keys = ['']
@@ -874,7 +899,7 @@ function! s:update_wiki_links(old_fname, new_fname)
   while idx < len(dirs_keys)
     let dir = dirs_keys[idx]
     let new_dir = dirs_vals[idx]
-    call s:update_wiki_links_dir(dir, new_dir.old_fname, new_dir.new_fname)
+    call s:update_wiki_links_dir(a:wiki_nr, dir, new_dir.old_fname, new_dir.new_fname)
     let idx = idx + 1
   endwhile
 endfunction
@@ -974,7 +999,7 @@ endfunction
 "   will only be updated if it already exists
 function! vimwiki#base#update_listing_in_buffer(strings, start_header,
       \ content_regex, default_lnum, create)
-  " apparently, Vim behaves strange when files change while in diff mode
+  " Vim behaves strangely when files change while in diff mode
   if &diff || &readonly
     return
   endif
@@ -1020,8 +1045,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     " fold gets deleted.  So we temporarily disable folds, and then reenable
     " them right back.
     let foldenable_save = &l:foldenable
-    setlo nofoldenable
-    silent exe start_lnum.','.string(end_lnum - 1).'delete _'
+    setlocal nofoldenable
+    silent exe 'keepjumps ' . start_lnum.','.string(end_lnum - 1).'delete _'
     let &l:foldenable = foldenable_save
     let lines_diff = 0 - (end_lnum - start_lnum)
   else
@@ -1036,16 +1061,16 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   let new_header = whitespaces_in_first_line
         \ . s:safesubstitute(vimwiki#vars#get_syntaxlocal('rxH1_Template'),
         \ '__Header__', a:start_header, '')
-  call append(start_lnum - 1, new_header)
+  keepjumps call append(start_lnum - 1, new_header)
   let start_lnum += 1
   let lines_diff += 1 + len(a:strings)
   for string in a:strings
-    call append(start_lnum - 1, string)
+    keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
   endfor
   " append an empty line if there is not one
   if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
-    call append(start_lnum - 1, '')
+    keepjumps call append(start_lnum - 1, '')
     let lines_diff += 1
   endif
 
@@ -1077,8 +1102,10 @@ function! vimwiki#base#find_prev_link()
 endfunction
 
 
-" This is an API function, that is, remappable by the user. Don't change the signature.
-function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
+function! vimwiki#base#follow_link(split, ...)
+  let reuse_other_split_window = a:0 >= 1 ? a:1 : 0
+  let move_cursor_to_new_window = a:0 >= 2 ? a:2 : 1
+
   " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
   " default open_link handler
 
@@ -1114,7 +1141,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     " if we want to and can reuse a split window, jump to that window and open
     " the new file there
-    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && a:reuse
+    if (a:split ==# 'hsplit' || a:split ==# 'vsplit') && reuse_other_split_window
       let previous_window_nr = winnr('#')
       if previous_window_nr > 0 && previous_window_nr != winnr()
         execute previous_window_nr . 'wincmd w'
@@ -1138,7 +1165,7 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
 
     call vimwiki#base#open_link(cmd, lnk)
 
-    if !a:move_cursor
+    if !move_cursor_to_new_window
       if (a:split ==# 'hsplit' || a:split ==# 'vsplit')
         execute 'wincmd p'
       elseif a:split ==# 'tab'
@@ -1147,8 +1174,8 @@ function! vimwiki#base#follow_link(split, reuse, move_cursor, ...)
     endif
 
   else
-    if a:0 > 0
-      execute "normal! ".a:1
+    if a:0 >= 3
+      execute "normal! ".a:3
     else
       call vimwiki#base#normalize_link(0)
     endif
@@ -1247,12 +1274,10 @@ function! vimwiki#base#rename_link()
   let new_link = input('Enter new name: ')
 
   if new_link =~# '[/\\]'
-    " It is actually doable but I do not have free time to do it.
     echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
     return
   endif
 
-  " check new_fname - it should be 'good', not empty
   if substitute(new_link, '\s', '', 'g') == ''
     echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
     return
@@ -1264,6 +1289,7 @@ function! vimwiki#base#rename_link()
   endif
 
   let new_link = subdir.new_link
+  let wiki_nr = vimwiki#vars#get_bufferlocal("wiki_nr")
   let new_fname = vimwiki#vars#get_wikilocal('path') . new_link . vimwiki#vars#get_wikilocal('ext')
 
   " do not rename if file with such name exists
@@ -1307,7 +1333,7 @@ function! vimwiki#base#rename_link()
   setlocal nomore
 
   " update links
-  call s:update_wiki_links(s:tail_name(old_fname), new_link)
+  call s:update_wiki_links(wiki_nr, s:tail_name(old_fname), s:tail_name(new_link),old_fname)
 
   " restore wiki buffers
   for bitem in blist
@@ -1760,13 +1786,31 @@ endfunction
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create)
   let headers = s:collect_headers()
+  let toc_header_text = vimwiki#vars#get_global('toc_header')
+
+  if !a:create
+    " Do nothing if there is no TOC to update. (This is a small performance optimization -- if
+    " auto_toc == 1, but the current buffer has no TOC but is long, saving the buffer could
+    " otherwise take a few seconds for nothing.)
+    let toc_already_present = 0
+    for entry in headers
+      if entry[2] ==# toc_header_text
+        let toc_already_present = 1
+        break
+      endif
+    endfor
+    if !toc_already_present
+      return
+    endif
+  endif
+
   let numbering = vimwiki#vars#get_global('html_header_numbering')
   let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
   let complete_header_infos = []
   for header in headers
     let h_text = header[2]
     let h_level = header[1]
-    if h_text ==# vimwiki#vars#get_global('toc_header')  " don't include the TOC's header itself
+    if h_text ==# toc_header_text  " don't include the TOC's header itself
       continue
     endif
     let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
@@ -1794,18 +1838,20 @@ function! vimwiki#base#table_of_contents(create)
   let indentstring = repeat(' ', vimwiki#u#sw())
   let bullet = vimwiki#lst#default_symbol().' '
   for [lvl, link, desc] in complete_header_infos
-    let esc_link = substitute(link, "'", "''", 'g')
-    let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__',
-          \ '#'.esc_link, '')
-    let link = s:safesubstitute(link, '__LinkDescription__', esc_desc, '')
+    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+    else
+      let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+    endif
+    let link = s:safesubstitute(link_tpl, '__LinkUrl__',
+          \ '#'.link, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines,
-        \ vimwiki#vars#get_global('toc_header'), links_rx, 1, a:create)
+  call vimwiki#base#update_listing_in_buffer(lines, toc_header_text, links_rx, 1, a:create)
 endfunction
 
 
@@ -1830,17 +1876,21 @@ endfunction
 
 
 function! s:clean_url(url)
-  let url = split(a:url, '/\|=\|-\|&\|?\|\.')
+  " remove protocol and tld
+  let url = substitute(a:url, '^\a\+\d*:', '', '')
+  let url = substitute(url, '^//', '', '')
+  let url = substitute(url, '^\([^/]\+\)\.\a\{2,4}/', '\1/', '')
+  let url = split(url, '/\|=\|-\|&\|?\|\.')
   let url = filter(url, 'v:val !=# ""')
-  let url = filter(url, 'v:val !=# "www"')
-  let url = filter(url, 'v:val !=# "com"')
-  let url = filter(url, 'v:val !=# "org"')
-  let url = filter(url, 'v:val !=# "net"')
-  let url = filter(url, 'v:val !=# "edu"')
-  let url = filter(url, 'v:val !=# "http\:"')
-  let url = filter(url, 'v:val !=# "https\:"')
-  let url = filter(url, 'v:val !=# "file\:"')
-  let url = filter(url, 'v:val !=# "xml\:"')
+  if url[0] == "www"
+    let url = url[1:]
+  endif
+  if url[-1] =~ '^\(htm\|html\|php\)$'
+    let url = url[0:-2]
+  endif
+  " remove words consisting of only hexadecimal digits or non-word characters
+  let url = filter(url, 'v:val !~  "^\\A\\{4,}$"')
+  let url = filter(url, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
   return join(url, " ")
 endfunction
 
@@ -1881,12 +1931,12 @@ function! s:normalize_link_in_diary(lnk)
   let link_exists_in_wiki = filereadable(link_wiki)
   let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
 
-  if ! link_exists_in_wiki || link_exists_in_diary || link_is_date
+  if link_exists_in_diary || link_is_date
     let str = a:lnk
     let rxUrl = vimwiki#vars#get_global('rxWord')
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
-  else
+  elseif link_exists_in_wiki
     let relative_link =
           \ vimwiki#path#relpath(vimwiki#vars#get_wikilocal('diary_path'),
           \ vimwiki#vars#get_wikilocal('path'))
@@ -1894,6 +1944,11 @@ function! s:normalize_link_in_diary(lnk)
     let rxUrl = '^.*\ze|'
     let rxDesc = '|\zs.*$'
     let template = vimwiki#vars#get_global('WikiLinkTemplate2')
+  else
+    let str = a:lnk
+    let rxUrl = '.*'
+    let rxDesc = ''
+    let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   endif
 
   return vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template)
@@ -1937,9 +1992,8 @@ function! s:normalize_link_syntax_n()
     if s:is_diary_file(expand("%:p"))
       let sub = s:normalize_link_in_diary(lnk)
     else
-      let sub = vimwiki#base#normalize_link_helper(lnk,
-            \ vimwiki#vars#get_global('rxWord'), '',
-            \ vimwiki#vars#get_global('WikiLinkTemplate1'))
+      let sub = s:safesubstitute(
+            \ vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', lnk, '')
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return

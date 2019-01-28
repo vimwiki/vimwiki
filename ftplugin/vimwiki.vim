@@ -63,14 +63,14 @@ function! Complete_wikifiles(findstart, base)
     elseif a:base !~# '#'
       " we look for wiki files
 
-      if a:base =~# '^wiki\d:'
-        let wikinumber = eval(matchstr(a:base, '^wiki\zs\d'))
+      if a:base =~# '\m^wiki\d\+:'
+        let wikinumber = eval(matchstr(a:base, '\m^wiki\zs\d\+'))
         if wikinumber >= vimwiki#vars#number_of_wikis()
           return []
         endif
         let diary = 0
-        let prefix = matchstr(a:base, '^wiki\d:\zs.*')
-        let scheme = matchstr(a:base, '^wiki\d:\ze')
+        let prefix = matchstr(a:base, '\m^wiki\d\+:\zs.*')
+        let scheme = matchstr(a:base, '\m^wiki\d\+:\ze')
       elseif a:base =~# '^diary:'
         let wikinumber = vimwiki#vars#get_bufferlocal('wiki_nr')
         let diary = 1
@@ -263,8 +263,8 @@ command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
 command! -buffer VimwikiRenameLink call vimwiki#base#rename_link()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
-command! -buffer VimwikiSplitLink call vimwiki#base#follow_link('hsplit', 0, 1)
-command! -buffer VimwikiVSplitLink call vimwiki#base#follow_link('vsplit', 0, 1)
+command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
+command! -buffer -nargs=* VimwikiVSplitLink call vimwiki#base#follow_link('vsplit', <f-args>)
 
 command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(<f-args>)
 

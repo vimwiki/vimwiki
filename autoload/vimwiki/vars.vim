@@ -13,7 +13,7 @@
 "   global user variables and syntax stuff which is the same for every syntax.
 "
 " - wiki-local variables. They are stored in g:vimwiki_wikilocal_vars which is a list of
-"   dictionaries. One dict for every registered wiki. The last dictionary contains default values
+"   dictionaries, one dict for every registered wiki. The last dictionary contains default values
 "   (used for temporary wikis).
 "
 " - syntax variables. Stored in the dict g:vimwiki_syntax_variables which holds all the regexes and
@@ -28,82 +28,38 @@
 
 function! s:populate_global_variables()
 
-  let g:vimwiki_global_vars = {
-        \ 'CJK_length': 0,
-        \ 'auto_chdir': 0,
-        \ 'autowriteall': 1,
-        \ 'conceallevel': 2,
-        \ 'diary_months':
-              \ {
-              \ 1: 'January', 2: 'February', 3: 'March',
-              \ 4: 'April', 5: 'May', 6: 'June',
-              \ 7: 'July', 8: 'August', 9: 'September',
-              \ 10: 'October', 11: 'November', 12: 'December'
-              \ },
-        \ 'dir_link': '',
-        \ 'ext2syntax': {},
-        \ 'folding': '',
-        \ 'global_ext': 1,
-        \ 'hl_cb_checked': 0,
-        \ 'hl_headers': 0,
-        \ 'html_header_numbering': 0,
-        \ 'html_header_numbering_sym': '',
-        \ 'list_ignore_newline': 1,
-        \ 'text_ignore_newline': 1,
-        \ 'listsyms': ' .oOX',
-        \ 'listsym_rejected': '-',
-        \ 'map_prefix': '<Leader>w',
-        \ 'menu': 'Vimwiki',
-        \ 'table_auto_fmt': 1,
-        \ 'table_mappings': 1,
-        \ 'toc_header': 'Contents',
-        \ 'url_maxsave': 15,
-        \ 'use_calendar': 1,
-        \ 'use_mouse': 0,
-        \ 'user_htmls': '',
-        \ 'valid_html_tags': 'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em',
-        \ 'w32_dir_enc': '',
-        \ }
+  let g:vimwiki_global_vars = {}
 
-  " copy the user's settings from variables of the form g:vimwiki_<option> into the dict
-  " g:vimwiki_global_vars (or set a default value)
-  for key in keys(g:vimwiki_global_vars)
-    if exists('g:vimwiki_'.key)
-      let g:vimwiki_global_vars[key] = g:vimwiki_{key}
-    endif
-  endfor
-
-  call s:validate_global_settings()
+  call s:read_global_settings_from_user()
+  call s:normalize_global_settings()
 
   " non-configurable global variables:
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
   " able to <leader>w<leader>w without opening any vimwiki file first
-  let g:vimwiki_global_vars.schemes = 'wiki\d\+,diary,local'
-  let g:vimwiki_global_vars.web_schemes1 = 'http,https,file,ftp,gopher,telnet,nntp,ldap,rsync'.
-        \ ',imap,pop,irc,ircs,cvs,svn,svn+ssh,git,ssh,fish,sftp'
-  let web_schemes2 = 'mailto,news,xmpp,sip,sips,doi,urn,tel,data'
+  let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
+  let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
+        \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
+        \ 'git', 'ssh', 'fish', 'sftp'], '\|')
+  let web_schemes2 =
+        \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
 
-  let rx_schemes = '\%('.
-        \ join(split(g:vimwiki_global_vars.schemes, '\s*,\s*'), '\|').'\|'.
-        \ join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\|'.
-        \ join(split(web_schemes2, '\s*,\s*'), '\|').
+  let g:vimwiki_global_vars.rxSchemes = '\%('.
+        \ g:vimwiki_global_vars.schemes . '\|'.
+        \ g:vimwiki_global_vars.web_schemes1 . '\|'.
+        \ web_schemes2 .
         \ '\)'
-
-  let g:vimwiki_global_vars.rxSchemeUrl = rx_schemes.':.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchScheme = '\zs'.rx_schemes.'\ze:.*'
-  let g:vimwiki_global_vars.rxSchemeUrlMatchUrl = rx_schemes.':\zs.*\ze'
 
   " match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
   " http://tools.ietf.org/html/rfc3986
   let rxWebProtocols =
         \ '\%('.
           \ '\%('.
-            \ '\%('.join(split(g:vimwiki_global_vars.web_schemes1, '\s*,\s*'), '\|').'\):'.
+            \ '\%('.g:vimwiki_global_vars.web_schemes1 . '\):'.
             \ '\%(//\)'.
           \ '\)'.
         \ '\|'.
-          \ '\%('.join(split(web_schemes2, '\s*,\s*'), '\|').'\):'.
+          \ '\%('.web_schemes2.'\):'.
         \ '\)'
 
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
@@ -183,15 +139,103 @@ function! s:populate_global_variables()
 endfunction
 
 
-function! s:validate_global_settings()
+function! s:read_global_settings_from_user()
+  let global_settings = {
+        \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
+        \ 'diary_months': {'type': type({}), 'default':
+        \   {
+        \     1: 'January', 2: 'February', 3: 'March',
+        \     4: 'April', 5: 'May', 6: 'June',
+        \     7: 'July', 8: 'August', 9: 'September',
+        \     10: 'October', 11: 'November', 12: 'December'
+        \   }},
+        \ 'dir_link': {'type': type(''), 'default': ''},
+        \ 'ext2syntax': {'type': type({}), 'default': {}},
+        \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',
+        \     'list', 'custom', ':quick', 'expr:quick', 'syntax:quick', 'list:quick',
+        \     'custom:quick']},
+        \ 'global_ext': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'hl_cb_checked': {'type': type(0), 'default': 0, 'min': 0, 'max': 2},
+        \ 'hl_headers': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'html_header_numbering': {'type': type(0), 'default': 0, 'min': 0, 'max': 6},
+        \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
+        \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
+        \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
+        \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
+        \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
+        \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
+        \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
+        \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'user_htmls': {'type': type(''), 'default': ''},
+        \ 'valid_html_tags': {'type': type(''), 'default':
+        \   'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em'},
+        \ 'w32_dir_enc': {'type': type(''), 'default': ''},
+        \ }
+
+  " copy the user's settings from variables of the form g:vimwiki_<option> into the dict
+  " g:vimwiki_global_vars (or set a default value)
+  for key in keys(global_settings)
+    if exists('g:vimwiki_'.key)
+      let users_value = g:vimwiki_{key}
+      let value_infos = global_settings[key]
+
+      call s:check_users_value(key, users_value, value_infos, 1)
+
+      let g:vimwiki_global_vars[key] = users_value
+    else
+      let g:vimwiki_global_vars[key] = global_settings[key].default
+    endif
+  endfor
+
+  " validate some settings individually
+
+  let key = 'diary_months'
+  let users_value = g:vimwiki_global_vars[key]
+  for month in range(1, 12)
+    if !has_key(users_value, month) || type(users_value[month]) != type('') ||
+          \ empty(users_value[month])
+      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      break
+    endif
+  endfor
+
+  let key = 'ext2syntax'
+  let users_value = g:vimwiki_global_vars[key]
+  for ext in keys(users_value)
+    if empty(ext) || index(['markdown', 'media', 'mediawiki', 'default'], users_value[ext]) == -1
+      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      break
+    endif
+  endfor
+
+endfunction
+
+
+function! s:normalize_global_settings()
   let g:vimwiki_global_vars.dir_link =
         \ vimwiki#path#file_segment(g:vimwiki_global_vars.dir_link)
 
-  for extension in g:vimwiki_global_vars.ext2syntax
-    if extension[0] != '.'
-      let g:vimwiki_global_vars.ext2syntax['.'.extension] =
-            \ g:vimwiki_global_vars.ext2syntax[extension]
-      call remove(g:vimwiki_global_vars.ext2syntax, extension)
+  let keys = keys(g:vimwiki_global_vars.ext2syntax)
+  for ext in keys
+    " ensure the file extensions in ext2syntax start with a dot
+    if ext[0] != '.'
+      let new_ext = '.' . ext
+      let g:vimwiki_global_vars.ext2syntax[new_ext] = g:vimwiki_global_vars.ext2syntax[ext]
+      call remove(g:vimwiki_global_vars.ext2syntax, ext)
+    endif
+    " for convenience, we also allow the term 'mediawiki'
+    if g:vimwiki_global_vars.ext2syntax[ext] ==# 'mediawiki'
+      let g:vimwiki_global_vars.ext2syntax[ext] = 'media'
     endif
   endfor
 
@@ -204,32 +248,32 @@ function! s:validate_global_settings()
 endfunction
 
 
-" g:vimwiki_wikilocal_vars is a list of dictionaries: one dict for every registered wiki plus one
-" (the last in the list) which contains the default values (used for temporary wikis).
 function! s:populate_wikilocal_options()
   let default_values = {
-        \ 'auto_export': 0,
-        \ 'auto_tags': 0,
-        \ 'auto_toc': 0,
-        \ 'automatic_nested_syntaxes': 1,
-        \ 'css_name': 'style.css',
-        \ 'custom_wiki2html': '',
-        \ 'custom_wiki2html_args': '',
-        \ 'diary_header': 'Diary',
-        \ 'diary_index': 'diary',
-        \ 'diary_rel_path': 'diary/',
-        \ 'diary_sort': 'desc',
-        \ 'ext': '.wiki',
-        \ 'index': 'index',
-        \ 'list_margin': -1,
-        \ 'maxhi': 0,
-        \ 'nested_syntaxes': {},
-        \ 'path': '~/vimwiki/',
-        \ 'path_html': '',
-        \ 'syntax': 'default',
-        \ 'template_default': 'default',
-        \ 'template_ext': '.tpl',
-        \ 'template_path': '~/vimwiki/templates/',
+        \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
+        \ 'custom_wiki2html': {'type': type(''), 'default': ''},
+        \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
+        \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
+        \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
+        \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 1},
+        \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
+        \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
+        \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
+        \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
+        \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'nested_syntaxes': {'type': type({}), 'default': {}},
+        \ 'path': {'type': type(''), 'default': $HOME . '/vimwiki/', 'min_length': 1},
+        \ 'path_html': {'type': type(''), 'default': ''},
+        \ 'syntax': {'type': type(''), 'default': 'default',
+        \   'possible_values': ['default', 'markdown', 'media', 'mediawiki']},
+        \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
+        \ 'template_ext': {'type': type(''), 'default': '.tpl'},
+        \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
         \ }
 
   let g:vimwiki_wikilocal_vars = []
@@ -237,9 +281,10 @@ function! s:populate_wikilocal_options()
   let default_wiki_settings = {}
   for key in keys(default_values)
     if exists('g:vimwiki_'.key)
+      call s:check_users_value(key, g:vimwiki_{key}, default_values[key], 1)
       let default_wiki_settings[key] = g:vimwiki_{key}
     else
-      let default_wiki_settings[key] = default_values[key]
+      let default_wiki_settings[key] = default_values[key].default
     endif
   endfor
 
@@ -249,11 +294,10 @@ function! s:populate_wikilocal_options()
       let new_wiki_settings = {}
       for key in keys(default_values)
         if has_key(users_wiki_settings, key)
+          call s:check_users_value(key, users_wiki_settings[key], default_values[key], 0)
           let new_wiki_settings[key] = users_wiki_settings[key]
-        elseif exists('g:vimwiki_'.key)
-          let new_wiki_settings[key] = g:vimwiki_{key}
         else
-          let new_wiki_settings[key] = default_values[key]
+          let new_wiki_settings[key] = default_wiki_settings[key]
         endif
       endfor
 
@@ -273,11 +317,79 @@ function! s:populate_wikilocal_options()
   let temporary_wiki_settings.is_temporary_wiki = 1
   call add(g:vimwiki_wikilocal_vars, temporary_wiki_settings)
 
-  call s:validate_wikilocal_settings()
+  " check some values individually
+  let key = 'nested_syntaxes'
+  for wiki_settings in g:vimwiki_wikilocal_vars
+    let users_value = wiki_settings[key]
+    for keyword in keys(users_value)
+      if type(keyword) != type('') || empty(keyword) || type(users_value[keyword]) != type('') ||
+            \ empty(users_value[keyword])
+        echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+        break
+      endif
+    endfor
+  endfor
+
+  call s:normalize_wikilocal_settings()
 endfunction
 
 
-function! s:validate_wikilocal_settings()
+function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable)
+  let type_code_to_name = {
+        \ type(0): 'number',
+        \ type(''): 'string',
+        \ type([]): 'list',
+        \ type({}): 'dictionary'}
+
+  let setting_origin = a:comes_from_global_variable ?
+        \ printf('''g:vimwiki_%s''', a:key) :
+        \ printf('''%s'' in g:vimwiki_list', a:key)
+
+  if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
+    echom printf('Vimwiki Error: The provided value of the option %s is a %s, ' .
+          \ 'but expected is a %s. See '':h g:vimwiki_%s''.', setting_origin,
+          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key)
+  endif
+
+  if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
+        \ a:users_value < a:value_infos.min
+    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+          \ . ' too small. The minimum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ setting_origin, a:value_infos.min, a:key)
+  endif
+
+  if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
+        \ a:users_value > a:value_infos.max
+    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+          \ . ' too large. The maximum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ setting_origin, a:value_infos.max, a:key)
+  endif
+
+  if has_key(a:value_infos, 'possible_values') &&
+        \ index(a:value_infos.possible_values, a:users_value) == -1
+    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s is'
+          \ . ' invalid. Allowed values are %s. See ''g:vimwiki_%s''.', a:users_value,
+          \ setting_origin, string(a:value_infos.possible_values), a:key)
+  endif
+
+  if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
+        \ strwidth(a:users_value) != a:value_infos.length
+    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+          \ . ' contain exactly %i character(s) but has %i. See '':h g:vimwiki_%s''.',
+          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key)
+  endif
+
+  if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
+        \ strwidth(a:users_value) < a:value_infos.min_length
+    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+          \ . ' have at least %d character(s) but has %d. See '':h g:vimwiki_%s''.', a:users_value,
+          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key)
+  endif
+endfunction
+
+
+function! s:normalize_wikilocal_settings()
   for wiki_settings in g:vimwiki_wikilocal_vars
     let wiki_settings.css_name = vimwiki#path#file_segment(wiki_settings.css_name)
 
@@ -296,6 +408,16 @@ function! s:validate_wikilocal_settings()
     let wiki_settings['template_path'] =  vimwiki#path#dir_obj(wiki_settings['template_path'])
     let wiki_settings['diary_path'] =  vimwiki#path#join_dir(wiki_settings['path'],
           \ vimwiki#path#dir_segment(wiki_settings['diary_rel_path']))
+
+    let ext = wiki_settings['ext']
+    if !empty(ext) && ext[0] != '.'
+      let wiki_settings['ext'] = '.' . ext
+    endif
+
+    " for convenience, we also allow the term 'mediawiki'
+    if wiki_settings.syntax ==# 'mediawiki'
+      let wiki_settings.syntax = 'media'
+    endif
   endfor
 endfunction
 
@@ -390,7 +512,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   "create regexp for bulleted list items
   if !empty(g:vimwiki_syntax_variables[a:syntax].bullet_types)
     let g:vimwiki_syntax_variables[a:syntax].rxListBullet =
-          \ join( map(g:vimwiki_syntax_variables[a:syntax].bullet_types,
+          \ join( map(copy(g:vimwiki_syntax_variables[a:syntax].bullet_types),
           \'vimwiki#u#escape(v:val).'
           \ .'repeat("\\+", g:vimwiki_syntax_variables[a:syntax].recurring_bullets)'
           \ ) , '\|')
@@ -727,7 +849,7 @@ function! vimwiki#vars#add_temporary_wiki(settings)
     let new_temp_wiki_settings[key] = value
   endfor
   call insert(g:vimwiki_wikilocal_vars, new_temp_wiki_settings, -1)
-  call s:validate_wikilocal_settings()
+  call s:normalize_wikilocal_settings()
 endfunction
 
 

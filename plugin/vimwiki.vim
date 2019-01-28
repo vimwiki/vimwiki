@@ -14,6 +14,13 @@ let s:old_cpo = &cpo
 set cpo&vim
 
 
+if exists('g:vimwiki_autowriteall')
+  let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
+else
+  let s:vimwiki_autowriteall_saved = 1
+endif
+
+
 " this is called when the cursor leaves the buffer
 function! s:setup_buffer_leave()
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
@@ -24,7 +31,7 @@ function! s:setup_buffer_leave()
 
   let &autowriteall = s:vimwiki_autowriteall_saved
 
-  if vimwiki#vars#get_global('menu') != ""
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu disable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
@@ -49,6 +56,10 @@ function! s:create_temporary_wiki()
         \ }
 
   call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
+
+  " Update the wiki number of the current buffer, because it may have changed when adding this
+  " temporary wiki.
+  call vimwiki#vars#set_bufferlocal('wiki_nr', vimwiki#base#find_wiki(expand('%:p')))
 endfunction
 
 
@@ -137,7 +148,7 @@ function! s:set_global_options()
   let s:vimwiki_autowriteall_saved = &autowriteall
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
-  if vimwiki#vars#get_global('menu') !=# ''
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
@@ -147,23 +158,25 @@ endfunction
 " Vim defaults. So we enforce our settings here when the cursor enters a
 " Vimwiki buffer.
 function! s:set_windowlocal_options()
-  let foldmethod = vimwiki#vars#get_global('folding')
-  if foldmethod =~? '^expr.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^syntax.*'
-    setlocal foldmethod=syntax
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^custom.*'
-    " do nothing
-  else
-    setlocal foldmethod=manual
-    normal! zE
+  if !&diff   " if Vim is currently in diff mode, don't interfere with its folding
+    let foldmethod = vimwiki#vars#get_global('folding')
+    if foldmethod =~? '^expr.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^syntax.*'
+      setlocal foldmethod=syntax
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^custom.*'
+      " do nothing
+    else
+      setlocal foldmethod=manual
+      normal! zE
+    endif
   endif
 
   if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
@@ -219,11 +232,11 @@ endif
 
 augroup vimwiki
   autocmd!
+  autocmd ColorScheme * call s:setup_cleared_syntax()
   for s:ext in s:known_extensions
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
     if vimwiki#vars#get_global('table_auto_fmt')
@@ -256,14 +269,14 @@ command! -count=1 VimwikiTabIndex
 command! -count=1 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(v:count1)
 command! -count=1 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1)
+      \ call vimwiki#diary#make_note(v:count)
 command! -count=1 VimwikiTabMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 1)
+      \ call vimwiki#diary#make_note(v:count, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 command! -count=1 VimwikiMakeTomorrowDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
@@ -329,9 +342,9 @@ function! s:build_menu(topmenu)
     let norm_path = vimwiki#path#to_string(vimwiki#vars#get_wikilocal('path', idx))
     let norm_path = escape(norm_path, '\ .')
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
-          \ ' :call vimwiki#base#goto_index('.idx.')<CR>'
+          \ ' :call vimwiki#base#goto_index('.(idx+1).')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
-          \ ' :call vimwiki#diary#make_note('.idx.')<CR>'
+          \ ' :call vimwiki#diary#make_note('.(idx+1).')<CR>'
   endfor
 endfunction
 
