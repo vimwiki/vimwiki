@@ -3249,7 +3249,7 @@ http://code.google.com/p/vimwiki/issues/list
     * Issue 210: HTML: para enclose header.
     * Issue 214: External links containing Chinese characters get trimmed.
     * Issue 218: Command to generate HTML file and open it in webbrowser. See
-      |:Vimwiki2HTMLBrowse|(bind to <leader>whh)
+      |:Vimwiki2HTMLBrowse|(bind to <Leader>whh)
     * NEW: Added <Leader>wh mapping to call |:Vimwiki2HTML|
 
 
