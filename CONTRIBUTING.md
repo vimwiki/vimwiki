@@ -17,7 +17,7 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
       commits go here directly. Always try to keep this branch in a working state, that is, if the
       task you work on requires multiple commits, make sure intermediate commits don't make Vimwiki
       unusable (or at least push these commits at one go).
-    - `master`: This branches is for released states only. Whenever a reasonable set of changes has
+    - `master`: This branch is for released states only. Whenever a reasonable set of changes has
       piled up in the `dev` branch, a [release is done](#Preparing a release). After a release,
       `dev` has been merged into `master` and `master` got exactly one additional commit in which
       the version number in `plugin/vimwiki.vim` is updated. Apart from these commits and the merge
