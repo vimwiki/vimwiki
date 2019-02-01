@@ -135,7 +135,7 @@ normal 模式:
 
 在 `vimrc` 中加入以下插件设置：
 
-    Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+    Plug 'vimwiki/vimwiki'
 
 然后运行 `:PlugInstall`。
 
