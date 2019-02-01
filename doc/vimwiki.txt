@@ -1423,7 +1423,7 @@ Hit |zr| one more time :
 
 Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
-For Markdown and MediaWiki syntax, * or # should be in the first column.
+For MediaWiki syntax, * or # should be in the first column.
 
 To turn folding on/off check |g:vimwiki_folding|.
 
@@ -2280,8 +2280,8 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
 
-Note: if you use Markdown or MediaWiki syntax, you probably would like to set
-this option to 0, because every indented line is considered verbatim text.
+Note: if you use MediaWiki syntax, you probably would like to set this option
+to 0, because every indented line is considered verbatim text.
 
 
 *vimwiki-option-auto_tags*
