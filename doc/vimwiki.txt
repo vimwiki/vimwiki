@@ -2321,7 +2321,7 @@ Global options are configured using the following pattern: >
 Highlight headers with =Reddish=, ==Greenish==, ===Blueish=== colors.
 
 Value           Description~
-1               Use VimwikiHeader1-VimwikiHeader6 group colors to highlight
+1               Use VimwikiHeader1 - VimwikiHeader6 group colors to highlight
                 different header levels.
 0               Use |hl-Title| color for headers.
 Default: 0
@@ -2338,10 +2338,12 @@ Highlight checked list items with a special color:
 
 Value           Description~
 0               Don't highlight anything.
-1               Highlight checked [X] list item with |group-name| "Comment".
-2               Highlight checked [X] list item and all its child items.
+1               Highlight only the first line of a checked [X] list item.
+2               Highlight a complete checked list item and all its child items.
 
 Default: 0
+
+The |group-name| "Comment" is used for highlighting.
 
 Note: Option 2 does not work perfectly.  Specifically, it might break if the
 list item contains preformatted text or if you mix tabs and spaces for
