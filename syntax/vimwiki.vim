@@ -266,6 +266,16 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
         \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+elseif vimwiki#vars#get_global('hl_cb_checked') == 3
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+  execute 'syntax match VimwikiCheckBoxInProgress /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
+        \ . '\s*\[['.join(vimwiki#vars#get_syntaxlocal('listsyms_list')[1:-2], "")
+        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+  execute 'syntax match VimwikiCheckBoxRejected /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_global('listsym_rejected')
+        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
 endif
 
 

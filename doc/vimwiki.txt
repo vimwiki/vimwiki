@@ -2338,8 +2338,15 @@ Value           Description~
 0               Don't highlight anything.
 1               Highlight checked [X] list item with |group-name| "Comment".
 2               Highlight checked [X] list item and all its child items.
+3               Highlight list items with special |group-name|s.
 
 Default: 0
+
+The |group-name|s for option 3 are as follows:
+Checkbox       Highlight Group~
+[X]            VimwikiCheckBoxDone
+[.], [o], [O]  VimwikiCheckBoxInProgress
+[-]            VimwikiCheckBoxRejected
 
 Note: Option 2 does not work perfectly.  Specifically, it might break if the
 list item contains preformatted text or if you mix tabs and spaces for
