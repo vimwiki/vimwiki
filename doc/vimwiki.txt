@@ -2345,7 +2345,6 @@ Default: 0
 The |group-name|s for option 3 are as follows:
 Checkbox       Highlight Group~
 [X]            VimwikiCheckBoxDone
-[.], [o], [O]  VimwikiCheckBoxInProgress
 [-]            VimwikiCheckBoxRejected
 
 Note: Option 2 does not work perfectly.  Specifically, it might break if the
