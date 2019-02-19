@@ -349,8 +349,12 @@ function! s:tag_code(value)
   let l:str = s:mid(a:value, 1)
   let l:match = match(l:str, '^#[a-fA-F0-9]\{6\}$')
 
+
   if l:match != -1
-    let l:retstr .= " style='background-color: " . l:str . ";'"
+    let l:inv_color = 0xFFFFFF - eval("0x" . l:str[1:])
+
+    let l:retstr .= printf(" style='background-color: %s; color: #%x;'",
+          \ l:str, l:inv_color)
   endif
 
   let l:retstr .= '>'.s:safe_html_preformatted(l:str).'</code>'
