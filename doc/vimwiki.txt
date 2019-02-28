@@ -318,6 +318,12 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>wp <Plug>VimwikiPrevLink
 <
+gnt			*vimwiki_gnt*
+			Find next unfinished task in the current page.
+			Maps to |:VimwikiNextTask|
+			To remap: >
+			:nmap <Leader>nt <Plug>VimwikiNextTask
+<
                         *vimwiki_<Leader>wd*
 <Leader>wd              Delete wiki page you are in.
                         Maps to |:VimwikiDeleteLink|.
@@ -722,6 +728,9 @@ Vimwiki file.
 
 *:VimwikiRenameLink*
     Rename the wiki page you are in.
+
+*:VimwikiNextTask*
+    Jump to the next unfinished task in the current wiki page.
 
 *:Vimwiki2HTML*
     Convert current wiki page to HTML using Vimwiki's own converter or a
