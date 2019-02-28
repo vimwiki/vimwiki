@@ -253,6 +253,7 @@ command! -buffer VimwikiAll2HTML
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
+command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
 command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
@@ -380,6 +381,11 @@ if !hasmapto('<Plug>VimwikiNormalizeLinkVisualCR')
 endif
 vnoremap <silent><script><buffer>
       \ <Plug>VimwikiNormalizeLinkVisualCR :<C-U>VimwikiNormalizeLink 1<CR>
+
+if !hasmapto('<Plug>VimwikiNextTask')
+  nmap <silent><buffer> tt <Plug>VimwikiNextTask
+endif
+nnoremap <silent><script><buffer> <Plug>VimwikiNextTask :VimwikiNextTask<CR>
 
 if !hasmapto('<Plug>VimwikiTabnewLink')
   nmap <silent><buffer> <D-CR> <Plug>VimwikiTabnewLink

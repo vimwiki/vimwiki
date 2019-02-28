@@ -1091,6 +1091,9 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   call winrestview(winview_save)
 endfunction
 
+function! vimwiki#base#find_next_task()
+  call vimwiki#base#search_word(' \[ \] ', '')
+endfunction
 
 function! vimwiki#base#find_next_link()
   call vimwiki#base#search_word(vimwiki#vars#get_syntaxlocal('rxAnyLink'), '')
