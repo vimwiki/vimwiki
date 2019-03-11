@@ -10,7 +10,16 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
 `master` branch. (Caution, GitHub shows `master` as the default branch from which to start a PR.)
 
 
-# More info for (aspiring) core developers
+# More info and advice for (aspiring) core developers
+- Before implementing a non-trivial feature, think twice what it means for the user. We should
+  always try to keep backward compatiblility. If you are not sure, discuss it on GitHub.
+- Also, when thinking about adding a new feature, it should be something which fits into the
+  overall design of Vimwiki and which a significant portion of the users may like. Keep in mind
+  that everybody has their own way to use Vimwiki.
+- Keep the coding style consistent.
+- Test your changes. Keep in mind that Vim has a ton of options and the users tons of different
+  setups. Take a little time to think about under which circumstances your changes could break.
+
 ## Git branching model
 - there are two branches with eternal lifetime:
     - `dev`: This is where the main development happens. Tasks which are done in one or only a few
