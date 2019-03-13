@@ -358,7 +358,7 @@ function! vimwiki#base#generate_links()
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Links', links_rx, line('$')+1, 1)
+  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Links', links_rx, line('$')+1, 1, 1)
 endfunction
 
 
@@ -1015,14 +1015,14 @@ endfunction
 
 " creates or updates auto-generated listings in a wiki file, like TOC, diary
 " links, tags list etc.
-" - the listing consists of a level 1 header and a list of strings as content
+" - the listing consists of a header and a list of strings as content
 " - a:content_regex is used to determine how long a potentially existing list is
 " - a:default_lnum is the line number where the new listing should be placed if
 "   it's not already present
 " - if a:create is true, it will be created if it doesn't exist, otherwise it
 "   will only be updated if it already exists
 function! vimwiki#base#update_listing_in_buffer(strings, start_header,
-      \ content_regex, default_lnum, create)
+      \ content_regex, default_lnum, header_level, create)
   " Vim behaves strangely when files change while in diff mode
   if &diff || &readonly
     return
@@ -1031,7 +1031,8 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
   " check if the listing is already there
   let already_there = 0
 
-  let header_rx = '\m^\s*'.substitute(vimwiki#vars#get_syntaxlocal('rxH1_Template'),
+  let header_level = 'rxH' . a:header_level . '_Template'
+  let header_rx = '\m^\s*'.substitute(vimwiki#vars#get_syntaxlocal(header_level),
         \ '__Header__', a:start_header, '') .'\s*$'
 
   let start_lnum = 1
@@ -1083,7 +1084,7 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
 
   " write new listing
   let new_header = whitespaces_in_first_line
-        \ . s:safesubstitute(vimwiki#vars#get_syntaxlocal('rxH1_Template'),
+        \ . s:safesubstitute(vimwiki#vars#get_syntaxlocal(header_level),
         \ '__Header__', a:start_header, '')
   keepjumps call append(start_lnum - 1, new_header)
   let start_lnum += 1
@@ -1875,7 +1876,13 @@ function! vimwiki#base#table_of_contents(create)
 
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
-  call vimwiki#base#update_listing_in_buffer(lines, toc_header_text, links_rx, 1, a:create)
+  call vimwiki#base#update_listing_in_buffer(
+        \ lines,
+        \ toc_header_text,
+        \ links_rx,
+        \ 1,
+        \ vimwiki#vars#get_global('toc_header_level'),
+        \ a:create)
 endfunction
 
 

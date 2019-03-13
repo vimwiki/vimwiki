@@ -171,6 +171,7 @@ function! s:read_global_settings_from_user()
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
+        \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
         \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
