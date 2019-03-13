@@ -57,6 +57,7 @@ function! s:populate_global_variables()
         \ 'table_auto_fmt': 1,
         \ 'table_mappings': 1,
         \ 'toc_header': 'Contents',
+        \ 'toc_header_level': 1,
         \ 'url_maxsave': 15,
         \ 'use_calendar': 1,
         \ 'use_mouse': 0,

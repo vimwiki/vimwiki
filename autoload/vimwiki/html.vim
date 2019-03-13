@@ -1051,39 +1051,35 @@ function! s:process_tag_h(line, id)
     let h_id = s:escape_html_attribute(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# vimwiki#vars#get_global('toc_header')
+    let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
-      let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
+    " reset higher level ids
+    for level in range(h_level, 5)
+      let a:id[level] = ['', 0]
+    endfor
 
-      " reset higher level ids
-      for level in range(h_level, 5)
-        let a:id[level] = ['', 0]
-      endfor
-
-      for l in range(h_level-1)
-        let h_number .= a:id[l][1].'.'
-        if a:id[l][0] != ''
-          let h_complete_id .= a:id[l][0].'-'
-        endif
-      endfor
-      let h_number .= a:id[h_level-1][1]
-      let h_complete_id .= a:id[h_level-1][0]
-
-      if vimwiki#vars#get_global('html_header_numbering')
-        let num = matchstr(h_number,
-              \ '^\(\d.\)\{'.(vimwiki#vars#get_global('html_header_numbering')-1).'}\zs.*')
-        if !empty(num)
-          let num .= vimwiki#vars#get_global('html_header_numbering_sym')
-        endif
-        let h_text = num.' '.h_text
+    for l in range(h_level-1)
+      let h_number .= a:id[l][1].'.'
+      if a:id[l][0] != ''
+        let h_complete_id .= a:id[l][0].'-'
       endif
-      let h_complete_id = s:escape_html_attribute(h_complete_id)
+    endfor
+    let h_number .= a:id[h_level-1][1]
+    let h_complete_id .= a:id[h_level-1][0]
+
+    if vimwiki#vars#get_global('html_header_numbering')
+      let num = matchstr(h_number,
+            \ '^\(\d.\)\{'.(vimwiki#vars#get_global('html_header_numbering')-1).'}\zs.*')
+      if !empty(num)
+        let num .= vimwiki#vars#get_global('html_header_numbering_sym')
+      endif
+      let h_text = num.' '.h_text
+    endif
+    let h_complete_id = s:escape_html_attribute(h_complete_id)
+    if h_text !=# vimwiki#vars#get_global('toc_header')
       let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
-
     else
-
-      let h_part = '<div id="'.h_id.'" class="toc"><h1 id="'.h_id.'"'
-
+      let h_part = '<div id="'.h_id.'" class="toc"><h'.h_level.' id="'.h_id.'"'
     endif
 
     if centered
