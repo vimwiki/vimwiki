@@ -6,7 +6,7 @@
 # commenting / uncommenting the relevant lines below.
 #
 #   NEW!  An alternative converter was developed by Jason6Anderson, and can
-#   be located at http://code.google.com/p/vimwiki/issues/detail?id=384
+#   be located at https://github.com/vimwiki-backup/vimwiki/issues/384
 #
 #
 # To use this script, you must have the Discount converter installed.

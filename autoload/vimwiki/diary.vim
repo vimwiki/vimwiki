@@ -1,88 +1,80 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-" Desc: Handle diary notes
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Description: Handle diary notes
+" Home: https://github.com/vimwiki/vimwiki/
 
-" Load only once {{{
+
 if exists("g:loaded_vimwiki_diary_auto") || &cp
   finish
 endif
 let g:loaded_vimwiki_diary_auto = 1
-"}}}
+
 
 let s:vimwiki_max_scan_for_caption = 5
 
-" Helpers {{{
-function! s:prefix_zero(num) "{{{
+
+function! s:prefix_zero(num)
   if a:num < 10
     return '0'.a:num
   endif
   return a:num
-endfunction "}}}
+endfunction
 
-function! s:get_date_link(fmt) "{{{
-  return strftime(a:fmt)
-endfunction "}}}
 
-function! s:link_exists(lines, link) "{{{
-  let link_exists = 0
-  for line in a:lines
-    if line =~ escape(a:link, '[]\')
-      let link_exists = 1
-      break
-    endif
-  endfor
-  return link_exists
-endfunction "}}}
+function! s:diary_path(...)
+  let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
+  return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
+endfunction
 
-function! s:diary_path(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx)
-endfunction "}}}
 
-function! s:diary_index(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:diary_path(idx).VimwikiGet('diary_index', idx).VimwikiGet('ext', idx)
-endfunction "}}}
+function! s:diary_index(...)
+  let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
+  return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).
+        \ vimwiki#vars#get_wikilocal('ext', idx)
+endfunction
 
-function! s:diary_date_link(...) "{{{
-  let idx = a:0 == 0 ? g:vimwiki_current_idx : a:1
-  return s:get_date_link(VimwikiGet('diary_link_fmt', idx))
-endfunction "}}}
 
-function! s:get_position_links(link) "{{{
+function! vimwiki#diary#diary_date_link(...)
+  if a:0
+    return strftime('%Y-%m-%d', a:1)
+  else
+    return strftime('%Y-%m-%d')
+  endif
+endfunction
+
+
+function! s:get_position_links(link)
   let idx = -1
   let links = []
-  if a:link =~ '^\d\{4}-\d\d-\d\d'
-    let links = keys(s:get_diary_links())
+  if a:link =~# '^\d\{4}-\d\d-\d\d'
+    let links = map(s:get_diary_files(), 'fnamemodify(v:val, ":t:r")')
     " include 'today' into links
-    if index(links, s:diary_date_link()) == -1
-      call add(links, s:diary_date_link())
+    if index(links, vimwiki#diary#diary_date_link()) == -1
+      call add(links, vimwiki#diary#diary_date_link())
     endif
     call sort(links)
     let idx = index(links, a:link)
   endif
   return [idx, links]
-endfunction "}}}
+endfunction
 
-fun! s:get_month_name(month) "{{{
-  return g:vimwiki_diary_months[str2nr(a:month)]
-endfun "}}}
 
-" Helpers }}}
+function! s:get_month_name(month)
+  return vimwiki#vars#get_global('diary_months')[str2nr(a:month)]
+endfunction
 
-" Diary index stuff {{{
-fun! s:read_captions(files) "{{{
+
+function! s:read_captions(files)
   let result = {}
+  let rx_header = vimwiki#vars#get_syntaxlocal('rxHeader')
   for fl in a:files
     " remove paths and extensions
-    let fl_key = fnamemodify(fl, ':t:r')
+    let fl_key = substitute(fnamemodify(fl, ':t'), vimwiki#vars#get_wikilocal('ext').'$', '', '')
 
     if filereadable(fl)
       for line in readfile(fl, '', s:vimwiki_max_scan_for_caption)
-        if line =~ g:vimwiki_rxHeader && !has_key(result, fl_key)
-          let result[fl_key] = vimwiki#u#trim(matchstr(line, g:vimwiki_rxHeader))
+        if line =~# rx_header && !has_key(result, fl_key)
+          let result[fl_key] = vimwiki#u#trim(matchstr(line, rx_header))
         endif
       endfor
     endif
@@ -93,26 +85,24 @@ fun! s:read_captions(files) "{{{
 
   endfor
   return result
-endfun "}}}
+endfunction
 
-fun! s:get_diary_links(...) "{{{
+
+function! s:get_diary_files()
   let rx = '^\d\{4}-\d\d-\d\d'
-  let s_files = glob(VimwikiGet('path').VimwikiGet('diary_rel_path').'*'.VimwikiGet('ext'))
+  let s_files = glob(vimwiki#vars#get_wikilocal('path').
+        \ vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
   let files = split(s_files, '\n')
-  call filter(files, 'fnamemodify(v:val, ":t") =~ "'.escape(rx, '\').'"')
+  call filter(files, 'fnamemodify(v:val, ":t") =~# "'.escape(rx, '\').'"')
 
   " remove backup files (.wiki~)
-  call filter(files, 'v:val !~ ''.*\~$''')
+  call filter(files, 'v:val !~# ''.*\~$''')
 
-  if a:0
-    call add(files, a:1)
-  endif
-  let links_with_captions = s:read_captions(files)
+  return files
+endfunction
 
-  return links_with_captions
-endfun "}}}
 
-fun! s:group_links(links) "{{{
+function! s:group_links(links)
   let result = {}
   let p_year = 0
   let p_month = 0
@@ -131,130 +121,105 @@ fun! s:group_links(links) "{{{
     let p_month = month
   endfor
   return result
-endfun "}}}
+endfunction
 
-fun! s:sort(lst) "{{{
-  if VimwikiGet("diary_sort") == 'desc'
+
+function! s:sort(lst)
+  if vimwiki#vars#get_wikilocal('diary_sort') ==? 'desc'
     return reverse(sort(a:lst))
   else
     return sort(a:lst)
   endif
-endfun "}}}
+endfunction
 
-fun! s:format_diary(...) "{{{
+
+function! s:format_diary()
   let result = []
 
-  call add(result, substitute(g:vimwiki_rxH1_Template, '__Header__', VimwikiGet('diary_header'), ''))
+  let links_with_captions = s:read_captions(s:get_diary_files())
+  let g_files = s:group_links(links_with_captions)
 
-  if a:0
-    let g_files = s:group_links(s:get_diary_links(a:1))
-  else
-    let g_files = s:group_links(s:get_diary_links())
-  endif
-
-  " for year in s:rev(sort(keys(g_files)))
   for year in s:sort(keys(g_files))
     call add(result, '')
-    call add(result, substitute(g:vimwiki_rxH2_Template, '__Header__', year , ''))
+    call add(result,
+          \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', year , ''))
 
-    " for month in s:rev(sort(keys(g_files[year])))
     for month in s:sort(keys(g_files[year]))
       call add(result, '')
-      call add(result, substitute(g:vimwiki_rxH3_Template, '__Header__', s:get_month_name(month), ''))
+      call add(result, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'),
+            \ '__Header__', s:get_month_name(month), ''))
 
-      " for [fl, cap] in s:rev(sort(items(g_files[year][month])))
       for [fl, cap] in s:sort(items(g_files[year][month]))
-        if empty(cap)
-          let entry = substitute(g:vimwiki_WikiLinkTemplate1, '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
-        else
-          let entry = substitute(g:vimwiki_WikiLinkTemplate2, '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', cap, '')
-          call add(result, repeat(' ', &sw).'* '.entry)
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+
+          if empty(cap) " When using markdown syntax, we should ensure we always have a link description.
+            let cap = fl
+          endif
+        elseif empty(cap)
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
         endif
+
+        let entry = substitute(link_tpl, '__LinkUrl__', fl, '')
+        let entry = substitute(entry, '__LinkDescription__', cap, '')
+        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
       endfor
 
     endfor
   endfor
-  call add(result, '')
 
   return result
-endfun "}}}
+endfunction
 
-function! s:delete_diary_section() "{{{
-  " remove diary section
-  let old_pos = getpos('.')
-  let ln_start = -1
-  let ln_end = -1
-  call cursor(1, 1)
-  if search(substitute(g:vimwiki_rxH1_Template, '__Header__', VimwikiGet('diary_header'), ''), 'Wc')
-    let ln_start = line('.')
-    if search(g:vimwiki_rxH1, 'W')
-      let ln_end = line('.') - 1
-    else
-      let ln_end = line('$')
+
+" The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
+" contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
+" is used.
+function! vimwiki#diary#make_note(wnum, ...)
+  if a:wnum == 0
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+    if wiki_nr < 0  " this happens when e.g. VimwikiMakeDiaryNote was called outside a wiki buffer
+      let wiki_nr = 0
     endif
+  else
+    let wiki_nr = a:wnum - 1
   endif
 
-  if ln_start < 0 || ln_end < 0
-    call setpos('.', old_pos)
-    return
-  endif
-
-  if !&readonly
-    exe ln_start.",".ln_end."delete _"
-  endif
-
-  call setpos('.', old_pos)
-endfunction "}}}
-
-function! s:insert_diary_section() "{{{
-  if !&readonly
-    let ln = line('.')
-    call append(ln, s:format_diary())
-    if ln == 1 && getline(ln) == ''
-      1,1delete
-    endif
-  endif
-endfunction "}}}
-
-" Diary index stuff }}}
-
-function! vimwiki#diary#make_note(wnum, ...) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echom "vimwiki: Wiki ".a:wnum." is not registered in g:vimwiki_list!"
+  if wiki_nr >= vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.wiki_nr.' is not registered in g:vimwiki_list!'
     return
   endif
 
   " TODO: refactor it. base#goto_index uses the same
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
-  endif
 
-  call vimwiki#base#validate_wiki_options(idx)
-  call vimwiki#base#mkdir(VimwikiGet('path', idx).VimwikiGet('diary_rel_path', idx))
+  call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', wiki_nr).
+        \ vimwiki#vars#get_wikilocal('diary_rel_path', wiki_nr))
 
-  if a:0 && a:1 == 1
-    let cmd = 'tabedit'
-  else
-    let cmd = 'edit'
+  let cmd = 'edit'
+  if a:0
+    if a:1 == 1
+      let cmd = 'tabedit'
+    elseif a:1 == 2
+      let cmd = 'split'
+    elseif a:1 == 3
+      let cmd = 'vsplit'
+    endif
   endif
   if a:0>1
     let link = 'diary:'.a:2
   else
-    let link = 'diary:'.s:diary_date_link(idx)
+    let link = 'diary:'.vimwiki#diary#diary_date_link()
   endif
 
-  call vimwiki#base#open_link(cmd, link, s:diary_index(idx))
-  call vimwiki#base#setup_buffer_state(idx)
-endfunction "}}}
+  call vimwiki#base#open_link(cmd, link, s:diary_index(wiki_nr))
+endfunction
 
-function! vimwiki#diary#goto_diary_index(wnum) "{{{
-  if a:wnum > len(g:vimwiki_list)
-    echom "vimwiki: Wiki ".a:wnum." is not registered in g:vimwiki_list!"
+
+function! vimwiki#diary#goto_diary_index(wnum)
+  if a:wnum > vimwiki#vars#number_of_wikis()
+    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
     return
   endif
 
@@ -265,12 +230,16 @@ function! vimwiki#diary#goto_diary_index(wnum) "{{{
     let idx = 0
   endif
 
-  call vimwiki#base#validate_wiki_options(idx)
   call vimwiki#base#edit_file('e', s:diary_index(idx), '')
-  call vimwiki#base#setup_buffer_state(idx)
-endfunction "}}}
 
-function! vimwiki#diary#goto_next_day() "{{{
+  if vimwiki#vars#get_wikilocal('auto_diary_index')
+    call vimwiki#diary#generate_diary_section()
+    write! " save changes
+  endif
+endfunction
+
+
+function! vimwiki#diary#goto_next_day()
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -282,15 +251,16 @@ function! vimwiki#diary#goto_next_day() "{{{
     let link = 'diary:'.links[idx+1]
   else
     " goto today
-    let link = 'diary:'.s:diary_date_link()
+    let link = 'diary:'.vimwiki#diary#diary_date_link()
   endif
 
   if len(link)
     call vimwiki#base#open_link(':e ', link)
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#diary#goto_prev_day() "{{{
+
+function! vimwiki#diary#goto_prev_day()
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -302,34 +272,36 @@ function! vimwiki#diary#goto_prev_day() "{{{
     let link = 'diary:'.links[idx-1]
   else
     " goto today
-    let link = 'diary:'.s:diary_date_link()
+    let link = 'diary:'.vimwiki#diary#diary_date_link()
   endif
 
   if len(link)
     call vimwiki#base#open_link(':e ', link)
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#diary#generate_diary_section() "{{{
-  let current_file = vimwiki#u#path_norm(expand("%:p"))
-  let diary_file = vimwiki#u#path_norm(s:diary_index())
-  if  current_file == diary_file
-    call s:delete_diary_section()
-    call s:insert_diary_section()
+
+function! vimwiki#diary#generate_diary_section()
+  let current_file = vimwiki#path#path_norm(expand("%:p"))
+  let diary_file = vimwiki#path#path_norm(s:diary_index())
+  if vimwiki#path#is_equal(current_file, diary_file)
+    let content_rx = '^\%(\s*\* \)\|\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)'
+    call vimwiki#base#update_listing_in_buffer(s:format_diary(),
+          \ vimwiki#vars#get_wikilocal('diary_header'), content_rx, line('$')+1, 1)
   else
-    echom "vimwiki: You can generate diary links only in a diary index page!"
+    echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
   endif
-endfunction "}}}
+endfunction
 
-" Calendar.vim {{{
-" Callback function.
-function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
+
+" Callback function for Calendar.vim
+function! vimwiki#diary#calendar_action(day, month, year, week, dir)
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
 
   let link = a:year.'-'.month.'-'.day
   if winnr('#') == 0
-    if a:dir == 'V'
+    if a:dir ==? 'V'
       vsplit
     else
       split
@@ -341,18 +313,15 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) "{{{
     endif
   endif
 
-  " XXX: Well, +1 is for inconsistent index basing...
-  call vimwiki#diary#make_note(g:vimwiki_current_idx+1, 0, link)
-endfunction "}}}
+  call vimwiki#diary#make_note(0, 0, link)
+endfunction
 
-" Sign function.
-function vimwiki#diary#calendar_sign(day, month, year) "{{{
+
+function vimwiki#diary#calendar_sign(day, month, year)
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
-  let sfile = VimwikiGet('path').VimwikiGet('diary_rel_path').
-        \ a:year.'-'.month.'-'.day.VimwikiGet('ext')
+  let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
+        \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
-endfunction "}}}
-
-" Calendar.vim }}}
+endfunction
 
