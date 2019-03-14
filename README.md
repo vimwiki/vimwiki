@@ -121,7 +121,6 @@ Changing Wiki Syntax
                            \ 'syntax': 'markdown', 'ext': '.md'}]
  ```
 
-
 Installation
 ==============================================================================
 
