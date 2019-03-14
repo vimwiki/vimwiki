@@ -115,6 +115,16 @@ Changing Wiki Syntax
 
  Vimwiki currently ships with 3 syntaxes: Vimwiki (default), Markdown (markdown), and MediaWiki (media)
 
+ If you would prefer to use either Markdown or MediaWiki syntaxes, set the following option in your .vimrc:
+ ```
+     let g:vimwiki_list = [{'path': '~/vimwiki/',
+                           \ 'syntax': 'markdown', 'ext': '.md'}]
+ ```
+
+
+Installation
+==============================================================================
+
 
 Prerequisites
 ------------------------------------------------------------------------------
