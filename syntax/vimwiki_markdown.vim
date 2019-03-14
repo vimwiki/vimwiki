@@ -13,23 +13,21 @@ let s:markdown_syntax = g:vimwiki_syntax_variables['markdown']
 let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:markdown_syntax.char_eqin = '\$'
 
-" text: *strong*
-" let s:markdown_syntax.rxBold = '\*[^*]\+\*'
+" text: **strong** or __strong__
 let s:markdown_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\*'.
+      \'\(\*\|_\)\{2\}'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1\{2\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bold = '*'
+let s:markdown_syntax.char_bold = '\*\*\|__'
 
-" text: _emphasis_
-" let s:markdown_syntax.rxItalic = '_[^_]\+_'
+" text: _emphasis_ or *emphasis*
 let s:markdown_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_'.
-      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-      \'_'.
+      \'\(\*\|_\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italic = '_'
+let s:markdown_syntax.char_italic = '\*\|_'
 
 " text: *_bold italic_* or _*italic bold*_
 let s:markdown_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
