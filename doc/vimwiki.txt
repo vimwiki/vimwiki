@@ -513,6 +513,12 @@ gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
 gww                     will reformat it.
 
+                        *vimwiki_gq1*  *vimwiki_gw1*
+gq1                     Fast format table. The same as the previous, except
+ or                     that only a few lines above the current line are
+gw1                     tested. If the alignment of the current line differs,
+                        then the whole table gets reformatted.
+
                         *vimwiki_<A-Left>*
 <A-Left>                Move current table column to the left.
                         See |:VimwikiTableMoveColumnLeft|
