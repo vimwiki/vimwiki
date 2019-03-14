@@ -30,7 +30,7 @@ With vimwiki you can:
  * manage todo-lists;
  * write documentation.
 
-To do a quick start press `<Leader>`ww (this is usually \ww) to go to your index
+To do a quick start press <Leader>ww (this is usually \ww) to go to your index
 wiki file.  By default it is located in: 
     ~/vimwiki/index.wiki
 
@@ -102,7 +102,7 @@ normal mode:
  * `<Leader>wd` -- Delete wiki file you are in. 
  * `<Leader>wr` -- Rename wiki file you are in. 
  * `<Enter>` -- Folow/Create wiki link 
- * `<Shift-Enter>` -- Split and follow/create wiki link 
+ * `<Shift-Enter>` -- Split and folow/create wiki link 
  * `<Ctrl-Enter>` -- Vertical split and folow/create wiki link 
  * `<Backspace>` -- Go back to parent(previous) wiki link 
  * `<Tab>` -- Find next wiki link 

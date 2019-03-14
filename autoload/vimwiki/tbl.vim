@@ -1,36 +1,36 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-" Desc: Tables
+" Description: Tables
 " | Easily | manageable | text  | tables | !       |
 " |--------|------------|-------|--------|---------|
 " | Have   | fun!       | Drink | tea    | Period. |
 "
-" Author: Maxim Kim <habamax@gmail.com>
-" Home: http://code.google.com/p/vimwiki/
+" Home: https://github.com/vimwiki/vimwiki/
 
-" Load only once {{{
+
+
 if exists("g:loaded_vimwiki_tbl_auto") || &cp
   finish
 endif
 let g:loaded_vimwiki_tbl_auto = 1
-"}}}
+
 
 let s:textwidth = &tw
 
 
-" Misc functions {{{
-function! s:rxSep() "{{{
-  return g:vimwiki_rxTableSep
-endfunction "}}}
+function! s:rxSep()
+  return vimwiki#vars#get_syntaxlocal('rxTableSep')
+endfunction
 
-function! s:wide_len(str) "{{{
+
+function! s:wide_len(str)
   " vim73 has new function that gives correct string width.
   if exists("*strdisplaywidth")
     return strdisplaywidth(a:str)
   endif
 
   " get str display width in vim ver < 7.2
-  if !g:vimwiki_CJK_length
+  if !vimwiki#vars#get_global('CJK_length')
     let ret = strlen(substitute(a:str, '.', 'x', 'g'))
   else
     let savemodified = &modified
@@ -43,42 +43,49 @@ function! s:wide_len(str) "{{{
     let &modified = savemodified
   endif
   return ret
-endfunction "}}}
+endfunction
 
-function! s:cell_splitter() "{{{
+
+function! s:cell_splitter()
   return '\s*'.s:rxSep().'\s*'
-endfunction "}}}
+endfunction
 
-function! s:sep_splitter() "{{{
+
+function! s:sep_splitter()
   return '-'.s:rxSep().'-'
-endfunction "}}}
+endfunction
 
-function! s:is_table(line) "{{{
-  return s:is_separator(a:line) || (a:line !~ s:rxSep().s:rxSep() && a:line =~ '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
-endfunction "}}}
 
-function! s:is_separator(line) "{{{
-  return a:line =~ '^\s*'.s:rxSep().'\(--\+'.s:rxSep().'\)\+\s*$'
-endfunction "}}}
+function! s:is_table(line)
+  return s:is_separator(a:line) ||
+        \ (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
+endfunction
 
-function! s:is_separator_tail(line) "{{{
-  return a:line =~ '^\{-1}\%(\s*\|-*\)\%('.s:rxSep().'-\+\)\+'.s:rxSep().'\s*$'
-endfunction "}}}
 
-function! s:is_last_column(lnum, cnum) "{{{
+function! s:is_separator(line)
+  return a:line =~# '^\s*'.s:rxSep().'\(--\+'.s:rxSep().'\)\+\s*$'
+endfunction
+
+
+function! s:is_separator_tail(line)
+  return a:line =~# '^\{-1}\%(\s*\|-*\)\%('.s:rxSep().'-\+\)\+'.s:rxSep().'\s*$'
+endfunction
+
+
+function! s:is_last_column(lnum, cnum)
   let line = strpart(getline(a:lnum), a:cnum - 1)
-  "echomsg "DEBUG is_last_column> ".(line =~ s:rxSep().'\s*$' && line !~ s:rxSep().'.*'.s:rxSep().'\s*$')
-  return line =~ s:rxSep().'\s*$'  && line !~ s:rxSep().'.*'.s:rxSep().'\s*$'
- 
-endfunction "}}}
+  return line =~# s:rxSep().'\s*$'  && line !~# s:rxSep().'.*'.s:rxSep().'\s*$'
+endfunction
 
-function! s:is_first_column(lnum, cnum) "{{{
+
+function! s:is_first_column(lnum, cnum)
   let line = strpart(getline(a:lnum), 0, a:cnum - 1)
-  "echomsg "DEBUG is_first_column> ".(line =~ '^\s*'.s:rxSep() && line !~ '^\s*'.s:rxSep().'.*'.s:rxSep())
-  return line =~ '^\s*$' || (line =~ '^\s*'.s:rxSep() && line !~ '^\s*'.s:rxSep().'.*'.s:rxSep())
-endfunction "}}}
+  return line =~# '^\s*$' ||
+        \ (line =~# '^\s*'.s:rxSep() && line !~# '^\s*'.s:rxSep().'.*'.s:rxSep())
+endfunction
 
-function! s:count_separators_up(lnum) "{{{
+
+function! s:count_separators_up(lnum)
   let lnum = a:lnum - 1
   while lnum > 1
     if !s:is_separator(getline(lnum))
@@ -88,9 +95,10 @@ function! s:count_separators_up(lnum) "{{{
   endwhile
 
   return (a:lnum-lnum)
-endfunction "}}}
+endfunction
 
-function! s:count_separators_down(lnum) "{{{
+
+function! s:count_separators_down(lnum)
   let lnum = a:lnum + 1
   while lnum < line('$')
     if !s:is_separator(getline(lnum))
@@ -100,9 +108,10 @@ function! s:count_separators_down(lnum) "{{{
   endwhile
 
   return (lnum-a:lnum)
-endfunction "}}}
+endfunction
 
-function! s:create_empty_row(cols) "{{{
+
+function! s:create_empty_row(cols)
   let row = s:rxSep()
   let cell = "   ".s:rxSep()
 
@@ -111,9 +120,10 @@ function! s:create_empty_row(cols) "{{{
   endfor
 
   return row
-endfunction "}}}
+endfunction
 
-function! s:create_row_sep(cols) "{{{
+
+function! s:create_row_sep(cols)
   let row = s:rxSep()
   let cell = "---".s:rxSep()
 
@@ -122,9 +132,10 @@ function! s:create_row_sep(cols) "{{{
   endfor
 
   return row
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#get_cells(line, ...) "{{{
+
+function! vimwiki#tbl#get_cells(line, ...)
   let result = []
   let state = 'NONE'
   let cell_start = 0
@@ -139,12 +150,12 @@ function! vimwiki#tbl#get_cells(line, ...) "{{{
     for idx in range(quote_start, len)
       " The only way I know Vim can do Unicode...
       let ch = a:line[idx]
-      if state == 'NONE'
+      if state ==# 'NONE'
         if ch == '|'
           let cell_start = idx + 1
           let state = 'CELL'
         endif
-      elseif state == 'CELL'
+      elseif state ==# 'CELL'
         if ch == '[' || ch == '{'
           let state = 'BEFORE_QUOTE_START'
           let quote_start = idx
@@ -158,18 +169,18 @@ function! vimwiki#tbl#get_cells(line, ...) "{{{
           call add(result, cell)
           let cell_start = idx + 1
         endif
-      elseif state == 'BEFORE_QUOTE_START'
+      elseif state ==# 'BEFORE_QUOTE_START'
         if ch == '[' || ch == '{'
           let state = 'QUOTE'
           let quote_start = idx
         else
           let state = 'CELL'
         endif
-      elseif state == 'QUOTE'
+      elseif state ==# 'QUOTE'
         if ch == ']' || ch == '}'
           let state = 'BEFORE_QUOTE_END'
         endif
-      elseif state == 'BEFORE_QUOTE_END'
+      elseif state ==# 'BEFORE_QUOTE_END'
         if ch == ']' || ch == '}'
           let state = 'CELL'
         endif
@@ -181,13 +192,15 @@ function! vimwiki#tbl#get_cells(line, ...) "{{{
   endwhile
 
   return result
-endfunction "}}}
+endfunction
 
-function! s:col_count(lnum) "{{{
+
+function! s:col_count(lnum)
   return len(vimwiki#tbl#get_cells(getline(a:lnum)))
-endfunction "}}}
+endfunction
 
-function! s:get_indent(lnum) "{{{
+
+function! s:get_indent(lnum)
   if !s:is_table(getline(a:lnum))
     return
   endif
@@ -205,9 +218,10 @@ function! s:get_indent(lnum) "{{{
   endwhile
 
   return indent
-endfunction " }}}
+endfunction
 
-function! s:get_rows(lnum, ...) "{{{
+
+function! s:get_rows(lnum, ...)
   if !s:is_table(getline(a:lnum))
     return
   endif
@@ -245,9 +259,10 @@ function! s:get_rows(lnum, ...) "{{{
   endwhile
 
   return upper_rows + lower_rows
-endfunction "}}}
+endfunction
 
-function! s:get_cell_max_lens(lnum, ...) "{{{
+
+function! s:get_cell_max_lens(lnum, ...)
   let max_lens = {}
   let rows = a:0 > 2 ? a:3 : s:get_rows(a:lnum)
   for [lnum, row] in rows
@@ -265,9 +280,10 @@ function! s:get_cell_max_lens(lnum, ...) "{{{
     endfor
   endfor
   return max_lens
-endfunction "}}}
+endfunction
 
-function! s:get_aligned_rows(lnum, col1, col2, depth) "{{{
+
+function! s:get_aligned_rows(lnum, col1, col2, depth)
   let rows = []
   let startlnum = 0
   let cells = []
@@ -308,10 +324,11 @@ function! s:get_aligned_rows(lnum, col1, col2, depth) "{{{
     call add(result, [lnum, new_row])
   endfor
   return result
-endfunction "}}}
+endfunction
+
 
 " Number of the current column. Starts from 0.
-function! s:cur_column() "{{{
+function! s:cur_column()
   let line = getline('.')
   if !s:is_table(line)
     return -1
@@ -328,12 +345,10 @@ function! s:cur_column() "{{{
     endif
   endwhile
   return col
-endfunction "}}}
+endfunction
 
-" }}}
 
-" Format functions {{{
-function! s:fmt_cell(cell, max_len) "{{{
+function! s:fmt_cell(cell, max_len)
   let cell = ' '.a:cell.' '
 
   let diff = a:max_len - s:wide_len(a:cell)
@@ -343,9 +358,10 @@ function! s:fmt_cell(cell, max_len) "{{{
 
   let cell .= repeat(' ', diff)
   return cell
-endfunction "}}}
+endfunction
 
-function! s:fmt_row(cells, max_lens, col1, col2) "{{{
+
+function! s:fmt_row(cells, max_lens, col1, col2)
   let new_line = s:rxSep()
   for idx in range(len(a:cells))
     if idx == a:col1
@@ -363,17 +379,19 @@ function! s:fmt_row(cells, max_lens, col1, col2) "{{{
     let idx += 1
   endwhile
   return new_line
-endfunction "}}}
+endfunction
 
-function! s:fmt_cell_sep(max_len) "{{{
+
+function! s:fmt_cell_sep(max_len)
   if a:max_len == 0
     return repeat('-', 3)
   else
     return repeat('-', a:max_len+2)
   endif
-endfunction "}}}
+endfunction
 
-function! s:fmt_sep(max_lens, col1, col2) "{{{
+
+function! s:fmt_sep(max_lens, col1, col2)
   let new_line = s:rxSep()
   for idx in range(len(a:max_lens))
     if idx == a:col1
@@ -384,11 +402,10 @@ function! s:fmt_sep(max_lens, col1, col2) "{{{
     let new_line .= s:fmt_cell_sep(a:max_lens[idx]).s:rxSep()
   endfor
   return new_line
-endfunction "}}}
-"}}}
+endfunction
 
-" Keyboard functions "{{{
-function! s:kbd_create_new_row(cols, goto_first) "{{{
+
+function! s:kbd_create_new_row(cols, goto_first)
   let cmd = "\<ESC>o".s:create_empty_row(a:cols)
   let cmd .= "\<ESC>:call vimwiki#tbl#format(line('.'), 2)\<CR>"
   let cmd .= "\<ESC>0"
@@ -401,26 +418,29 @@ function! s:kbd_create_new_row(cols, goto_first) "{{{
   let cmd .= "a"
 
   return cmd
-endfunction "}}}
+endfunction
 
-function! s:kbd_goto_next_row() "{{{
+
+function! s:kbd_goto_next_row()
   let cmd = "\<ESC>j"
   let cmd .= ":call search('.\\(".s:rxSep()."\\)', 'c', line('.'))\<CR>"
   let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'bc', line('.'))\<CR>"
   let cmd .= "a"
   return cmd
-endfunction "}}}
+endfunction
 
-function! s:kbd_goto_prev_row() "{{{
+
+function! s:kbd_goto_prev_row()
   let cmd = "\<ESC>k"
   let cmd .= ":call search('.\\(".s:rxSep()."\\)', 'c', line('.'))\<CR>"
   let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'bc', line('.'))\<CR>"
   let cmd .= "a"
   return cmd
-endfunction "}}}
+endfunction
+
 
 " Used in s:kbd_goto_next_col
-function! vimwiki#tbl#goto_next_col() "{{{
+function! vimwiki#tbl#goto_next_col()
   let curcol = virtcol('.')
   let lnum = line('.')
   let newcol = s:get_indent(lnum)
@@ -439,9 +459,10 @@ function! vimwiki#tbl#goto_next_col() "{{{
   endfor
   let newcol += 2 " +2 == 1 separator + 1 space |<space
   call vimwiki#u#cursor(lnum, newcol)
-endfunction "}}}
+endfunction
 
-function! s:kbd_goto_next_col(jumpdown) "{{{
+
+function! s:kbd_goto_next_col(jumpdown)
   let cmd = "\<ESC>"
   if a:jumpdown
     let seps = s:count_separators_down(line('.'))
@@ -449,10 +470,11 @@ function! s:kbd_goto_next_col(jumpdown) "{{{
   endif
   let cmd .= ":call vimwiki#tbl#goto_next_col()\<CR>a"
   return cmd
-endfunction "}}}
+endfunction
+
 
 " Used in s:kbd_goto_prev_col
-function! vimwiki#tbl#goto_prev_col() "{{{
+function! vimwiki#tbl#goto_prev_col()
   let curcol = virtcol('.')
   let lnum = line('.')
   let newcol = s:get_indent(lnum)
@@ -464,7 +486,6 @@ function! vimwiki#tbl#goto_prev_col() "{{{
   endfor
   let max_lens = s:get_cell_max_lens(lnum, cells, startlnum, rows)
   let prev_cell_len = 0
-  echom string(max_lens) 
   for cell_len in values(max_lens)
     let delta = cell_len + 3 " +3 == 2 spaces + 1 separator |<space>...<space>
     if newcol + delta > curcol-1
@@ -478,9 +499,10 @@ function! vimwiki#tbl#goto_prev_col() "{{{
   endfor
   let newcol += 2 " +2 == 1 separator + 1 space |<space
   call vimwiki#u#cursor(lnum, newcol)
-endfunction "}}}
+endfunction
 
-function! s:kbd_goto_prev_col(jumpup) "{{{
+
+function! s:kbd_goto_prev_col(jumpup)
   let cmd = "\<ESC>"
   if a:jumpup
     let seps = s:count_separators_up(line('.'))
@@ -492,12 +514,10 @@ function! s:kbd_goto_prev_col(jumpup) "{{{
   " let cmd .= "a"
   "echomsg "DEBUG kbd_goto_prev_col> ".cmd
   return cmd
-endfunction "}}}
+endfunction
 
-"}}}
 
-" Global functions {{{
-function! vimwiki#tbl#kbd_cr() "{{{
+function! vimwiki#tbl#kbd_cr()
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return ""
@@ -509,9 +529,10 @@ function! vimwiki#tbl#kbd_cr() "{{{
   else
     return s:kbd_goto_next_row()
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#kbd_tab() "{{{
+
+function! vimwiki#tbl#kbd_tab()
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return "\<Tab>"
@@ -525,9 +546,10 @@ function! vimwiki#tbl#kbd_tab() "{{{
     return s:kbd_create_new_row(cols, 1)
   endif
   return s:kbd_goto_next_col(is_sep || last)
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#kbd_shift_tab() "{{{
+
+function! vimwiki#tbl#kbd_shift_tab()
   let lnum = line('.')
   if !s:is_table(getline(lnum))
     return "\<S-Tab>"
@@ -540,10 +562,11 @@ function! vimwiki#tbl#kbd_shift_tab() "{{{
     return ""
   endif
   return s:kbd_goto_prev_col(is_sep || first)
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#format(lnum, ...) "{{{
-  if !(&filetype == 'vimwiki')
+
+function! vimwiki#tbl#format(lnum, ...)
+  if !(&filetype ==? 'vimwiki')
     return
   endif
   let line = getline(a:lnum)
@@ -575,11 +598,12 @@ function! vimwiki#tbl#format(lnum, ...) "{{{
       call setline(lnum, row)
     endif
   endfor
-  
-  let &tw = s:textwidth
-endfunction "}}}
 
-function! vimwiki#tbl#create(...) "{{{
+  let &tw = s:textwidth
+endfunction
+
+
+function! vimwiki#tbl#create(...)
   if a:0 > 1
     let cols = a:1
     let rows = a:2
@@ -610,34 +634,36 @@ function! vimwiki#tbl#create(...) "{{{
   for r in range(rows - 1)
     call add(lines, row)
   endfor
-  
-  call append(line('.'), lines)
-endfunction "}}}
 
-function! vimwiki#tbl#align_or_cmd(cmd, ...) "{{{
+  call append(line('.'), lines)
+endfunction
+
+
+function! vimwiki#tbl#align_or_cmd(cmd, ...)
   if s:is_table(getline('.'))
     call call('vimwiki#tbl#format', [line('.')] + a:000)
   else
     exe 'normal! '.a:cmd
   endif
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#reset_tw(lnum) "{{{
-  if !(&filetype == 'vimwiki')
+
+function! vimwiki#tbl#reset_tw(lnum)
+  if !(&filetype ==? 'vimwiki')
     return
   endif
   let line = getline(a:lnum)
   if !s:is_table(line)
     return
   endif
-  
+
   let s:textwidth = &tw
   let &tw = 0
-endfunction "}}}
+endfunction
 
-" TODO: move_column_left and move_column_right are good candidates to be
-" refactored.
-function! vimwiki#tbl#move_column_left() "{{{
+
+" TODO: move_column_left and move_column_right are good candidates to be refactored.
+function! vimwiki#tbl#move_column_left()
 
   "echomsg "DEBUG move_column_left: "
 
@@ -653,7 +679,7 @@ function! vimwiki#tbl#move_column_left() "{{{
   endif
 
   if cur_col > 0
-    call vimwiki#tbl#format(line('.'), cur_col-1, cur_col) 
+    call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
     call cursor(line('.'), 1)
 
     let sep = '\('.s:rxSep().'\).\zs'
@@ -663,16 +689,16 @@ function! vimwiki#tbl#move_column_left() "{{{
       let mpos = match(line, sep, mpos+1)
       if mpos != -1
         let col += 1
-      else 
+      else
         break
       endif
     endwhile
 
   endif
+endfunction
 
-endfunction "}}}
 
-function! vimwiki#tbl#move_column_right() "{{{
+function! vimwiki#tbl#move_column_right()
 
   let line = getline('.')
 
@@ -686,7 +712,7 @@ function! vimwiki#tbl#move_column_right() "{{{
   endif
 
   if cur_col < s:col_count(line('.'))-1
-    call vimwiki#tbl#format(line('.'), cur_col, cur_col+1) 
+    call vimwiki#tbl#format(line('.'), cur_col, cur_col+1)
     call cursor(line('.'), 1)
 
     let sep = '\('.s:rxSep().'\).\zs'
@@ -696,33 +722,35 @@ function! vimwiki#tbl#move_column_right() "{{{
       let mpos = match(line, sep, mpos+1)
       if mpos != -1
         let col += 1
-      else 
+      else
         break
       endif
     endwhile
-
   endif
+endfunction
 
-endfunction "}}}
 
-function! vimwiki#tbl#get_rows(lnum) "{{{
+function! vimwiki#tbl#get_rows(lnum)
   return s:get_rows(a:lnum)
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#is_table(line) "{{{
+
+function! vimwiki#tbl#is_table(line)
   return s:is_table(a:line)
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#is_separator(line) "{{{
+
+function! vimwiki#tbl#is_separator(line)
   return s:is_separator(a:line)
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#cell_splitter() "{{{
+
+function! vimwiki#tbl#cell_splitter()
   return s:cell_splitter()
-endfunction "}}}
+endfunction
 
-function! vimwiki#tbl#sep_splitter() "{{{
+
+function! vimwiki#tbl#sep_splitter()
   return s:sep_splitter()
-endfunction "}}}
+endfunction
 
-"}}}
