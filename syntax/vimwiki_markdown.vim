@@ -31,18 +31,18 @@ let s:markdown_syntax.char_italic = '\*\|_'
 
 " text: *_bold italic_* or _*italic bold*_
 let s:markdown_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*_'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'_\*'.
+      \'\(\*\)\{3\}'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\1\{3\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bolditalic = '\*_'
+let s:markdown_syntax.char_bolditalic = '\*\*\*'
 
 let s:markdown_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_\*'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\*_'.
+      \'\(_\)\{3\}'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
+      \'\1\{3\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italicbold = '_\*'
+let s:markdown_syntax.char_italicbold = '___'
 
 " text: `code`
 let s:markdown_syntax.rxCode = '`[^`]\+`'
