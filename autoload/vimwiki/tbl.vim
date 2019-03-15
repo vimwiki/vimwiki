@@ -226,8 +226,7 @@ function! s:get_rows(lnum, ...)
     return
   endif
 
-  let upper_rows = []
-  let lower_rows = []
+  let rows = []
 
   let lnum = a:lnum - 1
   let depth = a:0 > 0 ? a:1 : 0
@@ -235,20 +234,23 @@ function! s:get_rows(lnum, ...)
   while lnum >= 1 && (depth == 0 || ldepth < depth)
     let line = getline(lnum)
     if s:is_table(line)
-      call add(upper_rows, [lnum, line])
+      call insert(rows, [lnum, line])
     else
       break
     endif
     let lnum -= 1
     let ldepth += 1
   endwhile
-  call reverse(upper_rows)
 
   let lnum = a:lnum
   while lnum <= line('$')
     let line = getline(lnum)
     if s:is_table(line)
-      call add(lower_rows, [lnum, line])
+      if lnum == a:lnum
+        let cells = vimwiki#tbl#get_cells(line)
+        let line = s:fmt_row(cells, repeat([0], len(cells)), 0, 0)
+      endif
+      call add(rows, [lnum, line])
     else
       break
     endif
@@ -258,7 +260,7 @@ function! s:get_rows(lnum, ...)
     let lnum += 1
   endwhile
 
-  return upper_rows + lower_rows
+  return rows
 endfunction
 
 
