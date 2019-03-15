@@ -253,7 +253,10 @@ function! s:get_rows(lnum, ...)
     if s:is_table(line)
       if lnum == a:lnum
         let cells = vimwiki#tbl#get_cells(line)
-        let line = s:fmt_row(cells, repeat([0], len(cells)), 0, 0)
+        let clen = len(cells)
+        let max_lens = repeat([0], clen)
+        let aligns = repeat(['left'], clen)
+        let line = s:fmt_row(cells, max_lens, aligns, 0, 0)
       endif
       call add(rows, [lnum, line])
     else
