@@ -883,6 +883,12 @@ is decorated: >
   super^script^
   sub,,script,,
 
+For Markdown syntax these variations are used: >
+
+  **bold text** or __bold text__
+  *italic text* or _italic text_
+  ***bold_italic text*** or ___italic_bold text___
+
 Furthermore, there are a number of words which are highlighted extra flashy:
 TODO, DONE, STARTED, FIXME, FIXED, XXX.
 
@@ -1721,6 +1727,15 @@ values: >
 
 To indent table indent the first row. Then format it with 'gqq'.
 
+You can specify the type of horizontal alignment for columns in the separator
+using the ':' character. The default is left-align.  >
+
+ | Date       |  Item  |   Price |
+ |------------|:------:|--------:|
+ | yest       | Coffee |  $15.00 |
+ | 2017-02-13 |  Tea   |   $2.10 |
+ | 2017-03-14 |  Cake  | $143.12 |
+<
 
 ==============================================================================
 10. Diary                                                      *vimwiki-diary*
