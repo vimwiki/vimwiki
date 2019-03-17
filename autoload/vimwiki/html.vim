@@ -349,12 +349,18 @@ function! s:tag_code(value)
   let l:str = s:mid(a:value, 1)
   let l:match = match(l:str, '^#[a-fA-F0-9]\{6\}$')
 
-
   if l:match != -1
-    let l:inv_color = 0xFFFFFF - eval("0x" . l:str[1:])
+    let l:r = eval("0x".l:str[1:2])
+    let l:g = eval("0x".l:str[3:4])
+    let l:b = eval("0x".l:str[5:6])
 
-    let l:retstr .= printf(" style='background-color: %s; color: #%x;'",
-          \ l:str, l:inv_color)
+    let l:fg_color =
+          \ (((0.299 * r + 0.587 * g + 0.114 * b) / 0xFF) > 0.5)
+          \ ? "black" : "white"
+
+    let l:retstr .=
+          \ " style='background-color:" . l:str .
+          \ ";color:" . l:fg_color . ";'"
   endif
 
   let l:retstr .= '>'.s:safe_html_preformatted(l:str).'</code>'
