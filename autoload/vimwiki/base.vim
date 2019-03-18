@@ -1878,7 +1878,7 @@ function! vimwiki#base#table_of_contents(create)
     let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
-]c[c
+
   let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
 
   call vimwiki#base#update_listing_in_buffer(lines, toc_header_text, links_rx, 1, a:create)
