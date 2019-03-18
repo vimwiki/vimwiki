@@ -2916,6 +2916,15 @@ The default is 'Contents'.
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_toc_header_level*
+
+The header level of the Table of Contents (see |vimwiki-toc|). Valid values
+are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*
 
 A string which specifies the prefix for all global mappings (and some local
