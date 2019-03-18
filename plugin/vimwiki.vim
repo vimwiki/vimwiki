@@ -111,6 +111,19 @@ function! s:setup_buffer_enter()
   call s:set_windowlocal_options()
 endfunction
 
+function! s:swap_file_exists()
+  " don't do anything if it's not managed by Vimwiki (that is, when it's not in
+  " a registered wiki and not a temporary wiki)
+  if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
+    return
+  endif
+
+  let choice_num = confirm('Swap file "' . v:swapname . '" already exists. ' .
+    \ 'The same wiki page may be open from another vim session.',
+    \ "&Open Read-Only\n&Edit anyway\n&Recover\n&Quit\n&Abort\n&Delete it", 1)
+  let swap_choices = ['a', 'o', 'e', 'r', 'q', 'a', 'd']
+  let v:swapchoice = swap_choices[choice_num]
+endfunction
 
 function! s:setup_cleared_syntax()
   " highlight groups that get cleared
@@ -257,6 +270,7 @@ augroup vimwiki
   for s:ext in s:known_extensions
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
+    exe 'autocmd SwapExists *'.s:ext.' unsilent call s:swap_file_exists()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.

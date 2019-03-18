@@ -741,22 +741,26 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
   if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
-    if &autowriteall && !&hidden  " in this case, the file is saved before switching to the
-      " new buffer. This causes Vim to show two messages in the command line which triggers
-      " the annoying hit-enter prompt. Solution: show no messages at all.
-      silent execute a:command fname
-    else
-      try
-        execute a:command fname
-      catch /E37:/
-        echomsg 'Vimwiki: Can''t leave the current buffer, because it is modified. Hint: Take a look at'
-              \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
-        return
-      catch /E325:/
-        echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
-        return
-      endtry
-    endif
+    try
+      if &autowriteall && !&hidden  " in this case, the file is saved before switching to the
+        " new buffer. This causes Vim to show two messages in the command line which triggers
+        " the annoying hit-enter prompt. Solution: show no messages at all.
+        silent execute a:command fname
+      else
+        try
+          execute a:command fname
+        catch /E37:/
+          echomsg 'Vimwiki: Can''t leave the current buffer, because it is modified. Hint: Take a look at'
+                \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
+          return
+        endtry
+      endif
+    catch /E308:/
+      echomsg 'Vimwiki: The file has been recovered.'
+    catch /E325:/
+      echomsg 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
+      return
+    endtry
 
     " If the opened file was not already loaded by Vim, an autocommand is
     " triggered at this point
