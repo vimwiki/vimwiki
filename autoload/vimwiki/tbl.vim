@@ -275,9 +275,9 @@ function! s:get_rows(lnum, ...)
 endfunction
 
 
-function! s:get_cell_aligns(lnum, depth)
+function! s:get_cell_aligns(lnum)
   let aligns = {}
-  for [lnum, row] in s:get_rows(a:lnum, a:depth)
+  for [lnum, row] in s:get_rows(a:lnum)
   let found_separator = s:is_separator(row)
     if found_separator
       let cells = vimwiki#tbl#get_cells(row)
@@ -356,7 +356,7 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
     endfor
     let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
   endif
-  let aligns = s:get_cell_aligns(a:lnum, a:depth)
+  let aligns = s:get_cell_aligns(a:lnum)
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)
