@@ -2064,13 +2064,17 @@ Each template could look like: >
     </html>
 
 where
-  %title% is replaced by a wiki page name or by a |vimwiki-title|
-  %date% is replaced with the current date or by |vimwiki-date|
-  %root_path% is replaced by a count of ../ for pages buried in subdirs:
+  `%title%` is replaced by a wiki page name or by a |vimwiki-title|
+  `%date%` is replaced with the current date or by |vimwiki-date|
+  `%root_path%` is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
-    %root_path% is replaced by '../../../'.
+    `%root_path%` is replaced by '../../../'.
+  `%wiki_path%` Path to current wiki-file.` The file path to the current wiki
+    file. For example, if you are on page a/b.wiki %wiki-path% contains
+    "a/b.wiki". Mostly useful if you want to link the to raw wiki page from
+    the rendered version.
 
-  %content% is replaced by a wiki file content.
+  `%content%` is replaced by a wiki file content.
 
 
 The default template will be applied to all wiki pages unless a page specifies
