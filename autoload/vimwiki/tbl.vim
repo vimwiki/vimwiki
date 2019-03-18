@@ -205,7 +205,7 @@ function! s:col_count(lnum)
 endfunction
 
 
-function! s:get_indent(lnum)
+function! s:get_indent(lnum, depth)
   if !s:is_table(getline(a:lnum))
     return
   endif
@@ -220,6 +220,9 @@ function! s:get_indent(lnum)
       break
     endif
     let lnum -= 1
+    if a:depth > 0 && lnum < a:lnum - a:depth
+      break
+    endif
   endwhile
 
   return indent
@@ -272,9 +275,9 @@ function! s:get_rows(lnum, ...)
 endfunction
 
 
-function! s:get_cell_aligns(lnum)
+function! s:get_cell_aligns(lnum, depth)
   let aligns = {}
-  for [lnum, row] in s:get_rows(a:lnum)
+  for [lnum, row] in s:get_rows(a:lnum, a:depth)
   let found_separator = s:is_separator(row)
     if found_separator
       let cells = vimwiki#tbl#get_cells(row)
@@ -353,7 +356,7 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
     endfor
     let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
   endif
-  let aligns = s:get_cell_aligns(a:lnum)
+  let aligns = s:get_cell_aligns(a:lnum, a:depth)
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)
@@ -496,8 +499,9 @@ endfunction
 function! vimwiki#tbl#goto_next_col()
   let curcol = virtcol('.')
   let lnum = line('.')
-  let newcol = s:get_indent(lnum)
-  let rows = s:get_rows(lnum, 2)
+  let depth = 2
+  let newcol = s:get_indent(lnum, depth)
+  let rows = s:get_rows(lnum, depth)
   let startlnum = rows[0][0]
   let cells = []
   for [lnum, row] in rows
@@ -530,8 +534,9 @@ endfunction
 function! vimwiki#tbl#goto_prev_col()
   let curcol = virtcol('.')
   let lnum = line('.')
-  let newcol = s:get_indent(lnum)
-  let rows = s:get_rows(lnum, 2)
+  let depth = 2
+  let newcol = s:get_indent(lnum, depth)
+  let rows = s:get_rows(lnum, depth)
   let startlnum = rows[0][0]
   let cells = []
   for [lnum, row] in rows
@@ -637,7 +642,7 @@ function! vimwiki#tbl#format(lnum, ...)
     let col2 = 0
   endif
 
-  let indent = s:get_indent(a:lnum)
+  let indent = s:get_indent(a:lnum, depth)
   if &expandtab
     let indentstring = repeat(' ', indent)
   else
