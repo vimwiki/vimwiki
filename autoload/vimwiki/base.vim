@@ -1618,7 +1618,10 @@ function! vimwiki#base#TO_table_col(inner, visual)
 endfunction
 
 
-function! vimwiki#base#AddHeaderLevel()
+function! vimwiki#base#AddHeaderLevel(...)
+  if a:1 > 1
+    call vimwiki#base#AddHeaderLevel(a:1 - 1)
+  endif
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
@@ -1646,7 +1649,10 @@ function! vimwiki#base#AddHeaderLevel()
 endfunction
 
 
-function! vimwiki#base#RemoveHeaderLevel()
+function! vimwiki#base#RemoveHeaderLevel(...)
+  if a:1 > 1
+    call vimwiki#base#RemoveHeaderLevel(a:1 - 1)
+  endif
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
