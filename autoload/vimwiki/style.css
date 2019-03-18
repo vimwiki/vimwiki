@@ -25,6 +25,7 @@ del {text-decoration: line-through; color: #777777;}
 .justcenter {text-align: center;}
 .center {margin-left: auto; margin-right: auto;}
 .tag {background-color: #eeeeee; font-family: monospace; padding: 2px;}
+.header a {text-decoration: none; color: inherit;}
 
 /* classes for items of todo lists */
 .rejected {

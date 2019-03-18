@@ -1,6 +1,8 @@
 A Personal Wiki For Vim
 ==============================================================================
 
+[中文](README-cn.md)
+
 ![screenshot1](doc/screenshot_1.png)
 ![screenshot2](doc/screenshot_2.png) *
 
@@ -105,6 +107,19 @@ Commands
  * `:Vimwiki2HTML` -- Convert current wiki link to HTML
  * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML
  * `:help vimwiki-commands` -- list all commands
+ * `:help vimwiki` -- General vimwiki help docs
+
+
+Changing Wiki Syntax
+------------------------------------------------------------------------------
+
+ Vimwiki currently ships with 3 syntaxes: Vimwiki (default), Markdown (markdown), and MediaWiki (media)
+
+ If you would prefer to use either Markdown or MediaWiki syntaxes, set the following option in your .vimrc:
+ ```
+     let g:vimwiki_list = [{'path': '~/vimwiki/',
+                           \ 'syntax': 'markdown', 'ext': '.md'}]
+ ```
 
 
 Installation

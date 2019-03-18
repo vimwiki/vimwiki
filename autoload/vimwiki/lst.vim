@@ -299,6 +299,13 @@ function! s:regexp_of_marker(item)
 endfunction
 
 
+" Returns: Whether or not the checkbox of a list item is [X] or [-]
+function! s:is_closed(item)
+  let state = a:item.cb
+  return state ==# vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+        \ || state ==# vimwiki#vars#get_global('listsym_rejected')
+endfunction
+
 " ---------------------------------------------------------
 " functions for navigating between items
 " ---------------------------------------------------------
@@ -756,10 +763,47 @@ function! s:set_state(item, new_rate)
 endfunction
 
 
-"Set state of the list item to [ ] or [o] or whatever
-"Updates the states of its child items
-function! s:set_state_plus_children(item, new_rate)
-  call s:set_state(a:item, a:new_rate)
+" Sets the state of the list item to [ ] or [o] or whatever. Updates the states of its child items.
+" If the new state should be [X] or [-], the state of the current list item is changed to this
+" state, but if a child item already has [X] or [-] it is left alone.
+function! s:set_state_plus_children(item, new_rate, ...)
+  let retain_state_if_closed = a:0 > 0 && a:1 > 0
+
+  if !(retain_state_if_closed && (a:new_rate == 100 || a:new_rate == -1) && s:is_closed(a:item))
+    call s:set_state(a:item, a:new_rate)
+  endif
+
+  let all_children_are_done = 1
+  let all_children_are_rejected = 1
+
+  let child_item = s:get_first_child(a:item)
+  while 1
+    if child_item.type == 0
+      break
+    endif
+    if child_item.cb != vimwiki#vars#get_global('listsym_rejected')
+      let all_children_are_rejected = 0
+    endif
+    if child_item.cb != vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+      let all_children_are_done = 0
+    endif
+    if !all_children_are_done && !all_children_are_rejected
+      break
+    endif
+    let child_item = s:get_next_child_item(a:item, child_item)
+  endwhile
+
+  if (a:new_rate == 100 && all_children_are_done) ||
+        \ (a:new_rate == -1) && all_children_are_rejected
+    return
+  endif
+
+  if (a:new_rate == -1 && all_children_are_done) ||
+        \ (a:new_rate == 100 && all_children_are_rejected)
+    let retain_closed_children = 0
+  else
+    let retain_closed_children = 1
+  endif
 
   let child_item = s:get_first_child(a:item)
   while 1
@@ -767,7 +811,7 @@ function! s:set_state_plus_children(item, new_rate)
       break
     endif
     if child_item.cb != ''
-      call s:set_state_plus_children(child_item, a:new_rate)
+      call s:set_state_plus_children(child_item, a:new_rate, retain_closed_children)
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
@@ -802,6 +846,7 @@ function! s:update_state(item)
 
   let sum_children_rate = 0
   let count_children_with_cb = 0
+  let count_rejected_children = 0
 
   let child_item = s:get_first_child(a:item)
 
@@ -811,16 +856,24 @@ function! s:update_state(item)
     endif
     if child_item.cb != ''
       let rate = s:get_rate(child_item)
-      if rate != -1
-        let count_children_with_cb += 1
-        let sum_children_rate += rate
+      if rate == -1
+        " for calculating the parent rate, a [-] item counts as much as a [X] item ...
+        let rate = 100
+        " ... with the exception that a parent with *only* [-] items will be [-] too
+        let count_rejected_children += 1
       endif
+      let count_children_with_cb += 1
+      let sum_children_rate += rate
     endif
     let child_item = s:get_next_child_item(a:item, child_item)
   endwhile
 
   if count_children_with_cb > 0
-    let new_rate = sum_children_rate / count_children_with_cb
+    if count_rejected_children == count_children_with_cb
+      let new_rate = -1
+    else
+      let new_rate = sum_children_rate / count_children_with_cb
+    endif
     call s:set_state_recursively(a:item, new_rate)
   else
     let rate = s:get_rate(a:item)
@@ -841,13 +894,13 @@ endfunction
 
 "Creates checkbox in a list item.
 "Returns: 1 if successful
-function! s:create_cb(item)
+function! s:create_cb(item, start_rate)
   if a:item.type == 0 || a:item.cb != ''
     return 0
   endif
 
   let new_item = a:item
-  let new_item.cb = vimwiki#vars#get_syntaxlocal('listsyms_list')[0]
+  let new_item.cb = s:rate_to_state(a:start_rate)
   call s:substitute_rx_in_line(new_item.lnum,
         \ vimwiki#u#escape(new_item.mrkr) . '\zs\ze', ' [' . new_item.cb . ']')
 
@@ -866,8 +919,7 @@ function! s:remove_cb(item)
 endfunction
 
 
-"Change state of checkbox
-"in the lines of the given range
+" Change state of the checkboxes in the lines of the given range
 function! s:change_cb(from_line, to_line, new_rate)
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
@@ -894,9 +946,9 @@ function! s:change_cb(from_line, to_line, new_rate)
 endfunction
 
 
-"Toggles checkbox between two states in the lines of the given range,
-"creates chceckboxes if there aren't any.
-function! s:toggle_create_cb(from_line, to_line, state1, state2)
+" Toggles checkbox between two states in the lines of the given range, creates checkboxes (with
+" a:start_rate as state) if there aren't any.
+function! s:toggle_create_cb(from_line, to_line, state1, state2, start_rate)
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -908,7 +960,7 @@ function! s:toggle_create_cb(from_line, to_line, state1, state2)
     let parent_items_of_lines = []
     for cur_ln in range(from_item.lnum, a:to_line)
       let cur_item = s:get_item(cur_ln)
-      let success = s:create_cb(cur_item)
+      let success = s:create_cb(cur_item, a:start_rate)
 
       if success
         let cur_parent_item = s:get_parent(cur_item)
@@ -974,46 +1026,14 @@ endfunction
 "Toggles checkbox between [ ] and [X] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
+  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0, 0)
 endfunction
 
 
 "Toggles checkbox between [ ] and [-] or creates one
 "in the lines of the given range
 function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
-endfunction
-
-
-"Increment checkbox between [ ] and [X]
-"in the lines of the given range
-function! vimwiki#lst#increment_cb(from_line, to_line)
-  let from_item = s:get_corresponding_item(a:from_line)
-  if from_item.type == 0
-    return
-  endif
-
-  "if from_line has CB, increment it and set all siblings to the same new state
-  let rate_first_line = s:get_rate(from_item)
-  let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
-  let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
-
-  call s:change_cb(a:from_line, a:to_line, new_rate)
-
-endfunction
-
-
-"Toggles checkbox between [ ] and [X] or creates one
-"in the lines of the given range
-function! vimwiki#lst#toggle_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, 100, 0)
-endfunction
-
-
-"Toggles checkbox between [ ] and [-] or creates one
-"in the lines of the given range
-function! vimwiki#lst#toggle_rejected_cb(from_line, to_line)
-  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0)
+  return s:toggle_create_cb(a:from_line, a:to_line, -1, 0, -1)
 endfunction
 
 
@@ -1395,7 +1415,7 @@ function! s:clone_marker_from_to(from, to)
   let new_indent = ( vimwiki#vars#get_syntaxlocal('recurring_bullets') ? 0 : indent(a:from) )
   call s:set_indent(a:to, new_indent)
   if item_from.cb != ''
-    call s:create_cb(s:get_item(a:to))
+    call s:create_cb(s:get_item(a:to), 0)
     call s:update_state(s:get_parent(s:get_item(a:to)))
   endif
   if item_from.type == 2

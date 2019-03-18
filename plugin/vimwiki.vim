@@ -36,7 +36,7 @@ function! s:setup_buffer_leave()
 
   let &autowriteall = s:vimwiki_autowriteall_saved
 
-  if vimwiki#vars#get_global('menu') != ""
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu disable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
@@ -152,7 +152,7 @@ function! s:set_global_options()
   let s:vimwiki_autowriteall_saved = &autowriteall
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
-  if vimwiki#vars#get_global('menu') !=# ''
+  if !empty(vimwiki#vars#get_global('menu'))
     exe 'nmenu enable '.vimwiki#vars#get_global('menu').'.Table'
   endif
 endfunction
@@ -162,23 +162,25 @@ endfunction
 " Vim defaults. So we enforce our settings here when the cursor enters a
 " Vimwiki buffer.
 function! s:set_windowlocal_options()
-  let foldmethod = vimwiki#vars#get_global('folding')
-  if foldmethod =~? '^expr.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
-    setlocal foldmethod=expr
-    setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^syntax.*'
-    setlocal foldmethod=syntax
-    setlocal foldtext=VimwikiFoldText()
-  elseif foldmethod =~? '^custom.*'
-    " do nothing
-  else
-    setlocal foldmethod=manual
-    normal! zE
+  if !&diff   " if Vim is currently in diff mode, don't interfere with its folding
+    let foldmethod = vimwiki#vars#get_global('folding')
+    if foldmethod =~? '^expr.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^list.*' || foldmethod =~? '^lists.*'
+      setlocal foldmethod=expr
+      setlocal foldexpr=VimwikiFoldListLevel(v:lnum)
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^syntax.*'
+      setlocal foldmethod=syntax
+      setlocal foldtext=VimwikiFoldText()
+    elseif foldmethod =~? '^custom.*'
+      " do nothing
+    else
+      setlocal foldmethod=manual
+      normal! zE
+    endif
   endif
 
   if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
@@ -251,15 +253,15 @@ endif
 
 augroup vimwiki
   autocmd!
+  autocmd ColorScheme * call s:setup_cleared_syntax()
   for s:ext in s:known_extensions
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd ColorScheme *'.s:ext.' call s:setup_cleared_syntax()'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
     if vimwiki#vars#get_global('table_auto_fmt')
-      exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."))'
+      exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."), 2)'
       exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
     endif
     if vimwiki#vars#get_global('folding') =~? ':quick$'
