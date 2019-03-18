@@ -140,56 +140,62 @@ function! s:create_row_sep(cols)
 endfunction
 
 
-function! vimwiki#tbl#get_cells(line)
+function! vimwiki#tbl#get_cells(line, ...)
   let result = []
-  let cell = ''
-  let quote = ''
   let state = 'NONE'
+  let cell_start = 0
+  let quote_start = 0
+  let len = strlen(a:line) - 1
 
   " 'Simple' FSM
-  for idx in range(strlen(a:line))
-    " The only way I know Vim can do Unicode...
-    let ch = a:line[idx]
-    if state ==# 'NONE'
-      if ch == '|'
-        let state = 'CELL'
-      endif
-    elseif state ==# 'CELL'
-      if ch == '[' || ch == '{'
-        let state = 'BEFORE_QUOTE_START'
-        let quote = ch
-      elseif ch == '|'
-        call add(result, vimwiki#u#trim(cell))
-        let cell = ""
-      else
-        let cell .= ch
-      endif
-    elseif state ==# 'BEFORE_QUOTE_START'
-      if ch == '[' || ch == '{'
-        let state = 'QUOTE'
-        let quote .= ch
-      else
-        let state = 'CELL'
-        let cell .= quote.ch
-        let quote = ''
-      endif
-    elseif state ==# 'QUOTE'
-      if ch == ']' || ch == '}'
-        let state = 'BEFORE_QUOTE_END'
-      endif
-      let quote .= ch
-    elseif state ==# 'BEFORE_QUOTE_END'
-      if ch == ']' || ch == '}'
-        let state = 'CELL'
-      endif
-      let cell .= quote.ch
-      let quote = ''
+  while state != 'CELL'
+    if quote_start != 0 && state != 'CELL'
+      let state = 'CELL'
     endif
-  endfor
+    for idx in range(quote_start, len)
+      " The only way I know Vim can do Unicode...
+      let ch = a:line[idx]
+      if state ==# 'NONE'
+        if ch == '|'
+          let cell_start = idx + 1
+          let state = 'CELL'
+        endif
+      elseif state ==# 'CELL'
+        if ch == '[' || ch == '{'
+          let state = 'BEFORE_QUOTE_START'
+          let quote_start = idx
+        elseif ch == '|'
+          let cell = strpart(a:line, cell_start, idx - cell_start)
+          if a:0 && a:1
+            let cell = substitute(cell, '^ \(.*\) $', '\1', '')
+          else
+            let cell = vimwiki#u#trim(cell)
+          endif
+          call add(result, cell)
+          let cell_start = idx + 1
+        endif
+      elseif state ==# 'BEFORE_QUOTE_START'
+        if ch == '[' || ch == '{'
+          let state = 'QUOTE'
+          let quote_start = idx
+        else
+          let state = 'CELL'
+        endif
+      elseif state ==# 'QUOTE'
+        if ch == ']' || ch == '}'
+          let state = 'BEFORE_QUOTE_END'
+        endif
+      elseif state ==# 'BEFORE_QUOTE_END'
+        if ch == ']' || ch == '}'
+          let state = 'CELL'
+        endif
+      endif
+    endfor
+    if state == 'NONE'
+      break
+    endif
+  endwhile
 
-  if cell.quote != ''
-    call add(result, vimwiki#u#trim(cell.quote, '|'))
-  endif
   return result
 endfunction
 
@@ -199,7 +205,7 @@ function! s:col_count(lnum)
 endfunction
 
 
-function! s:get_indent(lnum)
+function! s:get_indent(lnum, depth)
   if !s:is_table(getline(a:lnum))
     return
   endif
@@ -214,50 +220,64 @@ function! s:get_indent(lnum)
       break
     endif
     let lnum -= 1
+    if a:depth > 0 && lnum < a:lnum - a:depth
+      break
+    endif
   endwhile
 
   return indent
 endfunction
 
 
-function! s:get_rows(lnum)
+function! s:get_rows(lnum, ...)
   if !s:is_table(getline(a:lnum))
     return
   endif
 
-  let upper_rows = []
-  let lower_rows = []
+  let rows = []
 
   let lnum = a:lnum - 1
-  while lnum >= 1
+  let depth = a:0 > 0 ? a:1 : 0
+  let ldepth = 0
+  while lnum >= 1 && (depth == 0 || ldepth < depth)
     let line = getline(lnum)
     if s:is_table(line)
-      call add(upper_rows, [lnum, line])
+      call insert(rows, [lnum, line])
     else
       break
     endif
     let lnum -= 1
+    let ldepth += 1
   endwhile
-  call reverse(upper_rows)
 
   let lnum = a:lnum
   while lnum <= line('$')
     let line = getline(lnum)
     if s:is_table(line)
-      call add(lower_rows, [lnum, line])
+      if lnum == a:lnum
+        let cells = vimwiki#tbl#get_cells(line)
+        let clen = len(cells)
+        let max_lens = repeat([0], clen)
+        let aligns = repeat(['left'], clen)
+        let line = s:fmt_row(cells, max_lens, aligns, 0, 0)
+      endif
+      call add(rows, [lnum, line])
     else
+      break
+    endif
+    if depth > 0
       break
     endif
     let lnum += 1
   endwhile
 
-  return upper_rows + lower_rows
+  return rows
 endfunction
 
 
-function! s:get_cell_aligns(lnum)
+function! s:get_cell_aligns(lnum, depth)
   let aligns = {}
-  for [lnum, row] in s:get_rows(a:lnum)
+  for [lnum, row] in s:get_rows(a:lnum, a:depth)
   let found_separator = s:is_separator(row)
     if found_separator
       let cells = vimwiki#tbl#get_cells(row)
@@ -286,7 +306,8 @@ endfunction
 
 function! s:get_cell_max_lens(lnum, ...)
   let max_lens = {}
-  for [lnum, row] in s:get_rows(a:lnum)
+  let rows = a:0 > 2 ? a:3 : s:get_rows(a:lnum)
+  for [lnum, row] in rows
     if s:is_separator(row)
       continue
     endif
@@ -304,15 +325,38 @@ function! s:get_cell_max_lens(lnum, ...)
 endfunction
 
 
-function! s:get_aligned_rows(lnum, col1, col2)
-  let rows = s:get_rows(a:lnum)
-  let startlnum = rows[0][0]
+function! s:get_aligned_rows(lnum, col1, col2, depth)
+  let rows = []
+  let startlnum = 0
   let cells = []
-  for [lnum, row] in rows
-    call add(cells, vimwiki#tbl#get_cells(row))
-  endfor
-  let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum)
-  let aligns = s:get_cell_aligns(a:lnum)
+  let max_lens = {}
+  let check_all = 1
+  if a:depth > 0
+    let rows = s:get_rows(a:lnum, a:depth)
+    let startlnum = rows[0][0]
+    let lrows = len(rows)
+    if lrows == a:depth + 1
+      let i = 1
+      for [lnum, row] in rows
+        call add(cells, vimwiki#tbl#get_cells(row, i != lrows - 1))
+        let i += 1
+      endfor
+      let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
+      let fst_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows[0:0])
+      let check_all = max_lens != fst_lens
+    endif
+  endif
+  if check_all
+    " all the table must be re-formatted
+    let rows = s:get_rows(a:lnum)
+    let startlnum = rows[0][0]
+    let cells = []
+    for [lnum, row] in rows
+      call add(cells, vimwiki#tbl#get_cells(row))
+    endfor
+    let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
+  endif
+  let aligns = s:get_cell_aligns(a:lnum, a:depth)
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)
@@ -419,7 +463,7 @@ endfunction
 
 function! s:kbd_create_new_row(cols, goto_first)
   let cmd = "\<ESC>o".s:create_empty_row(a:cols)
-  let cmd .= "\<ESC>:call vimwiki#tbl#format(line('.'))\<CR>"
+  let cmd .= "\<ESC>:call vimwiki#tbl#format(line('.'), 2)\<CR>"
   let cmd .= "\<ESC>0"
   if a:goto_first
     let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'c', line('.'))\<CR>"
@@ -455,8 +499,15 @@ endfunction
 function! vimwiki#tbl#goto_next_col()
   let curcol = virtcol('.')
   let lnum = line('.')
-  let newcol = s:get_indent(lnum)
-  let max_lens = s:get_cell_max_lens(lnum)
+  let depth = 2
+  let newcol = s:get_indent(lnum, depth)
+  let rows = s:get_rows(lnum, depth)
+  let startlnum = rows[0][0]
+  let cells = []
+  for [lnum, row] in rows
+    call add(cells, vimwiki#tbl#get_cells(row, 1))
+  endfor
+  let max_lens = s:get_cell_max_lens(lnum, cells, startlnum, rows)
   for cell_len in values(max_lens)
     if newcol >= curcol-1
       break
@@ -483,8 +534,15 @@ endfunction
 function! vimwiki#tbl#goto_prev_col()
   let curcol = virtcol('.')
   let lnum = line('.')
-  let newcol = s:get_indent(lnum)
-  let max_lens = s:get_cell_max_lens(lnum)
+  let depth = 2
+  let newcol = s:get_indent(lnum, depth)
+  let rows = s:get_rows(lnum, depth)
+  let startlnum = rows[0][0]
+  let cells = []
+  for [lnum, row] in rows
+    call add(cells, vimwiki#tbl#get_cells(row, 1))
+  endfor
+  let max_lens = s:get_cell_max_lens(lnum, cells, startlnum, rows)
   let prev_cell_len = 0
   for cell_len in values(max_lens)
     let delta = cell_len + 3 " +3 == 2 spaces + 1 separator |<space>...<space>
@@ -574,6 +632,8 @@ function! vimwiki#tbl#format(lnum, ...)
     return
   endif
 
+  let depth = a:0 == 1 ? a:1 : 0
+
   if a:0 == 2
     let col1 = a:1
     let col2 = a:2
@@ -582,16 +642,19 @@ function! vimwiki#tbl#format(lnum, ...)
     let col2 = 0
   endif
 
-  let indent = s:get_indent(a:lnum)
+  let indent = s:get_indent(a:lnum, depth)
   if &expandtab
     let indentstring = repeat(' ', indent)
   else
     let indentstring = repeat('	', indent / &tabstop) . repeat(' ', indent % &tabstop)
   endif
 
-  for [lnum, row] in s:get_aligned_rows(a:lnum, col1, col2)
+  " getting N = depth last rows is enough for having been formatted tables
+  for [lnum, row] in s:get_aligned_rows(a:lnum, col1, col2, depth)
     let row = indentstring.row
-    call setline(lnum, row)
+    if getline(lnum) != row
+      call setline(lnum, row)
+    endif
   endfor
 
   let &tw = s:textwidth
@@ -634,9 +697,9 @@ function! vimwiki#tbl#create(...)
 endfunction
 
 
-function! vimwiki#tbl#align_or_cmd(cmd)
+function! vimwiki#tbl#align_or_cmd(cmd, ...)
   if s:is_table(getline('.'))
-    call vimwiki#tbl#format(line('.'))
+    call call('vimwiki#tbl#format', [line('.')] + a:000)
   else
     exe 'normal! '.a:cmd
   endif
