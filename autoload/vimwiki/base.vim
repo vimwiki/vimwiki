@@ -1198,8 +1198,8 @@ function! vimwiki#base#follow_link(split, ...)
     endif
 
   else
-    if a:0 > 0
-      execute "normal! ".a:1
+    if a:0 >= 3
+      execute "normal! ".a:3
     elseif vimwiki#vars#get_global('create_link')
       call vimwiki#base#normalize_link(0)
     endif
