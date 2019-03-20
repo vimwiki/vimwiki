@@ -2244,6 +2244,26 @@ Description~
 Sort links in a diary index page.
 
 
+*vimwiki-option-diary_caption_level*
+------------------------------------------------------------------------------
+Key                   Default value~
+diary_caption_level   0
+
+Description~
+Controls the presence of captions in the diary index linking to headers within
+the diary pages.
+
+Possible values:
+-1:  No headers are read from the diary page.
+ 0:  The first header from the diary page is used as the caption.
+       There are no sub-captions.
+ 1:  Captions are created for headers of level 1 in the diary page.
+ 2:  Captions are created for headers up to level 2 in the diary page.
+ etc.
+
+When the value is >= 1, the primary caption of each diary page is set to the
+first header read from that page if it is the unique lowest-level header.
+
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
 Key               Default value~
