@@ -2554,6 +2554,19 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_markdown_link_ext*
+
+Append wiki file extension to links in Markdown. This is needed for
+compatibility with other Markdown tools.
+
+Value           Description~
+0               Do not append wiki file extension.
+1               Append wiki file extension.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
 A customizable link handler can be defined to override Vimwiki's behavior when
