@@ -10,9 +10,6 @@ endif
 let g:loaded_vimwiki_diary_auto = 1
 
 
-let s:vimwiki_max_scan_for_caption = 5
-
-
 function! s:prefix_zero(num)
   if a:num < 10
     return '0'.a:num
@@ -67,7 +64,7 @@ function! s:get_first_header(fl)
   " Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
   let header_rx = vimwiki#vars#get_syntaxlocal('rxHeader')
 
-  for line in readfile(a:fl, '', s:vimwiki_max_scan_for_caption)
+  for line in readfile(a:fl, '', g:vimwiki_max_scan_for_caption)
     if line =~# header_rx
       return vimwiki#u#trim(matchstr(line, header_rx))
     endif
@@ -210,9 +207,13 @@ function! s:format_diary()
 
   let links_with_captions = s:read_captions(s:get_diary_files())
   let g_files = s:group_links(links_with_captions)
+  let g_keys = s:sort(keys(g_files))
 
-  for year in s:sort(keys(g_files))
-    call add(result, '')
+  for year in g_keys
+    if len(result) > 0
+      call add(result, '')
+    endif
+
     call add(result,
           \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', year , ''))
 
@@ -220,6 +221,12 @@ function! s:format_diary()
       call add(result, '')
       call add(result, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'),
             \ '__Header__', s:get_month_name(month), ''))
+
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+          call add(result, '')
+        endfor
+      endif
 
       for [fl, captions] in s:sort(items(g_files[year][month]))
         let topcap = captions['top']
@@ -239,9 +246,10 @@ function! s:format_diary()
           let top_link_tpl = link_tpl
         endif
 
+        let bullet = vimwiki#lst#default_symbol().' '
         let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
         let entry = substitute(entry, '__LinkDescription__', topcap, '')
-        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).'* '.entry)
+        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
 
         for [depth, subcap] in captions['rest']
           if empty(subcap)
@@ -371,9 +379,10 @@ function! vimwiki#diary#generate_diary_section()
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
   if vimwiki#path#is_equal(current_file, diary_file)
-    let content_rx = '^\%(\s*[*-] \)\|\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)'
+    let content_rx = '^\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)\|'.
+          \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
     call vimwiki#base#update_listing_in_buffer(s:format_diary(),
-          \ vimwiki#vars#get_wikilocal('diary_header'), content_rx, line('$')+1, 1, 1)
+          \ vimwiki#vars#get_wikilocal('diary_header'), content_rx, 1, 1, 1)
   else
     echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
   endif

@@ -296,6 +296,7 @@ function! vimwiki#tags#generate_tags(...) abort
   let need_all_tags = (a:0 == 0)
   let specific_tags = a:000
 
+  let header_level = vimwiki#vars#get_global('tags_header_level')
   let metadata = s:load_tags_metadata()
 
   " make a dictionary { tag_name: [tag_links, ...] }
@@ -310,26 +311,55 @@ function! vimwiki#tags#generate_tags(...) abort
     endfor
   endfor
 
+  let tag_match = printf('rxH%d', header_level + 1)
+  let tag_tpl = printf('rxH%d_Template', header_level + 1)
+
   let lines = []
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
   for tagname in sort(keys(tags_entries))
     if need_all_tags || index(specific_tags, tagname) != -1
-      call extend(lines, [
-            \ '',
-            \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', tagname, ''),
-            \ '' ])
+      if len(lines) > 0
+        call add(lines, '')
+      endif
+
+      call add(lines,
+            \ substitute(vimwiki#vars#get_syntaxlocal(tag_tpl), '__Header__', tagname, ''))
+
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+          call add(lines, '')
+        endfor
+      endif
+
       for taglink in sort(tags_entries[tagname])
-        call add(lines, bullet . substitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-              \ '__LinkUrl__', taglink, ''))
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
+          let link_infos = vimwiki#base#resolve_link(taglink)
+          let link_caption = vimwiki#base#read_caption(link_infos.filename)
+          let link_text = split(taglink, '#', 1)[0]
+
+          let entry = substitute(link_tpl, '__LinkUrl__', link_text, '')
+          let entry = substitute(entry, '__LinkAnchor__', link_infos.anchor, '')
+          let entry = substitute(entry, '__LinkDescription__', link_caption, '')
+          call add(lines, bullet.entry)
+        else
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+          call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
+        endif
       endfor
     endif
   endfor
 
-  let links_rx = '\m\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH2').'\)\|\%(^\s*'
-        \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
-        \ .vimwiki#vars#get_syntaxlocal('rxWikiLink').'$\)'
+  let links_rx = '^\%('.vimwiki#vars#get_syntaxlocal(tag_match).'\)\|'.
+        \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
-  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx, line('$')+1, 1, 1)
+  call vimwiki#base#update_listing_in_buffer(
+        \ lines,
+        \ vimwiki#vars#get_global('tags_header'),
+        \ links_rx,
+        \ line('$')+1,
+        \ header_level,
+        \ 1)
 endfunction
 
 

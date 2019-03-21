@@ -2981,6 +2981,54 @@ Value           Description~
 
 Default: 0
 
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header*
+
+A string with the magic header that tells Vimwiki where the generated links
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_links_header = 'Generierte Links'
+
+The default is 'Generated Links'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header_level*
+
+The header level of generated links. Valid values are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header*
+
+A string with the magic header that tells Vimwiki where the generated tags
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_tags_header = 'Generierte Stichworte'
+
+The default is 'Generated Tags'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header_level*
+
+The header level of generated tags. Valid values are from 1 to 5.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_header_style*
+
+The number of newlines to be inserted after a header is generated. Valid
+values are from 0 to 2.
+
+The default is 1.
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3058,6 +3106,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Zhuang Ma (@mzlogin)
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
+    - Steven Stallion (@sstallion)
 
 
 ==============================================================================
