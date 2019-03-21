@@ -202,72 +202,6 @@ function! s:sort(lst)
 endfunction
 
 
-function! s:format_diary()
-  let result = []
-
-  let links_with_captions = s:read_captions(s:get_diary_files())
-  let g_files = s:group_links(links_with_captions)
-  let g_keys = s:sort(keys(g_files))
-
-  for year in g_keys
-    if len(result) > 0
-      call add(result, '')
-    endif
-
-    call add(result,
-          \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', year , ''))
-
-    for month in s:sort(keys(g_files[year]))
-      call add(result, '')
-      call add(result, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'),
-            \ '__Header__', s:get_month_name(month), ''))
-
-      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-        for _ in range(vimwiki#vars#get_global('markdown_header_style'))
-          call add(result, '')
-        endfor
-      endif
-
-      for [fl, captions] in s:sort(items(g_files[year][month]))
-        let topcap = captions['top']
-        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
-
-        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
-
-          if empty(topcap) " When using markdown syntax, we should ensure we always have a link description.
-            let topcap = fl
-          endif
-        endif
-
-        if empty(topcap)
-          let top_link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
-        else
-          let top_link_tpl = link_tpl
-        endif
-
-        let bullet = vimwiki#lst#default_symbol().' '
-        let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
-        let entry = substitute(entry, '__LinkDescription__', topcap, '')
-        call add(result, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
-
-        for [depth, subcap] in captions['rest']
-          if empty(subcap)
-            continue
-          endif
-          let entry = substitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
-          let entry = substitute(entry, '__LinkDescription__', subcap, '')
-          call add(result, repeat(' ', vimwiki#lst#get_list_margin() * (2 + depth)).'- '.entry)
-        endfor
-      endfor
-
-    endfor
-  endfor
-
-  return result
-endfunction
-
-
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
 " contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
 " is used.
@@ -376,13 +310,84 @@ endfunction
 
 
 function! vimwiki#diary#generate_diary_section()
+
+  function! Generator() closure
+    let lines = []
+
+    let links_with_captions = s:read_captions(s:get_diary_files())
+    let g_files = s:group_links(links_with_captions)
+    let g_keys = s:sort(keys(g_files))
+
+    for year in g_keys
+      if len(lines) > 0
+        call add(lines, '')
+      endif
+
+      call add(lines, substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', year , ''))
+
+      for month in s:sort(keys(g_files[year]))
+        call add(lines, '')
+        call add(lines, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'),
+              \ '__Header__', s:get_month_name(month), ''))
+
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+            call add(lines, '')
+          endfor
+        endif
+
+        for [fl, captions] in s:sort(items(g_files[year][month]))
+          let topcap = captions['top']
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+
+          if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+            let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+
+            if empty(topcap) " When using markdown syntax, we should ensure we always have a link description.
+              let topcap = fl
+            endif
+          endif
+
+          if empty(topcap)
+            let top_link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+          else
+            let top_link_tpl = link_tpl
+          endif
+
+          let bullet = vimwiki#lst#default_symbol().' '
+          let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
+          let entry = substitute(entry, '__LinkDescription__', topcap, '')
+          call add(lines, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
+
+          for [depth, subcap] in captions['rest']
+            if empty(subcap)
+              continue
+            endif
+            let entry = substitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
+            let entry = substitute(entry, '__LinkDescription__', subcap, '')
+            call add(lines, repeat(' ', vimwiki#lst#get_list_margin() * (2 + depth)).'- '.entry)
+          endfor
+        endfor
+
+      endfor
+    endfor
+
+    return lines
+  endfunction
+
   let current_file = vimwiki#path#path_norm(expand("%:p"))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
   if vimwiki#path#is_equal(current_file, diary_file)
     let content_rx = '^\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)\|'.
           \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
-    call vimwiki#base#update_listing_in_buffer(s:format_diary(),
-          \ vimwiki#vars#get_wikilocal('diary_header'), content_rx, 1, 1, 1)
+
+    call vimwiki#base#update_listing_in_buffer(
+          \ funcref('Generator'),
+          \ vimwiki#vars#get_wikilocal('diary_header'),
+          \ content_rx,
+          \ 1,
+          \ 1,
+          \ 1)
   else
     echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
   endif

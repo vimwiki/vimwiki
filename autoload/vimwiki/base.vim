@@ -346,42 +346,47 @@ function! vimwiki#base#get_globlinks_escaped() abort
 endfunction
 
 
-function! vimwiki#base#generate_links()
-  let lines = []
+function! vimwiki#base#generate_links(create)
 
-  let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
-  call sort(links)
+  function! Generator() closure
+    let lines = []
 
-  let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
-  for link in links
-    let link_infos = vimwiki#base#resolve_link(link)
-    if !s:is_diary_file(link_infos.filename)
-      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-        let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
-      else
-        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+    let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
+    call sort(links)
+
+    let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
+    for link in links
+      let link_infos = vimwiki#base#resolve_link(link)
+      if !s:is_diary_file(link_infos.filename)
+        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+        else
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+        endif
+
+        let link_caption = vimwiki#base#read_caption(link_infos.filename)
+        if link_caption == '' " default to link if caption not found
+          let link_caption = link
+        endif
+
+        let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
+        let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+        call add(lines, bullet. entry)
       endif
+    endfor
 
-      let link_caption = vimwiki#base#read_caption(link_infos.filename)
-      if link_caption == '' " default to link if caption not found
-        let link_caption = link
-      endif
-
-      let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
-      let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
-      call add(lines, bullet. entry)
-    endif
-  endfor
+    return lines
+  endfunction
 
   let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
-        \ lines,
+        \ funcref('Generator'),
         \ vimwiki#vars#get_global('links_header'),
         \ links_rx,
         \ line('$')+1,
         \ vimwiki#vars#get_global('links_header_level'),
-        \ 1)
+        \ a:create)
 endfunction
 
 
@@ -1043,13 +1048,13 @@ endfunction
 
 " creates or updates auto-generated listings in a wiki file, like TOC, diary
 " links, tags list etc.
-" - the listing consists of a header and a list of strings as content
+" - the listing consists of a header and a list of strings provided by a funcref
 " - a:content_regex is used to determine how long a potentially existing list is
 " - a:default_lnum is the line number where the new listing should be placed if
 "   it's not already present
 " - if a:create is true, it will be created if it doesn't exist, otherwise it
 "   will only be updated if it already exists
-function! vimwiki#base#update_listing_in_buffer(strings, start_header,
+function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
       \ content_regex, default_lnum, header_level, create)
   " Vim behaves strangely when files change while in diff mode
   if &diff || &readonly
@@ -1129,7 +1134,7 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
       let lines_diff += 1
     endfor
   endif
-  for string in a:strings
+  for string in a:Generator()
     keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
     let lines_diff += 1
@@ -1757,6 +1762,11 @@ function! s:collect_headers()
     if line_content !~# vimwiki#vars#get_syntaxlocal('rxHeader')
       continue
     endif
+    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+      if stridx(line_content, vimwiki#vars#get_syntaxlocal('rxH')) > 0
+        continue  " markdown headers must start in the first column
+      endif
+    endif
     let header_level = vimwiki#u#count_first_sym(line_content)
     let header_text =
           \ vimwiki#u#trim(matchstr(line_content, vimwiki#vars#get_syntaxlocal('rxHeader')))
@@ -1879,55 +1889,60 @@ function! vimwiki#base#table_of_contents(create)
     endif
   endif
 
-  let numbering = vimwiki#vars#get_global('html_header_numbering')
-  let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-  let complete_header_infos = []
-  for header in headers
-    let h_text = header[2]
-    let h_level = header[1]
-    if h_text ==# toc_header_text  " don't include the TOC's header itself
-      continue
-    endif
-    let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
-    for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
-
-    let h_complete_id = ''
-    for l in range(h_level-1)
-      if headers_levels[l][0] != ''
-        let h_complete_id .= headers_levels[l][0].'#'
+  function! Generator() closure
+    let numbering = vimwiki#vars#get_global('html_header_numbering')
+    let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+    let complete_header_infos = []
+    for header in headers
+      let h_text = header[2]
+      let h_level = header[1]
+      " don't include the TOC's header itself
+      if h_text ==# toc_header_text
+        continue
       endif
+      let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
+      for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
+
+      let h_complete_id = ''
+      for l in range(h_level-1)
+        if headers_levels[l][0] != ''
+          let h_complete_id .= headers_levels[l][0].'#'
+        endif
+      endfor
+      let h_complete_id .= headers_levels[h_level-1][0]
+
+      if numbering > 0 && numbering <= h_level
+        let h_number = join(map(copy(headers_levels[numbering-1 : h_level-1]), 'v:val[1]'), '.')
+        let h_number .= vimwiki#vars#get_global('html_header_numbering_sym')
+        let h_text = h_number.' '.h_text
+      endif
+
+      call add(complete_header_infos, [h_level, h_complete_id, h_text])
     endfor
-    let h_complete_id .= headers_levels[h_level-1][0]
 
-    if numbering > 0 && numbering <= h_level
-      let h_number = join(map(copy(headers_levels[numbering-1 : h_level-1]), 'v:val[1]'), '.')
-      let h_number .= vimwiki#vars#get_global('html_header_numbering_sym')
-      let h_text = h_number.' '.h_text
-    endif
+    let lines = []
+    let startindent = repeat(' ', vimwiki#lst#get_list_margin())
+    let indentstring = repeat(' ', vimwiki#u#sw())
+    let bullet = vimwiki#lst#default_symbol().' '
+    for [lvl, link, desc] in complete_header_infos
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
+      else
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+      endif
+      let link = s:safesubstitute(link_tpl, '__LinkUrl__',
+            \ '#'.link, '')
+      let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
+      call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
+    endfor
 
-    call add(complete_header_infos, [h_level, h_complete_id, h_text])
-  endfor
-
-  let lines = []
-  let startindent = repeat(' ', vimwiki#lst#get_list_margin())
-  let indentstring = repeat(' ', vimwiki#u#sw())
-  let bullet = vimwiki#lst#default_symbol().' '
-  for [lvl, link, desc] in complete_header_infos
-    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
-    else
-      let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
-    endif
-    let link = s:safesubstitute(link_tpl, '__LinkUrl__',
-          \ '#'.link, '')
-    let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
-    call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
-  endfor
+    return lines
+  endfunction
 
   let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
-        \ lines,
+        \ funcref('Generator'),
         \ toc_header_text,
         \ links_rx,
         \ 1,
