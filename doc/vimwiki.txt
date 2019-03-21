@@ -3020,6 +3020,8 @@ New:~
     * Add the %date placeholder, see |vimwiki-date|.
     * Add the option |vimwiki-option-custom_wiki2html_args|.
     * Add support for HTML-style comments when using markdown syntax.
+    * Made headings link to themselves in HTML output.
+    * Add |:VimwikiShowVersion| to check the version
 
 Removed:~
     * Remove the undocumented and buggy command :VimwikiReadLocalOptions
@@ -3044,6 +3046,10 @@ Fixed:~
     * Opening the diary and wikis from the menu works correctly now.
     * Issue #497: Make |:VimwikiMakeDiaryNote| work outside a wiki buffer.
     * Use markdown syntax in the diary when appropriate.
+    * Improve handling of errors on opening files.
+    * Update links when renaming a page with |:VimwikiRenameLink|.
+    * Fix losing the highlighting in various situations.
+    * Improved link normalisation.
     * Various other minor fixes.
 
 
