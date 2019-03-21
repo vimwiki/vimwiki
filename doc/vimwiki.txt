@@ -2959,7 +2959,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Daniel Trnka (@trnila)
     - Yuchen Pei (@ycpei)
     - @maqiv
-    - @dpc
+    - Dawid Ciężarkiewicz (@dpc)
     - Drew Hays (@Dru89)
     - Daniel Etrata (@danetrata)
     - Keith Haber (@kjhaber)
@@ -2973,6 +2973,21 @@ Contributors and their Github usernames in roughly chronological order:
     - Zhuang Ma (@mzlogin)
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
+    - John Campbell (@johnmarcampbell)
+    - Petrus (@PetrusZ)
+    - Steven Stallion (@sstallion)
+    - Daniel Quomsieh (@DQuomsieh)
+    - Fredrik Arnerup (@farnerup)
+    - CUI Hao (@cuihaoleo)
+    - Benjamin Brandtner (@BenjaminBrandtner)
+    - @sreejith994
+    - Raphael Feng (@raphaelfeng)
+    - Kasper Socha (@fte10kso)
+    - Nicolas Brailovsky (@nicolasbrailo)
+    - @BenMcH
+    - Stefan Huber (@shuber2)
+    - Hugo Hörnquist (@HugoNikanor)
+    - Rane Brown (@ranebrown)
 
 
 ==============================================================================
