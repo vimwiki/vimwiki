@@ -297,7 +297,7 @@ execute 'syntax match VimwikiItalicBoldT /'.vimwiki#vars#get_syntaxlocal('rxItal
 execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').
       \ '/ contains=VimwikiDelTextChar,@Spell'
 execute 'syntax match VimwikiDelTextT /'.vimwiki#vars#get_syntaxlocal('rxDelText').
-      \ '/ contained contains=VimwikiDelTextChar,@Spell'
+      \ '/ contained contains=VimwikiDelTextCharT,@Spell'
 
 execute 'syntax match VimwikiSuperScript /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
       \ '/ contains=VimwikiSuperScriptChar,@Spell'
