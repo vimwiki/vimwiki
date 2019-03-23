@@ -171,6 +171,7 @@ function! s:read_global_settings_from_user()
         \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},

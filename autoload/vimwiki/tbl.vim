@@ -342,6 +342,11 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
         let i += 1
       endfor
       let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
+      " user option not to expand last call
+      if vimwiki#vars#get_global('table_reduce_last_col')
+        let last_index = keys(max_lens)[-1]
+        let max_lens[last_index] = 1
+      endif
       let fst_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows[0:0])
       let check_all = max_lens != fst_lens
     endif
@@ -355,6 +360,11 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
       call add(cells, vimwiki#tbl#get_cells(row))
     endfor
     let max_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows)
+    " user option not to expand last call
+    if vimwiki#vars#get_global('table_reduce_last_col')
+      let last_index = keys(max_lens)[-1]
+      let max_lens[last_index] = 1
+    endif
   endif
   let aligns = s:get_cell_aligns(a:lnum)
   let result = []
