@@ -2722,13 +2722,14 @@ Default: 1
 ------------------------------------------------------------------------------
 *g:vimwiki_table_reduce_last_col*
 
-If set, the last column spearator will not be expanded to fill the cell.
-When `:set wrap` this option improves how a table is displayed, particularly on small screens.
-If |g:vimwiki_table_auto_fmt| is set to 0, this option has no effect.
+If set, the last column separator will not be expanded to fill the cell.  When
+`:set wrap` this option improves how a table is displayed, particularly on
+small screens.  If |g:vimwiki_table_auto_fmt| is set to 0, this option has no
+effect.
 
 Value           Description~
-0               Enable table auto formating for all column.
-1               Disable table auto formating for last column.
+0               Enable table auto formating for all columns.
+1               Disable table auto formating for the last column.
 
 Default: 0
 
