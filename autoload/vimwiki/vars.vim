@@ -165,14 +165,19 @@ function! s:read_global_settings_from_user()
         \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
         \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
+        \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
+        \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
         \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
+        \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
@@ -708,6 +713,10 @@ function! s:populate_extra_markdown_vars()
   " [DESCRIPTION](ANCHOR)
   let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
+  " [DESCRIPTION](FILE#ANCHOR)
+  let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+        \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
   let valid_chars = '[^\\]'
 
