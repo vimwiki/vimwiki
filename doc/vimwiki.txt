@@ -2797,6 +2797,27 @@ Default: 2
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_conceal_code_blocks*
+
+Conceal preformatted text markers when syntax highlighting is applied (see
+|vimwiki-option-nested_syntaxes|). For example,
+>
+    {{{python
+    def say_hello():
+        print("Hello, world!")
+    }}}
+>
+would appear as simply
+>
+    def say_hello():
+        print("Hello, world!")
+>
+in your wiki file.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_autowriteall*
 
 Automatically save a modified wiki buffer when switching wiki pages. Has the
