@@ -513,6 +513,12 @@ gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
 gww                     will reformat it.
 
+                        *vimwiki_gq1*  *vimwiki_gw1*
+gq1                     Fast format table. The same as the previous, except
+ or                     that only a few lines above the current line are
+gw1                     tested. If the alignment of the current line differs,
+                        then the whole table gets reformatted.
+
                         *vimwiki_<A-Left>*
 <A-Left>                Move current table column to the left.
                         See |:VimwikiTableMoveColumnLeft|
@@ -877,8 +883,20 @@ is decorated: >
   super^script^
   sub,,script,,
 
+For Markdown syntax these variations are used: >
+
+  **bold text** or __bold text__
+  *italic text* or _italic text_
+  ***bold_italic text*** or ___italic_bold text___
+
 Furthermore, there are a number of words which are highlighted extra flashy:
 TODO, DONE, STARTED, FIXME, FIXED, XXX.
+
+When rendered as HTML, code blocks containing only a hash prefixed 6 digit hex
+number will be colored as themselves.  For example >
+ `#ffe119`
+Becomes >
+ <code style='background-color:#ffe119;color:black;'>#ffe119</code>
 
 ------------------------------------------------------------------------------
 5.2. Links                                              *vimwiki-syntax-links*
@@ -1423,7 +1441,7 @@ Hit |zr| one more time :
 
 Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
-For MediaWiki syntax, * or # should be in the first column.
+For Markdown and MediaWiki syntax, * or # should be in the first column.
 
 To turn folding on/off check |g:vimwiki_folding|.
 
@@ -1715,6 +1733,15 @@ values: >
 
 To indent table indent the first row. Then format it with 'gqq'.
 
+You can specify the type of horizontal alignment for columns in the separator
+using the ':' character. The default is left-align.  >
+
+ | Date       |  Item  |   Price |
+ |------------|:------:|--------:|
+ | yest       | Coffee |  $15.00 |
+ | 2017-02-13 |  Tea   |   $2.10 |
+ | 2017-03-14 |  Cake  | $143.12 |
+<
 
 ==============================================================================
 10. Diary                                                      *vimwiki-diary*
@@ -2043,13 +2070,17 @@ Each template could look like: >
     </html>
 
 where
-  %title% is replaced by a wiki page name or by a |vimwiki-title|
-  %date% is replaced with the current date or by |vimwiki-date|
-  %root_path% is replaced by a count of ../ for pages buried in subdirs:
+  `%title%` is replaced by a wiki page name or by a |vimwiki-title|
+  `%date%` is replaced with the current date or by |vimwiki-date|
+  `%root_path%` is replaced by a count of ../ for pages buried in subdirs:
     if you have wikilink [[dir1/dir2/dir3/my page in a subdir]] then
-    %root_path% is replaced by '../../../'.
+    `%root_path%` is replaced by '../../../'.
+  `%wiki_path%` Path to current wiki-file.` The file path to the current wiki
+    file. For example, if you are on page a/b.wiki %wiki-path% contains
+    "a/b.wiki". Mostly useful if you want to link the to raw wiki page from
+    the rendered version.
 
-  %content% is replaced by a wiki file content.
+  `%content%` is replaced by a wiki file content.
 
 
 The default template will be applied to all wiki pages unless a page specifies
@@ -2213,6 +2244,26 @@ Description~
 Sort links in a diary index page.
 
 
+*vimwiki-option-diary_caption_level*
+------------------------------------------------------------------------------
+Key                   Default value~
+diary_caption_level   0
+
+Description~
+Controls the presence of captions in the diary index linking to headers within
+the diary pages.
+
+Possible values:
+-1:  No headers are read from the diary page.
+ 0:  The first header from the diary page is used as the caption.
+       There are no sub-captions.
+ 1:  Captions are created for headers of level 1 in the diary page.
+ 2:  Captions are created for headers up to level 2 in the diary page.
+ etc.
+
+When the value is >= 1, the primary caption of each diary page is set to the
+first header read from that page if it is the unique lowest-level header.
+
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -2280,8 +2331,8 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
 
-Note: if you use MediaWiki syntax, you probably would like to set this option
-to 0, because every indented line is considered verbatim text.
+Note: if you use Markdown or MediaWiki syntax, you probably would like to set
+this option to 0, because every indented line is considered verbatim text.
 
 
 *vimwiki-option-auto_tags*
@@ -2511,6 +2562,31 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_create_link*
+
+Create target wiki page if it does not exist. See |:VimwikiFollowLink|.
+
+Value           Description~
+0               Do not create target wiki page.
+1               Create target wiki page.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_link_ext*
+
+Append wiki file extension to links in Markdown. This is needed for
+compatibility with other Markdown tools.
+
+Value           Description~
+0               Do not append wiki file extension.
+1               Append wiki file extension.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
 A customizable link handler can be defined to override Vimwiki's behavior when
@@ -2641,6 +2717,21 @@ Value           Description~
 1               Enable table auto formatting.
 
 Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_table_reduce_last_col*
+
+If set, the last column separator will not be expanded to fill the cell.  When
+`:set wrap` this option improves how a table is displayed, particularly on
+small screens.  If |g:vimwiki_table_auto_fmt| is set to 0, this option has no
+effect.
+
+Value           Description~
+0               Enable table auto formating for all columns.
+1               Disable table auto formating for the last column.
+
+Default: 0
 
 
 ------------------------------------------------------------------------------
@@ -2925,6 +3016,54 @@ Value           Description~
 
 Default: 0
 
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header*
+
+A string with the magic header that tells Vimwiki where the generated links
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_links_header = 'Generierte Links'
+
+The default is 'Generated Links'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header_level*
+
+The header level of generated links. Valid values are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header*
+
+A string with the magic header that tells Vimwiki where the generated tags
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_tags_header = 'Generierte Stichworte'
+
+The default is 'Generated Tags'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header_level*
+
+The header level of generated tags. Valid values are from 1 to 5.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_header_style*
+
+The number of newlines to be inserted after a header is generated. Valid
+values are from 0 to 2.
+
+The default is 1.
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3002,6 +3141,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Zhuang Ma (@mzlogin)
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
+    - Steven Stallion (@sstallion)
 
 
 ==============================================================================

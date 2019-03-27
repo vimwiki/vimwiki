@@ -297,7 +297,7 @@ execute 'syntax match VimwikiItalicBoldT /'.vimwiki#vars#get_syntaxlocal('rxItal
 execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').
       \ '/ contains=VimwikiDelTextChar,@Spell'
 execute 'syntax match VimwikiDelTextT /'.vimwiki#vars#get_syntaxlocal('rxDelText').
-      \ '/ contained contains=VimwikiDelTextChar,@Spell'
+      \ '/ contained contains=VimwikiDelTextCharT,@Spell'
 
 execute 'syntax match VimwikiSuperScript /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
       \ '/ contains=VimwikiSuperScriptChar,@Spell'
@@ -384,7 +384,7 @@ hi def link VimwikiBoldT VimwikiBold
 hi def VimwikiItalic term=italic cterm=italic gui=italic
 hi def link VimwikiItalicT VimwikiItalic
 
-hi def VimwikiBoldItalic term=bold cterm=bold gui=bold,italic
+hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
 hi def link VimwikiItalicBold VimwikiBoldItalic
 hi def link VimwikiBoldItalicT VimwikiBoldItalic
 hi def link VimwikiItalicBoldT VimwikiBoldItalic

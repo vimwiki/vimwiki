@@ -9,6 +9,9 @@ endif
 let g:loaded_vimwiki_auto = 1
 
 
+let g:vimwiki_max_scan_for_caption = 5
+
+
 function! s:safesubstitute(text, search, replace, mode)
   " Substitute regexp but do not interpret replace
   let escaped = escape(a:replace, '\&')
@@ -197,7 +200,10 @@ function! vimwiki#base#resolve_link(link_text, ...)
               \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     else
-      let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      let ext = fnamemodify(link_text, ':e')
+      if ext == ''  " append ext iff one not already present
+        let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      endif
     endif
 
   elseif link_infos.scheme ==# 'diary'
@@ -348,17 +354,34 @@ function! vimwiki#base#generate_links()
 
   let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
   for link in links
-    let abs_filepath = vimwiki#path#abs_path_of_link(link)
-    if !s:is_diary_file(abs_filepath)
-      call add(lines, bullet.
-            \ s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-            \ '__LinkUrl__', link, ''))
+    let link_infos = vimwiki#base#resolve_link(link)
+    if !s:is_diary_file(link_infos.filename)
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+      else
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+      endif
+
+      let link_caption = vimwiki#base#read_caption(link_infos.filename)
+      if link_caption == '' " default to link if caption not found
+        let link_caption = link
+      endif
+
+      let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
+      let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+      call add(lines, bullet. entry)
     endif
   endfor
 
-  let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
+  let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
-  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Links', links_rx, line('$')+1, 1, 1)
+  call vimwiki#base#update_listing_in_buffer(
+        \ lines,
+        \ vimwiki#vars#get_global('links_header'),
+        \ links_rx,
+        \ line('$')+1,
+        \ vimwiki#vars#get_global('links_header_level'),
+        \ 1)
 endfunction
 
 
@@ -598,7 +621,12 @@ function! s:get_links(wikifile, idx)
   endif
 
   let syntax = vimwiki#vars#get_wikilocal('syntax', a:idx)
-  let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+  if syntax == 'markdown'
+    let rx_link = vimwiki#vars#get_syntaxlocal('rxWeblink1MatchUrl', syntax)
+  else
+    let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+  endif
+
   let links = []
   let lnum = 0
 
@@ -1079,6 +1107,11 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
     let start_lnum = a:default_lnum
     let is_cursor_after_listing = ( cursor_line > a:default_lnum )
     let whitespaces_in_first_line = ''
+    " append newline if not replacing first line
+    if start_lnum > 1
+      keepjumps call append(start_lnum -1, '')
+      let start_lnum += 1
+    endif
   endif
 
   let start_of_listing = start_lnum
@@ -1089,13 +1122,24 @@ function! vimwiki#base#update_listing_in_buffer(strings, start_header,
         \ '__Header__', a:start_header, '')
   keepjumps call append(start_lnum - 1, new_header)
   let start_lnum += 1
-  let lines_diff += 1 + len(a:strings)
+  let lines_diff += 1
+  if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+    for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+      keepjumps call append(start_lnum - 1, '')
+      let start_lnum += 1
+      let lines_diff += 1
+    endfor
+  endif
   for string in a:strings
     keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
+    let lines_diff += 1
   endfor
-  " append an empty line if there is not one
-  if start_lnum <= line('$') && getline(start_lnum) !~# '\m^\s*$'
+
+  " remove empty line if end of file, otherwise append if needed
+  if start_lnum == line('$')
+    silent exe 'keepjumps ' . start_lnum.'delete _'
+  elseif start_lnum < line('$') && getline(start_lnum) !~# '\m^\s*$'
     keepjumps call append(start_lnum - 1, '')
     let lines_diff += 1
   endif
@@ -1202,7 +1246,7 @@ function! vimwiki#base#follow_link(split, ...)
   else
     if a:0 >= 3
       execute "normal! ".a:3
-    else
+    elseif vimwiki#vars#get_global('create_link')
       call vimwiki#base#normalize_link(0)
     endif
   endif
@@ -1620,7 +1664,10 @@ function! vimwiki#base#TO_table_col(inner, visual)
 endfunction
 
 
-function! vimwiki#base#AddHeaderLevel()
+function! vimwiki#base#AddHeaderLevel(...)
+  if a:1 > 1
+    call vimwiki#base#AddHeaderLevel(a:1 - 1)
+  endif
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
@@ -1648,7 +1695,10 @@ function! vimwiki#base#AddHeaderLevel()
 endfunction
 
 
-function! vimwiki#base#RemoveHeaderLevel()
+function! vimwiki#base#RemoveHeaderLevel(...)
+  if a:1 > 1
+    call vimwiki#base#RemoveHeaderLevel(a:1 - 1)
+  endif
   let lnum = line('.')
   let line = getline(lnum)
   let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
@@ -1865,7 +1915,7 @@ function! vimwiki#base#table_of_contents(create)
   let bullet = vimwiki#lst#default_symbol().' '
   for [lvl, link, desc] in complete_header_infos
     if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
-      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
     else
       let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
     endif
@@ -1875,7 +1925,7 @@ function! vimwiki#base#table_of_contents(create)
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
   endfor
 
-  let links_rx = '\m^\s*'.vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
+  let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
         \ lines,
@@ -2092,6 +2142,21 @@ function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
   " We can safely ignore args if we use -custom=complete option, Vim engine
   " will do the job of filtering.
   return vimwiki#base#get_globlinks_escaped()
+endfunction
+
+
+function! vimwiki#base#read_caption(file)
+  let rx_header = vimwiki#vars#get_syntaxlocal('rxHeader')
+
+  if filereadable(a:file)
+    for line in readfile(a:file, '', g:vimwiki_max_scan_for_caption)
+      if line =~# rx_header
+        return vimwiki#u#trim(matchstr(line, rx_header))
+      endif
+    endfor
+  endif
+
+  return ''
 endfunction
 
 

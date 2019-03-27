@@ -344,7 +344,27 @@ endfunction
 
 
 function! s:tag_code(value)
-  return '<code>'.s:safe_html_preformatted(s:mid(a:value, 1)).'</code>'
+  let l:retstr = '<code'
+
+  let l:str = s:mid(a:value, 1)
+  let l:match = match(l:str, '^#[a-fA-F0-9]\{6\}$')
+
+  if l:match != -1
+    let l:r = eval("0x".l:str[1:2])
+    let l:g = eval("0x".l:str[3:4])
+    let l:b = eval("0x".l:str[5:6])
+
+    let l:fg_color =
+          \ (((0.299 * r + 0.587 * g + 0.114 * b) / 0xFF) > 0.5)
+          \ ? "black" : "white"
+
+    let l:retstr .=
+          \ " style='background-color:" . l:str .
+          \ ";color:" . l:fg_color . ";'"
+  endif
+
+  let l:retstr .= '>'.s:safe_html_preformatted(l:str).'</code>'
+  return l:retstr
 endfunction
 
 
@@ -1529,6 +1549,7 @@ function! s:convert_file(path_html, wikifile)
 
     let title = s:process_title(placeholders, fnamemodify(a:wikifile, ":t:r"))
     let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
+    let wiki_path = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
 
     let html_lines = s:get_html_template(template_name)
 
@@ -1537,6 +1558,7 @@ function! s:convert_file(path_html, wikifile)
     call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
     call map(html_lines, 'substitute(v:val, "%root_path%", "'.
           \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+    call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. wiki_path .'", "g")')
 
     let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
     let css_name = substitute(css_name, '\', '/', 'g')
