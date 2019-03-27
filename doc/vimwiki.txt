@@ -2797,10 +2797,9 @@ Default: 2
 
 
 ------------------------------------------------------------------------------
-*g:vimwiki_conceal_code_blocks*
+*g:vimwiki_conceal_pre*
 
-Conceal preformatted text markers when syntax highlighting is applied (see
-|vimwiki-option-nested_syntaxes|). For example,
+Conceal preformatted text markers. For example,
 >
     {{{python
     def say_hello():

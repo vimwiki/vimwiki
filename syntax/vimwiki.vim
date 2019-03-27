@@ -318,8 +318,9 @@ execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
-execute 'syntax region VimwikiPre start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
-      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@Spell'
+let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
+execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@Spell'.concealpre
 
 execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@Spell'
@@ -395,6 +396,7 @@ hi def link VimwikiCodeT VimwikiCode
 
 hi def link VimwikiPre PreProc
 hi def link VimwikiPreT VimwikiPre
+hi def link VimwikiPreDelim VimwikiPre
 
 hi def link VimwikiMath Number
 hi def link VimwikiMathT VimwikiMath
