@@ -1022,10 +1022,11 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort
     let group='texMathZoneGroup'
   endif
 
+  let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
   execute 'syntax region textSnip'.ft.
         \ ' matchgroup='.a:textSnipHl.
         \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
+        \ ' contains=@'.group.' keepend'.concealpre
 
   " A workaround to Issue 115: Nested Perl syntax highlighting differs from
   " regular one.

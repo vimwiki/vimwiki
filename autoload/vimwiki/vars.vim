@@ -145,6 +145,7 @@ function! s:read_global_settings_from_user()
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
+        \ 'conceal_pre': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'create_link': {'type': type(0), 'default': 1, 'min':0, 'max': 1},
         \ 'diary_months': {'type': type({}), 'default':
         \   {
