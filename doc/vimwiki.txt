@@ -2993,6 +2993,21 @@ The default is 1.
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_toc_link_format*
+
+The format of the links in the Table of Contents (see |vimwiki-toc|).
+
+
+Value           Description~
+0               Extended: The link contains the description and URL. URL
+                references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*
 
 A string which specifies the prefix for all global mappings (and some local
