@@ -1418,24 +1418,38 @@ function! s:use_custom_wiki2html()
         \ (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction
 
-
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force)
   call vimwiki#path#mkdir(a:path)
+
+  " fix for trailing / causing " to be escaped on windows, see #642
+  if has('win16') || has('win95') || has('win32') || has('win64')
+    let l:path = substitute(a:path, '\\$', '', '')
+    let l:css = substitute(shellescape(s:default_CSS_full_name(a:path)), '\\$', '', '')
+    " template path ends in / even on windows hence the different substitute
+    let l:tmpl = shellescape(expand(substitute(vimwiki#vars#get_wikilocal('template_path'), '/$', '', '')))
+    let l:rpath = substitute(shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))), '\\$', '', '')
+  else
+    let l:path = a:path
+    let l:css = shellescape(s:default_CSS_full_name(a:path))
+    let l:tmpl = shellescape(expand(vimwiki#vars#get_wikilocal('template_path')))
+    let l:rpath = shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir')))
+  endif
+
   echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
-      \ shellescape(a:path). ' '.
+      \ shellescape(l:path). ' '.
       \ shellescape(a:wikifile). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
+      \ l:css . ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ?
-      \     shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
+      \     l:tmpl : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
-      \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
+      \     l:rpath : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
       \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
 endfunction
