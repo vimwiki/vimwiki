@@ -1802,6 +1802,16 @@ Get it from http://www.vim.org/scripts/script.php?script_id=52
 See |g:vimwiki_use_calendar| option to turn it off/on.
 
 
+------------------------------------------------------------------------------
+Markdown export
+
+If you use markdown as the syntax for your wiki, there is a rubygem available
+at https://github.com/patrickdavey/vimwiki_markdown which you can use to
+convert the wiki markdown files into html.
+
+Also See |vimwiki-option-html_filename_parameterization| for supporting
+functionality.
+
 ==============================================================================
 11. Anchors                                                  *vimwiki-anchors*
 
@@ -2425,6 +2435,21 @@ Description~
 Set this option to a list of file patterns to exclude when checking or
 generating links: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'exclude_files': ['**/README.md']}]
+
+
+*vimwiki-option-html_filename_parameterization*
+------------------------------------------------------------------------------
+Key                             Default value     Values~
+html_filename_parameterization  0                 0, 1
+
+Description~
+This setting is for integration with the vimwiki_markdown gem. If this is set
+to 1 it alters the check for generated html filenames to match what
+vimwiki_markdown generates. This means that it prevents unnecessary
+regeneration of HTML files.
+
+This setting also turns off the automatic deletion of files
+in the site_html directory which don't match existing wiki files.
 
 
 ------------------------------------------------------------------------------
@@ -3256,6 +3281,12 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #665: Integration with vimwiki_markdown gem
+      https://github.com/patrickdavey/vimwiki_markdown
+      This provides the |vimwiki-option-html_filename_parameterization|
+      which alters the filenames vimiwiki checks against when running the
+      html conversion. It also disables the deleting of html files which
+      no longer match against a wiki file.
     * PR #663: New option |g:vimwiki_conceal_onechar_markers| to control
       whether to show or hide single-character format markers.
     * PR #636: Wiki local option |vimwiki-option-exclude_files| which is
