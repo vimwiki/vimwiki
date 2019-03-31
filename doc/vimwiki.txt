@@ -2962,7 +2962,8 @@ Default: 1
 
 Setting the value of |g:vimwiki_url_maxsave| to 0 will prevent any link
 shortening: you will see the full URL in all types of links, with no parts
-being concealed. Concealing of one-character markers is not affected.
+being concealed. This option does not affect the concealing of wiki elements
+such as bold, italic, wikilinks, etc.
 
 When positive, the value determines the maximum number of characters that
 are retained at the end after concealing the middle part of a long URL.

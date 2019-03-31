@@ -175,15 +175,14 @@ execute 'syn match VimwikiSubScript contained /'.
       \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
 
 
-
-
-
 let s:options = ' contained transparent contains=NONE'
+if exists("+conceallevel")
+  let s:options .= s:conceal
+endif
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
 " VimwikiLinkRest group is left undefined if link shortening is not desired
 if exists("+conceallevel") && vimwiki#vars#get_global('url_maxsave') > 0
-  let s:options .= s:conceal
   execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
         \.'\%([/#?]\w\|\S\{'.vimwiki#vars#get_global('url_maxsave').'}\)`'.' cchar=~'.s:options
 endif
