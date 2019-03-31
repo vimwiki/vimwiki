@@ -149,9 +149,9 @@ See also |:VimwikiUISelect|
 [count]<Leader>wi or <Plug>VimwikiDiaryIndex
         Open diary index file of the [count]'s wiki.
 
-        <Leader>wi opens diary index file of the first wiki from
+        <Leader>wi opens diary index file of the current wiki.
+        1<Leader>wi opens diary index file of the first wiki from
         |g:vimwiki_list|.
-        1<Leader>wi the same as above.
         2<Leader>wi opens diary index file of the second wiki from
         |g:vimwiki_list|.
         etc.
@@ -164,10 +164,9 @@ See also |:VimwikiDiaryIndex|
 [count]<Leader>w<Leader>w or <Plug>VimwikiMakeDiaryNote
         Open diary wiki-file for today of the [count]'s wiki.
 
-        <Leader>w<Leader>w opens diary wiki-file for today in the first wiki
+        <Leader>w<Leader>w opens diary wiki-file for today in the current wiki
+        1<Leader>w<Leader>w opens diary wiki-file for today in the first wiki
         from |g:vimwiki_list|.
-        1<Leader>w<Leader>w as above opens diary wiki-file for today in the
-        first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>w opens diary wiki-file for today in the second wiki
         from |g:vimwiki_list|.
         3<Leader>w<Leader>w opens diary wiki-file for today in the third wiki
@@ -182,9 +181,9 @@ See also |:VimwikiMakeDiaryNote|
 [count]<Leader>w<Leader>t or <Plug>VimwikiTabMakeDiaryNote
         Open diary wiki-file for today of the [count]'s wiki in a new tab.
 
-        <Leader>w<Leader>t tabopens diary wiki-file for today in the first
-        wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>t as above tabopens diary wiki-file for today in the
+        <Leader>w<Leader>t tabopens diary wiki-file for today in the current
+        wiki
+        1<Leader>w<Leader>t tabopens diary wiki-file for today in the
         first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>t tabopens diary wiki-file for today in the second
         wiki from |g:vimwiki_list|.
@@ -200,10 +199,10 @@ See also |:VimwikiTabMakeDiaryNote|
 [count]<Leader>w<Leader>y or <Plug>VimwikiMakeYesterdayDiaryNote
         Open diary wiki-file for yesterday of the [count]'s wiki.
 
-        <Leader>w<Leader>y opens diary wiki-file for yesterday in the first
+        <Leader>w<Leader>y opens diary wiki-file for yesterday in the current
+        wiki
+        1<Leader>w<Leader>y opens diary wiki-file for yesterday in the first
         wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>y as above opens diary wiki-file for yesterday in
-        the first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>y opens diary wiki-file for yesterday in the second
         wiki from |g:vimwiki_list|.
         3<Leader>w<Leader>y opens diary wiki-file for yesterday in the third
@@ -217,10 +216,10 @@ See also |:VimwikiMakeYesterdayDiaryNote|
 [count]<Leader>w<Leader>m or <Plug>VimwikiMakeTomorrowDiaryNote
         Open diary wiki-file for tomorrow of the [count]'s wiki.
 
-        <Leader>w<Leader>m opens diary wiki-file for tomorrow in the first
+        <Leader>w<Leader>m opens diary wiki-file for tomorrow in the current
+        wiki
+        1<Leader>w<Leader>m opens diary wiki-file for tomorrow in the first
         wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>m as above opens diary wiki-file for tomorrow in
-        the first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>m opens diary wiki-file for tomorrow in the second
         wiki from |g:vimwiki_list|.
         3<Leader>w<Leader>m opens diary wiki-file for tomorrow in the third
@@ -653,29 +652,41 @@ il                      A single list item.
 ------------------------------------------------------------------------------
 4.1. Global Commands                                 *vimwiki-global-commands*
 
-*:VimwikiIndex*
-    Open index file of the current wiki.
+*:VimwikiIndex* [count]
+    Open index file of the current wiki. If a [count] is given the
+    corresponding wiki from |g:vimwiki_list| is opened instead.
 
-*:VimwikiTabIndex*
-    Open index file of the current wiki in a new tab.
+*:VimwikiTabIndex* [count]
+    Open index file of the current wiki in a new tab. If a [count] is given
+    the corresponding wiki from |g:vimwiki_list| is opened instead.
 
 *:VimwikiUISelect*
-    Open index file of the selected wiki.
+    Displays a list of registered wikis and opens the index file of the
+    selected wiki.
 
-*:VimwikiDiaryIndex*
-    Open diary index file of the current wiki.
+*:VimwikiDiaryIndex* [count]
+    Open diary index file of the current wiki. If a [count] is given the
+    corresponding wiki from |g:vimwiki_list| is opened instead.
 
-*:VimwikiMakeDiaryNote*
-    Open diary wiki-file for today of the current wiki.
+*:VimwikiMakeDiaryNote* [count]
+    Open diary wiki-file for today of the current wiki. If a [count] is given
+    a diary wiki-file for the corresponding wiki from |g:vimwiki_list| is
+    opened instead.
 
-*:VimwikiTabMakeDiaryNote*
-    Open diary wiki-file for today of the current wiki in a new tab.
+*:VimwikiTabMakeDiaryNote* [count]
+    Open diary wiki-file for today of the current wiki in a new tab. If
+    a [count] is given a diary wiki-file for the corresponding wiki from
+    |g:vimwiki_list| is opened instead.
 
-*:VimwikiMakeYesterdayDiaryNote*
-    Open diary wiki-file for yesterday of the current wiki.
+*:VimwikiMakeYesterdayDiaryNote* [count]
+    Open diary wiki-file for yesterday of the current wiki. If a [count] is
+    given a diary wiki-file for the corresponding wiki from |g:vimwiki_list|
+    is opened instead.
 
-*:VimwikiMakeTomorrowDiaryNote*
-    Open diary wiki-file for tomorrow of the current wiki.
+*:VimwikiMakeTomorrowDiaryNote* [count]
+    Open diary wiki-file for tomorrow of the current wiki. If a [count] is
+    given a diary wiki-file for the corresponding wiki from |g:vimwiki_list|
+    is opened instead.
 
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
