@@ -1267,17 +1267,21 @@ endfunction
 
 
 function! vimwiki#base#goto_index(wnum, ...)
+
+  " if wnum = 0 the current wiki is used
+  if a:wnum == 0
+    let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
+    echom idx
+    if idx < 0  " not in a wiki
+      let idx = 0
+    endif
+  else
+    let idx = a:wnum - 1 " convert to 0 based counting
+  endif
+
   if a:wnum > vimwiki#vars#number_of_wikis()
     echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in your Vimwiki settings!'
     return
-  endif
-
-  " usually a:wnum is greater then 0 but with the following command it is == 0:
-  " vim -n -c ":VimwikiIndex"
-  if a:wnum > 0
-    let idx = a:wnum - 1
-  else
-    let idx = 0
   endif
 
   if a:0
