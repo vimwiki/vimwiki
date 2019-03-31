@@ -452,7 +452,17 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   else
     let pattern = '**/*'.ext
   endif
-  return split(globpath(root_directory, pattern), '\n')
+  let files = globpath(root_directory, pattern, 0, 1)
+  " filter excluded files before returning
+  function! ExcludeFiles(idx, val) closure
+    for pattern in vimwiki#vars#get_wikilocal('exclude_files')
+      if index(globpath(root_directory, pattern, 0, 1), a:val) != -1
+        return 0
+      endif
+    endfor
+    return 1
+  endfunction
+  return filter(files, funcref('ExcludeFiles'))
 endfunction
 
 
