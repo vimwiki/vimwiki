@@ -2390,6 +2390,17 @@ current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_generate_tags': 1}]
 
 
+*vimwiki-option-exclude_files*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+exclude_files   []                list of file patterns to exclude
+
+Description~
+Set this option to a list of file patterns to exclude when checking or
+generating links: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'exclude_files': ['**/README.md']}]
+
+
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
 
