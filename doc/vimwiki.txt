@@ -2368,6 +2368,28 @@ See |:VimwikiDiaryGenerateLinks|:  >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_diary_index': 1}]
 
 
+*vimwiki-option-auto_generate_links*
+------------------------------------------------------------------------------
+Key                  Default value     Values~
+auto_generate_links  0                 0, 1
+
+Description~
+Set this option to 1 to automatically update generated links when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_generate_links': 1}]
+
+
+*vimwiki-option-auto_generate_tags*
+------------------------------------------------------------------------------
+Key                 Default value     Values~
+auto_generate_tags  0                 0, 1
+
+Description~
+Set this option to 1 to automatically update generated tags when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_generate_tags': 1}]
+
+
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
 

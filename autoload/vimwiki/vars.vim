@@ -253,6 +253,8 @@ function! s:populate_wikilocal_options()
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_generate_links': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_generate_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},

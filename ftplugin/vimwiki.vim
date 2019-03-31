@@ -267,7 +267,7 @@ command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(
 
 command! -buffer VimwikiTabnewLink call vimwiki#base#follow_link('tab', 0, 1)
 
-command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links()
+command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links(1)
 
 command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
@@ -320,7 +320,7 @@ command! -buffer -bang VimwikiRebuildTags call vimwiki#tags#update_tags(1, '<ban
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiSearchTags VimwikiSearch /:<args>:/
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
-      \ VimwikiGenerateTags call vimwiki#tags#generate_tags(<f-args>)
+      \ VimwikiGenerateTags call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
@@ -702,7 +702,20 @@ endif
 if vimwiki#vars#get_wikilocal('auto_tags')
   " Automatically update tags metadata on page write.
   augroup vimwiki
-    au BufWritePost <buffer> call vimwiki#tags#update_tags(0, '')
+    au BufWritePre <buffer> call vimwiki#tags#update_tags(0, '')
   augroup END
 endif
 
+if vimwiki#vars#get_wikilocal('auto_generate_links')
+  " Automatically generate links *before* the file is written
+  augroup vimwiki
+    au BufWritePre <buffer> call vimwiki#base#generate_links(0)
+  augroup END
+endif
+
+if vimwiki#vars#get_wikilocal('auto_generate_tags')
+  " Automatically generate tags *before* the file is written
+  augroup vimwiki
+    au BufWritePre <buffer> call vimwiki#tags#generate_tags(0)
+  augroup END
+endif
