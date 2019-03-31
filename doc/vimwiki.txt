@@ -878,6 +878,8 @@ is decorated: >
 
   *bold text*
   _italic text_
+  _*bold italic text*_
+  *_bold italic text _*
   ~~strikeout text~~
   `code (no syntax) text`
   super^script^
@@ -2910,6 +2912,26 @@ Default: 2
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_conceal_pre*
+
+Conceal preformatted text markers. For example,
+>
+    {{{python
+    def say_hello():
+        print("Hello, world!")
+    }}}
+>
+would appear as simply
+>
+    def say_hello():
+        print("Hello, world!")
+>
+in your wiki file.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_autowriteall*
 
 Automatically save a modified wiki buffer when switching wiki pages. Has the
@@ -2992,6 +3014,21 @@ The header level of the Table of Contents (see |vimwiki-toc|). Valid values
 are from 1 to 6.
 
 The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_link_format*
+
+The format of the links in the Table of Contents (see |vimwiki-toc|).
+
+
+Value           Description~
+0               Extended: The link contains the description and URL. URL
+                references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
+
+Default: 0
 
 
 ------------------------------------------------------------------------------

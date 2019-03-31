@@ -1027,10 +1027,11 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort
     let group='texMathZoneGroup'
   endif
 
+  let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
   execute 'syntax region textSnip'.ft.
         \ ' matchgroup='.a:textSnipHl.
         \ ' start="'.a:start.'" end="'.a:end.'"'.
-        \ ' contains=@'.group.' keepend'
+        \ ' contains=@'.group.' keepend'.concealpre
 
   " A workaround to Issue 115: Nested Perl syntax highlighting differs from
   " regular one.
@@ -1904,18 +1905,14 @@ function! vimwiki#base#table_of_contents(create)
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
       let h_complete_id = ''
-      for l in range(h_level-1)
-        if headers_levels[l][0] != ''
-          let h_complete_id .= headers_levels[l][0].'#'
-        endif
-      endfor
-      let h_complete_id .= headers_levels[h_level-1][0]
-
-      if numbering > 0 && numbering <= h_level
-        let h_number = join(map(copy(headers_levels[numbering-1 : h_level-1]), 'v:val[1]'), '.')
-        let h_number .= vimwiki#vars#get_global('html_header_numbering_sym')
-        let h_text = h_number.' '.h_text
+      if vimwiki#vars#get_global('toc_link_format') == 0
+        for l in range(h_level-1)
+          if headers_levels[l][0] != ''
+            let h_complete_id .= headers_levels[l][0].'#'
+          endif
+        endfor
       endif
+      let h_complete_id .= headers_levels[h_level-1][0]
 
       call add(complete_header_infos, [h_level, h_complete_id, h_text])
     endfor
@@ -1927,8 +1924,10 @@ function! vimwiki#base#table_of_contents(create)
     for [lvl, link, desc] in complete_header_infos
       if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
         let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
-      else
+      elseif vimwiki#vars#get_global('toc_link_format') == 0
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+      else
+        let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
       endif
       let link = s:safesubstitute(link_tpl, '__LinkUrl__',
             \ '#'.link, '')
