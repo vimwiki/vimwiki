@@ -12,7 +12,7 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
 
 # More info and advice for (aspiring) core developers
 - Before implementing a non-trivial feature, think twice what it means for the user. We should
-  always try to keep backward compatiblility. If you are not sure, discuss it on GitHub.
+  always try to keep backward compatibility. If you are not sure, discuss it on GitHub.
 - Also, when thinking about adding a new feature, it should be something which fits into the
   overall design of Vimwiki and which a significant portion of the users may like. Keep in mind
   that everybody has their own way to use Vimwiki.

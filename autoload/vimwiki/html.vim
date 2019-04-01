@@ -1098,7 +1098,7 @@ function! s:process_tag_h(line, id)
 
     else
 
-      let h_part = '<div id="'.h_id.'" class="toc"><h1 id="'.h_id.'"'
+      let h_part = '<div id="'.h_id.'" class="toc"><h'.h_level.' id="'.h_id.'"'
 
     endif
 

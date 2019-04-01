@@ -149,9 +149,9 @@ See also |:VimwikiUISelect|
 [count]<Leader>wi or <Plug>VimwikiDiaryIndex
         Open diary index file of the [count]'s wiki.
 
-        <Leader>wi opens diary index file of the first wiki from
+        <Leader>wi opens diary index file of the current wiki.
+        1<Leader>wi opens diary index file of the first wiki from
         |g:vimwiki_list|.
-        1<Leader>wi the same as above.
         2<Leader>wi opens diary index file of the second wiki from
         |g:vimwiki_list|.
         etc.
@@ -164,10 +164,9 @@ See also |:VimwikiDiaryIndex|
 [count]<Leader>w<Leader>w or <Plug>VimwikiMakeDiaryNote
         Open diary wiki-file for today of the [count]'s wiki.
 
-        <Leader>w<Leader>w opens diary wiki-file for today in the first wiki
+        <Leader>w<Leader>w opens diary wiki-file for today in the current wiki
+        1<Leader>w<Leader>w opens diary wiki-file for today in the first wiki
         from |g:vimwiki_list|.
-        1<Leader>w<Leader>w as above opens diary wiki-file for today in the
-        first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>w opens diary wiki-file for today in the second wiki
         from |g:vimwiki_list|.
         3<Leader>w<Leader>w opens diary wiki-file for today in the third wiki
@@ -182,9 +181,9 @@ See also |:VimwikiMakeDiaryNote|
 [count]<Leader>w<Leader>t or <Plug>VimwikiTabMakeDiaryNote
         Open diary wiki-file for today of the [count]'s wiki in a new tab.
 
-        <Leader>w<Leader>t tabopens diary wiki-file for today in the first
-        wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>t as above tabopens diary wiki-file for today in the
+        <Leader>w<Leader>t tabopens diary wiki-file for today in the current
+        wiki
+        1<Leader>w<Leader>t tabopens diary wiki-file for today in the
         first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>t tabopens diary wiki-file for today in the second
         wiki from |g:vimwiki_list|.
@@ -200,10 +199,10 @@ See also |:VimwikiTabMakeDiaryNote|
 [count]<Leader>w<Leader>y or <Plug>VimwikiMakeYesterdayDiaryNote
         Open diary wiki-file for yesterday of the [count]'s wiki.
 
-        <Leader>w<Leader>y opens diary wiki-file for yesterday in the first
+        <Leader>w<Leader>y opens diary wiki-file for yesterday in the current
+        wiki
+        1<Leader>w<Leader>y opens diary wiki-file for yesterday in the first
         wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>y as above opens diary wiki-file for yesterday in
-        the first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>y opens diary wiki-file for yesterday in the second
         wiki from |g:vimwiki_list|.
         3<Leader>w<Leader>y opens diary wiki-file for yesterday in the third
@@ -217,10 +216,10 @@ See also |:VimwikiMakeYesterdayDiaryNote|
 [count]<Leader>w<Leader>m or <Plug>VimwikiMakeTomorrowDiaryNote
         Open diary wiki-file for tomorrow of the [count]'s wiki.
 
-        <Leader>w<Leader>m opens diary wiki-file for tomorrow in the first
+        <Leader>w<Leader>m opens diary wiki-file for tomorrow in the current
+        wiki
+        1<Leader>w<Leader>m opens diary wiki-file for tomorrow in the first
         wiki from |g:vimwiki_list|.
-        1<Leader>w<Leader>m as above opens diary wiki-file for tomorrow in
-        the first wiki from |g:vimwiki_list|.
         2<Leader>w<Leader>m opens diary wiki-file for tomorrow in the second
         wiki from |g:vimwiki_list|.
         3<Leader>w<Leader>m opens diary wiki-file for tomorrow in the third
@@ -317,6 +316,12 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         Maps to |:VimwikiPrevLink|.
                         To remap: >
                         :nmap <Leader>wp <Plug>VimwikiPrevLink
+<
+gnt			*vimwiki_gnt*
+			Find next unfinished task in the current page.
+			Maps to |:VimwikiNextTask|
+			To remap: >
+			:nmap <Leader>nt <Plug>VimwikiNextTask
 <
                         *vimwiki_<Leader>wd*
 <Leader>wd              Delete wiki page you are in.
@@ -647,29 +652,41 @@ il                      A single list item.
 ------------------------------------------------------------------------------
 4.1. Global Commands                                 *vimwiki-global-commands*
 
-*:VimwikiIndex*
-    Open index file of the current wiki.
+*:VimwikiIndex* [count]
+    Open index file of the current wiki. If a [count] is given the
+    corresponding wiki from |g:vimwiki_list| is opened instead.
 
-*:VimwikiTabIndex*
-    Open index file of the current wiki in a new tab.
+*:VimwikiTabIndex* [count]
+    Open index file of the current wiki in a new tab. If a [count] is given
+    the corresponding wiki from |g:vimwiki_list| is opened instead.
 
 *:VimwikiUISelect*
-    Open index file of the selected wiki.
+    Displays a list of registered wikis and opens the index file of the
+    selected wiki.
 
-*:VimwikiDiaryIndex*
-    Open diary index file of the current wiki.
+*:VimwikiDiaryIndex* [count]
+    Open diary index file of the current wiki. If a [count] is given the
+    corresponding wiki from |g:vimwiki_list| is opened instead.
 
-*:VimwikiMakeDiaryNote*
-    Open diary wiki-file for today of the current wiki.
+*:VimwikiMakeDiaryNote* [count]
+    Open diary wiki-file for today of the current wiki. If a [count] is given
+    a diary wiki-file for the corresponding wiki from |g:vimwiki_list| is
+    opened instead.
 
-*:VimwikiTabMakeDiaryNote*
-    Open diary wiki-file for today of the current wiki in a new tab.
+*:VimwikiTabMakeDiaryNote* [count]
+    Open diary wiki-file for today of the current wiki in a new tab. If
+    a [count] is given a diary wiki-file for the corresponding wiki from
+    |g:vimwiki_list| is opened instead.
 
-*:VimwikiMakeYesterdayDiaryNote*
-    Open diary wiki-file for yesterday of the current wiki.
+*:VimwikiMakeYesterdayDiaryNote* [count]
+    Open diary wiki-file for yesterday of the current wiki. If a [count] is
+    given a diary wiki-file for the corresponding wiki from |g:vimwiki_list|
+    is opened instead.
 
-*:VimwikiMakeTomorrowDiaryNote*
-    Open diary wiki-file for tomorrow of the current wiki.
+*:VimwikiMakeTomorrowDiaryNote* [count]
+    Open diary wiki-file for tomorrow of the current wiki. If a [count] is
+    given a diary wiki-file for the corresponding wiki from |g:vimwiki_list|
+    is opened instead.
 
 ------------------------------------------------------------------------------
 4.2. Local commands                                   *vimwiki-local-commands*
@@ -722,6 +739,9 @@ Vimwiki file.
 
 *:VimwikiRenameLink*
     Rename the wiki page you are in.
+
+*:VimwikiNextTask*
+    Jump to the next unfinished task in the current wiki page.
 
 *:Vimwiki2HTML*
     Convert current wiki page to HTML using Vimwiki's own converter or a
@@ -878,6 +898,8 @@ is decorated: >
 
   *bold text*
   _italic text_
+  _*bold italic text*_
+  *_bold italic text _*
   ~~strikeout text~~
   `code (no syntax) text`
   super^script^
@@ -1441,7 +1463,7 @@ Hit |zr| one more time :
 
 Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
-For MediaWiki syntax, * or # should be in the first column.
+For Markdown and MediaWiki syntax, * or # should be in the first column.
 
 To turn folding on/off check |g:vimwiki_folding|.
 
@@ -2033,6 +2055,21 @@ converted to HTML at the moment.
 To use Markdown's wiki markup: >
   let g:vimwiki_list = [{'path': '~/my_site/',
                        \ 'syntax': 'markdown', 'ext': '.md'}]
+
+*vimwiki-option-links_space_char*
+------------------------------------------------------------------------------
+Key                 Default value~
+links_space_char    ' '
+
+Description~
+Set the character (or string) used to replace spaces when creating a link. For
+example, setting '_' would transform the string 'my link' into [[my_link]] and
+the created file would be my_link.wiki. The default behavior does not replace
+spaces.
+
+To set the space replacement character: >
+  let g:vimwiki_list = [{'path': '~/my_site/',
+                       \ 'links_space_char': '_'}]
 <
 
 *vimwiki-option-template_path*
@@ -2244,6 +2281,26 @@ Description~
 Sort links in a diary index page.
 
 
+*vimwiki-option-diary_caption_level*
+------------------------------------------------------------------------------
+Key                   Default value~
+diary_caption_level   0
+
+Description~
+Controls the presence of captions in the diary index linking to headers within
+the diary pages.
+
+Possible values:
+-1:  No headers are read from the diary page.
+ 0:  The first header from the diary page is used as the caption.
+       There are no sub-captions.
+ 1:  Captions are created for headers of level 1 in the diary page.
+ 2:  Captions are created for headers up to level 2 in the diary page.
+ etc.
+
+When the value is >= 1, the primary caption of each diary page is set to the
+first header read from that page if it is the unique lowest-level header.
+
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -2311,8 +2368,8 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
 
-Note: if you use MediaWiki syntax, you probably would like to set this option
-to 0, because every indented line is considered verbatim text.
+Note: if you use Markdown or MediaWiki syntax, you probably would like to set
+this option to 0, because every indented line is considered verbatim text.
 
 
 *vimwiki-option-auto_tags*
@@ -2335,6 +2392,39 @@ Description~
 Set this option to 1 to automatically update the diary index when opened.
 See |:VimwikiDiaryGenerateLinks|:  >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_diary_index': 1}]
+
+
+*vimwiki-option-auto_generate_links*
+------------------------------------------------------------------------------
+Key                  Default value     Values~
+auto_generate_links  0                 0, 1
+
+Description~
+Set this option to 1 to automatically update generated links when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_generate_links': 1}]
+
+
+*vimwiki-option-auto_generate_tags*
+------------------------------------------------------------------------------
+Key                 Default value     Values~
+auto_generate_tags  0                 0, 1
+
+Description~
+Set this option to 1 to automatically update generated tags when the
+current wiki page is saved: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'auto_generate_tags': 1}]
+
+
+*vimwiki-option-exclude_files*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+exclude_files   []                list of file patterns to exclude
+
+Description~
+Set this option to a list of file patterns to exclude when checking or
+generating links: >
+  let g:vimwiki_list = [{'path': '~/my_site/', 'exclude_files': ['**/README.md']}]
 
 
 ------------------------------------------------------------------------------
@@ -2542,6 +2632,31 @@ Default: 1
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_create_link*
+
+Create target wiki page if it does not exist. See |:VimwikiFollowLink|.
+
+Value           Description~
+0               Do not create target wiki page.
+1               Create target wiki page.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_link_ext*
+
+Append wiki file extension to links in Markdown. This is needed for
+compatibility with other Markdown tools.
+
+Value           Description~
+0               Do not append wiki file extension.
+1               Append wiki file extension.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *VimwikiLinkHandler*
 
 A customizable link handler can be defined to override Vimwiki's behavior when
@@ -2672,6 +2787,21 @@ Value           Description~
 1               Enable table auto formatting.
 
 Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_table_reduce_last_col*
+
+If set, the last column separator will not be expanded to fill the cell.  When
+`:set wrap` this option improves how a table is displayed, particularly on
+small screens.  If |g:vimwiki_table_auto_fmt| is set to 0, this option has no
+effect.
+
+Value           Description~
+0               Enable table auto formating for all columns.
+1               Disable table auto formating for the last column.
+
+Default: 0
 
 
 ------------------------------------------------------------------------------
@@ -2828,6 +2958,26 @@ Default: 2
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_conceal_pre*
+
+Conceal preformatted text markers. For example,
+>
+    {{{python
+    def say_hello():
+        print("Hello, world!")
+    }}}
+>
+would appear as simply
+>
+    def say_hello():
+        print("Hello, world!")
+>
+in your wiki file.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_autowriteall*
 
 Automatically save a modified wiki buffer when switching wiki pages. Has the
@@ -2849,7 +2999,8 @@ Default: 1
 
 Setting the value of |g:vimwiki_url_maxsave| to 0 will prevent any link
 shortening: you will see the full URL in all types of links, with no parts
-being concealed. Concealing of one-character markers is not affected.
+being concealed. This option does not affect the concealing of wiki elements
+such as bold, italic, wikilinks, etc.
 
 When positive, the value determines the maximum number of characters that
 are retained at the end after concealing the middle part of a long URL.
@@ -2904,6 +3055,30 @@ The default is 'Contents'.
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_toc_header_level*
+
+The header level of the Table of Contents (see |vimwiki-toc|). Valid values
+are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_link_format*
+
+The format of the links in the Table of Contents (see |vimwiki-toc|).
+
+
+Value           Description~
+0               Extended: The link contains the description and URL. URL
+                references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
+
+Default: 0
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*
 
 A string which specifies the prefix for all global mappings (and some local
@@ -2926,6 +3101,54 @@ Value           Description~
 1               Change directory to Vimwiki folder on opening page.
 
 Default: 0
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header*
+
+A string with the magic header that tells Vimwiki where the generated links
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_links_header = 'Generierte Links'
+
+The default is 'Generated Links'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_links_header_level*
+
+The header level of generated links. Valid values are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header*
+
+A string with the magic header that tells Vimwiki where the generated tags
+are located in a file. You can change it to the appropriate word in your
+mother tongue like this: >
+  let g:vimwiki_tags_header = 'Generierte Stichworte'
+
+The default is 'Generated Tags'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tags_header_level*
+
+The header level of generated tags. Valid values are from 1 to 5.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_markdown_header_style*
+
+The number of newlines to be inserted after a header is generated. Valid
+values are from 0 to 2.
+
+The default is 1.
+
 
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
@@ -3004,6 +3227,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Zhuang Ma (@mzlogin)
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
+    - Steven Stallion (@sstallion)
 
 
 ==============================================================================

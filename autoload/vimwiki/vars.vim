@@ -145,6 +145,8 @@ function! s:read_global_settings_from_user()
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
+        \ 'conceal_pre': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'create_link': {'type': type(0), 'default': 1, 'min':0, 'max': 1},
         \ 'diary_months': {'type': type({}), 'default':
         \   {
         \     1: 'January', 2: 'February', 3: 'March',
@@ -164,13 +166,22 @@ function! s:read_global_settings_from_user()
         \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
         \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
+        \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
+        \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
+        \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
+        \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
+        \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
         \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -242,6 +253,8 @@ function! s:populate_wikilocal_options()
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_generate_links': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_generate_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -251,9 +264,12 @@ function! s:populate_wikilocal_options()
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
         \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 1},
+        \ 'diary_caption_level': {'type': type(0), 'default': 0, 'min': -1, 'max': 6},
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
+        \ 'exclude_files': {'type': type([]), 'default': []},
         \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
         \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
+        \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'nested_syntaxes': {'type': type({}), 'default': {}},
@@ -441,6 +457,9 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
       let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
             \ .header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze'
+            \ .header_symbol.'\{'.i.'}\s*$'
       let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
             \ .header_symbol.'\{'.i.'}\s*$'
@@ -457,6 +476,8 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
             \ repeat(header_symbol, i).' __Header__'
       let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*\ze$'
       let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
       let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] =
@@ -687,10 +708,21 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.rxWeblink1Prefix = '['
   let mkd_syntax.rxWeblink1Suffix = ')'
   let mkd_syntax.rxWeblink1Separator = ']('
+  let mkd_syntax.rxWeblink1Ext = ''
+  if vimwiki#vars#get_global('markdown_link_ext')
+    let mkd_syntax.rxWeblink1Ext = vimwiki#vars#get_wikilocal('ext')
+  endif
   " [DESCRIPTION](URL)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
-        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
         \ mkd_syntax.rxWeblink1Suffix
+  " [DESCRIPTION](ANCHOR)
+  let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
+  " [DESCRIPTION](FILE#ANCHOR)
+  let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+        \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
   let valid_chars = '[^\\]'
 
@@ -703,8 +735,8 @@ function! s:populate_extra_markdown_vars()
   " 1. [DESCRIPTION](URL)
   " 1a) match [DESCRIPTION](URL)
   let mkd_syntax.rxWeblink1 = mkd_syntax.rxWeblink1Prefix.
-        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Separator.
-        \ mkd_syntax.rxWeblink1Descr . mkd_syntax.rxWeblink1Suffix
+        \ mkd_syntax.rxWeblink1Descr . mkd_syntax.rxWeblink1Separator.
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Suffix
   " 1b) match URL within [DESCRIPTION](URL)
   let mkd_syntax.rxWeblink1MatchUrl = mkd_syntax.rxWeblink1Prefix.
         \ mkd_syntax.rxWeblink1Descr. mkd_syntax.rxWeblink1Separator.
@@ -847,4 +879,3 @@ endfunction
 function! vimwiki#vars#number_of_wikis()
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction
-
