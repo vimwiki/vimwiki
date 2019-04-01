@@ -16,6 +16,7 @@
 - [Changing Wiki Syntax](#changing-wiki-syntax)
 - [Getting Help](#getting-help)
 - [Helping VimWiki](#helping-vimwiki)
+- [Wiki](https://github.com/vimwiki/vimwiki/wiki)
 - [License](#license)
 
 ## Intro
