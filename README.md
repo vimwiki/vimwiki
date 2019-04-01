@@ -181,7 +181,7 @@ Normal mode:
  * `<Tab>` -- Find next wiki link
  * `<Shift-Tab>` -- Find previous wiki link
 
-For more keys, see [`:h vimwiki-mappings`]()
+For more keys, see `:h vimwiki-mappings`
 
 ## Commands
 
