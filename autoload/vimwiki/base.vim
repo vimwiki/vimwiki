@@ -2134,7 +2134,8 @@ function! s:normalize_link_syntax_v()
     endif
 
     " Put substitution in register " and change text
-    call setreg('"', substitute(sub, '\n', '', ''), visualmode())
+    let sc = vimwiki#vars#get_wikilocal('links_space_char')
+    call setreg('"', substitute(substitute(sub, '\n', '', ''), '\s', sc, 'g'), visualmode())
     normal! `>""pgvd
   finally
     call setreg('"', default_register_save, registertype_save)

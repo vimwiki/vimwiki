@@ -2055,6 +2055,21 @@ converted to HTML at the moment.
 To use Markdown's wiki markup: >
   let g:vimwiki_list = [{'path': '~/my_site/',
                        \ 'syntax': 'markdown', 'ext': '.md'}]
+
+*vimwiki-option-links_space_char*
+------------------------------------------------------------------------------
+Key                 Default value~
+links_space_char    ' '
+
+Description~
+Set the character (or string) used to replace spaces when creating a link. For
+example, setting '_' would transform the string 'my link' into [[my_link]] and
+the created file would be my_link.wiki. The default behavior does not replace
+spaces.
+
+To set the space replacement character: >
+  let g:vimwiki_list = [{'path': '~/my_site/',
+                       \ 'links_space_char': '_'}]
 <
 
 *vimwiki-option-template_path*

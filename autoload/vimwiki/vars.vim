@@ -269,6 +269,7 @@ function! s:populate_wikilocal_options()
         \ 'exclude_files': {'type': type([]), 'default': []},
         \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
         \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
+        \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'nested_syntaxes': {'type': type({}), 'default': {}},

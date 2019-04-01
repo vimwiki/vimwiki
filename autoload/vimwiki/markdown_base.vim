@@ -122,7 +122,8 @@ function! s:normalize_link_syntax_v()
           \ '__LinkUrl__', visual_selection, '')
     let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
 
-    call setreg('"', substitute(link, '\n', '', ''), visualmode())
+    let sc = vimwiki#vars#get_wikilocal('links_space_char')
+    call setreg('"', substitute(substitute(link, '\n', '', ''), '\s', sc, 'g'), visualmode())
 
     " paste result
     norm! `>""pgvd
