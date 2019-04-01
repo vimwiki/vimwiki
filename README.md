@@ -1,4 +1,4 @@
-# A Personal Wiki For Vim
+# VimWiki: A Personal Wiki For Vim
 
 [中文](README-cn.md)
 
