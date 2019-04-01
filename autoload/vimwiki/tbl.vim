@@ -254,7 +254,7 @@ function! s:get_rows(lnum, ...)
   while lnum <= line('$')
     let line = getline(lnum)
     if s:is_table(line)
-      if lnum == a:lnum
+      if lnum == a:lnum && !s:is_separator(line)
         let cells = vimwiki#tbl#get_cells(line)
         let clen = len(cells)
         let max_lens = repeat([0], clen)
