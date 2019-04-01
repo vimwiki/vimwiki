@@ -2,7 +2,7 @@
 " Vimwiki autoload plugin file
 
 
-let s:TAGS_METADATA_FILE_NAME = '.tags'
+let s:TAGS_METADATA_FILE_NAME = '.vimwiki_tags'
 
 
 
