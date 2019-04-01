@@ -194,7 +194,8 @@ endfunction
 
 
 function! s:get_version()
-  if s:plugin_vers != -1 echo "Stable version: " . s:plugin_vers
+  if s:plugin_vers != -1
+    echo "Stable version: " . s:plugin_vers
   else
     let a:plugin_rev    = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --short HEAD")
     let a:plugin_branch = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --abbrev-ref HEAD")
