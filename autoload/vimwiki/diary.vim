@@ -366,7 +366,7 @@ function! vimwiki#diary#generate_diary_section()
             endif
             let entry = substitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
             let entry = substitute(entry, '__LinkDescription__', subcap, '')
-            call add(lines, repeat(' ', vimwiki#lst#get_list_margin() * (2 + depth)).'- '.entry)
+            call add(lines, repeat(' ', vimwiki#lst#get_list_margin()+1 * (2 + depth)).'- '.entry)
           endfor
         endfor
 
