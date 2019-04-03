@@ -195,15 +195,15 @@ endfunction
 
 function! s:get_version()
   if s:plugin_vers != -1
-    echo "Stable version: " . s:plugin_vers
+    echo "Stable version: " . string(s:plugin_vers)
   else
-    let a:plugin_rev    = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --short HEAD")
-    let a:plugin_branch = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --abbrev-ref HEAD")
-    let a:plugin_date   = system("git --git-dir " . s:plugin_dir . "/.git show -s --format=%ci")
+    let l:plugin_rev    = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --short HEAD")
+    let l:plugin_branch = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --abbrev-ref HEAD")
+    let l:plugin_date   = system("git --git-dir " . s:plugin_dir . "/.git show -s --format=%ci")
     if v:shell_error == 0
-      echo "Branch: " . a:plugin_branch
-      echo "Revision: " . a:plugin_rev
-      echo "Date: " . a:plugin_date
+      echo "Branch: " . l:plugin_branch
+      echo "Revision: " . l:plugin_rev
+      echo "Date: " . l:plugin_date
     else
       echo "Unknown version"
     endif
