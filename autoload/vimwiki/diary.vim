@@ -358,6 +358,9 @@ function! vimwiki#diary#generate_diary_section()
           let bullet = vimwiki#lst#default_symbol().' '
           let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', topcap, '')
+          " If single H1 then that will be used as the description for the link to the file
+          " if multple H1 then the filename will be used as the description for the link to the
+          " file and multiple H1 headers will be indented by shiftwidth
           call add(lines, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
 
           for [depth, subcap] in captions['rest']
@@ -366,7 +369,12 @@ function! vimwiki#diary#generate_diary_section()
             endif
             let entry = substitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
             let entry = substitute(entry, '__LinkDescription__', subcap, '')
-            call add(lines, repeat(' ', vimwiki#lst#get_list_margin() * (2 + depth)).'- '.entry)
+            let startindent = repeat(' ', vimwiki#lst#get_list_margin())
+            let indentstring = repeat(' ', vimwiki#u#sw())
+            " if single H1 then depth H2=0, H3=1, H4=2, H5=3, H6=4
+            " if multiple H1 then depth H1= 0, H2=1, H3=2, H4=3, H5=4, H6=5
+            " indent subsequent headers levels by shiftwidth
+            call add(lines, startindent.repeat(indentstring, depth+1).bullet.entry)
           endfor
         endfor
 
