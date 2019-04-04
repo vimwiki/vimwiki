@@ -254,13 +254,6 @@ function! s:get_rows(lnum, ...)
   while lnum <= line('$')
     let line = getline(lnum)
     if s:is_table(line)
-      if lnum == a:lnum && !s:is_separator(line)
-        let cells = vimwiki#tbl#get_cells(line)
-        let clen = len(cells)
-        let max_lens = repeat([0], clen)
-        let aligns = repeat(['left'], clen)
-        let line = s:fmt_row(cells, max_lens, aligns, 0, 0)
-      endif
       call add(rows, [lnum, line])
     else
       break
@@ -275,9 +268,10 @@ function! s:get_rows(lnum, ...)
 endfunction
 
 
-function! s:get_cell_aligns(lnum)
+function! s:get_cell_aligns(lnum, ...)
   let aligns = {}
-  for [lnum, row] in s:get_rows(a:lnum)
+  let depth = a:0 > 0 ? a:1 : 0
+  for [lnum, row] in s:get_rows(a:lnum, depth)
     if s:is_separator(row)
       let cells = vimwiki#tbl#get_cells(row)
       for idx in range(len(cells))
@@ -297,6 +291,46 @@ function! s:get_cell_aligns(lnum)
           let aligns[idx] = 'left'
         endif
       endfor
+    endif
+  endfor
+  return aligns
+endfunction
+
+
+function! s:get_cell_fast_aligns(rows)
+  let aligns = {}
+  let clen = 0
+  for [lnum, row] in a:rows
+    if s:is_separator(row)
+      return s:get_cell_aligns(lnum, 1)
+    endif
+    let cells = vimwiki#tbl#get_cells(row, 1)
+    let clen = len(cells)
+    for idx in range(clen)
+      let cell = cells[idx]
+      if !has_key(aligns, idx)
+        let cs = matchlist(cell, '^\(\s*\)[^[:space:]].\{-}\(\s*\)$')
+        if !empty(cs)
+          let lstart = len(cs[1])
+          let lend = len(cs[2])
+          if lstart > 0 || lend > 0
+            if lstart > 0 && lend > 0
+              let aligns[idx] = 'center'
+            else
+              if lend > 0
+                let aligns[idx] = 'left'
+              elseif lstart > 0
+                let aligns[idx] = 'right'
+              endif
+            endif
+          endif
+        endif
+      endif
+    endfor
+  endfor
+  for idx in range(clen)
+    if !has_key(aligns, idx)
+      return {}
     endif
   endfor
   return aligns
@@ -326,6 +360,7 @@ endfunction
 
 function! s:get_aligned_rows(lnum, col1, col2, depth)
   let rows = []
+  let aligns = {}
   let startlnum = 0
   let cells = []
   let max_lens = {}
@@ -335,6 +370,14 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
     let startlnum = rows[0][0]
     let lrows = len(rows)
     if lrows == a:depth + 1
+      let line = rows[-1][1]
+      if !s:is_separator(line)
+        let lcells = vimwiki#tbl#get_cells(line)
+        let lclen = len(lcells)
+        let lmax_lens = repeat([0], lclen)
+        let laligns = repeat(['left'], lclen)
+        let rows[-1][1] = s:fmt_row(lcells, lmax_lens, laligns, 0, 0)
+      endif
       let i = 1
       for [lnum, row] in rows
         call add(cells, vimwiki#tbl#get_cells(row, i != lrows - 1))
@@ -348,6 +391,8 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
       endif
       let fst_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows[0:0])
       let check_all = max_lens != fst_lens
+      let aligns = s:get_cell_fast_aligns(rows[0:-2])
+      let rows[-1][1] = line
     endif
   endif
   if check_all
@@ -365,7 +410,9 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
       let max_lens[last_index] = 1
     endif
   endif
-  let aligns = s:get_cell_aligns(a:lnum)
+  if empty(aligns)
+    let aligns = s:get_cell_aligns(a:lnum)
+  endif
   let result = []
   for [lnum, row] in rows
     if s:is_separator(row)
