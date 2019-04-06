@@ -409,6 +409,10 @@ function! vimwiki#base#backlinks()
     for source_file in wikifiles
       let links = s:get_links(source_file, idx)
       for [target_file, _, lnum, col] in links
+        if vimwiki#u#is_windows()
+          " TODO this is a temporary fix - see issue #478
+          let target_file = substitute(target_file, '/', '\', 'g')
+        endif
         " don't include links from the current file to itself
         if vimwiki#path#is_equal(target_file, current_filename) &&
               \ !vimwiki#path#is_equal(target_file, source_file)
