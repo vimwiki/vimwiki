@@ -3228,6 +3228,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
     - Steven Stallion (@sstallion)
+    - Rane Brown (@ranebrown)
 
 
 ==============================================================================
@@ -3240,7 +3241,64 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 
-2.4 (not yet released)~
+2.5 (in progress)~
+
+New:~
+    * PR #636: Wiki local option |vimwiki-option-exclude_files| which is
+      a list of patterns to exclude when checking or generating links.
+    * PR #644: Key mapping gnt to jump to the next open task.
+    * PR #643: Option |g:vimwiki_toc_link_format| to change how links are
+      formatted in the TOC.
+    * PR #641: Option |g:vimwiki_conceal_code_blocks| to conceal preformatted
+      text markers.
+    * PR #634: New options |g:vimwiki_links_header| and
+      |g:vimwiki_tags_header| to customize the title string of generated
+      sections. New option |g:vimwiki_links_header_level| and
+      |g:vimwiki_tags_header_level| which allow the header level (1-6) of the
+      generated links to be set. New option |g:vimwiki_markdown_header_style|
+      which specifies the nuber of newlines after the created header for
+      generated sections.
+    * PR #635: Wiki local options |vimwiki-option-auto_generate_links| and
+      |vimwiki-option-auto_generate_tags|.
+    * Wiki local option |vimwiki-option-links_space_char| to replace spaces
+      with a different character when creating a link.
+    * Allow increase/decrease header level to take a count.
+    * PR #637: Option |g:vimwiki_table_reduce_last_col| to not autoformat last
+      column of a table.
+    * PR #629: New option |g:vimwiki_toc_header_level| to set the desired
+      header level for the TOC.
+    * PR #616: Hex color codes are colored in HTML output.
+    * PR #573: Add HTML template variable %wiki_path% which outputs the path
+      of the current file being converted to HTML.
+    * PR #529: Option |g:vimwiki_markdown_link_ext| to include the extension
+      .md in generated links.
+    * PR #528: Add option |g:vimwiki_create_link| to prevent link creation
+      with <CR>.
+    * PR #498: Option |vimwiki-option-diary_caption_level| which adds captions
+      to the diary index based on headers.
+    * PR #377: Add horizontal alignment to tables.
+    * PR #202: Don't override or display errors for existing keymappings.
+    * PR #47: Optimize table formatting for large tables.
+
+Removed:~
+    *
+
+Fixed:~
+    * Issue #654: Fix `:VimwikiShowVersion` command.
+    * PR #634: Removed extra newlines that were inserted before/after
+      generated links.
+    * Issue #543: Allow commands related to opening index files or diary pages
+      to take a count, modify keymapping behavior, and fix discrepancies in
+      the documentation.
+    * Issue #539: The option |g:vimwiki_url_maxsave| now only affects raw
+      URLs (wiki links are excluded).
+    * Issue #438: Fix creation of visually selected links on diary pages.
+    * Issue #404: Don't conceal strikethrough character in tables.
+    * Issue #318: Markdown syntax bold, italic, and italic/bold are now
+      rendered correctly.
+
+
+2.4 (2019-03-24)~
 
 New:~
     * Add the option |g:vimwiki_text_ignore_newline|.
