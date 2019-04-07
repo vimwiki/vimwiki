@@ -3284,6 +3284,8 @@ Removed:~
     *
 
 Fixed:~
+    * Issue #456: Omnicompletion of wikilinks under Windows. Note: this should
+      be considered a temporary fix until #478 is closed.
     * Issue #654: Fix `:VimwikiShowVersion` command.
     * PR #634: Removed extra newlines that were inserted before/after
       generated links.
