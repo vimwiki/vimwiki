@@ -6,11 +6,19 @@ https://github.com/vimwiki/vimwiki/tree/dev to see if your problem is already fi
 Issues can be filed at https://github.com/vimwiki/vimwiki/issues/ .
 
 # Creating a pull request
+
 If you want to provide a pull request on GitHub, please start from the `dev` branch, not from the
 `master` branch. (Caution, GitHub shows `master` as the default branch from which to start a PR.)
 
+Make sure to update `doc/vimwiki.txt` with the following information:
+
+1. Update the changelog to include information on the new feature the PR introduces or the bug it
+   is fixing.
+2. Add a help section to describe any new features or options.
+2. If you are a first time contributor add your name to the list of contributors.
 
 # More info and advice for (aspiring) core developers
+
 - Before implementing a non-trivial feature, think twice what it means for the user. We should
   always try to keep backward compatibility. If you are not sure, discuss it on GitHub.
 - Also, when thinking about adding a new feature, it should be something which fits into the
@@ -21,6 +29,7 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
   setups. Take a little time to think about under which circumstances your changes could break.
 
 ## Git branching model
+
 - there are two branches with eternal lifetime:
     - `dev`: This is where the main development happens. Tasks which are done in one or only a few
       commits go here directly. Always try to keep this branch in a working state, that is, if the
@@ -50,6 +59,5 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
     doc to markdown and post it there. Make plans to build an automatic converter and immediately
     forget this plan.
 11. Tell the world.
-
 
 %% vim:tw=99
