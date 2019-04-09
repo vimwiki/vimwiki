@@ -155,7 +155,7 @@ endfor
 " possibly concealed chars
 let s:conceal = exists("+conceallevel") ? ' conceal' : ''
 
-if vimwiki#vars#get_global('conceal_onechar_markers') == 1
+if vimwiki#vars#get_global('conceal_onechar_markers')
   execute 'syn match VimwikiEqInChar contained /'.
         \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
   execute 'syn match VimwikiBoldChar contained /'.

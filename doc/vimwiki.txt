@@ -3240,6 +3240,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Nick Borden (@hcwndbyw)
     - Steven Stallion (@sstallion)
     - Rane Brown (@ranebrown)
+    - Patrik Willard (@padowi)
 
 
 ==============================================================================
