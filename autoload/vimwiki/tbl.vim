@@ -313,16 +313,12 @@ function! s:get_cell_aligns_fast(rows)
         if !empty(cs)
           let lstart = len(cs[1])
           let lend = len(cs[2])
-          if lstart > 0 || lend > 0
-            if lstart > 0 && lend > 0
-              let aligns[idx] = 'center'
-            else
-              if lend > 0
-                let aligns[idx] = 'left'
-              elseif lstart > 0
-                let aligns[idx] = 'right'
-              endif
-            endif
+          if lstart > 0 && lend > 0
+            let aligns[idx] = 'center'
+          elseif lend > 0
+            let aligns[idx] = 'left'
+          elseif lstart > 0
+            let aligns[idx] = 'right'
           endif
         endif
       endif
