@@ -297,7 +297,7 @@ function! s:get_cell_aligns(lnum, ...)
 endfunction
 
 
-function! s:get_cell_fast_aligns(rows)
+function! s:get_cell_aligns_fast(rows)
   let aligns = {}
   let clen = 0
   for [lnum, row] in a:rows
@@ -391,7 +391,7 @@ function! s:get_aligned_rows(lnum, col1, col2, depth)
       endif
       let fst_lens = s:get_cell_max_lens(a:lnum, cells, startlnum, rows[0:0])
       let check_all = max_lens != fst_lens
-      let aligns = s:get_cell_fast_aligns(rows[0:-2])
+      let aligns = s:get_cell_aligns_fast(rows[0:-2])
       let rows[-1][1] = line
     endif
   endif
