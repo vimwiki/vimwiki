@@ -3256,6 +3256,8 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #663: New option |g:vimwiki_conceal_onechar_markers| to control
+      whether to show or hide single-character format markers.
     * PR #636: Wiki local option |vimwiki-option-exclude_files| which is
       a list of patterns to exclude when checking or generating links.
     * PR #644: Key mapping gnt to jump to the next open task.
