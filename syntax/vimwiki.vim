@@ -155,24 +155,26 @@ endfor
 " possibly concealed chars
 let s:conceal = exists("+conceallevel") ? ' conceal' : ''
 
-execute 'syn match VimwikiEqInChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
-execute 'syn match VimwikiBoldChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
-execute 'syn match VimwikiItalicChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
-execute 'syn match VimwikiBoldItalicChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
-execute 'syn match VimwikiItalicBoldChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
-execute 'syn match VimwikiCodeChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
-execute 'syn match VimwikiDelTextChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
-execute 'syn match VimwikiSuperScript contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
-execute 'syn match VimwikiSubScript contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
+if vimwiki#vars#get_global('conceal_onechar_markers')
+  execute 'syn match VimwikiEqInChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
+  execute 'syn match VimwikiBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
+  execute 'syn match VimwikiItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
+  execute 'syn match VimwikiBoldItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
+  execute 'syn match VimwikiItalicBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
+  execute 'syn match VimwikiCodeChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
+  execute 'syn match VimwikiDelTextChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
+  execute 'syn match VimwikiSuperScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
+  execute 'syn match VimwikiSubScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
+endif
 
 
 let s:options = ' contained transparent contains=NONE'
