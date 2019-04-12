@@ -3161,6 +3161,21 @@ values are from 0 to 2.
 The default is 1.
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_filetypes*
+
+A list of additional fileypes that should be registered to vimwiki files: >
+
+  let g:vimwiki_filetypes = ['markdown', 'pandoc']
+
+Would result in the filetype being set to `vimwiki.markdown.pandoc`. This can
+be used to enable third party plugins such as custom folding. WARNING: this
+option can allow other plugins to overwrite vimwiki settings and operation so
+take care when using it. Any plugin that uses a set filetype will be enabled.
+
+The default is `[ ]`
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 

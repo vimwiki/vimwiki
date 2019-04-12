@@ -309,7 +309,7 @@ function! vimwiki#base#open_link(cmd, link, ...)
   if update_prev_link
     if a:0
       let vimwiki_prev_link = [a:1, []]
-    elseif &ft ==# 'vimwiki'
+    elseif vimwiki#u#ft_is_vw()
       let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
     endif
   endif
@@ -811,8 +811,8 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
     " Make sure no other plugin takes ownership over the new file. Vimwiki
     " rules them all! Well, except for directories, which may be opened with
     " Netrw
-    if &filetype != 'vimwiki' && fname !~ '\m/$'
-      setfiletype vimwiki
+    if !vimwiki#u#ft_is_vw() && fname !~? '\m/$'
+      call vimwiki#u#ft_set()
     endif
   endif
   if a:anchor != ''
