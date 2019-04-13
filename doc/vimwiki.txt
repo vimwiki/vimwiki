@@ -317,11 +317,11 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>wp <Plug>VimwikiPrevLink
 <
-gnt			*vimwiki_gnt*
-			Find next unfinished task in the current page.
-			Maps to |:VimwikiNextTask|
-			To remap: >
-			:nmap <Leader>nt <Plug>VimwikiNextTask
+gnt                     *vimwiki_gnt*
+                        Find next unfinished task in the current page.
+                        Maps to |:VimwikiNextTask|
+                        To remap: >
+                        :nmap <Leader>nt <Plug>VimwikiNextTask
 <
                         *vimwiki_<Leader>wd*
 <Leader>wd              Delete wiki page you are in.
@@ -3186,6 +3186,22 @@ values are from 0 to 2.
 The default is 1.
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_auto_header*
+
+Set this option to 1 to automatically generate a level 1 header when creating
+a new wiki page. This option is disabled for the wiki index and the diary
+index. Spaces replaced with |vimwiki-option-links_space_char| are reverted
+back to spaces in the generated header, which will match the filename
+except for the characters that were reverted to spaces.
+
+For example, with `links_space_char` set to `'_'` creating a link from the text
+`foo bar link` would result in `[[foo_bar_link]]` and the file
+`foo_bar_link.wiki`. The generated header would be `= foo bar link =`
+
+The default is 0.
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3281,6 +3297,8 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #661: Add option |g:vimwiki_auto_header| to automatically generate
+      a level 1 header for new wiki pages.
     * PR #665: Integration with vimwiki_markdown gem
       https://github.com/patrickdavey/vimwiki_markdown
       This provides the |vimwiki-option-html_filename_parameterization|

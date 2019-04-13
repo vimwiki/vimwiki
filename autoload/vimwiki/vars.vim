@@ -143,6 +143,7 @@ function! s:read_global_settings_from_user()
   let global_settings = {
         \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_header': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
         \ 'conceal_onechar_markers': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
