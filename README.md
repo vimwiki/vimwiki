@@ -1,8 +1,9 @@
-# VimWiki: A Personal Wiki For Vim
+![VimWiki: A Personal Wiki For Vim](doc/splash.png)
 
 [中文](README-cn.md)
 
 - [Intro](#intro)
+- [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
     - [VIM Packages](#installation-using-vim-packages-since-vim-741528)
@@ -18,6 +19,8 @@
 - [Helping VimWiki](#helping-vimwiki)
 - [Wiki](https://github.com/vimwiki/vimwiki/wiki)
 - [License](#license)
+
+----
 
 ## Intro
 
@@ -63,6 +66,14 @@ The result should look something like:
     * Scratchpad -- various temporary stuff.
 
 ```
+
+## Screenshots
+
+![Lists View](doc/lists.png)
+![Entries View](doc/entries.png)
+![Todos View](doc/todos.png)
+![Wiki View](doc/wiki.png)
+
 
 ## Installation
 
@@ -216,6 +227,8 @@ VimWiki has a lot of users but only very few recurring developers or people
 helping the community. Your help is therefore appreciated. Everyone can help!
 See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on
 how you can help.
+
+----
 
 ## License
 
