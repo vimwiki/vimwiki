@@ -82,6 +82,7 @@ let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 " Preformatted text
 let s:markdown_syntax.rxPreStart = '```'
 let s:markdown_syntax.rxPreEnd = '```'
+let s:markdown_syntax.rxPreInline = '^    '
 
 " Math block
 let s:markdown_syntax.rxMathStart = '\$\$'

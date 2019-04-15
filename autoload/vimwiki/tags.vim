@@ -85,8 +85,27 @@ function! s:scan_tags(lines, page_name)
   let PROXIMITY_LINES_NR = 2
   let header_line_nr = - (2 * PROXIMITY_LINES_NR)
 
+  let verbatim_block = 0
+
   for line_nr in range(1, len(a:lines))
     let line = a:lines[line_nr - 1]
+
+    " ignore verbatim blocks
+    if verbatim_block
+      if match(line, vimwiki#vars#get_syntaxlocal('rxPreEnd')) != -1
+        let verbatim_block = 0
+      endif
+      continue
+    else
+      if match(line, vimwiki#vars#get_syntaxlocal('rxPreStart')) != -1
+        let verbatim_block = 1
+        continue
+      endif
+      if vimwiki#vars#get_wikilocal('syntax') == 'markdown' &&
+            \ match(line, vimwiki#vars#get_syntaxlocal('rxPreInline')) != -1
+        continue
+      endif
+    endif
 
     " process headers
     let h_match = matchlist(line, rxheader)
@@ -111,8 +130,6 @@ function! s:scan_tags(lines, page_name)
       endif
       continue " tags are not allowed in headers
     endif
-
-    " TODO ignore verbatim blocks
 
     " Scan line for tags.  There can be many of them.
     let str = line
