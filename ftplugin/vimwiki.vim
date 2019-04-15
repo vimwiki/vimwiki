@@ -580,6 +580,7 @@ if !hasmapto('VimwikiReturn', 'i')
   endif
 endif
 
+
 "Table mappings
  if vimwiki#vars#get_global('table_mappings')
    inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
@@ -587,11 +588,25 @@ endif
  endif
 
 
+" table formatting mappings
+if !hasmapto('<Plug>VimwikiTableAlignQ', 'n') && maparg('gqq', 'n') == ""
+  nmap <silent><buffer> gqq <Plug>VimwikiTableAlignQ
+endif
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ :VimwikiTableAlignQ<CR>
+if !hasmapto('<Plug>VimwikiTableAlignQ1', 'n') && maparg('gq1', 'n') == ""
+  nmap <silent><buffer> gq1 <Plug>VimwikiTableAlignQ1
+endif
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ1 :VimwikiTableAlignQ 2<CR>
 
-nnoremap <buffer> gqq :VimwikiTableAlignQ<CR>
-nnoremap <buffer> gww :VimwikiTableAlignW<CR>
-nnoremap <buffer> gq1 :VimwikiTableAlignQ 2<CR>
-nnoremap <buffer> gw1 :VimwikiTableAlignW 2<CR>
+if !hasmapto('<Plug>VimwikiTableAlignW', 'n') && maparg('gww', 'n') == ""
+  nmap <silent><buffer> gww <Plug>VimwikiTableAlignW
+endif
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignW :VimwikiTableAlignW<CR>
+if !hasmapto('<Plug>VimwikiTableAlignW1', 'n') && maparg('gw1', 'n') == ""
+  nmap <silent><buffer> gw1 <Plug>VimwikiTableAlignW1
+endif
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignW1 :VimwikiTableAlignW 2<CR>
+
 if !hasmapto('<Plug>VimwikiTableMoveColumnLeft')
   nmap <silent><buffer> <A-Left> <Plug>VimwikiTableMoveColumnLeft
 endif
@@ -601,7 +616,6 @@ if !hasmapto('<Plug>VimwikiTableMoveColumnRight')
 endif
 nnoremap <silent><script><buffer>
       \ <Plug>VimwikiTableMoveColumnRight :VimwikiTableMoveColumnRight<CR>
-
 
 
 " ------------------------------------------------

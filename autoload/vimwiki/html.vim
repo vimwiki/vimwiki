@@ -239,8 +239,15 @@ function! s:is_html_uptodate(wikifile)
   endif
 
   let wikifile = fnamemodify(a:wikifile, ":p")
-  let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') .
-        \ vimwiki#vars#get_bufferlocal('subdir') . fnamemodify(wikifile, ":t:r").".html")
+
+  if vimwiki#vars#get_wikilocal('html_filename_parameterization')
+    let parameterized_wikiname = s:parameterized_wikiname(wikifile)
+    let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') .
+          \ vimwiki#vars#get_bufferlocal('subdir') . parameterized_wikiname)
+  else
+    let htmlfile = expand(vimwiki#vars#get_wikilocal('path_html') .
+          \ vimwiki#vars#get_bufferlocal('subdir') . fnamemodify(wikifile, ":t:r").".html")
+  endif
 
   if getftime(wikifile) <= getftime(htmlfile) && tpl_time <= getftime(htmlfile)
     return 1
@@ -248,6 +255,15 @@ function! s:is_html_uptodate(wikifile)
   return 0
 endfunction
 
+function! s:parameterized_wikiname(wikifile)
+  let initial = fnamemodify(a:wikifile, ":t:r")
+  let lower_sanitized = tolower(initial)
+  let substituted = substitute(lower_sanitized, '[^a-z0-9_-]\+',"-", "g")
+  let substituted = substitute(substituted, '\-\+',"-", "g")
+  let substituted = substitute(substituted, '^-', '', "g")
+  let substituted = substitute(substituted, '-$', '', "g")
+  return substitute(substituted, '\-\+',"-", "g") . ".html"
+endfunction
 
 function! s:html_insert_contents(html_lines, content)
   let lines = []
@@ -1614,8 +1630,10 @@ function! vimwiki#html#WikiAll2HTML(path_html)
   let path_html = expand(a:path_html)
   call vimwiki#path#mkdir(path_html)
 
-  echomsg 'Vimwiki: Deleting non-wiki html files ...'
-  call s:delete_html_files(path_html)
+  if !vimwiki#vars#get_wikilocal('html_filename_parameterization')
+    echomsg 'Vimwiki: Deleting non-wiki html files ...'
+    call s:delete_html_files(path_html)
+  endif
 
   echomsg 'Vimwiki: Converting wiki to html files ...'
   let setting_more = &more

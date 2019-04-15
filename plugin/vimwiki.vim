@@ -249,6 +249,50 @@ if !exists("*VimwikiWikiIncludeHandler")
 endif
 
 
+" write a level 1 header to new wiki files
+" a:fname should be an absolute filepath
+function! s:create_h1(fname)
+  if vimwiki#vars#get_global('auto_header')
+    let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
+
+    " don't do anything for unregistered wikis
+    if idx == -1
+      return
+    endif
+
+    " don't create header for the diary index page
+    if vimwiki#path#is_equal(a:fname,
+          \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx).
+          \ vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx))
+      return
+    endif
+
+    " get tail of filename without extension
+    let title = expand('%:t:r')
+
+    " don't insert header for index page
+    if title ==# vimwiki#vars#get_wikilocal('index', idx)
+      return
+    endif
+
+    " don't substitute space char for diary pages
+    if title !~# '^\d\{4}-\d\d-\d\d'
+      " NOTE: it is possible this could remove desired characters if the 'links_space_char'
+      " character matches characters that are intentionally used in the title.
+      let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')
+    endif
+
+    " insert the header
+    if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
+      keepjumps call append(0, '# ' . title)
+      for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+        keepjumps call append(1, '')
+      endfor
+    else
+      keepjumps call append(0, '= ' . title . ' =')
+    endif
+  endif
+endfunction
 
 " Define autocommands for all known wiki extensions
 
@@ -272,6 +316,8 @@ augroup vimwiki
     if exists('#DiffUpdated')
       exe 'autocmd DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
     endif
+    " automatically generate a level 1 header for new files
+    exe 'autocmd BufNewFile *'.s:ext.' call s:create_h1(expand("%:p"))'
     " Format tables when exit from insert mode. Do not use textwidth to
     " autowrap tables.
     if vimwiki#vars#get_global('table_auto_fmt')

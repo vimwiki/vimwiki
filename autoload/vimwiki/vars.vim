@@ -143,6 +143,7 @@ function! s:read_global_settings_from_user()
   let global_settings = {
         \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_header': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
         \ 'conceal_onechar_markers': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -281,6 +282,7 @@ function! s:populate_wikilocal_options()
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
+        \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ }
 
   let g:vimwiki_wikilocal_vars = []
