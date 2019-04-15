@@ -264,7 +264,7 @@ exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
       \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
-command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
+command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
 command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
@@ -358,6 +358,8 @@ nnoremap <silent><script><buffer> <Plug>VimwikiNextLink
     \ :VimwikiNextLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiPrevLink
     \ :VimwikiPrevLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiGoto
+    \ :VimwikiGoto<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDeleteLink
     \ :VimwikiDeleteLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiRenameLink
@@ -380,6 +382,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<BS>', '<Plug>VimwikiGoBackLink')
   call vimwiki#u#map_key('n', '<TAB>', '<Plug>VimwikiNextLink')
   call vimwiki#u#map_key('n', '<S-TAB>', '<Plug>VimwikiPrevLink')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteLink')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameLink')
   call vimwiki#u#map_key('n', '<C-Down>', '<Plug>VimwikiDiaryNextDay')

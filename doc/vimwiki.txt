@@ -324,6 +324,12 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>wp <Plug>VimwikiPrevLink
 <
+                        *vimwiki_<Leader>wn*
+<Leader>wn              Goto or create new wiki page.
+                        Maps to |:VimwikiGoto|.
+                        To remap: >
+                        :nmap <Leader>nn <Plug>VimwikiGoto
+<
                         *vimwiki_<Leader>wd*
 <Leader>wd              Delete wiki page you are in.
                         Maps to |:VimwikiDeleteLink|.
@@ -770,7 +776,8 @@ Vimwiki file.
         :VimwikiGoto HelloWorld
 <    opens/creates HelloWorld wiki page.
 
-    Supports |cmdline-completion| for link name.
+    Supports |cmdline-completion| for link name. If name is not specified, a
+    prompt will be shown.
 
 *:VimwikiDeleteLink*
     Delete the wiki page you are in.
@@ -3418,6 +3425,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #673: Add :VimwikiGoto key mapping.
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
     * PR #683: Improve layout and format of key binding documentation in
       README and include note about key bindings that may not work.

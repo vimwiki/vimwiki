@@ -419,7 +419,7 @@ endfunction
 
 
 function! vimwiki#base#goto(...)
-  let key = a:1
+  let key = a:0 > 0 ? a:1 : input('Enter name: ')
   let anchor = a:0 > 1 ? a:2 : ''
 
   call vimwiki#base#edit_file(':e',
