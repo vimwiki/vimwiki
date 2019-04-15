@@ -2,6 +2,7 @@
 # This section is devoted to this project
 ##############################
 doc/tags
+.tags
 
 # Vim stuff
 ##############################
