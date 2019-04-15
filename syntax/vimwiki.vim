@@ -488,6 +488,7 @@ call vimwiki#base#nested_syntax('tex',
 
 syntax spell toplevel
 
-syntax sync maxlines=300
+syntax sync maxlines=300  " speed up screen update by limiting the number of lines parsed
+" 'grouphere' used to speed up the syntax highlight
 syn sync match VimwikiSyncPat	grouphere  VimwikiH1Folding	"^\s*="
 syn sync match VimwikiSyncPat	grouphere  VimwikiH1Folding	"}}}"
