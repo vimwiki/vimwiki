@@ -98,14 +98,29 @@ endfunction
 " Returns: the relative path from a:dir to a:file
 function! vimwiki#path#relpath(dir, file)
   let result = []
-  let dir = split(a:dir, '/')
-  let file = split(a:file, '/')
+  if vimwiki#u#is_windows()
+    " TODO temporary fix see #478
+    " not sure why paths get converted back to using forward slash
+    " when passed to the function in the form C:\path\to\file
+    let dir = substitute(a:dir, '/', '\', 'g')
+    let file = substitute(a:file, '/', '\', 'g')
+    let dir = split(dir, '\')
+    let file = split(file, '\')
+  else
+    let dir = split(a:dir, '/')
+    let file = split(a:file, '/')
+  endif
   while (len(dir) > 0 && len(file) > 0) && vimwiki#path#is_equal(dir[0], file[0])
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
   if empty(dir) && empty(file)
-    return './'
+    if vimwiki#u#is_windows()
+      " TODO temporary fix see #478
+      return '.\'
+    else
+      return './'
+    endif
   endif
   for segment in dir
     let result += ['..']
@@ -113,9 +128,17 @@ function! vimwiki#path#relpath(dir, file)
   for segment in file
     let result += [segment]
   endfor
-  let result_path = join(result, '/')
-  if a:file =~ '\m/$'
-    let result_path .= '/'
+  if vimwiki#u#is_windows()
+    " TODO temporary fix see #478
+    let result_path = join(result, '\')
+    if a:file =~ '\m\\$'
+      let result_path .= '\'
+    endif
+  else
+    let result_path = join(result, '/')
+    if a:file =~ '\m/$'
+      let result_path .= '/'
+    endif
   endif
   return result_path
 endfunction
