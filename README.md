@@ -64,6 +64,13 @@ The result should look something like:
 
 ```
 
+## Screenshots
+
+![Lists View](doc/lists.png)
+![Entries View](doc/entries.png)
+![Todos View](doc/todos.png)
+![Wiki View](doc/wiki.png)
+
 ## Installation
 
 ### Prerequisites
