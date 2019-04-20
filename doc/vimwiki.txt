@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 2.4
+                               Version: 2.4.1
 
 ==============================================================================
 CONTENTS                                                             *vimwiki*
@@ -2988,6 +2988,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Stefan Huber (@shuber2)
     - Hugo Hörnquist (@HugoNikanor)
     - Rane Brown (@ranebrown)
+    - @monkinco
 
 
 ==============================================================================
@@ -2999,6 +3000,12 @@ https://github.com/vimwiki/vimwiki/issues/, all others from
 http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+
+2.4.1 (2019-02-20)~
+Fixed:
+    * Fix VimwikiShowVersion function.
+    * strikethrough `~` characters were not hidden within tables
+    * Update and format README.md and update screen shots
 
 2.4 (2019-03-24)~
 
