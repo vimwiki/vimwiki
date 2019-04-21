@@ -133,6 +133,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
 
   let scheme = matchstr(link_text, '^\zs'.vimwiki#vars#get_global('rxSchemes').'\ze:')
   if scheme == ''
+    " interwiki link scheme is default
     let link_infos.scheme = 'wiki'.source_wiki
   else
     let link_infos.scheme = scheme
@@ -181,11 +182,35 @@ function! vimwiki#base#resolve_link(link_text, ...)
 
   " extract the other items depending on the scheme
   if link_infos.scheme =~# '\mwiki\d\+'
-    let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
-    if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
-      let link_infos.index = -1
-      let link_infos.filename = ''
-      return link_infos
+
+    " interwiki link named wiki 'wn.name:link' format
+    let wnmatch = matchlist(link_text, '\m^wn\.\([a-zA-Z0-9\-_ ]\+\):\(.*\)')
+    if len(wnmatch) >= 2 && wnmatch[1] !=? '' && wnmatch[2] !=? ''
+      let wname = wnmatch[1]
+      for idx in range(vimwiki#vars#number_of_wikis())
+        if vimwiki#vars#get_wikilocal('name', idx) ==# wname
+          " name matches!
+          let link_infos.index = idx
+          let link_text = wnmatch[2]
+          break
+        endif
+      endfor
+      if link_text !=# wnmatch[2]
+        " error: invalid wiki name
+        let link_infos.index = -2
+        let link_infos.filename = ''
+        " use scheme field to return invalid wiki name
+        let link_infos.scheme = wname
+        return link_infos
+      endif
+    else
+      " interwiki link numbered wiki format
+      let link_infos.index = eval(matchstr(link_infos.scheme, '\D\+\zs\d\+\ze'))
+      if link_infos.index < 0 || link_infos.index >= vimwiki#vars#number_of_wikis()
+        let link_infos.index = -1
+        let link_infos.filename = ''
+        return link_infos
+      endif
     endif
 
     if !is_relative || link_infos.index != source_wiki
@@ -293,6 +318,9 @@ function! vimwiki#base#open_link(cmd, link, ...)
   if link_infos.filename == ''
     if link_infos.index == -1
       echomsg 'Vimwiki Error: No registered wiki ''' . link_infos.scheme . '''.'
+    elseif link_infos.index == -2
+      " scheme field stores wiki name for this error case
+      echom 'Vimwiki Error: No wiki found with name "' . link_infos.scheme . '"'
     else
       echomsg 'Vimwiki Error: Unable to resolve link!'
     endif
@@ -892,18 +920,35 @@ endfunction
 
 
 function! s:print_wiki_list()
-  let idx = 0
-  while idx < vimwiki#vars#number_of_wikis()
+  " find the max name length for prettier formatting
+  let max_len = 0
+  for idx in range(vimwiki#vars#number_of_wikis())
+    let wname = vimwiki#vars#get_wikilocal('name', idx)
+    if len(wname) > max_len
+      let max_len = len(wname)
+    endif
+  endfor
+
+  " print each wiki, active wiki highlighted and marked with '*'
+  for idx in range(vimwiki#vars#number_of_wikis())
     if idx == vimwiki#vars#get_bufferlocal('wiki_nr')
-      let sep = ' * '
+      let sep = '*'
       echohl PmenuSel
     else
-      let sep = '   '
+      let sep = ' '
       echohl None
     endif
-    echo (idx + 1) . sep . vimwiki#vars#get_wikilocal('path', idx)
-    let idx += 1
-  endwhile
+    let wname = vimwiki#vars#get_wikilocal('name', idx)
+    let wpath = vimwiki#vars#get_wikilocal('path', idx)
+    if wname ==? ''
+      let wname = '----'
+      if max_len < 4
+        let max_len = 4
+      endif
+    endif
+    let wname = '"' . wname . '"'
+    echo printf('%2d %s %-*s %s', idx+1, sep, max_len+2, wname, wpath)
+  endfor
   echohl None
 endfunction
 
@@ -1459,8 +1504,12 @@ endfunction
 
 function! vimwiki#base#ui_select()
   call s:print_wiki_list()
-  let idx = input("Select Wiki (specify number): ")
-  if idx == ""
+  let idx = input('Select Wiki by number and press <Enter> (empty cancels): ')
+  if idx ==# ''
+    return
+  elseif idx !~# '\m[0-9]\+'
+    echo "\n"
+    echom 'Invalid wiki selection.'
     return
   endif
   call vimwiki#base#goto_index(idx)

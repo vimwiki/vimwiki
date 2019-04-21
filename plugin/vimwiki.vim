@@ -417,12 +417,29 @@ nnoremap <unique><script> <Plug>VimwikiMakeTomorrowDiaryNote
 
 
 function! s:build_menu(topmenu)
+  let wnamelist = []
   for idx in range(vimwiki#vars#number_of_wikis())
-    let norm_path = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
-    let norm_path = escape(norm_path, '\ \.')
-    execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
+    let wname = vimwiki#vars#get_wikilocal('name', idx)
+    if wname ==? ''
+      " fall back to the path if wiki isn't named
+      let wname = fnamemodify(vimwiki#vars#get_wikilocal('path', idx), ':h:t')
+    endif
+
+    if index(wnamelist, wname) != -1
+      " append wiki index number to duplicate entries
+      let wname = wname . ' ' . string(idx + 1)
+    endif
+
+    " add entry to the list of names for duplicate checks
+    call add(wnamelist, wname)
+
+    " escape spaces and periods
+    let wname = escape(wname, '\ \.')
+
+    " build the menu
+    execute 'menu '.a:topmenu.'.Open\ index.'.wname.
           \ ' :call vimwiki#base#goto_index('.(idx+1).')<CR>'
-    execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
+    execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.wname.
           \ ' :call vimwiki#diary#make_note('.(idx+1).')<CR>'
   endfor
 endfunction

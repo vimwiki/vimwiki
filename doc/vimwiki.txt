@@ -966,6 +966,13 @@ or: >
 The number behind "wiki" is in the range 0..N-1 and identifies the destination
 wiki in |g:vimwiki_list|.
 
+Named interwiki links are also supported in the format "wn.name:link" >
+  [[wn.My Name:This is a link]]
+or: >
+  [[wn.MyWiki:This is a link source|Description of the link]]
+
+See |vimwiki-option-name| to set a per wiki name.
+
 Diary~
 
 The "diary:" scheme is used to link to diary entries: >
@@ -2005,6 +2012,24 @@ If path_html is an empty string, the location is derived from
 path_html will be set to '~/okidoki_html/'.
 
 
+*vimwiki-option-name*
+------------------------------------------------------------------------------
+Key             Default value~
+name            ''
+
+Description~
+A name that can be used to create interwiki links: >
+  let g:vimwiki_list = [{'path': '~/my_site/',
+                       \ 'name': 'My Wiki'}]
+
+Valid names can contain letters, numbers, spaces, underscores, and dashes.
+If duplicate names are used the interwiki link will jump to the first wiki
+with a matching name in |g:vimwiki_list|.
+
+The assigned wiki name will also be shown in the menu entries in GVim.
+See the option |g:vimwiki_menu|.
+
+
 *vimwiki-option-auto_export*
 ------------------------------------------------------------------------------
 Key             Default value     Values~
@@ -2543,6 +2568,10 @@ Default: {}
 *g:vimwiki_menu*
 
 Create a menu in the menu bar of GVim, where you can open the available wikis.
+If the wiki has an assigned name (see |vimwiki-option-name|) the menu entry
+will match the name. Otherwise the final folder of |vimwiki-option-path| will
+be used for the name. If there are duplicate entries the index number from
+|g:vimwiki_list| will be appended to the name.
 
 Value              Description~
 ''                 No menu
@@ -3297,6 +3326,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #675: Add option |vimwiki-option-name| to assign a per wiki name.
     * PR #661: Add option |g:vimwiki_auto_header| to automatically generate
       a level 1 header for new wiki pages.
     * PR #665: Integration with vimwiki_markdown gem
@@ -3347,6 +3377,7 @@ Removed:~
     *
 
 Fixed:~
+    * Issue #612: GVim menu displayed duplicate names.
     * Issue #456: Omnicompletion of wikilinks under Windows. Note: this should
       be considered a temporary fix until #478 is closed.
     * Issue #654: Fix `:VimwikiShowVersion` command.

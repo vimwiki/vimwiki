@@ -274,6 +274,7 @@ function! s:populate_wikilocal_options()
         \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'name': {'type': type(''), 'default': ''},
         \ 'nested_syntaxes': {'type': type({}), 'default': {}},
         \ 'path': {'type': type(''), 'default': $HOME . '/vimwiki/', 'min_length': 1},
         \ 'path_html': {'type': type(''), 'default': ''},
