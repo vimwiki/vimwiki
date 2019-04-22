@@ -102,11 +102,21 @@ function! s:setup_buffer_enter()
     return
   endif
 
+  call s:set_global_options()
+endfunction
+
+
+" this is called when the buffer enters a window or when running a  diff
+function! s:setup_buffer_win_enter()
+  " don't do anything if it's not managed by Vimwiki (that is, when it's not in
+  " a registered wiki and not a temporary wiki)
+  if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
+    return
+  endif
+
   if &filetype != 'vimwiki'
     setfiletype vimwiki
   endif
-
-  call s:set_global_options()
 
   call s:set_windowlocal_options()
 endfunction
@@ -302,6 +312,10 @@ augroup vimwiki
     exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
+    exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_win_enter()'
+    if exists('##DiffUpdated')
+      exe 'autocmd DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
+    endif
     " automatically generate a level 1 header for new files
     exe 'autocmd BufNewFile *'.s:ext.' call s:create_h1(expand("%:p"))'
     " Format tables when exit from insert mode. Do not use textwidth to
