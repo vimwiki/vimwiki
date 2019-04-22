@@ -313,7 +313,7 @@ augroup vimwiki
     exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
     exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
     exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_win_enter()'
-    if exists('#DiffUpdated')
+    if exists('##DiffUpdated')
       exe 'autocmd DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
     endif
     " automatically generate a level 1 header for new files
