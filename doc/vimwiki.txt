@@ -3332,7 +3332,7 @@ New:~
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
     * PR #683: Improve layout and format of key binding documentation in
       README and include note about key bindings that may not work.
-    * PR #XXX: Prevent sticky type checking errors for old vim versions.
+    * PR #681: Prevent sticky type checking errors for old vim versions.
     * PR #675: Add option |vimwiki-option-name| to assign a per wiki name.
     * PR #661: Add option |g:vimwiki_auto_header| to automatically generate
       a level 1 header for new wiki pages.
