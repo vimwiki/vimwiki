@@ -203,6 +203,7 @@ function! s:read_global_settings_from_user()
       call s:check_users_value(key, users_value, value_infos, 1)
 
       let g:vimwiki_global_vars[key] = users_value
+      unlet users_value
     else
       let g:vimwiki_global_vars[key] = global_settings[key].default
     endif
