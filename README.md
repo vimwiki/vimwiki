@@ -178,7 +178,13 @@ For other syntax elements, see `:h vimwiki-syntax`
 
 ## Key bindings
 
-Normal mode:
+### Normal mode
+
+**Note:** your terminal may prevent capturing some of the default bindings
+listed below. See `:h vimwiki-local-mappings` for suggestions for alternative
+bindings if you encounter a problem.
+
+#### Basic key bindings
 
  * `<Leader>ww` -- Open default wiki index file.
  * `<Leader>wt` -- Open default wiki index file in a new tab.
@@ -192,7 +198,10 @@ Normal mode:
  * `<Tab>` -- Find next wiki link
  * `<Shift-Tab>` -- Find previous wiki link
 
-For more keys, see `:h vimwiki-mappings`
+#### Advanced key bindings
+
+Refer to the complete documentation at `:h vimwiki-mappings` to see many
+more bindings.
 
 ## Commands
 
@@ -218,7 +227,7 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 
 ## Getting help
 
-**Have a question?**  
+**Have a question?**
 Visit the IRC channel [`#vimwiki`](https://webchat.freenode.net/?channels=#vimwiki) on Freenode ([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#freenode_#vimwiki:matrix.org`) or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
 
 ## Helping VimWiki
