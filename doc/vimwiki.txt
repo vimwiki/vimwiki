@@ -3259,7 +3259,6 @@ Old homepage: http://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
-    - Steve Dondley (@sdondley)
     - Maxim Kim (@habamax) <habamax@gmail.com> as original author
     - the people here: http://code.google.com/p/vimwiki/people/list
     - Stuart Andrews (@tub78)
@@ -3312,6 +3311,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Steven Stallion (@sstallion)
     - Rane Brown (@ranebrown)
     - Patrik Willard (@padowi)
+    - Steve Dondley (@sdondley)
 
 
 ==============================================================================
