@@ -3259,6 +3259,7 @@ Old homepage: http://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
+    - Steve Dondley (@sdondley)
     - Maxim Kim (@habamax) <habamax@gmail.com> as original author
     - the people here: http://code.google.com/p/vimwiki/people/list
     - Stuart Andrews (@tub78)
@@ -3326,6 +3327,8 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #683: Improve layout and format of key binding documentation in
+      README and include note about key bindings that may not work.
     * PR #675: Add option |vimwiki-option-name| to assign a per wiki name.
     * PR #661: Add option |g:vimwiki_auto_header| to automatically generate
       a level 1 header for new wiki pages.
