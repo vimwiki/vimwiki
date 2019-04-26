@@ -265,7 +265,7 @@ function! s:populate_wikilocal_options()
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
-        \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 1},
+        \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 0},
         \ 'diary_caption_level': {'type': type(0), 'default': 0, 'min': -1, 'max': 6},
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
         \ 'exclude_files': {'type': type([]), 'default': []},
