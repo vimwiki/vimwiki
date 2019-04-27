@@ -338,7 +338,6 @@ augroup vimwiki
 augroup END
 
 
-
 command! VimwikiUISelect call vimwiki#base#ui_select()
 
 " these commands take a count e.g. :VimwikiIndex 2
@@ -372,62 +371,44 @@ command! VimwikiDiaryGenerateLinks
 
 command! VimwikiShowVersion call s:get_version()
 
-let s:map_prefix = vimwiki#vars#get_global('map_prefix')
 
-if !hasmapto('<Plug>VimwikiIndex') && maparg(s:map_prefix.'w', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'w <Plug>VimwikiIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiIndex
+" <Plug> global definitions
+nnoremap <silent><script> <Plug>VimwikiIndex
     \ :<C-U>call vimwiki#base#goto_index(v:count1)<CR>
-
-if !hasmapto('<Plug>VimwikiTabIndex') && maparg(s:map_prefix.'t', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'t <Plug>VimwikiTabIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiTabIndex
+nnoremap <silent><script> <Plug>VimwikiTabIndex
     \ :<C-U>call vimwiki#base#goto_index(v:count1, 1)<CR>
-
-if !hasmapto('<Plug>VimwikiUISelect') && maparg(s:map_prefix.'s', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'s <Plug>VimwikiUISelect'
-endif
-nnoremap <unique><script> <Plug>VimwikiUISelect :VimwikiUISelect<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryIndex') && maparg(s:map_prefix.'i', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'i <Plug>VimwikiDiaryIndex'
-endif
-nnoremap <unique><script> <Plug>VimwikiDiaryIndex
+nnoremap <silent><script> <Plug>VimwikiUISelect
+    \ :VimwikiUISelect<CR>
+nnoremap <silent><script> <Plug>VimwikiDiaryIndex
     \ :<C-U>call vimwiki#diary#goto_diary_index(v:count)<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryGenerateLinks') && maparg(s:map_prefix.'<Leader>i', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>i <Plug>VimwikiDiaryGenerateLinks'
-endif
-nnoremap <unique><script> <Plug>VimwikiDiaryGenerateLinks :VimwikiDiaryGenerateLinks<CR>
-
-if !hasmapto('<Plug>VimwikiMakeDiaryNote') && maparg(s:map_prefix.'<Leader>w', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>w <Plug>VimwikiMakeDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiMakeDiaryNote
+nnoremap <silent><script> <Plug>VimwikiDiaryGenerateLinks
+    \ :VimwikiDiaryGenerateLinks<CR>
+nnoremap <silent><script> <Plug>VimwikiMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count)<CR>
-
-if !hasmapto('<Plug>VimwikiTabMakeDiaryNote') && maparg(s:map_prefix.'<Leader>t', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>t <Plug>VimwikiTabMakeDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiTabMakeDiaryNote
+nnoremap <silent><script> <Plug>VimwikiTabMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 1)<CR>
-
-if !hasmapto('<Plug>VimwikiMakeYesterdayDiaryNote') && maparg(s:map_prefix.'<Leader>y', 'n') == ""
-  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>y <Plug>VimwikiMakeYesterdayDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiMakeYesterdayDiaryNote
+nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
     \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))<CR>
-
-if !hasmapto('<Plug>VimwikiMakeTomorrowDiaryNote')
-  exe 'nmap <silent><unique> '.s:map_prefix.'<Leader>m <Plug>VimwikiMakeTomorrowDiaryNote'
-endif
-nnoremap <unique><script> <Plug>VimwikiMakeTomorrowDiaryNote
+nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
     \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))<CR>
 
+" get the user defined prefix (default <leader>w)
+let s:map_prefix = vimwiki#vars#get_global('map_prefix')
+
+" default global key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').global)
+  call vimwiki#u#map_key('n', s:map_prefix . 'w', '<Plug>VimwikiIndex')
+  call vimwiki#u#map_key('n', s:map_prefix . 't', '<Plug>VimwikiTabIndex')
+  call vimwiki#u#map_key('n', s:map_prefix . 's', '<Plug>VimwikiUISelect')
+  call vimwiki#u#map_key('n', s:map_prefix . 'i', '<Plug>VimwikiDiaryIndex')
+  call vimwiki#u#map_key('n', s:map_prefix . '<Leader>i', '<Plug>VimwikiDiaryGenerateLinks')
+  call vimwiki#u#map_key('n', s:map_prefix . '<Leader>w', '<Plug>VimwikiMakeDiaryNote')
+  call vimwiki#u#map_key('n', s:map_prefix . '<Leader>t', '<Plug>VimwikiTabMakeDiaryNote')
+  call vimwiki#u#map_key('n', s:map_prefix . '<Leader>y', '<Plug>VimwikiMakeYesterdayDiaryNote')
+  call vimwiki#u#map_key('n', s:map_prefix . '<Leader>m', '<Plug>VimwikiMakeTomorrowDiaryNote')
+endif
 
 
 function! s:build_menu(topmenu)
