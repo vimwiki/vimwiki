@@ -166,6 +166,12 @@ function! s:read_global_settings_from_user()
         \ 'hl_headers': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'html_header_numbering': {'type': type(0), 'default': 0, 'min': 0, 'max': 6},
         \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
+        \ 'key_mappings': {'type': type({}), 'default':
+        \   {
+        \     'all_maps': 1, 'global': 1, 'headers': 1, 'text_objs': 1,
+        \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'links': 1,
+        \     'html': 1, 'mouse': 0,
+        \   }},
         \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
@@ -203,6 +209,8 @@ function! s:read_global_settings_from_user()
       call s:check_users_value(key, users_value, value_infos, 1)
 
       let g:vimwiki_global_vars[key] = users_value
+      " Remove users_value to prevent type mismatch (E706) errors in vim <7.4.1546
+      unlet users_value
     else
       let g:vimwiki_global_vars[key] = global_settings[key].default
     endif
@@ -248,6 +256,64 @@ function! s:normalize_global_settings()
       let g:vimwiki_global_vars.ext2syntax[ext] = 'media'
     endif
   endfor
+
+  " ensure key_mappings dictionary has all required keys
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'all_maps')
+    let g:vimwiki_global_vars.key_mappings.all_maps = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'global')
+    let g:vimwiki_global_vars.key_mappings.global = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'headers')
+    let g:vimwiki_global_vars.key_mappings.headers = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'text_objs')
+    let g:vimwiki_global_vars.key_mappings.text_objs = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'table_format')
+    let g:vimwiki_global_vars.key_mappings.table_format = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'table_mappings')
+    let g:vimwiki_global_vars.key_mappings.table_mappings = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'lists')
+    let g:vimwiki_global_vars.key_mappings.lists = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'links')
+    let g:vimwiki_global_vars.key_mappings.links = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'html')
+    let g:vimwiki_global_vars.key_mappings.html = 1
+  endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'mouse')
+    let g:vimwiki_global_vars.key_mappings.mouse = 0
+  endif
+
+  " disable all key mappings if all_maps == 0
+  if !g:vimwiki_global_vars.key_mappings.all_maps
+    let g:vimwiki_global_vars.key_mappings.global = 0
+    let g:vimwiki_global_vars.key_mappings.headers = 0
+    let g:vimwiki_global_vars.key_mappings.text_objs = 0
+    let g:vimwiki_global_vars.key_mappings.table_format = 0
+    let g:vimwiki_global_vars.key_mappings.table_mappings = 0
+    let g:vimwiki_global_vars.table_mappings = 0 " kept for backwards compatibility
+    let g:vimwiki_global_vars.key_mappings.lists = 0
+    let g:vimwiki_global_vars.key_mappings.links = 0
+    let g:vimwiki_global_vars.key_mappings.html = 0
+    let g:vimwiki_global_vars.key_mappings.mouse = 0
+    let g:vimwiki_global_vars.use_mouse = 0 " kept for backwards compatibility
+  endif
+
+  " TODO remove these checks and the table_mappings and use_mouse variables
+  " backwards compatibility checks
+  " if the old option isn't its default value then overwrite the new option
+  if g:vimwiki_global_vars.table_mappings == 0
+    let g:vimwiki_global_vars.key_mappings.table_mappings = 0 && g:vimwiki_global_vars.key_mappings.table_mappings == 1
+  endif
+  if g:vimwiki_global_vars.use_mouse == 1 && g:vimwiki_global_vars.key_mappings.mouse == 0
+    let g:vimwiki_global_vars.key_mappings.mouse = 1
+  endif
+
 endfunction
 
 
@@ -265,7 +331,7 @@ function! s:populate_wikilocal_options()
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
-        \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 1},
+        \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 0},
         \ 'diary_caption_level': {'type': type(0), 'default': 0, 'min': -1, 'max': 6},
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
         \ 'exclude_files': {'type': type([]), 'default': []},
@@ -580,7 +646,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
   " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
   let g:vimwiki_syntax_variables[a:syntax].rxWeblink =
-        \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '\S*'
+        \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]>]*'
   " 0a) match URL within URL
   let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchUrl =
         \ g:vimwiki_syntax_variables[a:syntax].rxWeblink

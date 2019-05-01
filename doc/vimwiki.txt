@@ -110,6 +110,10 @@ There are global and local mappings in Vimwiki.
 ------------------------------------------------------------------------------
 3.1. Global mappings                                 *vimwiki-global-mappings*
 
+NOTE: if a user mapping or mapping from another plugin uses the same key
+sequence as one of the following mappings then Vimwiki will not overwrite it.
+
+
 [count]<Leader>ww or <Plug>VimwikiIndex
         Open index file of the [count]'s wiki.
 
@@ -247,6 +251,9 @@ don't want that, use >
     :nmap <Leader>tt <Plug>VimwikiToggleListItem
     :vmap <Leader>tt <Plug>VimwikiToggleListItem
 
+NOTE: if a user mapping or mapping from another plugin uses the same key
+sequence as one of the following mappings then Vimwiki will not overwrite it.
+
 
 NORMAL MODE                                           *vimwiki-local-mappings*
                         *vimwiki_<Leader>wh*
@@ -317,11 +324,11 @@ NORMAL MODE                                           *vimwiki-local-mappings*
                         To remap: >
                         :nmap <Leader>wp <Plug>VimwikiPrevLink
 <
-gnt                     *vimwiki_gnt*
-                        Find next unfinished task in the current page.
-                        Maps to |:VimwikiNextTask|
+                        *vimwiki_<Leader>wn*
+<Leader>wn              Goto or create new wiki page.
+                        Maps to |:VimwikiGoto|.
                         To remap: >
-                        :nmap <Leader>nt <Plug>VimwikiNextTask
+                        :nmap <Leader>nn <Plug>VimwikiGoto
 <
                         *vimwiki_<Leader>wd*
 <Leader>wd              Delete wiki page you are in.
@@ -393,6 +400,12 @@ gnt                     *vimwiki_gnt*
                         See |vimwiki-todo-lists|.
                         To remap: >
                         :map <Leader>tt <Plug>VimwikiToggleListItem
+
+gnt                     *vimwiki_gnt*
+                        Find next unfinished task in the current page.
+                        Maps to |:VimwikiNextTask|
+                        To remap: >
+                        :nmap <Leader>nt <Plug>VimwikiNextTask
 <
                         *vimwiki_gl<Space>* *vimwiki_gL<Space>*
 gl<Space>               Remove checkbox from list item.
@@ -517,13 +530,19 @@ glx                     Toggle checkbox of a list item disabled/off.
 gqq                     Format table. If you made some changes to a table
  or                     without swapping insert/normal modes this command
 gww                     will reformat it.
-
+                        To remap: >
+                        :nmap <Leader>gq <Plug>VimwikiTableAlignQ
+                        :nmap <Leader>gw <Plug>VimwikiTableAlignW
+<
                         *vimwiki_gq1*  *vimwiki_gw1*
 gq1                     Fast format table. The same as the previous, except
  or                     that only a few lines above the current line are
 gw1                     tested. If the alignment of the current line differs,
                         then the whole table gets reformatted.
-
+                        To remap: >
+                        :nmap <Leader>q1 <Plug>VimwikiTableAlignQ1
+                        :nmap <Leader>w1 <Plug>VimwikiTableAlignW1
+<
                         *vimwiki_<A-Left>*
 <A-Left>                Move current table column to the left.
                         See |:VimwikiTableMoveColumnLeft|
@@ -548,8 +567,11 @@ gw1                     tested. If the alignment of the current line differs,
                         To remap: >
                         :nmap <Leader>j <Plug>VimwikiDiaryNextDay
 <
+Mouse mappings          *vimwiki_mouse*
 
-Works only if |g:vimwiki_use_mouse| is set to 1.
+These mappings are disabled by default.
+See |g:vimwiki_key_mappings| to enable.
+
 <2-LeftMouse>           Follow wiki link (create target wiki page if needed).
 
 <S-2-LeftMouse>         Split and follow wiki link (create target wiki page if
@@ -572,7 +594,6 @@ INSERT MODE                                           *vimwiki-table-mappings*
                         *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
                         last cell.
-See |g:vimwiki_table_mappings| to turn them off.
 
 INSERT MODE                                            *vimwiki-list-mappings*
                         *vimwiki_i_<CR>*
@@ -644,6 +665,29 @@ ic                      An inner column in a table.
 
 al                      A list item plus its children.
 il                      A single list item.
+
+These key mappings can be modified by replacing the default keys: >
+
+  omap ah <Plug>VimwikiTextObjHeader
+  vmap ah <Plug>VimwikiTextObjHeaderV
+  omap ih <Plug>VimwikiTextObjHeaderContent
+  vmap ih <Plug>VimwikiTextObjHeaderContentV
+  omap aH <Plug>VimwikiTextObjHeaderSub
+  vmap aH <Plug>VimwikiTextObjHeaderSubV
+  omap iH <Plug>VimwikiTextObjHeaderSubContent
+  vmap iH <Plug>VimwikiTextObjHeaderSubContentV
+  omap a\ <Plug>VimwikiTextObjTableCell
+  vmap a\ <Plug>VimwikiTextObjTableCellV
+  omap i\ <Plug>VimwikiTextObjTableCellInner
+  vmap i\ <Plug>VimwikiTextObjTableCellInnerV
+  omap ac <Plug>VimwikiTextObjColumn
+  vmap ac <Plug>VimwikiTextObjColumnV
+  omap ic <Plug>VimwikiTextObjColumnInner
+  vmap ic <Plug>VimwikiTextObjColumnInnerV
+  omap al <Plug>VimwikiTextObjListChildren
+  vmap al <Plug>VimwikiTextObjListChildrenV
+  omap il <Plug>VimwikiTextObjListSingle
+  vmap il <Plug>VimwikiTextObjListSingleV
 
 
 ==============================================================================
@@ -732,7 +776,8 @@ Vimwiki file.
         :VimwikiGoto HelloWorld
 <    opens/creates HelloWorld wiki page.
 
-    Supports |cmdline-completion| for link name.
+    Supports |cmdline-completion| for link name. If name is not specified, a
+    prompt will be shown.
 
 *:VimwikiDeleteLink*
     Delete the wiki page you are in.
@@ -1575,9 +1620,13 @@ Note that the mapping <S-CR> is not available in all terminals.
 Furthermore, <CR> and <S-CR> behave differently when the cursor is behind an
 empty list item. See the table below.
 
-You can configure the behavior of <CR> and of <S-CR> like this: >
-  inoremap <CR> <Esc>:VimwikiReturn 1 5<CR>
-  inoremap <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+To remap the default behavior: >
+  :imap <Leader>e <Plug>VimwikiReturn15
+  :imap <Leader>r <Plug>VimwikiReturn22
+
+To customize the behavior: >
+  inoremap <CR> <Esc>:VimwikiReturn 1 1<CR>
+  inoremap <S-CR> <Esc>:VimwikiReturn 3 5<CR>
 
 The first argument of the command :VimwikiReturn is a number that specifies
 when to insert a new bullet/number and when not, depending on whether the
@@ -2650,18 +2699,6 @@ You can set it to a more fancy symbol like this:
 
 
 ------------------------------------------------------------------------------
-*g:vimwiki_use_mouse*
-
-Use local mouse mappings from |vimwiki-local-mappings|.
-
-Value           Description~
-0               Do not use mouse mappings.
-1               Use mouse mappings.
-
-Default: 0
-
-
-------------------------------------------------------------------------------
 *g:vimwiki_folding*
 
 Enable/disable Vimwiki's folding (outline) functionality. Folding in Vimwiki
@@ -2859,18 +2896,6 @@ cannot otherwise convert the link.  A customized handler might look like this: >
     return ''
   endfunction
 <
-
-------------------------------------------------------------------------------
-*g:vimwiki_table_mappings*
-
-Enable/disable table mappings for INSERT mode.
-
-Value           Description~
-0               Disable table mappings.
-1               Enable table mappings.
-
-Default: 1
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_table_auto_fmt*
@@ -3272,6 +3297,77 @@ For example, with `links_space_char` set to `'_'` creating a link from the text
 The default is 0.
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_key_mappings*
+
+A dictionary that is used to enable/disable various key mapping groups. To
+disable a specific group set the value for the associated key to 0.
+For example: >
+
+  let g:vimwiki_key_mappings =
+    \ {
+    \ 'headers': 0,
+    \ 'text_objs': 0,
+    \ }
+
+To disable ALL Vimwiki key mappings use: >
+
+    let g:vimwiki_key_mappings = { 'all_maps': 0, }
+
+The valid key groups and their associated mappings are shown below.
+
+`all_maps`:
+  Used to disable all Vimwiki key mappings.
+`global`:
+  |vimwiki-global-mappings| that are defined when Vim starts.
+`headers`:
+  Mappings for header navigation and manipulation:
+  |vimwiki_=|, |vimwiki_-|, |vimwiki_[[|, |vimwiki_]]|, |vimwiki_[=|
+  |vimwiki_]=|, |vimwiki_]u| , |vimwiki_[u|
+`text_objs`:
+  |vimwiki-text-objects| mappings.
+`table_format`:
+  Mappings used for table formatting.
+  |vimwiki_gqq|, |vimwiki_gww|, |vimwiki_gq1|, |vimwiki_gw1|
+  |vimwiki_<A-Left>|, |vimwiki_<A-Right>|
+`table_mappings`:
+    Table mappings for insert mode.
+    |vimwiki_<Tab>|, |vimwiki_<S-Tab>|
+`lists`:
+    Mappings for list manipulation.
+    |vimwiki_<C-Space>|, |vimwiki_gl<Space>|, |vimwiki_gL<Space>| |vimwiki_gln|, |vimwiki_glp|
+    |vimwiki_gll|, |vimwiki_gLl|, |vimwiki_glh|, |vimwiki_gLh|, |vimwiki_glr|, |vimwiki_gLr|
+    |vimwiki_glsar|, |vimwiki_gLstar|, |vimwiki_gl#|, |vimwiki_gL#|, |vimwiki_gl-|, |vimwiki_gL-|
+    |vimwiki_gl1|, |vimwiki_gL1|, |vimwiki_gla|, |vimwiki_gLa|, |vimwiki_glA|, |vimwiki_gLA|
+    |vimwiki_gli|, |vimwiki_gLi|, |vimwiki_glI|, |vimwiki_gLI|, |vimwiki_glx|
+`links`:
+    Mappings for link creation and navigation.
+    |vimwiki_<Leader>w<Leader>i|, |vimwiki_<CR>|, |vimwiki_<S-CR>|, |vimwiki_<C-CR>|
+    |vimwiki_<C-S-CR>|, |vimwiki_<D-CR>|, |vimwiki_<Backspace>|, |vimwiki_<Tab>|
+    |vimwiki_<S-Tab>|, |vimwiki_<Leader>wd|, |vimwiki_<Leader>wr|, |vimwiki_<C-Down>|
+    |vimwiki_<C-Up>|, |vimwiki_+|, |vimwiki_<Backspace>|
+`html`:
+    Mappings for HTML generation.
+    |vimwiki_<Leader>wh|, |vimwiki_<Leader>whh|
+`mouse`:
+    Mouse mappings, see |vimwiki_mouse|. This option is disabled by default.
+
+The default is to enable all key mappings except the mouse: >
+  let g:vimwiki_key_mappings =
+    \ {
+    \   'all_maps': 1,
+    \   'global': 1,
+    \   'headers': 1,
+    \   'text_objs': 1,
+    \   'table_format': 1,
+    \   'table_mappings': 1,
+    \   'lists': 1,
+    \   'links': 1,
+    \   'html': 1,
+    \   'mouse': 0,
+    \ }
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3353,6 +3449,8 @@ Contributors and their Github usernames in roughly chronological order:
     - Rane Brown (@ranebrown)
     - Patrik Willard (@padowi)
     - Steve Dondley (@sdondley)
+    - Alexander Gude (@agude)
+    - Jonny Bylsma (@jbylsma)
 
 
 ==============================================================================
@@ -3370,6 +3468,14 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 New:~
     * PR #683: Improve layout and format of key binding documentation in
       README and include note about key bindings that may not work.
+    * PR #673: Add :VimwikiGoto key mapping.
+    * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
+    * PR #683: Improve layout and format of key binding documentation in
+      README and include note about key bindings that may not work.
+    * PR #681: Prevent sticky type checking errors for old vim versions.
+    * PR #686: New option |g:vimwiki_key_mappings| that allow key mappings to
+      be enabled/disabled by groups. Key mappings are also no longer
+      overwritten if they are already defined.
     * PR #675: Add option |vimwiki-option-name| to assign a per wiki name.
     * PR #661: Add option |g:vimwiki_auto_header| to automatically generate
       a level 1 header for new wiki pages.
@@ -3418,7 +3524,10 @@ New:~
     * PR #47: Optimize table formatting for large tables.
 
 Removed:~
-    *
+    * Options g:vimwiki_use_mouse and g:vimwiki_table_mappings. These are
+      still present in the code for backwards compatibility but have been
+      removed from the documentation and will be fully removed at a later
+      point.
 
 Fixed:~
     * Issue #612: GVim menu displayed duplicate names.
@@ -3706,8 +3815,6 @@ http://code.google.com/p/vimwiki/issues/list
     * Issue 218: Command to generate HTML file and open it in webbrowser. See
       |:Vimwiki2HTMLBrowse|(bind to <Leader>whh)
     * NEW: Added <Leader>wh mapping to call |:Vimwiki2HTML|
-
-
 ...
 
 39 releases

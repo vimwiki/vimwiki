@@ -70,3 +70,30 @@ else
   endfunc
 endif
 
+" a:mode single character indicating the mode as defined by :h maparg
+" a:key the key sequence to map
+" a:plug the plug command the key sequence should be mapped to
+" a:1 optional argument with the following functionality:
+"   if a:1==1 then the hasmapto(<Plug>) check is skipped.
+"     this can be used to map different keys to the same <Plug> definition
+"   if a:1==2 then the mapping is not <buffer> specific
+" This function maps a key sequence to a <Plug> command using the arguments
+" described above. If there is already a mapping to the <Plug> command or
+" the assigned keys are already mapped then nothing is done.
+function vimwiki#u#map_key(mode, key, plug, ...)
+  if a:0 && a:1 == 2
+    let l:bo = ''
+  else
+    let l:bo = '<buffer> '
+  endif
+
+  if a:0 && a:1 == 1
+    if maparg(a:key, a:mode) ==# ''
+      exe a:mode . 'map ' . l:bo . a:key . ' ' . a:plug
+    endif
+  else
+    if !hasmapto(a:plug) && maparg(a:key, a:mode) ==# ''
+      exe a:mode . 'map ' . l:bo . a:key . ' ' . a:plug
+    endif
+  endif
+endfunction

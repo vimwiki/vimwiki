@@ -129,20 +129,6 @@ setlocal formatoptions+=n
 
 let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
 
-if !empty(&langmap)
-  " Valid only if langmap is a comma separated pairs of chars
-  let s:l_o = matchstr(&langmap, '\C,\zs.\zeo,')
-  if s:l_o
-    exe 'nnoremap <silent> <buffer> '.s:l_o.' :call vimwiki#lst#kbd_o()<CR>a'
-  endif
-
-  let s:l_O = matchstr(&langmap, '\C,\zs.\zeO,')
-  if s:l_O
-    exe 'nnoremap <silent> <buffer> '.s:l_O.' :call vimwiki#lst#kbd_O()<CR>a'
-  endif
-endif
-
-
 
 " ------------------------------------------------
 " Folding stuff
@@ -278,7 +264,7 @@ exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
 exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
       \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
 
-command! -buffer -nargs=+ -complete=custom,vimwiki#base#complete_links_escaped
+command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
 command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
@@ -330,7 +316,8 @@ command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
 " Keybindings
 " ------------------------------------------------
 
-if vimwiki#vars#get_global('use_mouse')
+" mouse mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').mouse)
   nmap <buffer> <S-LeftMouse> <NOP>
   nmap <buffer> <C-LeftMouse> <NOP>
   nnoremap <silent><buffer> <2-LeftMouse>
@@ -340,224 +327,196 @@ if vimwiki#vars#get_global('use_mouse')
   nnoremap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackLink<CR>
 endif
 
-
-if !hasmapto('<Plug>Vimwiki2HTML')
-  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'h <Plug>Vimwiki2HTML'
-endif
+" <Plug> HTML definitions
 nnoremap <script><buffer> <Plug>Vimwiki2HTML :Vimwiki2HTML<CR>
-
-if !hasmapto('<Plug>Vimwiki2HTMLBrowse')
-  exe 'nmap <buffer> '.vimwiki#vars#get_global('map_prefix').'hh <Plug>Vimwiki2HTMLBrowse'
-endif
 nnoremap <script><buffer> <Plug>Vimwiki2HTMLBrowse :Vimwiki2HTMLBrowse<CR>
 
-if !hasmapto('<Plug>VimwikiFollowLink')
-  nmap <silent><buffer> <CR> <Plug>VimwikiFollowLink
+" default HTML key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').html)
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'h', '<Plug>Vimwiki2HTML')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'hh', '<Plug>Vimwiki2HTMLBrowse')
 endif
-nnoremap <silent><script><buffer> <Plug>VimwikiFollowLink :VimwikiFollowLink<CR>
 
-if !hasmapto('<Plug>VimwikiSplitLink')
-  nmap <silent><buffer> <S-CR> <Plug>VimwikiSplitLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiSplitLink :VimwikiSplitLink<CR>
+" <Plug> links definitions
+nnoremap <silent><script><buffer> <Plug>VimwikiFollowLink
+    \ :VimwikiFollowLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiSplitLink
+    \ :VimwikiSplitLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiVSplitLink
+    \ :VimwikiVSplitLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLink
+    \ :VimwikiNormalizeLink 0<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLinkVisual
+    \ :<C-U>VimwikiNormalizeLink 1<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLinkVisualCR
+    \ :<C-U>VimwikiNormalizeLink 1<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiTabnewLink
+    \ :VimwikiTabnewLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiGoBackLink
+    \ :VimwikiGoBackLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiNextLink
+    \ :VimwikiNextLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiPrevLink
+    \ :VimwikiPrevLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiGoto
+    \ :VimwikiGoto<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDeleteLink
+    \ :VimwikiDeleteLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiRenameLink
+    \ :VimwikiRenameLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDiaryNextDay
+    \ :VimwikiDiaryNextDay<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDiaryPrevDay
+    \ :VimwikiDiaryPrevDay<CR>
 
-if !hasmapto('<Plug>VimwikiVSplitLink')
-  nmap <silent><buffer> <C-CR> <Plug>VimwikiVSplitLink
+" default links key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').links)
+  call vimwiki#u#map_key('n', '<CR>', '<Plug>VimwikiFollowLink')
+  call vimwiki#u#map_key('n', '<S-CR>', '<Plug>VimwikiSplitLink')
+  call vimwiki#u#map_key('n', '<C-CR>', '<Plug>VimwikiVSplitLink')
+  call vimwiki#u#map_key('n', '+', '<Plug>VimwikiNormalizeLink')
+  call vimwiki#u#map_key('v', '+', '<Plug>VimwikiNormalizeLinkVisual')
+  call vimwiki#u#map_key('v', '<CR>', '<Plug>VimwikiNormalizeLinkVisualCR')
+  call vimwiki#u#map_key('n', '<D-CR>', '<Plug>VimwikiTabnewLink')
+  call vimwiki#u#map_key('n', '<C-S-CR>', '<Plug>VimwikiTabnewLink', 1)
+  call vimwiki#u#map_key('n', '<BS>', '<Plug>VimwikiGoBackLink')
+  call vimwiki#u#map_key('n', '<TAB>', '<Plug>VimwikiNextLink')
+  call vimwiki#u#map_key('n', '<S-TAB>', '<Plug>VimwikiPrevLink')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteLink')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameLink')
+  call vimwiki#u#map_key('n', '<C-Down>', '<Plug>VimwikiDiaryNextDay')
+  call vimwiki#u#map_key('n', '<C-Up>', '<Plug>VimwikiDiaryPrevDay')
 endif
-nnoremap <silent><script><buffer> <Plug>VimwikiVSplitLink :VimwikiVSplitLink<CR>
 
-if !hasmapto('<Plug>VimwikiNormalizeLink')
-  nmap <silent><buffer> + <Plug>VimwikiNormalizeLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLink :VimwikiNormalizeLink 0<CR>
-
-if !hasmapto('<Plug>VimwikiNormalizeLinkVisual')
-  vmap <silent><buffer> + <Plug>VimwikiNormalizeLinkVisual
-endif
-vnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLinkVisual :<C-U>VimwikiNormalizeLink 1<CR>
-
-if !hasmapto('<Plug>VimwikiNormalizeLinkVisualCR')
-  vmap <silent><buffer> <CR> <Plug>VimwikiNormalizeLinkVisualCR
-endif
-vnoremap <silent><script><buffer>
-      \ <Plug>VimwikiNormalizeLinkVisualCR :<C-U>VimwikiNormalizeLink 1<CR>
-
-if !hasmapto('<Plug>VimwikiNextTask')
-  nmap <silent><buffer> gnt <Plug>VimwikiNextTask
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiNextTask :VimwikiNextTask<CR>
-
-if !hasmapto('<Plug>VimwikiTabnewLink')
-  nmap <silent><buffer> <D-CR> <Plug>VimwikiTabnewLink
-  nmap <silent><buffer> <C-S-CR> <Plug>VimwikiTabnewLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiTabnewLink :VimwikiTabnewLink<CR>
-
-if !hasmapto('<Plug>VimwikiGoBackLink')
-  nmap <silent><buffer> <BS> <Plug>VimwikiGoBackLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiGoBackLink :VimwikiGoBackLink<CR>
-
-if !hasmapto('<Plug>VimwikiNextLink')
-  nmap <silent><buffer> <TAB> <Plug>VimwikiNextLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiNextLink :VimwikiNextLink<CR>
-
-if !hasmapto('<Plug>VimwikiPrevLink')
-  nmap <silent><buffer> <S-TAB> <Plug>VimwikiPrevLink
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiPrevLink :VimwikiPrevLink<CR>
-
-if !hasmapto('<Plug>VimwikiDeleteLink')
-  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'d <Plug>VimwikiDeleteLink'
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiDeleteLink :VimwikiDeleteLink<CR>
-
-if !hasmapto('<Plug>VimwikiRenameLink')
-  exe 'nmap <silent><buffer> '.vimwiki#vars#get_global('map_prefix').'r <Plug>VimwikiRenameLink'
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiRenameLink :VimwikiRenameLink<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryNextDay')
-  nmap <silent><buffer> <C-Down> <Plug>VimwikiDiaryNextDay
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiDiaryNextDay :VimwikiDiaryNextDay<CR>
-
-if !hasmapto('<Plug>VimwikiDiaryPrevDay')
-  nmap <silent><buffer> <C-Up> <Plug>VimwikiDiaryPrevDay
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiDiaryPrevDay :VimwikiDiaryPrevDay<CR>
-
-" List mappings
-if !hasmapto('<Plug>VimwikiToggleListItem')
-  nmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
-  vmap <silent><buffer> <C-Space> <Plug>VimwikiToggleListItem
-  if has("unix")
-    nmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
-    vmap <silent><buffer> <C-@> <Plug>VimwikiToggleListItem
-  endif
-endif
-if !hasmapto('<Plug>VimwikiToggleRejectedListItem')
-  nmap <silent><buffer> glx <Plug>VimwikiToggleRejectedListItem
-  vmap <silent><buffer> glx <Plug>VimwikiToggleRejectedListItem
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
-vnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem :VimwikiToggleListItem<CR>
-nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiToggleRejectedListItem :VimwikiToggleRejectedListItem<CR>
-vnoremap <silent><script><buffer>
-      \ <Plug>VimwikiToggleRejectedListItem :VimwikiToggleRejectedListItem<CR>
-
-if !hasmapto('<Plug>VimwikiIncrementListItem')
-  nmap <silent><buffer> gln <Plug>VimwikiIncrementListItem
-  vmap <silent><buffer> gln <Plug>VimwikiIncrementListItem
-endif
-if !hasmapto('<Plug>VimwikiDecrementListItem')
-  nmap <silent><buffer> glp <Plug>VimwikiDecrementListItem
-  vmap <silent><buffer> glp <Plug>VimwikiDecrementListItem
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiIncrementListItem :VimwikiIncrementListItem<CR>
-vnoremap <silent><script><buffer> <Plug>VimwikiIncrementListItem :VimwikiIncrementListItem<CR>
-nnoremap <silent><script><buffer> <Plug>VimwikiDecrementListItem :VimwikiDecrementListItem<CR>
-vnoremap <silent><script><buffer> <Plug>VimwikiDecrementListItem :VimwikiDecrementListItem<CR>
-
-if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem', 'i')
-  imap <silent><buffer> <C-D> <Plug>VimwikiDecreaseLvlSingleItem
-endif
+" <Plug> lists definitions
+nnoremap <silent><script><buffer> <Plug>VimwikiNextTask
+    \ :VimwikiNextTask<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem
+    \ :VimwikiToggleListItem<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem
+    \ :VimwikiToggleListItem<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiToggleRejectedListItem
+    \ :VimwikiToggleRejectedListItem<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiToggleRejectedListItem
+    \ :VimwikiToggleRejectedListItem<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiIncrementListItem
+    \ :VimwikiIncrementListItem<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiIncrementListItem
+    \ :VimwikiIncrementListItem<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDecrementListItem
+    \ :VimwikiDecrementListItem<CR>
+vnoremap <silent><script><buffer> <Plug>VimwikiDecrementListItem
+    \ :VimwikiDecrementListItem<CR>
 inoremap <silent><script><buffer> <Plug>VimwikiDecreaseLvlSingleItem
     \ <C-O>:VimwikiListChangeLvl decrease 0<CR>
-
-if !hasmapto('<Plug>VimwikiIncreaseLvlSingleItem', 'i')
-  imap <silent><buffer> <C-T> <Plug>VimwikiIncreaseLvlSingleItem
-endif
 inoremap <silent><script><buffer> <Plug>VimwikiIncreaseLvlSingleItem
     \ <C-O>:VimwikiListChangeLvl increase 0<CR>
-
-if !hasmapto('<Plug>VimwikiListNextSymbol', 'i')
-  imap <silent><buffer> <C-L><C-J> <Plug>VimwikiListNextSymbol
-endif
 inoremap <silent><script><buffer> <Plug>VimwikiListNextSymbol
-      \ <C-O>:VimwikiListChangeSymbolI next<CR>
-
-if !hasmapto('<Plug>VimwikiListPrevSymbol', 'i')
-  imap <silent><buffer> <C-L><C-K> <Plug>VimwikiListPrevSymbol
-endif
+    \ <C-O>:VimwikiListChangeSymbolI next<CR>
 inoremap <silent><script><buffer> <Plug>VimwikiListPrevSymbol
-      \ <C-O>:VimwikiListChangeSymbolI prev<CR>
+    \ <C-O>:VimwikiListChangeSymbolI prev<CR>
+inoremap <silent><script><buffer> <Plug>VimwikiListToggle
+    \ <Esc>:VimwikiListToggle<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiRenumberList
+    \ :VimwikiRenumberList<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiRenumberAllLists
+    \ :VimwikiRenumberAllLists<CR>
+noremap <silent><script><buffer> <Plug>VimwikiDecreaseLvlSingleItem
+    \ :VimwikiListChangeLvl decrease 0<CR>
+noremap <silent><script><buffer> <Plug>VimwikiIncreaseLvlSingleItem
+    \ :VimwikiListChangeLvl increase 0<CR>
+noremap <silent><script><buffer> <Plug>VimwikiDecreaseLvlWholeItem
+    \ :VimwikiListChangeLvl decrease 1<CR>
+noremap <silent><script><buffer> <Plug>VimwikiIncreaseLvlWholeItem
+    \ :VimwikiListChangeLvl increase 1<CR>
+noremap <silent><script><buffer> <Plug>VimwikiRemoveSingleCB
+    \ :VimwikiRemoveSingleCB<CR>
+noremap <silent><script><buffer> <Plug>VimwikiRemoveCBInList
+    \ :VimwikiRemoveCBInList<CR>
+nnoremap <silent><buffer> <Plug>VimwikiListo
+    \ :<C-U>call vimwiki#lst#kbd_o()<CR>
+nnoremap <silent><buffer> <Plug>VimwikiListO
+    \ :<C-U>call vimwiki#lst#kbd_O()<CR>
+inoremap <silent><buffer> <Plug>VimwikiReturn15
+    \ <Esc>:VimwikiReturn 1 5<CR>
+inoremap <silent><buffer> <Plug>VimwikiReturn22
+    \ <Esc>:VimwikiReturn 2 2<CR>
 
-if !hasmapto('<Plug>VimwikiListToggle', 'i')
-  imap <silent><buffer> <C-L><C-M> <Plug>VimwikiListToggle
-endif
-inoremap <silent><script><buffer> <Plug>VimwikiListToggle <Esc>:VimwikiListToggle<CR>
-
-nnoremap <silent> <buffer> o :<C-U>call vimwiki#lst#kbd_o()<CR>
-nnoremap <silent> <buffer> O :<C-U>call vimwiki#lst#kbd_O()<CR>
-
-if !hasmapto('<Plug>VimwikiRenumberList')
-  nmap <silent><buffer> glr <Plug>VimwikiRenumberList
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiRenumberList :VimwikiRenumberList<CR>
-
-if !hasmapto('<Plug>VimwikiRenumberAllLists')
-  nmap <silent><buffer> gLr <Plug>VimwikiRenumberAllLists
-  nmap <silent><buffer> gLR <Plug>VimwikiRenumberAllLists
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiRenumberAllLists :VimwikiRenumberAllLists<CR>
-
-if !hasmapto('<Plug>VimwikiDecreaseLvlSingleItem')
-  map <silent><buffer> glh <Plug>VimwikiDecreaseLvlSingleItem
-endif
-noremap <silent><script><buffer>
-    \ <Plug>VimwikiDecreaseLvlSingleItem :VimwikiListChangeLvl decrease 0<CR>
-
-if !hasmapto('<Plug>VimwikiIncreaseLvlSingleItem')
-  map <silent><buffer> gll <Plug>VimwikiIncreaseLvlSingleItem
-endif
-noremap <silent><script><buffer>
-    \ <Plug>VimwikiIncreaseLvlSingleItem :VimwikiListChangeLvl increase 0<CR>
-
-if !hasmapto('<Plug>VimwikiDecreaseLvlWholeItem')
-  map <silent><buffer> gLh <Plug>VimwikiDecreaseLvlWholeItem
-  map <silent><buffer> gLH <Plug>VimwikiDecreaseLvlWholeItem
-endif
-noremap <silent><script><buffer>
-    \ <Plug>VimwikiDecreaseLvlWholeItem :VimwikiListChangeLvl decrease 1<CR>
-
-if !hasmapto('<Plug>VimwikiIncreaseLvlWholeItem')
-  map <silent><buffer> gLl <Plug>VimwikiIncreaseLvlWholeItem
-  map <silent><buffer> gLL <Plug>VimwikiIncreaseLvlWholeItem
-endif
-noremap <silent><script><buffer>
-    \ <Plug>VimwikiIncreaseLvlWholeItem :VimwikiListChangeLvl increase 1<CR>
-
-if !hasmapto('<Plug>VimwikiRemoveSingleCB')
-  map <silent><buffer> gl<Space> <Plug>VimwikiRemoveSingleCB
-endif
-noremap <silent><script><buffer> <Plug>VimwikiRemoveSingleCB :VimwikiRemoveSingleCB<CR>
-
-if !hasmapto('<Plug>VimwikiRemoveCBInList')
-  map <silent><buffer> gL<Space> <Plug>VimwikiRemoveCBInList
-endif
-noremap <silent><script><buffer> <Plug>VimwikiRemoveCBInList :VimwikiRemoveCBInList<CR>
-
-for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
-  if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
-    exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
+" default lists key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').lists)
+  call vimwiki#u#map_key('n', 'gnt', '<Plug>VimwikiNextTask')
+  call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
+  call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem', 1)
+  if has('unix')
+    call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+    call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
   endif
-  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:char.'<CR>')
-    exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:char.'<CR>'
-  endif
-endfor
+  call vimwiki#u#map_key('n', 'glx', '<Plug>VimwikiToggleRejectedListItem')
+  call vimwiki#u#map_key('v', 'glx', '<Plug>VimwikiToggleRejectedListItem', 1)
+  call vimwiki#u#map_key('n', 'gln', '<Plug>VimwikiIncrementListItem')
+  call vimwiki#u#map_key('v', 'gln', '<Plug>VimwikiIncrementListItem', 1)
+  call vimwiki#u#map_key('n', 'glp', '<Plug>VimwikiDecrementListItem')
+  call vimwiki#u#map_key('v', 'glp', '<Plug>VimwikiDecrementListItem', 1)
+  call vimwiki#u#map_key('i', '<C-D>', '<Plug>VimwikiDecreaseLvlSingleItem')
+  call vimwiki#u#map_key('i', '<C-T>', '<Plug>VimwikiIncreaseLvlSingleItem')
+  call vimwiki#u#map_key('n', 'glh', '<Plug>VimwikiDecreaseLvlSingleItem', 1)
+  call vimwiki#u#map_key('n', 'gll', '<Plug>VimwikiIncreaseLvlSingleItem', 1)
+  call vimwiki#u#map_key('n', 'gLh', '<Plug>VimwikiDecreaseLvlWholeItem')
+  call vimwiki#u#map_key('n', 'gLH', '<Plug>VimwikiDecreaseLvlWholeItem', 1)
+  call vimwiki#u#map_key('n', 'gLl', '<Plug>VimwikiIncreaseLvlWholeItem')
+  call vimwiki#u#map_key('n', 'gLL', '<Plug>VimwikiIncreaseLvlWholeItem', 1)
+  call vimwiki#u#map_key('i', '<C-L><C-J>', '<Plug>VimwikiListNextSymbol')
+  call vimwiki#u#map_key('i', '<C-L><C-K>', '<Plug>VimwikiListPrevSymbol')
+  call vimwiki#u#map_key('i', '<C-L><C-M>', '<Plug>VimwikiListToggle')
+  call vimwiki#u#map_key('n', 'glr', '<Plug>VimwikiRenumberList')
+  call vimwiki#u#map_key('n', 'gLr', '<Plug>VimwikiRenumberAllLists')
+  call vimwiki#u#map_key('n', 'gLR', '<Plug>VimwikiRenumberAllLists', 1)
+  call vimwiki#u#map_key('n', 'gl', '<Plug>VimwikiRemoveSingleCB')
+  call vimwiki#u#map_key('n', 'gL', '<Plug>VimwikiRemoveCBInList')
+  call vimwiki#u#map_key('n', 'o', '<Plug>VimwikiListo')
+  call vimwiki#u#map_key('n', 'O', '<Plug>VimwikiListO')
+  call vimwiki#u#map_key('i', '<CR>', '<Plug>VimwikiReturn15')
+  call vimwiki#u#map_key('i', '<S-CR>', '<Plug>VimwikiReturn22')
 
-for s:typ in vimwiki#vars#get_syntaxlocal('number_types')
-  if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>')
-    exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
-  endif
-  if !hasmapto(':VimwikiChangeSymbolInListTo '.s:typ.'<CR>')
-    exe 'noremap <silent><buffer> gL'.s:typ[0].' :VimwikiChangeSymbolInListTo '.s:typ.'<CR>'
-  endif
-endfor
+  " change symbol for bulleted lists
+  for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
+    if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>') && maparg('gl'.s:char, 'n') ==# ''
+      exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
+    endif
+    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:char.'<CR>') && maparg('gL'.s:char, 'n') ==# ''
+      exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:char.'<CR>'
+    endif
+  endfor
 
+  " change symbol for numbered lists
+  for s:typ in vimwiki#vars#get_syntaxlocal('number_types')
+    if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>') && maparg('gl'.s:typ, 'n') ==# ''
+      exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
+    endif
+    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:typ.'<CR>') && maparg('gL'.s:typ, 'n') ==# ''
+      exe 'noremap <silent><buffer> gL'.s:typ[0].' :VimwikiChangeSymbolInListTo '.s:typ.'<CR>'
+    endif
+  endfor
+
+  " insert items in a list using langmap characters (see :h langmap)
+  if !empty(&langmap)
+    " Valid only if langmap is a comma separated pairs of chars
+    let s:l_o = matchstr(&langmap, '\C,\zs.\zeo,')
+    if s:l_o
+      if maparg(s:l_o, 'n') ==# ''
+        exe 'nnoremap <silent><buffer> '.s:l_o.' :call vimwiki#lst#kbd_o()<CR>a'
+      endif
+    endif
+
+    let s:l_O = matchstr(&langmap, '\C,\zs.\zeO,')
+    if s:l_O
+      if maparg(s:l_O, 'n') ==# ''
+        exe 'nnoremap <silent><buffer> '.s:l_O.' :call vimwiki#lst#kbd_O()<CR>a'
+      endif
+    endif
+  endif
+endif
 
 function! s:CR(normal, just_mrkr)
   if vimwiki#vars#get_global('table_mappings')
@@ -571,130 +530,133 @@ function! s:CR(normal, just_mrkr)
   call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction
 
-if !hasmapto('VimwikiReturn', 'i')
-  if maparg('<CR>', 'i') !~? '<Esc>:VimwikiReturn'
-    inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+" insert mode table mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
+  if maparg('<Tab>', 'i') ==# ''
+    inoremap <expr><buffer> <Tab> vimwiki#tbl#kbd_tab()
   endif
-  if maparg('<S-CR>', 'i') !~? '<Esc>:VimwikiReturn'
-    inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+  if maparg('<S-Tab>', 'i') ==# ''
+    inoremap <expr><buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
   endif
 endif
 
+" <Plug> table formatting definitions
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ
+    \ :VimwikiTableAlignQ<CR>
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ1
+    \ :VimwikiTableAlignQ 2<CR>
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignW
+    \ :VimwikiTableAlignW<CR>
+nnoremap <silent><buffer> <Plug>VimwikiTableAlignW1
+    \ :VimwikiTableAlignW 2<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiTableMoveColumnLeft
+    \ :VimwikiTableMoveColumnLeft<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiTableMoveColumnRight
+    \ :VimwikiTableMoveColumnRight<CR>
 
-"Table mappings
- if vimwiki#vars#get_global('table_mappings')
-   inoremap <expr> <buffer> <Tab> vimwiki#tbl#kbd_tab()
-   inoremap <expr> <buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
- endif
-
-
-" table formatting mappings
-if !hasmapto('<Plug>VimwikiTableAlignQ', 'n') && maparg('gqq', 'n') == ""
-  nmap <silent><buffer> gqq <Plug>VimwikiTableAlignQ
+" default table formatting key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').table_format)
+  call vimwiki#u#map_key('n', 'gqq', '<Plug>VimwikiTableAlignQ')
+  call vimwiki#u#map_key('n', 'gq1', '<Plug>VimwikiTableAlignQ1')
+  call vimwiki#u#map_key('n', 'gww', '<Plug>VimwikiTableAlignW')
+  call vimwiki#u#map_key('n', 'gw1', '<Plug>VimwikiTableAlignW1')
+  call vimwiki#u#map_key('n', '<A-Left>', '<Plug>VimwikiTableMoveColumnLeft')
+  call vimwiki#u#map_key('n', '<A-Right>', '<Plug>VimwikiTableMoveColumnRight')
 endif
-nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ :VimwikiTableAlignQ<CR>
-if !hasmapto('<Plug>VimwikiTableAlignQ1', 'n') && maparg('gq1', 'n') == ""
-  nmap <silent><buffer> gq1 <Plug>VimwikiTableAlignQ1
+
+" <Plug> text object definitions
+onoremap <silent><buffer> <Plug>VimwikiTextObjHeader
+    \ :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjHeaderV
+    \ :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjHeaderContent
+    \ :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjHeaderContentV
+    \ :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjHeaderSub
+    \ :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjHeaderSubV
+    \ :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjHeaderSubContent
+    \ :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjHeaderSubContentV
+    \ :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjTableCell
+    \ :<C-U>call vimwiki#base#TO_table_cell(0, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjTableCellV
+    \ :<C-U>call vimwiki#base#TO_table_cell(0, 1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjTableCellInner
+    \ :<C-U>call vimwiki#base#TO_table_cell(1, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjTableCellInnerV
+    \ :<C-U>call vimwiki#base#TO_table_cell(1, 1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjColumn
+    \ :<C-U>call vimwiki#base#TO_table_col(0, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjColumnV
+    \ :<C-U>call vimwiki#base#TO_table_col(0, 1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjColumnInner
+    \ :<C-U>call vimwiki#base#TO_table_col(1, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjColumnInnerV
+    \ :<C-U>call vimwiki#base#TO_table_col(1, 1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjListChildren
+    \ :<C-U>call vimwiki#lst#TO_list_item(0, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjListChildrenV
+    \ :<C-U>call vimwiki#lst#TO_list_item(0, 1)<CR>
+onoremap <silent><buffer> <Plug>VimwikiTextObjListSingle
+    \ :<C-U>call vimwiki#lst#TO_list_item(1, 0)<CR>
+vnoremap <silent><buffer> <Plug>VimwikiTextObjListSingleV
+    \ :<C-U>call vimwiki#lst#TO_list_item(1, 1)<CR>
+
+" default text object key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').text_objs)
+  call vimwiki#u#map_key('o', 'ah', '<Plug>VimwikiTextObjHeader')
+  call vimwiki#u#map_key('v', 'ah', '<Plug>VimwikiTextObjHeaderV')
+  call vimwiki#u#map_key('o', 'ih', '<Plug>VimwikiTextObjHeaderContent')
+  call vimwiki#u#map_key('v', 'ih', '<Plug>VimwikiTextObjHeaderContentV')
+  call vimwiki#u#map_key('o', 'aH', '<Plug>VimwikiTextObjHeaderSub')
+  call vimwiki#u#map_key('v', 'aH', '<Plug>VimwikiTextObjHeaderSubV')
+  call vimwiki#u#map_key('o', 'iH', '<Plug>VimwikiTextObjHeaderSubContent')
+  call vimwiki#u#map_key('v', 'iH', '<Plug>VimwikiTextObjHeaderSubContentV')
+  call vimwiki#u#map_key('o', 'a\', '<Plug>VimwikiTextObjTableCell')
+  call vimwiki#u#map_key('v', 'a\', '<Plug>VimwikiTextObjTableCellV')
+  call vimwiki#u#map_key('o', 'i\', '<Plug>VimwikiTextObjTableCellInner')
+  call vimwiki#u#map_key('v', 'i\', '<Plug>VimwikiTextObjTableCellInnerV')
+  call vimwiki#u#map_key('o', 'ac', '<Plug>VimwikiTextObjColumn')
+  call vimwiki#u#map_key('v', 'ac', '<Plug>VimwikiTextObjColumnV')
+  call vimwiki#u#map_key('o', 'ic', '<Plug>VimwikiTextObjColumnInner')
+  call vimwiki#u#map_key('v', 'ic', '<Plug>VimwikiTextObjColumnInnerV')
+  call vimwiki#u#map_key('o', 'al', '<Plug>VimwikiTextObjListChildren')
+  call vimwiki#u#map_key('v', 'al', '<Plug>VimwikiTextObjListChildrenV')
+  call vimwiki#u#map_key('o', 'il', '<Plug>VimwikiTextObjListSingle')
+  call vimwiki#u#map_key('v', 'il', '<Plug>VimwikiTextObjListSingleV')
 endif
-nnoremap <silent><buffer> <Plug>VimwikiTableAlignQ1 :VimwikiTableAlignQ 2<CR>
 
-if !hasmapto('<Plug>VimwikiTableAlignW', 'n') && maparg('gww', 'n') == ""
-  nmap <silent><buffer> gww <Plug>VimwikiTableAlignW
+" <Plug> header definitions
+nnoremap <silent><buffer> <Plug>VimwikiAddHeaderLevel
+      \ :<C-U>call vimwiki#base#AddHeaderLevel(v:count)<CR>
+nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel
+      \ :<C-U>call vimwiki#base#RemoveHeaderLevel(v:count)<CR>
+nnoremap <silent><buffer> <Plug>VimwikiGoToParentHeader
+      \ :<C-u>call vimwiki#base#goto_parent_header()<CR>
+nnoremap <silent><buffer> <Plug>VimwikiGoToNextHeader
+      \ :<C-u>call vimwiki#base#goto_next_header()<CR>
+nnoremap <silent><buffer> <Plug>VimwikiGoToPrevHeader
+      \ :<C-u>call vimwiki#base#goto_prev_header()<CR>
+nnoremap <silent><buffer> <Plug>VimwikiGoToNextSiblingHeader
+      \ :<C-u>call vimwiki#base#goto_sibling(+1)<CR>
+nnoremap <silent><buffer> <Plug>VimwikiGoToPrevSiblingHeader
+      \ :<C-u>call vimwiki#base#goto_sibling(-1)<CR>
+
+" default header key mappings
+if str2nr(vimwiki#vars#get_global('key_mappings').headers)
+  call vimwiki#u#map_key('n', '=', '<Plug>VimwikiAddHeaderLevel')
+  call vimwiki#u#map_key('n', '-', '<Plug>VimwikiRemoveHeaderLevel')
+  call vimwiki#u#map_key('n', ']u', '<Plug>VimwikiGoToParentHeader')
+  call vimwiki#u#map_key('n', '[u', '<Plug>VimwikiGoToParentHeader', 1)
+  call vimwiki#u#map_key('n', ']]', '<Plug>VimwikiGoToNextHeader')
+  call vimwiki#u#map_key('n', '[[', '<Plug>VimwikiGoToPrevHeader')
+  call vimwiki#u#map_key('n', ']=', '<Plug>VimwikiGoToNextSiblingHeader')
+  call vimwiki#u#map_key('n', '[=', '<Plug>VimwikiGoToPrevSiblingHeader')
 endif
-nnoremap <silent><buffer> <Plug>VimwikiTableAlignW :VimwikiTableAlignW<CR>
-if !hasmapto('<Plug>VimwikiTableAlignW1', 'n') && maparg('gw1', 'n') == ""
-  nmap <silent><buffer> gw1 <Plug>VimwikiTableAlignW1
-endif
-nnoremap <silent><buffer> <Plug>VimwikiTableAlignW1 :VimwikiTableAlignW 2<CR>
-
-if !hasmapto('<Plug>VimwikiTableMoveColumnLeft')
-  nmap <silent><buffer> <A-Left> <Plug>VimwikiTableMoveColumnLeft
-endif
-nnoremap <silent><script><buffer> <Plug>VimwikiTableMoveColumnLeft :VimwikiTableMoveColumnLeft<CR>
-if !hasmapto('<Plug>VimwikiTableMoveColumnRight')
-  nmap <silent><buffer> <A-Right> <Plug>VimwikiTableMoveColumnRight
-endif
-nnoremap <silent><script><buffer>
-      \ <Plug>VimwikiTableMoveColumnRight :VimwikiTableMoveColumnRight<CR>
-
-
-" ------------------------------------------------
-" Text objects
-" ------------------------------------------------
-
-onoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
-vnoremap <silent><buffer> ah :<C-U>call vimwiki#base#TO_header(0, 0, v:count1)<CR>
-
-onoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
-vnoremap <silent><buffer> ih :<C-U>call vimwiki#base#TO_header(1, 0, v:count1)<CR>
-
-onoremap <silent><buffer> aH :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
-vnoremap <silent><buffer> aH :<C-U>call vimwiki#base#TO_header(0, 1, v:count1)<CR>
-
-onoremap <silent><buffer> iH :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
-vnoremap <silent><buffer> iH :<C-U>call vimwiki#base#TO_header(1, 1, v:count1)<CR>
-
-onoremap <silent><buffer> a\ :<C-U>call vimwiki#base#TO_table_cell(0, 0)<CR>
-vnoremap <silent><buffer> a\ :<C-U>call vimwiki#base#TO_table_cell(0, 1)<CR>
-
-onoremap <silent><buffer> i\ :<C-U>call vimwiki#base#TO_table_cell(1, 0)<CR>
-vnoremap <silent><buffer> i\ :<C-U>call vimwiki#base#TO_table_cell(1, 1)<CR>
-
-onoremap <silent><buffer> ac :<C-U>call vimwiki#base#TO_table_col(0, 0)<CR>
-vnoremap <silent><buffer> ac :<C-U>call vimwiki#base#TO_table_col(0, 1)<CR>
-
-onoremap <silent><buffer> ic :<C-U>call vimwiki#base#TO_table_col(1, 0)<CR>
-vnoremap <silent><buffer> ic :<C-U>call vimwiki#base#TO_table_col(1, 1)<CR>
-
-onoremap <silent><buffer> al :<C-U>call vimwiki#lst#TO_list_item(0, 0)<CR>
-vnoremap <silent><buffer> al :<C-U>call vimwiki#lst#TO_list_item(0, 1)<CR>
-
-onoremap <silent><buffer> il :<C-U>call vimwiki#lst#TO_list_item(1, 0)<CR>
-vnoremap <silent><buffer> il :<C-U>call vimwiki#lst#TO_list_item(1, 1)<CR>
-
-if !hasmapto('<Plug>VimwikiAddHeaderLevel')
-  nmap <silent><buffer> = <Plug>VimwikiAddHeaderLevel
-endif
-nnoremap <silent><buffer> <Plug>VimwikiAddHeaderLevel :
-      \<C-U>call vimwiki#base#AddHeaderLevel(v:count)<CR>
-
-if !hasmapto('<Plug>VimwikiRemoveHeaderLevel')
-  nmap <silent><buffer> - <Plug>VimwikiRemoveHeaderLevel
-endif
-nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel :
-      \<C-U>call vimwiki#base#RemoveHeaderLevel(v:count)<CR>
-
-if !hasmapto('<Plug>VimwikiGoToParentHeader')
-  nmap <silent><buffer> ]u <Plug>VimwikiGoToParentHeader
-  nmap <silent><buffer> [u <Plug>VimwikiGoToParentHeader
-endif
-nnoremap <silent><buffer> <Plug>VimwikiGoToParentHeader :
-      \<C-u>call vimwiki#base#goto_parent_header()<CR>
-
-if !hasmapto('<Plug>VimwikiGoToNextHeader')
-  nmap <silent><buffer> ]] <Plug>VimwikiGoToNextHeader
-endif
-nnoremap <silent><buffer> <Plug>VimwikiGoToNextHeader :
-      \<C-u>call vimwiki#base#goto_next_header()<CR>
-
-if !hasmapto('<Plug>VimwikiGoToPrevHeader')
-  nmap <silent><buffer> [[ <Plug>VimwikiGoToPrevHeader
-endif
-nnoremap <silent><buffer> <Plug>VimwikiGoToPrevHeader :
-      \<C-u>call vimwiki#base#goto_prev_header()<CR>
-
-if !hasmapto('<Plug>VimwikiGoToNextSiblingHeader')
-  nmap <silent><buffer> ]= <Plug>VimwikiGoToNextSiblingHeader
-endif
-nnoremap <silent><buffer> <Plug>VimwikiGoToNextSiblingHeader :
-      \<C-u>call vimwiki#base#goto_sibling(+1)<CR>
-
-if !hasmapto('<Plug>VimwikiGoToPrevSiblingHeader')
-  nmap <silent><buffer> [= <Plug>VimwikiGoToPrevSiblingHeader
-endif
-nnoremap <silent><buffer> <Plug>VimwikiGoToPrevSiblingHeader :
-      \<C-u>call vimwiki#base#goto_sibling(-1)<CR>
-
 
 
 if vimwiki#vars#get_wikilocal('auto_export')
