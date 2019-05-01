@@ -3466,6 +3466,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #692: update and expand folding documentation
     * PR #673: Add :VimwikiGoto key mapping.
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
     * PR #683: Improve layout and format of key binding documentation in
