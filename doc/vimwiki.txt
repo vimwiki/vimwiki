@@ -1471,11 +1471,18 @@ Tags-related commands and options:
 ==============================================================================
 6. Folding/Outline                                           *vimwiki-folding*
 
-Vimwiki can fold or outline sections using headers and preformatted blocks.
-Alternatively, one can fold list subitems instead. Folding is not enabled
-by default, and requires the |g:vimwiki_folding| variable to be set.
+Vimwiki allows you to use Vim's folding methods and options so you can fold
+your outline to make it less distracting and easier to navigate. You can use
+Vimwiki's built-in folding methods or supply custom methods for folding.  You
+control how folds behave with by setting the |g:vimwiki_folding| variable to
+the desired value in your configuration file:
 
-Example for list folding with |g:vimwiki_folding| set to 'list':
+let g:vimwiki_folding = <value>    " Surround value with quotes.
+
+If left unset, folding will default to Vim's "manual" method. If you wish to
+turn folding off completely, set |g:vimwiki_folding| to `''`(an empty string).
+
+Here is example of how folds work with |g:vimwiki_folding| set to 'list':
 
 = My current task =
 * [ ] Do stuff 1
@@ -1517,8 +1524,41 @@ Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
 For Markdown and MediaWiki syntax, * or # should be in the first column.
 
-To turn folding on/off check |g:vimwiki_folding|.
+For maximum control over folds, set |g:vimwiki_folding| to 'custom' so you can
+allow other plugins or your vim configuration file control how folding is
+performed. For example, let's say you prefer to fold so that the last blank
+line before a header is not folded, you can add this function to your
+configuration file:
 
+```
+let g:lastnum = 0
+function! VimwikiFoldLevelCustom(lnum)
+    if getline(a:lnum) =~? '\v^\s*$'
+	let g:lastnum = -1
+        return '-1'
+    endif
+    let last = g:lastnum
+    let num_of_pounds = strlen(matchstr(getline(a:lnum), '^#\+'))
+    if (num_of_pounds > 0)
+            let g:lastnum = num_of_pounds
+	    if last == -1
+		    return '>' . num_of_pounds
+	    endif
+	    return num_of_pounds
+    endif
+    return g:lastnum
+endfunction
+```
+
+Then you will need to add the following vim options to your configuration:
+
+```
+setlocal foldmethod=expr
+setlocal foldenable
+set foldexpr=VimwikiFoldLevelCustom(v:lnum)
+```
+
+See the |g:vimwiki_folding| documentation for more details.
 
 ==============================================================================
 7. Placeholders                                         *vimwiki-placeholders*
@@ -2669,10 +2709,10 @@ Value           Description~
 'expr'          Folding based on expression (folds sections and code blocks)
 'syntax'        Folding based on syntax (folds sections; slower than 'expr')
 'list'          Folding based on expression (folds list subitems; much slower)
-'custom'        Leave the folding settings as they are (e.g. set by another
-                plugin)
+'custom'        Allow folding options to be set by another plugin or a vim
+                configuration file
 
-Default: ''
+Default: 'manual'
 
 Limitations:
   - Opening very large files may be slow when folding is enabled.
@@ -2680,8 +2720,9 @@ Limitations:
   - 'list' is intended to work with lists nicely indented with 'shiftwidth'.
   - 'syntax' is only available for the default syntax so far.
 
-The options above can be suffixed with ':quick' (e.g.: 'expr:quick') in order
-to use some workarounds to make folds work faster.
+The 'expr', 'syntax' and 'list' options above can be suffixed with ':quick'
+(e.g.: 'expr:quick') in order to use some workarounds to make folds work
+faster.
 
 ------------------------------------------------------------------------------
 *g:vimwiki_list_ignore_newline*
