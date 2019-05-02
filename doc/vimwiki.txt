@@ -1525,7 +1525,7 @@ properly only if all of them are indented using the current 'shiftwidth'.
 For Markdown and MediaWiki syntax, * or # should be in the first column.
 
 For maximum control over folds, set |g:vimwiki_folding| to 'custom' so you can
-allow other plugins or your vim configuration file control how folding is
+allow other plugins or your vim configuration file to control how folding is
 performed. For example, let's say you are using markdown syntax and prefer to
 fold so that the last blank line before a header is not folded, you can add
 this function to your configuration file:
