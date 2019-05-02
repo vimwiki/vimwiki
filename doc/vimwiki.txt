@@ -1482,7 +1482,7 @@ let g:vimwiki_folding = <value>    " Surround value with quotes.
 If left unset, folding will default to Vim's "manual" method. If you wish to
 turn folding off completely, set |g:vimwiki_folding| to `''`(an empty string).
 
-Here is example of how folds work with |g:vimwiki_folding| set to 'list':
+Here's an example of how folds work with |g:vimwiki_folding| set to 'list':
 
 = My current task =
 * [ ] Do stuff 1
@@ -1526,9 +1526,9 @@ For Markdown and MediaWiki syntax, * or # should be in the first column.
 
 For maximum control over folds, set |g:vimwiki_folding| to 'custom' so you can
 allow other plugins or your vim configuration file control how folding is
-performed. For example, let's say you prefer to fold so that the last blank
-line before a header is not folded, you can add this function to your
-configuration file:
+performed. For example, let's say you are using markdown syntax and prefer to
+fold so that the last blank line before a header is not folded, you can add
+this function to your configuration file:
 
 ```
 let g:lastnum = 0
