@@ -422,44 +422,48 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
         \ printf('''g:vimwiki_%s''', a:key) :
         \ printf('''%s'' in g:vimwiki_list', a:key)
 
+  let help_text = a:comes_from_global_variable ?
+        \ 'g:vimwiki_' :
+        \ 'vimwiki-option-'
+
   if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
     echom printf('Vimwiki Error: The provided value of the option %s is a %s, ' .
-          \ 'but expected is a %s. See '':h g:vimwiki_%s''.', setting_origin,
+          \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
           \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key)
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
         \ a:users_value < a:value_infos.min
     echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
-          \ . ' too small. The minimum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.min, a:key)
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
         \ a:users_value > a:value_infos.max
     echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
-          \ . ' too large. The maximum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.max, a:key)
   endif
 
   if has_key(a:value_infos, 'possible_values') &&
         \ index(a:value_infos.possible_values, a:users_value) == -1
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s is'
-          \ . ' invalid. Allowed values are %s. See ''g:vimwiki_%s''.', a:users_value,
+          \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, string(a:value_infos.possible_values), a:key)
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
         \ strwidth(a:users_value) != a:value_infos.length
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
-          \ . ' contain exactly %i character(s) but has %i. See '':h g:vimwiki_%s''.',
+          \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
           \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key)
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
         \ strwidth(a:users_value) < a:value_infos.min_length
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
-          \ . ' have at least %d character(s) but has %d. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key)
   endif
 endfunction
