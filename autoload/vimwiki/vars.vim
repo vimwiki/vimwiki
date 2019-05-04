@@ -713,18 +713,6 @@ function! s:populate_extra_markdown_vars()
   " [DESCRIPTION][URL]
   let mkd_syntax.WikiLink1Template2 = wikilink_md_prefix. '__LinkDescription__'.
         \ wikilink_md_separator. '__LinkUrl__'. wikilink_md_suffix
-  let mkd_syntax.WikiLinkMatchUrlTemplate .=
-        \ '\|' .
-        \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '.*' .
-        \ rx_wikilink_md_separator .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-        \ mkd_syntax.rx_wikilink_md_suffix .
-        \ '\|' .
-        \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-        \ rx_wikilink_md_separator .
-        \ mkd_syntax.rx_wikilink_md_suffix
 
   let valid_chars = '[^\\\[\]]'
   let mkd_syntax.rxWikiLink1Url = valid_chars.'\{-}'
@@ -801,6 +789,23 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.rxWeblink1Separator = vimwiki#u#escape(mkd_syntax.rxWeblink1Separator)
   let mkd_syntax.rxWeblink1Url = valid_chars.'\{-}'
   let mkd_syntax.rxWeblink1Descr = valid_chars.'\{-}'
+  let mkd_syntax.WikiLinkMatchUrlTemplate =
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '.*' .
+        \ rx_wikilink_md_separator .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ rx_wikilink_md_separator .
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rxWeblink1Prefix.
+        \ '.*' .
+        \ mkd_syntax.rxWeblink1Separator.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ mkd_syntax.rxWeblink1Suffix
 
   " 1. [DESCRIPTION](URL)
   " 1a) match [DESCRIPTION](URL)
