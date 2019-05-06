@@ -422,44 +422,48 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
         \ printf('''g:vimwiki_%s''', a:key) :
         \ printf('''%s'' in g:vimwiki_list', a:key)
 
+  let help_text = a:comes_from_global_variable ?
+        \ 'g:vimwiki_' :
+        \ 'vimwiki-option-'
+
   if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
     echom printf('Vimwiki Error: The provided value of the option %s is a %s, ' .
-          \ 'but expected is a %s. See '':h g:vimwiki_%s''.', setting_origin,
+          \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
           \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key)
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
         \ a:users_value < a:value_infos.min
     echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
-          \ . ' too small. The minimum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.min, a:key)
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
         \ a:users_value > a:value_infos.max
     echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
-          \ . ' too large. The maximum value is %i. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.max, a:key)
   endif
 
   if has_key(a:value_infos, 'possible_values') &&
         \ index(a:value_infos.possible_values, a:users_value) == -1
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s is'
-          \ . ' invalid. Allowed values are %s. See ''g:vimwiki_%s''.', a:users_value,
+          \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, string(a:value_infos.possible_values), a:key)
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
         \ strwidth(a:users_value) != a:value_infos.length
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
-          \ . ' contain exactly %i character(s) but has %i. See '':h g:vimwiki_%s''.',
+          \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
           \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key)
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
         \ strwidth(a:users_value) < a:value_infos.min_length
     echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
-          \ . ' have at least %d character(s) but has %d. See '':h g:vimwiki_%s''.', a:users_value,
+          \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
           \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key)
   endif
 endfunction
@@ -713,18 +717,6 @@ function! s:populate_extra_markdown_vars()
   " [DESCRIPTION][URL]
   let mkd_syntax.WikiLink1Template2 = wikilink_md_prefix. '__LinkDescription__'.
         \ wikilink_md_separator. '__LinkUrl__'. wikilink_md_suffix
-  let mkd_syntax.WikiLinkMatchUrlTemplate .=
-        \ '\|' .
-        \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '.*' .
-        \ rx_wikilink_md_separator .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-        \ mkd_syntax.rx_wikilink_md_suffix .
-        \ '\|' .
-        \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
-        \ rx_wikilink_md_separator .
-        \ mkd_syntax.rx_wikilink_md_suffix
 
   let valid_chars = '[^\\\[\]]'
   let mkd_syntax.rxWikiLink1Url = valid_chars.'\{-}'
@@ -801,6 +793,23 @@ function! s:populate_extra_markdown_vars()
   let mkd_syntax.rxWeblink1Separator = vimwiki#u#escape(mkd_syntax.rxWeblink1Separator)
   let mkd_syntax.rxWeblink1Url = valid_chars.'\{-}'
   let mkd_syntax.rxWeblink1Descr = valid_chars.'\{-}'
+  let mkd_syntax.WikiLinkMatchUrlTemplate =
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '.*' .
+        \ rx_wikilink_md_separator .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ rx_wikilink_md_separator .
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rxWeblink1Prefix.
+        \ '.*' .
+        \ mkd_syntax.rxWeblink1Separator.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ mkd_syntax.rxWeblink1Suffix
 
   " 1. [DESCRIPTION](URL)
   " 1a) match [DESCRIPTION](URL)

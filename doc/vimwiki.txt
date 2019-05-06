@@ -3537,6 +3537,8 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #481: Allow surrounding URLs with '<' '>'
+    * Issue #237: VimwikiRenameLink now works for Markdown syntax
     * Issue #612: GVim menu displayed duplicate names.
     * Issue #456: Omnicompletion of wikilinks under Windows. Note: this should
       be considered a temporary fix until #478 is closed.
