@@ -236,6 +236,14 @@ command! -buffer Vimwiki2HTMLBrowse
       \         expand('%')))
 command! -buffer VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')))
+command! -range VimwikiVisualSelection2HTML
+      \ if filewritable(expand('%')) | silent noautocmd w | endif
+      \ <bar>
+      \ let res = vimwiki#html#VisualSelection2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
+      \                             expand('%'))
+      \ <bar>
+      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '
+      \      . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
