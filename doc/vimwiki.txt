@@ -1544,26 +1544,21 @@ fold so that the last blank line before a header is not folded, you can add
 this function to your configuration file:
 
 ```
-let g:lastnum = 0
-function! VimwikiFoldLevelCustom(lnum)
-    if getline(a:lnum) =~? '\v^\s*$'
-	let g:lastnum = -1
-        return '-1'
+function! Fold(lnum)
+  let pounds = strlen(matchstr(getline(a:lnum), '^#\+'))
+  if (pounds)
+    return '>' . pounds  " start a fold level
+  endif
+  if getline(a:lnum) =~? '\v^\s*$'
+    if (strlen(matchstr(getline(a:lnum + 1), '^#\+')))
+      return '-1' " don't fold last blank line before header
     endif
-    let last = g:lastnum
-    let num_of_pounds = strlen(matchstr(getline(a:lnum), '^#\+'))
-    if (num_of_pounds > 0)
-            let g:lastnum = num_of_pounds
-	    if last == -1
-		    return '>' . num_of_pounds
-	    endif
-	    return num_of_pounds
-    endif
-    return g:lastnum
+  endif
+  return '=' " return previous fold level
 endfunction
 ```
 
-Then you will need to add the following vim options to your configuration:
+Note that you will also need to add the following vim options to your configuration:
 
 ```
 setlocal foldmethod=expr
