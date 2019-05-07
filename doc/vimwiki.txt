@@ -118,7 +118,7 @@ other plugins and will not overwrite them.
 If a conflict exists between Vimwiki and pre-existing maps or if you wish to
 customize these default mappings, you can remap them with: >
 
-         :nnoremap {map} <Plug>{command}
+         :nmap {map} <Plug>{command}
 
 where
         `{map}` is the new key sequence of your choosing
@@ -126,13 +126,17 @@ where
 
 So, for example, to remap the |:VimwikiIndex| mapping, you'd do something
 like: >
-        :nnoremap <Leader>wx <Plug>VimwikiIndex
+        :nmap <Leader>wx <Plug>VimwikiIndex
+
+Note that the "map" command is needed as "noremap" will not work. This is fine
+in this case because vim's `<Plug>` key code will make an inadvertent remapping
+impossible. `<Plug>` is required and considered to be part of the command.
 
 You can also place remappings in your vimrc file, without the leading colon, of
-course. If you are wondering about the `<Plug>` bit, this is an untypable key
-code used by Vim to help ensure the command is not executed accidentally. You
-must always add `<Plug>` before the command since it is part of the command.
+course.
 
+
+                                                          *vimwiki_<Leader>ww*
 [count]<Leader>ww
         Open index file of the [count]'s wiki.
 
@@ -146,7 +150,9 @@ must always add `<Plug>` before the command since it is part of the command.
 
 See also |:VimwikiIndex|
 
-[count]<Leader>wt or <Plug>VimwikiTabIndex
+
+                                                          *vimwiki_<Leader>wt*
+[count]<Leader>wt
         Open index file of the [count]'s wiki in a new tab.
 
         <Leader>wt tabopens the first wiki from |g:vimwiki_list|.
@@ -159,16 +165,16 @@ See also |:VimwikiIndex|
 
 See also |:VimwikiTabIndex|
 
-
-<Leader>ws or <Plug>VimwikiUISelect
+                                                          *vimwiki_<Leader>ws*
+<Leader>ws
         List and select available wikis.
 
         Remap command: `<Plug>VimwikiUISelect`
 
 See also |:VimwikiUISelect|
 
-
-[count]<Leader>wi or <Plug>VimwikiDiaryIndex
+                                                          *vimwiki_<Leader>wi*
+[count]<Leader>wi
         Open diary index file of the [count]'s wiki.
 
         <Leader>wi opens diary index file of the current wiki.
@@ -182,8 +188,8 @@ See also |:VimwikiUISelect|
 
 See also |:VimwikiDiaryIndex|
 
-
-[count]<Leader>w<Leader>w or <Plug>VimwikiMakeDiaryNote
+                                                  *vimwiki_<Leader>w<Leader>w*
+[count]<Leader>w<Leader>w
         Open diary wiki-file for today of the [count]'s wiki.
 
         <Leader>w<Leader>w opens diary wiki-file for today in the current wiki
@@ -200,7 +206,8 @@ See also |:VimwikiDiaryIndex|
 See also |:VimwikiMakeDiaryNote|
 
 
-[count]<Leader>w<Leader>t or <Plug>VimwikiTabMakeDiaryNote
+                                                  *vimwiki_<Leader>w<Leader>t*
+[count]<Leader>w<Leader>t
         Open diary wiki-file for today of the [count]'s wiki in a new tab.
 
         <Leader>w<Leader>t tabopens diary wiki-file for today in the current
@@ -218,7 +225,8 @@ See also |:VimwikiMakeDiaryNote|
 See also |:VimwikiTabMakeDiaryNote|
 
 
-[count]<Leader>w<Leader>y or <Plug>VimwikiMakeYesterdayDiaryNote
+                                                  *vimwiki_<Leader>w<Leader>y*
+[count]<Leader>w<Leader>y
         Open diary wiki-file for yesterday of the [count]'s wiki.
 
         <Leader>w<Leader>y opens diary wiki-file for yesterday in the current
@@ -235,7 +243,8 @@ See also |:VimwikiTabMakeDiaryNote|
 
 See also |:VimwikiMakeYesterdayDiaryNote|
 
-[count]<Leader>w<Leader>m or <Plug>VimwikiMakeTomorrowDiaryNote
+                                                  *vimwiki_<Leader>w<Leader>m*
+[count]<Leader>w<Leader>m
         Open diary wiki-file for tomorrow of the [count]'s wiki.
 
         <Leader>w<Leader>m opens diary wiki-file for tomorrow in the current
