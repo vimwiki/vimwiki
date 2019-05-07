@@ -110,12 +110,13 @@ There are global and local mappings in Vimwiki.
 ------------------------------------------------------------------------------
 3.1. Global mappings                                 *vimwiki-global-mappings*
 
-Below is a list of all default mappings provided by Vimwiki. Vimwiki respects
-pre-existing key mappings created by you or other plugins and will not
-overwrite them.
+Below is a list of all default global key mappings provided by Vimwiki. As
+global settings, they work in all vim sessions no matter what filetype you
+have open. Vimwiki respects pre-existing global mappings created by you or
+other plugins and will not overwrite them.
 
 If a conflict exists between Vimwiki and pre-existing maps or if you wish to
-customize the default mappings, you can remap them with: >
+customize these default mappings, you can remap them with: >
 
          :nnoremap {map} {plug}{command}
 
@@ -3441,6 +3442,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #702: Make remapping documentation more accessible to newer vim users
     * PR #673: Add :VimwikiGoto key mapping.
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
     * PR #683: Improve layout and format of key binding documentation in
