@@ -118,19 +118,20 @@ other plugins and will not overwrite them.
 If a conflict exists between Vimwiki and pre-existing maps or if you wish to
 customize these default mappings, you can remap them with: >
 
-         :nnoremap {map} {plug}{command}
+         :nnoremap {map} <Plug>{command}
 
 where
         `{map}` is the new key sequence of your choosing
-        `{plug}` is vim's special key code, `<Plug>`
         `{command}` is the Vimwiki command you are remapping
 
 So, for example, to remap the |:VimwikiIndex| mapping, you'd do something
 like: >
         :nnoremap <Leader>wx <Plug>VimwikiIndex
 
-You can also place the remappings in your vimrc file, without the leading
-colon, of course.
+You can also place remappings in your vimrc file, without the leading colon, of
+course. If you are wondering about the `<Plug>` bit, this is an untypable key
+code used by Vim to help ensure the command is not executed accidentally. You
+must always add `<Plug>` before the command since it is part of the command.
 
 [count]<Leader>ww
         Open index file of the [count]'s wiki.
