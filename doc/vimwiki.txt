@@ -110,11 +110,28 @@ There are global and local mappings in Vimwiki.
 ------------------------------------------------------------------------------
 3.1. Global mappings                                 *vimwiki-global-mappings*
 
-NOTE: if a user mapping or mapping from another plugin uses the same key
-sequence as one of the following mappings then Vimwiki will not overwrite it.
+Below is a list of all default mappings provided by Vimwiki. Vimwiki respects
+pre-existing key mappings created by you or other plugins and will not
+overwrite them.
 
+If a conflict exists between Vimwiki and pre-existing maps or if you wish to
+customize the default mappings, you can remap them with: >
 
-[count]<Leader>ww or <Plug>VimwikiIndex
+         :nnoremap {map} {plug}{command}
+
+where
+        `{map}` is the new key sequence of your choosing
+        `{plug}` is vim's special key code, `<Plug>`
+        `{command}` is the Vimwiki command you are remapping
+
+So, for example, to remap the |:VimwikiIndex| mapping, you'd do something
+like: >
+        :nnoremap <Leader>wx <Plug>VimwikiIndex
+
+You can also place the remappings in your vimrc file, without the leading
+colon, of course.
+
+[count]<Leader>ww
         Open index file of the [count]'s wiki.
 
         <Leader>ww opens the first wiki from |g:vimwiki_list|.
@@ -122,11 +139,10 @@ sequence as one of the following mappings then Vimwiki will not overwrite it.
         2<Leader>ww opens the second wiki from |g:vimwiki_list|.
         3<Leader>ww opens the third wiki from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>w <Plug>VimwikiIndex
-<
-See also |:VimwikiIndex|
 
+        Remap command: `<Plug>VimwikiIndex`
+
+See also |:VimwikiIndex|
 
 [count]<Leader>wt or <Plug>VimwikiTabIndex
         Open index file of the [count]'s wiki in a new tab.
@@ -136,17 +152,17 @@ See also |:VimwikiIndex|
         2<Leader>wt tabopens the second wiki from |g:vimwiki_list|.
         3<Leader>wt tabopens the third wiki from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>t <Plug>VimwikiTabIndex
-<
+
+        Remap command: `<Plug>VimwikiTabIndex`
+
 See also |:VimwikiTabIndex|
 
 
 <Leader>ws or <Plug>VimwikiUISelect
         List and select available wikis.
-        To remap: >
-        :nmap <Leader>wq <Plug>VimwikiUISelect
-<
+
+        Remap command: `<Plug>VimwikiUISelect`
+
 See also |:VimwikiUISelect|
 
 
@@ -159,8 +175,8 @@ See also |:VimwikiUISelect|
         2<Leader>wi opens diary index file of the second wiki from
         |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>i <Plug>VimwikiDiaryIndex
+
+        Remap command: `<Plug>VimwikiDiaryIndex`
 
 See also |:VimwikiDiaryIndex|
 
@@ -176,9 +192,9 @@ See also |:VimwikiDiaryIndex|
         3<Leader>w<Leader>w opens diary wiki-file for today in the third wiki
         from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>d <Plug>VimwikiMakeDiaryNote
-<
+
+        Remap command: `<Plug>VimwikiMakeDiaryNote`
+
 See also |:VimwikiMakeDiaryNote|
 
 
@@ -194,9 +210,9 @@ See also |:VimwikiMakeDiaryNote|
         3<Leader>w<Leader>t tabopens diary wiki-file for today in the third
         wiki from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>dt <Plug>VimwikiTabMakeDiaryNote
-<
+
+        Remap command: `<Plug>VimwikiTabMakeDiaryNote`
+
 See also |:VimwikiTabMakeDiaryNote|
 
 
@@ -212,9 +228,9 @@ See also |:VimwikiTabMakeDiaryNote|
         3<Leader>w<Leader>y opens diary wiki-file for yesterday in the third
         wiki from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>dy <Plug>VimwikiMakeYesterdayDiaryNote
-<
+
+        Remap command: `<Plug>VimwikiMakeYesterdayDiaryNote`
+
 See also |:VimwikiMakeYesterdayDiaryNote|
 
 [count]<Leader>w<Leader>m or <Plug>VimwikiMakeTomorrowDiaryNote
@@ -229,8 +245,8 @@ See also |:VimwikiMakeYesterdayDiaryNote|
         3<Leader>w<Leader>m opens diary wiki-file for tomorrow in the third
         wiki from |g:vimwiki_list|.
         etc.
-        To remap: >
-        :nmap <Leader>dm <Plug>VimwikiMakeTomorrowDiaryNote
+
+        Remap command: `<Plug>VimwikiMakeTomorrowDiaryNote`
 <
 See also |:VimwikiMakeTomorrowDiaryNote|
 
