@@ -1689,7 +1689,7 @@ function! vimwiki#lst#fold_level(lnum)
     if child_item.type != 0
       return 'a1'
     elseif next_item.type == 0
-      return 's1'
+      return '<' . foldlevel(parent_item.lnum)
     endif
   endif
   return '='
