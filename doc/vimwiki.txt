@@ -235,339 +235,315 @@ See also |:VimwikiMakeYesterdayDiaryNote|
 See also |:VimwikiMakeTomorrowDiaryNote|
 
 ------------------------------------------------------------------------------
-3.2. Local mappings
+3.2. Local mappings                                   *vimwiki-local-mappings*
 
-To remap one of these keys, either put it in your .vimrc like this >
-    :nmap <Leader>wc <Plug>Vimwiki2HTML
-or, the better way, put it in a file .vim/ftplugin/vimwiki.vim like this >
-    :nmap <silent><buffer> <Leader>wc <Plug>Vimwiki2HTML
+Below is a listing of all local key mappings provided by Vimwiki. As local
+settings, they are available when |FileType| is set to "vimwiki". Vimwiki
+respects pre-existing key mappings created by you or other plugins and will not
+overwrite them.
+  
+If a conflict exists between Vimwiki and pre-existing maps or if you wish to
+customize the default mappings, you can remap them. To remap commands that
+begin with <Plug>, you should do the following:
 
-The latter has the advantage that the mapping is local to Vimwiki buffers in
-every case.
+        :{mode}map <silent> <buffer> {map} <Plug>{command}
 
-Also note that some keys work in normal mode as well as in visual mode. If you
-remap them using :map, they will also run in operator-pending mode. If you
-don't want that, use >
-    :nmap <Leader>tt <Plug>VimwikiToggleListItem
-    :vmap <Leader>tt <Plug>VimwikiToggleListItem
+For commands that do not begin with <Plug>, do: 
 
-NOTE: if a user mapping or mapping from another plugin uses the same key
-sequence as one of the following mappings then Vimwiki will not overwrite it.
+        :{mode}noremap <silent> <buffer> {map} :{command}
 
+where
+        `{mode}` is set to `n` for "normal" mode, `v` for "visual", and `i` for "insert"
+        `{map}` is the new key sequence of your choosing
+        `{command}` is the Vimwiki command you are remapping
 
-NORMAL MODE                                           *vimwiki-local-mappings*
-                        *vimwiki_<Leader>wh*
-<Leader>wh              Convert current wiki page to HTML.
+Examples: >
+       :nmap <silent> <buffer> <Leader>tl <Plug>VimwikiToggleListItem
+       :vmap <silent> <buffer> <Leader>tl <Plug>VimwikiToggleListItem
+       :nnoremap glo :VimwikiChangeSymbolTo a)<CR>
+
+The first two line remap "\tl" to the |:VimwikiToggleListItem| command in both
+normal and visual modes |<Leader>| is set to "\" by default. Use `:echo
+mapleader` to determine if it is set to another value. The third map listed
+above, which does not contain <Plug>, maps directly to an |Ex| mode command.
+
+Note that |map| is needed for commands beginning with <Plug>
+since |noremap| will not work. This is fine in this case because vim's <Plug>
+key code will make an inadvertent remapping impossible. The <silent> argument
+supresses echoing of the command to the command line and is optional. The
+<buffer> argument make our mapping local to the buffer, as opposed to a
+global one.
+       
+It's highly recommended that you place your local mappings into a file at
+ftplugin/vimwiki.vim within your .vim configuration directory. Create this file
+if it doesn't already exist. Or, if you prefer, you can set up a FileType
+|autocmd| in vimrc.
+
+MAP                MODE                                
+                                                          *vimwiki_<Leader>wh*
+<Leader>wh         n    Convert current wiki page to HTML.
                         Maps to |:Vimwiki2HTML|
-                        To remap: >
-                        :nmap <Leader>wc <Plug>Vimwiki2HTML
-<
-                        *vimwiki_<Leader>whh*
-<Leader>whh             Convert current wiki page to HTML and open it in the
+                        Remap command: `<Plug>Vimwiki2HTML`
+
+                                                         *vimwiki_<Leader>whh*
+<Leader>whh        n    Convert current wiki page to HTML and open it in the
                         webbrowser.
                         Maps to |:Vimwiki2HTMLBrowse|
-                        To remap: >
-                        :nmap <Leader>wcc <Plug>Vimwiki2HTMLBrowse
-<
-                        *vimwiki_<Leader>w<Leader>i*
-<Leader>w<Leader>i      Update diary section (delete old, insert new)
+                        Remap command: `<Plug>Vimwiki2HTMLBrowse`
+
+                                                  *vimwiki_<Leader>w<Leader>i*
+<Leader>w<Leader>i n    Update diary section (delete old, insert new)
                         Only works from the diary index.
                         Maps to |:VimwikiDiaryGenerateLinks|
-                        To remap: >
-                        :nmap <Leader>wcr <Plug>VimwikiDiaryGenerateLinks
-<
-                        *vimwiki_<CR>*
-<CR>                    Follow/create wiki link (create target wiki page if
+                        Remap command: `<Plug>VimwikiDiaryGenerateLinks`
+
+                                                                *vimwiki_<CR>*
+<CR>               n    Follow/create wiki link (create target wiki page if
                         needed).
                         Maps to |:VimwikiFollowLink|.
-                        To remap: >
-                        :nmap <Leader>wf <Plug>VimwikiFollowLink
-<
-                        *vimwiki_<S-CR>*
-<S-CR>                  Split and follow (create target wiki page if needed).
+                        Remap command: `<Plug>VimwikiFollowLink`
+
+                                                              *vimwiki_<S-CR>*
+<S-CR>             n    Split and follow (create target wiki page if needed).
                         May not work in some terminals. Remapping could help.
                         Maps to |:VimwikiSplitLink|.
-                        To remap: >
-                        :nmap <Leader>we <Plug>VimwikiSplitLink
-<
-                        *vimwiki_<C-CR>*
-<C-CR>                  Vertical split and follow (create target wiki page if
-                        needed).
-                        May not work in some terminals. Remapping could help.
+                        Remap command: `<Plug>VimwikiSplitLink`
+
+                                                              *vimwiki_<C-CR>*
+<C-CR>             n    Vertical split and follow (create target wiki page if
+                        needed).  May not work in some terminals. Remapping
+                        could help.
                         Maps to |:VimwikiVSplitLink|.
-                        To remap: >
-                        :nmap <Leader>wq <Plug>VimwikiVSplitLink
-<
-                        *vimwiki_<C-S-CR>*    *vimwiki_<D-CR>*
-<C-S-CR>, <D-CR>        Follow wiki link (create target wiki page if needed),
+                        Remap command: `<Plug>VimwikiVSplitLink`
+
+                                        *vimwiki_<C-S-CR>*    *vimwiki_<D-CR>*
+<C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
                         opening in a new tab.
                         May not work in some terminals. Remapping could help.
                         Maps to |:VimwikiTabnewLink|.
-                        To remap: >
-                        :nmap <Leader>wt <Plug>VimwikiTabnewLink
-<
-                        *vimwiki_<Backspace>*
-<Backspace>             Go back to previously visited wiki page.
+                        Remap command: `<Plug>VimwikiTabnewLink`
+
+                                                         *vimwiki_<Backspace>*
+<Backspace>        n    Go back to previously visited wiki page.
                         Maps to |:VimwikiGoBackLink|.
-                        To remap: >
-                        :nmap <Leader>wb <Plug>VimwikiGoBackLink
-<
-                        *vimwiki_<Tab>*
-<Tab>                   Find next link in the current page.
+                        Remap command: `<Plug>VimwikiGoBackLink`
+
+                                                               *vimwiki_<Tab>*
+<Tab>              n    Find next link in the current page.
                         Maps to |:VimwikiNextLink|.
-                        To remap: >
-                        :nmap <Leader>wn <Plug>VimwikiNextLink
-<
-                        *vimwiki_<S-Tab>*
-<S-Tab>                 Find previous link in the current page.
+                        Remap command: `<Plug>VimwikiNextLink`
+
+                                                             *vimwiki_<S-Tab>*
+<S-Tab>            n    Find previous link in the current page.
                         Maps to |:VimwikiPrevLink|.
-                        To remap: >
-                        :nmap <Leader>wp <Plug>VimwikiPrevLink
-<
-                        *vimwiki_<Leader>wn*
-<Leader>wn              Goto or create new wiki page.
+                        Remap command: `<Plug>VimwikiPrevLink`
+
+                                                          *vimwiki_<Leader>wn*
+<Leader>wn         n    Goto or create new wiki page.
                         Maps to |:VimwikiGoto|.
-                        To remap: >
-                        :nmap <Leader>nn <Plug>VimwikiGoto
-<
-                        *vimwiki_<Leader>wd*
-<Leader>wd              Delete wiki page you are in.
+                        Remap command: `<Plug>VimwikiGoto`
+
+                                                          *vimwiki_<Leader>wd*
+<Leader>wd         n    Delete wiki page you are in.
                         Maps to |:VimwikiDeleteLink|.
-                        To remap: >
-                        :nmap <Leader>dd <Plug>VimwikiDeleteLink
-<
-                        *vimwiki_<Leader>wr*
-<Leader>wr              Rename wiki page you are in.
+                        Remap command: `<Plug>VimwikiDeleteLink`
+
+                                                          *vimwiki_<Leader>wr*
+<Leader>wr         n    Rename wiki page you are in.
                         Maps to |:VimwikiRenameLink|.
-                        To remap: >
-                        :nmap <Leader>rr <Plug>VimwikiRenameLink
-<
-                        *vimwiki_=*
-=                       Add header level. Create if needed.
+                        Remap command: `<Plug>VimwikiRenameLink`
+
+                                                                   *vimwiki_=*
+=                  n    Add header level. Create if needed.
                         There is nothing to indent with '==' command in
                         Vimwiki, so it should be ok to use '=' here.
-                        To remap: >
-                        :nmap == <Plug>VimwikiAddHeaderLevel
-<
-                        *vimwiki_-*
--                       Remove header level.
-                        To remap: >
-                        :nmap -- <Plug>VimwikiRemoveHeaderLevel
-<
-                        *vimwiki_[[*
-[[                      Go to the previous header in the buffer.
-                        To remap: >
-                        :nmap <- <Plug>VimwikiGoToPrevHeader
-<
-                        *vimwiki_]]*
-]]                      Go to the next header in the buffer.
-                        To remap: >
-                        :nmap -> <Plug>VimwikiGoToNextHeader
-<
-                        *vimwiki_[=*
-[=                      Go to the previous header which has the same level as
+                        Remap command: `<Plug>VimwikiAddHeaderLevel`
+
+                                                                   *vimwiki_-*
+-                  n    Remove header level.
+                        Remap command: `<Plug>VimwikiRemoveHeaderLevel`
+
+                                                                  *vimwiki_[[*
+[[                 n    Go to the previous header in the buffer.
+                        Remap command: `<Plug>VimwikiGoToPrevHeader`
+
+                                                                  *vimwiki_]]*
+]]                 n    Go to the next header in the buffer.
+                        Remap command: `<Plug>VimwikiGoToNextHeader`
+
+                                                                  *vimwiki_[=*
+[=                 n    Go to the previous header which has the same level as
                         the header the cursor is currently under.
-                        To remap: >
-                        :nmap <= <Plug>VimwikiGoToPrevSiblingHeader
-<
-                        *vimwiki_]=*
-]=                      Go to the next header which has the same level as the
+                        Remap command: `<Plug>VimwikiGoToPrevSiblingHeader`
+
+                                                                  *vimwiki_]=*
+]=                 n    Go to the next header which has the same level as the
                         header the cursor is currently under.
-                        To remap: >
-                        :nmap => <Plug>VimwikiGoToNextSiblingHeader
-<
-                        *vimwiki_]u*  *vimwiki_[u*
-]u [u                   Go one level up -- that is, to the parent header of
+                        Remap command: `<Plug>VimwikiGoToNextSiblingHeader`
+
+                                                    *vimwiki_]u*  *vimwiki_[u*
+]u [u              n    Go one level up -- that is, to the parent header of
                         the header the cursor is currently under.
-                        To remap: >
-                        :nmap -^ <Plug>VimwikiGoToParentHeader
-<
-                        *vimwiki_+*
-+                       Create and/or decorate links.  Depending on the
+                        Remap command: `<Plug>VimwikiGoToParentHeader`
+
+                                                                   *vimwiki_+*
++                  n v  Create and/or decorate links.  Depending on the
                         context, this command will: convert words into
                         wikilinks; convert raw URLs into wikilinks; and add
                         placeholder description text to wiki- or weblinks that
                         are missing descriptions.  Can be activated in normal
                         mode with the cursor over a word or link, or in visual
                         mode with the selected text.
-                        To remap: >
-                        :nmap ++ <Plug>VimwikiNormalizeLink
-                        :vmap ++ <Plug>VimwikiNormalizeLinkVisual
-<
-                        *vimwiki_<C-Space>*
-<C-Space>               Toggle checkbox of a list item on/off.
+                        Remap commands: 
+                        `<Plug>VimwikiNormalizeLink` (normal mode)
+                        `<Plug>VimwikiNormalizeLinkVisual` (visual mode)
+
+                                                          *vimwiki_<C-Space>*
+<C-Space>         n     Toggle checkbox of a list item on/off.
                         Maps to |:VimwikiToggleListItem|.
                         See |vimwiki-todo-lists|.
-                        To remap: >
-                        :map <Leader>tt <Plug>VimwikiToggleListItem
+                        Remap command: `<Plug>VimwikiToggleListItem`
 
-gnt                     *vimwiki_gnt*
-                        Find next unfinished task in the current page.
+                                                                *vimwiki_gnt*
+gnt               n     Find next unfinished task in the current page.
                         Maps to |:VimwikiNextTask|
-                        To remap: >
-                        :nmap <Leader>nt <Plug>VimwikiNextTask
-<
-                        *vimwiki_gl<Space>* *vimwiki_gL<Space>*
-gl<Space>               Remove checkbox from list item.
+                        Remap command: `<Plug>VimwikiNextTask`
+
+                                      *vimwiki_gl<Space>* *vimwiki_gL<Space>*
+gl<Space>         n     Remove checkbox from list item.
+                        Remap command: `<Plug>VimwikiRemoveSingleCB`
 gL<Space>               Remove checkboxes from all sibling list items.
-                        To remap: >
-                        :map <Leader><Space> <Plug>VimwikiRemoveSingleCB
-                        :map <Leader><Space> <Plug>VimwikiRemoveCBInList
-<
-                        *vimwiki_gln* *vimwiki_glp*
-gln                     Increase the "done" status of a list checkbox, i.e.
+                        Remap command: `<Plug>VimwikiRemoveCBInList`
+
+                                                  *vimwiki_gln* *vimwiki_glp*
+gln               n v   Increase the "done" status of a list checkbox, i.e.
                         from [ ] to [.] to [o] etc. See |vimwiki-todo-lists|.
 glp                     Decrease the "done" status.
-                        To remap: >
-                        :nmap <M-+> <Plug>VimwikiIncrementListItem
-                        :vmap <M-+> <Plug>VimwikiIncrementListItem
-                        :nmap <M--> <Plug>VimwikiDecrementListItem
-                        :vmap <M--> <Plug>VimwikiDecrementListItem
+                        Remap command: `<Plug>VimwikiIncrementListItem`
 
-                        *vimwiki_gll* *vimwiki_gLl*
-gll                     Increase the level of a list item.
+                                                  *vimwiki_gll* *vimwiki_gLl*
+gll               n     Increase the level of a list item.
+                        Remap commnad: `<Plug>VimwikiIncreaseLvlSingleItem`
 gLl                     Increase the level of a list item and all child items.
-                        To remap: >
-                        :map >> <Plug>VimwikiIncreaseLvlSingleItem
-                        :map >>> <Plug>VimwikiIncreaseLvlWholeItem
-<
-                        *vimwiki_glh* *vimwiki_gLh*
-glh                     Decrease the level of a list item.
+                        Remap command: `<Plug>VimwikiIncreaseLvlWholeItem`
+
+                                                  *vimwiki_glh* *vimwiki_gLh*
+glh               n     Decrease the level of a list item.
+                        Remap command: `<Plug>VimwikiDecreaseLvlSingleItem`
 gLh                     Decrease the level of a list item and all child items.
-                        To remap: >
-                        :map << <Plug>VimwikiDecreaseLvlSingleItem
-                        :map <<< <Plug>VimwikiDecreaseLvlWholeItem
-<
-                        *vimwiki_glr* *vimwiki_gLr*
-glr                     Renumber list items if the cursor is on a numbered
+                        Remap command: `<Plug>VimwikiDecreaseLvlWholeItem`
+
+                                                  *vimwiki_glr* *vimwiki_gLr*
+glr               n     Renumber list items if the cursor is on a numbered
                         list item.
+                        Remap command: `<Plug>VimwikiRenumberList`
 gLr                     Renumber list items in all numbered lists in the whole
-                        file.
-                        Also readjust checkboxes.
-                        To remap: >
-                        :nmap <c-r> <Plug>VimwikiRenumberList
-                        :nmap <c-r> <Plug>VimwikiRenumberAllLists
-<
-                        *vimwiki_glstar* *vimwiki_gLstar*
-gl*                     Make a list item out of a normal line or change the
+                        file. Also readjust checkboxes.
+                        Remap command: `<Plug>VimwikiRenumberAllLists`
+
+                                            *vimwiki_glstar* *vimwiki_gLstar*
+gl*               n     Make a list item out of a normal line or change the
                         symbol of the current item to *.
 gL*                     Change the symbol of the current list to *.
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo *<CR>
+                        Remap command: `:VimwikiChangeSymbolTo *<CR>`
                         noremap glO :VimwikiChangeSymbolInListTo *<CR>
-<
-                        *vimwiki_gl#* *vimwiki_gL#*
-gl#                     Make a list item out of a normal line or change the
+
+                                                  *vimwiki_gl#* *vimwiki_gL#*
+gl#               n     Make a list item out of a normal line or change the
                         symbol of the current item to #.
 gL#                     Change the symbol of the current list to #.
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo #<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo #<CR>
-<
-                        *vimwiki_gl-* *vimwiki_gL-*
-gl-                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolTo #<CR>`
+                        Remap command: `:VimwikiChangeSymbolInListTo #<CR>`
+
+                                                  *vimwiki_gl-* *vimwiki_gL-*
+gl-               n     Make a list item out of a normal line or change the
                         symbol of the current item to -.
+                        Remap command:  `:VimwikiChangeSymbolTo -<CR>`
 gL-                     Change the symbol of the current list to -.
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo -<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo -<CR>
-<
-                        *vimwiki_gl1* *vimwiki_gL1*
-gl1                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolInListTo -<CR>`
+
+                                                  *vimwiki_gl1* *vimwiki_gL1*
+gl1               n     Make a list item out of a normal line or change the
                         symbol of the current item to 1., the numbering is
                         adjusted according to the surrounding list items.
+                        Remap command: `:VimwikiChangeSymbolTo 1.<CR>`
 gL1                     Change the symbol of the current list to 1. 2. 3. ...
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo 1.<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo 1.<CR>
-<
-                        *vimwiki_gla* *vimwiki_gLa*
-gla                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolInListTo 1.<CR>`
+
+                                                  *vimwiki_gla* *vimwiki_gLa*
+gla              n      Make a list item out of a normal line or change the
                         symbol of the current item to a), the numbering is
                         adjusted according to the surrounding list items.
+                        Remap command: `:VimwikiChangeSymbolTo a)<CR>`
 gLa                     Change the symbol of the current list to a) b) c) ...
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo a)<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo a)<CR>
-<
-                        *vimwiki_glA* *vimwiki_gLA*
-glA                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolInListTo a)<CR>`
+
+                                                  *vimwiki_glA* *vimwiki_gLA*
+glA              n      Make a list item out of a normal line or change the
                         symbol of the current item to A), the numbering is
                         adjusted according to the surrounding list items.
+                        Remap command: `:VimwikiChangeSymbolTo A)<CR>`
 gLA                     Change the symbol of the current list to A) B) C) ...
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo A)<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo A)<CR>
-<
-                        *vimwiki_gli* *vimwiki_gLi*
-gli                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolInListTo A)<CR>`
+
+                                                  *vimwiki_gli* *vimwiki_gLi*
+gli              n      Make a list item out of a normal line or change the
                         symbol of the current item to i), the numbering is
                         adjusted according to the surrounding list items.
+                        Remap command: `:VimwikiChangeSymbolTo i)<CR>`
 gLi                     Change the symbol of the current list to
                         i) ii) iii) ...
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo i)<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo i)<CR>
-<
-                        *vimwiki_glI* *vimwiki_gLI*
-glI                     Make a list item out of a normal line or change the
+                        Remap command: `:VimwikiChangeSymbolInListTo i)<CR>`
+
+                                                  *vimwiki_glI* *vimwiki_gLI*
+glI              n      Make a list item out of a normal line or change the
                         symbol of the current item to I), the numbering is
                         adjusted according to the surrounding list items.
+                        Remap command: `:VimwikiChangeSymbolTo I)<CR>`
 gLI                     Change the symbol of the current list to
                         I) II) III) ...
-                        To remap: >
-                        noremap glo :VimwikiChangeSymbolTo I)<CR>
-                        noremap glO :VimwikiChangeSymbolInListTo I)<CR>
-<
-                        *vimwiki_glx*
-glx                     Toggle checkbox of a list item disabled/off.
+                        Remap command: `:VimwikiChangeSymbolInListTo I)<CR>`
+
+                                                                *vimwiki_glx*
+glx              n      Toggle checkbox of a list item disabled/off.
                         Maps to |:VimwikiToggleRejectedListItem|.
                         See |vimwiki-todo-lists|.
-                        To remap: >
-                        :map <Leader>tx <Plug>VimwikiToggleRejectedListItem
-<
-                        *vimwiki_gqq*  *vimwiki_gww*
-gqq                     Format table. If you made some changes to a table
- or                     without swapping insert/normal modes this command
-gww                     will reformat it.
-                        To remap: >
-                        :nmap <Leader>gq <Plug>VimwikiTableAlignQ
-                        :nmap <Leader>gw <Plug>VimwikiTableAlignW
-<
-                        *vimwiki_gq1*  *vimwiki_gw1*
-gq1                     Fast format table. The same as the previous, except
+                        Remap command: `<Plug>VimwikiToggleRejectedListItem`
+
+                                                 *vimwiki_gqq*  *vimwiki_gww*
+gqq              n      Reformats table after making changes.
+ or                     Remap command: `<Plug>VimwikiTableAlignQ`
+gww                     Remap command: `<Plug>VimwikiTableAlignW`
+
+                                                 *vimwiki_gq1*  *vimwiki_gw1*
+gq1              n      Fast format table. The same as the previous, except
  or                     that only a few lines above the current line are
-gw1                     tested. If the alignment of the current line differs,
+                        tested. If the alignment of the current line differs,
                         then the whole table gets reformatted.
-                        To remap: >
-                        :nmap <Leader>q1 <Plug>VimwikiTableAlignQ1
-                        :nmap <Leader>w1 <Plug>VimwikiTableAlignW1
-<
-                        *vimwiki_<A-Left>*
-<A-Left>                Move current table column to the left.
+                        Remap command: `<Plug>VimwikiTableAlignQ1`
+gw1                     Remap command:`<Plug>VimwikiTableAlignW1`
+
+                                                           *vimwiki_<A-Left>*
+<A-Left>         n      Move current table column to the left.
                         See |:VimwikiTableMoveColumnLeft|
-                        To remap: >
-                        :nmap <Leader>wtl <Plug>VimwikiTableMoveColumnLeft
-<
-                        *vimwiki_<A-Right>*
-<A-Right>               Move current table column to the right.
+                        Remap command: `<Plug>VimwikiTableMoveColumnLeft`
+
+                                                          *vimwiki_<A-Right>*
+<A-Right>        n      Move current table column to the right.
                         See |:VimwikiTableMoveColumnRight|
-                        To remap: >
-                        :nmap <Leader>wtr <Plug>VimwikiTableMoveColumnRight
-<
-                        *vimwiki_<C-Up>*
-<C-Up>                  Open the previous day's diary link if available.
+                        Remap command: `<Plug>VimwikiTableMoveColumnRight`
+
+                                                             *vimwiki_<C-Up>*
+<C-Up>           n      Open the previous day's diary link if available.
                         See |:VimwikiDiaryPrevDay|
-                        To remap: >
-                        :nmap <Leader>k <Plug>VimwikiDiaryPrevDay
-<
-                        *vimwiki_<C-Down>*
-<C-Down>                Open the next day's diary link if available.
+                        Remap command: `<Plug>VimwikiDiaryPrevDay`
+
+                                                           *vimwiki_<C-Down>*
+<C-Down>         n      Open the next day's diary link if available.
                         See |:VimwikiDiaryNextDay|
-                        To remap: >
-                        :nmap <Leader>j <Plug>VimwikiDiaryNextDay
-<
-Mouse mappings          *vimwiki_mouse*
+                        Remap command: `<Plug>VimwikiDiaryNextDay`
+
+Mouse mappings                                                *vimwiki_mouse*
 
 These mappings are disabled by default.
 See |g:vimwiki_key_mappings| to enable.
@@ -586,57 +562,55 @@ Note: <2-LeftMouse> is just left double click.
 
 
 
-INSERT MODE                                           *vimwiki-table-mappings*
-                        *vimwiki_i_<CR>_table*
+TABLE MAPPINGS, INSERT MODE                           *vimwiki-table-mappings*
+                                                        *vimwiki_i_<CR>_table*
 <CR>                    Go to the table cell beneath the current one, create
                         a new row if on the last one.
 
-                        *vimwiki_i_<Tab>_table*
+                                                       *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
                         last cell.
 
-INSERT MODE                                            *vimwiki-list-mappings*
-                        *vimwiki_i_<CR>*
+LIST MAPPINGS, INSERT MODE                             *vimwiki-list-mappings*
+                                                              *vimwiki_i_<CR>*
 <CR>                    In a list item, insert a new bullet or number in the
                         next line, numbers are incremented.
                         In an empty list item, delete the item symbol. This is
                         useful to end a list, simply press <CR> twice.
                         See |vimwiki-lists| for details and for how to
                         configure the behavior.
+                        Remap command: `<Plug>VimwikiReturn15`
 
-                        *vimwiki_i_<S-CR>*
+                                                            *vimwiki_i_<S-CR>*
 <S-CR>                  Does not insert a new list item, useful to create
-                        multilined list items.
-                        See |vimwiki-lists| for details and for how to
-                        configure the behavior.
+                        multilined list items. See |vimwiki-lists| for
+                        details and for how to configure the behavior. The
+                        default map may not work in all terminals and may
+                        need to be remapped.
+                        Remap command: `<Plug>VimwikiReturn22`
 
-                        *vimwiki_i_<C-T>*
+                                                             *vimwiki_i_<C-T>*
 <C-T>                   Increase the level of a list item.
-                        To remap: >
-                        :imap <C-E> <Plug>VimwikiIncreaseLvlSingleItem
-<
-                        *vimwiki_i_<C-D>*
+                        Remap command: `<Plug>VimwikiIncreaseLvlSingleItem`
+
+                                                             *vimwiki_i_<C-D>*
 <C-D>                   Decrease the level of a list item.
-                        To remap: >
-                        :imap <C-E> <Plug>VimwikiDecreaseLvlSingleItem
-<
-                        *vimwiki_i_<C-L>_<C-J>*
+                        Remap command: `<Plug>VimwikiDecreaseLvlSingleItem`
+
+                                                       *vimwiki_i_<C-L>_<C-J>*
 <C-L><C-J>              Change the symbol of the current list item to the next
                         available. From - to 1. to * to I) to a).
-                        To remap: >
-                        :imap <C-A> <Plug>VimwikiListNextSymbol
-<
-                        *vimwiki_i_<C-L>_<C-K>*
+                        Remap command: `<Plug>VimwikiListNextSymbol`
+
+                                                       *vimwiki_i_<C-L>_<C-K>*
 <C-L><C-K>              Change the symbol of the current list item to the prev
                         available. From - to a) to I) to * to 1.
-                        To remap: >
-                        :imap <C-S> <Plug>VimwikiListPrevSymbol
-<
-                        *vimwiki_i_<C-L>_<C-M>*
+                        Remap command: `<Plug>VimwikiListPrevSymbol`
+
+                                                       *vimwiki_i_<C-L>_<C-M>*
 <C-L><C-M>              Create/remove a symbol from a list item.
-                        To remap: >
-                        :imap <C-K> <Plug>VimwikiListToggle
-<
+                        Remap command: `<Plug>VimwikiListToggle`
+
 
 ------------------------------------------------------------------------------
 3.3. Text objects                                       *vimwiki-text-objects*
