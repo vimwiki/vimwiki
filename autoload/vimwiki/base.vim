@@ -117,8 +117,9 @@ function! vimwiki#base#resolve_link(link_text, ...)
     let source_file = vimwiki#path#current_wiki_file()
   endif
 
-  let link_text = a:link_text
-
+  " get rid of '\' in escaped characters in []() style markdown links
+  " other style links don't allow '\'
+  let link_text = substitute(a:link_text, '\(\\\)\(\W\)\@=', '', 'g')
 
   let link_infos = {
         \ 'index': -1,

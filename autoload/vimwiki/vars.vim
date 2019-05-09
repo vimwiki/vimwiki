@@ -769,6 +769,7 @@ function! s:populate_extra_markdown_vars()
 
   let mkd_syntax.rxWeblink1Prefix = '['
   let mkd_syntax.rxWeblink1Suffix = ')'
+  let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\()\)'
   let mkd_syntax.rxWeblink1Separator = ']('
   let mkd_syntax.rxWeblink1Ext = ''
   if vimwiki#vars#get_global('markdown_link_ext')
@@ -787,11 +788,12 @@ function! s:populate_extra_markdown_vars()
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
   let valid_chars = '[^\\\]]'
+  " spaces and '\' must be allowed for filename and escaped chars
+  let valid_chars_url = '[^[:cntrl:]]'
 
   let mkd_syntax.rxWeblink1Prefix = vimwiki#u#escape(mkd_syntax.rxWeblink1Prefix)
-  let mkd_syntax.rxWeblink1Suffix = vimwiki#u#escape(mkd_syntax.rxWeblink1Suffix)
   let mkd_syntax.rxWeblink1Separator = vimwiki#u#escape(mkd_syntax.rxWeblink1Separator)
-  let mkd_syntax.rxWeblink1Url = valid_chars.'\{-}'
+  let mkd_syntax.rxWeblink1Url = valid_chars_url.'\{-}'
   let mkd_syntax.rxWeblink1Descr = valid_chars.'\{-}'
   let mkd_syntax.WikiLinkMatchUrlTemplate =
         \ mkd_syntax.rx_wikilink_md_prefix .
@@ -809,26 +811,26 @@ function! s:populate_extra_markdown_vars()
         \ '.*' .
         \ mkd_syntax.rxWeblink1Separator.
         \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
-        \ mkd_syntax.rxWeblink1Suffix
+        \ mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " 1. [DESCRIPTION](URL)
   " 1a) match [DESCRIPTION](URL)
   let mkd_syntax.rxWeblink1 = mkd_syntax.rxWeblink1Prefix.
         \ mkd_syntax.rxWeblink1Descr . mkd_syntax.rxWeblink1Separator.
-        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Suffix
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1EscapeCharsSuffix
   " 1b) match URL within [DESCRIPTION](URL)
   let mkd_syntax.rxWeblink1MatchUrl = mkd_syntax.rxWeblink1Prefix.
         \ mkd_syntax.rxWeblink1Descr. mkd_syntax.rxWeblink1Separator.
-        \ '\zs' . mkd_syntax.rxWeblink1Url . '\ze' . mkd_syntax.rxWeblink1Suffix
+        \ '\zs' . mkd_syntax.rxWeblink1Url . '\ze' . mkd_syntax.rxWeblink1EscapeCharsSuffix
   " 1c) match DESCRIPTION within [DESCRIPTION](URL)
   let mkd_syntax.rxWeblink1MatchDescr = mkd_syntax.rxWeblink1Prefix.
         \ '\zs'.mkd_syntax.rxWeblink1Descr.'\ze'. mkd_syntax.rxWeblink1Separator.
-        \ mkd_syntax.rxWeblink1Url. mkd_syntax.rxWeblink1Suffix
+        \ mkd_syntax.rxWeblink1Url. mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " TODO: image links too !!
   let mkd_syntax.rxWeblink1Prefix1 = mkd_syntax.rxWeblink1Prefix
   let mkd_syntax.rxWeblink1Suffix1 = mkd_syntax.rxWeblink1Separator.
-        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1Suffix
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " *a) match ANY weblink
   let mkd_syntax.rxWeblink = ''.
