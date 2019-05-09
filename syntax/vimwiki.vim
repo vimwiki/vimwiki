@@ -234,7 +234,7 @@ execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
 
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiNoExistsLinkT,
@@ -249,7 +249,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
                            \ @Spell
-syntax match VimwikiCellSeparator 
+syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
@@ -262,11 +262,11 @@ if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
         \ . vimwiki#vars#get_global('listsym_rejected')
-        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
         \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
-        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 
 
@@ -480,7 +480,7 @@ endif
 
 
 " LaTeX
-call vimwiki#base#nested_syntax('tex', 
+call vimwiki#base#nested_syntax('tex',
       \ vimwiki#vars#get_syntaxlocal('rxMathStart').'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')

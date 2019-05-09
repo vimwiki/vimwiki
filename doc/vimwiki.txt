@@ -3487,6 +3487,8 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #240: Fix regex pattern for markdown '[]()' links
+    * Issue #685: Error message for invalid user options fixed.
     * Issue #481: Allow surrounding URLs with '<' '>'
     * Issue #237: VimwikiRenameLink now works for Markdown syntax
     * Issue #612: GVim menu displayed duplicate names.

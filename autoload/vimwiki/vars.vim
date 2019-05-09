@@ -786,7 +786,7 @@ function! s:populate_extra_markdown_vars()
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
-  let valid_chars = '[^\\]'
+  let valid_chars = '[^\\\]]'
 
   let mkd_syntax.rxWeblink1Prefix = vimwiki#u#escape(mkd_syntax.rxWeblink1Prefix)
   let mkd_syntax.rxWeblink1Suffix = vimwiki#u#escape(mkd_syntax.rxWeblink1Suffix)
