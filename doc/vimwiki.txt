@@ -128,9 +128,9 @@ So, for example, to remap the |:VimwikiIndex| mapping, you'd do something
 like: >
         :nmap <Leader>wx <Plug>VimwikiIndex
 
-Note that the "map" command is needed as "noremap" will not work. This is fine
-in this case because vim's `<Plug>` key code will make an inadvertent remapping
-impossible. `<Plug>` is required and considered to be part of the command.
+Note that the recursive version of "map" command is needed to expand the right
+hand side to retrieve the <Plug> definition. "noremap" will not work. <Plug> is
+required and considered to be part of the command.
 
 You can also place remappings in your vimrc file, without the leading colon, of
 course.
@@ -258,7 +258,7 @@ See also |:VimwikiMakeYesterdayDiaryNote|
         etc.
 
         Remap command: `<Plug>VimwikiMakeTomorrowDiaryNote`
-<
+
 See also |:VimwikiMakeTomorrowDiaryNote|
 
 ------------------------------------------------------------------------------
