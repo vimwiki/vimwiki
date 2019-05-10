@@ -1689,13 +1689,9 @@ function! vimwiki#lst#fold_level(lnum)
     if child_item.type != 0
       return 'a1'
     elseif next_item.type == 0
-<<<<<<< Updated upstream
-      return '<' . foldlevel(parent_item.lnum)
-=======
         let c_indent = indent(a:lnum) / &shiftwidth
         let n_indent = indent(a:lnum+1) / &shiftwidth
         return 's' . (c_indent - n_indent)
->>>>>>> Stashed changes
     endif
   endif
   return '='
