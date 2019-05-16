@@ -205,8 +205,8 @@ more bindings.
 
 ## Commands
 
- * `:VimWiki2HTML` -- Convert current wiki link to HTML
- * `:VimWikiAll2HTML` -- Convert all your wiki links to HTML
+ * `:Vimwiki2HTML` -- Convert current wiki link to HTML
+ * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML
  * `:help vimwiki-commands` -- list all commands
  * `:help vimwiki` -- General vimwiki help docs
 
