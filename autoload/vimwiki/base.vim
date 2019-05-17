@@ -441,6 +441,7 @@ function! vimwiki#base#backlinks()
         if vimwiki#u#is_windows()
           " TODO this is a temporary fix - see issue #478
           let target_file = substitute(target_file, '/', '\', 'g')
+          let current_filename = substitute(current_filename, '/', '\', 'g')
         endif
         " don't include links from the current file to itself
         if vimwiki#path#is_equal(target_file, current_filename) &&
