@@ -3456,6 +3456,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #711: Allow forcing VimwikiAll2HTML with !
     * PR #702: Make remapping documentation more accessible to newer vim users
     * PR #673: Add :VimwikiGoto key mapping.
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.
