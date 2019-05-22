@@ -822,9 +822,13 @@ Vimwiki file.
 *:Vimwiki2HTMLBrowse*
     Convert current wiki page to HTML and open it in the webbrowser.
 
-*:VimwikiAll2HTML*
+*:VimwikiAll2HTML[!]*
     Convert all wiki pages to HTML.
     Default CSS file (style.css) is created if there is no one.
+
+    By default, only converts wiki pages which have not already been
+    converted or have been modified since their last conversion. With !,
+    convert all pages, regardless of whether or not they are out-of-date.
 
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
@@ -3452,6 +3456,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #711: Allow forcing VimwikiAll2HTML with !
     * PR #702: Make remapping documentation more accessible to newer vim users
     * PR #673: Add :VimwikiGoto key mapping.
     * PR #689: Allow |vimwiki-option-diary_rel_path| to be an empty string.

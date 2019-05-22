@@ -1611,7 +1611,7 @@ function! vimwiki#html#Wiki2HTML(path_html, wikifile)
 endfunction
 
 
-function! vimwiki#html#WikiAll2HTML(path_html)
+function! vimwiki#html#WikiAll2HTML(path_html, force)
   if !s:syntax_supported() && !s:use_custom_wiki2html()
     echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
     return
@@ -1653,7 +1653,7 @@ function! vimwiki#html#WikiAll2HTML(path_html)
     call vimwiki#vars#set_bufferlocal('subdir', subdir)
     call vimwiki#vars#set_bufferlocal('invsubdir', vimwiki#base#invsubdir(subdir))
 
-    if !s:is_html_uptodate(wikifile)
+    if a:force || !s:is_html_uptodate(wikifile)
       echomsg 'Vimwiki: Processing '.wikifile
 
       call s:convert_file(path_html, wikifile)
