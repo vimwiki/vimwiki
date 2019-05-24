@@ -3520,6 +3520,7 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #415: Expand iabbrev entries on <CR>.
     * Issue #619: allow escaped characters in markdown links.
     * Issue #240: Fix regex pattern for markdown '[]()' links
     * Issue #685: Error message for invalid user options fixed.

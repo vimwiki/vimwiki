@@ -438,8 +438,14 @@ nnoremap <silent><buffer> <Plug>VimwikiListo
     \ :<C-U>call vimwiki#lst#kbd_o()<CR>
 nnoremap <silent><buffer> <Plug>VimwikiListO
     \ :<C-U>call vimwiki#lst#kbd_O()<CR>
-inoremap <silent><buffer> <Plug>VimwikiReturn15
+if has('patch-7.3.489')
+  " expand iabbrev on enter
+  inoremap <silent><buffer> <Plug>VimwikiReturn15
+      \ <C-]><Esc>:VimwikiReturn 1 5<CR>
+else
+  inoremap <silent><buffer> <Plug>VimwikiReturn15
     \ <Esc>:VimwikiReturn 1 5<CR>
+endif
 inoremap <silent><buffer> <Plug>VimwikiReturn22
     \ <Esc>:VimwikiReturn 2 2<CR>
 
