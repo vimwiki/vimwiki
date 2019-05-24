@@ -1272,6 +1272,20 @@ function! vimwiki#base#follow_link(split, ...)
           \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
   endif
 
+  if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+    " markdown image ![]()
+    if lnk ==# ''
+      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxImage')),
+            \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
+      if lnk !=# ''
+        if lnk !~# '\%(\%('.vimwiki#vars#get_global('web_schemes1').'\):\%(\/\/\)\?\)\S\{-1,}'
+          " prepend file: scheme so link is opened by sytem handler if it isn't a web url
+          let lnk = 'file:'.lnk
+        endif
+      endif
+    endif
+  endif
+
   if lnk != ""    " cursor is indeed on a link
     let processed_by_user_defined_handler = VimwikiLinkHandler(lnk)
     if processed_by_user_defined_handler

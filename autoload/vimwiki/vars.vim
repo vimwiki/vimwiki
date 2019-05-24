@@ -827,13 +827,17 @@ function! s:populate_extra_markdown_vars()
         \ '\zs'.mkd_syntax.rxWeblink1Descr.'\ze'. mkd_syntax.rxWeblink1Separator.
         \ mkd_syntax.rxWeblink1Url. mkd_syntax.rxWeblink1EscapeCharsSuffix
 
-  " TODO: image links too !!
+  " image ![DESCRIPTION](URL)
+  let mkd_syntax.rxImage = '!' . mkd_syntax.rxWeblink1Prefix.
+        \ mkd_syntax.rxWeblink1Descr . mkd_syntax.rxWeblink1Separator.
+        \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1EscapeCharsSuffix
+
   let mkd_syntax.rxWeblink1Prefix1 = mkd_syntax.rxWeblink1Prefix
   let mkd_syntax.rxWeblink1Suffix1 = mkd_syntax.rxWeblink1Separator.
         \ mkd_syntax.rxWeblink1Url . mkd_syntax.rxWeblink1EscapeCharsSuffix
 
-  " *a) match ANY weblink
-  let mkd_syntax.rxWeblink = ''.
+  " *a) match ANY weblink (exclude image links starting with !)
+  let mkd_syntax.rxWeblink = '\(!\)\@<!'.
         \ mkd_syntax.rxWeblink1.'\|'.
         \ mkd_syntax.rxWeblink0
   " *b) match URL within ANY weblink
@@ -846,7 +850,8 @@ function! s:populate_extra_markdown_vars()
         \ mkd_syntax.rxWeblinkMatchDescr0
 
   let mkd_syntax.rxAnyLink = mkd_syntax.rxWikiLink.'\|'.
-        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.mkd_syntax.rxWeblink
+        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.mkd_syntax.rxWeblink .'\|'.
+        \ mkd_syntax.rxImage
 
   let mkd_syntax.rxMkdRef = '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)'.
         \ mkd_syntax.rxWeblink0

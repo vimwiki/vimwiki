@@ -99,6 +99,7 @@ endif
 
 " Weblink
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink1'), 'VimwikiWeblink1')
+call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxImage'), 'VimwikiImage')
 
 
 " WikiLink
@@ -157,6 +158,12 @@ execute 'syn match VimwikiWeblink1Char "'.
             \ vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
 execute 'syn match VimwikiWeblink1Char "'.
             \ vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
+"image
+execute 'syn match VimwikiImageChar "!"'.s:options
+execute 'syn match VimwikiImageChar "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
+execute 'syn match VimwikiImageChar "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
 
 if exists("+conceallevel")
   syntax conceal off
@@ -186,6 +193,8 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
 
 
 " syntax group highlighting
+hi def link VimwikiImage VimwikiLink
+hi def link VimwikiImageT VimwikiLink
 hi def link VimwikiWeblink1 VimwikiLink
 hi def link VimwikiWeblink1T VimwikiLink
 

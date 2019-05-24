@@ -1150,9 +1150,6 @@ Inline link: >
 Image link: >
   ![Looks like this](URL)
 
-The URL can be anything recognized by Vimwiki as a raw URL.
-
-
 Reference-style links: >
   a) [Link Name][Id]
   b) [Id][], using the "implicit link name" shortcut
@@ -3520,6 +3517,7 @@ Removed:~
       point.
 
 Fixed:~
+    * Properly handle markdown image links `![]()`
     * Issue #415: Expand iabbrev entries on <CR>.
     * Issue #619: allow escaped characters in markdown links.
     * Issue #240: Fix regex pattern for markdown '[]()' links
