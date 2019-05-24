@@ -271,9 +271,9 @@ endif
 
 
 execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contains=VimwikiEqInChar'
+      \ '/ contains=VimwikiEqInChar,@NoSpell'
 execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contained contains=VimwikiEqInCharT'
+      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
 
 execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contains=VimwikiBoldChar,@Spell'
@@ -311,7 +311,7 @@ execute 'syntax match VimwikiSubScriptT /'.vimwiki#vars#get_syntaxlocal('rxSubSc
       \ '/ contained contains=VimwikiSubScriptCharT,@Spell'
 
 execute 'syntax match VimwikiCode /'.vimwiki#vars#get_syntaxlocal('rxCode').
-      \ '/ contains=VimwikiCodeChar'
+      \ '/ contains=VimwikiCodeChar,@NoSpell'
 execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
       \ '/ contained contains=VimwikiCodeCharT'
 
@@ -321,10 +321,10 @@ execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
 let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
 execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
-      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@Spell'.concealpre
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@NoSpell'.concealpre
 
 execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
-      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@Spell'
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
 
 " placeholders
