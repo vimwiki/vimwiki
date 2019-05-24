@@ -3517,6 +3517,7 @@ Removed:~
       point.
 
 Fixed:~
+    * Modify horizontal rule (thematic-breaks) syntax for markdown.
     * Disable spell check in code and math inline/blocks.
     * Properly handle markdown image links `![]()`
     * Issue #415: Expand iabbrev entries on <CR>.

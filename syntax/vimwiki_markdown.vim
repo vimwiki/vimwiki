@@ -67,7 +67,7 @@ let s:markdown_syntax.symH = 0
 
 
 " <hr>, horizontal rule
-let s:markdown_syntax.rxHR = '^-----*$'
+let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'
 
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let s:markdown_syntax.rxTableSep = '|'
