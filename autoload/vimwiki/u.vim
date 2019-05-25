@@ -76,24 +76,20 @@ endif
 " a:1 optional argument with the following functionality:
 "   if a:1==1 then the hasmapto(<Plug>) check is skipped.
 "     this can be used to map different keys to the same <Plug> definition
-"   if a:1==2 then the mapping is not <buffer> specific
-" This function maps a key sequence to a <Plug> command using the arguments
-" described above. If there is already a mapping to the <Plug> command or
-" the assigned keys are already mapped then nothing is done.
+"   if a:1==2 then the mapping is not <buffer> specific i.e. it is global
 function vimwiki#u#map_key(mode, key, plug, ...)
   if a:0 && a:1 == 2
-    let l:bo = ''
-  else
-    let l:bo = '<buffer> '
-  endif
-
-  if a:0 && a:1 == 1
-    if maparg(a:key, a:mode) ==# ''
-      exe a:mode . 'map ' . l:bo . a:key . ' ' . a:plug
-    endif
-  else
+    " global mappings
     if !hasmapto(a:plug) && maparg(a:key, a:mode) ==# ''
-      exe a:mode . 'map ' . l:bo . a:key . ' ' . a:plug
+      exe a:mode . 'map ' . a:key . ' ' . a:plug
+    endif
+  elseif a:0 && a:1 == 1
+      " vimwiki buffer mappings, repeat mapping to the same <Plug> definition
+      exe a:mode . 'map <buffer> ' . a:key . ' ' . a:plug
+  else
+    " vimwiki buffer mappings
+    if !hasmapto(a:plug)
+      exe a:mode . 'map <buffer> ' . a:key . ' ' . a:plug
     endif
   endif
 endfunction

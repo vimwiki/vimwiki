@@ -487,20 +487,20 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
 
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
-    if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>') && maparg('gl'.s:char, 'n') ==# ''
+    if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
       exe 'noremap <silent><buffer> gl'.s:char.' :VimwikiChangeSymbolTo '.s:char.'<CR>'
     endif
-    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:char.'<CR>') && maparg('gL'.s:char, 'n') ==# ''
+    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:char.'<CR>')
       exe 'noremap <silent><buffer> gL'.s:char.' :VimwikiChangeSymbolInListTo '.s:char.'<CR>'
     endif
   endfor
 
   " change symbol for numbered lists
   for s:typ in vimwiki#vars#get_syntaxlocal('number_types')
-    if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>') && maparg('gl'.s:typ, 'n') ==# ''
+    if !hasmapto(':VimwikiChangeSymbolTo '.s:typ.'<CR>')
       exe 'noremap <silent><buffer> gl'.s:typ[0].' :VimwikiChangeSymbolTo '.s:typ.'<CR>'
     endif
-    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:typ.'<CR>') && maparg('gL'.s:typ, 'n') ==# ''
+    if !hasmapto(':VimwikiChangeSymbolInListTo '.s:typ.'<CR>')
       exe 'noremap <silent><buffer> gL'.s:typ[0].' :VimwikiChangeSymbolInListTo '.s:typ.'<CR>'
     endif
   endfor
@@ -510,16 +510,12 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
     " Valid only if langmap is a comma separated pairs of chars
     let s:l_o = matchstr(&langmap, '\C,\zs.\zeo,')
     if s:l_o
-      if maparg(s:l_o, 'n') ==# ''
-        exe 'nnoremap <silent><buffer> '.s:l_o.' :call vimwiki#lst#kbd_o()<CR>a'
-      endif
+      exe 'nnoremap <silent><buffer> '.s:l_o.' :call vimwiki#lst#kbd_o()<CR>a'
     endif
 
     let s:l_O = matchstr(&langmap, '\C,\zs.\zeO,')
     if s:l_O
-      if maparg(s:l_O, 'n') ==# ''
-        exe 'nnoremap <silent><buffer> '.s:l_O.' :call vimwiki#lst#kbd_O()<CR>a'
-      endif
+      exe 'nnoremap <silent><buffer> '.s:l_O.' :call vimwiki#lst#kbd_O()<CR>a'
     endif
   endif
 endif
@@ -538,12 +534,8 @@ endfunction
 
 " insert mode table mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
-  if maparg('<Tab>', 'i') ==# ''
-    inoremap <expr><buffer> <Tab> vimwiki#tbl#kbd_tab()
-  endif
-  if maparg('<S-Tab>', 'i') ==# ''
-    inoremap <expr><buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
-  endif
+  inoremap <expr><buffer> <Tab> vimwiki#tbl#kbd_tab()
+  inoremap <expr><buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
 endif
 
 " <Plug> table formatting definitions
