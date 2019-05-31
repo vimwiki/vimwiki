@@ -38,11 +38,12 @@ endfunction
 function! vimwiki#path#path_norm(path)
   " /-slashes
   if a:path !~# '^scp:'
-    let path = substitute(a:path, '\', '/', 'g')
+    " ensure that we are not fooled by a symbolic link
+    let path = resolve(a:path)
+    let path = substitute(path, '\', '/', 'g')
     " treat multiple consecutive slashes as one path separator
     let path = substitute(path, '/\+', '/', 'g')
-    " ensure that we are not fooled by a symbolic link
-    return resolve(path)
+    return path
   else
     return a:path
   endif
