@@ -3511,6 +3511,7 @@ New:~
     * PR #47: Optimize table formatting for large tables.
 
 Removed:~
+    * PR #698: Remove awa check triggering silent file edits.
     * Options g:vimwiki_use_mouse and g:vimwiki_table_mappings. These are
       still present in the code for backwards compatibility but have been
       removed from the documentation and will be fully removed at a later
