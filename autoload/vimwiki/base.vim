@@ -386,7 +386,7 @@ function! vimwiki#base#generate_links(create)
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
     for link in links
       let link_infos = vimwiki#base#resolve_link(link)
-      if !s:is_diary_file(link_infos.filename)
+      if !vimwiki#base#is_diary_file(link_infos.filename)
         if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
           let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
         else
@@ -2080,7 +2080,7 @@ function! s:clean_url(url)
 endfunction
 
 
-function! s:is_diary_file(filename)
+function! vimwiki#base#is_diary_file(filename)
   let file_path = vimwiki#path#path_norm(a:filename)
   let rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
   let diary_path = vimwiki#path#path_norm(vimwiki#vars#get_wikilocal('path') . rel_path)
@@ -2107,32 +2107,41 @@ function! vimwiki#base#normalize_imagelink_helper(str, rxUrl, rxDesc, rxStyle, t
   return lnk
 endfunction
 
-
-function! s:normalize_link_in_diary(lnk)
+function! vimwiki#base#normalize_link_in_diary(lnk)
+  let sc = vimwiki#vars#get_wikilocal('links_space_char')
   let link = a:lnk . vimwiki#vars#get_wikilocal('ext')
-  let link_wiki = vimwiki#vars#get_wikilocal('path') . '/' . link
-  let link_diary = vimwiki#vars#get_wikilocal('path') . '/'
-        \ . vimwiki#vars#get_wikilocal('diary_rel_path') . '/' . link
+  let link_wiki = substitute(vimwiki#vars#get_wikilocal('path') . '/' . link, '\s', sc, 'g')
+  let link_diary = substitute(vimwiki#vars#get_wikilocal('path') . '/'
+        \ . vimwiki#vars#get_wikilocal('diary_rel_path') . '/' . link, '\s', sc, 'g')
   let link_exists_in_diary = filereadable(link_diary)
   let link_exists_in_wiki = filereadable(link_wiki)
   let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
 
-  if link_exists_in_diary || link_is_date
+  if link_is_date
+    let str = a:lnk
+    let rxUrl = vimwiki#vars#get_global('rxWord')
+    let rxDesc = '\d\d\d\d-\d\d-\d\d'
+    let template = vimwiki#vars#get_global('WikiLinkTemplate1')
+  elseif link_exists_in_diary
     let str = a:lnk
     let rxUrl = vimwiki#vars#get_global('rxWord')
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   elseif link_exists_in_wiki
     let depth = len(split(vimwiki#vars#get_wikilocal('diary_rel_path'), '/'))
-    let str = repeat('../', depth) . a:lnk . '|' . a:lnk
-    let rxUrl = '^.*\ze|'
-    let rxDesc = '|\zs.*$'
+    let str = repeat('../', depth) . a:lnk
+    let rxUrl = '.*'
+    let rxDesc = '[^/]*$'
     let template = vimwiki#vars#get_global('WikiLinkTemplate2')
   else
     let str = a:lnk
     let rxUrl = '.*'
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
+  endif
+
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
+    let template = vimwiki#vars#get_syntaxlocal('Weblink1Template')
   endif
 
   return vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template)
@@ -2173,8 +2182,8 @@ function! s:normalize_link_syntax_n()
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
-    if s:is_diary_file(expand("%:p"))
-      let sub = s:normalize_link_in_diary(lnk)
+    if vimwiki#base#is_diary_file(expand("%:p"))
+      let sub = vimwiki#base#normalize_link_in_diary(lnk)
     else
       let sub = s:safesubstitute(
             \ vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', lnk, '')
@@ -2197,8 +2206,8 @@ function! s:normalize_link_syntax_v()
     normal! gv""y
 
     " Set substitution
-    if s:is_diary_file(expand("%:p"))
-      let sub = s:normalize_link_in_diary(@")
+    if vimwiki#base#is_diary_file(expand("%:p"))
+      let sub = vimwiki#base#normalize_link_in_diary(@")
     else
       let sub = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
             \ '__LinkUrl__', @", '')

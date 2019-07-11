@@ -97,9 +97,13 @@ function! s:normalize_link_syntax_n()
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
-    let sub = vimwiki#base#normalize_link_helper(lnk,
-          \ vimwiki#vars#get_global('rxWord'), '',
-          \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+    if vimwiki#base#is_diary_file(expand("%:p"))
+      let sub = vimwiki#base#normalize_link_in_diary(lnk)
+    else
+      let sub = vimwiki#base#normalize_link_helper(lnk,
+            \ vimwiki#vars#get_global('rxWord'), '',
+            \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+    endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
@@ -118,8 +122,13 @@ function! s:normalize_link_syntax_v()
   try
     norm! gvy
     let visual_selection = @"
-    let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
-          \ '__LinkUrl__', visual_selection, '')
+
+    if vimwiki#base#is_diary_file(expand('%:p'))
+      let link = vimwiki#base#normalize_link_in_diary(visual_selection)
+    else
+      let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
+            \ '__LinkUrl__', visual_selection, '')
+    endif
 
     " replace spaces with new character if option is set
     let link = substitute(link, '\s', vimwiki#vars#get_wikilocal('links_space_char'), 'g')
