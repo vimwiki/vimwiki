@@ -2065,18 +2065,18 @@ function! s:clean_url(url)
   let url = substitute(a:url, '^\a\+\d*:', '', '')
   let url = substitute(url, '^//', '', '')
   let url = substitute(url, '^\([^/]\+\)\.\a\{2,4}/', '\1/', '')
-  let url = split(url, '/\|=\|-\|&\|?\|\.')
-  let url = filter(url, 'v:val !=# ""')
-  if url[0] == "www"
-    let url = url[1:]
+  let url_l = split(url, '/\|=\|-\|&\|?\|\.')
+  let url_l = filter(url_l, 'v:val !=# ""')
+  if url_l[0] == "www"
+    let url_l = url_l[1:]
   endif
-  if url[-1] =~ '^\(htm\|html\|php\)$'
-    let url = url[0:-2]
+  if url_l[-1] =~ '^\(htm\|html\|php\)$'
+    let url_l = url_l[0:-2]
   endif
   " remove words consisting of only hexadecimal digits or non-word characters
-  let url = filter(url, 'v:val !~  "^\\A\\{4,}$"')
-  let url = filter(url, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
-  return join(url, " ")
+  let url_l = filter(url_l, 'v:val !~  "^\\A\\{4,}$"')
+  let url_l = filter(url_l, 'v:val !~  "^\\x\\{4,}$" || v:val !~ "\\d"')
+  return join(url_l, " ")
 endfunction
 
 

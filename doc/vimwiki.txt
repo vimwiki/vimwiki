@@ -3518,6 +3518,8 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #715: s:clean_url is compatible with vim pre 7.4.1546 (sticky type
+      checking)
     * Issue #729: Normalize links uses relative paths in diary pages for
       Markdown syntax. This previously only worked for the default syntax.
     * Modify horizontal rule (thematic-breaks) syntax for markdown.
