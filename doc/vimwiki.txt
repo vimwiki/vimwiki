@@ -3518,6 +3518,8 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #729: Normalize links uses relative paths in diary pages for
+      Markdown syntax. This previously only worked for the default syntax.
     * Modify horizontal rule (thematic-breaks) syntax for markdown.
     * Disable spell check in code and math inline/blocks.
     * Properly handle markdown image links `![]()`
