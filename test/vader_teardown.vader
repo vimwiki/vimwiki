@@ -1,0 +1,3 @@
+Execute (Cleanup):
+  delfunction SetSyntax
+  unlet g:wiki_nr

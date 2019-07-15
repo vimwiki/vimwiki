@@ -1,0 +1,26 @@
+Execute (Setup):
+  " assumes 3 registered wikis in vimrc
+  let g:wiki_nr = 3
+
+Before (Define functions):
+  " change the syntax using a temporary wiki
+  function! SetSyntax(vw_syn)
+    if a:vw_syn ==# 'default'
+      let ext = 'wiki'
+    elseif a:vw_syn ==# 'markdown'
+      let ext = 'md'
+    elseif a:vw_syn ==# 'mediawiki'
+      let ext = 'mw'
+    else
+      Log 'Inavlid syntax ' . a:vw_syn . ' in SetSyntax()'
+      return
+    endif
+    let path = expand('%:p:h')
+    let new_temp_wiki_settings = {'path': path,
+          \ 'ext': ext,
+          \ 'syntax': a:vw_syn,
+          \ }
+    call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
+    call vimwiki#vars#set_bufferlocal('wiki_nr', g:wiki_nr)
+    let g:wiki_nr += 1
+  endfunction
