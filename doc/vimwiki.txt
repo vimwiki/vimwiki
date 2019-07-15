@@ -57,39 +57,52 @@ CONTENTS                                                             *vimwiki*
 ==============================================================================
 1. Intro                                                       *vimwiki-intro*
 
-Vimwiki is a personal wiki for Vim -- a number of linked text files that have
-their own syntax highlighting.
+Vimwiki makes it very easy for you create a personal wiki using the Vim text
+editor. A wiki is a collection of text documents linked together and formatted
+with wiki or markdown syntax that can be highlighted for readability using
+Vim's syntax highlighting feature.
 
 With Vimwiki you can:
     - organize notes and ideas
     - manage todo-lists
     - write documentation
     - maintain a diary
-    - export everything to HTML
+    - export your documents to HTML
 
-To do a quick start press <Leader>ww (this is usually \ww) to go to your index
-wiki file.  By default it is located in ~/vimwiki/index.wiki
+Getting started with Vimwiki is easy. Once intalled, simply type `vim` into
+your terminal to launch Vim and then type <Leader>ww (the <Leader> key is `\`
+by default) to create or open the index wiki file, the "top" page in your
+hierarchical collection of wiki pages. By default, this page will be located
+at ~/vimwiki/index.wiki.
 
-Feed it with the following example:
+Now add the following example lines to the document:
 
 = My knowledge base =
     * Tasks -- things to be done _yesterday_!!!
     * Project Gutenberg -- good books are power.
     * Scratchpad -- various temporary stuff.
 
-Place your cursor on 'Tasks' and press Enter to create a link.  Once pressed,
-'Tasks' will become '[[Tasks]]' -- a Vimwiki link.  Press Enter again to
-open it.  Edit the file, save it, and then press Backspace to jump back to
-your index.
+Next, move your cursor to the word 'Tasks' and press `Enter`. This will create
+a Vimwiki link by surrounding 'Tasks' with double square brackets:
+'[[Tasks]]'. Pressing `Enter` a second time will generate a new blank buffer
+in Vim where you can input your tasks. After you add some tasks and save the
+new file, you can hit `Backspace` to jump back to the index document.
 
-A Vimwiki link can be constructed from more than one word.  Just visually
-select the words to be linked and press Enter.  Try it with 'Project
-Gutenberg'.  The result should look something like:
+A Vimwiki link can contain multiple words by entering Vim's "visual" mode (the
+"v" key, by default) and selecting the words to be linked. Once selected,
+press `Enter`.
+
+Try this now by selecting 'Project Gutenberg' in visual mode and hitting
+`Enter`. The sample text should now look something like this:
 
 = My knowledge base =
     * [[Tasks]] -- things to be done _yesterday_!!!
     * [[Project Gutenberg]] -- good books are power.
     * Scratchpad -- various temporary stuff.
+
+By continuing this way and creating sub pages with links to even more sub
+pages, you can create an unlimited number of neatly structured, interconnected
+documents to help you organize your notes, documenation, and tasks.
 
 ==============================================================================
 2. Prerequisites                                       *vimwiki-prerequisites*
@@ -1499,11 +1512,15 @@ Tags-related commands and options:
 ==============================================================================
 6. Folding/Outline                                           *vimwiki-folding*
 
-Vimwiki can fold or outline sections using headers and preformatted blocks.
-Alternatively, one can fold list subitems instead. Folding is not enabled
-by default, and requires the |g:vimwiki_folding| variable to be set.
+Vimwiki allows you to use Vim's folding methods and options so you can fold
+your outline to make it less distracting and easier to navigate. You can use
+Vimwiki's built-in folding methods or supply custom methods for folding.  You
+control how folds behave with by setting the |g:vimwiki_folding| variable to
+the desired value in your configuration file: >
 
-Example for list folding with |g:vimwiki_folding| set to 'list':
+  let g:vimwiki_folding = 'value'
+
+Here's an example of how folds work with |g:vimwiki_folding| set to 'list':
 
 = My current task =
 * [ ] Do stuff 1
@@ -1545,8 +1562,34 @@ Note: If you use the default Vimwiki syntax, folding on list items will work
 properly only if all of them are indented using the current 'shiftwidth'.
 For Markdown and MediaWiki syntax, * or # should be in the first column.
 
-To turn folding on/off check |g:vimwiki_folding|.
+For maximum control over folds, set |g:vimwiki_folding| to 'custom' so you can
+allow other plugins or your vim configuration file to control how folding is
+performed. For example, let's say you are using markdown syntax and prefer to
+fold so that the last blank line before a header is not folded, you can add
+this function to your configuration file: >
 
+  function! VimwikiFoldLevelCustom(lnum)
+    let pounds = strlen(matchstr(getline(a:lnum), '^#\+'))
+    if (pounds)
+      return '>' . pounds  " start a fold level
+    endif
+    if getline(a:lnum) =~? '\v^\s*$'
+      if (strlen(matchstr(getline(a:lnum + 1), '^#\+')))
+        return '-1' " don't fold last blank line before header
+      endif
+    endif
+    return '=' " return previous fold level
+  endfunction
+
+Note that you will also need to add the following vim options to your configuration: >
+
+  augroup VimrcAuGroup
+    autocmd!
+    autocmd FileType vimwiki setlocal foldmethod=expr |
+      \ setlocal foldenable | set foldexpr=VimwikiFoldLevelCustom(v:lnum)
+  augroup END
+
+See the |g:vimwiki_folding| documentation for more details.
 
 ==============================================================================
 7. Placeholders                                         *vimwiki-placeholders*
@@ -2697,8 +2740,8 @@ Value           Description~
 'expr'          Folding based on expression (folds sections and code blocks)
 'syntax'        Folding based on syntax (folds sections; slower than 'expr')
 'list'          Folding based on expression (folds list subitems; much slower)
-'custom'        Leave the folding settings as they are (e.g. set by another
-                plugin)
+'custom'        Allow folding options to be set by another plugin or a vim
+                configuration file
 
 Default: ''
 
