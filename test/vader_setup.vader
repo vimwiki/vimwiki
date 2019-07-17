@@ -9,10 +9,11 @@ Before (Define functions):
       let ext = 'wiki'
     elseif a:vw_syn ==# 'markdown'
       let ext = 'md'
-    elseif a:vw_syn ==# 'mediawiki'
+    elseif a:vw_syn ==# 'media'
       let ext = 'mw'
     else
-      Log 'Inavlid syntax ' . a:vw_syn . ' in SetSyntax()'
+      Log 'ERROR: Invalid syntax "' . a:vw_syn . '" in SetSyntax()'
+      Log 'NOTE: function only accepts "media" for setting mediawiki syntax'
       return
     endif
     let path = expand('%:p:h')
@@ -23,4 +24,17 @@ Before (Define functions):
     call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
     call vimwiki#vars#set_bufferlocal('wiki_nr', g:wiki_nr)
     let g:wiki_nr += 1
+
+    " verify syntax was set correctly
+    Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 'ERROR: Vimwiki syntax not set correctly.'
+  endfunction
+
+  " reload plugin to change settings
+  function! ReloadVimwiki()
+    " clear mappings so plugin can be reloaded
+    " this is needed if running manually multiple times
+    nmapclear
+  
+    unlet g:loaded_vimwiki
+    source plugin/vimwiki.vim
   endfunction

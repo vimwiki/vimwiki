@@ -1,13 +1,8 @@
-Before (Setup):
+Include: vader_setup.vader
+
+Execute (Set fold method):
   let g:vimwiki_folding = 'expr:quick'
-
-  " clear mappings so plugin can be reloaded
-  " this is needed if running manually multiple times
-  nmapclear
-
-  " reload the plugin to set the fold method
-  unlet g:loaded_vimwiki
-  source plugin/vimwiki.vim
+  call ReloadVimwiki()
 
 Execute (Expect < 0.5 second delay: Issue #580):
   " prep
@@ -29,3 +24,9 @@ Execute (Expect < 0.5 second delay: Issue #580):
   " verify
   Log 'Elapsed time = ' . string(end)
   Assert end < 0.5, 'Took longer than expected: ' . string(end) . ' seconds'
+
+Execute (Reset variables):
+  let g:vimwiki_folding = ''
+  call ReloadVimwiki()
+
+Include: vader_teardown.vader
