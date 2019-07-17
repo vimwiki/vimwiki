@@ -1167,7 +1167,7 @@ function! s:change_level(from_line, to_line, direction, plus_children)
   if from_item.type == 0
     if a:direction ==# 'increase' && a:from_line == a:to_line && empty(getline(a:from_line))
       "that's because :> doesn't work on an empty line
-      normal! gi
+      exe 'normal!' "gi\<C-T>"
     else
       execute a:from_line.','.a:to_line.(a:direction ==# 'increase' ? '>' : '<')
     endif
@@ -1467,7 +1467,7 @@ function! vimwiki#lst#kbd_o()
   let cur_item = s:get_item(lnum)
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
-  normal! ox
+  exe 'normal!' "ox\<C-H>"
   if cur_item.lnum < s:get_last_line_of_item(cur_item)
     call s:indent_multiline(cur_item, cur_item.lnum+1)
   else
@@ -1478,7 +1478,7 @@ endfunction
 
 
 function! vimwiki#lst#kbd_O()
-  normal! Ox
+  exe 'normal!' "Ox\<C-H>"
   let cur_ln = line('.')
   if getline(cur_ln+1) !~# '^\s*$'
     call s:clone_marker_from_to(cur_ln+1, cur_ln)
@@ -1492,7 +1492,7 @@ endfunction
 function! s:cr_on_empty_list_item(lnum, behavior)
   if a:behavior == 1
     "just make a new list item
-    normal! gi
+    exe 'normal!' "gi\<CR>\<ESC>"
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     startinsert!
     return
@@ -1519,7 +1519,7 @@ function! s:cr_on_empty_list_item(lnum, behavior)
     let neighbor_item = s:get_a_neighbor_item(item)
     let child_item = s:get_first_child(item)
     let parent_item = (item.cb != '') ? s:get_parent(item) : s:empty_item()
-    normal! "_cc
+    exe 'normal!' "_cc\<CR>"
     call s:adjust_numbered_list(neighbor_item, 0, 0)
     call s:adjust_numbered_list(child_item, 0, 0)
     call s:update_state(parent_item)
@@ -1549,7 +1549,7 @@ endfunction
 function! s:cr_on_empty_line(lnum, behavior)
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
-  normal! gix
+  exe 'normal!' "gi\<CR>x\<C-H>\<ESC>"
   if a:behavior == 2 || a:behavior == 3
     call s:create_marker(a:lnum+1)
   endif
@@ -1559,7 +1559,7 @@ endfunction
 function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol)
   if a:insert_new_marker
     "the ultimate feature of this script: make new marker on <CR>
-    normal! gi
+    exe 'normal!' "gi\<CR>\<ESC>"
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
     if !a:not_at_eol && getline(a:lnum) =~# ':$'
@@ -1568,7 +1568,7 @@ function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol)
   else
     " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
     "indent this line so that it becomes the continuation of the line above
-    normal! gi
+    exe 'normal!' "gi\<CR>\<ESC>"
     let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
     call s:indent_multiline(prev_line, a:lnum+1)
   endif

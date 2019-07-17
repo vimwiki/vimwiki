@@ -698,7 +698,7 @@ function! vimwiki#tbl#format(lnum, ...)
   if &expandtab
     let indentstring = repeat(' ', indent)
   else
-    let indentstring = repeat('	', indent / &tabstop) . repeat(' ', indent % &tabstop)
+    execute "let indentstring = repeat('\<TAB>', indent / &tabstop) . repeat(' ', indent % &tabstop)"
   endif
 
   " getting N = depth last rows is enough for having been formatted tables
