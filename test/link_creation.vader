@@ -1,4 +1,4 @@
-Include: vader_setup.vader
+Include: vader_includes/vader_setup.vader
 
 Given vimwiki (Text that is not a wikilink):
   test
@@ -122,4 +122,4 @@ Expect (Mediawiki links):
   [[file.md]]
   [[file.mw]]
 
-Include: vader_teardown.vader
+Include: vader_includes/vader_teardown.vader

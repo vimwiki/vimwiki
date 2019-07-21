@@ -1,4 +1,4 @@
-Include: vader_setup.vader
+Include: vader_includes/vader_setup.vader
 
 Execute (Set fold method):
   let g:vimwiki_folding = 'expr:quick'
@@ -19,7 +19,6 @@ Execute (Expect < 0.5 second delay: Issue #580):
 
   " cleanup
   bdelete test/resources/delay.wiki
-  tabclose
 
   " verify
   Log 'Elapsed time = ' . string(end)
@@ -29,4 +28,4 @@ Execute (Reset variables):
   let g:vimwiki_folding = ''
   call ReloadVimwiki()
 
-Include: vader_teardown.vader
+Include: vader_includes/vader_teardown.vader
