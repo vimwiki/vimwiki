@@ -888,7 +888,8 @@ endfunction
 function! vimwiki#vars#get_bufferlocal(key, ...)
   let buffer = a:0 ? a:1 : '%'
 
-  let value = getbufvar(buffer, 'vimwiki_'.a:key, '/\/\')
+  " 'get(getbufvar(...' handles vim < v7.3.831 that didn't allow a default value for getbufvar
+  let value = get(getbufvar(buffer, ''), 'vimwiki_'.a:key, '/\/\')
   if type(value) != 1 || value !=# '/\/\'
     return value
   elseif a:key ==# 'wiki_nr'
