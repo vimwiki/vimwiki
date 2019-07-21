@@ -521,7 +521,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
 endif
 
 function! s:CR(normal, just_mrkr)
-  if vimwiki#vars#get_global('table_mappings')
+  if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
     let res = vimwiki#tbl#kbd_cr()
     if res != ""
       exe "normal! " . res . "\<Right>"
