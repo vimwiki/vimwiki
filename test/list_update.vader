@@ -1,0 +1,191 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (Sample nested list, vimwiki syntax):
+  * [ ] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    {{{code
+    * [ ] print "hello, world"
+    }}}
+
+    {{{morecode
+    print "hello again"
+    }}}
+
+    * [ ] Post code
+      * [ ] Sub-child
+
+      * [ ] Sub-sub-child
+
+Execute (Set syntax to default):
+  call SetSyntax('default')
+
+Do (Toggle top-level):
+  \<C-Space>
+
+Expect (All tree toggled):
+  * [X] Top Level
+    * [X] Child 1
+    * [X] Child 2
+
+    * [X] Post space
+
+    {{{code
+    * [ ] print "hello, world"
+    }}}
+
+    {{{morecode
+    print "hello again"
+    }}}
+
+    * [X] Post code
+      * [X] Sub-child
+
+      * [X] Sub-sub-child
+
+Do (Toggle child):
+  j
+  \<C-Space>
+
+Expect (Child toggled, top updated):
+  * [.] Top Level
+    * [X] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    {{{code
+    * [ ] print "hello, world"
+    }}}
+
+    {{{morecode
+    print "hello again"
+    }}}
+
+    * [ ] Post code
+      * [ ] Sub-child
+
+      * [ ] Sub-sub-child
+
+Do (Toggle sub-child):
+  G
+  \<C-Space>
+
+Expect (Sub-child toggled, parents updated):
+  * [.] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    {{{code
+    * [ ] print "hello, world"
+    }}}
+
+    {{{morecode
+    print "hello again"
+    }}}
+
+    * [o] Post code
+      * [ ] Sub-child
+
+      * [X] Sub-sub-child
+
+Given markdown (Sample nested list, markdown syntax):
+  * [ ] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    ```code
+    * [ ] print "hello, world"
+    ```
+
+    ```morecode
+    print "hello again"
+    ```
+
+    * [ ] Post code
+      * [ ] Sub-child
+
+      * [ ] Sub-sub-child
+
+Execute (Set syntax to markdown):
+  call SetSyntax('markdown')
+
+Do (Toggle top-level):
+  \<C-Space>
+
+Expect (All tree toggled):
+  * [X] Top Level
+    * [X] Child 1
+    * [X] Child 2
+
+    * [X] Post space
+
+    ```code
+    * [ ] print "hello, world"
+    ```
+
+    ```morecode
+    print "hello again"
+    ```
+
+    * [X] Post code
+      * [X] Sub-child
+
+      * [X] Sub-sub-child
+
+Do (Toggle child):
+  j
+  \<C-Space>
+
+Expect (Child toggled, top updated):
+  * [.] Top Level
+    * [X] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    ```code
+    * [ ] print "hello, world"
+    ```
+
+    ```morecode
+    print "hello again"
+    ```
+
+    * [ ] Post code
+      * [ ] Sub-child
+
+      * [ ] Sub-sub-child
+
+Do (Toggle sub-child):
+  G
+  \<C-Space>
+
+Expect (Sub-child toggled, parents updated):
+  * [.] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+
+    * [ ] Post space
+
+    ```code
+    * [ ] print "hello, world"
+    ```
+
+    ```morecode
+    print "hello again"
+    ```
+
+    * [o] Post code
+      * [ ] Sub-child
+
+      * [X] Sub-sub-child
+
+Include: vader_includes/vader_teardown.vader
