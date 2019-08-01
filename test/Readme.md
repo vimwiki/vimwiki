@@ -18,7 +18,7 @@ Vimwiki functionality. It is based on the following tools:
 
 ## Building Docker Image
 
-To build the Docker image run `docker build -t vimwiki` from the Vimwiki
+To build the Docker image run `docker build -t vimwiki .` from the Vimwiki
 repository root (same location as the Dockerfile).
 
 ## Running Tests
