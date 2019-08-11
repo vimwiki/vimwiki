@@ -1465,13 +1465,14 @@ function! vimwiki#lst#kbd_o()
   let fold_end = foldclosedend('.')
   let lnum = (fold_end == -1) ? line('.') : fold_end
   let cur_item = s:get_item(lnum)
+  let parent = s:get_corresponding_item(lnum)
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
   exe 'normal!' "ox\<C-H>"
-  if cur_item.lnum < s:get_last_line_of_item(cur_item)
-    call s:indent_multiline(cur_item, cur_item.lnum+1)
+  if parent.type != 0
+    call s:clone_marker_from_to(parent.lnum, cur_item.lnum+1)
   else
-    call s:clone_marker_from_to(cur_item.lnum, cur_item.lnum+1)
+    call s:indent_multiline(cur_item, cur_item.lnum+1)
   endif
   startinsert!
 endfunction
@@ -1547,11 +1548,19 @@ endfunction
 
 
 function! s:cr_on_empty_line(lnum, behavior)
+  let lst = s:get_corresponding_item(a:lnum)
+
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
   exe 'normal!' "gi\<CR>x\<C-H>\<ESC>"
+
   if a:behavior == 2 || a:behavior == 3
-    call s:create_marker(a:lnum+1)
+    if lst.type == 0
+      " don't insert new bullet if not part of a list
+      return
+    else
+      call s:create_marker(a:lnum+1)
+    endif
   endif
 endfunction
 
