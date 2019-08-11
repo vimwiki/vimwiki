@@ -438,16 +438,6 @@ nnoremap <silent><buffer> <Plug>VimwikiListo
     \ :<C-U>call vimwiki#lst#kbd_o()<CR>
 nnoremap <silent><buffer> <Plug>VimwikiListO
     \ :<C-U>call vimwiki#lst#kbd_O()<CR>
-if has('patch-7.3.489')
-  " expand iabbrev on enter
-  inoremap <silent><buffer> <Plug>VimwikiReturn15
-      \ <C-]><Esc>:VimwikiReturn 1 5<CR>
-else
-  inoremap <silent><buffer> <Plug>VimwikiReturn15
-    \ <Esc>:VimwikiReturn 1 5<CR>
-endif
-inoremap <silent><buffer> <Plug>VimwikiReturn22
-    \ <Esc>:VimwikiReturn 2 2<CR>
 
 " default lists key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)
@@ -482,8 +472,19 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'gL', '<Plug>VimwikiRemoveCBInList')
   call vimwiki#u#map_key('n', 'o', '<Plug>VimwikiListo')
   call vimwiki#u#map_key('n', 'O', '<Plug>VimwikiListO')
-  call vimwiki#u#map_key('i', '<CR>', '<Plug>VimwikiReturn15')
-  call vimwiki#u#map_key('i', '<S-CR>', '<Plug>VimwikiReturn22')
+
+  " handle case of existing VimwikiReturn mappings outside the <Plug> definition
+  if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
+    if has('patch-7.3.489')
+      " expand iabbrev on enter
+      inoremap <silent><buffer> <CR> <C-]><Esc>:VimwikiReturn 1 5<CR>
+    else
+      inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+    endif
+  endif
+  if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
+    inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+  endif
 
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
@@ -521,13 +522,11 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
 endif
 
 function! s:CR(normal, just_mrkr)
-  if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
-    let res = vimwiki#tbl#kbd_cr()
-    if res != ""
-      exe "normal! " . res . "\<Right>"
-      startinsert
-      return
-    endif
+  let res = vimwiki#tbl#kbd_cr()
+  if res != ""
+    exe "normal! " . res . "\<Right>"
+    startinsert
+    return
   endif
   call vimwiki#lst#kbd_cr(a:normal, a:just_mrkr)
 endfunction

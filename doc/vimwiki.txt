@@ -620,7 +620,6 @@ LIST MAPPINGS, INSERT MODE                             *vimwiki-list-mappings*
                         useful to end a list, simply press <CR> twice.
                         See |vimwiki-lists| for details and for how to
                         configure the behavior.
-                        Remap command: `<Plug>VimwikiReturn15`
 
                                                             *vimwiki_i_<S-CR>*
 <S-CR>                  Does not insert a new list item, useful to create
@@ -628,7 +627,6 @@ LIST MAPPINGS, INSERT MODE                             *vimwiki-list-mappings*
                         details and for how to configure the behavior. The
                         default map may not work in all terminals and may
                         need to be remapped.
-                        Remap command: `<Plug>VimwikiReturn22`
 
                                                              *vimwiki_i_<C-T>*
 <C-T>                   Increase the level of a list item.
@@ -1619,20 +1617,26 @@ used.
 
 While writing lists, the keys <CR>, o and O insert new bullets or numbers as
 you would expect it. A new bullet/number is inserted if and only if the cursor
-is in a list item. To make a list item with more than one line, press <S-CR>
-or press <CR> and <C-L><C-M>.
+is in a list item. If you use hard line wraps within your lists then you will
+need to remap `<CR>` to `VimwikiReturn 3 5`, use <S-CR>, or press <CR> and
+<C-L><C-M>.
+
 Note that the mapping <S-CR> is not available in all terminals.
 
 Furthermore, <CR> and <S-CR> behave differently when the cursor is behind an
 empty list item. See the table below.
 
-To remap the default behavior: >
-  :imap <Leader>e <Plug>VimwikiReturn15
-  :imap <Leader>r <Plug>VimwikiReturn22
+To customize the behavior you should use an autocmd or place the mappings in
+`~/.vim/after/ftplugin/vimwiki.vim`. This is necessary to avoid an error that
+the command `VimwikiReturn` doesn't exist when editing non Vimwiki files.: >
 
-To customize the behavior: >
-  inoremap <CR> <Esc>:VimwikiReturn 1 1<CR>
-  inoremap <S-CR> <Esc>:VimwikiReturn 3 5<CR>
+  autocmd FileType vimwiki inoremap <silent><buffer> <CR>
+              \ <C-]><Esc>:VimwikiReturn 3 5<CR>
+  autocmd FileType vimwiki inoremap <silent><buffer> <S-CR>
+              \ <Esc>:VimwikiReturn 2 2<CR>
+
+Note: Prefixing the mapping with `<C-]>` expands iabbrev definitions and
+requires Vim > 7.3.489.
 
 The first argument of the command :VimwikiReturn is a number that specifies
 when to insert a new bullet/number and when not, depending on whether the
