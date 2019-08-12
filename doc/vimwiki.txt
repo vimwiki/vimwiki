@@ -3456,6 +3456,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Steve Dondley (@sdondley)
     - Alexander Gude (@agude)
     - Jonny Bylsma (@jbylsma)
+    - Shaedil (@Shaedil)
 
 
 ==============================================================================
