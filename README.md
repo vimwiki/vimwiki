@@ -27,7 +27,7 @@
 VimWiki is a personal wiki for Vim -- a number of linked text files that have
 their own syntax highlighting.
 
-With VimWiki you can:
+With VimWiki, you can:
 
  * Organize notes and ideas
  * Manage to-do lists
@@ -35,8 +35,9 @@ With VimWiki you can:
  * Maintain a diary
  * Export everything to HTML
 
-To do a quick start press `<Leader>ww` (this is usually `\ww`) to go to your
-index wiki file. By default it is located in `~/vimwiki/index.wiki`.
+To do a quick start, press `<Leader>ww` (this is usually `\ww`) to go to your
+index wiki file. By default, it is located in `~/vimwiki/index.wiki`. See 
+`:h vimwiki_list` for registering a different path/wiki.
 
 Feed it with the following example:
 
@@ -55,7 +56,7 @@ open it. Edit the file, save it, and then press Backspace to jump back to your
 index.
 
 A VimWiki link can be constructed from more than one word. Just visually
-select the words to be linked and press Enter. Try it with `Project Gutenberg`.
+select the words to be linked and press Enter. Try it, with `Project Gutenberg`.
 The result should look something like:
 
 ```
@@ -89,7 +90,7 @@ syntax on
 
 ```
 
-Without them VimWiki will not work properly.
+Without them, VimWiki will not work properly.
 
 
 #### Installation using [Vim packages](http://vimhelp.appspot.com/repeat.txt.html#packages) (since Vim 7.4.1528)
@@ -100,7 +101,7 @@ git clone https://github.com/vimwiki/vimwiki.git ~/.vim/pack/plugins/start/vimwi
 
 ```
 
-#### Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=2332)
+#### Installation using [Pathogen](https://github.com/tpope/vim-pathogen)
 
 ```sh
 
@@ -125,7 +126,7 @@ Then run `:PlugInstall`.
 
 #### Installation using [Vundle](https://github.com/VundleVim/Vundle.vim)
 
-Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run
+Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run:
 
 ```sh
 
@@ -133,7 +134,7 @@ vim +PluginInstall +qall
 
 ```
 
-Or download the [zip
+Or, download the [zip
 archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it
 in `~/.vim/bundle/`
 
@@ -191,12 +192,12 @@ bindings if you encounter a problem.
  * `<Leader>ws` -- Select and open wiki index file.
  * `<Leader>wd` -- Delete wiki file you are in.
  * `<Leader>wr` -- Rename wiki file you are in.
- * `<Enter>` -- Follow/Create wiki link
- * `<Shift-Enter>` -- Split and follow/create wiki link
- * `<Ctrl-Enter>` -- Vertical split and follow/create wiki link
- * `<Backspace>` -- Go back to parent(previous) wiki link
- * `<Tab>` -- Find next wiki link
- * `<Shift-Tab>` -- Find previous wiki link
+ * `<Enter>` -- Follow/Create wiki link.
+ * `<Shift-Enter>` -- Split and follow/create wiki link.
+ * `<Ctrl-Enter>` -- Vertical split and follow/create wiki link.
+ * `<Backspace>` -- Go back to parent(previous) wiki link.
+ * `<Tab>` -- Find next wiki link.
+ * `<Shift-Tab>` -- Find previous wiki link.
 
 #### Advanced key bindings
 
@@ -205,15 +206,15 @@ more bindings.
 
 ## Commands
 
- * `:Vimwiki2HTML` -- Convert current wiki link to HTML
- * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML
- * `:help vimwiki-commands` -- list all commands
- * `:help vimwiki` -- General vimwiki help docs
+ * `:Vimwiki2HTML` -- Convert current wiki link to HTML.
+ * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML.
+ * `:help vimwiki-commands` -- List all commands.
+ * `:help vimwiki` -- General vimwiki help docs.
 
 ## Changing Wiki Syntax
 
 VimWiki currently ships with 3 syntaxes: VimWiki (default), Markdown
-(markdown), and MediaWiki (media)
+(markdown), and MediaWiki (media).
 
 If you would prefer to use either Markdown or MediaWiki syntaxes, set the
 following option in your .vimrc:
