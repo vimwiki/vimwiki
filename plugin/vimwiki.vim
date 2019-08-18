@@ -308,33 +308,34 @@ endif
 augroup vimwiki
   autocmd!
   autocmd ColorScheme * call s:setup_cleared_syntax()
-  for s:ext in s:known_extensions
-    exe 'autocmd BufNewFile,BufRead *'.s:ext.' call s:setup_new_wiki_buffer()'
-    exe 'autocmd BufEnter *'.s:ext.' call s:setup_buffer_enter()'
-    exe 'autocmd BufLeave *'.s:ext.' call s:setup_buffer_leave()'
-    exe 'autocmd BufWinEnter *'.s:ext.' call s:setup_buffer_win_enter()'
-    if exists('##DiffUpdated')
-      exe 'autocmd DiffUpdated *'.s:ext.' call s:setup_buffer_win_enter()'
-    endif
-    " automatically generate a level 1 header for new files
-    exe 'autocmd BufNewFile *'.s:ext.' call s:create_h1(expand("%:p"))'
-    " Format tables when exit from insert mode. Do not use textwidth to
-    " autowrap tables.
-    if vimwiki#vars#get_global('table_auto_fmt')
-      exe 'autocmd InsertLeave *'.s:ext.' call vimwiki#tbl#format(line("."), 2)'
-      exe 'autocmd InsertEnter *'.s:ext.' call vimwiki#tbl#reset_tw(line("."))'
-    endif
-    if vimwiki#vars#get_global('folding') =~? ':quick$'
-      " from http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
-      " Don't screw up folds when inserting text that might affect them, until
-      " leaving insert mode. Foldmethod is local to the window. Protect against
-      " screwing up folding when switching between windows.
-      exe 'autocmd InsertEnter *'.s:ext.' if !exists("w:last_fdm") | let w:last_fdm=&foldmethod'.
-            \ ' | setlocal foldmethod=manual | endif'
-      exe 'autocmd InsertLeave,WinLeave *'.s:ext.' if exists("w:last_fdm") |'.
-            \ 'let &l:foldmethod=w:last_fdm | unlet w:last_fdm | endif'
-    endif
-  endfor
+
+  " ['.md', '.mdown'] => *.md,*.mdown
+  let pat = join(map(s:known_extensions, '"*" . v:val'), ',')
+  exe 'autocmd BufNewFile,BufRead '.pat.' call s:setup_new_wiki_buffer()'
+  exe 'autocmd BufEnter '.pat.' call s:setup_buffer_enter()'
+  exe 'autocmd BufLeave '.pat.' call s:setup_buffer_leave()'
+  exe 'autocmd BufWinEnter '.pat.' call s:setup_buffer_win_enter()'
+  if exists('##DiffUpdated')
+    exe 'autocmd DiffUpdated '.pat.' call s:setup_buffer_win_enter()'
+  endif
+  " automatically generate a level 1 header for new files
+  exe 'autocmd BufNewFile '.pat.' call s:create_h1(expand("%:p"))'
+  " Format tables when exit from insert mode. Do not use textwidth to
+  " autowrap tables.
+  if vimwiki#vars#get_global('table_auto_fmt')
+    exe 'autocmd InsertLeave '.pat.' call vimwiki#tbl#format(line("."), 2)'
+    exe 'autocmd InsertEnter '.pat.' call vimwiki#tbl#reset_tw(line("."))'
+  endif
+  if vimwiki#vars#get_global('folding') =~? ':quick$'
+    " from http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
+    " Don't screw up folds when inserting text that might affect them, until
+    " leaving insert mode. Foldmethod is local to the window. Protect against
+    " screwing up folding when switching between windows.
+    exe 'autocmd InsertEnter '.pat.' if !exists("w:last_fdm") | let w:last_fdm=&foldmethod'.
+          \ ' | setlocal foldmethod=manual | endif'
+    exe 'autocmd InsertLeave,WinLeave '.pat.' if exists("w:last_fdm") |'.
+          \ 'let &l:foldmethod=w:last_fdm | unlet w:last_fdm | endif'
+  endif
 augroup END
 
 
