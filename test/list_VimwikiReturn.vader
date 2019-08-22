@@ -1,0 +1,205 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (List with hard wraps):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+  - Item 5
+
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 5<CR>
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+
+Do (Extend list):
+  4j
+  A\<CR>Another item\<Esc>
+  5j
+  A\<CR>New sub item\<Esc>
+
+Expect (Extended list):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Another item
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+    - New sub item
+  - Item 5
+
+Given vimwiki (List from help file):
+  1. item
+  ---
+  
+  1. item    
+     continue
+  
+  ---
+  1. 
+  
+  ---
+    1. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 1<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 1 1):
+  1. item
+  2. 
+  ---
+  
+  1. item    
+     continue
+     
+  
+  ---
+  1. 
+  2. 
+  
+  ---
+    1. 
+    2. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 2 2<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 2 2):
+  1. item
+     
+  ---
+  
+  1. item    
+     continue
+  2. 
+  
+  ---
+  
+  1. 
+  
+  ---
+  
+    1. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 3<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 3 3):
+  1. item
+  2. 
+  ---
+  
+  1. item    
+     continue
+  2. 
+  
+  ---
+  
+  
+  ---
+
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 4 4<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 4 4):
+  1. item
+     
+  ---
+  
+  1. item    
+     continue
+     
+  
+  ---
+  
+  
+  
+  ---
+  
+  
+  
+  ---
+
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 5<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 3 5):
+  1. item
+  2. 
+  ---
+  
+  1. item    
+     continue
+  2. 
+  
+  ---
+  
+  
+  ---
+  1. 
+
+  ---
+Include: vader_includes/vader_teardown.vader
