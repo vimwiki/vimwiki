@@ -1,4 +1,3 @@
-Execute (Cleanup):
+After (Cleanup):
   delfunction SetSyntax
   delfunction ReloadVimwiki
-  unlet g:wiki_nr

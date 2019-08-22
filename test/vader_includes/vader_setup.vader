@@ -1,7 +1,3 @@
-Execute (Setup):
-  " assumes 3 registered wikis in vimrc
-  let g:wiki_nr = 3
-
 Before (Define functions):
   " change the syntax using a temporary wiki
   function! SetSyntax(vw_syn)
@@ -21,9 +17,21 @@ Before (Define functions):
           \ 'ext': ext,
           \ 'syntax': a:vw_syn,
           \ }
+
+    " Remove any temporary wikis each time this function is called.
+    " This is necessary to ensure syntax is properly set when running multiple tests
+    " NOTE: this assumes there are 3 defined wikis in the vimrc. The last wiki
+    " contains default settings for temporary wikis (so there are always
+    " num wikis in vimrc + 1)
+    let num_wikis = len(g:vimwiki_wikilocal_vars)
+    while  num_wikis > 4
+      call remove(g:vimwiki_wikilocal_vars, num_wikis - 1)
+      let num_wikis = num_wikis - 1
+    endwhile
+
+    " add the new wiki
     call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
-    call vimwiki#vars#set_bufferlocal('wiki_nr', g:wiki_nr)
-    let g:wiki_nr += 1
+    call vimwiki#vars#set_bufferlocal('wiki_nr', 3)
 
     " verify syntax was set correctly
     Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 'ERROR: Vimwiki syntax not set correctly.'
@@ -34,7 +42,7 @@ Before (Define functions):
     " clear mappings so plugin can be reloaded
     " this is needed if running manually multiple times
     nmapclear
-  
+
     unlet g:loaded_vimwiki
     source plugin/vimwiki.vim
   endfunction
