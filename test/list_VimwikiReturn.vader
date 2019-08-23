@@ -41,6 +41,74 @@ Expect (Extended list):
     - New sub item
   - Item 5
 
+Given vimwiki (List with code block):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+      ```
+      int x = 2 + 2;
+      return 0;
+      ```
+  - Item 5
+    ```c
+    int x = 2 + 2;
+    return 0;
+    ```
+  - Item 6 that is split
+    Across multiple lines.
+    Done.
+
+Do (CR and CR in code block):
+  4j
+  A\<CR>Another item\<Esc>
+  6j
+  A\<CR>int y = 1;\<Esc>
+  1j
+  A\<CR>x = x + y;\<Esc>
+  4j
+  A\<CR>int y = 2;\<Esc>
+  3j
+  A\<CR>A new bullet doesn't get added here, oh well.\<Esc>
+  3j
+  A\<CR>Done and Done\<Esc>
+
+Expect (No list continuation in code block):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Another item
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+      ```
+      int y = 1;
+      int x = 2 + 2;
+      x = x + y;
+      return 0;
+      ```
+  - Item 5
+    ```c
+    int y = 2;
+    int x = 2 + 2;
+    return 0;
+    ```
+    A new bullet doesn't get added here, oh well.
+  - Item 6 that is split
+    Across multiple lines.
+    Done.
+  - Done and Done
+
 Given vimwiki (List from help file):
   1. item
   ---

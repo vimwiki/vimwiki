@@ -1546,6 +1546,14 @@ function! s:cr_on_empty_list_item(lnum, behavior)
   endif
 endfunction
 
+function! s:is_codeblock(lnum)
+  let syn_g = synIDattr(synID(a:lnum,1,1),'name')
+  if  syn_g =~# 'textSnip*' || syn_g =~# 'VimwikiPre*'
+    return 1
+  else
+    return 0
+  endif
+endfunction
 
 function! s:cr_on_empty_line(lnum, behavior)
   let lst = s:get_corresponding_item(a:lnum)
@@ -1555,7 +1563,7 @@ function! s:cr_on_empty_line(lnum, behavior)
   exe 'normal!' "gi\<CR>x\<C-H>\<ESC>"
 
   if a:behavior == 2 || a:behavior == 3
-    if lst.type == 0
+    if lst.type == 0 || s:is_codeblock(a:lnum)
       " don't insert new bullet if not part of a list
       return
     else
