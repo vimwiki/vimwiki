@@ -374,9 +374,9 @@ command! VimwikiShowVersion call s:get_version()
 
 " <Plug> global definitions
 nnoremap <silent><script> <Plug>VimwikiIndex
-    \ :<C-U>call vimwiki#base#goto_index(v:count1)<CR>
+    \ :<C-U>call vimwiki#base#goto_index(v:count)<CR>
 nnoremap <silent><script> <Plug>VimwikiTabIndex
-    \ :<C-U>call vimwiki#base#goto_index(v:count1, 1)<CR>
+    \ :<C-U>call vimwiki#base#goto_index(v:count, 1)<CR>
 nnoremap <silent><script> <Plug>VimwikiUISelect
     \ :VimwikiUISelect<CR>
 nnoremap <silent><script> <Plug>VimwikiDiaryIndex

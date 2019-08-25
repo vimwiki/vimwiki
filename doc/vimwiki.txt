@@ -153,8 +153,9 @@ course.
 [count]<Leader>ww
         Open index file of the [count]'s wiki.
 
-        <Leader>ww opens the first wiki from |g:vimwiki_list|.
-        1<Leader>ww as above, opens the first wiki from |g:vimwiki_list|.
+        <Leader>ww opens the first wiki from |g:vimwiki_list| if no wiki is
+        open. Otherwise the index of the currently active wiki is opened.
+        1<Leader>ww opens the first wiki from |g:vimwiki_list|.
         2<Leader>ww opens the second wiki from |g:vimwiki_list|.
         3<Leader>ww opens the third wiki from |g:vimwiki_list|.
         etc.
