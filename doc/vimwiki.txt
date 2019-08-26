@@ -3462,6 +3462,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Alexander Gude (@agude)
     - Jonny Bylsma (@jbylsma)
     - Shaedil (@Shaedil)
+    - Robin Lowe (@defau1t)
 
 
 ==============================================================================
@@ -3477,6 +3478,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #744: Fix typo in vimwiki_list_manipulation
     * PR #711: Allow forcing VimwikiAll2HTML with !
     * PR #702: Make remapping documentation more accessible to newer vim users
     * PR #673: Add :VimwikiGoto key mapping.
