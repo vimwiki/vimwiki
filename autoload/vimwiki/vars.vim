@@ -905,8 +905,8 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
   elseif a:key ==# 'existing_wikidirs'
     call setbufvar(buffer, 'vimwiki_existing_wikidirs',
         \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr')))
-  elseif a:key ==# 'prev_link'
-    call setbufvar(buffer, 'vimwiki_prev_link', [])
+  elseif a:key ==# 'prev_links'
+    call setbufvar(buffer, 'vimwiki_prev_links', [])
   elseif a:key ==# 'markdown_refs'
     call setbufvar(buffer, 'vimwiki_markdown_refs', vimwiki#markdown_base#scan_reflinks())
   else
