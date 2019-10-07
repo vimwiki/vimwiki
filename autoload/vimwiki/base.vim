@@ -169,9 +169,6 @@ function! vimwiki#base#resolve_link(link_text, ...)
 
   " check if absolute or relative path
   if is_wiki_link && link_text[0] == '/'
-    if link_text != '/'
-      let link_text = link_text[1:]
-    endif
     let is_relative = 0
   elseif !is_wiki_link && vimwiki#path#is_absolute(link_text)
     let is_relative = 0
@@ -214,11 +211,15 @@ function! vimwiki#base#resolve_link(link_text, ...)
       endif
     endif
 
-    if !is_relative || link_infos.index != source_wiki
+    if link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
     endif
 
-    let link_infos.filename = root_dir . link_text
+    if is_relative
+      let link_infos.filename = root_dir . link_text
+    else
+      let link_infos.filename = link_text
+    endif
 
     if vimwiki#path#is_link_to_dir(link_text)
       if vimwiki#vars#get_global('dir_link') != ''
