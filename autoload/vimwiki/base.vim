@@ -104,6 +104,12 @@ function! vimwiki#base#find_wiki(path)
 endfunction
 
 
+" helper: check if a link a well formed wiki link
+function! s:is_wiki_link(link_infos)
+  return a:link_infos.scheme =~# '\mwiki\d\+' || a:link_infos.scheme ==# 'diary'
+endfunction
+
+
 " THE central function of Vimwiki. Extract infos about the target from a link.
 " If the second parameter is present, which should be an absolute file path, it
 " is assumed that the link appears in that file. Without it, the current file
@@ -147,7 +153,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
     let link_text = matchstr(link_text, '^'.vimwiki#vars#get_global('rxSchemes').':\zs.*\ze')
   endif
 
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme ==# 'diary'
+  let is_wiki_link = s:is_wiki_link(link_infos)
 
   " extract anchor
   if is_wiki_link
@@ -328,7 +334,7 @@ function! vimwiki#base#open_link(cmd, link, ...)
     return
   endif
 
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme =~# 'diary'
+  let is_wiki_link = s:is_wiki_link(link_infos)
 
   let update_prev_link = is_wiki_link &&
         \ !vimwiki#path#is_equal(link_infos.filename, vimwiki#path#current_wiki_file())
