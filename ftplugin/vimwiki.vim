@@ -258,11 +258,8 @@ command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links(1)
 command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 
-exe 'command! -buffer -nargs=* VimwikiSearch lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
-
-exe 'command! -buffer -nargs=* VWS lvimgrep <args> '.
-      \ escape(vimwiki#vars#get_wikilocal('path').'**/*'.vimwiki#vars#get_wikilocal('ext'), ' ')
+command! -buffer -nargs=* VimwikiSearch call vimwiki#base#search(<q-args>)
+command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 
 command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
