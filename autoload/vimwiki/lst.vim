@@ -419,10 +419,12 @@ function! s:get_next_line(lnum, ...)
     while cur_ln <= line('$') && getline(cur_ln) !~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
       let cur_ln += 1
     endwhile
-    let next_line = cur_ln
+    let next_line = cur_ln + 1
   else
-    let next_line = nextnonblank(a:lnum+1)
+    let next_line = a:lnum + 1
   endif
+
+  let next_line = nextnonblank(next_line)
 
   if a:0 > 0 && getline(next_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')
     let next_line = s:get_next_line(next_line, 1)
@@ -440,18 +442,18 @@ endfunction
 "Returns: lnum-1 in most cases, but skips blank lines and preformatted text
 "0 in case of nonvalid line and a header, because a header ends every list
 function! s:get_prev_line(lnum)
-  let prev_line = prevnonblank(a:lnum-1)
+  let cur_ln = a:lnum - 1
 
-  if getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
-    let cur_ln = a:lnum - 1
+  if getline(cur_ln) =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     while 1
       if cur_ln == 0 || getline(cur_ln) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
         break
       endif
       let cur_ln -= 1
     endwhile
-    let prev_line = cur_ln
   endif
+
+  let prev_line = prevnonblank(cur_ln)
 
   if prev_line < 0 || prev_line > line('$') ||
         \ getline(prev_line) =~# vimwiki#vars#get_syntaxlocal('rxHeader')

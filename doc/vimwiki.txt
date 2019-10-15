@@ -3479,6 +3479,8 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #735: Make list-toggling work properly even when code blocks are
+      embedded within the list in Markdown mode.
     * PR #711: Allow forcing VimwikiAll2HTML with !
     * PR #702: Make remapping documentation more accessible to newer vim users
     * PR #673: Add :VimwikiGoto key mapping.
