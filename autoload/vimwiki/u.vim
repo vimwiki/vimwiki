@@ -93,3 +93,13 @@ function vimwiki#u#map_key(mode, key, plug, ...)
     endif
   endif
 endfunction
+
+
+function! vimwiki#u#is_codeblock(lnum)
+  let syn_g = synIDattr(synID(a:lnum,1,1),'name')
+  if  syn_g =~# 'textSnip.*' || syn_g =~# 'VimwikiPre.*' || syn_g =~# '.*Comment'
+    return 1
+  else
+    return 0
+  endif
+endfunction
