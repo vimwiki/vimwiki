@@ -143,7 +143,7 @@ function! VimwikiFoldLevel(lnum)
   let line = getline(a:lnum)
 
   " Header/section folding...
-  if line =~# vimwiki#vars#get_syntaxlocal('rxHeader')
+  if line =~# vimwiki#vars#get_syntaxlocal('rxHeader') && !vimwiki#u#is_codeblock(a:lnum)
     return '>'.vimwiki#u#count_first_sym(line)
   " Code block folding...
   elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')

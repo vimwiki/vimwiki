@@ -3546,6 +3546,8 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #212: Don't treat comment characters within code blocks as
+      headers.
     * PR #744: Fix typo in vimwiki_list_manipulation
     * Issue #715: s:clean_url is compatible with vim pre 7.4.1546 (sticky type
       checking)
