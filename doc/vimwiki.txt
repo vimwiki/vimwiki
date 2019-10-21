@@ -839,8 +839,8 @@ Vimwiki file.
     To display previous match use |:lprevious| command.
 
     Hint: this feature is simply a wrapper around |:lvimgrep|. For a
-    description of how the pattern can look like, see |:vimgrep|. For example,
-    to do a case insensitive search, use >
+    complete description of the search pattern format, see |:vimgrep|.
+    For example, to perform a case insensitive search, use >
     :VWS /\cpattern/
 
 *:VimwikiBacklinks*
@@ -3464,6 +3464,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Shaedil (@Shaedil)
     - Robin Lowe (@defau1t)
     - Abhinav Gupta (@abhinav)
+    - Dave Gauer (@ratfactor)
 
 
 ==============================================================================
@@ -3548,6 +3549,7 @@ Removed:~
 Fixed:~
     * Issue #212: Don't treat comment characters within code blocks as
       headers.
+    * Issue #420: Add error handling to VimwikiSearch
     * PR #744: Fix typo in vimwiki_list_manipulation
     * Issue #715: s:clean_url is compatible with vim pre 7.4.1546 (sticky type
       checking)
