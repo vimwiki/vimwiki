@@ -1068,12 +1068,18 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort
   " let b:skip_set_iskeyword = 1
   let is_keyword = &iskeyword
 
-  try
-    " keep going even if syntax file is not found
+  " Check for the existence of syntax files in the runtime path before
+  " attempting to include them.
+  " https://vi.stackexchange.com/a/10354
+  " Previously, this used a try/catch block to intercept any errors thrown
+  " when attempting to include files. The error(s) interferred with running
+  " with Vader tests (specifically, testing VimwikiSearch).
+  if !empty(globpath(&rtp, 'syntax/'.a:filetype.'.vim'))
     execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
+  endif
+  if !empty(globpath(&rtp, 'after/syntax/'.a:filetype.'.vim'))
     execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
-  catch
-  endtry
+  endif
 
   let &iskeyword = is_keyword
 
@@ -2276,6 +2282,35 @@ function! vimwiki#base#read_caption(file)
   endif
 
   return ''
+endfunction
+
+
+" For commands VimwikiSearch and VWS
+function vimwiki#base#search(search_pattern)
+  if empty(a:search_pattern)
+    echomsg 'Vimwiki Error: No search pattern given.'
+    return
+  endif
+
+  let pattern = a:search_pattern
+
+  " If the pattern does not start with a '/', then we'll assume that a
+  " literal search is intended and enclose and escape it:
+  if match(pattern, '^/') == -1
+    let pattern = '/'.escape(pattern, '\').'/'
+  endif
+
+  let path = fnameescape(vimwiki#vars#get_wikilocal('path'))
+  let ext  = vimwiki#vars#get_wikilocal('ext')
+  let cmd  = "lvimgrep ".pattern." ".path.'**/*'.ext
+
+  " Catch E480 error from lvimgrep if there's no match and present
+  " a friendlier error message.
+  try
+    execute cmd
+  catch
+    echomsg "VimwikiSearch: No match found."
+  endtry
 endfunction
 
 
