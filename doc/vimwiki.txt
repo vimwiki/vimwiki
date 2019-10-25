@@ -1412,9 +1412,10 @@ template folder. For instance, a sensible folder structure could be:
 In this case, <mathjax_folder> would be "../mathjax" (without quotes).
 
 2. Loading MathJax from a CDN-server (needs internet connection).
-Add to your HTML template the following line:
+Add to your HTML template the following lines:
 
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/config/TeX-AMS-MML_HTMLorMML.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 
 ------------------------------------------------------------------------------
