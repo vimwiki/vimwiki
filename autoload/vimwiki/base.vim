@@ -104,6 +104,12 @@ function! vimwiki#base#find_wiki(path)
 endfunction
 
 
+" helper: check if a link a well formed wiki link
+function! s:is_wiki_link(link_infos)
+  return a:link_infos.scheme =~# '\mwiki\d\+' || a:link_infos.scheme ==# 'diary'
+endfunction
+
+
 " THE central function of Vimwiki. Extract infos about the target from a link.
 " If the second parameter is present, which should be an absolute file path, it
 " is assumed that the link appears in that file. Without it, the current file
@@ -147,7 +153,7 @@ function! vimwiki#base#resolve_link(link_text, ...)
     let link_text = matchstr(link_text, '^'.vimwiki#vars#get_global('rxSchemes').':\zs.*\ze')
   endif
 
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme ==# 'diary'
+  let is_wiki_link = s:is_wiki_link(link_infos)
 
   " extract anchor
   if is_wiki_link
@@ -328,14 +334,11 @@ function! vimwiki#base#open_link(cmd, link, ...)
     return
   endif
 
-  let is_wiki_link = link_infos.scheme =~# '\mwiki\d\+' || link_infos.scheme =~# 'diary'
-
-  let update_prev_link = is_wiki_link &&
-        \ !vimwiki#path#is_equal(link_infos.filename, vimwiki#path#current_wiki_file())
+  let is_wiki_link = s:is_wiki_link(link_infos)
 
   let vimwiki_prev_link = []
   " update previous link for wiki pages
-  if update_prev_link
+  if is_wiki_link
     if a:0
       let vimwiki_prev_link = [a:1, []]
     elseif &ft ==# 'vimwiki'
@@ -346,7 +349,7 @@ function! vimwiki#base#open_link(cmd, link, ...)
   " open/edit
   if is_wiki_link
     call vimwiki#base#edit_file(a:cmd, link_infos.filename, link_infos.anchor,
-          \ vimwiki_prev_link, update_prev_link)
+          \ vimwiki_prev_link, is_wiki_link)
   else
     call vimwiki#base#system_open_link(link_infos.filename)
   endif
@@ -855,7 +858,9 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...)
   " a:1 -- previous vimwiki link to save
   " a:2 -- should we update previous link
   if a:0 && a:2 && len(a:1) > 0
-    call vimwiki#vars#set_bufferlocal('prev_link', a:1)
+    let prev_links = vimwiki#vars#get_bufferlocal('prev_links')
+    call insert(prev_links, a:1)
+    call vimwiki#vars#set_bufferlocal('prev_links', prev_links)
   endif
 endfunction
 
@@ -1034,7 +1039,7 @@ function! s:get_wiki_buffers()
       " this may find buffers that are not part of the current wiki, but that
       " doesn't hurt
       if bname =~# vimwiki#vars#get_wikilocal('ext')."$"
-        let bitem = [bname, vimwiki#vars#get_bufferlocal('prev_link', bcount)]
+        let bitem = [bname, vimwiki#vars#get_bufferlocal('prev_links', bcount)]
         call add(blist, bitem)
       endif
     endif
@@ -1047,7 +1052,7 @@ endfunction
 function! s:open_wiki_buffer(item)
   call vimwiki#base#edit_file(':e', a:item[0], '')
   if !empty(a:item[1])
-    call vimwiki#vars#set_bufferlocal('prev_link', a:item[1], a:item[0])
+    call vimwiki#vars#set_bufferlocal('prev_links', a:item[1], a:item[0])
   endif
 endfunction
 
@@ -1347,7 +1352,15 @@ endfunction
 
 
 function! vimwiki#base#go_back_link()
-  let prev_link = vimwiki#vars#get_bufferlocal('prev_link')
+  " try pop previous link from buffer list
+  let prev_links = vimwiki#vars#get_bufferlocal('prev_links')
+  if !empty(prev_links)
+    let prev_link = remove(prev_links, 0)
+    call vimwiki#vars#set_bufferlocal('prev_links', prev_links)
+  else
+    let prev_link = []
+  endif
+
   if !empty(prev_link)
     " go back to saved wiki link
     call vimwiki#base#edit_file(':e ', prev_link[0], '')
@@ -1479,7 +1492,7 @@ function! vimwiki#base#rename_link()
 
   let &buftype="nofile"
 
-  let cur_buffer = [expand('%:p'), vimwiki#vars#get_bufferlocal('prev_link')]
+  let cur_buffer = [expand('%:p'), vimwiki#vars#get_bufferlocal('prev_links')]
 
   let blist = s:get_wiki_buffers()
 
