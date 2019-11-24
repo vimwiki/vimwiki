@@ -1223,6 +1223,42 @@ function! s:parse_line(line, state)
 
   let processed = 0
 
+  if !processed
+    " allows insertion of plain text to the final html conversion
+    " for example:
+    " %plainhtml <div class="mycustomdiv">
+    " inserts that line to the final html file (without %plainhtml prefix)
+    let trigger = '%plainhtml'
+    if line =~# '^\s*' . trigger
+      let lines = []
+      let processed = 1
+
+      " if something precedes the plain text line,
+      " make sure everything gets closed properly
+      " before inserting plain text. this ensures that
+      " the plain text is not considered as
+      " part of the preceding structure
+      if processed && len(state.table)
+        let state.table = s:close_tag_table(state.table, lines, state.header_ids)
+      endif
+      if processed && state.deflist
+        let state.deflist = s:close_tag_def_list(state.deflist, lines)
+      endif
+      if processed && state.quote
+        let state.quote = s:close_tag_quote(state.quote, lines)
+      endif
+      if processed && state.para
+        let state.para = s:close_tag_para(state.para, lines)
+      endif
+
+      " remove the trigger prefix
+      let pp = split(line, trigger)[0]
+
+      call add(lines, pp)
+      call extend(res_lines, lines)
+    endif
+  endif
+
   " pres
   if !processed
     let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
