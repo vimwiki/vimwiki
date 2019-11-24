@@ -3487,6 +3487,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Dave Gauer (@ratfactor)
     - Martin Tourneboeuf (@tinmarino)
     - Mauro Morales (@mauromorales)
+    - Valtteri Vallius (@kaphula)
 
 
 ==============================================================================
