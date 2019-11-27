@@ -15,7 +15,7 @@ RUN git clone https://github.com/junegunn/vader.vim vader
 # Notable versions:
 #   v7.4.1546 sticky type checking removed (allow a variables type to change)
 #   v7.3.831 getbufvar added a default value
-#   v8.0 async jobs and timers
+#   v8.0 async jobs, timers, closure
 RUN install_vim -tag v7.3.429 -name vim_7.3.429 -build \
                 -tag v7.4.1099 -name vim_7.4.1099 -build \
                 -tag v7.4.1546 -name vim_7.4.1546 -build \
