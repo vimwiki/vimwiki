@@ -2657,13 +2657,18 @@ E.g.: >
                   \ '.mkd': 'markdown',
                   \ '.wiki': 'media'}
 
-An extension that is registered with Vimwiki can trigger creation of a
-|vimwiki-temporary-wiki| with the associated syntax.  File extensions used in
-|g:vimwiki_list| are automatically registered with Vimwiki using the default
-syntax.
+An extension that is registered with Vimwiki can trigger creation of
+a |vimwiki-temporary-wiki|. File extensions used in |g:vimwiki_list| are
+automatically registered with Vimwiki using the default syntax. Extensions
+mapped with this option will instead use the mapped syntax.
 
-Default: {}
+Default: >
+    {'.md': 'markdown', '.mkdn': 'markdown',
+    \  '.mdwn': 'markdown', '.mdown': 'markdown',
+    \  '.markdown': 'markdown', '.mw': 'media'}},
 
+Note: setting this option will overwrite the default values so include them if
+desired.
 
 ------------------------------------------------------------------------------
 *g:vimwiki_menu*

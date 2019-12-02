@@ -157,7 +157,8 @@ function! s:read_global_settings_from_user()
         \     10: 'October', 11: 'November', 12: 'December'
         \   }},
         \ 'dir_link': {'type': type(''), 'default': ''},
-        \ 'ext2syntax': {'type': type({}), 'default': {}},
+        \ 'ext2syntax': {'type': type({}), 'default': {'.md': 'markdown', '.mkdn': 'markdown',
+        \     '.mdwn': 'markdown', '.mdown': 'markdown', '.markdown': 'markdown', '.mw': 'media'}},
         \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',
         \     'list', 'custom', ':quick', 'expr:quick', 'syntax:quick', 'list:quick',
         \     'custom:quick']},
@@ -245,15 +246,18 @@ endfunction
 function! s:normalize_global_settings()
   let keys = keys(g:vimwiki_global_vars.ext2syntax)
   for ext in keys
+    " for convenience, we also allow the term 'mediawiki'
+    if g:vimwiki_global_vars.ext2syntax[ext] ==# 'mediawiki'
+      let g:vimwiki_global_vars.ext2syntax[ext] = 'media'
+    endif
+
     " ensure the file extensions in ext2syntax start with a dot
+    " make sure this occurs after anything else that tries to access
+    " the entry using the index 'ext' since this removes that index
     if ext[0] != '.'
       let new_ext = '.' . ext
       let g:vimwiki_global_vars.ext2syntax[new_ext] = g:vimwiki_global_vars.ext2syntax[ext]
       call remove(g:vimwiki_global_vars.ext2syntax, ext)
-    endif
-    " for convenience, we also allow the term 'mediawiki'
-    if g:vimwiki_global_vars.ext2syntax[ext] ==# 'mediawiki'
-      let g:vimwiki_global_vars.ext2syntax[ext] = 'media'
     endif
   endfor
 
