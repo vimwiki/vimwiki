@@ -380,7 +380,8 @@ endfunction
 
 function! vimwiki#base#generate_links(create)
 
-  function! Generator() closure
+  let GeneratorLinks = copy(l:)
+  function! GeneratorLinks.f()
     let lines = []
 
     let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
@@ -413,7 +414,7 @@ function! vimwiki#base#generate_links(create)
   let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
-        \ funcref('Generator'),
+        \ GeneratorLinks,
         \ vimwiki#vars#get_global('links_header'),
         \ links_rx,
         \ line('$')+1,
@@ -489,17 +490,15 @@ function! vimwiki#base#find_files(wiki_nr, directories_only)
   else
     let pattern = '**/*'.ext
   endif
-  let files = globpath(root_directory, pattern, 0, 1)
+  let files = split(globpath(root_directory, pattern))
+
   " filter excluded files before returning
-  function! ExcludeFiles(idx, val) closure
-    for pattern in vimwiki#vars#get_wikilocal('exclude_files')
-      if index(globpath(root_directory, pattern, 0, 1), a:val) != -1
-        return 0
-      endif
-    endfor
-    return 1
-  endfunction
-  return filter(files, funcref('ExcludeFiles'))
+  for pattern in vimwiki#vars#get_wikilocal('exclude_files')
+    let efiles = split(globpath(root_directory, pattern))
+    let files = filter(files, 'index(efiles, v:val) == -1')
+  endfor
+
+  return files
 endfunction
 
 
@@ -1209,7 +1208,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
       let lines_diff += 1
     endfor
   endif
-  for string in a:Generator()
+  for string in a:Generator.f()
     keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
     let lines_diff += 1
@@ -1999,15 +1998,18 @@ function! vimwiki#base#table_of_contents(create)
     endif
   endif
 
-  function! Generator() closure
+  " use a dictionary function for closure like capability
+  " copy all local variables into dict (add a: if arguments are needed)
+  let GeneratorTOC = copy(l:)
+  function! GeneratorTOC.f()
     let numbering = vimwiki#vars#get_global('html_header_numbering')
     let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
     let complete_header_infos = []
-    for header in headers
+    for header in self.headers
       let h_text = header[2]
       let h_level = header[1]
       " don't include the TOC's header itself
-      if h_text ==# toc_header_text
+      if h_text ==# self.toc_header_text
         continue
       endif
       let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
@@ -2050,7 +2052,7 @@ function! vimwiki#base#table_of_contents(create)
   let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
-        \ funcref('Generator'),
+        \ GeneratorTOC,
         \ toc_header_text,
         \ links_rx,
         \ 1,

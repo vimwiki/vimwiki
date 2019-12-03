@@ -312,7 +312,8 @@ endfunction
 
 function! vimwiki#diary#generate_diary_section()
 
-  function! Generator() closure
+  let GeneratorDiary = copy(l:)
+  function! GeneratorDiary.f()
     let lines = []
 
     let links_with_captions = s:read_captions(s:get_diary_files())
@@ -392,7 +393,7 @@ function! vimwiki#diary#generate_diary_section()
           \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
     call vimwiki#base#update_listing_in_buffer(
-          \ funcref('Generator'),
+          \ GeneratorDiary,
           \ vimwiki#vars#get_wikilocal('diary_header'),
           \ content_rx,
           \ 1,

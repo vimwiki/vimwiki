@@ -303,8 +303,11 @@ function! vimwiki#tags#generate_tags(create, ...) abort
   let specific_tags = a:000
   let header_level = vimwiki#vars#get_global('tags_header_level')
 
-  function! Generator() closure
-    let need_all_tags = empty(specific_tags)
+  " use a dictionary function for closure like capability
+  " copy all local variables into dict (add a: if arguments are needed)
+  let GeneratorTags = copy(l:)
+  function! GeneratorTags.f()
+    let need_all_tags = empty(self.specific_tags)
     let metadata = s:load_tags_metadata()
 
     " make a dictionary { tag_name: [tag_links, ...] }
@@ -317,17 +320,18 @@ function! vimwiki#tags#generate_tags(create, ...) abort
           let tags_entries[entry.tagname] = [entry.link]
         endif
       endfor
+      unlet entry " needed for older vims with sticky type checking since name is reused
     endfor
 
     let lines = []
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
     for tagname in sort(keys(tags_entries))
-      if need_all_tags || index(specific_tags, tagname) != -1
+      if need_all_tags || index(self.specific_tags, tagname) != -1
         if len(lines) > 0
           call add(lines, '')
         endif
 
-        let tag_tpl = printf('rxH%d_Template', header_level + 1)
+        let tag_tpl = printf('rxH%d_Template', self.header_level + 1)
         call add(lines, s:safesubstitute(vimwiki#vars#get_syntaxlocal(tag_tpl), '__Header__', tagname, ''))
 
         if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
@@ -363,7 +367,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
         \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
-        \ funcref('Generator'),
+        \ GeneratorTags,
         \ vimwiki#vars#get_global('tags_header'),
         \ links_rx,
         \ line('$')+1,
