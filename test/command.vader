@@ -4,11 +4,6 @@ Include: vader_includes/vader_setup.vader
 # 1 VimwikiTOC
 ##############
 
-Execute (Hi):
-  Log "VimwikiTOC and this test will not work for v version < 8.0 due to closure"
-  Log "    So I had to cheat to make the test work even for v:version < 799" 
-  Log "    Cheers"
-
 Execute (Reset TOC header to default):
   let g:vimwiki_global_vars['toc_header'] = "Contents"
 
