@@ -28,18 +28,7 @@ Execute (Set syntax markdown && Set sw=8):
   set sw=8
 
 Execute (VimwikiTOC):
-  if v:version > 799
-    VimwikiTOC
-  else
-    let prepend = "# Contents\n\n
-  \        - [Header 1](#Header 1)\n
-  \                - [Header 1.1](#Header 1#Header 1.1)\n
-  \                        - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)\n
-  \        - [Header 2](#Header 2)\n
-  \                        - [Header 2.1.1](#Header 2#Header 2.1.1)\n\n"
-  set noautoindent
-  execute "0normal I" . prepend
-  endif
+  VimwikiTOC
 
 Expect (With a TOC sw=8):
   # Contents
@@ -62,18 +51,7 @@ Expect (With a TOC sw=8):
 
 Execute (Set sw=4  && VimwikiTOC):
   set sw=4
-  if v:version > 799
-    VimwikiTOC
-  else
-    let prepend = "# Contents\n\n
-  \    - [Header 1](#Header 1)\n
-  \        - [Header 1.1](#Header 1#Header 1.1)\n
-  \            - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)\n
-  \    - [Header 2](#Header 2)\n
-  \            - [Header 2.1.1](#Header 2#Header 2.1.1)\n\n"
-  set noautoindent
-  execute "0normal I" . prepend
-  endif
+  VimwikiTOC
 
 Expect (With a TOC sw=4):
   # Contents
@@ -94,20 +72,38 @@ Expect (With a TOC sw=4):
   # Header 2
   ### Header 2.1.1
 
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC):
+  # Contents
+
+      - [Header 1](#Header 1)
+          - [Header 1.1](#Header 1#Header 1.1)
+              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+      - [Header 2](#Header 2)
+              - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+
 Execute (Let toc_header = Sommaire && VimwikiTOC):
   let g:vimwiki_global_vars['toc_header'] = "Sommaire"
-  if v:version > 799
-    VimwikiTOC
-  else
-    let prepend = "# Sommaire\n\n
-  \    - [Header 1](#Header 1)\n
-  \        - [Header 1.1](#Header 1#Header 1.1)\n
-  \            - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)\n
-  \    - [Header 2](#Header 2)\n
-  \            - [Header 2.1.1](#Header 2#Header 2.1.1)\n\n"
-  set noautoindent
-  execute "0normal I" . prepend
-  endif
+  VimwikiTOC
 
 Expect (Append a Sommaire and leave Contents alone):
   # Sommaire
@@ -128,6 +124,33 @@ Expect (Append a Sommaire and leave Contents alone):
   # Header 2
   ### Header 2.1.1
 
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC with sommaire):
+  # Sommaire
+
+      - [Header 1](#Header 1)
+          - [Header 1.1](#Header 1#Header 1.1)
+              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+      - [Header 2](#Header 2)
+              - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
 
 Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30 sw=2
