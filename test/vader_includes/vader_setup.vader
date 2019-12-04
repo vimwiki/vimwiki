@@ -46,3 +46,7 @@ Before (Define functions):
     unlet g:loaded_vimwiki
     source plugin/vimwiki.vim
   endfunction
+
+
+# Modeline: File Over
+# vim: ft=vim
