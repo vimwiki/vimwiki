@@ -362,7 +362,7 @@ function! vimwiki#base#get_globlinks_escaped() abort
   let orig_pwd = getcwd()
   lcd! %:h
   " all path are relative to the current file's location
-  let globlinks = glob('*'.vimwiki#vars#get_wikilocal('ext'), 1)."\n"
+  let globlinks = glob('**/*'.vimwiki#vars#get_wikilocal('ext'), 1)."\n"
   " remove extensions
   let globlinks = substitute(globlinks, '\'.vimwiki#vars#get_wikilocal('ext').'\ze\n', '', 'g')
   " restore the original working directory
