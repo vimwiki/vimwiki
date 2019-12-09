@@ -47,6 +47,25 @@ Before (Define functions):
     source plugin/vimwiki.vim
   endfunction
 
+  " Copy wiki test resources so that vimtest user can write them
+  function! CopyResources()
+    call system('cp -r /testplugin/test/resources/* $HOME/')
+  endfunction
 
-# Modeline: File Over
+  " Delete Hidden buffer, usefull to clean
+  " Stole from: https://stackoverflow.com/a/8459043/2544873
+  function! DeleteHiddenBuffers()
+      let tpbl=[]
+      call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
+      for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+          silent execute 'bwipeout!' buf
+      endfor
+  endfunction
+
+  " Write current file: helper to hide `set bt=`
+  function! WriteMe()
+    set bt=
+    write %
+  endfunction
+
 # vim: ft=vim
