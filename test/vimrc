@@ -6,26 +6,32 @@ set nocompatible
 filetype plugin indent on
 syntax enable
 
+" Wiki's resources to be used after:
+"   :!cp -r /testplugin/test/resources/* $HOME/
+" or from a test.vader file Execute block:
+"   call CopyResources()
+" This complication aims for these copies to be writable
+
 " default syntax
 let vimwiki_default = {}
-let vimwiki_default.path = 'test/resources/vimwiki/default'
-let vimwiki_default.path_html = 'test/resources/default/html'
+let vimwiki_default.path = $HOME . '/testwiki'
+let vimwiki_default.path_html = $HOME . '/html/default'
 let vimwiki_default.syntax = 'default'
 let vimwiki_default.ext = '.wiki'
 let vimwiki_default.name = 'DefaultSyntax'
 
 " markdown syntax - https://github.github.com/gfm/
 let vimwiki_markdown = {}
-let vimwiki_markdown.path = 'test/resources/vimwiki/markdown'
-let vimwiki_markdown.path_html = '~/vimwiki/markdown/html'
+let vimwiki_markdown.path = $HOME . '/testmarkdown'
+let vimwiki_markdown.path_html = $HOME . '/html/markdown'
 let vimwiki_markdown.syntax = 'markdown'
 let vimwiki_markdown.ext = '.md'
 let vimwiki_markdown.name = 'MarkdownSyntax'
 
 " mediawiki syntax - https://www.mediawiki.org/wiki/Help:Formatting
 let vimwiki_mediawiki = {}
-let vimwiki_mediawiki.path = 'test/resources/vimwiki/mediawiki'
-let vimwiki_mediawiki.path_html = 'test/resources/vimwiki/mediawiki/html'
+let vimwiki_mediawiki.path = $HOME . '/testmediawiki'
+let vimwiki_mediawiki.path_html = $HOME . '/html/mediawiki'
 let vimwiki_mediawiki.syntax = 'mediawiki'
 let vimwiki_mediawiki.ext = '.mw'
 let vimwiki_mediawiki.name = 'MediaWikiSyntax'
