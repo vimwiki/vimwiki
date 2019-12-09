@@ -43,6 +43,15 @@ automatically run all tests for all installed vim versions. The vim/nvim
 versions are parsed from the Dockerfile. This script will also run `Vint` for all
 plugin source files. For more information run `./run_tests.sh -h`.
 
+
+## Inside the container
+
+* `$USER` -> `vimtest` : unprivileged => very hard to mess up things
+* `$HOME` -> `/home/vimtest` : but it is readonly !
+* `$PWD` -> `/testplugin` : mapped to vimwiki plugin root directory
+
+For more information, read the [base docker image](https://github.com/tweekmonster/vim-testbed)
+
 ## Known Issues
 
 1. neovim v0.2.x does not work correctly with Vader output from the docker
