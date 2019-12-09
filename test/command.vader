@@ -1,8 +1,16 @@
 Include: vader_includes/vader_setup.vader
 
 
-# 1 VimwikiTOC
-##############
+Execute (Copy Wiki's Resources):
+  Log "START Copying"
+  call CopyResources()
+
+
+# 1. VimwikiTOC {{{1
+###################
+
+Execute (New Command):
+  Log "1. Testing VimwikiTOC"
 
 Execute (Reset TOC header to default):
   let g:vimwiki_global_vars['toc_header'] = "Contents"
@@ -100,7 +108,7 @@ Execute (Let toc_header = Sommaire && VimwikiTOC):
   let g:vimwiki_global_vars['toc_header'] = "Sommaire"
   VimwikiTOC
 
-Expect (Append a Sommaire and leave Contents alone):
+Expect (Append a Sommaire && Leave Contents alone):
   # Sommaire
 
       - [Header 1](#Header 1)
@@ -146,6 +154,193 @@ Expect (Brand new TOC with sommaire):
 
   # Header 2
   ### Header 2.1.1
+
+
+# 2.1 VimwikiGenerateLinks {{{1
+###############################
+
+Execute (New Command):
+  Log "2. Testing VimwikiGenerateLinks"
+  set sw=4
+  AssertEqual 4, &sw
+
+
+Given (Void):
+
+Execute (Goto markdown resource wiki):
+  VimwikiIndex 2
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
+
+Execute (Edit Test file / VimwikiGenerateLinks):
+  edit $HOME/testmarkdown/Test.md
+  AssertEqual $HOME . '/testmarkdown/Test.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  
+  VimwikiGenerateLinks
+
+Expect (The links with a header):
+  
+  
+  # Generated Links
+
+      - [Buzz Bozz](buzz_bozz)
+      - [Test Wiki](index)
+
+Do (Save Test.md && Re-GenerateLinks):
+  :edit $HOME/testmarkdown/Test.md\<CR>
+  :set bt=\<CR>
+  :write %\<CR>
+  :VimwikiGenerateLinks\<CR>
+
+Expect (The links with a header with file Test):
+  
+  
+  # Generated Links
+
+      - [Generated Links](Test)
+      - [Buzz Bozz](buzz_bozz)
+      - [Test Wiki](index)
+
+
+# 2.2 VimwikiDiaryGenerateLinks {{{1
+####################################
+
+Execute (New Command):
+  Log "2.2 Testing VimwikiDiaryGenerateLinks TODO"
+  set sw=4
+  AssertEqual 4, &sw
+
+Do (Edit diary/2019-12-10):
+  :edit $HOME/testmarkdown/diary/2019-12-10.md\<CR>
+  iinformative content\<Esc>
+  :call WriteMe()\<CR>
+
+Do (Edit and save diary/2019-07-13):
+  :edit $HOME/testmarkdown/diary/2019-07-13.md\<CR>
+  i# informative title\<Esc>
+  :call WriteMe()\<CR>
+
+Do (Edit and save diary/2018-03-01):
+  :edit $HOME/testmarkdown/diary/2019-03-01.md\<CR>
+  :call WriteMe()\<CR>
+
+
+Do (Edit diary.md && GenerateDiaryLinks):
+  :edit $HOME/testmarkdown/diary/diary.md\<CR>
+  :VimwikiDiaryGenerateLinks\<CR>
+
+Expect (toto):
+  # Diary
+  
+  ## 2019
+  
+  ### December
+  
+      - [2019-12-10](2019-12-10)
+  
+  ### July
+  
+      - [informative title](2019-07-13)
+  
+  ### March
+  
+      - [2019-03-01](2019-03-01)
+
+
+# 3.1 VimwikiRebuildTags {{{1
+#############################
+
+Execute (New Command):
+  Log "3.1 Testing VimwikiRebuildTags"
+  set sw=4
+  AssertEqual 4, &sw
+
+
+Execute (Edit Test-Tag.md):
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Add tag <- with `Do` trick to save file):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  :call append(0, ":test-tag:")\<CR>
+  :set bt=\<CR>
+  :write %\<CR>
+  :VimwikiRebuildTags\<CR>
+
+Execute (Edit .vimwiki_tags):
+  edit $HOME/testmarkdown/.vimwiki_tags
+  AssertEqual $HOME . '/testmarkdown/.vimwiki_tags', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+# Carefull, following 2 lines have tabs: `this is the way`
+Expect (Tag file with test-tag):
+  !_TAG_FILE_SORTED	1	
+  test-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+
+
+# 3.2 VimwikiGenerateTags {{{1
+##############################
+
+Execute (New Command):
+  Log "3.2 Testing VimwikiGenerateTags TODO"
+  set sw=4
+  AssertEqual 4, &sw
+
+Given (Void):
+
+Do (Edit Test-Tag && GenerateTags):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  :VimwikiRebuildTags\<CR>
+  :VimwikiGenerateTags\<CR>
+  :Log "TODO give the expect block when VimwikigenerateTags is working"\<CR>
+
+
+# 4 VimwikiGoto {{{1
+####################
+
+Execute (New Command):
+  Log "3.2 Testing VimwikiGoto"
+  set sw=4
+  AssertEqual 4, &sw
+
+Execute (VimwikiGoto buzz_bozz && Assert):
+  VimwikiIndex 2
+  VimwikiGoto buzz_bozz
+  AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
+
+Do (VimwikiGoto <CR> buzz_bozz && Assert):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto\<CR>
+  buzz_bozz\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
+
+Do (:VimwikiGoto + Completion):
+  :VimwikiGoto buzz_
+  \<Tab>
+  \<CR>
+  :AssertEqual 'toto', expand('%')
+
+
+# END Clean {{{1
+################
+
+Execute (Clean Test-Tag and .vimwiki_tags):
+  Log "END Cleaning"
+  call system("rm $HOME/testmarkdown/Test.md")
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag.md")
+  call system("rm $HOME/testmarkdown/diary/2019-12-10.md")
+  call system("rm $HOME/testmarkdown/diary/2019-07-13.md")
+  call system("rm $HOME/testmarkdown/diary/2019-03-01.md")
+  call system("rm $HOME/testmarkdown/diary/diary.md")
+
+Execute (Delete latent buffers):
+  call DeleteHiddenBuffers()
+
 
 Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30 sw=2
