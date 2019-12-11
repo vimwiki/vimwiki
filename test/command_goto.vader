@@ -1,6 +1,10 @@
 Include: vader_includes/vader_setup.vader
 
-# TODO
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
 
 Execute (VimwikiGoto buzz_bozz && Assert):
   VimwikiIndex 2
@@ -13,12 +17,12 @@ Do (VimwikiGoto <CR> buzz_bozz && Assert):
   buzz_bozz\<CR>
   :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
-Do (:VimwikiGoto + Completion):
-  :VimwikiIndex 2\<CR>
-  :VimwikiGoto buzz_
-  \<Tab>
-  \<CR>
-  :AssertEqual 'toto', expand('%')
+
+Execute (:VimwikiGoto + Completion):
+  VimwikiIndex 2
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
+  let s_complete=vimwiki#base#get_globlinks_escaped()
+  Assert -1 != stridx(s_complete, 'buzz_bozz')
 
 
 Include: vader_includes/vader_teardown.vader

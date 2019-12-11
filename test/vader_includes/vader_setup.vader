@@ -50,6 +50,9 @@ Before (Define functions):
   " Copy wiki test resources so that vimtest user can write them
   function! CopyResources()
     call system('cp -r /testplugin/test/resources/* $HOME/')
+    " Make diary directory
+    call system('mkdir $HOME/testwiki/diary')
+    call system('mkdir $HOME/testmarkdown/diary')
   endfunction
 
   " Delete Hidden buffer, usefull to clean
