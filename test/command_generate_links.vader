@@ -78,7 +78,7 @@ Do (Edit diary.md && GenerateDiaryLinks):
   :edit $HOME/testmarkdown/diary/diary.md\<CR>
   :VimwikiDiaryGenerateLinks\<CR>
 
-Expect (toto):
+Expect (diary index generated):
   # Diary
   
   ## 2019
