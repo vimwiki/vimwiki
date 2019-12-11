@@ -261,7 +261,7 @@ command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 command! -buffer -nargs=* VimwikiSearch call vimwiki#base#search(<q-args>)
 command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 
-command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_links_escaped
+command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
 command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()

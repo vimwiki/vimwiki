@@ -356,7 +356,8 @@ function! vimwiki#base#open_link(cmd, link, ...)
 endfunction
 
 
-function! vimwiki#base#get_globlinks_escaped() abort
+function! vimwiki#base#get_globlinks_escaped(...) abort
+  let s_arg_lead = a:0 > 0 ? a:1 : ""
   " only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
@@ -369,12 +370,14 @@ function! vimwiki#base#get_globlinks_escaped() abort
   exe 'lcd! '.orig_pwd
   " convert to a List
   let lst = split(globlinks, '\n')
+  " Filter files whose path matches the  user's argument leader
+  " " use smart case matching
+  let r_arg = substitute(s_arg_lead, '\u', '[\0\l\0]', 'g')
+  call filter(lst, '-1 != match(v:val, r_arg)')
   " Apply fnameescape() to each item
   call map(lst, 'fnameescape(v:val)')
-  " Convert back to newline-separated list
-  let globlinks = join(lst, "\n")
-  " return all escaped links as a single newline-separated string
-  return globlinks
+  " Return list (for customlist completion)
+  return lst
 endfunction
 
 
@@ -2279,9 +2282,7 @@ endfunction
 
 
 function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
-  " We can safely ignore args if we use -custom=complete option, Vim engine
-  " will do the job of filtering.
-  return vimwiki#base#get_globlinks_escaped()
+  return vimwiki#base#get_globlinks_escaped(a:ArgLead)
 endfunction
 
 
