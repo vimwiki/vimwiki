@@ -1,0 +1,25 @@
+Include: vader_includes/vader_setup.vader
+
+# TODO
+
+Execute (VimwikiGoto buzz_bozz && Assert):
+  VimwikiIndex 2
+  VimwikiGoto buzz_bozz
+  AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
+
+Do (VimwikiGoto <CR> buzz_bozz && Assert):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto\<CR>
+  buzz_bozz\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
+
+Do (:VimwikiGoto + Completion):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto buzz_
+  \<Tab>
+  \<CR>
+  :AssertEqual 'toto', expand('%')
+
+
+Include: vader_includes/vader_teardown.vader
+# vim: sw=2 ft=conf foldmethod=indent foldlevel=30 foldignore=
