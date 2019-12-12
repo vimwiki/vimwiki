@@ -52,6 +52,12 @@ Given (Void):
 
 Do (Edit Test-Tag && GenerateTags):
   :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  :call append(0, ':Tag:')\<Cr>
+  :call append(0, '')\<Cr>
+  :call append(0, 'Test Here')\<Cr>
+  :call append(0, '')\<Cr>
+  :call append(0, '# A header')\<Cr>
+  :call WriteMe()\<CR>
   :VimwikiRebuildTags\<CR>
   :VimwikiGenerateTags\<CR>
   :Log "TODO give the expect block when VimwikigenerateTags is working"\<CR>
