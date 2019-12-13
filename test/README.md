@@ -53,3 +53,14 @@ plugin source files. For more information run `./run_tests.sh -h`.
 2. Vader does not play nice with the location list. Tests that use the location
    list should be placed in `independent_runs/`.
     - [Vader Issue #199](https://github.com/junegunn/vader.vim/issues/199)
+
+## Notable Vim patches
+
+- `v7.3.831` `getbufvar` added a default value
+- `v7.4.236` add ability to check patch with has("patch-7.4.123")
+- `v7.4.1546` sticky type checking removed (allow a variables type to change)
+- `v7.4.1989` `filter()` accepts a Funcref
+- `v7.4.2044` lambda support added - see `:h expr-lambda`
+- `v7.4.2120` Added function "closure" argument
+- `v7.4.2137` add `funcref()`
+- `v8.0` async jobs and timers
