@@ -344,6 +344,10 @@ function! vimwiki#tags#generate_tags(create, ...) abort
           if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
             let link_infos = vimwiki#base#resolve_link(taglink)
+            if empty(link_infos.anchor)
+              echom 'Vimwiki Error: Tags must appear after a header.'
+              return []
+            endif
             let link_caption = split(link_infos.anchor, '#', 0)[-1]
             let link_text = split(taglink, '#', 1)[0]
 
