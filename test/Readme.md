@@ -50,3 +50,6 @@ plugin source files. For more information run `./run_tests.sh -h`.
    `Vim: Error reading input, exiting...`
     - Probably need to look into this more and determine if the issue is Vader,
       Neovim, or Docker.
+2. Vader does not play nice with the location list. Tests that use the location
+   list should be placed in `independent_runs/`.
+    - [Vader Issue #199](https://github.com/junegunn/vader.vim/issues/199)

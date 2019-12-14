@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+Include: vader_setup
 
 Execute (Setup search testing wrapper):
   function! TestSearch(search_command, test_name)
@@ -63,4 +63,4 @@ Execute (Search failure message):
   redir END
   Assert match(output, 'VimwikiSearch: No match found.') > -1, "expected custom error"
 
-Include: vader_includes/vader_teardown.vader
+Include: vader_teardown

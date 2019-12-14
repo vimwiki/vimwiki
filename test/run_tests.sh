@@ -36,11 +36,20 @@ runVader() {
         echo ""
         echo "Running version: $v"
         vim="/vim-build/bin/$v -u test/vimrc -i NONE"
-        test_cmd="for VF in test/*.vader; do $vim \"+Vader! \$VF\"; done"
+        test_cmd="for VF in test/independent_runs/*.vader; do $vim \"+Vader! \$VF\"; done"
+
         set -o pipefail
+
+        # tests that must be run in individual vim instances
+        # see README.md for more information
         docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
           /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
+
+        # remaining tests
+        docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+          "$v" -u test/vimrc -i NONE "+Vader! test/*" 2>&1 | vader_filter | vader_color
         set +o pipefail
+
     done
 }
 
