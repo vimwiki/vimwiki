@@ -430,9 +430,14 @@ function! vimwiki#base#goto(...)
   let key = a:0 > 0 ? a:1 : input('Enter name: ')
   let anchor = a:0 > 1 ? a:2 : ''
 
+  " Save current file pos
+  let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
+
   call vimwiki#base#edit_file(':e',
         \ vimwiki#vars#get_wikilocal('path') . key . vimwiki#vars#get_wikilocal('ext'),
-        \ anchor)
+        \ anchor,
+        \ vimwiki_prev_link,
+        \ &ft ==# 'vimwiki')
 endfunction
 
 
