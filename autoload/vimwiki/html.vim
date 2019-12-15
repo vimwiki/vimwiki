@@ -1437,7 +1437,7 @@ endfunction
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force)
   call vimwiki#path#mkdir(a:path)
-  echomsg system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
+  let output = system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
@@ -1454,6 +1454,10 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force)
       \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
       \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
+  " Echo if non void
+  if output !~ "^\s*$"
+    echomsg output
+  endif
 endfunction
 
 
