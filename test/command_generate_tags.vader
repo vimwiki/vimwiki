@@ -1,0 +1,75 @@
+Include: vader_includes/vader_setup.vader
+
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+
+# 1 VimwikiRebuildTags
+######################
+
+Execute (New Command):
+  Log "1 Testing VimwikiRebuildTags"
+  set sw=4
+  AssertEqual 4, &sw
+
+
+Execute (Edit Test-Tag.md):
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Add tag <- with `Do` trick to save file):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  :call append(0, ":test-tag:")\<CR>
+  :set bt=\<CR>
+  :write %\<CR>
+  :VimwikiRebuildTags\<CR>
+
+Execute (Edit .vimwiki_tags):
+  edit $HOME/testmarkdown/.vimwiki_tags
+  AssertEqual $HOME . '/testmarkdown/.vimwiki_tags', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+# Carefull, following 2 lines have tabs: `this is the way`
+Expect (Tag file with test-tag):
+  !_TAG_FILE_SORTED	1	
+  test-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+
+
+# 2 VimwikiGenerateTags
+#########################
+
+Execute (New Command):
+  Log "2 Testing VimwikiGenerateTags TODO"
+  set sw=4
+  AssertEqual 4, &sw
+
+Given (Void):
+
+Do (Edit Test-Tag && GenerateTags):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  :call append(0, ':Tag:')\<Cr>
+  :call append(0, '')\<Cr>
+  :call append(0, 'Test Here')\<Cr>
+  :call append(0, '')\<Cr>
+  :call append(0, '# A header')\<Cr>
+  :call WriteMe()\<CR>
+  :VimwikiRebuildTags\<CR>
+  :VimwikiGenerateTags\<CR>
+  :Log "TODO give the expect block when VimwikigenerateTags is working"\<CR>
+
+
+Execute (Clean Test-Tag and .vimwiki_tags):
+  Log "End: Clean"
+  call system("rm $HOME/testmarkdown/Test.md")
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag.md")
+  call DeleteHiddenBuffers()
+
+
+Include: vader_includes/vader_teardown.vader
+# vim: sw=2 ft=conf foldmethod=indent foldlevel=30 foldignore=

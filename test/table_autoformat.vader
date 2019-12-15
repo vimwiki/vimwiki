@@ -1,0 +1,157 @@
+Include: vader_includes/vader_setup.vader
+
+
+
+# Autoformat {{{1
+#################
+
+Given vimwiki (Unaligned table):
+  | title1 | title2 |
+  | - | - |
+  | a1 | b1 |
+  | a2 | |
+
+Execute (Rename file wiki_test.md for table expand):
+  file wiki_test.md
+
+Do (A to trigger insertLeave):
+  A
+
+Expect (Table autoformat):
+  | title1 | title2 |
+  | -      | -      |
+  | a1     | b1     |
+  | a2     |        |
+
+Do (gqq to reformats table after making changes.):
+  gqq
+
+Expect (Table autoformat):
+  | title1 | title2 |
+  | -      | -      |
+  | a1     | b1     |
+  | a2     |        |
+
+Execute (Option table_reduce_last_col = 1):
+  let g:vimwiki_global_vars['table_reduce_last_col'] = 1
+
+Do (A to trigger insertLeave):
+  A
+
+Expect (Last column not expanded):
+  | title1 | title2 |
+  | -      | - |
+  | a1     | b1 |
+  | a2     |   |
+
+Execute (Option table_reduce_last_col = 0 [restore]):
+  let g:vimwiki_global_vars['table_reduce_last_col'] = 0
+
+Execute (Option table_auto_fmt = 0):
+  let g:vimwiki_global_vars['table_auto_fmt'] = 0
+
+Expect (Same as input):
+  | title1 | title2 |
+  | - | - |
+  | a1 | b1 |
+  | a2 | |
+
+Execute (Option table_auto_fmt = 1 [restore]):
+  let g:vimwiki_global_vars['table_auto_fmt'] = 1
+
+
+
+# Move and edit cells {{{1
+##########################
+
+Do (Use <Tab> in insert mode):
+  GI
+  \<Tab>
+  this_is_16_chars
+  \<Tab>
+  this_is_16_chars
+  \<Esc>
+
+Expect (Table autoformated with more content):
+  | title1             | title2           |
+  | -                  | -                |
+  | a1                 | b1               |
+  | this_is_16_charsa2 | this_is_16_chars |
+
+Do (VimwikiTableMoveColumnRight):
+  gg:VimwikiTableMoveColumnRight\<CR>
+
+Expect (Column inverted):
+  | title2 | title1 |
+  | -      | -      |
+  | b1     | a1     |
+  |        | a2     |
+
+Do (CR must insert new row):
+  GI\<Cr>a3
+
+Expect (Table with new row starting by a3):
+  | title1 | title2 |
+  | -      | -      |
+  | a1     | b1     |
+  | a2     |        |
+  | a3     |        |
+
+
+
+
+# VimwikiTable Command {{{1
+###########################
+
+Given (Nothing):
+
+Execute (VimwikiTable):
+  VimwikiTable
+
+Expect (Table 5 x 2):
+
+  |   |   |   |   |   |
+  |---|---|---|---|---|
+  |   |   |   |   |   |
+
+Execute (VimwikiTable 8 3):
+  VimwikiTable 8 3
+
+Expect (Table 8 x 3):
+
+  |   |   |   |   |   |   |   |   |
+  |---|---|---|---|---|---|---|---|
+  |   |   |   |   |   |   |   |   |
+  |   |   |   |   |   |   |   |   |
+
+
+
+# Justify Cell Content {{{1
+###########################
+
+
+Given vimwiki (To be justified from help file [Coffe price]):
+  | Date       |  Item  |   Price |
+  |------------|:------:|--------:|
+  | yest       |Coffee |$15.00 |
+  | 2017-02-13 |Tea   |$2.10 |
+  | 2017-03-14 |Cake  |$143.12 |
+
+Execute (Rename file wiki_test.md for table expand):
+  file wiki_test.md
+
+Do (A to trigger insertLeave):
+  A
+
+Expect (Text justified):
+  | Date       |  Item  |   Price |
+  |------------|:------:|--------:|
+  | yest       | Coffee |  $15.00 |
+  | 2017-02-13 |  Tea   |   $2.10 |
+  | 2017-03-14 |  Cake  | $143.12 |
+
+
+
+
+Include: vader_includes/vader_teardown.vader
+# vim: foldmethod=marker foldlevel=30
