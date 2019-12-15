@@ -3486,6 +3486,8 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * Add test framework (vader, vint, vim-testbed)
+    * Issue #769. Set default values for |g:vimwiki_ext2syntax|.
     * PR #735: Make list-toggling work properly even when code blocks are
       embedded within the list in Markdown mode.
     * PR #711: Allow forcing VimwikiAll2HTML with !
@@ -3553,9 +3555,12 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #781: Compatablity fixes for older versions of Vim.
+    * Issue #691: Allow |:VimwikiGoBackLink| to go back multiple times.
+    * Update MathJax CDN loading instructions.
     * Issue #212: Don't treat comment characters within code blocks as
       headers.
-    * Issue #420: Add error handling to VimwikiSearch
+    * Issue #420: Add error handling to |:VimwikiSearch|
     * PR #744: Fix typo in vimwiki_list_manipulation
     * Issue #715: s:clean_url is compatible with vim pre 7.4.1546 (sticky type
       checking)
@@ -3819,7 +3824,7 @@ http://code.google.com/p/vimwiki/issues/list
       highlighted when open wiki files.
     * Issue 146: Filetype difficulty with ".txt" as a vimwiki extension.
     * Issue 148: There are no mailto links.
-    * Issue 151: Use location list instead of quickfix list for :VimwikiSearch
+    * Issue 151: Use location list instead of quickfix list for |:VimwikiSearch|
       command result. Use :lopen instead of :copen, :lnext instead of :cnext
       etc.
     * Issue 152: Add the list of HTML files that would not be deleted after
