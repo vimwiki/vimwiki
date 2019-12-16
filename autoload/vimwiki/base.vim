@@ -356,25 +356,28 @@ function! vimwiki#base#open_link(cmd, link, ...)
 endfunction
 
 
-function! vimwiki#base#get_globlinks_escaped() abort
+function! vimwiki#base#get_globlinks_escaped(...) abort
+  let s_arg_lead = a:0 > 0 ? a:1 : ""
   " only get links from the current dir
   " change to the directory of the current file
   let orig_pwd = getcwd()
   lcd! %:h
   " all path are relative to the current file's location
-  let globlinks = glob('*'.vimwiki#vars#get_wikilocal('ext'), 1)."\n"
+  let globlinks = glob('**/*'.vimwiki#vars#get_wikilocal('ext'), 1)."\n"
   " remove extensions
   let globlinks = substitute(globlinks, '\'.vimwiki#vars#get_wikilocal('ext').'\ze\n', '', 'g')
   " restore the original working directory
   exe 'lcd! '.orig_pwd
   " convert to a List
   let lst = split(globlinks, '\n')
+  " Filter files whose path matches the  user's argument leader
+  " " use smart case matching
+  let r_arg = substitute(s_arg_lead, '\u', '[\0\l\0]', 'g')
+  call filter(lst, '-1 != match(v:val, r_arg)')
   " Apply fnameescape() to each item
   call map(lst, 'fnameescape(v:val)')
-  " Convert back to newline-separated list
-  let globlinks = join(lst, "\n")
-  " return all escaped links as a single newline-separated string
-  return globlinks
+  " Return list (for customlist completion)
+  return lst
 endfunction
 
 
@@ -427,9 +430,14 @@ function! vimwiki#base#goto(...)
   let key = a:0 > 0 ? a:1 : input('Enter name: ')
   let anchor = a:0 > 1 ? a:2 : ''
 
+  " Save current file pos
+  let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
+
   call vimwiki#base#edit_file(':e',
         \ vimwiki#vars#get_wikilocal('path') . key . vimwiki#vars#get_wikilocal('ext'),
-        \ anchor)
+        \ anchor,
+        \ vimwiki_prev_link,
+        \ &ft ==# 'vimwiki')
 endfunction
 
 
@@ -2279,9 +2287,7 @@ endfunction
 
 
 function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
-  " We can safely ignore args if we use -custom=complete option, Vim engine
-  " will do the job of filtering.
-  return vimwiki#base#get_globlinks_escaped()
+  return vimwiki#base#get_globlinks_escaped(a:ArgLead)
 endfunction
 
 
