@@ -10,7 +10,7 @@ Given vimwiki (Headings):
   random text
   ### Header 1.1.1
   random text
-  
+
   # Header 2
   ### Header 2.1.1
 
@@ -24,11 +24,11 @@ Execute (VimwikiTOC):
 Expect (With a TOC sw=8):
   # Contents
 
-          - [Header 1](#Header 1)
-                  - [Header 1.1](#Header 1#Header 1.1)
-                          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-          - [Header 2](#Header 2)
-                          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#Header 1)
+          - [Header 1.1](#Header 1#Header 1.1)
+                  - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+                  - [Header 2.1.1](#Header 2#Header 2.1.1)
 
   # Header 1
   random text
@@ -47,11 +47,11 @@ Execute (Set sw=4  && VimwikiTOC):
 Expect (With a TOC sw=4):
   # Contents
 
-      - [Header 1](#Header 1)
-          - [Header 1.1](#Header 1#Header 1.1)
-              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-      - [Header 2](#Header 2)
-              - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
 
   # Header 1
   random text
@@ -75,11 +75,11 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC):
   # Contents
 
-      - [Header 1](#Header 1)
-          - [Header 1.1](#Header 1#Header 1.1)
-              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-      - [Header 2](#Header 2)
-              - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
 
   # Header 1
   random text
@@ -99,11 +99,11 @@ Execute (Let toc_header = Sommaire && VimwikiTOC):
 Expect (Append a Sommaire && Leave Contents alone):
   # Sommaire
 
-      - [Header 1](#Header 1)
-          - [Header 1.1](#Header 1#Header 1.1)
-              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-      - [Header 2](#Header 2)
-              - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
 
   # Header 1
   random text
@@ -127,11 +127,11 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC with sommaire):
   # Sommaire
 
-      - [Header 1](#Header 1)
-          - [Header 1.1](#Header 1#Header 1.1)
-              - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-      - [Header 2](#Header 2)
-              - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
 
   # Header 1
   random text
@@ -145,4 +145,5 @@ Expect (Brand new TOC with sommaire):
 
 
 Include: vader_includes/vader_teardown.vader
-# vim: sw=2 ft=conf foldmethod=indent foldlevel=30 foldignore=
+
+" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

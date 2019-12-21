@@ -497,6 +497,14 @@ function! s:normalize_wikilocal_settings() abort
     if wiki_settings.syntax ==# 'mediawiki'
       let wiki_settings.syntax = 'media'
     endif
+
+    if wiki_settings.syntax ==# 'markdown'
+      " default list margin to 0
+      let wiki_settings.list_margin = 0
+    else
+      let wiki_settings.list_margin = -1
+    endif
+
   endfor
 endfunction
 
