@@ -2493,7 +2493,7 @@ parameters can be passed using this option: >
 *vimwiki-option-list_margin*
 ------------------------------------------------------------------------------
 Key               Default value~
-list_margin       -1
+list_margin       -1 (0 for markdown)
 
 Description~
 Width of left-hand margin for lists.  When negative, the current 'shiftwidth'
@@ -3486,6 +3486,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.
     * PR #785: |:VimwikiGoto| completion works with part of filename and
       nested directories
     * Add test framework (vader, vint, vim-testbed)
