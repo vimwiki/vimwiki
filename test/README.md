@@ -3,7 +3,7 @@
 This directory contains a test framework used to automatically test/verify
 Vimwiki functionality. It is based on the following tools:
 
-- [vim-testbed](https://github.com/tweekmonster/vim-testbed)
+- [vim-testbed GitHub](https://github.com/tweekmonster/vim-testbed) or on [testbed/vim dockerhub](https://hub.docker.com/r/testbed/vim)
 - [Vader](https://github.com/junegunn/vader.vim)
 - [Vint](https://github.com/Kuniwak/vint)
 
@@ -43,12 +43,11 @@ automatically run all tests for all installed vim versions. The vim/nvim
 versions are parsed from the Dockerfile. This script will also run `Vint` for all
 plugin source files. For more information run `./run_tests.sh -h`.
 
-
 ## Inside the container
 
-* `$USER` -> `vimtest` : unprivileged => very hard to mess up things
-* `$HOME` -> `/home/vimtest` : but it is readonly !
-* `$PWD` -> `/testplugin` : mapped to vimwiki plugin root directory
+- `$USER` -> `vimtest` : unprivileged => very hard to mess up things
+- `$HOME` -> `/home/vimtest` : but it is readonly !
+- `$PWD` -> `/testplugin` : mapped to vimwiki plugin root directory
 
 For more information, read the [base docker image](https://github.com/tweekmonster/vim-testbed)
 
@@ -67,6 +66,7 @@ For more information, read the [base docker image](https://github.com/tweekmonst
 
 - `v7.3.831` `getbufvar` added a default value
 - `v7.4.236` add ability to check patch with has("patch-7.4.123")
+- `v7.4.279` added the option to for `globpath()` to return a list
 - `v7.4.1546` sticky type checking removed (allow a variables type to change)
 - `v7.4.1989` `filter()` accepts a Funcref
 - `v7.4.2044` lambda support added - see `:h expr-lambda`
