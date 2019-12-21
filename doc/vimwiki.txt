@@ -3486,8 +3486,10 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 2.5 (in progress)~
 
 New:~
+    * PR #785: |:VimwikiGoto| completion works with part of filename and
+      nested directories
     * Add test framework (vader, vint, vim-testbed)
-    * Issue #769. Set default values for |g:vimwiki_ext2syntax|.
+    * Issue #769: Set default values for |g:vimwiki_ext2syntax|.
     * PR #735: Make list-toggling work properly even when code blocks are
       embedded within the list in Markdown mode.
     * PR #711: Allow forcing VimwikiAll2HTML with !
