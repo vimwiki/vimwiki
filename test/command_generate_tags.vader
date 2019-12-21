@@ -72,4 +72,4 @@ Execute (Clean Test-Tag and .vimwiki_tags):
 
 
 Include: vader_includes/vader_teardown.vader
-# vim: sw=2 ft=conf foldmethod=indent foldlevel=30 foldignore=
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

@@ -61,4 +61,4 @@ Execute (Clean):
   call system("rm $HOME/testmarkdown/dir1")
 
 Include: vader_includes/vader_teardown.vader
-# vim: sw=2 ft=conf foldmethod=indent foldlevel=30 foldignore=
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
