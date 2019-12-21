@@ -4,14 +4,14 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-function! s:safesubstitute(text, search, replace, mode)
+function! s:safesubstitute(text, search, replace, mode) abort
   " Substitute regexp but do not interpret replace
   let escaped = escape(a:replace, '\&')
   return substitute(a:text, a:search, escaped, a:mode)
 endfunction
 
 
-function! vimwiki#markdown_base#scan_reflinks()
+function! vimwiki#markdown_base#scan_reflinks() abort
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
@@ -25,7 +25,7 @@ function! vimwiki#markdown_base#scan_reflinks()
     let matchline = join(getline(d.lnum, min([d.lnum+1, line('$')])), ' ')
     let descr = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchDescr'))
     let url = matchstr(matchline, vimwiki#vars#get_syntaxlocal('rxMkdRefMatchUrl'))
-    if descr != '' && url != ''
+    if descr !=? '' && url !=? ''
       let mkd_refs[descr] = url
     endif
   endfor
@@ -35,7 +35,7 @@ endfunction
 
 
 " try markdown reference links
-function! vimwiki#markdown_base#open_reflink(link)
+function! vimwiki#markdown_base#open_reflink(link) abort
   " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
   let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
@@ -49,7 +49,7 @@ function! vimwiki#markdown_base#open_reflink(link)
 endfunction
 
 
-function! s:normalize_link_syntax_n()
+function! s:normalize_link_syntax_n() abort
   let lnum = line('.')
 
   " try WikiIncl
@@ -97,7 +97,7 @@ function! s:normalize_link_syntax_n()
   " normalize_link_syntax_v
   let lnk = vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWord'))
   if !empty(lnk)
-    if vimwiki#base#is_diary_file(expand("%:p"))
+    if vimwiki#base#is_diary_file(expand('%:p'))
       let sub = vimwiki#base#normalize_link_in_diary(lnk)
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
@@ -111,7 +111,7 @@ function! s:normalize_link_syntax_n()
 endfunction
 
 
-function! s:normalize_link_syntax_v()
+function! s:normalize_link_syntax_v() abort
   let lnum = line('.')
   let sel_save = &selection
   let &selection = 'old'
@@ -147,7 +147,7 @@ function! s:normalize_link_syntax_v()
 endfunction
 
 
-function! vimwiki#markdown_base#normalize_link(is_visual_mode)
+function! vimwiki#markdown_base#normalize_link(is_visual_mode) abort
   if 0
     " Syntax-specific links
   else

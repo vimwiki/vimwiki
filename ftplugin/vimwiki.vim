@@ -2,7 +2,7 @@
 " Vimwiki filetype plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 
-if exists("b:did_ftplugin")
+if exists('b:did_ftplugin')
   finish
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
@@ -11,7 +11,7 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
 setlocal commentstring=%%%s
 
-if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
   let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
 
@@ -19,11 +19,11 @@ endif
 execute 'setlocal suffixesadd='.vimwiki#vars#get_wikilocal('ext')
 setlocal isfname-=[,]
 
-exe "setlocal tags+=" . escape(vimwiki#tags#metadata_file_path(), ' \|"')
+exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 
 
-function! Complete_wikifiles(findstart, base)
+function! Complete_wikifiles(findstart, base) abort
   if a:findstart == 1
     let column = col('.')-2
     let line = getline('.')[:column]
@@ -50,14 +50,14 @@ function! Complete_wikifiles(findstart, base)
     " Completion works for wikilinks/anchors, and for tags. s:line_content
     " tells us which string came before a:base. There seems to be no easier
     " solution, because calling col('.') here returns garbage.
-    if s:line_context == ''
+    if s:line_context ==? ''
       return []
-    elseif s:line_context == ':'
+    elseif s:line_context ==# ':'
       " Tags completion
       let tags = vimwiki#tags#get_tags()
-      if a:base != ''
+      if a:base !=? ''
         call filter(tags,
-            \ "v:val[:" . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
+            \ 'v:val[:' . (len(a:base)-1) . "] == '" . substitute(a:base, "'", "''", '') . "'" )
       endif
       return tags
     elseif a:base !~# '#'
@@ -93,7 +93,7 @@ function! Complete_wikifiles(findstart, base)
       " we look for anchors in the given wikifile
 
       let segments = split(a:base, '#', 1)
-      let given_wikifile = segments[0] == '' ? expand('%:t:r') : segments[0]
+      let given_wikifile = segments[0] ==? '' ? expand('%:t:r') : segments[0]
       let link_infos = vimwiki#base#resolve_link(given_wikifile.'#')
       let wikifile = link_infos.filename
       let syntax = vimwiki#vars#get_wikilocal('syntax', link_infos.index)
@@ -134,12 +134,12 @@ let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
 " Folding stuff
 " ------------------------------------------------
 
-function! VimwikiFoldListLevel(lnum)
+function! VimwikiFoldListLevel(lnum) abort
   return vimwiki#lst#fold_level(a:lnum)
 endfunction
 
 
-function! VimwikiFoldLevel(lnum)
+function! VimwikiFoldLevel(lnum) abort
   let line = getline(a:lnum)
 
   " Header/section folding...
@@ -151,21 +151,21 @@ function! VimwikiFoldLevel(lnum)
   elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     return 's1'
   else
-    return "="
+    return '='
   endif
 endfunction
 
 
 " Constants used by VimwikiFoldText
 " use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
-let s:ellipsis = (&enc ==? 'utf-8') ? "\u2026" : "..."
+let s:ellipsis = (&encoding ==? 'utf-8') ? "\u2026" : '...'
 let s:ell_len = strlen(s:ellipsis)
-let s:newline = (&enc ==? 'utf-8') ? "\u21b2 " : "  "
+let s:newline = (&encoding ==? 'utf-8') ? "\u21b2 " : '  '
 let s:tolerance = 5
 
 
 " unused
-function! s:shorten_text_simple(text, len)
+function! s:shorten_text_simple(text, len) abort
   let spare_len = a:len - len(a:text)
   return (spare_len>=0) ? [a:text,spare_len] : [a:text[0:a:len].s:ellipsis, -1]
 endfunction
@@ -174,7 +174,7 @@ endfunction
 " s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
 " for long enough "text", the string's length is within s:tolerance of "len"
 " (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
-function! s:shorten_text(text, len)
+function! s:shorten_text(text, len) abort
   " returns [string, spare]
   " strlen() returns lenght in bytes, not in characters, so we'll have to do a
   " trick here -- replace all non-spaces with dot, calculate lengths and
@@ -192,7 +192,7 @@ function! s:shorten_text(text, len)
 endfunction
 
 
-function! VimwikiFoldText()
+function! VimwikiFoldText() abort
   let line = getline(v:foldstart)
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
   let fold_len = v:foldend - v:foldstart + 1
@@ -518,10 +518,10 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   endif
 endif
 
-function! s:CR(normal, just_mrkr)
+function! s:CR(normal, just_mrkr) abort
   let res = vimwiki#tbl#kbd_cr()
-  if res != ""
-    exe "normal! " . res . "\<Right>"
+  if res !=? ''
+    exe 'normal! ' . res . "\<Right>"
     startinsert
     return
   endif

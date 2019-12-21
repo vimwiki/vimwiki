@@ -4,7 +4,7 @@
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
 
 
-if exists("g:loaded_vimwiki") || &cp
+if exists('g:loaded_vimwiki') || &compatible
   finish
 endif
 let g:loaded_vimwiki = 1
@@ -15,8 +15,8 @@ let s:plugin_vers = -1
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
 
-let s:old_cpo = &cpo
-set cpo&vim
+let s:old_cpo = &cpoptions
+set cpoptions&vim
 
 
 if exists('g:vimwiki_autowriteall')
@@ -27,7 +27,7 @@ endif
 
 
 " this is called when the cursor leaves the buffer
-function! s:setup_buffer_leave()
+function! s:setup_buffer_leave() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
   if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
@@ -43,7 +43,7 @@ endfunction
 
 
 " create a new temporary wiki for the current buffer
-function! s:create_temporary_wiki()
+function! s:create_temporary_wiki() abort
   let path = expand('%:p:h')
   let ext = '.'.expand('%:e')
 
@@ -70,7 +70,7 @@ endfunction
 " This function is called when Vim opens a new buffer with a known wiki
 " extension. Both when the buffer has never been opened in this session and
 " when it has.
-function! s:setup_new_wiki_buffer()
+function! s:setup_new_wiki_buffer() abort
   let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
   if wiki_nr == -1    " it's not in a known wiki directory
     if vimwiki#vars#get_global('global_ext')
@@ -95,7 +95,7 @@ endfunction
 
 
 " this is called when the cursor enters the buffer
-function! s:setup_buffer_enter()
+function! s:setup_buffer_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
   if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
@@ -107,14 +107,14 @@ endfunction
 
 
 " this is called when the buffer enters a window or when running a  diff
-function! s:setup_buffer_win_enter()
+function! s:setup_buffer_win_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
   if vimwiki#vars#get_bufferlocal('wiki_nr') == -1
     return
   endif
 
-  if &filetype != 'vimwiki'
+  if &filetype !=# 'vimwiki'
     setfiletype vimwiki
   endif
 
@@ -122,7 +122,7 @@ function! s:setup_buffer_win_enter()
 endfunction
 
 
-function! s:setup_cleared_syntax()
+function! s:setup_cleared_syntax() abort
   " highlight groups that get cleared
   " on colorscheme change because they are not linked to Vim-predefined groups
   hi def VimwikiBold term=bold cterm=bold gui=bold
@@ -132,15 +132,15 @@ function! s:setup_cleared_syntax()
   if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
       execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='
-            \ . vimwiki#vars#get_global('hcolor_guifg_'.&bg)[i-1]
-            \ .' gui=bold ctermfg='.vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[i-1]
+            \ . vimwiki#vars#get_global('hcolor_guifg_'.&background)[i-1]
+            \ .' gui=bold ctermfg='.vimwiki#vars#get_global('hcolor_ctermfg_'.&background)[i-1]
             \ .' term=bold cterm=bold'
     endfor
   endif
 endfunction
 
 
-function! s:vimwiki_get_known_extensions()
+function! s:vimwiki_get_known_extensions() abort
   " Getting all extensions that different wikis could have
   let extensions = {}
   for idx in range(vimwiki#vars#number_of_wikis())
@@ -158,7 +158,7 @@ endfunction
 " Set settings which are global for Vim, but should only be executed for
 " Vimwiki buffers. So they must be set when the cursor enters a Vimwiki buffer
 " and reset when the cursor leaves the buffer.
-function! s:set_global_options()
+function! s:set_global_options() abort
   let s:vimwiki_autowriteall_saved = &autowriteall
   let &autowriteall = vimwiki#vars#get_global('autowriteall')
 
@@ -171,7 +171,7 @@ endfunction
 " Set settings which are local to a window. In a new tab they would be reset to
 " Vim defaults. So we enforce our settings here when the cursor enters a
 " Vimwiki buffer.
-function! s:set_windowlocal_options()
+function! s:set_windowlocal_options() abort
   if !&diff   " if Vim is currently in diff mode, don't interfere with its folding
     let foldmethod = vimwiki#vars#get_global('folding')
     if foldmethod =~? '^expr.*'
@@ -193,7 +193,7 @@ function! s:set_windowlocal_options()
     endif
   endif
 
-  if vimwiki#vars#get_global('conceallevel') && exists("+conceallevel")
+  if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
     let &conceallevel = vimwiki#vars#get_global('conceallevel')
   endif
 
@@ -203,19 +203,19 @@ function! s:set_windowlocal_options()
 endfunction
 
 
-function! s:get_version()
+function! s:get_version() abort
   if s:plugin_vers != -1
-    echo "Stable version: " . string(s:plugin_vers)
+    echo 'Stable version: ' . string(s:plugin_vers)
   else
-    let l:plugin_rev    = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --short HEAD")
-    let l:plugin_branch = system("git --git-dir " . s:plugin_dir . "/.git rev-parse --abbrev-ref HEAD")
-    let l:plugin_date   = system("git --git-dir " . s:plugin_dir . "/.git show -s --format=%ci")
+    let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
+    let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
+    let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
     if v:shell_error == 0
-      echo "Branch: " . l:plugin_branch
-      echo "Revision: " . l:plugin_rev
-      echo "Date: " . l:plugin_date
+      echo 'Branch: ' . l:plugin_branch
+      echo 'Revision: ' . l:plugin_rev
+      echo 'Date: ' . l:plugin_date
     else
-      echo "Unknown version"
+      echo 'Unknown version'
     endif
   endif
 endfunction
@@ -229,20 +229,20 @@ call vimwiki#vars#init()
 
 
 " Define callback functions which the user can redefine
-if !exists("*VimwikiLinkHandler")
+if !exists('*VimwikiLinkHandler')
   function VimwikiLinkHandler(url)
     return 0
   endfunction
 endif
 
-if !exists("*VimwikiLinkConverter")
+if !exists('*VimwikiLinkConverter')
   function VimwikiLinkConverter(url, source, target)
     " Return the empty string when unable to process link
     return ''
   endfunction
 endif
 
-if !exists("*VimwikiWikiIncludeHandler")
+if !exists('*VimwikiWikiIncludeHandler')
   function! VimwikiWikiIncludeHandler(value)
     return ''
   endfunction
@@ -251,7 +251,7 @@ endif
 
 " write a level 1 header to new wiki files
 " a:fname should be an absolute filepath
-function! s:create_h1(fname)
+function! s:create_h1(fname) abort
   if vimwiki#vars#get_global('auto_header')
     let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
 
@@ -412,7 +412,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').global)
 endif
 
 
-function! s:build_menu(topmenu)
+function! s:build_menu(topmenu) abort
   let wnamelist = []
   for idx in range(vimwiki#vars#number_of_wikis())
     let wname = vimwiki#vars#get_wikilocal('name', idx)
@@ -440,7 +440,7 @@ function! s:build_menu(topmenu)
   endfor
 endfunction
 
-function! s:build_table_menu(topmenu)
+function! s:build_table_menu(topmenu) abort
   exe 'menu '.a:topmenu.'.-Sep- :'
   exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
   exe 'nmenu '.a:topmenu.'.Table.Format<tab>gqq gqq'
@@ -464,4 +464,4 @@ if vimwiki#vars#get_global('use_calendar')
 endif
 
 
-let &cpo = s:old_cpo
+let &cpoptions = s:old_cpo

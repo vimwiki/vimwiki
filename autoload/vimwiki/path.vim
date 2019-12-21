@@ -4,25 +4,25 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-function! vimwiki#path#chomp_slash(str)
+function! vimwiki#path#chomp_slash(str) abort
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction
 
 
 " Define path-compare function, either case-sensitive or not, depending on OS.
 if vimwiki#u#is_windows()
-  function! vimwiki#path#is_equal(p1, p2)
+  function! vimwiki#path#is_equal(p1, p2) abort
     return a:p1 ==? a:p2
   endfunction
 else
-  function! vimwiki#path#is_equal(p1, p2)
+  function! vimwiki#path#is_equal(p1, p2) abort
     return a:p1 ==# a:p2
   endfunction
 endif
 
 
 " collapse sections like /a/b/../c to /a/c
-function! vimwiki#path#normalize(path)
+function! vimwiki#path#normalize(path) abort
   let path = a:path
   while 1
     let result = substitute(path, '/[^/]\+/\.\.', '', '')
@@ -35,7 +35,7 @@ function! vimwiki#path#normalize(path)
 endfunction
 
 
-function! vimwiki#path#path_norm(path)
+function! vimwiki#path#path_norm(path) abort
   " /-slashes
   if a:path !~# '^scp:'
     let path = substitute(a:path, '\', '/', 'g')
@@ -49,21 +49,21 @@ function! vimwiki#path#path_norm(path)
 endfunction
 
 
-function! vimwiki#path#is_link_to_dir(link)
+function! vimwiki#path#is_link_to_dir(link) abort
   " Check if link is to a directory.
   " It should be ended with \ or /.
   return a:link =~# '\m[/\\]$'
 endfunction
 
 
-function! vimwiki#path#abs_path_of_link(link)
-  return vimwiki#path#normalize(expand("%:p:h").'/'.a:link)
+function! vimwiki#path#abs_path_of_link(link) abort
+  return vimwiki#path#normalize(expand('%:p:h').'/'.a:link)
 endfunction
 
 
 " return longest common path prefix of 2 given paths.
 " '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
-function! vimwiki#path#path_common_pfx(path1, path2)
+function! vimwiki#path#path_common_pfx(path1, path2) abort
   let p1 = split(a:path1, '[/\\]', 1)
   let p2 = split(a:path2, '[/\\]', 1)
 
@@ -80,7 +80,7 @@ function! vimwiki#path#path_common_pfx(path1, path2)
 endfunction
 
 
-function! vimwiki#path#wikify_path(path)
+function! vimwiki#path#wikify_path(path) abort
   let result = resolve(fnamemodify(a:path, ':p'))
   if vimwiki#u#is_windows()
     let result = substitute(result, '\\', '/', 'g')
@@ -90,13 +90,13 @@ function! vimwiki#path#wikify_path(path)
 endfunction
 
 
-function! vimwiki#path#current_wiki_file()
+function! vimwiki#path#current_wiki_file() abort
   return vimwiki#path#wikify_path(expand('%:p'))
 endfunction
 
 
 " Returns: the relative path from a:dir to a:file
-function! vimwiki#path#relpath(dir, file)
+function! vimwiki#path#relpath(dir, file) abort
   let result = []
   if vimwiki#u#is_windows()
     " TODO temporary fix see #478
@@ -131,12 +131,12 @@ function! vimwiki#path#relpath(dir, file)
   if vimwiki#u#is_windows()
     " TODO temporary fix see #478
     let result_path = join(result, '\')
-    if a:file =~ '\m\\$'
+    if a:file =~? '\m\\$'
       let result_path .= '\'
     endif
   else
     let result_path = join(result, '/')
-    if a:file =~ '\m/$'
+    if a:file =~? '\m/$'
       let result_path .= '/'
     endif
   endif
@@ -147,7 +147,7 @@ endfunction
 " If the optional argument provided and nonzero,
 " it will ask before creating a directory
 " Returns: 1 iff directory exists or successfully created
-function! vimwiki#path#mkdir(path, ...)
+function! vimwiki#path#mkdir(path, ...) abort
   let path = expand(a:path)
 
   if path =~# '^scp:'
@@ -158,26 +158,26 @@ function! vimwiki#path#mkdir(path, ...)
   if isdirectory(path)
     return 1
   else
-    if !exists("*mkdir")
+    if !exists('*mkdir')
       return 0
     endif
 
     let path = vimwiki#path#chomp_slash(path)
     if vimwiki#u#is_windows() && !empty(vimwiki#vars#get_global('w32_dir_enc'))
-      let path = iconv(path, &enc, vimwiki#vars#get_global('w32_dir_enc'))
+      let path = iconv(path, &encoding, vimwiki#vars#get_global('w32_dir_enc'))
     endif
 
-    if a:0 && a:1 && input("Vimwiki: Make new directory: ".path."\n [y]es/[N]o? ") !~? '^y'
+    if a:0 && a:1 && input('Vimwiki: Make new directory: '.path."\n [y]es/[N]o? ") !~? '^y'
       return 0
     endif
 
-    call mkdir(path, "p")
+    call mkdir(path, 'p')
     return 1
   endif
 endfunction
 
 
-function! vimwiki#path#is_absolute(path)
+function! vimwiki#path#is_absolute(path) abort
   if vimwiki#u#is_windows()
     return a:path =~? '\m^\a:'
   else
@@ -191,13 +191,13 @@ endfunction
 " is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
 " valid path.
 if vimwiki#u#is_windows()
-  function! vimwiki#path#join_path(directory, file)
+  function! vimwiki#path#join_path(directory, file) abort
     let directory = vimwiki#path#chomp_slash(a:directory)
     let file = substitute(a:file, '\m^[\\/]\+', '', '')
     return directory . '/' . file
   endfunction
 else
-  function! vimwiki#path#join_path(directory, file)
+  function! vimwiki#path#join_path(directory, file) abort
     let directory = substitute(a:directory, '\m/\+$', '', '')
     let file = substitute(a:file, '\m^/\+', '', '')
     return directory . '/' . file

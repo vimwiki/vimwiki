@@ -26,7 +26,7 @@
 " ------------------------------------------------------------------------------------------------
 
 
-function! s:populate_global_variables()
+function! s:populate_global_variables() abort
 
   let g:vimwiki_global_vars = {}
 
@@ -139,7 +139,7 @@ function! s:populate_global_variables()
 endfunction
 
 
-function! s:read_global_settings_from_user()
+function! s:read_global_settings_from_user() abort
   let global_settings = {
         \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -243,7 +243,7 @@ function! s:read_global_settings_from_user()
 endfunction
 
 
-function! s:normalize_global_settings()
+function! s:normalize_global_settings() abort
   let keys = keys(g:vimwiki_global_vars.ext2syntax)
   for ext in keys
     " for convenience, we also allow the term 'mediawiki'
@@ -254,7 +254,7 @@ function! s:normalize_global_settings()
     " ensure the file extensions in ext2syntax start with a dot
     " make sure this occurs after anything else that tries to access
     " the entry using the index 'ext' since this removes that index
-    if ext[0] != '.'
+    if ext[0] !=# '.'
       let new_ext = '.' . ext
       let g:vimwiki_global_vars.ext2syntax[new_ext] = g:vimwiki_global_vars.ext2syntax[ext]
       call remove(g:vimwiki_global_vars.ext2syntax, ext)
@@ -321,7 +321,7 @@ function! s:normalize_global_settings()
 endfunction
 
 
-function! s:populate_wikilocal_options()
+function! s:populate_wikilocal_options() abort
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -415,7 +415,7 @@ function! s:populate_wikilocal_options()
 endfunction
 
 
-function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable)
+function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
   let type_code_to_name = {
         \ type(0): 'number',
         \ type(''): 'string',
@@ -473,7 +473,7 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
 endfunction
 
 
-function! s:normalize_wikilocal_settings()
+function! s:normalize_wikilocal_settings() abort
   for wiki_settings in g:vimwiki_wikilocal_vars
     let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
 
@@ -489,7 +489,7 @@ function! s:normalize_wikilocal_settings()
     let wiki_settings['diary_rel_path'] = s:normalize_path(wiki_settings['diary_rel_path'])
 
     let ext = wiki_settings['ext']
-    if !empty(ext) && ext[0] != '.'
+    if !empty(ext) && ext[0] !=# '.'
       let wiki_settings['ext'] = '.' . ext
     endif
 
@@ -501,7 +501,7 @@ function! s:normalize_wikilocal_settings()
 endfunction
 
 
-function! s:normalize_path(path)
+function! s:normalize_path(path) abort
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
   if path !~# '^scp:'
@@ -512,7 +512,7 @@ function! s:normalize_path(path)
 endfunction
 
 
-function! vimwiki#vars#populate_syntax_vars(syntax)
+function! vimwiki#vars#populate_syntax_vars(syntax) abort
   if !exists('g:vimwiki_syntax_variables')
     let g:vimwiki_syntax_variables = {}
   endif
@@ -626,7 +626,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
   if match(vimwiki#vars#get_global('listsyms'), vimwiki#vars#get_global('listsym_rejected')) != -1
     echomsg 'Vimwiki Warning: the value of g:vimwiki_listsym_rejected ('''
           \ . vimwiki#vars#get_global('listsym_rejected')
-          \ . ''') must not be a part of g:vimwiki_listsyms (''' .
+          \ . ''') must not be a part of g:vimwiki_listsyms ('''
           \ . vimwiki#vars#get_global('listsyms') . ''')'
   endif
   let g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB =
@@ -698,7 +698,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax)
 endfunction
 
 
-function! s:populate_extra_markdown_vars()
+function! s:populate_extra_markdown_vars() abort
   let mkd_syntax = g:vimwiki_syntax_variables['markdown']
 
   " 0a) match [[URL|DESCRIPTION]]
@@ -867,13 +867,13 @@ function! s:populate_extra_markdown_vars()
 endfunction
 
 
-function! vimwiki#vars#init()
+function! vimwiki#vars#init() abort
   call s:populate_global_variables()
   call s:populate_wikilocal_options()
 endfunction
 
 
-function! vimwiki#vars#get_syntaxlocal(key, ...)
+function! vimwiki#vars#get_syntaxlocal(key, ...) abort
   if a:0
     let syntax = a:1
   else
@@ -889,7 +889,7 @@ endfunction
 
 " Get a variable for the buffer we are currently in or for the given buffer (number or name).
 " Populate the variable, if it doesn't exist.
-function! vimwiki#vars#get_bufferlocal(key, ...)
+function! vimwiki#vars#get_bufferlocal(key, ...) abort
   let buffer = a:0 ? a:1 : '%'
 
   " 'get(getbufvar(...' handles vim < v7.3.831 that didn't allow a default value for getbufvar
@@ -921,20 +921,20 @@ function! vimwiki#vars#get_bufferlocal(key, ...)
 endfunction
 
 
-function! vimwiki#vars#set_bufferlocal(key, value, ...)
+function! vimwiki#vars#set_bufferlocal(key, value, ...) abort
   let buffer = a:0 ? a:1 : '%'
   call setbufvar(buffer, 'vimwiki_' . a:key, a:value)
 endfunction
 
 
-function! vimwiki#vars#get_global(key)
+function! vimwiki#vars#get_global(key) abort
   return g:vimwiki_global_vars[a:key]
 endfunction
 
 
 " the second argument can be a wiki number. When absent, the wiki of the currently active buffer is
 " used
-function! vimwiki#vars#get_wikilocal(key, ...)
+function! vimwiki#vars#get_wikilocal(key, ...) abort
   if a:0
     return g:vimwiki_wikilocal_vars[a:1][a:key]
   else
@@ -943,12 +943,12 @@ function! vimwiki#vars#get_wikilocal(key, ...)
 endfunction
 
 
-function! vimwiki#vars#get_wikilocal_default(key)
+function! vimwiki#vars#get_wikilocal_default(key) abort
   return g:vimwiki_wikilocal_vars[-1][a:key]
 endfunction
 
 
-function! vimwiki#vars#set_wikilocal(key, value, wiki_nr)
+function! vimwiki#vars#set_wikilocal(key, value, wiki_nr) abort
   if a:wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
     call insert(g:vimwiki_wikilocal_vars, {}, -1)
   endif
@@ -956,7 +956,7 @@ function! vimwiki#vars#set_wikilocal(key, value, wiki_nr)
 endfunction
 
 
-function! vimwiki#vars#add_temporary_wiki(settings)
+function! vimwiki#vars#add_temporary_wiki(settings) abort
   let new_temp_wiki_settings = copy(g:vimwiki_wikilocal_vars[-1])
   for [key, value] in items(a:settings)
     let new_temp_wiki_settings[key] = value
@@ -967,6 +967,6 @@ endfunction
 
 
 " number of registered wikis + temporary
-function! vimwiki#vars#number_of_wikis()
+function! vimwiki#vars#number_of_wikis() abort
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction

@@ -6,7 +6,7 @@
 " Quit if syntax file is already loaded
 if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -18,7 +18,7 @@ call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
-function! s:add_target_syntax_ON(target, type)
+function! s:add_target_syntax_ON(target, type) abort
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match '.a:type.'T `'
@@ -28,7 +28,7 @@ function! s:add_target_syntax_ON(target, type)
 endfunction
 
 
-function! s:add_target_syntax_OFF(target)
+function! s:add_target_syntax_OFF(target) abort
   let prefix0 = 'syntax match VimwikiNoExistsLink `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,VimwikiLinkChar'
   let prefix1 = 'syntax match VimwikiNoExistsLinkT `'
@@ -38,7 +38,7 @@ function! s:add_target_syntax_OFF(target)
 endfunction
 
 
-function! s:highlight_existing_links()
+function! s:highlight_existing_links() abort
   " Wikilink
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
@@ -153,7 +153,7 @@ endfor
 
 
 " possibly concealed chars
-let s:conceal = exists("+conceallevel") ? ' conceal' : ''
+let s:conceal = exists('+conceallevel') ? ' conceal' : ''
 
 if vimwiki#vars#get_global('conceal_onechar_markers')
   execute 'syn match VimwikiEqInChar contained /'.
@@ -178,13 +178,13 @@ endif
 
 
 let s:options = ' contained transparent contains=NONE'
-if exists("+conceallevel")
+if exists('+conceallevel')
   let s:options .= s:conceal
 endif
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
 " VimwikiLinkRest group is left undefined if link shortening is not desired
-if exists("+conceallevel") && vimwiki#vars#get_global('url_maxsave') > 0
+if exists('+conceallevel') && vimwiki#vars#get_global('url_maxsave') > 0
   execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
         \.'\%([/#?]\w\|\S\{'.vimwiki#vars#get_global('url_maxsave').'}\)`'.' cchar=~'.s:options
 endif
@@ -339,7 +339,7 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 
 " html tags
-if vimwiki#vars#get_global('valid_html_tags') != ''
+if vimwiki#vars#get_global('valid_html_tags') !=? ''
   let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
   execute 'syntax match VimwikiBold #\c<b>.\{-}</b># contains=VimwikiHTMLTag'
@@ -358,7 +358,7 @@ execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
 " header groups highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
   " Strangely in default colorscheme Title group is not set to bold for cterm...
-  if !exists("g:colors_name")
+  if !exists('g:colors_name')
     hi Title cterm=bold
   endif
   for s:i in range(1,6)
@@ -367,8 +367,8 @@ if vimwiki#vars#get_global('hl_headers') == 0
 else
   for s:i in range(1,6)
     execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='
-          \ .vimwiki#vars#get_global('hcolor_guifg_'.&bg)[s:i-1].' gui=bold ctermfg='
-          \ .vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[s:i-1].' term=bold cterm=bold'
+          \ .vimwiki#vars#get_global('hcolor_guifg_'.&background)[s:i-1].' gui=bold ctermfg='
+          \ .vimwiki#vars#get_global('hcolor_ctermfg_'.&background)[s:i-1].' term=bold cterm=bold'
   endfor
 endif
 
@@ -461,13 +461,13 @@ call vimwiki#u#reload_regexes_custom()
 
 
 " FIXME it now does not make sense to pretend there is a single syntax "vimwiki"
-let b:current_syntax="vimwiki"
+let b:current_syntax='vimwiki'
 
 
 " EMBEDDED syntax setup
 let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
 if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
-  let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), "keep")
+  let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), 'keep')
 endif
 if !empty(s:nested)
   for [s:hl_syntax, s:vim_syntax] in items(s:nested)

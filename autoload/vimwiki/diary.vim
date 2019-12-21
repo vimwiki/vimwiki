@@ -4,13 +4,13 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-if exists("g:loaded_vimwiki_diary_auto") || &cp
+if exists('g:loaded_vimwiki_diary_auto') || &compatible
   finish
 endif
 let g:loaded_vimwiki_diary_auto = 1
 
 
-function! s:prefix_zero(num)
+function! s:prefix_zero(num) abort
   if a:num < 10
     return '0'.a:num
   endif
@@ -18,20 +18,20 @@ function! s:prefix_zero(num)
 endfunction
 
 
-function! s:diary_path(...)
+function! s:diary_path(...) abort
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
 endfunction
 
 
-function! s:diary_index(...)
+function! s:diary_index(...) abort
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).
         \ vimwiki#vars#get_wikilocal('ext', idx)
 endfunction
 
 
-function! vimwiki#diary#diary_date_link(...)
+function! vimwiki#diary#diary_date_link(...) abort
   if a:0
     return strftime('%Y-%m-%d', a:1)
   else
@@ -40,7 +40,7 @@ function! vimwiki#diary#diary_date_link(...)
 endfunction
 
 
-function! s:get_position_links(link)
+function! s:get_position_links(link) abort
   let idx = -1
   let links = []
   if a:link =~# '^\d\{4}-\d\d-\d\d'
@@ -56,11 +56,11 @@ function! s:get_position_links(link)
 endfunction
 
 
-function! s:get_month_name(month)
+function! s:get_month_name(month) abort
   return vimwiki#vars#get_global('diary_months')[str2nr(a:month)]
 endfunction
 
-function! s:get_first_header(fl)
+function! s:get_first_header(fl) abort
   " Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
   let header_rx = vimwiki#vars#get_syntaxlocal('rxHeader')
 
@@ -72,7 +72,7 @@ function! s:get_first_header(fl)
   return ''
 endfunction
 
-function! s:get_all_headers(fl, maxlevel)
+function! s:get_all_headers(fl, maxlevel) abort
   " Get a list of all headers in a file up to a given level.
   " Returns a list whose elements are pairs [level, title]
   let headers_rx = {}
@@ -92,7 +92,7 @@ function! s:get_all_headers(fl, maxlevel)
   return headers
 endfunction
 
-function! s:count_headers_level_less_equal(headers, maxlevel)
+function! s:count_headers_level_less_equal(headers, maxlevel) abort
   " Count headers with level <=  maxlevel in a list of [level, title] pairs.
   let l:count = 0
   for [header_level, _] in a:headers
@@ -103,7 +103,7 @@ function! s:count_headers_level_less_equal(headers, maxlevel)
   return l:count
 endfunction
 
-function! s:get_min_header_level(headers)
+function! s:get_min_header_level(headers) abort
   " The minimum level of any header in a list of [level, title] pairs.
   if len(a:headers) == 0
     return 0
@@ -116,7 +116,7 @@ function! s:get_min_header_level(headers)
 endfunction
 
 
-function! s:read_captions(files)
+function! s:read_captions(files) abort
   let result = {}
   let caption_level = vimwiki#vars#get_wikilocal('diary_caption_level')
 
@@ -157,7 +157,7 @@ function! s:read_captions(files)
 endfunction
 
 
-function! s:get_diary_files()
+function! s:get_diary_files() abort
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(vimwiki#vars#get_wikilocal('path').
         \ vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
@@ -171,7 +171,7 @@ function! s:get_diary_files()
 endfunction
 
 
-function! s:group_links(links)
+function! s:group_links(links) abort
   let result = {}
   let p_year = 0
   let p_month = 0
@@ -193,7 +193,7 @@ function! s:group_links(links)
 endfunction
 
 
-function! s:sort(lst)
+function! s:sort(lst) abort
   if vimwiki#vars#get_wikilocal('diary_sort') ==? 'desc'
     return reverse(sort(a:lst))
   else
@@ -205,7 +205,7 @@ endfunction
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
 " contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
 " is used.
-function! vimwiki#diary#make_note(wnum, ...)
+function! vimwiki#diary#make_note(wnum, ...) abort
   if a:wnum == 0
     let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
     if wiki_nr < 0  " this happens when e.g. VimwikiMakeDiaryNote was called outside a wiki buffer
@@ -242,7 +242,7 @@ function! vimwiki#diary#make_note(wnum, ...)
   call vimwiki#base#open_link(cmd, link, s:diary_index(wiki_nr))
 endfunction
 
-function! vimwiki#diary#goto_diary_index(wnum)
+function! vimwiki#diary#goto_diary_index(wnum) abort
 
   " if wnum = 0 the current wiki is used
   if a:wnum == 0
@@ -268,7 +268,7 @@ function! vimwiki#diary#goto_diary_index(wnum)
 endfunction
 
 
-function! vimwiki#diary#goto_next_day()
+function! vimwiki#diary#goto_next_day() abort
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -289,7 +289,7 @@ function! vimwiki#diary#goto_next_day()
 endfunction
 
 
-function! vimwiki#diary#goto_prev_day()
+function! vimwiki#diary#goto_prev_day() abort
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -310,10 +310,10 @@ function! vimwiki#diary#goto_prev_day()
 endfunction
 
 
-function! vimwiki#diary#generate_diary_section()
+function! vimwiki#diary#generate_diary_section() abort
 
   let GeneratorDiary = copy(l:)
-  function! GeneratorDiary.f()
+  function! GeneratorDiary.f() abort
     let lines = []
 
     let links_with_captions = s:read_captions(s:get_diary_files())
@@ -332,7 +332,7 @@ function! vimwiki#diary#generate_diary_section()
         call add(lines, substitute(vimwiki#vars#get_syntaxlocal('rxH3_Template'),
               \ '__Header__', s:get_month_name(month), ''))
 
-        if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+        if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
           for _ in range(vimwiki#vars#get_global('markdown_header_style'))
             call add(lines, '')
           endfor
@@ -342,7 +342,7 @@ function! vimwiki#diary#generate_diary_section()
           let topcap = captions['top']
           let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
 
-          if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+          if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
 
             if empty(topcap) " When using markdown syntax, we should ensure we always have a link description.
@@ -386,7 +386,7 @@ function! vimwiki#diary#generate_diary_section()
     return lines
   endfunction
 
-  let current_file = vimwiki#path#path_norm(expand("%:p"))
+  let current_file = vimwiki#path#path_norm(expand('%:p'))
   let diary_file = vimwiki#path#path_norm(s:diary_index())
   if vimwiki#path#is_equal(current_file, diary_file)
     let content_rx = '^\%('.vimwiki#vars#get_syntaxlocal('rxHeader').'\)\|'.
@@ -406,7 +406,7 @@ endfunction
 
 
 " Callback function for Calendar.vim
-function! vimwiki#diary#calendar_action(day, month, year, week, dir)
+function! vimwiki#diary#calendar_action(day, month, year, week, dir) abort
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
 
@@ -428,7 +428,7 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir)
 endfunction
 
 
-function vimwiki#diary#calendar_sign(day, month, year)
+function! vimwiki#diary#calendar_sign(day, month, year) abort
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
