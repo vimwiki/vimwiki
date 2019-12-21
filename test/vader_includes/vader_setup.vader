@@ -67,8 +67,20 @@ Before (Define functions):
 
   " Write current file: helper to hide `set bt=`
   function! WriteMe()
-    set bt=
+    set buftype=
     write %
+  endfunction
+
+  " print a command output to the buffer
+  function! PrintCommand(cmd)
+    redir => message
+    silent execute a:cmd
+    redir END
+    if empty(message)
+      Log 'no output'
+    else
+      silent put=message
+    endif
   endfunction
 
 # vim: ft=vim
