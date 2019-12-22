@@ -3,6 +3,15 @@
 " Description: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
 
+function! vimwiki#u#sort_len(list) abort
+  function! s:len_compare(s1, s2)
+    let i1 = len(a:s1)
+    let i2 = len(a:s2)
+     return i1 == i2 ? 0 : i1 > i2 ? 1 : -1
+  endfunction
+  return sort(a:list, "s:len_compare")
+endfunction
+
 function! vimwiki#u#trim(string, ...) abort
   let chars = ''
   if a:0 > 0
