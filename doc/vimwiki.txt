@@ -3471,6 +3471,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Robin Lowe (@defau1t)
     - Abhinav Gupta (@abhinav)
     - Dave Gauer (@ratfactor)
+    - Martin Tourneboeuf (@tinmarino)
 
 
 ==============================================================================
