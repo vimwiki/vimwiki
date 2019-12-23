@@ -183,4 +183,4 @@ Execute (Clean dir1 and dir2):
 
 Include: vader_includes/vader_teardown.vader
 
-# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=# ft=conf
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#
