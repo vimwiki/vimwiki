@@ -993,12 +993,33 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
   let wiki_root = vimwiki#vars#get_wikilocal('path', a:wiki_nr)
   let fsources = vimwiki#base#find_files(a:wiki_nr, 0)
 
+  " Shorten dirname
+  let dir_rel_root = vimwiki#path#relpath(wiki_root, a:dir)
+
+  " Cache relative url, because they are often the same, like `../dir1/vim-vimwiki.md`
+  let cache_dict = {}
+
+  " Regex from path
+  function! s:compute_old_url_r(wiki_nr, dir_rel_fsource, old_url) abort
+    " Old url
+    let old_url_r = a:dir_rel_fsource . a:old_url
+    " Add potential  ./
+    let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
+    " Compute old url regex with filename between \zs and \ze
+    let old_url_r = vimwiki#base#apply_template(
+          \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
+             \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_url_r, '', '')
+
+    return old_url_r
+  endfunction
+
   " For each wikifile
   for fsource in fsources
-    " Compute old_url relative to fname
+    " Shorten fname directory
     let fsource_rel_root = vimwiki#path#relpath(wiki_root, fsource)
     let fsource_rel_root = fnamemodify(fsource_rel_root, ':h')
-    let dir_rel_root = vimwiki#path#relpath(wiki_root, a:dir)
+
+    " Compute old_url relative to fname
     let dir_rel_fsource = vimwiki#path#relpath(fsource_rel_root, dir_rel_root)
     " TODO get relpath coherent (and remove next 2 stuff)
     " Remove the trailing ./
@@ -1014,13 +1035,13 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
     let new_url = dir_rel_fsource . a:new_url
 
     " Old url
-    let old_url_r = dir_rel_fsource . a:old_url
-    " Add potential  ./
-    let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
-    " Compute old url regex with filename between \zs and \ze
-    let old_url_r = vimwiki#base#apply_template(
-          \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
-             \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_url_r, '', '')
+    " Avoid E713
+    let key = empty(dir_rel_fsource) ? 'NaF' : dir_rel_fsource
+    if index(keys(cache_dict), key) == -1
+      let cache_dict[key] = s:compute_old_url_r(
+            \ a:wiki_nr, dir_rel_fsource, a:old_url)
+    endif
+    let old_url_r = cache_dict[key]
 
     " Update url in source file
     call s:update_wiki_link(fsource, old_url_r, new_url)
