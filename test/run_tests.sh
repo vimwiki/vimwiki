@@ -19,6 +19,9 @@ printHelp() {
     echo ""
     echo "-t Select test type: 'vader', 'vint', or 'all'"
     echo ""
+    echo "-o Comma seperated list of tests to run."
+    echo "   E.g. -o \"list_margin,command_toc\""
+    echo ""
     echo "-v Turn on verbose output."
     exit 0
 }
@@ -31,12 +34,32 @@ printVersions() {
 runVader() {
     echo "Starting Docker container and Vader tests."
 
+    if [[ -z $only ]]; then
+       ind="test/independent_runs/*.vader" 
+       res="test/*"
+    else
+        IFS=',' read -ra TEST <<< "$only"
+        for i in "${TEST[@]}"; do
+            if [[ -f "$i" ]]; then
+                res="$res test/${i}"
+            elif [[ -f "${i}.vader" ]]; then
+                res="$res test/${i}.vader"
+            elif [[ -f "independent_runs/${i}" ]]; then
+                ind="$ind test/independent_runs/${i}"
+            elif [[ -f "independent_runs/${i}.vader" ]]; then
+                ind="$ind test/independent_runs/${i}.vader"
+            else
+                printf "WARNING: Test \"%s\" not found.\n", "$i"
+            fi
+        done
+    fi
+
     # run tests for each specified version
     for v in $vers; do
         echo ""
         echo "Running version: $v"
         vim="/vim-build/bin/$v -u test/vimrc -i NONE"
-        test_cmd="for VF in test/independent_runs/*.vader; do $vim \"+Vader! \$VF\"; done"
+        test_cmd="for VF in ${ind}; do $vim \"+Vader! \$VF\"; done"
 
         set -o pipefail
 
@@ -47,7 +70,7 @@ runVader() {
 
         # remaining tests
         docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-          "$v" -u test/vimrc -i NONE "+Vader! test/*" 2>&1 | vader_filter | vader_color
+          "$v" -u test/vimrc -i NONE "+Vader! ${res}" 2>&1 | vader_filter | vader_color
         set +o pipefail
 
     done
@@ -142,10 +165,13 @@ type="all"
 # verbose output flag
 verbose=0
 
+# only run these tests
+only=""
+
 # docker flags
 flags=(--rm -v "$PWD/../:/testplugin" -v "$PWD/../test:/home" -w /testplugin vimwiki)
 
-while getopts ":hvn:lt:" opt; do
+while getopts ":hvn:lt:o:" opt; do
     case ${opt} in
         h )
             printHelp
@@ -161,6 +187,9 @@ while getopts ":hvn:lt:" opt; do
             ;;
         t )
             type="$OPTARG"
+            ;;
+        o )
+            only="$OPTARG"
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
