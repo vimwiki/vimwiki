@@ -1,19 +1,12 @@
 Include: vader_includes/vader_setup.vader
 
-
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
-
-# 1 VimwikiRebuildTags
-######################
-
-Execute (New Command):
-  Log "1 Testing VimwikiRebuildTags"
+Execute (Setup):
   set sw=4
   AssertEqual 4, &sw
-
 
 Execute (Edit Test-Tag.md):
   edit $HOME/testmarkdown/Test-Tag.md
@@ -21,47 +14,77 @@ Execute (Edit Test-Tag.md):
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
 
-Do (Add tag <- with `Do` trick to save file):
+Do (Create File Content):
   :edit $HOME/testmarkdown/Test-Tag.md\<CR>
-  :call append(0, ":test-tag:")\<CR>
-  :set bt=\<CR>
-  :write %\<CR>
+  I
+  :top-tag:\<CR>
+  \<CR>
+  # A header\<CR>
+  \<CR>
+  :test-tag:\<CR>
+  \<CR>
+  # Another header\<CR>
+  \<CR>
+  Words here.\<CR>
+  If tag isn't within 2 lines of header then it has a direct link instead of\<CR>
+  a link to the header.\<CR>
+  \<CR>
+  :second-tag:
+  \<Esc>
+  :write\<CR>
   :VimwikiRebuildTags\<CR>
 
-Execute (Edit .vimwiki_tags):
+Execute (Edit tags file):
   edit $HOME/testmarkdown/.vimwiki_tags
   AssertEqual $HOME . '/testmarkdown/.vimwiki_tags', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
 
-# Carefull, following 2 lines have tabs: `this is the way`
-Expect (Tag file with test-tag):
-  !_TAG_FILE_SORTED	1	
-  test-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+# Note: tags file uses tabs
+Expect (Correctly formatted tags file):
+  !_TAG_FILE_FORMAT	2
+  !_TAG_FILE_SORTED	1
+  !_TAG_OUTPUT_MODE	vimwiki-tags
+  !_TAG_PROGRAM_AUTHOR	Vimwiki
+  !_TAG_PROGRAM_NAME	Vimwiki Tags
+  !_TAG_PROGRAM_URL	https://github.com/vimwiki/vimwiki
+  !_TAG_PROGRAM_VERSION	2.4.1
+  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag
+  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#A header
+  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
 
+Execute (Generate tags):
+  edit $HOME/testmarkdown/Test-Tag.md
+  VimwikiGenerateTags
 
-# 2 VimwikiGenerateTags
-#########################
+Expect (Correctly generated tags section):
+  :top-tag:
 
-Execute (New Command):
-  Log "2 Testing VimwikiGenerateTags TODO"
-  set sw=4
-  AssertEqual 4, &sw
+  # A header
 
-Given (Void):
+  :test-tag:
 
-Do (Edit Test-Tag && GenerateTags):
-  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
-  :call append(0, ':Tag:')\<Cr>
-  :call append(0, '')\<Cr>
-  :call append(0, 'Test Here')\<Cr>
-  :call append(0, '')\<Cr>
-  :call append(0, '# A header')\<Cr>
-  :call WriteMe()\<CR>
-  :VimwikiRebuildTags\<CR>
-  :VimwikiGenerateTags\<CR>
-  :Log "TODO give the expect block when VimwikigenerateTags is working"\<CR>
+  # Another header
 
+  Words here.
+  If tag isn't within 2 lines of header then it has a direct link instead of
+  a link to the header.
+
+  :second-tag:
+
+  # Generated Tags
+
+  ## second-tag
+
+  - [second-tag](Test-Tag#second-tag)
+
+  ## test-tag
+
+  - [A header](Test-Tag#A header)
+
+  ## top-tag
+
+  - [Test-Tag](Test-Tag)
 
 Execute (Clean Test-Tag and .vimwiki_tags):
   Log "End: Clean"
@@ -70,6 +93,4 @@ Execute (Clean Test-Tag and .vimwiki_tags):
   call system("rm $HOME/testmarkdown/Test-Tag.md")
   call DeleteHiddenBuffers()
 
-
 Include: vader_includes/vader_teardown.vader
-# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

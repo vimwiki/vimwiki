@@ -354,16 +354,18 @@ function! vimwiki#tags#generate_tags(create, ...) abort
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
             let link_infos = vimwiki#base#resolve_link(taglink)
             if empty(link_infos.anchor)
-              echom 'Vimwiki Error: Tags must appear after a header.'
-              return []
+              let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
+            else
+              let link_caption = split(link_infos.anchor, '#', 0)[-1]
+              let link_text = split(taglink, '#', 1)[0]
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
+              let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
             endif
-            let link_caption = split(link_infos.anchor, '#', 0)[-1]
-            let link_text = split(taglink, '#', 1)[0]
 
-            let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
-            let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
-            let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
-            call add(lines, bullet.entry)
+            call add(lines, bullet . entry)
           else
             let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
             call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
