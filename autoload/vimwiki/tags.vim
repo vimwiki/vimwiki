@@ -279,16 +279,18 @@ function! s:write_tags_metadata(metadata) abort
   endfor
   call sort(tags, 's:tags_entry_cmp')
   let tag_comments = [
-    \ "!_TAG_FILE_FORMAT\t2",
-    \ "!_TAG_FILE_SORTED\t1",
-    \ "!_TAG_OUTPUT_MODE\tvimwiki-tags",
-    \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
-    \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
-    \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
     \ "!_TAG_PROGRAM_VERSION\t2.4.1",
+    \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
+    \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
+    \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
+    \ "!_TAG_OUTPUT_MODE\tvimwiki-tags",
+    \ "!_TAG_FILE_SORTED\t1",
+    \ "!_TAG_FILE_FORMAT\t2",
     \ ]
-  call writefile(tag_comments, metadata_path)
-  call writefile(tags, metadata_path, 'a')
+  for c in tag_comments
+    call insert(tags, c)
+  endfor
+  call writefile(tags, metadata_path)
 endfunction
 
 
