@@ -162,7 +162,7 @@ function! s:load_tags_metadata() abort
   endif
   let metadata = {}
   for line in readfile(metadata_path)
-    if line =~# '^!_TAG_FILE_'
+    if line =~# '^!_TAG_.*$'
       continue
     endif
     let parts = matchlist(line, '^\(.\{-}\);"\(.*\)$')
@@ -278,8 +278,17 @@ function! s:write_tags_metadata(metadata) abort
     endfor
   endfor
   call sort(tags, 's:tags_entry_cmp')
-  call insert(tags, "!_TAG_FILE_SORTED\t1\t")
-  call writefile(tags, metadata_path)
+  let tag_comments = [
+    \ "!_TAG_FILE_FORMAT\t2",
+    \ "!_TAG_FILE_SORTED\t1",
+    \ "!_TAG_OUTPUT_MODE\tvimwiki-tags",
+    \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
+    \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
+    \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
+    \ "!_TAG_PROGRAM_VERSION\t2.4.1",
+    \ ]
+  call writefile(tag_comments, metadata_path)
+  call writefile(tags, metadata_path, 'a')
 endfunction
 
 
