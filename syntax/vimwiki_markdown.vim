@@ -80,8 +80,8 @@ let s:markdown_syntax.list_markers = ['-', '*', '+', '1.']
 let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 
 " Preformatted text
-let s:markdown_syntax.rxPreStart = '```'
-let s:markdown_syntax.rxPreEnd = '```'
+let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
+let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
 
 " Math block
 let s:markdown_syntax.rxMathStart = '\$\$'
