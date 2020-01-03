@@ -88,6 +88,11 @@ function! s:scan_tags(lines, page_name) abort
   for line_nr in range(1, len(a:lines))
     let line = a:lines[line_nr - 1]
 
+    " ignore verbatim blocks
+    if vimwiki#u#is_codeblock(line_nr)
+      continue
+    endif
+
     " process headers
     let h_match = matchlist(line, rxheader)
     if !empty(h_match) " got a header
@@ -111,8 +116,6 @@ function! s:scan_tags(lines, page_name) abort
       endif
       continue " tags are not allowed in headers
     endif
-
-    " TODO ignore verbatim blocks
 
     " Scan line for tags.  There can be many of them.
     let str = line
