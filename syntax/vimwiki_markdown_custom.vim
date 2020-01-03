@@ -190,7 +190,9 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiEqInT,
                            \ @Spell
 
-
+" indented code blocks https://github.github.com/gfm/#indented-code-blocks
+execute 'syntax match VimwikiIndentedCodeBlock /' . vimwiki#vars#get_syntaxlocal('rxIndentedCodeBlock') . '/'
+hi def link VimwikiIndentedCodeBlock VimwikiPre
 
 " syntax group highlighting
 hi def link VimwikiImage VimwikiLink

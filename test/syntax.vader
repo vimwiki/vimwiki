@@ -112,10 +112,10 @@ Execute (Assert Syntax link):
 Given vimwiki (Markdown Links):
   Inline link: >
     [Looks like this](URL)
-  
+
   Image link: >
     ![Looks like this](URL)
-  
+
   Reference-style links: >
     a) [Link Name][Id]
     b) [Id][], using the "implicit link name" shortcut
@@ -201,11 +201,11 @@ Execute (Assert Syntax Code):
 Given vimwiki (Markdown, Text and Vim):
   this is markdown
   this is TODO
-  
+
   ```
   this is text
   ```
-  
+
   ```vim
   " this is vim
   set hlsearch
@@ -225,6 +225,23 @@ Given vimwiki (Markdown, Text and Vim):
   " this is vim
   set hlsearch
   ~~~~~~~~~~~
+
+  Here is an indented code block:
+
+      int main()
+
+  Must be surrounded by blank lines.
+
+  This isn't a code block:
+      int main()
+  - But this is one in a list
+  - Item
+    - subitem
+
+        int main()
+
+    - list item
+  - done
 
 Execute (Set syntax markdown):
   let g:vimwiki_global_vars['vimwiki_automatic_nested_syntaxes'] = 1
@@ -252,6 +269,9 @@ Execute (Assert Code syntax):
   AssertEqual SyntaxAt(24, 1), 'vimLineComment'
   AssertEqual SyntaxAt(25, 1), 'vimCommand'
   AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(30, 1), 'VimwikiIndentedCodeBlock'
+  AssertEqual SyntaxAt(35, 1), ''
+  AssertEqual SyntaxAt(40, 1), 'VimwikiIndentedCodeBlock'
 
 
 # 11 Math {{{1
@@ -260,14 +280,14 @@ Execute (Assert Code syntax):
 
 Given vimwiki (Math markdown):
   math inline: $ \sum_i a_i^2 = 1 $
-  
+
   math block:
   $$
-  \sum_i a_i^2 
+  \sum_i a_i^2
   =
   1
   $$
-  
+
   math block env:
   $$%align%
   \sum_i a_i^2 &= 1 + 1 \\
@@ -290,14 +310,14 @@ Execute (Assert math syntax):
 
 Given vimwiki (Math wiki):
   math inline: $ \sum_i a_i^2 = 1 $
-  
+
   math block:
   {{$
-  \sum_i a_i^2 
+  \sum_i a_i^2
   =
   1
   }}$
-  
+
   math block env:
   {{$%align%
   \sum_i a_i^2 &= 1 + 1 \\
