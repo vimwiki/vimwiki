@@ -55,7 +55,7 @@ Expect (Correctly formatted tags file):
 
 Execute (Generate tags):
   edit $HOME/testmarkdown/Test-Tag.md
-  VimwikiGenerateTags
+  VimwikiGenerateTagLinks
 
 Expect (Correctly generated tags section):
   :top-tag:
