@@ -924,7 +924,7 @@ Vimwiki file.
     Searches over the pages in current wiki and finds all locations of a given
     tag.  Supports |cmdline-completion|.
 
-*:VimwikiGenerateTags* tagname1 tagname2 ...
+*:VimwikiGenerateTagLinks* tagname1 tagname2 ...
     Creates or updates an overview on all tags of the wiki with links to all
     their instances.  Supports |cmdline-completion|.  If no arguments (tags)
     are specified, outputs all tags.  To make this command work properly, make
@@ -1479,7 +1479,7 @@ the tags metadata will be auto-updated on each page save.
 
 Tags-related commands and options:
    * |:VimwikiRebuildTags|
-   * |:VimwikiGenerateTags|
+   * |:VimwikiGenerateTagLinks|
    * |:VimwikiSearchTags|
    * |vimwiki-option-auto_tags|
 
@@ -3560,6 +3560,7 @@ Removed:~
       point.
 
 Fixed:~
+    * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|
     * Issue #790: Allow tags before a header with markdown syntax.
     * Issue #779: Vimwiki tags file meets ctags standard.
     * Issue #781: Compatablity fixes for older versions of Vim.
