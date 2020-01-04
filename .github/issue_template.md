@@ -1,4 +1,4 @@
-# Issue Checks
+<!--
 
 Prior to submitting a new issue make sure to complete these steps:
 
@@ -8,4 +8,4 @@ Prior to submitting a new issue make sure to complete these steps:
 3. Provide a detailed description of the problem including **steps to reproduce the issue**.
 4. Include the output of `:VimwikiShowVersion`.
 
-**DELETE THIS TEMPLATE TEXT PRIOR TO SUBMITTING THE ISSUE**
+-->
