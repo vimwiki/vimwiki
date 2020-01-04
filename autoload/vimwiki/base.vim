@@ -2300,7 +2300,7 @@ endfunction
 
 function! vimwiki#base#detect_nested_syntax() abort
   let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, '$'), 'v:val =~# "\\%({{{\\|```\\)" && v:val =~# last_word'),
+  let lines = map(filter(getline(1, '$'), 'v:val =~# "\\%({{{\\|`\\{3,\}\\|\\~\\{3,\}\\)" && v:val =~# last_word'),
         \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
   let dict = {}
   for elem in lines

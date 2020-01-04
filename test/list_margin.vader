@@ -21,6 +21,7 @@ Execute (Set syntax default):
   set shiftwidth=8
   AssertEqual 8, &shiftwidth
   call SetSyntax('default')
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Execute (Generate Links):
   VimwikiGenerateLinks
@@ -47,6 +48,7 @@ Expect (Links with margin == 2):
 
 Execute (Set syntax media):
   call SetSyntax('media')
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Execute (Generate Links):
   VimwikiGenerateLinks
@@ -73,6 +75,7 @@ Expect (Links with margin == 1):
 
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
+  " list margin should default to 0 for markdown
 
 Execute (Generate Links):
   VimwikiGenerateLinks

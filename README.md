@@ -77,6 +77,9 @@ The result should look something like:
 
 ## Installation
 
+VimWiki has been tested on **Vim >= 7.3**. It will likely work on older
+versions but will not be officially supported.
+
 ### Prerequisites
 
 Make sure you have these settings in your vimrc file:
@@ -130,9 +133,10 @@ vim +PluginInstall +qall
 
 ```
 
-Or, download the [zip
-archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it
-in `~/.vim/bundle/`
+#### Manual Install
+
+Download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip)
+and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was
 installed.

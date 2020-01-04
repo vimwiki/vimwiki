@@ -79,9 +79,10 @@ let s:markdown_syntax.number_types = ['1.']
 let s:markdown_syntax.list_markers = ['-', '*', '+', '1.']
 let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 
-" Preformatted text
-let s:markdown_syntax.rxPreStart = '```'
-let s:markdown_syntax.rxPreEnd = '```'
+" Preformatted text (code blocks)
+let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
+let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
+let s:markdown_syntax.rxIndentedCodeBlock = '^\s*\n\(\(\s\{4,}[^ ]\|\t\+[^\t]\).*\n\)\+\(^\s*\n\)'
 
 " Math block
 let s:markdown_syntax.rxMathStart = '\$\$'

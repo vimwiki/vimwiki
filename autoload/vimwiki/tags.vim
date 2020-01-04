@@ -88,6 +88,11 @@ function! s:scan_tags(lines, page_name) abort
   for line_nr in range(1, len(a:lines))
     let line = a:lines[line_nr - 1]
 
+    " ignore verbatim blocks
+    if vimwiki#u#is_codeblock(line_nr)
+      continue
+    endif
+
     " process headers
     let h_match = matchlist(line, rxheader)
     if !empty(h_match) " got a header
@@ -111,8 +116,6 @@ function! s:scan_tags(lines, page_name) abort
       endif
       continue " tags are not allowed in headers
     endif
-
-    " TODO ignore verbatim blocks
 
     " Scan line for tags.  There can be many of them.
     let str = line
@@ -162,7 +165,7 @@ function! s:load_tags_metadata() abort
   endif
   let metadata = {}
   for line in readfile(metadata_path)
-    if line =~# '^!_TAG_FILE_'
+    if line =~# '^!_TAG_.*$'
       continue
     endif
     let parts = matchlist(line, '^\(.\{-}\);"\(.*\)$')
@@ -278,7 +281,18 @@ function! s:write_tags_metadata(metadata) abort
     endfor
   endfor
   call sort(tags, 's:tags_entry_cmp')
-  call insert(tags, "!_TAG_FILE_SORTED\t1\t")
+  let tag_comments = [
+    \ "!_TAG_PROGRAM_VERSION\t2.4.1",
+    \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
+    \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
+    \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
+    \ "!_TAG_OUTPUT_MODE\tvimwiki-tags",
+    \ "!_TAG_FILE_SORTED\t1",
+    \ "!_TAG_FILE_FORMAT\t2",
+    \ ]
+  for c in tag_comments
+    call insert(tags, c)
+  endfor
   call writefile(tags, metadata_path)
 endfunction
 
@@ -345,16 +359,18 @@ function! vimwiki#tags#generate_tags(create, ...) abort
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
             let link_infos = vimwiki#base#resolve_link(taglink)
             if empty(link_infos.anchor)
-              echom 'Vimwiki Error: Tags must appear after a header.'
-              return []
+              let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
+            else
+              let link_caption = split(link_infos.anchor, '#', 0)[-1]
+              let link_text = split(taglink, '#', 1)[0]
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
+              let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
             endif
-            let link_caption = split(link_infos.anchor, '#', 0)[-1]
-            let link_text = split(taglink, '#', 1)[0]
 
-            let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
-            let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
-            let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
-            call add(lines, bullet.entry)
+            call add(lines, bullet . entry)
           else
             let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
             call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))

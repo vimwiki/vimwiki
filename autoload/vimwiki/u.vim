@@ -95,12 +95,14 @@ function! vimwiki#u#map_key(mode, key, plug, ...) abort
 endfunction
 
 
+" returns 1 if line is a code block or math block
+"
+" The last two conditions are needed for this to correctly
+" detect nested syntaxes within code blocks
 function! vimwiki#u#is_codeblock(lnum) abort
   let syn_g = synIDattr(synID(a:lnum,1,1),'name')
-  if  syn_g =~# 'textSnip.*'
-        \ || syn_g =~# 'VimwikiPre.*'
-        \ || syn_g =~# 'VimwikiMath.*'
-        \ || syn_g =~# '.*Comment'
+  if  syn_g =~# 'Vimwiki\(Pre.*\|IndentedCodeBlock\|Math.*\)'
+        \ || (syn_g !~# 'Vimwiki.*' && syn_g !=? '')
     return 1
   else
     return 0

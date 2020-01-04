@@ -211,6 +211,38 @@ Given vimwiki (Markdown, Text and Vim):
   set hlsearch
   ```
 
+  `````vim
+  " this is vim
+  set hlsearch
+  `````
+
+  ~~~vim
+  " this is vim
+  set hlsearch
+  ~~~
+
+  ~~~~~vim
+  " this is vim
+  set hlsearch
+  ~~~~~~~~~~~
+
+  Here is an indented code block:
+
+      int main()
+
+  Must be surrounded by blank lines.
+
+  This isn't a code block:
+      int main()
+  - But this is one in a list
+  - Item
+    - subitem
+
+        int main()
+
+    - list item
+  - done
+
 Execute (Set syntax markdown):
   let g:vimwiki_global_vars['vimwiki_automatic_nested_syntaxes'] = 1
   call SetSyntax('markdown')
@@ -225,6 +257,21 @@ Execute (Assert Code syntax):
   AssertEqual SyntaxAt(5, 1), 'VimwikiPre'
   AssertEqual SyntaxAt(9, 1), 'vimLineComment'
   AssertEqual SyntaxAt(10, 1), 'vimCommand'
+  AssertEqual SyntaxAt(13, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(14, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(15, 1), 'vimCommand'
+  AssertEqual SyntaxAt(16, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(18, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(19, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(20, 1), 'vimCommand'
+  AssertEqual SyntaxAt(21, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(23, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(24, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(25, 1), 'vimCommand'
+  AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(30, 1), 'VimwikiIndentedCodeBlock'
+  AssertEqual SyntaxAt(35, 1), ''
+  AssertEqual SyntaxAt(40, 1), 'VimwikiIndentedCodeBlock'
 
 
 # 11 Math {{{1
@@ -277,7 +324,7 @@ Given vimwiki (Math wiki):
   &= 2.
   }}$
 
-Execute (Set syntax markdown):
+Execute (Set syntax default):
   call SetSyntax('default')
 
 Execute (Assert math syntax):

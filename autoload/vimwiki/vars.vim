@@ -321,6 +321,7 @@ function! s:normalize_global_settings() abort
 endfunction
 
 
+let s:margin_set_by_user = 0
 function! s:populate_wikilocal_options() abort
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -375,6 +376,9 @@ function! s:populate_wikilocal_options() abort
       for key in keys(default_values)
         if has_key(users_wiki_settings, key)
           call s:check_users_value(key, users_wiki_settings[key], default_values[key], 0)
+          if key ==# 'list_margin'
+            let s:margin_set_by_user = 1
+          endif
           let new_wiki_settings[key] = users_wiki_settings[key]
         else
           let new_wiki_settings[key] = default_wiki_settings[key]
@@ -498,11 +502,9 @@ function! s:normalize_wikilocal_settings() abort
       let wiki_settings.syntax = 'media'
     endif
 
-    if wiki_settings.syntax ==# 'markdown'
+    if wiki_settings.syntax ==# 'markdown' && !s:margin_set_by_user
       " default list margin to 0
       let wiki_settings.list_margin = 0
-    else
-      let wiki_settings.list_margin = -1
     endif
 
   endfor

@@ -303,7 +303,7 @@ command! -buffer -bang VimwikiRebuildTags call vimwiki#tags#update_tags(1, '<ban
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiSearchTags VimwikiSearch /:<args>:/
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
-      \ VimwikiGenerateTags call vimwiki#tags#generate_tags(1, <f-args>)
+      \ VimwikiGenerateTagLinks call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
