@@ -98,7 +98,7 @@ endfunction
 " Returns: the relative path from a:dir to a:file
 function! vimwiki#path#relpath(dir, file) abort
   " Check in
-  if empty(a:dir) || a:dir =~ '^\.[/\\]\?$'
+  if empty(a:dir) || a:dir =~# '^\.[/\\]\?$'
     return a:file
   endif
   let result = []

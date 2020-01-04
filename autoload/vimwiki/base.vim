@@ -1023,11 +1023,11 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
     let dir_rel_fsource = vimwiki#path#relpath(fsource_rel_root, dir_rel_root)
     " TODO get relpath coherent (and remove next 2 stuff)
     " Remove the trailing ./
-    if dir_rel_fsource =~ '.[/\\]$'
+    if dir_rel_fsource =~# '.[/\\]$'
       let dir_rel_fsource = dir_rel_fsource[:-3]
     endif
     " Append a / if needed
-    if !empty(dir_rel_fsource) && dir_rel_fsource !~ '[/\\]$'
+    if !empty(dir_rel_fsource) && dir_rel_fsource !~# '[/\\]$'
       let dir_rel_fsource .= '/'
     endif
 
