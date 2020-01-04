@@ -112,10 +112,10 @@ Execute (Assert Syntax link):
 Given vimwiki (Markdown Links):
   Inline link: >
     [Looks like this](URL)
-  
+
   Image link: >
     ![Looks like this](URL)
-  
+
   Reference-style links: >
     a) [Link Name][Id]
     b) [Id][], using the "implicit link name" shortcut
@@ -201,11 +201,11 @@ Execute (Assert Syntax Code):
 Given vimwiki (Markdown, Text and Vim):
   this is markdown
   this is TODO
-  
+
   ```
   this is text
   ```
-  
+
   ```vim
   " this is vim
   set hlsearch
@@ -233,14 +233,14 @@ Execute (Assert Code syntax):
 
 Given vimwiki (Math markdown):
   math inline: $ \sum_i a_i^2 = 1 $
-  
+
   math block:
   $$
-  \sum_i a_i^2 
+  \sum_i a_i^2
   =
   1
   $$
-  
+
   math block env:
   $$%align%
   \sum_i a_i^2 &= 1 + 1 \\
@@ -263,14 +263,14 @@ Execute (Assert math syntax):
 
 Given vimwiki (Math wiki):
   math inline: $ \sum_i a_i^2 = 1 $
-  
+
   math block:
   {{$
-  \sum_i a_i^2 
+  \sum_i a_i^2
   =
   1
   }}$
-  
+
   math block env:
   {{$%align%
   \sum_i a_i^2 &= 1 + 1 \\

@@ -29,6 +29,9 @@ Do (Create in_root):
   :edit $HOME/testmarkdown/Test-Rename.md\<CR>
   :AssertEqual $HOME . '/testmarkdown/Test-Rename.md', expand('%')\<CR>\<Esc>
 
+  :Log 'Delete last line (easyer latter checks without trailing spaces)'\<CR>
+  Gdd
+
   :Log 'Open in_root.md'\<CR>
   gg
   j\<CR>
@@ -42,7 +45,7 @@ Do (Create in_root):
 
   :Log 'Add link in_root.md -> dir1/dir11/in_dir11'\<CR>
   ggi# Title in root\<CR>\<Esc>
-  idir1/dir11/in_dir11\<CR>\<Esc>
+  idir1/dir11/in_dir11\<Esc>
   :call WriteMe()\<CR>
   :AssertEqual $HOME . '/testmarkdown/in_root.md', expand('%')\<CR>
 
@@ -62,7 +65,7 @@ Do (Create dir_11 -> dir_11):
 
   :Log 'Add link in_dir11_fix.md -> in_dir11'\<CR>
   ggi# Title in dir11 fix\<CR>\<Esc>
-  iin_dir11\<CR>\<Esc>
+  iin_dir11\<Esc>
   :call WriteMe()\<CR>
 
   :Log 'Open in_dir11.md: creating dirs'\<CR>
@@ -102,7 +105,7 @@ Do (RenameLink in_dir11 -> new_dir11):
 Expect(With new filename at the end):
   # Title in_dir11
   [dir2 link](../../dir2/in_dir2.md)
-  
+
   /home/vimtest/testmarkdown/dir1/dir11/in_dir11_new.md
 
 
@@ -112,7 +115,7 @@ Execute (edit in_dir11_fix):
 Expect(Link to in_dir11_new):
   # Title in dir11 fix
   [in_dir11](in_dir11_new)
-  
+
 
 Execute (edit Test-Rename.md):
   edit $HOME/testmarkdown/Test-Rename.md
@@ -124,7 +127,7 @@ Expect (Link to in_dir11_new):
   [dir1 dir11 in_dir11](dir1/dir11/in_dir11_new.md)
   [dir1 dir12 in_dir12](dir1/dir12/in_dir12.md)
   [dir2 in_dir2](dir2/in_dir2.md)
-  
+
 
 
 Do (in_dir2 -> in_dir2_new):
@@ -145,7 +148,7 @@ Do (in_dir2 -> in_dir2_new):
 
 
 Expect (old and new filenames):
-  
+
   /home/vimtest/testmarkdown/dir2/in_dir2.md
   /home/vimtest/testmarkdown/dir2/in_dir2_new.md
 
@@ -159,7 +162,7 @@ Expect (Link to in_dir11_new):
   [dir1 dir11 in_dir11](dir1/dir11/in_dir11_new.md)
   [dir1 dir12 in_dir12](dir1/dir12/in_dir12.md)
   [dir2 in_dir2](dir2/in_dir2_new.md)
-  
+
 
 Execute (edit in_dir11.md):
   edit $HOME/testmarkdown/dir1/dir11/in_dir11_new.md
@@ -168,7 +171,7 @@ Execute (edit in_dir11.md):
 Expect (Link to in_dir2_new):
   # Title in_dir11
   [dir2 link](../../dir2/in_dir2_new.md)
-  
+
   /home/vimtest/testmarkdown/dir1/dir11/in_dir11_new.md
 
 

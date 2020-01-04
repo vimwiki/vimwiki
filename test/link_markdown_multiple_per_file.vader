@@ -2,18 +2,18 @@ Include: vader_includes/vader_setup.vader
 
 Given vimwiki (Internal links + one link to filenew):
   # Contents
-  
+
     - [Test1](#Test1)
     - [Test2](#Test2)
-  
+
   # Test1
-  
+
     - [Test1](#Test1)
     - [Test2](#Test2)
     - [filenew](filenew)
-  
+
   # Test2
-  
+
     - [Test1](#Test1)
     - [Test2](#Test2)
     - [filenew](filenew)
