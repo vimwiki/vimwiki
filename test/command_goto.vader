@@ -33,19 +33,19 @@ Execute (:VimwikiGoto + Completion in directory):
   " Return to base
   VimwikiIndex 2
   AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
-  
+
   " Complete without argment
   let s_complete1=string(vimwiki#base#get_globlinks_escaped())
   Assert -1 != stridx(s_complete1, 'test_goto_file')
-  
+
   " Complete with file argument
   let s_complete2=string(vimwiki#base#get_globlinks_escaped('test_goto_file'))
   Assert -1 != stridx(s_complete2, 'test_goto_file')
-  
+
   " Complete with start of file argument
   let s_complete3=string(vimwiki#base#get_globlinks_escaped('test_got'))
   Assert -1 != stridx(s_complete3, 'test_goto_file')
-  
+
   " Complete with (nested) dir2 argument
   let s_complete4=string(vimwiki#base#get_globlinks_escaped('dir2'))
   Assert -1 != stridx(s_complete4, 'test_goto_file')

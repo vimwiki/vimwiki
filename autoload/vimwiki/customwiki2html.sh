@@ -2,7 +2,7 @@
 
 #
 # This script converts markdown into html, to be used with vimwiki's
-# "customwiki2html" option.  Experiment with the two proposed methods by 
+# "customwiki2html" option.  Experiment with the two proposed methods by
 # commenting / uncommenting the relevant lines below.
 #
 #   NEW!  An alternative converter was developed by Jason6Anderson, and can
@@ -46,7 +46,7 @@ OUTPUT="$OUTPUTDIR"/$(basename "$INPUT" .$EXTENSION).html
 
 # # Method 1:
 # # markdown [-d] [-T] [-V] [-b url-base] [-C prefix] [-F bitmap] [-f flags] [-o file] [-s text] [-t text] [textfile]
-# 
+#
 # URLBASE=http://example.com
 # $MARKDOWN -T -b $URLBASE -o $OUTPUT  $INPUT
 

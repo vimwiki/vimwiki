@@ -961,6 +961,10 @@ function! s:print_wiki_list() abort
 endfunction
 
 
+" Update link: in fname.ext
+" Param: fname: the source file where to change links
+" Param: old: url regex of old path relative to wiki root
+" Param: new: url string of new path
 function! s:update_wiki_link(fname, old, new) abort
   echo 'Updating links in '.a:fname
   let has_updates = 0
@@ -981,18 +985,66 @@ function! s:update_wiki_link(fname, old, new) abort
 endfunction
 
 
-function! s:update_wiki_links_dir(wiki_nr, dir, old_fname, new_fname) abort
-  let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
-  let new_fname = a:new_fname
+" Update link for all files in dir
+" Param: old_url, new_url: path of the old, new url relative to ...
+" Param: dir: directory of the files, relative to wiki_root
+function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
+  " Get list of wiki files
+  let wiki_root = vimwiki#vars#get_wikilocal('path', a:wiki_nr)
+  let fsources = vimwiki#base#find_files(a:wiki_nr, 0)
 
-  let old_fname_r = vimwiki#base#apply_template(
-        \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
-           \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_fname, '', '')
+  " Shorten dirname
+  let dir_rel_root = vimwiki#path#relpath(wiki_root, a:dir)
 
-  let files = split(glob(vimwiki#vars#get_wikilocal('path', a:wiki_nr).a:dir.'*'.
-        \ vimwiki#vars#get_wikilocal('ext', a:wiki_nr)), '\n')
-  for fname in l:files
-    call s:update_wiki_link(fname, old_fname_r, new_fname)
+  " Cache relative url, because they are often the same, like `../dir1/vim-vimwiki.md`
+  let cache_dict = {}
+
+  " Regex from path
+  function! s:compute_old_url_r(wiki_nr, dir_rel_fsource, old_url) abort
+    " Old url
+    let old_url_r = a:dir_rel_fsource . a:old_url
+    " Add potential  ./
+    let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
+    " Compute old url regex with filename between \zs and \ze
+    let old_url_r = vimwiki#base#apply_template(
+          \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
+             \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_url_r, '', '')
+
+    return old_url_r
+  endfunction
+
+  " For each wikifile
+  for fsource in fsources
+    " Shorten fname directory
+    let fsource_rel_root = vimwiki#path#relpath(wiki_root, fsource)
+    let fsource_rel_root = fnamemodify(fsource_rel_root, ':h')
+
+    " Compute old_url relative to fname
+    let dir_rel_fsource = vimwiki#path#relpath(fsource_rel_root, dir_rel_root)
+    " TODO get relpath coherent (and remove next 2 stuff)
+    " Remove the trailing ./
+    if dir_rel_fsource =~# '.[/\\]$'
+      let dir_rel_fsource = dir_rel_fsource[:-3]
+    endif
+    " Append a / if needed
+    if !empty(dir_rel_fsource) && dir_rel_fsource !~# '[/\\]$'
+      let dir_rel_fsource .= '/'
+    endif
+
+    " New url
+    let new_url = dir_rel_fsource . a:new_url
+
+    " Old url
+    " Avoid E713
+    let key = empty(dir_rel_fsource) ? 'NaF' : dir_rel_fsource
+    if index(keys(cache_dict), key) == -1
+      let cache_dict[key] = s:compute_old_url_r(
+            \ a:wiki_nr, dir_rel_fsource, a:old_url)
+    endif
+    let old_url_r = cache_dict[key]
+
+    " Update url in source file
+    call s:update_wiki_link(fsource, old_url_r, new_url)
   endfor
 endfunction
 
@@ -1002,38 +1054,6 @@ function! s:tail_name(fname) abort
   let result = fnamemodify(result, ':t:r')
   let result = substitute(result, '__colon__', ':', 'g')
   return result
-endfunction
-
-
-function! s:update_wiki_links(wiki_nr, old_fname, new_fname,old_fname_relpath) abort
-  let old_fname = a:old_fname
-  let new_fname = a:new_fname
-
-  let subdirs = split(a:old_fname_relpath, '[/\\]')[: -2]
-
-  " TODO: Use Dictionary here...
-  let dirs_keys = ['']
-  let dirs_vals = ['']
-  if len(subdirs) > 0
-    let dirs_keys = ['']
-    let dirs_vals = [join(subdirs, '/').'/']
-    let idx = 0
-    while idx < len(subdirs) - 1
-      call add(dirs_keys, join(subdirs[: idx], '/').'/')
-      call add(dirs_vals, join(subdirs[idx+1 :], '/').'/')
-      let idx = idx + 1
-    endwhile
-    call add(dirs_keys,join(subdirs, '/').'/')
-    call add(dirs_vals, '')
-  endif
-
-  let idx = 0
-  while idx < len(dirs_keys)
-    let dir = dirs_keys[idx]
-    let new_dir = dirs_vals[idx]
-    call s:update_wiki_links_dir(a:wiki_nr, dir, new_dir.old_fname, new_dir.new_fname)
-    let idx = idx + 1
-  endwhile
 endfunction
 
 
@@ -1443,8 +1463,12 @@ endfunction
 
 " Rename current file, update all links to it
 function! vimwiki#base#rename_link() abort
+  " Get filename relative to wiki root
   let subdir = vimwiki#vars#get_bufferlocal('subdir')
   let old_fname = subdir.expand('%:t')
+
+  " Get current path
+  let old_dir = expand('%:p:h')
 
   " there is no file (new one maybe)
   if glob(expand('%:p')) ==? ''
@@ -1520,7 +1544,7 @@ function! vimwiki#base#rename_link() abort
   setlocal nomore
 
   " update links
-  call s:update_wiki_links(wiki_nr, s:tail_name(old_fname), s:tail_name(new_link),old_fname)
+  call s:update_wiki_links(wiki_nr, old_dir, s:tail_name(old_fname), s:tail_name(new_fname))
 
   " restore wiki buffers
   for bitem in blist

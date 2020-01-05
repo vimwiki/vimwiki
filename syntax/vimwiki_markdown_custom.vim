@@ -172,7 +172,7 @@ endif
 
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiWeblink1T,

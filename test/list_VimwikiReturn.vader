@@ -1,3 +1,9 @@
+# Testting <CR> keypress in insert mode on list item
+# 
+# Note: some trailing spaces are necessary at the end of list items like `1.`
+#       better read this file with `set list`
+
+
 Include: vader_includes/vader_setup.vader
 
 Given vimwiki (List with hard wraps):
@@ -112,13 +118,13 @@ Expect (No list continuation in code block):
 Given vimwiki (List from help file):
   1. item
   ---
-  
-  1. item    
+
+  1. item
      continue
-  
+
   ---
   1. 
-  
+
   ---
     1. 
 
@@ -135,19 +141,20 @@ Do (List ops):
   3j
   A\<CR>\<Esc>
 
+# Note: trailing space <- autoindent
 Expect (List per VimwikiReturn 1 1):
   1. item
   2. 
   ---
-  
-  1. item    
+
+  1. item
      continue
      
-  
+
   ---
   1. 
   2. 
-  
+
   ---
     1. 
     2. 
@@ -165,21 +172,22 @@ Do (List ops):
   3j
   A\<CR>\<Esc>
 
+# Note: some trailing space added
 Expect (List per VimwikiReturn 2 2):
   1. item
      
   ---
-  
-  1. item    
+
+  1. item
      continue
   2. 
-  
+
   ---
-  
+
   1. 
-  
+
   ---
-  
+
     1. 
 
   ---
@@ -195,18 +203,19 @@ Do (List ops):
   3j
   A\<CR>\<Esc>
 
+
 Expect (List per VimwikiReturn 3 3):
   1. item
   2. 
   ---
-  
-  1. item    
+
+  1. item
      continue
   2. 
-  
+
   ---
-  
-  
+
+
   ---
 
 
@@ -227,19 +236,19 @@ Expect (List per VimwikiReturn 4 4):
   1. item
      
   ---
-  
-  1. item    
+
+  1. item
      continue
      
-  
+
   ---
-  
-  
-  
+
+
+
   ---
-  
-  
-  
+
+
+
   ---
 
 Execute (Map CR):
@@ -258,14 +267,14 @@ Expect (List per VimwikiReturn 3 5):
   1. item
   2. 
   ---
-  
-  1. item    
+
+  1. item
      continue
   2. 
-  
+
   ---
-  
-  
+
+
   ---
   1. 
 
