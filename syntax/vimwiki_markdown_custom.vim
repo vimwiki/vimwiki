@@ -190,9 +190,10 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiEqInT,
                            \ @Spell
 
+" TODO fix behavior within lists https://github.github.com/gfm/#list-items
 " indented code blocks https://github.github.com/gfm/#indented-code-blocks
-execute 'syntax match VimwikiIndentedCodeBlock /' . vimwiki#vars#get_syntaxlocal('rxIndentedCodeBlock') . '/'
-hi def link VimwikiIndentedCodeBlock VimwikiPre
+" execute 'syntax match VimwikiIndentedCodeBlock /' . vimwiki#vars#get_syntaxlocal('rxIndentedCodeBlock') . '/'
+" hi def link VimwikiIndentedCodeBlock VimwikiPre
 
 " syntax group highlighting
 hi def link VimwikiImage VimwikiLink

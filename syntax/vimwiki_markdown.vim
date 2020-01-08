@@ -82,7 +82,8 @@ let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 " Preformatted text (code blocks)
 let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
 let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
-let s:markdown_syntax.rxIndentedCodeBlock = '^\s*\n\(\(\s\{4,}[^ ]\|\t\+[^\t]\).*\n\)\+\(^\s*\n\)'
+" TODO see syntax/vimwiki_markdown_custom.vim for more info
+" let s:markdown_syntax.rxIndentedCodeBlock = '\%(^\n\)\@1<=\%(\%(\s\{4,}\|\t\+\).*\n\)\+'
 
 " Math block
 let s:markdown_syntax.rxMathStart = '\$\$'

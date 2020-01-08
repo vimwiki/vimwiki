@@ -3489,7 +3489,6 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 New:~
     * PR #787: |:VimwikiRenameLink| works for all directories: even
       wiki_root/diary/2019-12-11.md if current file is wiki_root/dir1/file.md.
-    * Add support for markdown indented code blocks.
     * Issue #764: fenced code blocks are properly supported for markdown
       syntax i.e. more than 3 backticks, adds tilde support.
     * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.

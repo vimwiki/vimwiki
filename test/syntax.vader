@@ -226,23 +226,6 @@ Given vimwiki (Markdown, Text and Vim):
   set hlsearch
   ~~~~~~~~~~~
 
-  Here is an indented code block:
-
-      int main()
-
-  Must be surrounded by blank lines.
-
-  This isn't a code block:
-      int main()
-  - But this is one in a list
-  - Item
-    - subitem
-
-        int main()
-
-    - list item
-  - done
-
 Execute (Set syntax markdown):
   let g:vimwiki_global_vars['vimwiki_automatic_nested_syntaxes'] = 1
   call SetSyntax('markdown')
@@ -269,9 +252,6 @@ Execute (Assert Code syntax):
   AssertEqual SyntaxAt(24, 1), 'vimLineComment'
   AssertEqual SyntaxAt(25, 1), 'vimCommand'
   AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(30, 1), 'VimwikiIndentedCodeBlock'
-  AssertEqual SyntaxAt(35, 1), ''
-  AssertEqual SyntaxAt(40, 1), 'VimwikiIndentedCodeBlock'
 
 
 # 11 Math {{{1
