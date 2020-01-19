@@ -2182,7 +2182,7 @@ function! vimwiki#base#normalize_link_in_diary(lnk) abort
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   elseif link_exists_in_diary
     let str = a:lnk
-    let rxUrl = vimwiki#vars#get_global('rxWord')
+    let rxUrl = '.*'
     let rxDesc = ''
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   elseif link_exists_in_wiki
