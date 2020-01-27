@@ -1005,6 +1005,10 @@ absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
 
+If you want an absolute path in your local box you can prefix the path with 
+//.
+    [[//absolute_path]]
+
 Links to subdirectories inside the wiki directory are also supported. They
 end with a "/": >
   [[a subdirectory/|Other files]]

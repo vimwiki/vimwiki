@@ -1,0 +1,12 @@
+Execute:
+  Log 'Hello !'
+
+Given vimwiki(some wiki link):
+  [[//$UVMKIT_HOME/uvm/src/seq/uvm_sequencer_base.svh|uvm_sequencer_base::wait_for_sequences]]
+
+Do (check vimwiki#base#resolve_link functionality):
+  :file! /tmp/tmp.md\<CR>
+  \<cr>
+  " setf pandoc
+  " call vimwiki#base#resolve_link('$UVMKIT_HOME/uvm/src/seq/uvm_sequencer_base.svh')
+

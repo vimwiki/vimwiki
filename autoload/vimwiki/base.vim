@@ -126,6 +126,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
   " get rid of '\' in escaped characters in []() style markdown links
   " other style links don't allow '\'
   let link_text = substitute(a:link_text, '\(\\\)\(\W\)\@=', '', 'g')
+  let link_text = resolve(expand(a:link_text))
 
   let link_infos = {
         \ 'index': -1,
@@ -151,6 +152,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
     endif
 
     let link_text = matchstr(link_text, '^'.vimwiki#vars#get_global('rxSchemes').':\zs.*\ze')
+    let link_text = resolve(expand(link_text))
   endif
 
   let is_wiki_link = s:is_wiki_link(link_infos)
@@ -174,9 +176,15 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
   endif
 
   " check if absolute or relative path
+  let is_absolute = 0
   if is_wiki_link && link_text[0] ==# '/'
     if link_text !=# '/'
-      let link_text = link_text[1:]
+      if link_text !=# '//' && link_text[0:1] ==# '//'
+        let link_text = link_text[2:]
+        let is_absolute = 1
+      else
+        let link_text = link_text[1:]
+      endif
     endif
     let is_relative = 0
   elseif !is_wiki_link && vimwiki#path#is_absolute(link_text)
@@ -219,8 +227,9 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
         return link_infos
       endif
     endif
-
-    if !is_relative || link_infos.index != source_wiki
+    if is_absolute
+        let root_dir = ''
+    elseif !is_relative || link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
     endif
 
