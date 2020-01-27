@@ -1009,15 +1009,23 @@ With description: >
 
 Wiki files don't need to be in the root directory of your wiki, you can put
 them in subdirectories as well: >
-   [[projects/Important Project 1]]
+  [[projects/Important Project 1]]
 To jump from that file back to the index file, use this link: >
-   [[../index]]
+  [[../index]]
 or: >
-   [[/index]]
+  [[/index]]
 The latter works because wiki links starting with "/" are considered to be
 absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
+
+If you want an absolute path in your local box you can prefix the path
+with // >
+  [[//absolute_path]]
+For example: >
+  [[///tmp/in_root_tmp]]
+  [[//~/in_home_dir]]
+  [[//$HOME/in_home_dir]]
 
 Links to subdirectories inside the wiki directory are also supported. They
 end with a "/": >
@@ -3636,6 +3644,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers

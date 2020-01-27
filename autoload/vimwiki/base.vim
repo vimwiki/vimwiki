@@ -131,7 +131,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
     let source_file = vimwiki#path#current_wiki_file()
   endif
 
-  " get rid of '\' in escaped characters in []() style markdown links
+  " Get rid of '\' in escaped characters in []() style markdown links
   " other style links don't allow '\'
   let link_text = substitute(a:link_text, '\(\\\)\(\W\)\@=', '', 'g')
 
@@ -163,7 +163,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
 
   let is_wiki_link = s:is_wiki_link(link_infos)
 
-  " extract anchor
+  " Extract anchor
   if is_wiki_link
     let split_lnk = split(link_text, '#', 1)
     let link_text = split_lnk[0]
@@ -181,10 +181,17 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
     endif
   endif
 
-  " check if absolute or relative path
+  " Check if absolute or relative path
+  let is_absolute = 0
   if is_wiki_link && link_text[0] ==# '/'
     if link_text !=# '/'
-      let link_text = link_text[1:]
+      if link_text !=# '//' && link_text[0:1] ==# '//'
+        let link_text = resolve(expand(link_text))
+        let link_text = link_text[2:]
+        let is_absolute = 1
+      else
+        let link_text = link_text[1:]
+      endif
     endif
     let is_relative = 0
   elseif !is_wiki_link && vimwiki#path#is_absolute(link_text)
@@ -195,7 +202,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
   endif
 
 
-  " extract the other items depending on the scheme
+  " Extract the other items depending on the scheme
   if link_infos.scheme =~# '\mwiki\d\+'
 
     " interwiki link named wiki 'wn.name:link' format
@@ -227,8 +234,9 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
         return link_infos
       endif
     endif
-
-    if !is_relative || link_infos.index != source_wiki
+    if is_absolute
+        let root_dir = ''
+    elseif !is_relative || link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
     endif
 
@@ -265,6 +273,7 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
   endif
 
   let link_infos.filename = vimwiki#path#normalize(link_infos.filename)
+
   return link_infos
 endfunction
 
