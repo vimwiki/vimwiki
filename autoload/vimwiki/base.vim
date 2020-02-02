@@ -707,6 +707,9 @@ function! s:get_links(wikifile, idx) abort
       let col = match(line, rx_link, 0, link_count)+1
       let link_text = matchstr(line, rx_link, 0, link_count)
       if link_text ==? ''
+        if rx_link2 ==? ''
+          break
+        endif
         let col = match(line, rx_link2, 0, link_count)+1
         let link_text = matchstr(line, rx_link2, 0, link_count)
         if link_text ==? ''
