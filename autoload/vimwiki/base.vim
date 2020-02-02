@@ -690,10 +690,12 @@ function! s:get_links(wikifile, idx) abort
   let syntax = vimwiki#vars#get_wikilocal('syntax', a:idx)
   if syntax ==# 'markdown'
     let rx_link = vimwiki#vars#get_syntaxlocal('rxWeblink1MatchUrl', syntax)
+    let rx_link2 = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
   else
     let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+    let rx_link2 = 0
   endif
-
+  
   let links = []
   let lnum = 0
 
@@ -705,7 +707,11 @@ function! s:get_links(wikifile, idx) abort
       let col = match(line, rx_link, 0, link_count)+1
       let link_text = matchstr(line, rx_link, 0, link_count)
       if link_text ==? ''
-        break
+        let col = match(line, rx_link2, 0, link_count)+1
+        let link_text = matchstr(line, rx_link2, 0, link_count)
+        if link_text ==? ''
+          break
+        endif
       endif
       let link_count += 1
       let target = vimwiki#base#resolve_link(link_text, a:wikifile)
