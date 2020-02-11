@@ -1109,7 +1109,8 @@ function! s:process_tag_h(line, id)
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
       let h_part  = '<div id="'.h_complete_id.'">'
-      let h_part .= '<h'.h_level.' id="'.h_id.'" class="header">'
+      let c = centered ? 'header justcenter' : 'header'
+      let h_part .= '<h'.h_level.' id="'.h_id.'" class="'.c.'">'
       let h_part .= '<a href="#'.h_complete_id.'"'
 
     else
@@ -1118,11 +1119,7 @@ function! s:process_tag_h(line, id)
 
     endif
 
-    if centered
-      let h_part .= ' class="justcenter">'
-    else
-      let h_part .= '>'
-    endif
+    let h_part .= '>'
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
