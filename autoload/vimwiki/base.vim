@@ -498,11 +498,11 @@ function! vimwiki#base#find_files(wiki_nr, directories_only) abort
   else
     let pattern = '**/*'.ext
   endif
-  let files = split(globpath(root_directory, pattern))
+  let files = split(globpath(root_directory, pattern), '\n')
 
   " filter excluded files before returning
   for pattern in vimwiki#vars#get_wikilocal('exclude_files')
-    let efiles = split(globpath(root_directory, pattern))
+    let efiles = split(globpath(root_directory, pattern), '\n')
     let files = filter(files, 'index(efiles, v:val) == -1')
   endfor
 
