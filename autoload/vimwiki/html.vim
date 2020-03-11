@@ -1435,7 +1435,7 @@ function! s:use_custom_wiki2html() abort
 endfunction
 
 
-function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
+function! vimwiki#html#CustomWiki2HTML(path, wikifile, force, main_path) abort
   call vimwiki#path#mkdir(a:path)
   let output = system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
@@ -1443,7 +1443,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
       \ shellescape(a:path). ' '.
       \ shellescape(a:wikifile). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
+      \ shellescape(s:default_CSS_full_name(a:main_path)). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ?
       \     shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ?
@@ -1465,7 +1465,7 @@ function! s:convert_file(path_html, wikifile) abort
   let done = 0
 
   let wikifile = fnamemodify(a:wikifile, ':p')
-
+  let main_path_html = expand(a:path_html)
   let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
   let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
 
@@ -1476,7 +1476,7 @@ function! s:convert_file(path_html, wikifile) abort
 
   if s:use_custom_wiki2html()
     let force = 1
-    call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
+    call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force, main_path_html)
     let done = 1
   endif
 
