@@ -98,11 +98,14 @@ Without them, VimWiki will not work properly.
 
 git clone https://github.com/vimwiki/vimwiki.git ~/.vim/pack/plugins/start/vimwiki
 
+# to generate documentation i.e. ':h vimwiki'
+vim -c 'helptags ~/.vim/pack/plugins/start/vimwiki/doc' -c quit
+
 ```
 
 Notes:
 
-- See `:h helptags` for information on installing the documentation.
+- See `:h helptags` for issues with installing the documentation.
 - For general information on vim packages see `:h packages`.
 
 #### Installation using [Pathogen](https://github.com/tpope/vim-pathogen)
