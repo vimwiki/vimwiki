@@ -89,7 +89,7 @@ function! s:setup_new_wiki_buffer() abort
 
   " this makes that ftplugin/vimwiki.vim and afterwards syntax/vimwiki.vim are
   " sourced
-  setfiletype vimwiki
+  call vimwiki#u#ft_set()
 
 endfunction
 
@@ -114,8 +114,8 @@ function! s:setup_buffer_win_enter() abort
     return
   endif
 
-  if &filetype !=# 'vimwiki'
-    setfiletype vimwiki
+  if !vimwiki#u#ft_is_vw()
+    call vimwiki#u#ft_set()
   endif
 
   call s:set_windowlocal_options()

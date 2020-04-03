@@ -671,7 +671,7 @@ endfunction
 
 
 function! vimwiki#tbl#format(lnum, ...) abort
-  if !(&filetype ==? 'vimwiki')
+  if !vimwiki#u#ft_is_vw()
     return
   endif
   let line = getline(a:lnum)
@@ -754,7 +754,7 @@ endfunction
 
 
 function! vimwiki#tbl#reset_tw(lnum) abort
-  if !(&filetype ==? 'vimwiki')
+  if !vimwiki#u#ft_is_vw()
     return
   endif
   let line = getline(a:lnum)

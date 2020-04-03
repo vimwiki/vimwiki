@@ -108,3 +108,27 @@ function! vimwiki#u#is_codeblock(lnum) abort
     return 0
   endif
 endfunction
+
+" Sets the filetype to vimwiki
+" If g:vimwiki_filetypes variable is set
+" the filetype will be vimwiki.<ft1>.<ft2> etc.
+function! vimwiki#u#ft_set()
+  let ftypelist = vimwiki#vars#get_global('filetypes')
+  let ftype = 'vimwiki'
+  for ftypeadd in ftypelist
+    let ftype = ftype . '.' . ftypeadd
+  endfor
+  let &filetype = ftype
+endfunction
+
+" Returns: 1 if filetype is vimwiki, 0 else
+" If multiple fileytpes are in use 1 is returned only if the
+" first ft is vimwiki which should always be the case unless
+" the user manually changes it to something else
+function! vimwiki#u#ft_is_vw()
+  if split(&filetype, '\.')[0] ==? 'vimwiki'
+    return 1
+  else
+    return 0
+  endif
+endfunction
