@@ -1404,7 +1404,6 @@ function! vimwiki#base#goto_index(wnum, ...) abort
   " if wnum = 0 the current wiki is used
   if a:wnum == 0
     let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
-    echom idx
     if idx < 0  " not in a wiki
       let idx = 0
     endif
