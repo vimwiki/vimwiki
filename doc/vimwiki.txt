@@ -3486,6 +3486,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Abhinav Gupta (@abhinav)
     - Dave Gauer (@ratfactor)
     - Martin Tourneboeuf (@tinmarino)
+    - Mauro Morales (@mauromorales)
 
 
 ==============================================================================
@@ -3568,6 +3569,7 @@ New:~
     * PR #377: Add horizontal alignment to tables.
     * PR #202: Don't override or display errors for existing keymappings.
     * PR #47: Optimize table formatting for large tables.
+    * PR #857: Make default template responsive
 
 Removed:~
     * PR #698: Remove awa check triggering silent file edits.
