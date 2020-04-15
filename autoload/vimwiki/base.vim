@@ -104,7 +104,7 @@ function! vimwiki#base#find_wiki(path) abort
 endfunction
 
 
-" helper: check if a link a well formed wiki link
+" helper: check if a link is a well formed wiki link
 function! s:is_wiki_link(link_infos) abort
   return a:link_infos.scheme =~# '\mwiki\d\+' || a:link_infos.scheme ==# 'diary'
 endfunction
