@@ -1218,16 +1218,14 @@ function! s:parse_line(line, state) abort
   let state.header_ids = a:state.header_ids
 
   let res_lines = []
-
-  let line = s:safe_html_line(a:line)
-
   let processed = 0
+  let line = a:line
 
   if !processed
     " allows insertion of plain text to the final html conversion
     " for example:
     " %plainhtml <div class="mycustomdiv">
-    " inserts that line to the final html file (without %plainhtml prefix)
+    " inserts the line above to the final html file (without %plainhtml prefix)
     let trigger = '%plainhtml'
     if line =~# '^\s*' . trigger
       let lines = []
@@ -1258,6 +1256,8 @@ function! s:parse_line(line, state) abort
       call extend(res_lines, lines)
     endif
   endif
+
+  let line = s:safe_html_line(a:line)
 
   " pres
   if !processed
