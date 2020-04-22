@@ -2181,11 +2181,6 @@ function! vimwiki#base#normalize_link_in_diary(lnk) abort
     let rxUrl = vimwiki#vars#get_global('rxWord')
     let rxDesc = '\d\d\d\d-\d\d-\d\d'
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
-  elseif link_exists_in_diary
-    let str = a:lnk
-    let rxUrl = '.*'
-    let rxDesc = ''
-    let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   elseif link_exists_in_wiki
     let depth = len(split(vimwiki#vars#get_wikilocal('diary_rel_path'), '/'))
     let str = repeat('../', depth) . a:lnk
