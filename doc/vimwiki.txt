@@ -1398,7 +1398,7 @@ have two alternative options:
 Choose a folder on your hard drive and save MathJax in it. Then add to your
 HTML template the following line:
 
-<script type="text/javascript" src="<mathjax_folder>/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="<mathjax_folder>/es5/tex-chtml.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 where <mathjax_folder> is the folder on your HD, as a relative path to the
 template folder. For instance, a sensible folder structure could be:
