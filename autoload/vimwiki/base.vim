@@ -391,9 +391,11 @@ function! vimwiki#base#generate_links(create) abort
     call sort(links)
 
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
+    let l:diary_file_paths = vimwiki#diary#get_diary_files()
+
     for link in links
       let link_infos = vimwiki#base#resolve_link(link)
-      if !vimwiki#base#is_diary_file(link_infos.filename)
+      if !vimwiki#base#is_diary_file(link_infos.filename, copy(l:diary_file_paths))
         if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
           let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
         else
@@ -2133,12 +2135,15 @@ function! s:clean_url(url) abort
   return join(url_l, ' ')
 endfunction
 
-
-function! vimwiki#base#is_diary_file(filename) abort
-  let file_path = vimwiki#path#path_norm(a:filename)
-  let rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
-  let diary_path = vimwiki#path#path_norm(vimwiki#vars#get_wikilocal('path') . rel_path)
-  return rel_path !=? '' && file_path =~# '^'.vimwiki#u#escape(diary_path)
+" An optional second argument allows you to pass in a list of diary files rather
+" than generating a list on each call to the function.
+function! vimwiki#base#is_diary_file(filename, ...) abort
+  let l:diary_file_paths = a:0 > 0 ? a:1 : vimwiki#diary#get_diary_files()
+  let l:normalised_file_paths =
+        \ map(l:diary_file_paths, {_, path -> vimwiki#path#normalize(path)})
+  let l:matching_files =
+        \ filter(l:normalised_file_paths, {index, file -> file =~# a:filename})
+  return len(l:matching_files) > 0 " filename is a diary file if match is found
 endfunction
 
 
