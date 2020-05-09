@@ -24,7 +24,8 @@ endif
 function! vimwiki#path#normalize(path) abort
   let path = a:path
   while 1
-    let result = substitute(path, '/[^/]\+/\.\.\|\./', '', '')
+    let intermediateResult = substitute(path, '/[^/]\+/\.\.', '', '')
+    let result = substitute(intermediateResult, '/\./', '/', '')
     if result ==# path
       break
     endif
