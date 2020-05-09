@@ -44,7 +44,7 @@ function! s:get_position_links(link) abort
   let idx = -1
   let links = []
   if a:link =~# '^\d\{4}-\d\d-\d\d'
-    let links = map(s:get_diary_files(), 'fnamemodify(v:val, ":t:r")')
+    let links = map(vimwiki#diary#get_diary_files(), 'fnamemodify(v:val, ":t:r")')
     " include 'today' into links
     if index(links, vimwiki#diary#diary_date_link()) == -1
       call add(links, vimwiki#diary#diary_date_link())
@@ -157,7 +157,7 @@ function! s:read_captions(files) abort
 endfunction
 
 
-function! s:get_diary_files() abort
+function! vimwiki#diary#get_diary_files() abort
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(vimwiki#vars#get_wikilocal('path').
         \ vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
@@ -200,7 +200,6 @@ function! s:sort(lst) abort
     return sort(a:lst)
   endif
 endfunction
-
 
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
 " contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
