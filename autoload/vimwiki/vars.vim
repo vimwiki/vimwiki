@@ -86,6 +86,7 @@ function! s:populate_global_variables() abort
   " buffer (and not on a link) to create a link
   " basically, it's Ascii alphanumeric characters plus #|./@-_~ plus all
   " non-Ascii characters, except that . is not accepted as the last character
+  " TODO look behind for . reduces the second part of the regex that is the same with '.' added
   let g:vimwiki_global_vars.rxWord = '[^[:blank:]!"$%&''()*+,:;<=>?\[\]\\^`{}]*[^[:blank:]!"$%&''()*+.,:;<=>?\[\]\\^`{}]'
 
   let g:vimwiki_global_vars.rx_wikilink_prefix1 = g:vimwiki_global_vars.rx_wikilink_prefix .

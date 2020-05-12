@@ -2119,6 +2119,7 @@ function! s:clean_url(url) abort
   let url = substitute(a:url, '\'.vimwiki#vars#get_wikilocal('ext').'$', '', '')
   " remove protocol and tld
   let url = substitute(url, '^\a\+\d*:', '', '')
+  " remove absolute path prefix
   let url = substitute(url, '^//', '', '')
   let url = substitute(url, '^\([^/]\+\)\.\a\{2,4}/', '\1/', '')
   let url_l = split(url, '/\|=\|-\|&\|?\|\.')
@@ -2129,8 +2130,10 @@ function! s:clean_url(url) abort
   if url_l[-1] =~# '^\(htm\|html\|php\)$'
     let url_l = url_l[0:-2]
   endif
-  " remove words consisting of only hexadecimal digits or non-word characters
-  let url_l = filter(url_l, 'v:val !~?  "^\\A\\{4,}$"')
+  " remove words with black listed codepoints
+  " TODO mutualize blacklist in a variable
+  let url_l = filter(url_l, 'v:val !~?  "[!\"$%&''()*+,:;<=>?\[\]\\^`{}]"')
+  " remove words consisting of only hexadecimal digits
   let url_l = filter(url_l, 'v:val !~?  "^\\x\\{4,}$" || v:val !~? "\\d"')
   return join(url_l, ' ')
 endfunction
