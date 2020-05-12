@@ -315,7 +315,7 @@ function! vimwiki#diary#generate_diary_section() abort
   function! GeneratorDiary.f() abort
     let lines = []
 
-    let links_with_captions = s:read_captions(s:get_diary_files())
+    let links_with_captions = s:read_captions(vimwiki#diary#get_diary_files())
     let g_files = s:group_links(links_with_captions)
     let g_keys = s:sort(keys(g_files))
 
