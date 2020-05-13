@@ -1,4 +1,5 @@
 # No language: we download vim and compile it oursselves
+# Test
 language: generic
 
 cache:
