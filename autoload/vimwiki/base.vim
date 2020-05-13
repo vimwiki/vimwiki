@@ -2143,9 +2143,9 @@ endfunction
 function! vimwiki#base#is_diary_file(filename, ...) abort
   let l:diary_file_paths = a:0 > 0 ? a:1 : vimwiki#diary#get_diary_files()
   let l:normalised_file_paths =
-        \ map(l:diary_file_paths, {_, path -> vimwiki#path#normalize(path)})
+        \ map(l:diary_file_paths, 'vimwiki#path#normalize(v:val)')
   let l:matching_files =
-        \ filter(l:normalised_file_paths, {index, file -> file =~# a:filename})
+        \ filter(l:normalised_file_paths, 'v:val =~# a:filename')
   return len(l:matching_files) > 0 " filename is a diary file if match is found
 endfunction
 

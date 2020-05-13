@@ -112,7 +112,7 @@ endfunction
 " Sets the filetype to vimwiki
 " If g:vimwiki_filetypes variable is set
 " the filetype will be vimwiki.<ft1>.<ft2> etc.
-function! vimwiki#u#ft_set()
+function! vimwiki#u#ft_set() abort
   let ftypelist = vimwiki#vars#get_global('filetypes')
   let ftype = 'vimwiki'
   for ftypeadd in ftypelist
@@ -125,7 +125,9 @@ endfunction
 " If multiple fileytpes are in use 1 is returned only if the
 " first ft is vimwiki which should always be the case unless
 " the user manually changes it to something else
-function! vimwiki#u#ft_is_vw()
+function! vimwiki#u#ft_is_vw() abort
+  " Clause: is filetype defined
+  if &filetype ==# '' | return 0 | endif
   if split(&filetype, '\.')[0] ==? 'vimwiki'
     return 1
   else
