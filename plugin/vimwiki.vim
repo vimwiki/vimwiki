@@ -211,6 +211,8 @@ function! s:get_version() abort
     let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
     let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
     if v:shell_error == 0
+      echo 'Os: ' . vimwiki#u#os_name()
+      echo 'Vim: ' . v:version
       echo 'Branch: ' . l:plugin_branch
       echo 'Revision: ' . l:plugin_rev
       echo 'Date: ' . l:plugin_date

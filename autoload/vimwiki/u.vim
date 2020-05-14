@@ -21,6 +21,18 @@ function! vimwiki#u#cursor(lnum, cnum) abort
 endfunction
 
 
+" Returns: OS name, human readable
+function! vimwiki#u#os_name() abort
+  if vimwiki#u#is_windows()
+    return 'Windows'
+  elseif vimwiki#u#is_macos()
+    return 'Mac'
+  else
+    return 'Linux'
+  endif
+endfunction
+
+
 function! vimwiki#u#is_windows() abort
   return has('win32') || has('win64') || has('win95') || has('win16')
 endfunction
