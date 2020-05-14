@@ -3239,13 +3239,13 @@ The default is '<Leader>w'.
 ------------------------------------------------------------------------------
 *g:vimwiki_auto_chdir*
 
-When set to 1, enables auto-cd feature.  Whenever Vimwiki page is opened,
-Vimwiki performs an |:lcd| to the Vimwiki folder to where the page belongs.
+When set to 1, enables auto-cd feature. Whenever Vimwiki page is opened,
+Vimwiki performs an |:lcd| to the root Vimwiki folder of the pages's wiki.
 
 
 Value           Description~
 0               Do not change directory.
-1               Change directory to Vimwiki folder on opening page.
+1               Change directory to root Vimwiki folder on opening page.
 
 Default: 0
 
