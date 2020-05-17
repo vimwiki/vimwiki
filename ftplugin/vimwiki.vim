@@ -253,7 +253,7 @@ command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(
 
 command! -buffer VimwikiTabnewLink call vimwiki#base#follow_link('tab', 0, 1)
 
-command! -buffer VimwikiGenerateLinks call vimwiki#base#generate_links(1)
+command! -buffer -nargs=? VimwikiGenerateLinks call vimwiki#base#generate_links(1, <f-args>)
 
 command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
 command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()

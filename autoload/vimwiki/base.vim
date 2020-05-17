@@ -381,13 +381,22 @@ function! vimwiki#base#get_globlinks_escaped(...) abort
 endfunction
 
 
-function! vimwiki#base#generate_links(create) abort
+" Optional pattern argument
+function! vimwiki#base#generate_links(create, ...) abort
+  " Get pattern if present
+  " Globlal to script to be passed to closure
+  if a:0
+    let s:pattern = a:1
+  else
+    let s:pattern = ''
+  endif
 
+  " Define link generator closure
   let GeneratorLinks = copy(l:)
   function! GeneratorLinks.f() abort
     let lines = []
 
-    let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0)
+    let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0, s:pattern)
     call sort(links)
 
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
@@ -478,7 +487,8 @@ endfunction
 " Returns: a list containing all files of the given wiki as absolute file path.
 " If the given wiki number is negative, the diary of the current wiki is used
 " If the second argument is not zero, only directories are found
-function! vimwiki#base#find_files(wiki_nr, directories_only) abort
+" If third argument: pattern to search for
+function! vimwiki#base#find_files(wiki_nr, directories_only, ...) abort
   let wiki_nr = a:wiki_nr
   if wiki_nr >= 0
     let root_directory = vimwiki#vars#get_wikilocal('path', wiki_nr)
@@ -492,10 +502,13 @@ function! vimwiki#base#find_files(wiki_nr, directories_only) abort
   else
     let ext = vimwiki#vars#get_wikilocal('ext', wiki_nr)
   endif
+  " If pattern is given, use it
   " if current wiki is temporary -- was added by an arbitrary wiki file then do
   " not search wiki files in subdirectories. Or it would hang the system if
   " wiki file was created in $HOME or C:/ dirs.
-  if vimwiki#vars#get_wikilocal('is_temporary_wiki', wiki_nr)
+  if a:0 && a:1 != ''
+    let pattern = a:1
+  elseif vimwiki#vars#get_wikilocal('is_temporary_wiki', wiki_nr)
     let pattern = '*'.ext
   else
     let pattern = '**/*'.ext
@@ -516,8 +529,8 @@ endfunction
 " files in the given wiki.
 " If the given wiki number is negative, the diary of the current wiki is used.
 " If also_absolute_links is nonzero, also return links of the form /file
-function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links) abort
-  let files = vimwiki#base#find_files(a:wiki_nr, 0)
+function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links, pattern) abort
+  let files = vimwiki#base#find_files(a:wiki_nr, 0, a:pattern)
   if a:wiki_nr == vimwiki#vars#get_bufferlocal('wiki_nr')
     let cwd = vimwiki#path#wikify_path(expand('%:p:h'))
   elseif a:wiki_nr < 0
