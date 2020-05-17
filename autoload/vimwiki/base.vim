@@ -2123,6 +2123,10 @@ function! s:clean_url(url) abort
   let url = substitute(url, '^//', '', '')
   let url = substitute(url, '^\([^/]\+\)\.\a\{2,4}/', '\1/', '')
   let url_l = split(url, '/\|=\|-\|&\|?\|\.')
+  " case only a '-'
+  if url_l == []
+    let url_l = [url]
+  endif
   let url_l = filter(url_l, 'v:val !=# ""')
   if url_l[0] ==# 'www'
     let url_l = url_l[1:]

@@ -3621,6 +3621,8 @@ Fixed:~
     * Issue #404: Don't conceal strikethrough character in tables.
     * Issue #318: Markdown syntax bold, italic, and italic/bold are now
       rendered correctly.
+    * Issue #835: Pressing enter on the dash of a markdown list causes an error.
+    * Issue #876: E684: list index out of range: 0, when creating a link containing a `.`.
 
 
 2.4 (2019-03-24)~
