@@ -3,6 +3,15 @@
 " Description: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
 
+
+" Execute: string v:count times
+function! vimwiki#u#count_exe(cmd) abort
+    for i in range( max([1, v:count]) )
+        exe a:cmd
+    endfor
+endfunction
+
+
 function! vimwiki#u#trim(string, ...) abort
   let chars = ''
   if a:0 > 0
