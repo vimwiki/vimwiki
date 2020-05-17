@@ -432,9 +432,9 @@ noremap <silent><script><buffer> <Plug>VimwikiRemoveSingleCB
 noremap <silent><script><buffer> <Plug>VimwikiRemoveCBInList
     \ :VimwikiRemoveCBInList<CR>
 nnoremap <silent><buffer> <Plug>VimwikiListo
-    \ :<C-U>call vimwiki#lst#kbd_o()<CR>
+    \ :<C-U>call vimwiki#u#count_exe('call vimwiki#lst#kbd_o()')<CR>
 nnoremap <silent><buffer> <Plug>VimwikiListO
-    \ :<C-U>call vimwiki#lst#kbd_O()<CR>
+    \ :<C-U>call vimwiki#u#count_exe('call vimwiki#lst#kbd_O()')<CR>
 
 " default lists key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)

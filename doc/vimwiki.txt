@@ -3626,6 +3626,7 @@ Fixed:~
     * Issue #835: Pressing enter on the dash of a markdown list causes an error.
     * Issue #876: E684: list index out of range: 0, when creating a link containing a `.`.
     * Issue #803: `:VimwikiGenerateLinks` for subdirectory only
+    * Issue #776: Command [count]o can't repeat in vimwiki
 
 
 2.4 (2019-03-24)~
