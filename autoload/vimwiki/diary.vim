@@ -32,10 +32,12 @@ endfunction
 
 
 function! vimwiki#diary#diary_date_link(...) abort
+  let l:date_formats = {'weekly': '%Y-w%W', 'monthly': '%Y-%m', 'daily': '%Y-%m-%d', 'yearly': '%Y'}
+  let l:date_format = get(date_formats, vimwiki#vars#get_wikilocal('diary_frequency'), '%Y-%m-%d')
   if a:0
-    return strftime('%Y-%m-%d', a:1)
+    return strftime(date_format, a:1)
   else
-    return strftime('%Y-%m-%d')
+    return strftime(date_format)
   endif
 endfunction
 
