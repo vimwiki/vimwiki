@@ -278,7 +278,7 @@ function! s:create_h1(fname) abort
     endif
 
     " don't substitute space char for diary pages
-    if title !~# '^\d\{4}-\d\d-\d\d'
+    if title !~# '^\d\{4}\(-\d\d\)\?\(-\d\d\|-w\d\d\)\?'
       " NOTE: it is possible this could remove desired characters if the 'links_space_char'
       " character matches characters that are intentionally used in the title.
       let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')

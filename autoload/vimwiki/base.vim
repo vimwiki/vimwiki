@@ -2198,12 +2198,12 @@ function! vimwiki#base#normalize_link_in_diary(lnk) abort
         \ . vimwiki#vars#get_wikilocal('diary_rel_path') . '/' . link, '\s', sc, 'g')
   let link_exists_in_diary = filereadable(link_diary)
   let link_exists_in_wiki = filereadable(link_wiki)
-  let link_is_date = a:lnk =~# '\d\d\d\d-\d\d-\d\d'
+  let link_is_date = a:lnk =~# '\d\d\d\d\(-\d\d\)\?\(-\d\d\|-w\d\d\)\?'
 
   if link_is_date
     let str = a:lnk
     let rxUrl = vimwiki#vars#get_global('rxWord')
-    let rxDesc = '\d\d\d\d-\d\d-\d\d'
+    let rxDesc = '\d\d\d\d\(-\d\d\)\?\(-\d\d\|-w\d\d\)\?'
     let template = vimwiki#vars#get_global('WikiLinkTemplate1')
   elseif link_exists_in_wiki
     let depth = len(split(vimwiki#vars#get_wikilocal('diary_rel_path'), '/'))
