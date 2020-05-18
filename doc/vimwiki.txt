@@ -890,7 +890,7 @@ Vimwiki file.
 
 
 *:VimwikiGenerateLinks* [pattern]
-    Insert the links of all available wiki files into the current buffer.
+    Insert a list of links to all available wiki files into the current buffer.
     If an optional 'pattern' is given as argument, the files will be searched
     in the wiki root folder according to the 'pattern' as |globpath|
 
