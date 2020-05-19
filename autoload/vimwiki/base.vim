@@ -1383,7 +1383,7 @@ function! vimwiki#base#follow_link(split, ...) abort
       endif
     endif
 
-  else
+  else  " cursor is not on a link
     if a:0 >= 3
       execute 'normal! '.a:3
     elseif vimwiki#vars#get_global('create_link')
@@ -2138,7 +2138,7 @@ function! s:clean_url(url) abort
   let url_l = split(url, '/\|=\|-\|&\|?\|\.')
   " case only a '-'
   if url_l == []
-    let url_l = [url]
+    return ''
   endif
   let url_l = filter(url_l, 'v:val !=# ""')
   if url_l[0] ==# 'www'
@@ -2174,8 +2174,10 @@ function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
     let url = substitute(url, '\'.vimwiki#vars#get_wikilocal('ext').'$', '', '')
   endif
   let descr = matchstr(a:str, a:rxDesc)
+  " Try to clean, do not work if bad link
   if descr ==# ''
     let descr = s:clean_url(url)
+    if descr ==# '' | return url | endif
   endif
   let lnk = s:safesubstitute(a:template, '__LinkDescription__', descr, '')
   let lnk = s:safesubstitute(lnk, '__LinkUrl__', url, '')
