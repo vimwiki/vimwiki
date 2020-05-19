@@ -32,13 +32,28 @@ endfunction
 
 
 function! vimwiki#diary#diary_date_link(...) abort
-  let l:date_formats = {'weekly': '%Y-w%W', 'monthly': '%Y-%m', 'daily': '%Y-%m-%d', 'yearly': '%Y'}
-  let l:date_format = get(date_formats, vimwiki#vars#get_wikilocal('diary_frequency'), '%Y-%m-%d')
   if a:0
-    return strftime(date_format, a:1)
+    let l:timestamp = a:1
   else
-    return strftime(date_format)
+    let l:timestamp = localtime()
   endif
+
+  let l:delta = 0
+  if a:0 > 1
+    let l:delta = a:2
+  endif
+
+  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
+  if l:frequency == "weekly"
+    let l:start_week_monday = vimwiki#vars#get_wikilocal('diary_start_week_monday')
+    echoerr l:start_week_monday
+    let l:computed_timestamp = l:timestamp + l:delta*60*60*24*7 - 60*60*24*((7-l:start_week_monday+str2nr(strftime("%w", l:timestamp))) % 7)
+  else "daily
+    let l:computed_timestamp = localtime() + l:delta*60*60*24
+  endif
+
+  return strftime('%Y-%m-%d', l:computed_timestamp) "vimwiki#diary#diary_period_start(l:timestamp))
+
 endfunction
 
 

@@ -337,6 +337,7 @@ function! s:populate_wikilocal_options() abort
         \ 'custom_wiki2html': {'type': type(''), 'default': ''},
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
         \ 'diary_frequency': {'type': type(''), 'default': 'daily', 'possible_values': ['daily', 'weekly', 'monthly', 'yearly']},
+        \ 'diary_start_week_monday': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
         \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 0},
