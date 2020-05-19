@@ -46,7 +46,6 @@ function! vimwiki#diary#diary_date_link(...) abort
   let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
   if l:frequency == "weekly"
     let l:start_week_monday = vimwiki#vars#get_wikilocal('diary_start_week_monday')
-    echoerr l:start_week_monday
     let l:computed_timestamp = l:timestamp + l:delta*60*60*24*7 - 60*60*24*((7-l:start_week_monday+str2nr(strftime("%w", l:timestamp))) % 7)
   else "daily
     let l:computed_timestamp = localtime() + l:delta*60*60*24
