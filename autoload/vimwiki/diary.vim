@@ -60,7 +60,7 @@ endfunction
 function! s:get_position_links(link) abort
   let idx = -1
   let links = []
-  if a:link =~# '^\d\d\d\d\(-\d\d\)\?\(-\d\d\|-w\d\d\)\?'
+  if a:link =~# '^\d\{4}-\d\d-\d\d'
     let links = map(vimwiki#diary#get_diary_files(), 'fnamemodify(v:val, ":t:r")')
     " include 'today' into links
     if index(links, vimwiki#diary#diary_date_link()) == -1
@@ -175,7 +175,7 @@ endfunction
 
 
 function! vimwiki#diary#get_diary_files() abort
-  let rx = '^\d\d\d\d\(-\d\d\)\?\(-\d\d\|-w\d\d\)\?'
+  let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(vimwiki#vars#get_wikilocal('path').
         \ vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
   let files = split(s_files, '\n')
