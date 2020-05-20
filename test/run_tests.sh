@@ -223,16 +223,20 @@ o_error=0
 case $type in
     "vader" )
         runVader
+        echo "Vader: returned $?"
         o_error=$(( $? | $o_error ))
         ;;
     "vint" )
         runVint
+        echo "Vint: returned $?"
         o_error=$(( $? | $o_error ))
         ;;
     "all" )
         runVint
+        echo "Vint: returned $?"
         o_error=$(( $? | $o_error ))
         runVader
+        echo "Vader: returned $?"
         o_error=$(( $? | $o_error ))
         ;;
     * )
