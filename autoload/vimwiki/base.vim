@@ -506,7 +506,7 @@ function! vimwiki#base#find_files(wiki_nr, directories_only, ...) abort
   " if current wiki is temporary -- was added by an arbitrary wiki file then do
   " not search wiki files in subdirectories. Or it would hang the system if
   " wiki file was created in $HOME or C:/ dirs.
-  if a:0 && a:1 != ''
+  if a:0 && a:1 !=# ''
     let pattern = a:1
   elseif vimwiki#vars#get_wikilocal('is_temporary_wiki', wiki_nr)
     let pattern = '*'.ext
