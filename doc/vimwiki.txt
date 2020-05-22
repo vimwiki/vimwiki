@@ -280,7 +280,7 @@ See also |:VimwikiMakeTomorrowDiaryNote|
 
 Below is a listing of all local key mappings provided by Vimwiki. As local
 settings, they are available when |FileType| is set to "vimwiki". These
-mappings may overwrite pre-existing mappings but they can be remapped or
+mappings may overwrite pre-existing mappings, but they can be remapped or
 disabled (see |g:vimwiki_key_mappings|).
 
 To remap commands that begin with <Plug>, you should do the following:
@@ -840,7 +840,7 @@ Vimwiki file.
 
     Hint: this feature is simply a wrapper around |:lvimgrep|. For a
     complete description of the search pattern format, see |:vimgrep|.
-    For example, to perform a case insensitive search, use >
+    For example, to perform a case-insensitive search, use >
     :VWS /\cpattern/
 
 *:VimwikiBacklinks*
@@ -1750,7 +1750,7 @@ normal text followed by a parenthesis.
 Roman numerals go up to MMMM) and numbers up to 2147483647. or
 9223372036854775807. depending if your Vim is 32 or 64 bit.
 
-Also note that you can, of course, mix different list symbols in one list, but
+Also, note that you can, of course, mix different list symbols in one list, but
 if you have the strange idea of putting a list with Roman numerals right after
 a list using letters or vice versa, Vimwiki will get confused because it
 cannot distinguish which is which (at least if the types are both upper case
@@ -1775,7 +1775,7 @@ Consider the following example: >
      * [X] Simple toggling between [ ] and [X].
      * [X] All list's subitems should be toggled on/off appropriately.
      * [X] Toggle child subitems only if current line is list item
-     * [X] Parent list item should be toggled depending on it's child items.
+     * [X] Parent list item should be toggled depending on its child items.
    * [X] Make numbered list items toggleable too
    * [X] Add highlighting to list item boxes
    * [X] Add [ ] to the next list item created with o, O and <CR>.
@@ -1799,7 +1799,7 @@ parent items: >
      * [ ] Simple toggling between [ ] and [X].
      * [X] All of a list's subitems should be toggled on/off appropriately.
      * [ ] Toggle child subitems only if current line is list item.
-     * [ ] Parent list item should be toggled depending on it's child items.
+     * [ ] Parent list item should be toggled depending on its child items.
    * [ ] Make numbered list items toggleable too.
    * [ ] Add highlighting to list item boxes.
    * [ ] Add [ ] to the next list item created using o, O or <CR>.
@@ -1919,7 +1919,7 @@ If you use markdown as the syntax for your wiki, there is a rubygem available
 at https://github.com/patrickdavey/vimwiki_markdown which you can use to
 convert the wiki markdown files into html.
 
-Also See |vimwiki-option-html_filename_parameterization| for supporting
+Also, See |vimwiki-option-html_filename_parameterization| for supporting
 functionality.
 
 ==============================================================================
@@ -2445,7 +2445,7 @@ Key               Default value~
 custom_wiki2html  ''
 
 Description~
-The full path to an user-provided script that converts a wiki page to HTML.
+The full path to a user-provided script that converts a wiki page to HTML.
 Vimwiki calls the provided |vimwiki-option-custom_wiki2html| script from the
 command-line, using |:!| invocation.
 
@@ -2676,8 +2676,8 @@ desired.
 *g:vimwiki_menu*
 
 Create a menu in the menu bar of GVim, where you can open the available wikis.
-If the wiki has an assigned name (see |vimwiki-option-name|) the menu entry
-will match the name. Otherwise the final folder of |vimwiki-option-path| will
+If the wiki has an assigned name (see |vimwiki-option-name|), the menu entry
+will match the name. Otherwise, the final folder of |vimwiki-option-path| will
 be used for the name. If there are duplicate entries the index number from
 |g:vimwiki_list| will be appended to the name.
 
@@ -2721,7 +2721,7 @@ You can set it to a more fancy symbol like this:
 *g:vimwiki_folding*
 
 Enable/disable Vimwiki's folding (outline) functionality. Folding in Vimwiki
-can uses either the 'expr' or the 'syntax' |foldmethod| of Vim.
+can use either the 'expr' or the 'syntax' |foldmethod| of Vim.
 
 Value           Description~
 ''              Disable folding
@@ -3130,7 +3130,7 @@ Default: 0
 *g:vimwiki_autowriteall*
 
 Automatically save a modified wiki buffer when switching wiki pages. Has the
-same effect like setting the Vim option 'autowriteall', but it works for wiki
+same effect as setting the Vim option 'autowriteall', but it works for wiki
 files only, while the Vim option is global.
 Hint: if you're just annoyed that you have to save files manually to switch
 wiki pages, consider setting the Vim option 'hidden' which makes that modified
@@ -3242,7 +3242,7 @@ The default is '<Leader>w'.
 *g:vimwiki_auto_chdir*
 
 When set to 1, enables auto-cd feature. Whenever Vimwiki page is opened,
-Vimwiki performs an |:lcd| to the root Vimwiki folder of the pages's wiki.
+Vimwiki performs an |:lcd| to the root Vimwiki folder of the page's wiki.
 
 
 Value           Description~
@@ -3703,7 +3703,7 @@ Removed:~
 
 Fixed:~
     * Issue #175: Don't do random things when the user has remapped the z key
-    * Don't ask for confirmation when following an URL in MacOS
+    * Don't ask for confirmation when following a URL in MacOS
     * Always jump to the first occurrence of a tag in a file
     * Don't move the cursor when updating the TOC
     * Fix some issues with the TOC when folding is enabled
