@@ -32,7 +32,7 @@ let vimwiki_markdown.name = 'MarkdownSyntax'
 let vimwiki_mediawiki = {}
 let vimwiki_mediawiki.path = $HOME . '/testmediawiki'
 let vimwiki_mediawiki.path_html = $HOME . '/html/mediawiki'
-let vimwiki_mediawiki.syntax = 'mediawiki'
+let vimwiki_mediawiki.syntax = 'media'
 let vimwiki_mediawiki.ext = '.mw'
 let vimwiki_mediawiki.name = 'MediaWikiSyntax'
 
