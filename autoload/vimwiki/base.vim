@@ -2379,6 +2379,11 @@ function! vimwiki#base#search(search_pattern) abort
   endtry
 endfunction
 
+function! vimwiki#base#deprecate(old, new) abort
+  echohl WarningMsg
+  echo a:old 'is deprecated and will be removed in future versions, use' a:new 'instead.'
+  echohl None
+endfunction
 
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
