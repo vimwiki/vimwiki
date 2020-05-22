@@ -597,6 +597,12 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   let g:vimwiki_syntax_variables[a:syntax].rxMathEnd =
         \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
 
+  let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
+  let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
+  for i in g:vimwiki_syntax_variables[a:syntax].number_types
+    call add(g:vimwiki_syntax_variables[a:syntax].number_kinds, i[0])
+    let g:vimwiki_syntax_variables[a:syntax].number_divisors .= vimwiki#u#escape(i[1])
+  endfor
 
   let char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}

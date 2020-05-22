@@ -302,7 +302,7 @@ endfunction
 " Returns: Whether or not the checkbox of a list item is [X] or [-]
 function! s:is_closed(item) abort
   let state = a:item.cb
-  return state ==# vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+  return state ==# vimwiki#vars#get_wikilocal('listsyms_list')[-1]
         \ || state ==# vimwiki#vars#get_global('listsym_rejected')
 endfunction
 
