@@ -93,7 +93,7 @@ Do (RenameLink in_dir11 -> new_dir11):
 
   :Log 'Rename'\<CR>
   :call WriteMe()\<CR>
-  :VimwikiRenameLink\<CR>
+  :VimwikiRenameFile\<CR>
   y\<CR>
   in_dir11_new\<CR>
   :call WriteMe()\<Cr>
@@ -138,7 +138,7 @@ Do (in_dir2 -> in_dir2_new):
 
   :Log 'Rename'\<CR>
   :call WriteMe()\<CR>
-  :VimwikiRenameLink\<CR>
+  :VimwikiRenameFile\<CR>
   y\<CR>
   in_dir2_new\<CR>
   :call WriteMe()\<Cr>

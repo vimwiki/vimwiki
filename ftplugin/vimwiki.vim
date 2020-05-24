@@ -242,8 +242,14 @@ command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
-command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
-command! -buffer VimwikiRenameLink call vimwiki#base#rename_link()
+command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
+command! -buffer VimwikiDeleteLink
+      \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
+      \ call vimwiki#base#delete_link()
+command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+command! -buffer VimwikiRenameLink
+      \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
+      \ call vimwiki#base#rename_link()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
 command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
@@ -304,6 +310,10 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiSearchTags VimwikiSearch /:<args>:/
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiGenerateTagLinks call vimwiki#tags#generate_tags(1, <f-args>)
+command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
+      \ VimwikiGenerateTags
+      \ call vimwiki#base#deprecate("VimwikiGenerateTags", "VimwikiGenerateTagLinks") |
+      \ call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
@@ -357,10 +367,10 @@ nnoremap <silent><script><buffer> <Plug>VimwikiPrevLink
     \ :VimwikiPrevLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiGoto
     \ :VimwikiGoto<CR>
-nnoremap <silent><script><buffer> <Plug>VimwikiDeleteLink
-    \ :VimwikiDeleteLink<CR>
-nnoremap <silent><script><buffer> <Plug>VimwikiRenameLink
-    \ :VimwikiRenameLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDeleteFile
+    \ :VimwikiDeleteFile<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiRenameFile
+    \ :VimwikiRenameFile<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDiaryNextDay
     \ :VimwikiDiaryNextDay<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDiaryPrevDay
@@ -380,8 +390,8 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<TAB>', '<Plug>VimwikiNextLink')
   call vimwiki#u#map_key('n', '<S-TAB>', '<Plug>VimwikiPrevLink')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
-  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteLink')
-  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameLink')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteFile')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameFile')
   call vimwiki#u#map_key('n', '<C-Down>', '<Plug>VimwikiDiaryNextDay')
   call vimwiki#u#map_key('n', '<C-Up>', '<Plug>VimwikiDiaryPrevDay')
 endif
