@@ -80,7 +80,7 @@ function! Complete_wikifiles(findstart, base) abort
         let scheme = ''
       endif
 
-      let links = vimwiki#base#get_wikilinks(wikinumber, 1)
+      let links = vimwiki#base#get_wikilinks(wikinumber, 1, '')
       let result = []
       for wikifile in links
         if wikifile =~ '^'.vimwiki#u#escape(prefix)

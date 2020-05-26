@@ -529,6 +529,7 @@ endfunction
 " files in the given wiki.
 " If the given wiki number is negative, the diary of the current wiki is used.
 " If also_absolute_links is nonzero, also return links of the form /file
+" If pattern is not '', only filepaths matching pattern will be considered
 function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links, pattern) abort
   let files = vimwiki#base#find_files(a:wiki_nr, 0, a:pattern)
   if a:wiki_nr == vimwiki#vars#get_bufferlocal('wiki_nr')

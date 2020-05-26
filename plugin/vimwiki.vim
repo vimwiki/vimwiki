@@ -82,7 +82,7 @@ function! s:setup_new_wiki_buffer() abort
   endif
 
   if vimwiki#vars#get_wikilocal('maxhi')
-    call vimwiki#vars#set_bufferlocal('existing_wikifiles', vimwiki#base#get_wikilinks(wiki_nr, 1))
+    call vimwiki#vars#set_bufferlocal('existing_wikifiles', vimwiki#base#get_wikilinks(wiki_nr, 1, ''))
     call vimwiki#vars#set_bufferlocal('existing_wikidirs',
           \ vimwiki#base#get_wiki_directories(wiki_nr))
   endif

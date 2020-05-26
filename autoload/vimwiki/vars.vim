@@ -917,7 +917,7 @@ function! vimwiki#vars#get_bufferlocal(key, ...) abort
     call setbufvar(buffer, 'vimwiki_invsubdir', vimwiki#base#invsubdir(subdir))
   elseif a:key ==# 'existing_wikifiles'
     call setbufvar(buffer, 'vimwiki_existing_wikifiles',
-          \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1))
+          \ vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 1, ''))
   elseif a:key ==# 'existing_wikidirs'
     call setbufvar(buffer, 'vimwiki_existing_wikidirs',
         \ vimwiki#base#get_wiki_directories(vimwiki#vars#get_bufferlocal('wiki_nr')))
