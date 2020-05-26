@@ -238,6 +238,14 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 
 ```
 
+This option will treat all markdown files in your system as part of vimwiki (check `set filetype?`). Add
+```vim
+let g:vimwiki_global_ext = 0
+```
+to your `.vimrc` to restrict Vimwiki's operation to only those paths listed in `g:vimwiki_list`.
+Other markdown files wouldn't be treated as wiki pages.
+See [g:vimwiki_global_ext](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2631).
+
 ## Getting help
 
 [GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary
