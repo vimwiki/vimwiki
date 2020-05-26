@@ -1,0 +1,6 @@
+After (Cleanup):
+  delfunction SetSyntax
+  delfunction ReloadVimwiki
+  delfunction DeleteHiddenBuffers
+  delfunction WriteMe
+  delfunction PrintCommand

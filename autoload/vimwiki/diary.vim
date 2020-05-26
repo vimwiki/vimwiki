@@ -4,14 +4,20 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
+<<<<<<< HEAD
 " Clause: load only once
+=======
+>>>>>>> Bump version number – release 2.5
 if exists('g:loaded_vimwiki_diary_auto') || &compatible
   finish
 endif
 let g:loaded_vimwiki_diary_auto = 1
 
 
+<<<<<<< HEAD
 " Add zero prefix to a number
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:prefix_zero(num) abort
   if a:num < 10
     return '0'.a:num
@@ -20,14 +26,20 @@ function! s:prefix_zero(num) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: diary directory path <String>
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:diary_path(...) abort
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
 endfunction
 
 
+<<<<<<< HEAD
 " Return: diary index file path <String>
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:diary_index(...) abort
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).
@@ -35,6 +47,7 @@ function! s:diary_index(...) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: <String> date
 function! vimwiki#diary#diary_date_link(...) abort
   if a:0
@@ -92,6 +105,17 @@ endfunction
 
 
 " Return: <int:index, list:links>
+=======
+function! vimwiki#diary#diary_date_link(...) abort
+  if a:0
+    return strftime('%Y-%m-%d', a:1)
+  else
+    return strftime('%Y-%m-%d')
+  endif
+endfunction
+
+
+>>>>>>> Bump version number – release 2.5
 function! s:get_position_links(link) abort
   let idx = -1
   let links = []
@@ -108,14 +132,22 @@ function! s:get_position_links(link) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Convert month: number -> name
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:get_month_name(month) abort
   return vimwiki#vars#get_global('diary_months')[str2nr(a:month)]
 endfunction
 
+<<<<<<< HEAD
 
 " Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
 function! s:get_first_header(fl) abort
+=======
+function! s:get_first_header(fl) abort
+  " Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
+>>>>>>> Bump version number – release 2.5
   let header_rx = vimwiki#vars#get_syntaxlocal('rxHeader')
 
   for line in readfile(a:fl, '', g:vimwiki_max_scan_for_caption)
@@ -126,10 +158,16 @@ function! s:get_first_header(fl) abort
   return ''
 endfunction
 
+<<<<<<< HEAD
 
 " Get a list of all headers in a file up to a given level.
 " Return: list whose elements are pairs [level, title]
 function! s:get_all_headers(fl, maxlevel) abort
+=======
+function! s:get_all_headers(fl, maxlevel) abort
+  " Get a list of all headers in a file up to a given level.
+  " Returns a list whose elements are pairs [level, title]
+>>>>>>> Bump version number – release 2.5
   let headers_rx = {}
   for i in range(1, a:maxlevel)
     let headers_rx[i] = vimwiki#vars#get_syntaxlocal('rxH'.i.'_Text')
@@ -147,8 +185,13 @@ function! s:get_all_headers(fl, maxlevel) abort
   return headers
 endfunction
 
+<<<<<<< HEAD
 " Count headers with level <=  maxlevel in a list of [level, title] pairs.
 function! s:count_headers_level_less_equal(headers, maxlevel) abort
+=======
+function! s:count_headers_level_less_equal(headers, maxlevel) abort
+  " Count headers with level <=  maxlevel in a list of [level, title] pairs.
+>>>>>>> Bump version number – release 2.5
   let l:count = 0
   for [header_level, _] in a:headers
     if header_level <= a:maxlevel
@@ -158,9 +201,14 @@ function! s:count_headers_level_less_equal(headers, maxlevel) abort
   return l:count
 endfunction
 
+<<<<<<< HEAD
 
 " Get the minimum level of any header in a list of [level, title] pairs.
 function! s:get_min_header_level(headers) abort
+=======
+function! s:get_min_header_level(headers) abort
+  " The minimum level of any header in a list of [level, title] pairs.
+>>>>>>> Bump version number – release 2.5
   if len(a:headers) == 0
     return 0
   endif
@@ -172,14 +220,21 @@ function! s:get_min_header_level(headers) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Read all cpation in 1. <List>files
 " Return: <Dic>: key -> caption
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:read_captions(files) abort
   let result = {}
   let caption_level = vimwiki#vars#get_wikilocal('diary_caption_level')
 
   for fl in a:files
+<<<<<<< HEAD
     " Remove paths and extensions
+=======
+    " remove paths and extensions
+>>>>>>> Bump version number – release 2.5
     let fl_captions = {}
 
     " Default; no captions from the file.
@@ -215,7 +270,10 @@ function! s:read_captions(files) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: <list> diary file names
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#diary#get_diary_files() abort
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(vimwiki#vars#get_wikilocal('path').
@@ -230,7 +288,10 @@ function! vimwiki#diary#get_diary_files() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: <dic> nested -> links
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:group_links(links) abort
   let result = {}
   let p_year = 0
@@ -253,7 +314,10 @@ function! s:group_links(links) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Sort list
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:sort(lst) abort
   if vimwiki#vars#get_wikilocal('diary_sort') ==? 'desc'
     return reverse(sort(a:lst))
@@ -262,11 +326,14 @@ function! s:sort(lst) abort
   endif
 endfunction
 
+<<<<<<< HEAD
 function! vimwiki#diary#diary_sort(lst) abort
   return s:sort(a:lst)
 endfunction
 
 " Create note
+=======
+>>>>>>> Bump version number – release 2.5
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
 " contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
 " is used.
@@ -307,9 +374,14 @@ function! vimwiki#diary#make_note(wnum, ...) abort
   call vimwiki#base#open_link(cmd, link, s:diary_index(wiki_nr))
 endfunction
 
+<<<<<<< HEAD
 
 " Jump to diary index of 1. <Int> wikinumber
 function! vimwiki#diary#goto_diary_index(wnum) abort
+=======
+function! vimwiki#diary#goto_diary_index(wnum) abort
+
+>>>>>>> Bump version number – release 2.5
   " if wnum = 0 the current wiki is used
   if a:wnum == 0
     let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
@@ -334,7 +406,10 @@ function! vimwiki#diary#goto_diary_index(wnum) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Jump to next day
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#diary#goto_next_day() abort
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
@@ -356,7 +431,10 @@ function! vimwiki#diary#goto_next_day() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Jump to previous day
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#diary#goto_prev_day() abort
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
@@ -378,8 +456,13 @@ function! vimwiki#diary#goto_prev_day() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Create diary index content
 function! vimwiki#diary#generate_diary_section() abort
+=======
+function! vimwiki#diary#generate_diary_section() abort
+
+>>>>>>> Bump version number – release 2.5
   let GeneratorDiary = copy(l:)
   function! GeneratorDiary.f() abort
     let lines = []
@@ -427,9 +510,12 @@ function! vimwiki#diary#generate_diary_section() abort
           let bullet = vimwiki#lst#default_symbol().' '
           let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', topcap, '')
+<<<<<<< HEAD
           let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
           let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
           let entry = substitute(entry, '__FileExtension__', extension, 'g')
+=======
+>>>>>>> Bump version number – release 2.5
           " If single H1 then that will be used as the description for the link to the file
           " if multple H1 then the filename will be used as the description for the link to the
           " file and multiple H1 headers will be indented by shiftwidth
@@ -499,7 +585,10 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Callback function for Calendar.vim
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#diary#calendar_sign(day, month, year) abort
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
@@ -507,7 +596,10 @@ function! vimwiki#diary#calendar_sign(day, month, year) abort
         \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
 endfunction
+<<<<<<< HEAD
 
 function! vimwiki#diary#diary_file_captions() abort
   return s:read_captions(vimwiki#diary#get_diary_files())
 endfunction
+=======
+>>>>>>> Bump version number – release 2.5

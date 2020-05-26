@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 # VimwikiGoto
 #
 # Note: I dont know why <Tab> is inserting a Tab.
 #   Well better than to insert a Chair, but it should trigger completion
 #   So I used C-L
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 
 Execute (Copy Wiki's Resources):
@@ -21,6 +25,7 @@ Do (VimwikiGoto <CR> buzz_bozz && Assert):
   buzz_bozz\<CR>
   :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
+<<<<<<< HEAD
 Do (VimwikiGoto + Completion(cmdline) && Assert):
   :VimwikiIndex 2\<CR>
   :VimwikiGoto buzz_bo\<C-l>\<CR>
@@ -38,6 +43,9 @@ Do (,wn buzz_bo + Completion(input()) && Assert):
   :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
 Execute (:VimwikiGoto + Completion (API)):
+=======
+Execute (:VimwikiGoto + Completion):
+>>>>>>> Bump version number – release 2.5
   VimwikiIndex 2
   AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   let s_complete=string(vimwiki#base#get_globlinks_escaped())
@@ -80,4 +88,8 @@ Execute (Clean):
   Log "End: Clean"
   call system("rm $HOME/testmarkdown/dir1")
 
+<<<<<<< HEAD
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5
 # vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

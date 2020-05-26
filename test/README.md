@@ -7,7 +7,10 @@ Vimwiki functionality. It is based on the following tools:
 - [Vader](https://github.com/junegunn/vader.vim)
 - [Vint](https://github.com/Kuniwak/vint)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 ## Resources
 
 - [Vim patches](http://ftp.vim.org/pub/vim/patches/)
@@ -17,13 +20,19 @@ Vimwiki functionality. It is based on the following tools:
     - [ale](https://github.com/w0rp/ale/tree/master/test)
     - [Other projects](https://github.com/junegunn/vader.vim/wiki/Projects-using-Vader)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 ## Building Docker Image
 
 To build the Docker image run `docker build -t vimwiki .` from the Vimwiki
 repository root (same location as the Dockerfile).
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 ## Running Tests
 
 ### Manual Steps
@@ -46,12 +55,16 @@ automatically run all tests for all installed vim versions. The vim/nvim
 versions are parsed from the Dockerfile. This script will also run `Vint` for all
 plugin source files. For more information run `./run_tests.sh -h`.
 
+<<<<<<< HEAD
 
 ## Writing Tests
 
 You are advice to write tests at the top of the file where you want to include it because some `Execute` can have some side effect making it hard to debug
 
 ### Inside the container
+=======
+## Inside the container
+>>>>>>> Bump version number – release 2.5
 
 - `$USER` -> `vimtest` : unprivileged => very hard to mess up things
 - `$HOME` -> `/home/vimtest` : but it is readonly !
@@ -59,7 +72,10 @@ You are advice to write tests at the top of the file where you want to include i
 
 For more information, read the [base docker image](https://github.com/tweekmonster/vim-testbed)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 ## Known Issues
 
 1. neovim v0.2.x does not work correctly with Vader output from the docker
@@ -71,7 +87,10 @@ For more information, read the [base docker image](https://github.com/tweekmonst
    list should be placed in `independent_runs/`.
     - [Vader Issue #199](https://github.com/junegunn/vader.vim/issues/199)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 ## Notable Vim patches
 
 - `v7.3.831` `getbufvar` added a default value

@@ -10,6 +10,7 @@
 let s:default_syntax = g:vimwiki_syntax_variables['default']
 
 
+<<<<<<< HEAD
 " TODO mutualise
 " Get config: possibly concealed chars
 let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
@@ -33,6 +34,61 @@ let s:default_syntax.dTypeface.bold_italic = [
       \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
       \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
       \ ]
+=======
+
+" text: $ equation_inline $
+let s:default_syntax.rxEqIn = '\$[^$`]\+\$'
+let s:default_syntax.char_eqin = '\$'
+
+" text: *strong*
+" let s:default_syntax.rxBold = '\*[^*]\+\*'
+let s:default_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\*'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\*'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.char_bold = '*'
+
+" text: _emphasis_
+" let s:default_syntax.rxItalic = '_[^_]\+_'
+let s:default_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'_'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
+      \'_'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.char_italic = '_'
+
+" text: *_bold italic_* or _*italic bold*_
+let s:default_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\*_'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'_\*'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.char_bolditalic = '\*_'
+
+let s:default_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'_\*'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\*_'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.char_italicbold = '_\*'
+
+" text: `code`
+let s:default_syntax.rxCode = '`[^`]\+`'
+let s:default_syntax.char_code = '`'
+
+" text: ~~deleted text~~
+let s:default_syntax.rxDelText = '\~\~[^~`]\+\~\~'
+let s:default_syntax.char_deltext = '\~\~'
+
+" text: ^superscript^
+let s:default_syntax.rxSuperScript = '\^[^^`]\+\^'
+let s:default_syntax.char_superscript = '^'
+
+" text: ,,subscript,,
+let s:default_syntax.rxSubScript = ',,[^,`]\+,,'
+let s:default_syntax.char_subscript = ',,'
+>>>>>>> Bump version number – release 2.5
 
 " generic headers
 let s:default_syntax.rxH = '='
@@ -65,8 +121,11 @@ let s:default_syntax.rxPreEnd = '}}}'
 let s:default_syntax.rxMathStart = '{{\$'
 let s:default_syntax.rxMathEnd = '}}\$'
 
+<<<<<<< HEAD
 let s:default_syntax.rxMultilineCommentStart = '%%+'
 let s:default_syntax.rxMultilineCommentEnd = '+%%'
+=======
+>>>>>>> Bump version number – release 2.5
 let s:default_syntax.rxComment = '^\s*%%.*$'
 let s:default_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:''[:space:]]\+:\)\+\%(\s\|$\)\@='
 

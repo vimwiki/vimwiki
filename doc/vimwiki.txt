@@ -69,7 +69,11 @@ With Vimwiki you can:
     - maintain a diary
     - export your documents to HTML
 
+<<<<<<< HEAD
 Getting started with Vimwiki is easy. Once installed, simply type `vim` into
+=======
+Getting started with Vimwiki is easy. Once intalled, simply type `vim` into
+>>>>>>> Bump version number – release 2.5
 your terminal to launch Vim and then type <Leader>ww (the <Leader> key is `\`
 by default) to create or open the index wiki file, the "top" page in your
 hierarchical collection of wiki pages. By default, this page will be located
@@ -799,6 +803,7 @@ Vimwiki file.
 *:VimwikiRenameFile*
     Rename the wiki page you are in.
 
+<<<<<<< HEAD
 *:VimwikiRemoveDone*
     With range: Remove all lines that have a checked |vimwiki-todo-lists| checkbox
 
@@ -811,6 +816,8 @@ Vimwiki file.
         :command! -buffer -range VimwikiRemoveDone call
            \ vimwiki#lst#remove_done(0, "<range>", <line1>, <line2>)
 <
+=======
+>>>>>>> Bump version number – release 2.5
 *:VimwikiNextTask*
     Jump to the next unfinished task in the current wiki page.
 
@@ -829,9 +836,12 @@ Vimwiki file.
     converted or have been modified since their last conversion. With !,
     convert all pages, regardless of whether or not they are out-of-date.
 
+<<<<<<< HEAD
 *:VimwikiRss*
     Generate an RSS feed for the latest diary entries.
 
+=======
+>>>>>>> Bump version number – release 2.5
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
     See |vimwiki-todo-lists|.
@@ -840,7 +850,11 @@ Vimwiki file.
     Toggle checkbox of a list item disabled/off.
     See |vimwiki-todo-lists|.
 
+<<<<<<< HEAD
 *:VimwikiListChangeLvl* CMD
+=======
+*:VimwikiListChangeLevel* CMD
+>>>>>>> Bump version number – release 2.5
     Change the nesting level, or symbol, for a single-line list item.
     CMD may be ">>" or "<<" to change the indentation of the item, or
     one of the syntax-specific bullets: "*", "#", "1.", "-".
@@ -1012,16 +1026,25 @@ With description: >
 
 Wiki files don't need to be in the root directory of your wiki, you can put
 them in subdirectories as well: >
+<<<<<<< HEAD
   [[projects/Important Project 1]]
 To jump from that file back to the index file, use this link: >
   [[../index]]
 or: >
   [[/index]]
+=======
+   [[projects/Important Project 1]]
+To jump from that file back to the index file, use this link: >
+   [[../index]]
+or: >
+   [[/index]]
+>>>>>>> Bump version number – release 2.5
 The latter works because wiki links starting with "/" are considered to be
 absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
 
+<<<<<<< HEAD
 If you want an absolute path in your local box you can prefix the path
 with // >
   [[//absolute_path]]
@@ -1030,6 +1053,8 @@ For example: >
   [[//~/in_home_dir]]
   [[//$HOME/in_home_dir]]
 
+=======
+>>>>>>> Bump version number – release 2.5
 Links to subdirectories inside the wiki directory are also supported. They
 end with a "/": >
   [[a subdirectory/|Other files]]
@@ -1452,6 +1477,7 @@ Text which starts with 4 or more spaces is a blockquote.
     could be styled by CSS in HTML. Blockquotes are usually used to quote a
     long piece of text from another source.
 
+<<<<<<< HEAD
 A group of lines prefixed with > also specifies a blockquote, with the caveat
 that the > syntax allow empty lines to signal multiple paragraphs.
 
@@ -1460,6 +1486,8 @@ that the > syntax allow empty lines to signal multiple paragraphs.
 > You can use empty lines to signal multiple paragraphs kept inside the same
 > blockquote.
 
+=======
+>>>>>>> Bump version number – release 2.5
 
 ------------------------------------------------------------------------------
 5.10. Comments                                       *vimwiki-syntax-comments*
@@ -1467,6 +1495,7 @@ that the > syntax allow empty lines to signal multiple paragraphs.
 A line that starts with %% is a comment.
 E.g.: >
  %% this text would not be in HTML
+<<<<<<< HEAD
 
 The default commentstring can be changed or disabled with
 |g:vimwiki_commentstring| so an alternative commentstring can be set, e.g.:
@@ -1481,6 +1510,9 @@ E.g.:
  would not be
  in html +%%
  %%+ not included +%% is included %%+ also not included +%%
+=======
+<
+>>>>>>> Bump version number – release 2.5
 
 ------------------------------------------------------------------------------
 5.11. Horizontal line                                      *vimwiki-syntax-hr*
@@ -1633,7 +1665,11 @@ If you do not want a wiki page to be converted to HTML, place:
 
 %nohtml
 
+<<<<<<< HEAD
 into it. This will also prevent inclusion in the RSS feed.
+=======
+into it.
+>>>>>>> Bump version number – release 2.5
 
 
 ------------------------------------------------------------------------------
@@ -1850,7 +1886,11 @@ parent items: >
 
 Parent items should change when their child items change. If not, use
 |vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
+<<<<<<< HEAD
 child items (see also |vimwiki-listsyms|): >
+=======
+child items (see also |g:vimwiki_listsyms|): >
+>>>>>>> Bump version number – release 2.5
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -1940,11 +1980,18 @@ Example of diary section: >
         * [[2011-12-09]]
         * [[2011-12-08]]
 
+<<<<<<< HEAD
 The diary can be used with a frequency other than daily. See the appropriate
 per-wiki options.
 
 See |g:vimwiki_diary_months| if you would like to rename months.
 
+=======
+
+See |g:vimwiki_diary_months| if you would like to rename months.
+
+
+>>>>>>> Bump version number – release 2.5
 ------------------------------------------------------------------------------
 Calendar integration                                        *vimwiki-calendar*
 
@@ -2061,8 +2108,11 @@ conditionally, make sure the settings are set before Vimwiki loads (that is,
 before plugin/vimwiki.vim is sourced). If this is not possible, try this
 command after the Vimwiki settings are (re-) set: >
   :call vimwiki#vars#init()
+<<<<<<< HEAD
 If you also want to reload syntax variables, prefix the last command by: >
   :unlet g:vimwiki_syntax_variables
+=======
+>>>>>>> Bump version number – release 2.5
 
 ------------------------------------------------------------------------------
 12.1 Registered Wiki                  *g:vimwiki_list* *vimwiki-register-wiki*
@@ -2486,6 +2536,7 @@ Possible values:
 When the value is >= 1, the primary caption of each diary page is set to the
 first header read from that page if it is the unique lowest-level header.
 
+<<<<<<< HEAD
 
 *vimwiki-option-diary_frequency*
 ------------------------------------------------------------------------------
@@ -2515,6 +2566,8 @@ Possible values:
 monday, tuesday, wednesday, thursday, friday, saturday, sunday
 
 
+=======
+>>>>>>> Bump version number – release 2.5
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -2577,7 +2630,11 @@ Description~
 Width of left-hand margin for lists.  When negative, the current 'shiftwidth'
 is used.  This affects the appearance of the generated links (see
 |:VimwikiGenerateLinks|), the Table of contents (|vimwiki-toc|) and the
+<<<<<<< HEAD
 behavior of the list manipulation commands |:VimwikiListChangeLvl| and the
+=======
+behavior of the list manipulation commands |:VimwikiListChangeLevel| and the
+>>>>>>> Bump version number – release 2.5
 local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
@@ -2586,6 +2643,7 @@ Note: if you use Markdown or MediaWiki syntax, you probably would like to set
 this option to 0, because every indented line is considered verbatim text.
 
 
+<<<<<<< HEAD
 *vimwiki-option-bullet_types*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -2642,6 +2700,8 @@ You can set it to a more fancy symbol like this:
    let g:vimwiki_list = [{'path': '~/path/', 'listsym_rejected' = '✗'}]
 
 
+=======
+>>>>>>> Bump version number – release 2.5
 *vimwiki-option-auto_tags*
 ------------------------------------------------------------------------------
 Key             Default value     Values~
@@ -2696,6 +2756,10 @@ Set this option to a list of file patterns to exclude when checking or
 generating links: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'exclude_files': ['**/README.md']}]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
 *vimwiki-option-html_filename_parameterization*
 ------------------------------------------------------------------------------
 Key                             Default value     Values~
@@ -2710,6 +2774,7 @@ regeneration of HTML files.
 This setting also turns off the automatic deletion of files
 in the site_html directory which don't match existing wiki files.
 
+<<<<<<< HEAD
 ------------------------------------------------------------------------------
 *g:vimwiki_list_ignore_newline*
 
@@ -2795,6 +2860,8 @@ Value           Description~
 
 Default: 0
 
+=======
+>>>>>>> Bump version number – release 2.5
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
@@ -2910,8 +2977,12 @@ Default: 'Vimwiki'
 *g:vimwiki_listsyms*
 
 String of at least two symbols to show the progression of todo list items.
+<<<<<<< HEAD
 Default value is ' .oOX'. You can also set this on a per-wiki level with
 |vimwiki-listsyms|.
+=======
+Default value is ' .oOX'.
+>>>>>>> Bump version number – release 2.5
 
 The first char is for 0% done items.
 The last is for 100% done items.
@@ -2925,9 +2996,13 @@ You can set it to some more fancy symbols like this:
 *g:vimwiki_listsym_rejected*
 
 Character that is used to show that an item of a todo list will not be done.
+<<<<<<< HEAD
 Default value is '-'. You can also set this on a per-wiki level with
 |vimwiki-listsym_rejected|.
 
+=======
+Default value is '-'.
+>>>>>>> Bump version number – release 2.5
 
 The character used here must not be part of |g:vimwiki_listsyms|.
 
@@ -2962,6 +3037,35 @@ The options above can be suffixed with ':quick' (e.g.: 'expr:quick') in order
 to use some workarounds to make folds work faster.
 
 ------------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+*g:vimwiki_list_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in multiline list items.
+
+Value           Description~
+0               Newlines in a list item are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_text_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in text.
+
+Value           Description~
+0               Newlines in text are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
+
+
+------------------------------------------------------------------------------
+>>>>>>> Bump version number – release 2.5
 *g:vimwiki_use_calendar*
 
 Create new or open existing diary wiki-file for the date selected in Calendar.
@@ -3384,6 +3488,45 @@ let g:vimwiki_diary_months = {
       \ 10: 'October', 11: 'November', 12: 'December'
       \ }
 
+<<<<<<< HEAD
+=======
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_header*
+
+A string with the magic header that tells Vimwiki where the Table of Contents
+(see |vimwiki-toc|) is located in a file. You can change it to the
+appropriate word in your mother tongue like this: >
+  let g:vimwiki_toc_header = 'Inhalt'
+
+The default is 'Contents'.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_header_level*
+
+The header level of the Table of Contents (see |vimwiki-toc|). Valid values
+are from 1 to 6.
+
+The default is 1.
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_link_format*
+
+The format of the links in the Table of Contents (see |vimwiki-toc|).
+
+
+Value           Description~
+0               Extended: The link contains the description and URL. URL
+                references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
+
+Default: 0
+
+
+>>>>>>> Bump version number – release 2.5
 ------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*
 
@@ -3557,6 +3700,7 @@ take care when using it. Any plugin that uses a set filetype will be enabled.
 
 The default is `[ ]`
 
+<<<<<<< HEAD
 
 ------------------------------------------------------------------------------
 *g:vimwiki_commentstring*
@@ -3574,6 +3718,8 @@ to not set commentstring by vimwiki.
 The default is %%%s.
 
 
+=======
+>>>>>>> Bump version number – release 2.5
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3696,6 +3842,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Stefan Lehmann (@stevesteve)
     - @graywolf
     - flex (@bratekarate)
+<<<<<<< HEAD
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
     - Aditya Harit (@adi93)
@@ -3706,6 +3853,8 @@ Contributors and their Github usernames in roughly chronological order:
     - Birger Niklas (@BirgerNi)
     - Chip Senkbeil (@chipsenkbeil)
 
+=======
+>>>>>>> Bump version number – release 2.5
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3716,6 +3865,7 @@ https://github.com/vimwiki/vimwiki/issues/, all others from
 http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+<<<<<<< HEAD
 New:~
 
     * Issue #209: Feature: Markdown: Support SetExt Heading
@@ -3759,6 +3909,8 @@ Fixed:~
     * PR #919: Fix duplicate helptag
     * PR #959: Fix :VimwikiNextTask
 
+=======
+>>>>>>> Bump version number – release 2.5
 
 2.5 (2020-05-26)~
 
@@ -3831,7 +3983,10 @@ New:~
     * PR #47: Optimize table formatting for large tables.
     * PR #857: Make default template responsive
     * PR #879: Generate links when diary & wiki dir are the same
+<<<<<<< HEAD
     * PR #884: Configure diary frequency (daily, weekly, monthly, yearly)
+=======
+>>>>>>> Bump version number – release 2.5
 
 Changed:~
     * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|
@@ -3907,9 +4062,12 @@ New:~
     * glx on a list item marks a checkbox as won't do, see |vimwiki_glx|.
     * Add the option |g:vimwiki_listsym_rejected| to set the character used
       for won't-do list items.
+<<<<<<< HEAD
     * The effect of |g:vimwiki_listsyms| and |g:vimwiki_listsym_rejected| can
       be set on a per wiki level, see |vimwiki-listsyms| and
       |vimwili-listsym_rejected|
+=======
+>>>>>>> Bump version number – release 2.5
     * gln and glp change the "done" status of a checkbox, see |vimwiki_gln|.
     * |:VimwikiSplitLink| and |:VimwikiVSplitLink| can now reuse an existing
       split window and not move the cursor.

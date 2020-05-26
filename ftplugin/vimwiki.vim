@@ -2,13 +2,23 @@
 " Vimwiki filetype plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 
+<<<<<<< HEAD
 
 " Cause: load only onces per buffer
+=======
+>>>>>>> Bump version number – release 2.5
 if exists('b:did_ftplugin')
   finish
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
+<<<<<<< HEAD
+=======
+
+
+setlocal commentstring=%%%s
+
+>>>>>>> Bump version number – release 2.5
 if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
   let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
@@ -20,7 +30,11 @@ setlocal isfname-=[,]
 exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 
+<<<<<<< HEAD
 " Help for omnicompletion
+=======
+
+>>>>>>> Bump version number – release 2.5
 function! Complete_wikifiles(findstart, base) abort
   if a:findstart == 1
     let column = col('.')-2
@@ -113,6 +127,7 @@ endfunction
 setlocal omnifunc=Complete_wikifiles
 
 
+<<<<<<< HEAD
 " Declare settings necessary for the automatic formatting of lists
 " ------------------------------------------------
 setlocal autoindent
@@ -125,11 +140,20 @@ setlocal comments=
 setlocal comments+=n:>
 
 " Set format options (:h fo-table)
+=======
+
+" settings necessary for the automatic formatting of lists
+setlocal autoindent
+setlocal nosmartindent
+setlocal nocindent
+setlocal comments=""
+>>>>>>> Bump version number – release 2.5
 setlocal formatoptions-=c
 setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
+<<<<<<< HEAD
 " Used to join blockquotes (see: #915)
 if v:version > 703
   setlocal formatoptions+=j
@@ -140,19 +164,29 @@ let &l:commentstring = vimwiki#vars#get_wikilocal('commentstring')
 
 
 let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
+=======
+
+let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
+>>>>>>> Bump version number – release 2.5
 
 
 " ------------------------------------------------
 " Folding stuff
 " ------------------------------------------------
 
+<<<<<<< HEAD
 " Get fold level for a list
+=======
+>>>>>>> Bump version number – release 2.5
 function! VimwikiFoldListLevel(lnum) abort
   return vimwiki#lst#fold_level(a:lnum)
 endfunction
 
 
+<<<<<<< HEAD
 " Get fold level for 1. line number
+=======
+>>>>>>> Bump version number – release 2.5
 function! VimwikiFoldLevel(lnum) abort
   let line = getline(a:lnum)
 
@@ -170,7 +204,11 @@ function! VimwikiFoldLevel(lnum) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Declare constants used by VimwikiFoldText
+=======
+" Constants used by VimwikiFoldText
+>>>>>>> Bump version number – release 2.5
 " use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
 let s:ellipsis = (&encoding ==? 'utf-8') ? "\u2026" : '...'
 let s:ell_len = strlen(s:ellipsis)
@@ -178,13 +216,18 @@ let s:newline = (&encoding ==? 'utf-8') ? "\u21b2 " : '  '
 let s:tolerance = 5
 
 
+<<<<<<< HEAD
 " unused: too naive
+=======
+" unused
+>>>>>>> Bump version number – release 2.5
 function! s:shorten_text_simple(text, len) abort
   let spare_len = a:len - len(a:text)
   return (spare_len>=0) ? [a:text,spare_len] : [a:text[0:a:len].s:ellipsis, -1]
 endfunction
 
 
+<<<<<<< HEAD
 " Shorten text
 " Called: by VimwikiFoldText
 " s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
@@ -192,6 +235,13 @@ endfunction
 " (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
 " Return: [string, spare]
 function! s:shorten_text(text, len) abort
+=======
+" s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
+" for long enough "text", the string's length is within s:tolerance of "len"
+" (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
+function! s:shorten_text(text, len) abort
+  " returns [string, spare]
+>>>>>>> Bump version number – release 2.5
   " strlen() returns lenght in bytes, not in characters, so we'll have to do a
   " trick here -- replace all non-spaces with dot, calculate lengths and
   " indexes on it, then use original string to break at selected index.
@@ -208,7 +258,10 @@ function! s:shorten_text(text, len) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Fold text chapter
+=======
+>>>>>>> Bump version number – release 2.5
 function! VimwikiFoldText() abort
   let line = getline(v:foldstart)
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
@@ -254,8 +307,11 @@ command! -buffer Vimwiki2HTMLBrowse
 command! -buffer -bang VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')), <bang>0)
 
+<<<<<<< HEAD
 command! -buffer VimwikiRss call vimwiki#html#diary_rss()
 
+=======
+>>>>>>> Bump version number – release 2.5
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
 command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
@@ -265,8 +321,12 @@ command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
 command! -buffer VimwikiDeleteLink
       \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
+<<<<<<< HEAD
 command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
       \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
+=======
+command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+>>>>>>> Bump version number – release 2.5
 command! -buffer VimwikiRenameLink
       \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
       \ call vimwiki#base#rename_link()
@@ -312,7 +372,10 @@ command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
 command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
 command! -buffer VimwikiRenumberAllLists call vimwiki#lst#adjust_whole_buffer()
 command! -buffer VimwikiListToggle call vimwiki#lst#toggle_list_item()
+<<<<<<< HEAD
 command! -buffer -range VimwikiRemoveDone call vimwiki#lst#remove_done(1, "<range>", <line1>, <line2>)
+=======
+>>>>>>> Bump version number – release 2.5
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)
@@ -549,7 +612,10 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   endif
 endif
 
+<<<<<<< HEAD
 " Not used
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:CR(normal, just_mrkr) abort
   let res = vimwiki#tbl#kbd_cr()
   if res !=? ''

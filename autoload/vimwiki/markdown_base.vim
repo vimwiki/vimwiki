@@ -102,7 +102,11 @@ function! s:normalize_link_syntax_n() abort
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
             \ vimwiki#vars#get_global('rxWord'), '',
+<<<<<<< HEAD
             \ vimwiki#vars#get_syntaxlocal('Link1'))
+=======
+            \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+>>>>>>> Bump version number – release 2.5
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
@@ -111,7 +115,59 @@ function! s:normalize_link_syntax_n() abort
 endfunction
 
 
+<<<<<<< HEAD
 function! vimwiki#markdown_base#normalize_link() abort
   " TODO mutualize with base
   call s:normalize_link_syntax_n()
 endfunction
+=======
+function! s:normalize_link_syntax_v() abort
+  let lnum = line('.')
+  let sel_save = &selection
+  let &selection = 'old'
+  let rv = @"
+  let rt = getregtype('"')
+  let done = 0
+
+  try
+    norm! gvy
+    let visual_selection = @"
+
+    if vimwiki#base#is_diary_file(expand('%:p'))
+      let link = vimwiki#base#normalize_link_in_diary(visual_selection)
+    else
+      let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
+            \ '__LinkUrl__', visual_selection, '')
+    endif
+
+    " replace spaces with new character if option is set
+    let link = substitute(link, '\s', vimwiki#vars#get_wikilocal('links_space_char'), 'g')
+
+    let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
+    call setreg('"', substitute(link, '\n', '', ''), visualmode())
+
+    " paste result
+    norm! `>""pgvd
+
+  finally
+    call setreg('"', rv, rt)
+    let &selection = sel_save
+  endtry
+
+endfunction
+
+
+function! vimwiki#markdown_base#normalize_link(is_visual_mode) abort
+  if 0
+    " Syntax-specific links
+  else
+    if !a:is_visual_mode
+      call s:normalize_link_syntax_n()
+    elseif line("'<") == line("'>")
+      " action undefined for multi-line visual mode selections
+      call s:normalize_link_syntax_v()
+    endif
+  endif
+endfunction
+
+>>>>>>> Bump version number – release 2.5

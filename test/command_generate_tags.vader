@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Tag generation
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -93,4 +97,8 @@ Execute (Clean Test-Tag and .vimwiki_tags):
   call system("rm $HOME/testmarkdown/Test-Tag.md")
   call DeleteHiddenBuffers()
 
+<<<<<<< HEAD
 # vim: sw=2:foldlevel=30:foldmethod=indent:
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5

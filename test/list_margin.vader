@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # List indentation <= shiftwidth
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Execute (Create temp directory):
   silent execute '!mkdir -p $HOME/list_margin/'
@@ -105,4 +109,8 @@ Expect (Links with margin == 5):
 Execute (Return to default location & cleanup):
   cd /testplugin
 
+<<<<<<< HEAD
 # vim: sw=2:foldlevel=30:foldmethod=indent:
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5

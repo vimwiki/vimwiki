@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Link internal to a file
 # See issue #666 for anchor support (then internal links)
 # Preambule set file onces and for all {{{1
@@ -84,6 +85,9 @@ Execute (Clear wiki jumps (alias: prev_links)):
 
 
 # Before {{{1
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Internal links + one link to filenew):
   # Contents
@@ -104,6 +108,10 @@ Given vimwiki (Internal links + one link to filenew):
     - [filenew](filenew)
 
 Execute (Set filename wiki_test.md):
+<<<<<<< HEAD
+=======
+  file wiki_test.md
+>>>>>>> Bump version number – release 2.5
   call SetSyntax('markdown')
 
 Do (Navigate with <Tab>):
@@ -305,4 +313,9 @@ Expect (Some chars appended at self link):
   - [Test1](#Test1)
   - [Test2](#Test2)
 
+<<<<<<< HEAD
 # vim: foldmethod=marker foldlevel=30 sw=2
+=======
+
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5

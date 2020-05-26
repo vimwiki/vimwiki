@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VimwikiRenameFile
 # Related to link, file navigation
 
@@ -5,6 +6,11 @@
 # Create directories I remove at end {{{1
 ##########################################
 
+=======
+Include: vader_includes/vader_setup.vader
+
+
+>>>>>>> Bump version number – release 2.5
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
@@ -17,6 +23,7 @@ Execute (Mkdir dir1 dir2 dir11 dir12):
   call system("mkdir $HOME/testmarkdown/dir2")
 
 
+<<<<<<< HEAD
 # Test Transdirectory and argument {{{1
 # New feature #926
 
@@ -85,6 +92,8 @@ Execute (Clean):
 # I delay the cleaning
 ####################################
 
+=======
+>>>>>>> Bump version number – release 2.5
 Given vimwiki (Void):
 
 
@@ -158,10 +167,14 @@ Execute (Fill in_dir11 content):
   call WriteMe()
 
 
+<<<<<<< HEAD
 # Rename local {{{1
 ###################
 
 Do (RenameLink in_dir11 -> in_dir11_new):
+=======
+Do (RenameLink in_dir11 -> new_dir11):
+>>>>>>> Bump version number – release 2.5
   :edit $HOME/testmarkdown/dir1/dir11/in_dir11.md\<CR>
   :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11.md', 'file ' . expand('%')\<CR>
   :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<CR>
@@ -204,6 +217,10 @@ Expect (Link to in_dir11_new):
   [dir2 in_dir2](dir2/in_dir2.md)
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
 Do (in_dir2 -> in_dir2_new):
   :edit $HOME/testmarkdown/dir2/in_dir2.md\<CR>
 
@@ -222,7 +239,11 @@ Do (in_dir2 -> in_dir2_new):
 
 
 Expect (old and new filenames):
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> Bump version number – release 2.5
   /home/vimtest/testmarkdown/dir2/in_dir2.md
   /home/vimtest/testmarkdown/dir2/in_dir2_new.md
 
@@ -258,4 +279,10 @@ Execute (Clean dir1 and dir2):
   call system('rm -r $HOME/testmarkdown/dir2')
 
 
+<<<<<<< HEAD
 # vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#
+=======
+Include: vader_includes/vader_teardown.vader
+
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#
+>>>>>>> Bump version number – release 2.5

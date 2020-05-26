@@ -9,13 +9,22 @@
 
 
 
+<<<<<<< HEAD
 " Clause: Load only once
+=======
+>>>>>>> Bump version number – release 2.5
 if exists('g:loaded_vimwiki_tbl_auto') || &compatible
   finish
 endif
 let g:loaded_vimwiki_tbl_auto = 1
 
 
+<<<<<<< HEAD
+=======
+let s:textwidth = &textwidth
+
+
+>>>>>>> Bump version number – release 2.5
 function! s:rxSep() abort
   return vimwiki#vars#get_syntaxlocal('rxTableSep')
 endfunction
@@ -54,14 +63,20 @@ function! s:sep_splitter() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Check if param:line is in a table
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:is_table(line) abort
   return s:is_separator(a:line) ||
         \ (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
 endfunction
 
 
+<<<<<<< HEAD
 " Check if param:line is a separator (ex: | --- | --- |)
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:is_separator(line) abort
   return a:line =~# '^\s*'.s:rxSep().'\(:\=--\+:\='.s:rxSep().'\)\+\s*$'
 endfunction
@@ -671,7 +686,10 @@ endfunction
 
 
 function! vimwiki#tbl#format(lnum, ...) abort
+<<<<<<< HEAD
   " Clause in
+=======
+>>>>>>> Bump version number – release 2.5
   if !vimwiki#u#ft_is_vw()
     return
   endif
@@ -680,9 +698,12 @@ function! vimwiki#tbl#format(lnum, ...) abort
     return
   endif
 
+<<<<<<< HEAD
   " Backup textwidth
   let textwidth = &textwidth
 
+=======
+>>>>>>> Bump version number – release 2.5
   let depth = a:0 == 1 ? a:1 : 0
 
   if a:0 == 2
@@ -708,8 +729,12 @@ function! vimwiki#tbl#format(lnum, ...) abort
     endif
   endfor
 
+<<<<<<< HEAD
   " Restore user textwidth
   let &textwidth = textwidth
+=======
+  let &textwidth = s:textwidth
+>>>>>>> Bump version number – release 2.5
 endfunction
 
 
@@ -758,6 +783,7 @@ function! vimwiki#tbl#align_or_cmd(cmd, ...) abort
 endfunction
 
 
+<<<<<<< HEAD
 " TODO: move_column_left and move_column_right are good candidates to be refactored.
 function! vimwiki#tbl#move_column_left() abort
   " Clause in
@@ -765,10 +791,38 @@ function! vimwiki#tbl#move_column_left() abort
   if !s:is_table(line)
     return
   endif
+=======
+function! vimwiki#tbl#reset_tw(lnum) abort
+  if !vimwiki#u#ft_is_vw()
+    return
+  endif
+  let line = getline(a:lnum)
+  if !s:is_table(line)
+    return
+  endif
+
+  let s:textwidth = &textwidth
+  let &textwidth = 0
+endfunction
+
+
+" TODO: move_column_left and move_column_right are good candidates to be refactored.
+function! vimwiki#tbl#move_column_left() abort
+
+  "echomsg "DEBUG move_column_left: "
+
+  let line = getline('.')
+
+  if !s:is_table(line)
+    return
+  endif
+
+>>>>>>> Bump version number – release 2.5
   let cur_col = s:cur_column()
   if cur_col == -1
     return
   endif
+<<<<<<< HEAD
   if cur_col <= 0
     return
   endif
@@ -787,19 +841,50 @@ function! vimwiki#tbl#move_column_left() abort
       break
     endif
   endwhile
+=======
+
+  if cur_col > 0
+    call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
+    call cursor(line('.'), 1)
+
+    let sep = '\('.s:rxSep().'\).\zs'
+    let mpos = -1
+    let col = -1
+    while col < cur_col-1
+      let mpos = match(line, sep, mpos+1)
+      if mpos != -1
+        let col += 1
+      else
+        break
+      endif
+    endwhile
+
+  endif
+>>>>>>> Bump version number – release 2.5
 endfunction
 
 
 function! vimwiki#tbl#move_column_right() abort
+<<<<<<< HEAD
   " Clause in
   let line = getline('.')
   if !s:is_table(line)
     return
   endif
+=======
+
+  let line = getline('.')
+
+  if !s:is_table(line)
+    return
+  endif
+
+>>>>>>> Bump version number – release 2.5
   let cur_col = s:cur_column()
   if cur_col == -1
     return
   endif
+<<<<<<< HEAD
   if cur_col >= s:col_count(line('.'))-1
     return
   endif
@@ -820,6 +905,25 @@ function! vimwiki#tbl#move_column_right() abort
       break
     endif
   endwhile
+=======
+
+  if cur_col < s:col_count(line('.'))-1
+    call vimwiki#tbl#format(line('.'), cur_col, cur_col+1)
+    call cursor(line('.'), 1)
+
+    let sep = '\('.s:rxSep().'\).\zs'
+    let mpos = -1
+    let col = -1
+    while col < cur_col+1
+      let mpos = match(line, sep, mpos+1)
+      if mpos != -1
+        let col += 1
+      else
+        break
+      endif
+    endwhile
+  endif
+>>>>>>> Bump version number – release 2.5
 endfunction
 
 
@@ -846,3 +950,7 @@ endfunction
 function! vimwiki#tbl#sep_splitter() abort
   return s:sep_splitter()
 endfunction
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 # Conertion: Wiki -> Html
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
+<<<<<<< HEAD
 #################################################
 Given vimwiki (Comments):
   This is some text
@@ -231,6 +236,8 @@ Execute (Delete):
   call DeleteFile(' $HOME/testwiki/Test473.wiki')
 
 #################################################
+=======
+>>>>>>> Bump version number – release 2.5
 Given (Void):
 
 Execute (Edit TestHtml Wiki):
@@ -271,7 +278,11 @@ Do (Get Html body):
 
 
 Expect (Plain Html):
+<<<<<<< HEAD
 # the whole default html file should be here as a base + the modifications
+=======
+# the whole default html file should be here as a base + the modifications 
+>>>>>>> Bump version number – release 2.5
 # from "Given"
   <body>
 
@@ -283,7 +294,11 @@ Expect (Plain Html):
 
   </body>
 
+<<<<<<< HEAD
 Execute (Delete):
   call DeleteFile('$HOME/testwiki/TestHtml.wiki')
 
 # vim: sw=2 foldmethod=marker foldlevel=30
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5

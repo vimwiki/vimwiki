@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VimwikiTOC {{{1
 #
 # TODO implement: If link in the heading (see README.md)
@@ -135,6 +136,12 @@ Expect (Bad characters are removed):
 
 Execute (Reset TOC header to default):
   call vimwiki#vars#set_wikilocal('toc_header', 'Contents')
+=======
+Include: vader_includes/vader_setup.vader
+
+Execute (Reset TOC header to default):
+  let g:vimwiki_global_vars['toc_header'] = "Contents"
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Headings):
   # Header 1
@@ -157,11 +164,19 @@ Execute (VimwikiTOC):
 Expect (With a TOC sw=8):
   # Contents
 
+<<<<<<< HEAD
   - [Header 1](#header-1)
           - [Header 1.1](#header-11)
                   - [Header 1.1.1](#header-111)
   - [Header 2](#header-2)
                   - [Header 2.1.1](#header-211)
+=======
+  - [Header 1](#Header 1)
+          - [Header 1.1](#Header 1#Header 1.1)
+                  - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+                  - [Header 2.1.1](#Header 2#Header 2.1.1)
+>>>>>>> Bump version number – release 2.5
 
   # Header 1
   random text
@@ -180,11 +195,19 @@ Execute (Set sw=4  && VimwikiTOC):
 Expect (With a TOC sw=4):
   # Contents
 
+<<<<<<< HEAD
   - [Header 1](#header-1)
       - [Header 1.1](#header-11)
           - [Header 1.1.1](#header-111)
   - [Header 2](#header-2)
           - [Header 2.1.1](#header-211)
+=======
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+>>>>>>> Bump version number – release 2.5
 
   # Header 1
   random text
@@ -208,11 +231,19 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC):
   # Contents
 
+<<<<<<< HEAD
   - [Header 1](#header-1)
       - [Header 1.1](#header-11)
           - [Header 1.1.1](#header-111)
   - [Header 2](#header-2)
           - [Header 2.1.1](#header-211)
+=======
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+>>>>>>> Bump version number – release 2.5
 
   # Header 1
   random text
@@ -226,17 +257,29 @@ Expect (Brand new TOC):
 
 
 Execute (Let toc_header = Sommaire && VimwikiTOC):
+<<<<<<< HEAD
   call vimwiki#vars#set_wikilocal('toc_header', 'Sommaire')
+=======
+  let g:vimwiki_global_vars['toc_header'] = "Sommaire"
+>>>>>>> Bump version number – release 2.5
   VimwikiTOC
 
 Expect (Append a Sommaire && Leave Contents alone):
   # Sommaire
 
+<<<<<<< HEAD
   - [Header 1](#header-1)
       - [Header 1.1](#header-11)
           - [Header 1.1.1](#header-111)
   - [Header 2](#header-2)
           - [Header 2.1.1](#header-211)
+=======
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+>>>>>>> Bump version number – release 2.5
 
   # Header 1
   random text
@@ -260,11 +303,19 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC with sommaire):
   # Sommaire
 
+<<<<<<< HEAD
   - [Header 1](#header-1)
       - [Header 1.1](#header-11)
           - [Header 1.1.1](#header-111)
   - [Header 2](#header-2)
           - [Header 2.1.1](#header-211)
+=======
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+>>>>>>> Bump version number – release 2.5
 
   # Header 1
   random text
@@ -277,6 +328,7 @@ Expect (Brand new TOC with sommaire):
   ### Header 2.1.1
 
 
+<<<<<<< HEAD
 Execute (call vimwiki#vars#set_global('toc_header_level', 6):
   call vimwiki#vars#set_wikilocal('toc_header_level', 6)
   VimwikiTOC
@@ -303,3 +355,8 @@ Expect (Content prepended):
   ### Header 2.1.1
 
 " vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#
+=======
+Include: vader_includes/vader_teardown.vader
+
+" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
+>>>>>>> Bump version number – release 2.5

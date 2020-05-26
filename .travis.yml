@@ -20,6 +20,7 @@ before_install:
     else docker build --tag vimwiki .;
     fi
 
+<<<<<<< HEAD
 env:
   # Define jobs <- vim version <- hard copied from Dockerfile
   # First to be launched
@@ -42,3 +43,10 @@ script:
 
 
 # vim:sw=2:
+=======
+script:
+  # Run All tests
+  - pushd test
+  - bash run_tests.sh
+  - popd
+>>>>>>> Bump version number – release 2.5

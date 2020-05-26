@@ -1,6 +1,9 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
+<<<<<<< HEAD
 " Description: Vimwiki variable definition and manipulation
+=======
+>>>>>>> Bump version number – release 2.5
 " Home: https://github.com/vimwiki/vimwiki/
 
 
@@ -26,6 +29,7 @@
 " variables, not the underlying dicts!
 " ------------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 " Script variable
 let s:margin_set_by_user = 0
 
@@ -44,6 +48,11 @@ endfunction
 " Populate global variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_global_variables() abort
+=======
+
+function! s:populate_global_variables() abort
+
+>>>>>>> Bump version number – release 2.5
   let g:vimwiki_global_vars = {}
 
   call s:read_global_settings_from_user()
@@ -156,8 +165,11 @@ function! s:populate_global_variables() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Read user global settings
 " Called: s:populate_global_variables
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:read_global_settings_from_user() abort
   let global_settings = {
         \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -193,18 +205,33 @@ function! s:read_global_settings_from_user() abort
         \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'links': 1,
         \     'html': 1, 'mouse': 0,
         \   }},
+<<<<<<< HEAD
+=======
+        \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+>>>>>>> Bump version number – release 2.5
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
+<<<<<<< HEAD
+=======
+        \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+>>>>>>> Bump version number – release 2.5
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
         \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
+<<<<<<< HEAD
+=======
+        \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
+        \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+>>>>>>> Bump version number – release 2.5
         \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
         \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -253,11 +280,18 @@ function! s:read_global_settings_from_user() abort
       break
     endif
   endfor
+<<<<<<< HEAD
 endfunction
 
 
 " Normalize user global settings
 " Called: s:populate_global_variables
+=======
+
+endfunction
+
+
+>>>>>>> Bump version number – release 2.5
 function! s:normalize_global_settings() abort
   let keys = keys(g:vimwiki_global_vars.ext2syntax)
   for ext in keys
@@ -326,12 +360,18 @@ function! s:normalize_global_settings() abort
   " TODO remove these checks and the table_mappings and use_mouse variables
   " backwards compatibility checks
   " if the old option isn't its default value then overwrite the new option
+<<<<<<< HEAD
   if g:vimwiki_global_vars.table_mappings == 0 && g:vimwiki_global_vars.key_mappings.table_mappings == 0
     let g:vimwiki_global_vars.key_mappings.table_mappings = 0
+=======
+  if g:vimwiki_global_vars.table_mappings == 0
+    let g:vimwiki_global_vars.key_mappings.table_mappings = 0 && g:vimwiki_global_vars.key_mappings.table_mappings == 1
+>>>>>>> Bump version number – release 2.5
   endif
   if g:vimwiki_global_vars.use_mouse == 1 && g:vimwiki_global_vars.key_mappings.mouse == 0
     let g:vimwiki_global_vars.key_mappings.mouse = 1
   endif
+<<<<<<< HEAD
 endfunction
 
 
@@ -347,6 +387,14 @@ function! s:populate_wikilocal_options() abort
 
   " Declare default values
   " Please: keep alphabetical sort
+=======
+
+endfunction
+
+
+let s:margin_set_by_user = 0
+function! s:populate_wikilocal_options() abort
+>>>>>>> Bump version number – release 2.5
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -355,6 +403,7 @@ function! s:populate_wikilocal_options() abort
         \ 'auto_tags': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+<<<<<<< HEAD
         \ 'base_url': {'type': type(''), 'default': '', 'min_length': 1},
         \ 'commentstring': {'type': type(''), 'default': '%%%s'},
         \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
@@ -362,6 +411,11 @@ function! s:populate_wikilocal_options() abort
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
         \ 'diary_frequency': {'type': type(''), 'default': 'daily', 'possible_values': ['daily', 'weekly', 'monthly', 'yearly']},
         \ 'diary_start_week_day': {'type': type(''), 'default': 'monday', 'possible_values': ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']},
+=======
+        \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
+        \ 'custom_wiki2html': {'type': type(''), 'default': ''},
+        \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
+>>>>>>> Bump version number – release 2.5
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
         \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 0},
@@ -369,6 +423,7 @@ function! s:populate_wikilocal_options() abort
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
         \ 'exclude_files': {'type': type([]), 'default': []},
         \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
+<<<<<<< HEAD
         \ 'bullet_types': {'type': type([]), 'default': []},
         \ 'cycle_bullets': {'type': type(0), 'default': 0},
         \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -379,18 +434,27 @@ function! s:populate_wikilocal_options() abort
         \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
         \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
         \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+=======
+        \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
+        \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
+        \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
+>>>>>>> Bump version number – release 2.5
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'name': {'type': type(''), 'default': ''},
         \ 'nested_syntaxes': {'type': type({}), 'default': {}},
         \ 'path': {'type': type(''), 'default': $HOME . '/vimwiki/', 'min_length': 1},
         \ 'path_html': {'type': type(''), 'default': ''},
+<<<<<<< HEAD
         \ 'rss_max_items': {'type': type(0), 'default': 10, 'min': 0},
         \ 'rss_name': {'type': type(''), 'default': 'rss.xml', 'min_length': 1},
+=======
+>>>>>>> Bump version number – release 2.5
         \ 'syntax': {'type': type(''), 'default': 'default',
         \   'possible_values': ['default', 'markdown', 'media', 'mediawiki']},
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
+<<<<<<< HEAD
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
@@ -398,6 +462,13 @@ function! s:populate_wikilocal_options() abort
         \ }
 
   " Fill default setting <- user or plugin values
+=======
+        \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ }
+
+  let g:vimwiki_wikilocal_vars = []
+
+>>>>>>> Bump version number – release 2.5
   let default_wiki_settings = {}
   for key in keys(default_values)
     if exists('g:vimwiki_'.key)
@@ -408,7 +479,11 @@ function! s:populate_wikilocal_options() abort
     endif
   endfor
 
+<<<<<<< HEAD
   " Set the wiki-local variables according to g:vimwiki_list (or the default settings)
+=======
+  " set the wiki-local variables according to g:vimwiki_list (or the default settings)
+>>>>>>> Bump version number – release 2.5
   if exists('g:vimwiki_list')
     for users_wiki_settings in g:vimwiki_list
       let new_wiki_settings = {}
@@ -439,6 +514,7 @@ function! s:populate_wikilocal_options() abort
   let temporary_wiki_settings = deepcopy(default_wiki_settings)
   let temporary_wiki_settings.is_temporary_wiki = 1
   call add(g:vimwiki_wikilocal_vars, temporary_wiki_settings)
+<<<<<<< HEAD
   " Set up variables for the lists, depending on config and syntax
   for wiki in g:vimwiki_wikilocal_vars
     if len(wiki.bullet_types) == 0
@@ -448,6 +524,10 @@ function! s:populate_wikilocal_options() abort
   endfor
 
   " Check some values individually
+=======
+
+  " check some values individually
+>>>>>>> Bump version number – release 2.5
   let key = 'nested_syntaxes'
   for wiki_settings in g:vimwiki_wikilocal_vars
     let users_value = wiki_settings[key]
@@ -465,12 +545,15 @@ function! s:populate_wikilocal_options() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Helper, Check user setting
 " warn user with echo message if not good type
 " Param: 1: key <string>: varaible name
 " Param: 2: vimwiki_key <obj>: user value
 " Param: 3: value_infod <dict>: type and default value
 " Param: 4: coming from a global variable <bool>
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
   let type_code_to_name = {
         \ type(0): 'number',
@@ -529,7 +612,10 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
 endfunction
 
 
+<<<<<<< HEAD
 " Normalize local settings
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:normalize_wikilocal_settings() abort
   for wiki_settings in g:vimwiki_wikilocal_vars
     let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
@@ -559,12 +645,19 @@ function! s:normalize_wikilocal_settings() abort
       " default list margin to 0
       let wiki_settings.list_margin = 0
     endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
   endfor
 endfunction
 
 
+<<<<<<< HEAD
 " Helper path
 " TODO move to path: Conflict with: vimwiki#path#path_norm && vimwiki#path#normalize
+=======
+>>>>>>> Bump version number – release 2.5
 function! s:normalize_path(path) abort
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
@@ -576,6 +669,7 @@ function! s:normalize_path(path) abort
 endfunction
 
 
+<<<<<<< HEAD
 " ----------------------------------------------------------
 " 3. Syntax specific
 " ----------------------------------------------------------
@@ -585,15 +679,22 @@ endfunction
 " TODO refactor <= too big function
 function! vimwiki#vars#populate_syntax_vars(syntax) abort
   " Create is not exists
+=======
+function! vimwiki#vars#populate_syntax_vars(syntax) abort
+>>>>>>> Bump version number – release 2.5
   if !exists('g:vimwiki_syntax_variables')
     let g:vimwiki_syntax_variables = {}
   endif
 
+<<<<<<< HEAD
   " Clause: leave if already filled
+=======
+>>>>>>> Bump version number – release 2.5
   if has_key(g:vimwiki_syntax_variables, a:syntax)
     return
   endif
 
+<<<<<<< HEAD
   " Init syntax variable dictionary
   let g:vimwiki_syntax_variables[a:syntax] = {}
   let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
@@ -673,11 +774,81 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   for i in syntax_dic.number_types
     call add(syntax_dic.number_kinds, i[0])
     let syntax_dic.number_divisors .= vimwiki#u#escape(i[1])
+=======
+  let g:vimwiki_syntax_variables[a:syntax] = {}
+
+  execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
+
+  " generic stuff
+  let header_symbol = g:vimwiki_syntax_variables[a:syntax].rxH
+  if g:vimwiki_syntax_variables[a:syntax].symH
+    " symmetric headers
+    for i in range(1,6)
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] =
+            \ repeat(header_symbol, i).' __Header__ '.repeat(header_symbol, i)
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
+            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
+            \ .header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze'
+            \ .header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
+            \ .header_symbol.'\{'.i.'}\s*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] =
+            \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
+            \ .header_symbol.'\{1,'.i.'}\s*$'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxHeader =
+          \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
+  else
+    " asymmetric
+    for i in range(1,6)
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] =
+            \ repeat(header_symbol, i).' __Header__'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
+            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*\ze$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
+            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] =
+            \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxHeader =
+          \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
+  endif
+
+  let g:vimwiki_syntax_variables[a:syntax].rxPreStart =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreStart
+  let g:vimwiki_syntax_variables[a:syntax].rxPreEnd =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreEnd.'\s*$'
+
+  let g:vimwiki_syntax_variables[a:syntax].rxMathStart =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathStart
+  let g:vimwiki_syntax_variables[a:syntax].rxMathEnd =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
+
+  " list stuff
+  let g:vimwiki_syntax_variables[a:syntax].rx_bullet_chars =
+        \ '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
+
+  let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars =
+        \ g:vimwiki_syntax_variables[a:syntax].recurring_bullets
+        \ ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
+
+  let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
+  let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
+  for i in g:vimwiki_syntax_variables[a:syntax].number_types
+    call add(g:vimwiki_syntax_variables[a:syntax].number_kinds, i[0])
+    let g:vimwiki_syntax_variables[a:syntax].number_divisors .= vimwiki#u#escape(i[1])
+>>>>>>> Bump version number – release 2.5
   endfor
 
   let char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
+<<<<<<< HEAD
   " Create regexp for bulleted list items
   if !empty(syntax_dic.bullet_types)
     let syntax_dic.rxListBullet =
@@ -703,11 +874,69 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   else
     "regex that matches nothing
     let syntax_dic.rxListNumber = '$^'
+=======
+  "create regexp for bulleted list items
+  if !empty(g:vimwiki_syntax_variables[a:syntax].bullet_types)
+    let g:vimwiki_syntax_variables[a:syntax].rxListBullet =
+          \ join( map(copy(g:vimwiki_syntax_variables[a:syntax].bullet_types),
+          \'vimwiki#u#escape(v:val).'
+          \ .'repeat("\\+", g:vimwiki_syntax_variables[a:syntax].recurring_bullets)'
+          \ ) , '\|')
+  else
+    "regex that matches nothing
+    let g:vimwiki_syntax_variables[a:syntax].rxListBullet = '$^'
+  endif
+
+  "create regex for numbered list items
+  if !empty(g:vimwiki_syntax_variables[a:syntax].number_types)
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '\C\%('
+    for type in g:vimwiki_syntax_variables[a:syntax].number_types[:-2]
+      let g:vimwiki_syntax_variables[a:syntax].rxListNumber .= char_to_rx[type[0]] .
+            \ vimwiki#u#escape(type[1]) . '\|'
+    endfor
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber .=
+          \ char_to_rx[g:vimwiki_syntax_variables[a:syntax].number_types[-1][0]].
+          \ vimwiki#u#escape(g:vimwiki_syntax_variables[a:syntax].number_types[-1][1]) . '\)'
+  else
+    "regex that matches nothing
+    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '$^'
+  endif
+
+  "the user can set the listsyms as string, but vimwiki needs a list
+  let g:vimwiki_syntax_variables[a:syntax].listsyms_list =
+        \ split(vimwiki#vars#get_global('listsyms'), '\zs')
+  if match(vimwiki#vars#get_global('listsyms'), vimwiki#vars#get_global('listsym_rejected')) != -1
+    echomsg 'Vimwiki Warning: the value of g:vimwiki_listsym_rejected ('''
+          \ . vimwiki#vars#get_global('listsym_rejected')
+          \ . ''') must not be a part of g:vimwiki_listsyms ('''
+          \ . vimwiki#vars#get_global('listsyms') . ''')'
+  endif
+  let g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB =
+        \ '^\s*\%(\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\|\('
+        \ .g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\)\s'
+  let g:vimwiki_syntax_variables[a:syntax].rxListItem =
+        \ g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB
+        \ . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms')
+        \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
+  if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
+    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
+          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\%('
+          \ .g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
+  else
+    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
+          \ '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'
+          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\[['
+          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
+          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+>>>>>>> Bump version number – release 2.5
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
   " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
   " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
+<<<<<<< HEAD
   let syntax_dic.rxWeblink =
         \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]><]*'
   " 0a) match URL within URL
@@ -718,6 +947,18 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
 
   " template for matching all wiki links with a given target file
   let syntax_dic.WikiLinkMatchUrlTemplate =
+=======
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblink =
+        \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]>]*'
+  " 0a) match URL within URL
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchUrl =
+        \ g:vimwiki_syntax_variables[a:syntax].rxWeblink
+  " 0b) match DESCRIPTION within URL
+  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchDescr = ''
+
+  " template for matching all wiki links with a given target file
+  let g:vimwiki_syntax_variables[a:syntax].WikiLinkMatchUrlTemplate =
+>>>>>>> Bump version number – release 2.5
         \ g:vimwiki_global_vars.rx_wikilink_prefix .
         \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
         \ g:vimwiki_global_vars.rx_wikilink_suffix .
@@ -729,6 +970,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
         \ g:vimwiki_global_vars.rx_wikilink_suffix
 
   " a) match [[URL|DESCRIPTION]]
+<<<<<<< HEAD
   let syntax_dic.rxWikiLink = g:vimwiki_global_vars.rx_wikilink_prefix.
         \ g:vimwiki_global_vars.rxWikiLinkUrl.'\%('.g:vimwiki_global_vars.rx_wikilink_separator.
         \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
@@ -737,16 +979,31 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
         \ g:vimwiki_global_vars.rxWikiIncl.'\|'.syntax_dic.rxWeblink
   " b) match URL within [[URL|DESCRIPTION]]
   let syntax_dic.rxWikiLinkMatchUrl =
+=======
+  let g:vimwiki_syntax_variables[a:syntax].rxWikiLink = g:vimwiki_global_vars.rx_wikilink_prefix.
+        \ g:vimwiki_global_vars.rxWikiLinkUrl.'\%('.g:vimwiki_global_vars.rx_wikilink_separator.
+        \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
+  let g:vimwiki_syntax_variables[a:syntax].rxAnyLink =
+        \ g:vimwiki_syntax_variables[a:syntax].rxWikiLink.'\|'.
+        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_syntax_variables[a:syntax].rxWeblink
+  " b) match URL within [[URL|DESCRIPTION]]
+  let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchUrl =
+>>>>>>> Bump version number – release 2.5
         \ g:vimwiki_global_vars.rx_wikilink_prefix . '\zs'. g:vimwiki_global_vars.rxWikiLinkUrl
         \ .'\ze\%('. g:vimwiki_global_vars.rx_wikilink_separator
         \ . g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
   " c) match DESCRIPTION within [[URL|DESCRIPTION]]
+<<<<<<< HEAD
   let syntax_dic.rxWikiLinkMatchDescr =
+=======
+  let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchDescr =
+>>>>>>> Bump version number – release 2.5
         \ g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl
         \ . g:vimwiki_global_vars.rx_wikilink_separator.'\%(\zs'
         \ . g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'
         \ . g:vimwiki_global_vars.rx_wikilink_suffix
 
+<<<<<<< HEAD
   " Work more if markdown
   if a:syntax ==# 'markdown'
     call s:populate_extra_markdown_vars()
@@ -816,6 +1073,14 @@ endfunction
 
 
 " Populate markdown specific syntax variables
+=======
+  if a:syntax ==# 'markdown'
+    call s:populate_extra_markdown_vars()
+  endif
+endfunction
+
+
+>>>>>>> Bump version number – release 2.5
 function! s:populate_extra_markdown_vars() abort
   let mkd_syntax = g:vimwiki_syntax_variables['markdown']
 
@@ -893,6 +1158,7 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxWeblink1Suffix = ')'
   let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\()\)'
   let mkd_syntax.rxWeblink1Separator = ']('
+<<<<<<< HEAD
 
   let rxWeblink1Ext = ''
   if vimwiki#vars#get_wikilocal('markdown_link_ext')
@@ -902,13 +1168,26 @@ function! s:populate_extra_markdown_vars() abort
   " [DESCRIPTION](URL)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
+=======
+  let mkd_syntax.rxWeblink1Ext = ''
+  if vimwiki#vars#get_global('markdown_link_ext')
+    let mkd_syntax.rxWeblink1Ext = vimwiki#vars#get_wikilocal('ext')
+  endif
+  " [DESCRIPTION](URL)
+  let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+>>>>>>> Bump version number – release 2.5
         \ mkd_syntax.rxWeblink1Suffix
   " [DESCRIPTION](ANCHOR)
   let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
   " [DESCRIPTION](FILE#ANCHOR)
   let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
+<<<<<<< HEAD
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
+=======
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+>>>>>>> Bump version number – release 2.5
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
   let valid_chars = '[^\\\]]'
@@ -923,18 +1202,30 @@ function! s:populate_extra_markdown_vars() abort
         \ mkd_syntax.rx_wikilink_md_prefix .
         \ '.*' .
         \ rx_wikilink_md_separator .
+<<<<<<< HEAD
         \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rx_wikilink_md_prefix .
         \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
+=======
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ mkd_syntax.rx_wikilink_md_suffix .
+        \ '\|' .
+        \ mkd_syntax.rx_wikilink_md_prefix .
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+>>>>>>> Bump version number – release 2.5
         \ rx_wikilink_md_separator .
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rxWeblink1Prefix.
         \ '.*' .
         \ mkd_syntax.rxWeblink1Separator.
+<<<<<<< HEAD
         \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
+=======
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+>>>>>>> Bump version number – release 2.5
         \ mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " 1. [DESCRIPTION](URL)
@@ -987,6 +1278,7 @@ function! s:populate_extra_markdown_vars() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Normalize syntax setting
 "   so that we dont have to branch for the syntax at each operation
 " Called: vimwiki#vars#populate_syntax_vars
@@ -1013,24 +1305,43 @@ endfunction
 " Param: (2): syntax name (<string> ex:'markdown')
 function! vimwiki#vars#get_syntaxlocal(key, ...) abort
   " Retrieve desired syntax name
+=======
+function! vimwiki#vars#init() abort
+  call s:populate_global_variables()
+  call s:populate_wikilocal_options()
+endfunction
+
+
+function! vimwiki#vars#get_syntaxlocal(key, ...) abort
+>>>>>>> Bump version number – release 2.5
   if a:0
     let syntax = a:1
   else
     let syntax = vimwiki#vars#get_wikilocal('syntax')
   endif
+<<<<<<< HEAD
 
   " Create syntax varaible dict if not exists (lazy)
+=======
+>>>>>>> Bump version number – release 2.5
   if !exists('g:vimwiki_syntax_variables') || !has_key(g:vimwiki_syntax_variables, syntax)
     call vimwiki#vars#populate_syntax_vars(syntax)
   endif
 
+<<<<<<< HEAD
   " Return d_syntax[a:key]
+=======
+>>>>>>> Bump version number – release 2.5
   return g:vimwiki_syntax_variables[syntax][a:key]
 endfunction
 
 
+<<<<<<< HEAD
 " Return: buffer local variable
 " for the buffer we are currently in or for the given buffer (number or name).
+=======
+" Get a variable for the buffer we are currently in or for the given buffer (number or name).
+>>>>>>> Bump version number – release 2.5
 " Populate the variable, if it doesn't exist.
 function! vimwiki#vars#get_bufferlocal(key, ...) abort
   let buffer = a:0 ? a:1 : '%'
@@ -1064,19 +1375,26 @@ function! vimwiki#vars#get_bufferlocal(key, ...) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Set buffer local variable
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#vars#set_bufferlocal(key, value, ...) abort
   let buffer = a:0 ? a:1 : '%'
   call setbufvar(buffer, 'vimwiki_' . a:key, a:value)
 endfunction
 
 
+<<<<<<< HEAD
 " Return: wiki global variable
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#vars#get_global(key) abort
   return g:vimwiki_global_vars[a:key]
 endfunction
 
 
+<<<<<<< HEAD
 " Set global variable
 function! vimwiki#vars#set_global(key, value) abort
   let g:vimwiki_global_vars[a:key] = a:value
@@ -1087,6 +1405,9 @@ endfunction
 " Return: wiki local named varaible
 " Param: (1): variable name (alias key, <string>)
 " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
+=======
+" the second argument can be a wiki number. When absent, the wiki of the currently active buffer is
+>>>>>>> Bump version number – release 2.5
 " used
 function! vimwiki#vars#get_wikilocal(key, ...) abort
   if a:0
@@ -1097,12 +1418,16 @@ function! vimwiki#vars#get_wikilocal(key, ...) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: wiki local variable (of default wiki [index -1])
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#vars#get_wikilocal_default(key) abort
   return g:vimwiki_wikilocal_vars[-1][a:key]
 endfunction
 
 
+<<<<<<< HEAD
 " Set local variable
 " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
 " used
@@ -1120,6 +1445,16 @@ endfunction
 
 
 " Append new wiki to wiki list
+=======
+function! vimwiki#vars#set_wikilocal(key, value, wiki_nr) abort
+  if a:wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
+    call insert(g:vimwiki_wikilocal_vars, {}, -1)
+  endif
+  let g:vimwiki_wikilocal_vars[a:wiki_nr][a:key] = a:value
+endfunction
+
+
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#vars#add_temporary_wiki(settings) abort
   let new_temp_wiki_settings = copy(g:vimwiki_wikilocal_vars[-1])
   for [key, value] in items(a:settings)
@@ -1130,7 +1465,11 @@ function! vimwiki#vars#add_temporary_wiki(settings) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Return: number of registered wikis + temporary
+=======
+" number of registered wikis + temporary
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#vars#number_of_wikis() abort
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction

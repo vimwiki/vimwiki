@@ -13,6 +13,7 @@ endif
 
 let s:current_syntax = vimwiki#vars#get_wikilocal('syntax')
 
+<<<<<<< HEAD
 " Get config: possibly concealed chars
 let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
@@ -52,6 +53,11 @@ let syntax_dic.dTypeface.sup = ([
 let syntax_dic.dTypeface.sub = ([
       \ [',,', ',,']])
 
+=======
+
+call vimwiki#vars#populate_syntax_vars(s:current_syntax)
+
+>>>>>>> Bump version number – release 2.5
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
 function! s:add_target_syntax_ON(target, type) abort
@@ -87,33 +93,57 @@ function! s:highlight_existing_links() abort
   " match [[URL]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
+<<<<<<< HEAD
         \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[URL|DESCRIPTION]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
+<<<<<<< HEAD
         \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 
   " match {{URL}}
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate1')),
+<<<<<<< HEAD
         \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
+=======
+        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match {{URL|...}}
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate2')),
+<<<<<<< HEAD
         \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
+=======
+        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[DIRURL]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
+<<<<<<< HEAD
         \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[DIRURL|DESCRIPTION]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
+<<<<<<< HEAD
         \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 endfunction
 
@@ -150,26 +180,42 @@ let s:rxSchemes = '\%('.
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiLinkUrl'),
+<<<<<<< HEAD
       \ vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 " b) match [[nonwiki-scheme-URL|DESCRIPTION]]
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiLinkUrl'),
+<<<<<<< HEAD
       \ vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
+=======
+      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+>>>>>>> Bump version number – release 2.5
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 " a) match {{nonwiki-scheme-URL}}
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate1')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiInclUrl'),
+<<<<<<< HEAD
       \ vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
+=======
+      \ vimwiki#vars#get_global('rxWikiInclArgs'), '')
+>>>>>>> Bump version number – release 2.5
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 " b) match {{nonwiki-scheme-URL}[{...}]}
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate2')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiInclUrl'),
+<<<<<<< HEAD
       \ vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
+=======
+      \ vimwiki#vars#get_global('rxWikiInclArgs'), '')
+>>>>>>> Bump version number – release 2.5
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
@@ -186,6 +232,7 @@ for s:i in range(1,6)
         \ '/me=s-1 transparent fold'
 endfor
 
+<<<<<<< HEAD
 " SetExt header
 " TODO mutualise SetExt Regexp
 let setex_header1_re = '^\s\{0,3}[^>].*\n\s\{0,3}==\+$'
@@ -198,11 +245,42 @@ execute 'syntax match VimwikiHeader2'
     \ . ' /'. setex_header2_re . '/ ' .
     \ 'contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
     \ 'VimwikiLink,@Spell'
+=======
+
+
+" possibly concealed chars
+let s:conceal = exists('+conceallevel') ? ' conceal' : ''
+
+if vimwiki#vars#get_global('conceal_onechar_markers')
+  execute 'syn match VimwikiEqInChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
+  execute 'syn match VimwikiBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
+  execute 'syn match VimwikiItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
+  execute 'syn match VimwikiBoldItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
+  execute 'syn match VimwikiItalicBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
+  execute 'syn match VimwikiCodeChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
+  execute 'syn match VimwikiDelTextChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
+  execute 'syn match VimwikiSuperScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
+  execute 'syn match VimwikiSubScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
+endif
+>>>>>>> Bump version number – release 2.5
 
 
 let s:options = ' contained transparent contains=NONE'
 if exists('+conceallevel')
+<<<<<<< HEAD
   let s:options .= b:vimwiki_syntax_conceal
+=======
+  let s:options .= s:conceal
+>>>>>>> Bump version number – release 2.5
 endif
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
@@ -232,6 +310,27 @@ execute 'syn match VimwikiLinkChar /'.vimwiki#vars#get_global('rxWikiInclSuffix1
 execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
       \ vimwiki#vars#get_syntaxlocal('rxH').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH').
       \ '\+\s*$\)/'
+<<<<<<< HEAD
+=======
+execute 'syn match VimwikiEqInCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_eqin').'/'
+execute 'syn match VimwikiBoldCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_bold').'/'
+execute 'syn match VimwikiItalicCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_italic').'/'
+execute 'syn match VimwikiBoldItalicCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'
+execute 'syn match VimwikiItalicBoldCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_italicbold').'/'
+execute 'syn match VimwikiCodeCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_code').'/'
+execute 'syn match VimwikiDelTextCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_deltext').'/'
+execute 'syn match VimwikiSuperScriptT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_superscript').'/'
+execute 'syn match VimwikiSubScriptT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_subscript').'/'
+>>>>>>> Bump version number – release 2.5
 
 
 execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
@@ -254,12 +353,16 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
                            \ @Spell
+<<<<<<< HEAD
 
+=======
+>>>>>>> Bump version number – release 2.5
 syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
 " Lists
+<<<<<<< HEAD
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
@@ -267,15 +370,77 @@ execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem'
 if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+=======
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'/'
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
+execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_syntaxlocal('rxListItem').'/'
+
+if vimwiki#vars#get_global('hl_cb_checked') == 1
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+>>>>>>> Bump version number – release 2.5
         \ . vimwiki#vars#get_global('listsym_rejected')
         \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
+<<<<<<< HEAD
         \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
+=======
+        \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
+>>>>>>> Bump version number – release 2.5
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 
 
+<<<<<<< HEAD
+=======
+execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
+      \ '/ contains=VimwikiEqInChar,@NoSpell'
+execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
+      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
+
+execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
+      \ '/ contains=VimwikiBoldChar,@Spell'
+execute 'syntax match VimwikiBoldT /'.vimwiki#vars#get_syntaxlocal('rxBold').
+      \ '/ contained contains=VimwikiBoldCharT,@Spell'
+
+execute 'syntax match VimwikiItalic /'.vimwiki#vars#get_syntaxlocal('rxItalic').
+      \ '/ contains=VimwikiItalicChar,@Spell'
+execute 'syntax match VimwikiItalicT /'.vimwiki#vars#get_syntaxlocal('rxItalic').
+      \ '/ contained contains=VimwikiItalicCharT,@Spell'
+
+execute 'syntax match VimwikiBoldItalic /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').
+      \ '/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiBoldItalicT /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').
+      \ '/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
+
+execute 'syntax match VimwikiItalicBold /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').
+      \ '/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
+execute 'syntax match VimwikiItalicBoldT /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').
+      \ '/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
+
+execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').
+      \ '/ contains=VimwikiDelTextChar,@Spell'
+execute 'syntax match VimwikiDelTextT /'.vimwiki#vars#get_syntaxlocal('rxDelText').
+      \ '/ contained contains=VimwikiDelTextCharT,@Spell'
+
+execute 'syntax match VimwikiSuperScript /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
+      \ '/ contains=VimwikiSuperScriptChar,@Spell'
+execute 'syntax match VimwikiSuperScriptT /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
+      \ '/ contained contains=VimwikiSuperScriptCharT,@Spell'
+
+execute 'syntax match VimwikiSubScript /'.vimwiki#vars#get_syntaxlocal('rxSubScript').
+      \ '/ contains=VimwikiSubScriptChar,@Spell'
+execute 'syntax match VimwikiSubScriptT /'.vimwiki#vars#get_syntaxlocal('rxSubScript').
+      \ '/ contained contains=VimwikiSubScriptCharT,@Spell'
+
+execute 'syntax match VimwikiCode /'.vimwiki#vars#get_syntaxlocal('rxCode').
+      \ '/ contains=VimwikiCodeChar,@NoSpell'
+execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
+      \ '/ contained contains=VimwikiCodeCharT'
+
+
+>>>>>>> Bump version number – release 2.5
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
@@ -300,15 +465,32 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 " html tags
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
+<<<<<<< HEAD
   " Include: Source html file here
   execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
 endif
 
 
+=======
+  let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
+  exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
+  execute 'syntax match VimwikiBold #\c<b>.\{-}</b># contains=VimwikiHTMLTag'
+  execute 'syntax match VimwikiItalic #\c<i>.\{-}</i># contains=VimwikiHTMLTag'
+  execute 'syntax match VimwikiUnderline #\c<u>.\{-}</u># contains=VimwikiHTMLTag'
+
+  execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').
+        \ '/ contains=@Spell,VimwikiTodo'
+endif
+
+>>>>>>> Bump version number – release 2.5
 " tags
 execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
 " header groups highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
   " Strangely in default colorscheme Title group is not set to bold for cterm...
@@ -328,32 +510,43 @@ endif
 
 
 
+<<<<<<< HEAD
 " Highlight Typefaces -> u.vim
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
 
 hi def link VimwikiMarkers Normal
 hi def link VimwikiError Normal
+=======
+hi def link VimwikiMarkers Normal
+>>>>>>> Bump version number – release 2.5
 
 hi def link VimwikiEqIn Number
 hi def link VimwikiEqInT VimwikiEqIn
 
+<<<<<<< HEAD
 " Typeface 1
+=======
+>>>>>>> Bump version number – release 2.5
 hi def VimwikiBold term=bold cterm=bold gui=bold
 hi def link VimwikiBoldT VimwikiBold
 
 hi def VimwikiItalic term=italic cterm=italic gui=italic
 hi def link VimwikiItalicT VimwikiItalic
 
+<<<<<<< HEAD
 hi def VimwikiUnderline term=underline cterm=underline gui=underline
 
 " Typeface 2
 " Bold > Italic > Underline
+=======
+>>>>>>> Bump version number – release 2.5
 hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
 hi def link VimwikiItalicBold VimwikiBoldItalic
 hi def link VimwikiBoldItalicT VimwikiBoldItalic
 hi def link VimwikiItalicBoldT VimwikiBoldItalic
 
+<<<<<<< HEAD
 hi def VimwikiBoldUnderline term=bold,underline cterm=bold,underline gui=bold,underline
 hi def link VimwikiUnderlineBold VimwikiBoldUnderline
 
@@ -372,6 +565,10 @@ hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
 hi def VimwikiBoldUnderlineItalic term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
 
 " Code
+=======
+hi def VimwikiUnderline gui=underline
+
+>>>>>>> Bump version number – release 2.5
 hi def link VimwikiCode PreProc
 hi def link VimwikiCodeT VimwikiCode
 
@@ -394,6 +591,7 @@ hi def link VimwikiCheckBoxDone Comment
 hi def link VimwikiHR Identifier
 hi def link VimwikiTag Keyword
 
+<<<<<<< HEAD
 
 " Deleted called strikethrough
 " See $VIMRUTIME/syntax/html.vim
@@ -402,6 +600,9 @@ if v:version > 800 || v:version == 800 && has('patch1038')
 else
   hi def link VimwikiDelText Constant
 endif
+=======
+hi def link VimwikiDelText Constant
+>>>>>>> Bump version number – release 2.5
 hi def link VimwikiDelTextT VimwikiDelText
 
 hi def link VimwikiSuperScript Number
@@ -412,7 +613,10 @@ hi def link VimwikiSubScriptT VimwikiSubScript
 
 hi def link VimwikiTodo Todo
 hi def link VimwikiComment Comment
+<<<<<<< HEAD
 hi def link VimwikiMultilineComment Comment
+=======
+>>>>>>> Bump version number – release 2.5
 
 hi def link VimwikiPlaceholder SpecialKey
 hi def link VimwikiPlaceholderParam String
@@ -430,7 +634,10 @@ hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
 hi def link VimwikiHeaderChar VimwikiMarkers
 
+<<<<<<< HEAD
 " TODO remove unsued due to region refactoring
+=======
+>>>>>>> Bump version number – release 2.5
 hi def link VimwikiEqInCharT VimwikiMarkers
 hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers
@@ -453,7 +660,11 @@ call vimwiki#u#reload_regexes_custom()
 let b:current_syntax='vimwiki'
 
 
+<<<<<<< HEAD
 " Include: Code: EMBEDDED syntax setup -> base.vim
+=======
+" EMBEDDED syntax setup
+>>>>>>> Bump version number – release 2.5
 let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
 if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
   let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), 'keep')
@@ -476,3 +687,7 @@ call vimwiki#base#nested_syntax('tex',
 
 
 syntax spell toplevel
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5

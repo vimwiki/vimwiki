@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+Include: vader_setup
+
+
+>>>>>>> Bump version number – release 2.5
 # 0 Configure {{{1
 ##################
 
@@ -5,6 +11,21 @@ Execute (Configure: Set vimwiki list to markdown resource):
   Log "Let mapleader = ,"
   let mapleader = ','
 
+<<<<<<< HEAD
+=======
+  Log "Declare function DestroyVar"
+  function! DestroyVar(var)
+    if ! exists(a:var) | return | endif
+    execute "unlet " . a:var
+  endfunction
+
+  Log "Declare function AssertTab"
+  function! AssertTab(nr)
+    " Vader is creating 2 tabs
+    AssertEqual a:nr + 2, tabpagenr()
+  endfunction
+
+>>>>>>> Bump version number – release 2.5
   Log "Destroy vimrc or previous run heritage"
   call DestroyVar('g:vimwiki_list')
   call DestroyVar('g:vimwiki_global_vars')
@@ -365,6 +386,7 @@ Expect (Renumber):
       1. Much
   3. You
 
+<<<<<<< HEAD
 
 # New launch
 #
@@ -382,6 +404,8 @@ Execute (file .md):
   AssertEqual 'vimwiki', &ft
   set sw=2
 
+=======
+>>>>>>> Bump version number – release 2.5
 Do (gl*):
   gl*
 
@@ -404,6 +428,7 @@ Expect (list -> *):
       1. Much
   * You
 
+<<<<<<< HEAD
 # New launch
 #
 Given (Bulleted list):
@@ -508,6 +533,8 @@ Expect (Good nested bullet type):
 
 # TODO test: let g:vimwiki_bullet_types = ['-', '•', '→', '*']
 
+=======
+>>>>>>> Bump version number – release 2.5
 
 # 3 Text Object {{{1
 ####################
@@ -563,4 +590,8 @@ Expect (Like 'aH', but excluding the header itself):
   # Head2
   content 2
 
+<<<<<<< HEAD
+=======
+Include: vader_teardown
+>>>>>>> Bump version number – release 2.5
 # vim: foldmethod=marker foldlevel=30 sw=2

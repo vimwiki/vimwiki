@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 # Syntax and Highlight
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 
 # 1 Typeface {{{1
 #################
 
+<<<<<<< HEAD
 # Extended types {{{2
 
 Given vimwiki (Extended Types mono):
@@ -198,6 +203,8 @@ Execute (Assert Syntax for typeface 3):
 
 # Keyword uppercase {{{2
 
+=======
+>>>>>>> Bump version number – release 2.5
 Given vimwiki (TODO, XXX):
   TODO
   DONE
@@ -214,8 +221,11 @@ Execute (Assert Syntax VimwikiTodo):
   AssertEqual SyntaxAt(5, 1), 'VimwikiTodo'
   AssertEqual SyntaxAt(6, 1), 'VimwikiTodo'
 
+<<<<<<< HEAD
 # Mardown types {{{2
 
+=======
+>>>>>>> Bump version number – release 2.5
 Given vimwiki (Typeface for markdown like italic):
   **bold text 1**
   __bold text 2__
@@ -232,6 +242,7 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax for typeface):
+<<<<<<< HEAD
   AssertEqual 'VimwikiBold'        , SyntaxAt(1, 5)
   AssertEqual 'VimwikiBold'        , SyntaxAt(2, 5)
   AssertEqual 'VimwikiItalic'      , SyntaxAt(3, 5)
@@ -242,6 +253,18 @@ Execute (Assert Syntax for typeface):
   AssertEqual 'VimwikiCode'        , SyntaxAt(8, 5)
   AssertEqual 'VimwikiSuperScript' , SyntaxAt(9, 5)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(10, 5)
+=======
+  AssertEqual SyntaxAt(1, 4), 'VimwikiBold'
+  AssertEqual SyntaxAt(2, 4), 'VimwikiBold'
+  AssertEqual SyntaxAt(3, 4), 'VimwikiItalic'
+  AssertEqual SyntaxAt(4, 4), 'VimwikiItalic'
+  AssertEqual SyntaxAt(5, 4), 'VimwikiBoldItalic'
+  AssertEqual SyntaxAt(6, 4), 'VimwikiItalicBold'
+  AssertEqual SyntaxAt(7, 4), 'VimwikiDelText'
+  AssertEqual SyntaxAt(8, 4), 'VimwikiCode'
+  AssertEqual SyntaxAt(9, 4), 'VimwikiSuperScript'
+  AssertEqual SyntaxAt(10, 4), 'VimwikiSubScript'
+>>>>>>> Bump version number – release 2.5
 
 
 # 2 Links {{{1
@@ -286,6 +309,7 @@ Given vimwiki (Wiki Links):
     [[http://someaddr.com/bigpicture.jpg|{{http://someaddr.com/thumbnail.jpg}}]]
 
 Execute (Assert Syntax link):
+<<<<<<< HEAD
   AssertEqual 'VimwikiLink', SyntaxAt(2, 6)
   AssertEqual 'VimwikiLink', SyntaxAt(4, 6)
   AssertEqual 'VimwikiLink', SyntaxAt(6, 6)
@@ -304,6 +328,26 @@ Execute (Assert Syntax link):
   AssertEqual 'VimwikiLink', SyntaxAt(32, 6)
   AssertEqual 'VimwikiLink', SyntaxAt(34, 6)
   AssertEqual 'VimwikiLink', SyntaxAt(36, 6)
+=======
+  AssertEqual SyntaxAt(2, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(4, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(6, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(8, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(10, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(12, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(14, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(16, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(18, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(20, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(22, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(24, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(26, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(28, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(30, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(32, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(34, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(36, 6), 'VimwikiLink'
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Markdown Links):
   Inline link: >
@@ -320,14 +364,22 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax link):
+<<<<<<< HEAD
   AssertEqual 'VimwikiWeblink1'  , SyntaxAt(2, 8)
   AssertEqual 'VimwikiImage'     , SyntaxAt(5, 8)
   AssertEqual 'VimwikiWikiLink1' , SyntaxAt(8, 8)
   AssertEqual 'VimwikiWikiLink1' , SyntaxAt(9, 8)
+=======
+  AssertEqual SyntaxAt(2, 8), 'VimwikiWeblink1'
+  AssertEqual SyntaxAt(5, 8), 'VimwikiImage'
+  AssertEqual SyntaxAt(8, 8), 'VimwikiWikiLink1'
+  AssertEqual SyntaxAt(9, 8), 'VimwikiWikiLink1'
+>>>>>>> Bump version number – release 2.5
 
 
 # 3 Header {{{1
 ###############
+<<<<<<< HEAD
 Given vimwiki (Markdown SetExt Headers):
   One
   ===
@@ -342,6 +394,8 @@ Execute (Assert Syntax Header SetExt):
   AssertEqual 'VimwikiHeader1', SyntaxAt(2, 1)
   AssertEqual 'VimwikiHeader2', SyntaxAt(3, 1)
   AssertEqual 'VimwikiHeader2', SyntaxAt(4, 1)
+=======
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Wiki Headers):
   = Header level 1 =
@@ -355,12 +409,21 @@ Execute (Set syntax default):
   call SetSyntax('default')
 
 Execute (Assert Syntax Header):
+<<<<<<< HEAD
   AssertEqual 'VimwikiHeader1', SyntaxAt(1, 10)
   AssertEqual 'VimwikiHeader2', SyntaxAt(2, 10)
   AssertEqual 'VimwikiHeader3', SyntaxAt(3, 10)
   AssertEqual 'VimwikiHeader4', SyntaxAt(4, 10)
   AssertEqual 'VimwikiHeader5', SyntaxAt(5, 10)
   AssertEqual 'VimwikiHeader6', SyntaxAt(6, 10)
+=======
+  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
+  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
+  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
+  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
+  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
+  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Markdown Headers):
   # Header level 1
@@ -374,6 +437,7 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax Header):
+<<<<<<< HEAD
   AssertEqual 'VimwikiHeader1' , SyntaxAt(1, 10)
   AssertEqual 'VimwikiHeader2' , SyntaxAt(2, 10)
   AssertEqual 'VimwikiHeader3' , SyntaxAt(3, 10)
@@ -422,6 +486,15 @@ Execute (Assert Syntax VimwikiMultilineComment):
   AssertEqual 'VimwikiMultilineComment' , SyntaxAt(6, 37)
   AssertEqual ''                        , SyntaxAt(6, 38)
   AssertEqual ''                        , SyntaxAt(6, 51)
+=======
+  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
+  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
+  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
+  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
+  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
+  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+
+>>>>>>> Bump version number – release 2.5
 
 # 10 Code {{{1
 # 10.1 Code Indent (4 spaces) {{{2
@@ -483,6 +556,7 @@ Execute (Set syntax markdown):
 
 Execute (Assert ft, normal syntax and VimwikiTodo):
   AssertEqual &ft, 'vimwiki'
+<<<<<<< HEAD
   AssertEqual '', SyntaxAt(1, 1)
   AssertEqual 'VimwikiTodo', SyntaxAt(2, 9)
 
@@ -503,6 +577,28 @@ Execute (Assert Code syntax):
   AssertEqual 'vimLineComment' , SyntaxAt(24, 1)
   AssertEqual 'vimCommand'     , SyntaxAt(25, 1)
   AssertEqual 'VimwikiPre'     , SyntaxAt(26, 1)
+=======
+  AssertEqual SyntaxAt(1, 1), ''
+  AssertEqual SyntaxAt(2, 9), 'VimwikiTodo'
+
+Execute (Assert Code syntax):
+  AssertEqual SyntaxAt(4, 1), 'VimwikiPreDelim'
+  AssertEqual SyntaxAt(5, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(9, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(10, 1), 'vimCommand'
+  AssertEqual SyntaxAt(13, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(14, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(15, 1), 'vimCommand'
+  AssertEqual SyntaxAt(16, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(18, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(19, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(20, 1), 'vimCommand'
+  AssertEqual SyntaxAt(21, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(23, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(24, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(25, 1), 'vimCommand'
+  AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
+>>>>>>> Bump version number – release 2.5
 
 
 # 11 Math {{{1
@@ -528,8 +624,13 @@ Given vimwiki (Math markdown):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
+<<<<<<< HEAD
 Execute (Assert math syntax 1):
   AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+=======
+Execute (Assert math syntax):
+  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+>>>>>>> Bump version number – release 2.5
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
@@ -558,11 +659,20 @@ Given vimwiki (Math wiki):
 Execute (Set syntax default):
   call SetSyntax('default')
 
+<<<<<<< HEAD
 Execute (Assert math syntax 2):
   AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+=======
+Execute (Assert math syntax):
+  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+>>>>>>> Bump version number – release 2.5
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
   Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
 
+<<<<<<< HEAD
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5
 # vim: foldmethod=marker foldlevel=30 sw=2

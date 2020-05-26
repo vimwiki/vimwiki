@@ -4,6 +4,7 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
+<<<<<<< HEAD
 " Get visual selection text content, optionaly replace its content
 " :param: Text to replace selection
 function! vimwiki#u#get_selection(...) abort
@@ -53,6 +54,8 @@ function! vimwiki#u#get_selection(...) abort
 endfunction
 
 
+=======
+>>>>>>> Bump version number – release 2.5
 " Execute: string v:count times
 function! vimwiki#u#count_exe(cmd) abort
     for i in range( max([1, v:count]) )
@@ -61,6 +64,7 @@ function! vimwiki#u#count_exe(cmd) abort
 endfunction
 
 
+<<<<<<< HEAD
 function! vimwiki#u#sort_len(list) abort
   function! s:len_compare(s1, s2) abort
     let i1 = len(a:s1)
@@ -74,6 +78,8 @@ endfunction
 " Trim spaces: leading and trailing
 " :param: string in
 " :param: (1) <string> optional list of character to trim
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#u#trim(string, ...) abort
   let chars = ''
   if a:0 > 0
@@ -104,13 +110,19 @@ function! vimwiki#u#os_name() abort
 endfunction
 
 
+<<<<<<< HEAD
 " Check if OS is windows
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#u#is_windows() abort
   return has('win32') || has('win64') || has('win95') || has('win16')
 endfunction
 
 
+<<<<<<< HEAD
 " Check if OS is mac
+=======
+>>>>>>> Bump version number – release 2.5
 function! vimwiki#u#is_macos() abort
   if has('mac') || has('macunix') || has('gui_mac')
     return 1
@@ -145,6 +157,7 @@ endfunction
 
 
 " Backward compatible version of the built-in function shiftwidth()
+<<<<<<< HEAD
 function! vimwiki#u#sw() abort
   if exists('*shiftwidth')
     return shiftwidth()
@@ -152,6 +165,17 @@ function! vimwiki#u#sw() abort
     return &shiftwidth
   endif
 endfunc
+=======
+if exists('*shiftwidth')
+  function! vimwiki#u#sw() abort
+    return shiftwidth()
+  endfunc
+else
+  function! vimwiki#u#sw() abort
+    return &shiftwidth
+  endfunc
+endif
+>>>>>>> Bump version number – release 2.5
 
 " a:mode single character indicating the mode as defined by :h maparg
 " a:key the key sequence to map
@@ -178,7 +202,11 @@ function! vimwiki#u#map_key(mode, key, plug, ...) abort
 endfunction
 
 
+<<<<<<< HEAD
 " Returns: 1 if line is a code block or math block
+=======
+" returns 1 if line is a code block or math block
+>>>>>>> Bump version number – release 2.5
 "
 " The last two conditions are needed for this to correctly
 " detect nested syntaxes within code blocks
@@ -217,6 +245,7 @@ function! vimwiki#u#ft_is_vw() abort
     return 0
   endif
 endfunction
+<<<<<<< HEAD
 
 
 " Helper: Expand regex from reduced typeface delimiters
@@ -356,3 +385,5 @@ function! vimwiki#u#hi_typeface(dic) abort
   " -- See $VIMRUNTIME/syntax/markdown.vim
   syn match VimwikiError "\w\@<=_\w\@="
 endfunction
+=======
+>>>>>>> Bump version number – release 2.5

@@ -1,13 +1,18 @@
+<<<<<<< HEAD
 # Automatic link generation
 # Related to:
 #   - wiki file discovery 
 #   - buffer list insertion (see: vimwiki#base#update_listing_in_buffer)
 
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
+<<<<<<< HEAD
 # 1 VimwikiGenerateLinks {{{1
 ##########################
 # Wiki Syntax {{{2
@@ -51,6 +56,10 @@ Execute (Clean Test.wiki):
 
 Execute (Log):
   Log 'Markdown Syntax'
+=======
+# 1 VimwikiGenerateLinks
+##########################
+>>>>>>> Bump version number – release 2.5
 
 Given (Void):
 
@@ -63,6 +72,10 @@ Execute (Edit Test file / VimwikiGenerateLinks):
   AssertEqual $HOME . '/testmarkdown/Test.md', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
   VimwikiGenerateLinks
 
 Expect (The links with a header):
@@ -75,8 +88,13 @@ Expect (The links with a header):
 
 Do (Save Test.md && Re-GenerateLinks):
   :edit $HOME/testmarkdown/Test.md\<CR>
+<<<<<<< HEAD
   :call WriteMe()\<CR>
   :VimwikiGenerateLinks\<CR>
+=======
+  :set bt=\<CR>
+  :write %\<CR>
+>>>>>>> Bump version number – release 2.5
   :VimwikiGenerateLinks\<CR>
 
 Expect (The links with a header with file Test):
@@ -88,6 +106,7 @@ Expect (The links with a header with file Test):
   - [Buzz Bozz](buzz_bozz)
   - [Test Wiki](index)
 
+<<<<<<< HEAD
 Execute (Clean: Remove Test.md):
   call DeleteFile('$HOME/testmarkdown/Test.md')
 
@@ -150,6 +169,12 @@ Execute (Clean):
 Execute (Log):
   Log 'Markdown Syntax'
 
+=======
+
+# 2 VimwikiDiaryGenerateLinks
+#############################
+
+>>>>>>> Bump version number – release 2.5
 Execute (New Command):
   Log "2. Testing VimwikiDiaryGenerateLinks TODO"
   set sw=4
@@ -194,6 +219,7 @@ Expect (diary index generated):
 
 Execute (Clean):
   Log "End: Clean"
+<<<<<<< HEAD
   call DeleteFile('$HOME/testmarkdown/diary/2019-12-10.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-07-13.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-03-01.md')
@@ -201,3 +227,14 @@ Execute (Clean):
   set sw&
 
 # vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:
+=======
+  call system("rm $HOME/testmarkdown/diary/2019-12-10.md")
+  call system("rm $HOME/testmarkdown/diary/2019-07-13.md")
+  call system("rm $HOME/testmarkdown/diary/2019-03-01.md")
+  call system("rm $HOME/testmarkdown/diary/diary.md")
+
+
+Include: vader_includes/vader_teardown.vader
+
+" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
+>>>>>>> Bump version number – release 2.5

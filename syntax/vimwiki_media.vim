@@ -9,6 +9,7 @@
 
 let s:media_syntax = g:vimwiki_syntax_variables['media']
 
+<<<<<<< HEAD
 " text: '''strong'''
 let s:media_syntax.dTypeface['bold'] = [
       \ ['\S\@<=''''''\|''''''\S\@=', '\S\@<=''''''\|''''''\S\@='],
@@ -27,12 +28,51 @@ let s:media_syntax.dTypeface['bold_italic'] = [
       \ ['\S\@<=''''''''''\|''''''''''\S\@=', '\S\@<=''''''''''\|''''''''''\S\@='],
       \ ]
 
+=======
+" text: $ equation_inline $
+let s:media_syntax.rxEqIn = '\$[^$`]\+\$'
+let s:media_syntax.char_eqin = '\$'
+
+" text: '''strong'''
+let s:media_syntax.rxBold = "'''[^']\\+'''"
+let s:media_syntax.char_bold = "'''"
+
+" text: ''emphasis''
+let s:media_syntax.rxItalic = "''[^']\\+''"
+let s:media_syntax.char_italic = "''"
+
+" text: '''''strong italic'''''
+let s:media_syntax.rxBoldItalic = "'''''[^']\\+'''''"
+let s:media_syntax.rxItalicBold = s:media_syntax.rxBoldItalic
+let s:media_syntax.char_bolditalic = "'''''"
+let s:media_syntax.char_italicbold = s:media_syntax.char_bolditalic
+
+" text: `code`
+let s:media_syntax.rxCode = '`[^`]\+`'
+let s:media_syntax.char_code = '`'
+
+" text: ~~deleted text~~
+let s:media_syntax.rxDelText = '\~\~[^~]\+\~\~'
+let s:media_syntax.char_deltext = '\~\~'
+
+" text: ^superscript^
+let s:media_syntax.rxSuperScript = '\^[^^]\+\^'
+let s:media_syntax.char_superscript = '^'
+
+" text: ,,subscript,,
+let s:media_syntax.rxSubScript = ',,[^,]\+,,'
+let s:media_syntax.char_subscript = ',,'
+>>>>>>> Bump version number – release 2.5
 
 " generic headers
 let s:media_syntax.rxH = '='
 let s:media_syntax.symH = 1
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bump version number – release 2.5
 " <hr>, horizontal rule
 let s:media_syntax.rxHR = '^-----*$'
 
@@ -54,9 +94,12 @@ let s:media_syntax.rxPreEnd = '<\/pre>'
 let s:media_syntax.rxMathStart = '{{\$'
 let s:media_syntax.rxMathEnd = '}}\$'
 
+<<<<<<< HEAD
 " NOTE: There is no multi-line comment syntax for MediaWiki
 let s:media_syntax.rxMultilineCommentStart = ''
 let s:media_syntax.rxMultilineCommentEnd = ''
+=======
+>>>>>>> Bump version number – release 2.5
 let s:media_syntax.rxComment = '^\s*%%.*$'
 let s:media_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
 

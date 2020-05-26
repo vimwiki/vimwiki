@@ -1,5 +1,6 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki syntax file
+<<<<<<< HEAD
 " Home: https://github.com/vimwiki/vimwiki/
 " Description: Defines markdown syntax
 " Called: vars.vim => Many other (common) variables are defined there
@@ -29,11 +30,77 @@ let s:markdown_syntax.dTypeface.underline = []
 let s:markdown_syntax.dTypeface.bold_italic = vimwiki#u#hi_expand_regex([
       \ ['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']])
 
+=======
+" Description: Defines markdown syntax
+" Home: https://github.com/vimwiki/vimwiki/
+
+
+" see the comments in vimwiki_default.vim for some info about this file
+
+
+let s:markdown_syntax = g:vimwiki_syntax_variables['markdown']
+
+" text: $ equation_inline $
+let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
+let s:markdown_syntax.char_eqin = '\$'
+
+" text: **strong** or __strong__
+let s:markdown_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\|_\)\{2\}'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1\{2\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:markdown_syntax.char_bold = '\*\*\|__'
+
+" text: _emphasis_ or *emphasis*
+let s:markdown_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\|_\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:markdown_syntax.char_italic = '\*\|_'
+
+" text: *_bold italic_* or _*italic bold*_
+let s:markdown_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\)\{3\}'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\1\{3\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:markdown_syntax.char_bolditalic = '\*\*\*'
+
+let s:markdown_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(_\)\{3\}'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
+      \'\1\{3\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:markdown_syntax.char_italicbold = '___'
+
+" text: `code`
+let s:markdown_syntax.rxCode = '`[^`]\+`'
+let s:markdown_syntax.char_code = '`'
+
+" text: ~~deleted text~~
+let s:markdown_syntax.rxDelText = '\~\~[^~`]\+\~\~'
+let s:markdown_syntax.char_deltext = '\~\~'
+
+" text: ^superscript^
+let s:markdown_syntax.rxSuperScript = '\^[^^`]\+\^'
+let s:markdown_syntax.char_superscript = '^'
+
+" text: ,,subscript,,
+let s:markdown_syntax.rxSubScript = ',,[^,`]\+,,'
+let s:markdown_syntax.char_subscript = ',,'
+>>>>>>> Bump version number – release 2.5
 
 " generic headers
 let s:markdown_syntax.rxH = '#'
 let s:markdown_syntax.symH = 0
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> Bump version number – release 2.5
 " <hr>, horizontal rule
 let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'
 
@@ -41,11 +108,18 @@ let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'
 let s:markdown_syntax.rxTableSep = '|'
 
 " Lists
+<<<<<<< HEAD
+=======
+let s:markdown_syntax.bullet_types = ['-', '*', '+']
+>>>>>>> Bump version number – release 2.5
 let s:markdown_syntax.recurring_bullets = 0
 let s:markdown_syntax.number_types = ['1.']
 let s:markdown_syntax.list_markers = ['-', '*', '+', '1.']
 let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
+<<<<<<< HEAD
 let s:markdown_syntax.bullet_types = ['*', '-', '+']
+=======
+>>>>>>> Bump version number – release 2.5
 
 " Preformatted text (code blocks)
 let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
@@ -57,6 +131,7 @@ let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
 let s:markdown_syntax.rxMathStart = '\$\$'
 let s:markdown_syntax.rxMathEnd = '\$\$'
 
+<<<<<<< HEAD
 " NOTE: There is no multi-line comment syntax for Markdown
 let s:markdown_syntax.rxMultilineCommentStart = ''
 let s:markdown_syntax.rxMultilineCommentEnd = ''
@@ -82,6 +157,13 @@ let setex_header_match .= '^\s\{0,3}[=-][=-]\+$'
 let s:markdown_syntax.header_search = '\%(' . atx_header_search . '\|' . setex_header_search . '\)'
 let s:markdown_syntax.header_match = '\%(' . atx_header_match . '\|' . setex_header_match . '\)'
 
+=======
+let s:markdown_syntax.rxComment = '^\s*%%.*$\|<!--[^>]*-->'
+let s:markdown_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
+
+let s:markdown_syntax.header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
+let s:markdown_syntax.header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+>>>>>>> Bump version number – release 2.5
 let s:markdown_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs'.
       \ '\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
 let s:markdown_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.

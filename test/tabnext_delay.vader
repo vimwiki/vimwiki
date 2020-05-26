@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # See Issue #580
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Execute (Set fold method):
   let g:vimwiki_folding = 'expr:quick'
@@ -28,3 +32,8 @@ Execute (Expect < 0.5 second delay: Issue #580):
 Execute (Reset variables):
   let g:vimwiki_folding = ''
   call ReloadVimwiki()
+<<<<<<< HEAD
+=======
+
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5

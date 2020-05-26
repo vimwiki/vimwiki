@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Link creation: my favorite (Tinmarino)
 # You know, when pressing Enter:
 #   in mode normal, visual 
@@ -245,6 +246,9 @@ Do (j<Cr><Cr>):
 
 Execute (Log):
   Log 'And more'
+=======
+Include: vader_includes/vader_setup.vader
+>>>>>>> Bump version number – release 2.5
 
 Given vimwiki (Text that is not a wikilink):
   test
@@ -368,4 +372,8 @@ Expect (Mediawiki links):
   [[file.md]]
   [[file.mw]]
 
+<<<<<<< HEAD
 # vim: foldmethod=marker foldlevel=30
+=======
+Include: vader_includes/vader_teardown.vader
+>>>>>>> Bump version number – release 2.5
