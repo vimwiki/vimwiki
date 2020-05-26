@@ -1,0 +1,461 @@
+Include: vader_setup
+
+
+# 0 Configure {{{1
+##################
+
+Execute (Configure: Set vimwiki list to markdown resource):
+  Log "Let mapleader = ,"
+  let mapleader = ','
+
+  Log "Declare function DestroyVar"
+  function! DestroyVar(var)
+    if ! exists(a:var) | return | endif
+    execute "unlet " . a:var
+  endfunction
+
+  Log "Declare function AssertTab"
+  function! AssertTab(nr)
+    " Vader is creating 2 tabs
+    AssertEqual a:nr + 2, tabpagenr()
+  endfunction
+
+  Log "Destroy vimrc or previous run heritage"
+  call DestroyVar('g:vimwiki_list')
+  call DestroyVar('g:vimwiki_global_vars')
+  call DestroyVar('g:vimwiki_wikilocal_vars')
+
+  Log "Destroy vimrc variable, works better that way"
+  call DestroyVar('g:vimwiki_default')
+  call DestroyVar('g:vimwiki_markdown')
+  call DestroyVar('g:vimwiki_mediawiki')
+
+  Log "Declare my vimwiki_list"
+  let g:vimwiki_list = [{
+    \ 'path': 'test/resources/testmarkdown',
+    \ 'syntax': 'markdown',
+    \ 'ext': '.md'
+    \ }]
+
+  Log "Declare my extension for temporary wiki"
+  let g:vimwiki_ext2syntax = {'.md': 'markdown'}
+
+  Log "Reload vimwiki <- vader_setup.vader"
+  call ReloadVimwiki()
+
+Execute (Assert: 2 wiki in Index):
+  AssertEqual 2, len(vimwiki_wikilocal_vars)
+
+Execute (VimwikiIndex):
+  VimwikiIndex 1
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  AssertEqual 'vimwiki', &filetype
+  AssertEqual 'test/resources/testmarkdown/', vimwiki_wikilocal_vars[0]['path']
+  AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+
+Execute (Open buzz bozz):
+  edit test/resources/testmarkdown/buzz_bozz.md
+  AssertEqual 'test/resources/testmarkdown/buzz_bozz.md', expand('%')
+
+
+# 1 Global {{{1
+###############
+
+Execute (===========================================================):
+  Log "Checking global map"
+
+Do (,ww -> open index [Assert]):
+  ,ww
+  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,wt -> open index in tab [Assert]):
+  ,wt
+  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  \<CR>
+  :call AssertTab(2)
+  \<CR>
+
+Do (,w,w -> open diary [Assert]):
+  ,w,w
+  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,w,t -> open diary in tab [Assert]):
+  ,w,t
+  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  \<CR>
+  :call AssertTab(2)
+  \<CR>
+
+Do (,ws -> list and select wiki [Assert]):
+  ,ws
+  1
+  \<CR>
+  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,wi -> open diary index [Assert]):
+  ,wi
+  :AssertEqual 'test/resources/testmarkdown/diary/diary.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,w,y -> open yesterday [Assert]):
+  ,w,y
+  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() - 60*60*24) . '.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,w,m -> open tomorrow [Assert]):
+  ,wm
+  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() + 60*60*24) . '.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+
+# 2 Local {{{1
+##############
+
+Execute (===========================================================):
+  Log "Checking local map"
+
+# 2.1 Heading {{{2
+##############
+
+Do (,wn -> Create new wiki [Assert]):
+  ,wn
+  new_file1
+  \<CR>
+  :AssertEqual 'test/resources/testmarkdown/new_file1.md', expand('%')
+  \<CR>
+  :call AssertTab(1)
+  \<CR>
+
+Do (,wd -> Delete wiki yes [Assert]):
+  :edit 'test/resources/testmarkdown/file_new1.md'
+  \<CR>
+
+  ,wn
+  new_file2
+  \<CR>
+  ithis is content 2
+  \<Esc>
+
+  ,wd
+  yes
+  \<CR>
+
+  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  \<CR>
+
+Do (,wd -> Delete wiki no [Assert]):
+  :edit 'test/resources/testmarkdown/file_new1.md'
+  \<CR>
+
+  ,wn
+  new_file2
+  \<CR>
+  ithis is content 1
+  \<Esc>
+
+  ,wd
+  no
+  \<CR>
+
+  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  \<CR>
+
+Do (,wn -> Rename wiki [Assert]):
+  ,wn
+  new_file1
+  \<CR>
+  ithis is content 1
+  \<Esc>
+
+  ,wn
+  new_file2
+  \<CR>
+
+  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  \<CR>
+
+Given (Some headings):
+  # Head 1
+  ## Head 1.1
+  content 1
+
+  # Head2
+  content 2
+
+Execute (file .md):
+  file toto.md
+  edit!
+  AssertEqual 'vimwiki', &ft
+
+Do (= -> add header level):
+  =
+
+Expect (Inc header level):
+  ## Head 1
+  ## Head 1.1
+  content 1
+
+  # Head2
+  content 2
+
+Do (- -> Dec header level):
+  j
+  -
+
+Expect (Dec header level):
+  # Head 1
+  # Head 1.1
+  content 1
+
+  # Head2
+  content 2
+
+# TODO fix for vim_7.3.429  
+# Do ([[ -> Go to the previous header):
+#   G
+#   k
+#   [[
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1
+#   ## Head 1.1 placeholder
+#   content 1
+# 
+#   # Head2
+#   content 2
+# 
+# Do (]] -> Go to the next header):
+#   ]]
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1
+#   ## Head 1.1 placeholder
+#   content 1
+# 
+#   # Head2
+#   content 2
+# 
+# Do ([= -> Go to the previous header which has the same level):
+#   G
+#   k
+#   [=
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1 placeholder
+#   ## Head 1.1
+#   content 1
+# 
+#   # Head2
+#   content 2
+# 
+# Do (]= -> Go to the next header which has the same level):
+#   ]=
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1
+#   ## Head 1.1
+#   content 1
+# 
+#   # Head2 placeholder
+#   content 2
+# 
+# Do (]u Go one level up):
+#   j
+#   ]u
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1 placeholder
+#   ## Head 1.1
+#   content 1
+# 
+#   # Head2
+#   content 2
+# 
+# Do ([u Go one level up):
+#   j
+#   [u
+#   A placeholder
+# 
+# Expect (placeholder):
+#   # Head 1 placeholder
+#   ## Head 1.1
+#   content 1
+# 
+#   # Head2
+#   content 2
+
+
+# 2.2 List {{{2
+##############
+
+Given (Number list):
+  1. I
+    1. Relly
+  2. Love
+    1. Very
+      1. Much
+  3. You
+
+Execute (file .md):
+  file toto.md
+  edit!
+  AssertEqual 'vimwiki', &ft
+  set sw=2
+
+Do (gll):
+  gll
+
+Expect (Increase):
+    1. I
+    2. Relly
+  1. Love
+    1. Very
+      1. Much
+  2. You
+
+Do (gLl):
+  gLl
+
+Expect (Increase self + child):
+    1. I
+      1. Relly
+  1. Love
+    1. Very
+      1. Much
+  2. You
+
+Do (glh):
+  jjj
+  glh
+
+Expect (Decrease):
+  1. I
+    1. Relly
+  2. Love
+  3. Very
+      1. Much
+  4. You
+
+Do (gLh):
+  jjj
+  gLh
+
+Expect (Decrease self + child):
+  1. I
+    1. Relly
+  2. Love
+  3. Very
+    1. Much
+  4. You
+
+Do (glr):
+  \<C-A>\<C-A>
+  glr
+
+Expect (Renumber):
+  1. I
+    1. Relly
+  2. Love
+    1. Very
+      1. Much
+  3. You
+
+Do (gl*):
+  gl*
+
+Expect (item -> *):
+  * I
+    1. Relly
+  1. Love
+    1. Very
+      1. Much
+  2. You
+
+Do (gL*):
+  gL*
+
+Expect (list -> *):
+  * I
+    1. Relly
+  * Love
+    1. Very
+      1. Much
+  * You
+
+
+# 3 Text Object {{{1
+####################
+
+Execute (===========================================================):
+  Log "Checking text object"
+
+# 3.1 HEading Object {{{2
+####################
+
+
+Given (Some headings):
+  # Head 1
+  ## Head 1.1
+  content 1
+
+  # Head2
+  content 2
+
+Do (ah):
+  j
+  dah
+
+Expect (Change A header including its content up to the next header):
+  # Head 1
+  # Head2
+  content 2
+
+Do (ih):
+  j
+  dih
+
+Expect (The content under a header):
+  # Head 1
+  ## Head 1.1
+
+  # Head2
+  content 2
+
+Do (aH):
+  daH
+
+Expect (A header including all of its subheaders):
+  # Head2
+  content 2
+
+Do (iH):
+  diH
+
+Expect (Like 'aH', but excluding the header itself):
+  # Head 1
+
+  # Head2
+  content 2
+
+Include: vader_teardown
+# vim: foldmethod=marker foldlevel=30 sw=2

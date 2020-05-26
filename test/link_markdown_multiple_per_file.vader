@@ -1,0 +1,225 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (Internal links + one link to filenew):
+  # Contents
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+
+  # Test1
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew)
+
+  # Test2
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew)
+
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Do (Navigate with <Tab>):
+  A more Contents\<Esc>
+  \<Tab>
+  \<Enter>
+  A more Test1\<Esc>
+  \<Tab>
+  \<Tab>
+  \<Enter>
+  A more Test2\<Esc>
+
+Expect (Content added to titles):
+  # Contents more Contents
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+
+  # Test1 more Test1
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew)
+
+  # Test2 more Test2
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew)
+
+Do (Navigate with <Tab> and <Enter> and come back with <Bs>):
+  \<Tab>
+  \<Enter>
+# Cursor at Test1
+  \<Tab>
+  \<Tab>
+  \<Enter>
+# Cursor at Test2
+  \<Tab>
+  \<Tab>
+  \<Tab>
+# Cursor at Test2/filenew
+  A not yet\<Esc>
+  \<Bs>
+# Cursor at Test1/test2
+  A near Test1/test2
+  \<Esc>
+  \<Bs>
+# Cursor at Contents/test1
+  A near Contents/test1
+  \<Esc>
+
+Expect (Vimwiki links):
+  # Contents
+
+    - [Test1](#Test1) near Contents/test1
+    - [Test2](#Test2)
+
+  # Test1
+
+    - [Test1](#Test1)
+    - [Test2](#Test2) near Test1/test2
+    - [filenew](filenew)
+
+  # Test2
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew) not yet
+
+Do (Navigate with <Tab> comeback with <Bs> from filenew):
+  \<Tab>
+  A first shot\<Esc>
+  0\<Tab>
+# Cursor at Contents/test1
+  \<Enter>
+  \<Tab>
+  \<Tab>
+  A first shot\<Esc>
+  0\<Tab>
+# Cursor at Test1/test2
+  \<Enter>
+  G
+# Cursor at Test2/filenew
+  A first shot\<Esc>
+  0\<Tab>
+# Cursor at Test2/filenew
+  \<Enter>
+# Cursor in filenew (a new file)
+  A anything in filenew: empirically it does not count\<Esc>
+  \<Bs>
+# Cursor at Test2/filenew
+  \<Bs>
+# Cursor at Test1/test2
+  \<Bs>
+# Cursor at Contents/test1
+  A second shot
+
+Expect (Just Contents/test1 got the second shot):
+  # Contents
+
+    - [Test1](#Test1) first shot second shot
+    - [Test2](#Test2)
+
+  # Test1
+
+    - [Test1](#Test1)
+    - [Test2](#Test2) first shot
+    - [filenew](filenew)
+
+  # Test2
+
+    - [Test1](#Test1)
+    - [Test2](#Test2)
+    - [filenew](filenew) first shot
+
+Execute (Delete filenew buffer):
+  bd! /testplugin/filenew.md
+
+Do (Navigate with <Tab> comeback with <Bs> too far):
+  \<Tab>
+# Cursor at Contents/test1
+  \<Enter>
+  \<Tab>
+  \<Tab>
+# Cursor at Test1/test2
+  \<Enter>
+  \<Tab>
+# Cursor at Test2/test1
+  \<Enter>
+  \<Tab>
+  \<Tab>
+# Cursor at Test1/test2
+  \<Enter>
+  A first test2\<Esc>
+  \<Tab>
+# Cursor at Test2/test1
+  \<Enter>
+  A first test1\<Esc>
+# Back
+  \<Bs>
+# Cursor at Test2/test1
+  A second test2/test1\<Esc>
+  \<Bs>
+# Cursor at Test1/test2
+  A second test1/test2\<Esc>
+  \<Bs>
+# Cursor at Test2/test1
+  \<Bs>
+# Cursor at Test1/test2
+  \<Bs>
+# Cursor at Contents/test1
+# Finished
+  \<Bs>
+  \<Bs>
+  \<Bs>
+  \<Bs>
+  A 1\<Esc>
+  \<Bs>
+  A 2\<Esc>
+  \<Bs>
+  A 3\<Esc>
+  \<Bs>
+  A 4\<Esc>
+
+Expect (After too many <Bs>, cursor stays at the first <Enter> spot in first file: Contents/test1):
+  # Contents
+
+    - [Test1](#Test1) 1 2 3 4
+    - [Test2](#Test2)
+
+  # Test1 first test1
+
+    - [Test1](#Test1)
+    - [Test2](#Test2) second test1/test2
+    - [filenew](filenew)
+
+  # Test2 first test2
+
+    - [Test1](#Test1) second test2/test1
+    - [Test2](#Test2)
+    - [filenew](filenew)
+
+Given vimwiki (link to self):
+  - [Bad link](Very bad.html)
+  - [My own file](wiki_test)
+  - [Test1](#Test1)
+  - [Test2](#Test2)
+
+Do (Follow link to self and append chars):
+  \<Tab>
+  \<Tab>
+  \<Enter>
+  a this_is_18_chars \<Esc>
+
+Expect (Some chars appended at self link):
+  - [Bad link](Very bad.html)
+  - [ this_is_18_chars My own file](wiki_test)
+  - [Test1](#Test1)
+  - [Test2](#Test2)
+
+
+Include: vader_includes/vader_teardown.vader

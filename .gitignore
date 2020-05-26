@@ -2,6 +2,7 @@
 # This section is devoted to this project
 ##############################
 doc/tags
+.tags
 
 # Vim stuff
 ##############################
@@ -20,3 +21,4 @@ Session.vim
 .Trashes
 ehthumbs.db
 Thumbs.db
+vimtest

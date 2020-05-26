@@ -1,0 +1,89 @@
+Before (Define functions):
+  " change the syntax using a temporary wiki
+  function! SetSyntax(vw_syn)
+    if a:vw_syn ==# 'default'
+      let ext = 'wiki'
+    elseif a:vw_syn ==# 'markdown'
+      let ext = 'md'
+    elseif a:vw_syn ==# 'media'
+      let ext = 'mw'
+    else
+      Log 'ERROR: Invalid syntax "' . a:vw_syn . '" in SetSyntax()'
+      Log 'NOTE: function only accepts "media" for setting mediawiki syntax'
+      return
+    endif
+    let path = expand('%:p:h')
+    let new_temp_wiki_settings = {'path': path,
+          \ 'ext': ext,
+          \ 'syntax': a:vw_syn,
+          \ }
+
+    " Remove any temporary wikis each time this function is called.
+    " This is necessary to ensure syntax is properly set when running multiple tests
+    " NOTE: this assumes there are 3 defined wikis in the vimrc. The last wiki
+    " contains default settings for temporary wikis (so there are always
+    " num wikis in vimrc + 1)
+    let num_wikis = len(g:vimwiki_wikilocal_vars)
+    while  num_wikis > 4
+      call remove(g:vimwiki_wikilocal_vars, num_wikis - 1)
+      let num_wikis = num_wikis - 1
+    endwhile
+
+    " add the new wiki
+    call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
+    call vimwiki#vars#set_bufferlocal('wiki_nr', 3)
+
+    " verify syntax was set correctly
+    Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 'ERROR: Vimwiki syntax not set correctly.'
+  endfunction
+
+  " reload plugin to change settings
+  function! ReloadVimwiki()
+    " clear mappings so plugin can be reloaded
+    " this is needed if running manually multiple times
+    nmapclear
+
+    unlet g:loaded_vimwiki
+    source plugin/vimwiki.vim
+  endfunction
+
+  " Copy wiki test resources so that vimtest user can write them
+  function! CopyResources()
+    call system('cp -r /testplugin/test/resources/* $HOME/')
+    " Make diary directory
+    call system('mkdir $HOME/testwiki/diary')
+    call system('mkdir $HOME/testmarkdown/diary')
+  endfunction
+
+  " Delete Hidden buffer, usefull to clean
+  " Stole from: https://stackoverflow.com/a/8459043/2544873
+  function! DeleteHiddenBuffers()
+    let tpbl=[]
+    call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
+    for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+      if bufname(buf) =~ 'Vader'
+          continue
+      endif
+      silent execute 'bwipeout!' buf
+    endfor
+  endfunction
+
+  " Write current file: helper to hide `set bt=`
+  function! WriteMe()
+    set buftype=
+    write %
+  endfunction
+
+  " print a command output to the buffer
+  function! PrintCommand(cmd)
+    redir => message
+    silent execute a:cmd
+    redir END
+    if empty(message)
+      Log 'no output'
+    else
+      silent put=message
+    endif
+  endfunction
+
+# vim: ft=vim

@@ -2,7 +2,7 @@
 " Vimwiki autoload plugin file
 
 
-let s:TAGS_METADATA_FILE_NAME = '.tags'
+let s:TAGS_METADATA_FILE_NAME = '.vimwiki_tags'
 
 
 
@@ -27,8 +27,8 @@ let s:TAGS_METADATA_FILE_NAME = '.tags'
 "   a:full_rebuild == 1: re-scan entire wiki
 "   a:full_rebuild == 0: only re-scan current page
 "   a:all_files == '':   only if the file is newer than .tags
-function! vimwiki#tags#update_tags(full_rebuild, all_files)
-  let all_files = a:all_files != ''
+function! vimwiki#tags#update_tags(full_rebuild, all_files) abort
+  let all_files = a:all_files !=? ''
   if !a:full_rebuild
     " Updating for one page (current)
     let page_name = vimwiki#vars#get_bufferlocal('subdir') . expand('%:t:r')
@@ -61,8 +61,15 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files)
 endfunction
 
 
+function! s:safesubstitute(text, search, replace, mode) abort
+  " Substitute regexp but do not interpret replace
+  let escaped = escape(a:replace, '\&')
+  return substitute(a:text, a:search, escaped, a:mode)
+endfunction
+
+
 "   Scans the list of text lines (argument) and produces tags metadata as a list of tag entries.
-function! s:scan_tags(lines, page_name)
+function! s:scan_tags(lines, page_name) abort
 
   let entries = []
 
@@ -81,6 +88,11 @@ function! s:scan_tags(lines, page_name)
   for line_nr in range(1, len(a:lines))
     let line = a:lines[line_nr - 1]
 
+    " ignore verbatim blocks
+    if vimwiki#u#is_codeblock(line_nr)
+      continue
+    endif
+
     " process headers
     let h_match = matchlist(line, rxheader)
     if !empty(h_match) " got a header
@@ -96,7 +108,7 @@ function! s:scan_tags(lines, page_name)
       else
         let current_complete_anchor = ''
         for l in range(level-1)
-          if anchor_level[l] != ''
+          if anchor_level[l] !=? ''
             let current_complete_anchor .= anchor_level[l].'#'
           endif
         endfor
@@ -105,13 +117,11 @@ function! s:scan_tags(lines, page_name)
       continue " tags are not allowed in headers
     endif
 
-    " TODO ignore verbatim blocks
-
     " Scan line for tags.  There can be many of them.
     let str = line
     while 1
       let tag_group = matchstr(str, rxtag)
-      if tag_group == ''
+      if tag_group ==? ''
         break
       endif
       let tagend = matchend(str, rxtag)
@@ -155,11 +165,11 @@ function! s:load_tags_metadata() abort
   endif
   let metadata = {}
   for line in readfile(metadata_path)
-    if line =~ '^!_TAG_FILE_'
+    if line =~# '^!_TAG_.*$'
       continue
     endif
     let parts = matchlist(line, '^\(.\{-}\);"\(.*\)$')
-    if parts[0] == '' || parts[1] == '' || parts[2] == ''
+    if parts[0] ==? '' || parts[1] ==? '' || parts[2] ==? ''
       throw 'VimwikiTags1: Metadata file corrupted'
     endif
     let std_fields = split(parts[1], '\t')
@@ -167,11 +177,11 @@ function! s:load_tags_metadata() abort
       throw 'VimwikiTags2: Metadata file corrupted'
     endif
     let vw_part = parts[2]
-    if vw_part[0] != "\t"
+    if vw_part[0] !=? "\t"
       throw 'VimwikiTags3: Metadata file corrupted'
     endif
     let vw_fields = split(vw_part[1:], "\t")
-    if len(vw_fields) != 1 || vw_fields[0] !~ '^vimwiki:'
+    if len(vw_fields) != 1 || vw_fields[0] !~# '^vimwiki:'
       throw 'VimwikiTags4: Metadata file corrupted'
     endif
     let vw_data = substitute(vw_fields[0], '^vimwiki:', '', '')
@@ -200,7 +210,7 @@ endfunction
 
 "   Removes all entries for given page from metadata in-place.  Returns updated
 "   metadata (just in case).
-function! s:remove_page_from_tags(metadata, page_name)
+function! s:remove_page_from_tags(metadata, page_name) abort
   if has_key(a:metadata, a:page_name)
     call remove(a:metadata, a:page_name)
     return a:metadata
@@ -211,7 +221,7 @@ endfunction
 
 
 "   Merges metadata of one file into a:metadata
-function! s:merge_tags(metadata, pagename, file_metadata)
+function! s:merge_tags(metadata, pagename, file_metadata) abort
   let metadata = a:metadata
   let metadata[a:pagename] = a:file_metadata
   return metadata
@@ -227,7 +237,7 @@ endfunction
 "   numbers as strings, not integers, and so, for example, tag at line 14
 "   preceeds the same tag on the same page at line 9.  (Because string "14" is
 "   alphabetically 'less than' string "9".)
-function! s:tags_entry_cmp(i1, i2)
+function! s:tags_entry_cmp(i1, i2) abort
   let items = []
   for orig_item in [a:i1, a:i2]
     let fields = split(orig_item, "\t")
@@ -251,7 +261,7 @@ endfunction
 
 
 "   Saves metadata object into a file. Throws exceptions in case of problems.
-function! s:write_tags_metadata(metadata)
+function! s:write_tags_metadata(metadata) abort
   let metadata_path = vimwiki#tags#metadata_file_path()
   let tags = []
   for pagename in keys(a:metadata)
@@ -266,18 +276,29 @@ function! s:write_tags_metadata(metadata)
             \ . pagename . vimwiki#vars#get_wikilocal('ext') . "\t"
             \ . entry.lineno
             \ . ';"'
-            \ . "\t" . "vimwiki:" . entry_data
+            \ . "\t" . 'vimwiki:' . entry_data
             \)
     endfor
   endfor
-  call sort(tags, "s:tags_entry_cmp")
-  call insert(tags, "!_TAG_FILE_SORTED\t1\t")
+  call sort(tags, 's:tags_entry_cmp')
+  let tag_comments = [
+    \ "!_TAG_PROGRAM_VERSION\t2.5",
+    \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
+    \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
+    \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
+    \ "!_TAG_OUTPUT_MODE\tvimwiki-tags",
+    \ "!_TAG_FILE_SORTED\t1",
+    \ "!_TAG_FILE_FORMAT\t2",
+    \ ]
+  for c in tag_comments
+    call insert(tags, c)
+  endfor
   call writefile(tags, metadata_path)
 endfunction
 
 
 "   Returns list of unique tags found in the .tags file
-function! vimwiki#tags#get_tags()
+function! vimwiki#tags#get_tags() abort
   let metadata = s:load_tags_metadata()
   let tags = {}
   for entries in values(metadata)
@@ -292,44 +313,86 @@ endfunction
 "   Similar to vimwiki#base#generate_links.  In the current buffer, appends
 "   tags and references to all their instances.  If no arguments (tags) are
 "   specified, outputs all tags.
-function! vimwiki#tags#generate_tags(...) abort
-  let need_all_tags = (a:0 == 0)
+function! vimwiki#tags#generate_tags(create, ...) abort
   let specific_tags = a:000
+  let header_level = vimwiki#vars#get_global('tags_header_level')
 
-  let metadata = s:load_tags_metadata()
+  " use a dictionary function for closure like capability
+  " copy all local variables into dict (add a: if arguments are needed)
+  let GeneratorTags = copy(l:)
+  function! GeneratorTags.f() abort
+    let need_all_tags = empty(self.specific_tags)
+    let metadata = s:load_tags_metadata()
 
-  " make a dictionary { tag_name: [tag_links, ...] }
-  let tags_entries = {}
-  for entries in values(metadata)
-    for entry in entries
-      if has_key(tags_entries, entry.tagname)
-        call add(tags_entries[entry.tagname], entry.link)
-      else
-        let tags_entries[entry.tagname] = [entry.link]
+    " make a dictionary { tag_name: [tag_links, ...] }
+    let tags_entries = {}
+    for entries in values(metadata)
+      for entry in entries
+        if has_key(tags_entries, entry.tagname)
+          call add(tags_entries[entry.tagname], entry.link)
+        else
+          let tags_entries[entry.tagname] = [entry.link]
+        endif
+      endfor
+      unlet entry " needed for older vims with sticky type checking since name is reused
+    endfor
+
+    let lines = []
+    let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
+    for tagname in sort(keys(tags_entries))
+      if need_all_tags || index(self.specific_tags, tagname) != -1
+        if len(lines) > 0
+          call add(lines, '')
+        endif
+
+        let tag_tpl = printf('rxH%d_Template', self.header_level + 1)
+        call add(lines, s:safesubstitute(vimwiki#vars#get_syntaxlocal(tag_tpl), '__Header__', tagname, ''))
+
+        if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+          for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+            call add(lines, '')
+          endfor
+        endif
+
+        for taglink in sort(tags_entries[tagname])
+          if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+            let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
+            let link_infos = vimwiki#base#resolve_link(taglink)
+            if empty(link_infos.anchor)
+              let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
+            else
+              let link_caption = split(link_infos.anchor, '#', 0)[-1]
+              let link_text = split(taglink, '#', 1)[0]
+              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
+              let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+            endif
+
+            call add(lines, bullet . entry)
+          else
+            let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+            call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
+          endif
+        endfor
       endif
     endfor
-  endfor
 
-  let lines = []
-  let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
-  for tagname in sort(keys(tags_entries))
-    if need_all_tags || index(specific_tags, tagname) != -1
-      call extend(lines, [
-            \ '',
-            \ substitute(vimwiki#vars#get_syntaxlocal('rxH2_Template'), '__Header__', tagname, ''),
-            \ '' ])
-      for taglink in sort(tags_entries[tagname])
-        call add(lines, bullet . substitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-              \ '__LinkUrl__', taglink, ''))
-      endfor
-    endif
-  endfor
+    return lines
+  endfunction
 
-  let links_rx = '\m\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH2').'\)\|\%(^\s*'
-        \ .vimwiki#u#escape(vimwiki#lst#default_symbol()).' '
-        \ .vimwiki#vars#get_syntaxlocal('rxWikiLink').'$\)'
+  let tag_match = printf('rxH%d', header_level + 1)
+  let links_rx = '^\%('.vimwiki#vars#get_syntaxlocal(tag_match).'\)\|'.
+        \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
-  call vimwiki#base#update_listing_in_buffer(lines, 'Generated Tags', links_rx, line('$')+1, 1)
+  call vimwiki#base#update_listing_in_buffer(
+        \ GeneratorTags,
+        \ vimwiki#vars#get_global('tags_header'),
+        \ links_rx,
+        \ line('$')+1,
+        \ header_level,
+        \ a:create)
 endfunction
 
 

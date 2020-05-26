@@ -6,7 +6,7 @@
 " Quit if syntax file is already loaded
 if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -18,7 +18,7 @@ call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
-function! s:add_target_syntax_ON(target, type)
+function! s:add_target_syntax_ON(target, type) abort
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match '.a:type.'T `'
@@ -28,7 +28,7 @@ function! s:add_target_syntax_ON(target, type)
 endfunction
 
 
-function! s:add_target_syntax_OFF(target)
+function! s:add_target_syntax_OFF(target) abort
   let prefix0 = 'syntax match VimwikiNoExistsLink `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,VimwikiLinkChar'
   let prefix1 = 'syntax match VimwikiNoExistsLinkT `'
@@ -38,7 +38,7 @@ function! s:add_target_syntax_OFF(target)
 endfunction
 
 
-function! s:highlight_existing_links()
+function! s:highlight_existing_links() abort
   " Wikilink
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
@@ -153,37 +153,38 @@ endfor
 
 
 " possibly concealed chars
-let s:conceal = exists("+conceallevel") ? ' conceal' : ''
+let s:conceal = exists('+conceallevel') ? ' conceal' : ''
 
-execute 'syn match VimwikiEqInChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
-execute 'syn match VimwikiBoldChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
-execute 'syn match VimwikiItalicChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
-execute 'syn match VimwikiBoldItalicChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
-execute 'syn match VimwikiItalicBoldChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
-execute 'syn match VimwikiCodeChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
-execute 'syn match VimwikiDelTextChar contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
-execute 'syn match VimwikiSuperScript contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
-execute 'syn match VimwikiSubScript contained /'.
-      \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
-
-
-
+if vimwiki#vars#get_global('conceal_onechar_markers')
+  execute 'syn match VimwikiEqInChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
+  execute 'syn match VimwikiBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
+  execute 'syn match VimwikiItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
+  execute 'syn match VimwikiBoldItalicChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
+  execute 'syn match VimwikiItalicBoldChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
+  execute 'syn match VimwikiCodeChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
+  execute 'syn match VimwikiDelTextChar contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
+  execute 'syn match VimwikiSuperScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
+  execute 'syn match VimwikiSubScript contained /'.
+        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
+endif
 
 
 let s:options = ' contained transparent contains=NONE'
+if exists('+conceallevel')
+  let s:options .= s:conceal
+endif
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
 " VimwikiLinkRest group is left undefined if link shortening is not desired
-if exists("+conceallevel") && vimwiki#vars#get_global('url_maxsave') > 0
-  let s:options .= s:conceal
+if exists('+conceallevel') && vimwiki#vars#get_global('url_maxsave') > 0
   execute 'syn match VimwikiLinkRest `\%(///\=[^/ \t]\+/\)\zs\S\+\ze'
         \.'\%([/#?]\w\|\S\{'.vimwiki#vars#get_global('url_maxsave').'}\)`'.' cchar=~'.s:options
 endif
@@ -233,7 +234,7 @@ execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
 
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiNoExistsLinkT,
@@ -248,7 +249,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
                            \ @Spell
-syntax match VimwikiCellSeparator 
+syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
@@ -261,18 +262,18 @@ if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
         \ . vimwiki#vars#get_global('listsym_rejected')
-        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
         \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
-        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,@Spell'
+        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 
 
 execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contains=VimwikiEqInChar'
+      \ '/ contains=VimwikiEqInChar,@NoSpell'
 execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contained contains=VimwikiEqInCharT'
+      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
 
 execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contains=VimwikiBoldChar,@Spell'
@@ -310,7 +311,7 @@ execute 'syntax match VimwikiSubScriptT /'.vimwiki#vars#get_syntaxlocal('rxSubSc
       \ '/ contained contains=VimwikiSubScriptCharT,@Spell'
 
 execute 'syntax match VimwikiCode /'.vimwiki#vars#get_syntaxlocal('rxCode').
-      \ '/ contains=VimwikiCodeChar'
+      \ '/ contains=VimwikiCodeChar,@NoSpell'
 execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
       \ '/ contained contains=VimwikiCodeCharT'
 
@@ -318,11 +319,12 @@ execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
 " <hr> horizontal rule
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
-execute 'syntax region VimwikiPre start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
-      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@Spell'
+let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
+execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@NoSpell'.concealpre
 
 execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
-      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@Spell'
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
 
 " placeholders
@@ -337,7 +339,7 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 
 " html tags
-if vimwiki#vars#get_global('valid_html_tags') != ''
+if vimwiki#vars#get_global('valid_html_tags') !=? ''
   let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
   execute 'syntax match VimwikiBold #\c<b>.\{-}</b># contains=VimwikiHTMLTag'
@@ -356,7 +358,7 @@ execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
 " header groups highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
   " Strangely in default colorscheme Title group is not set to bold for cterm...
-  if !exists("g:colors_name")
+  if !exists('g:colors_name')
     hi Title cterm=bold
   endif
   for s:i in range(1,6)
@@ -365,8 +367,8 @@ if vimwiki#vars#get_global('hl_headers') == 0
 else
   for s:i in range(1,6)
     execute 'hi def VimwikiHeader'.s:i.' guibg=bg guifg='
-          \ .vimwiki#vars#get_global('hcolor_guifg_'.&bg)[s:i-1].' gui=bold ctermfg='
-          \ .vimwiki#vars#get_global('hcolor_ctermfg_'.&bg)[s:i-1].' term=bold cterm=bold'
+          \ .vimwiki#vars#get_global('hcolor_guifg_'.&background)[s:i-1].' gui=bold ctermfg='
+          \ .vimwiki#vars#get_global('hcolor_ctermfg_'.&background)[s:i-1].' term=bold cterm=bold'
   endfor
 endif
 
@@ -383,7 +385,7 @@ hi def link VimwikiBoldT VimwikiBold
 hi def VimwikiItalic term=italic cterm=italic gui=italic
 hi def link VimwikiItalicT VimwikiItalic
 
-hi def VimwikiBoldItalic term=bold cterm=bold gui=bold,italic
+hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
 hi def link VimwikiItalicBold VimwikiBoldItalic
 hi def link VimwikiBoldItalicT VimwikiBoldItalic
 hi def link VimwikiItalicBoldT VimwikiBoldItalic
@@ -395,6 +397,7 @@ hi def link VimwikiCodeT VimwikiCode
 
 hi def link VimwikiPre PreProc
 hi def link VimwikiPreT VimwikiPre
+hi def link VimwikiPreDelim VimwikiPre
 
 hi def link VimwikiMath Number
 hi def link VimwikiMathT VimwikiMath
@@ -458,13 +461,13 @@ call vimwiki#u#reload_regexes_custom()
 
 
 " FIXME it now does not make sense to pretend there is a single syntax "vimwiki"
-let b:current_syntax="vimwiki"
+let b:current_syntax='vimwiki'
 
 
 " EMBEDDED syntax setup
 let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
 if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
-  let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), "keep")
+  let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), 'keep')
 endif
 if !empty(s:nested)
   for [s:hl_syntax, s:vim_syntax] in items(s:nested)
@@ -477,7 +480,7 @@ endif
 
 
 " LaTeX
-call vimwiki#base#nested_syntax('tex', 
+call vimwiki#base#nested_syntax('tex',
       \ vimwiki#vars#get_syntaxlocal('rxMathStart').'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')

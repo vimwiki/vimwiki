@@ -13,38 +13,36 @@ let s:markdown_syntax = g:vimwiki_syntax_variables['markdown']
 let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:markdown_syntax.char_eqin = '\$'
 
-" text: *strong*
-" let s:markdown_syntax.rxBold = '\*[^*]\+\*'
+" text: **strong** or __strong__
 let s:markdown_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\*'.
+      \'\(\*\|_\)\{2\}'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1\{2\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bold = '*'
+let s:markdown_syntax.char_bold = '\*\*\|__'
 
-" text: _emphasis_
-" let s:markdown_syntax.rxItalic = '_[^_]\+_'
+" text: _emphasis_ or *emphasis*
 let s:markdown_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_'.
-      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-      \'_'.
+      \'\(\*\|_\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italic = '_'
+let s:markdown_syntax.char_italic = '\*\|_'
 
 " text: *_bold italic_* or _*italic bold*_
 let s:markdown_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*_'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'_\*'.
+      \'\(\*\)\{3\}'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\1\{3\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bolditalic = '\*_'
+let s:markdown_syntax.char_bolditalic = '\*\*\*'
 
 let s:markdown_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_\*'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\*_'.
+      \'\(_\)\{3\}'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
+      \'\1\{3\}'.
       \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italicbold = '_\*'
+let s:markdown_syntax.char_italicbold = '___'
 
 " text: `code`
 let s:markdown_syntax.rxCode = '`[^`]\+`'
@@ -69,7 +67,7 @@ let s:markdown_syntax.symH = 0
 
 
 " <hr>, horizontal rule
-let s:markdown_syntax.rxHR = '^-----*$'
+let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'
 
 " Tables. Each line starts and ends with '|'; each cell is separated by '|'
 let s:markdown_syntax.rxTableSep = '|'
@@ -81,9 +79,11 @@ let s:markdown_syntax.number_types = ['1.']
 let s:markdown_syntax.list_markers = ['-', '*', '+', '1.']
 let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 
-" Preformatted text
-let s:markdown_syntax.rxPreStart = '```'
-let s:markdown_syntax.rxPreEnd = '```'
+" Preformatted text (code blocks)
+let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
+let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
+" TODO see syntax/vimwiki_markdown_custom.vim for more info
+" let s:markdown_syntax.rxIndentedCodeBlock = '\%(^\n\)\@1<=\%(\%(\s\{4,}\|\t\+\).*\n\)\+'
 
 " Math block
 let s:markdown_syntax.rxMathStart = '\$\$'

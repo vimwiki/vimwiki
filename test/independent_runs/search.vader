@@ -1,0 +1,66 @@
+Include: vader_setup
+
+Execute (Setup search testing wrapper):
+  function! TestSearch(search_command, test_name)
+    " Note: after each search, the location list of the current window (0)
+    " will contain the search results. A non-empty list indicates success.
+    " Search for a single word (a pattern with no spaces)
+    redir => output
+    silent execute a:search_command
+    redir END
+    Assert !empty(getloclist(0)), a:test_name.": no location list result"
+    Assert match(output, '\d of \d') > -1, a:test_name.": no result message"
+
+    " Tests that VimwikiSearch is quoting the pattern correctly.
+    " If not, Vim will see anything after the first space in the pattern
+    " as a file name and attempt to open it.
+    Assert match(output, 'Cannot open file') == -1, "'open file': unquoted pattern?"
+
+    return output
+  endfunction
+
+Execute (Search test wiki):
+  " Open test wiki
+  edit test/resources/testwiki/index.wiki
+
+  " Make sure we opened the test wiki successfully by checking the
+  " title (first line) and filetype.
+  AssertEqual "= Test Wiki =", getline(1)
+  AssertEqual "vimwiki", &filetype
+
+
+  call TestSearch('VimwikiSearch foo',        'pattern with no spaces')
+  call TestSearch('VimwikiSearch foo bar',    'pattern with spaces')
+  call TestSearch('VimwikiSearch foo\bar',    'pattern with ''\''')
+  call TestSearch('VimwikiSearch baz{13}',    'pattern with literal {}')
+  call TestSearch('VimwikiSearch /\vbuz{5}/', 'proper regex')
+  call TestSearch('VWS foo bar',              'use VWS abbreviation')
+
+Execute (Search space path wiki):
+  " Open wiki with spaces in path to test fname escaping
+  edit test/resources/testwiki\ space/index.wiki
+
+  " Make sure we opened the space path wiki successfully
+  AssertEqual "= Space Path Wiki =", getline(1)
+
+  call TestSearch('VimwikiSearch foo', 'simple search in space path wiki')
+
+Execute (Search failure message):
+  " Important note: No search tests will succeed after this.
+  " The failed search will cause a Vim error to be thrown and
+  " any search with lvimgrep within Vader will result in an
+  " empty location list and empty messages queue. It is
+  " difficult to tell if the search itself is failing or if it
+  " is just an inability to view the results.
+
+  " Open test wiki again
+  edit test/resources/testwiki/index.wiki
+
+  " Now test a negative search and make sure we are returning
+  " the expected VimWiki error.
+  redir => output
+  silent VimwikiSearch not_exist
+  redir END
+  Assert match(output, 'VimwikiSearch: No match found.') > -1, "expected custom error"
+
+Include: vader_teardown

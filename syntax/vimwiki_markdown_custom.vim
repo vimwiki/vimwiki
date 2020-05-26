@@ -1,10 +1,10 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
+" Vimwiki syntax file
+" Description: Defines markdown custom syntax
+" Home: https://github.com/vimwiki/vimwiki/
 
 
-
-
-
-
-function! s:add_target_syntax_ON(target, type)
+function! s:add_target_syntax_ON(target, type) abort
   let prefix0 = 'syntax match '.a:type.' `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match '.a:type.'T `'
@@ -14,7 +14,7 @@ function! s:add_target_syntax_ON(target, type)
 endfunction
 
 
-function! s:add_target_syntax_OFF(target, type)
+function! s:add_target_syntax_OFF(target, type) abort
   let prefix0 = 'syntax match VimwikiNoExistsLink `'
   let suffix0 = '` display contains=@NoSpell,VimwikiLinkRest,'.a:type.'Char'
   let prefix1 = 'syntax match VimwikiNoExistsLinkT `'
@@ -24,18 +24,18 @@ function! s:add_target_syntax_OFF(target, type)
 endfunction
 
 
-function! s:wrap_wikilink1_rx(target)
+function! s:wrap_wikilink1_rx(target) abort
   return vimwiki#vars#get_syntaxlocal('rxWikiLink1InvalidPrefix') . a:target.
         \ vimwiki#vars#get_syntaxlocal('rxWikiLink1InvalidSuffix')
 endfunction
 
 
-function! s:existing_mkd_refs()
+function! s:existing_mkd_refs() abort
   return keys(vimwiki#markdown_base#scan_reflinks())
 endfunction
 
 
-function! s:highlight_existing_links()
+function! s:highlight_existing_links() abort
   " Wikilink1
   " Conditional highlighting that depends on the existence of a wiki file or
   "   directory is only available for *schemeless* wiki links
@@ -99,6 +99,7 @@ endif
 
 " Weblink
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink1'), 'VimwikiWeblink1')
+call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxImage'), 'VimwikiImage')
 
 
 " WikiLink
@@ -133,7 +134,7 @@ endfor
 
 
 " concealed chars
-if exists("+conceallevel")
+if exists('+conceallevel')
   syntax conceal on
 endif
 
@@ -157,15 +158,21 @@ execute 'syn match VimwikiWeblink1Char "'.
             \ vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
 execute 'syn match VimwikiWeblink1Char "'.
             \ vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
+"image
+execute 'syn match VimwikiImageChar "!"'.s:options
+execute 'syn match VimwikiImageChar "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Prefix1').'"'.s:options
+execute 'syn match VimwikiImageChar "'.
+            \ vimwiki#vars#get_syntaxlocal('rxWeblink1Suffix1').'"'.s:options
 
-if exists("+conceallevel")
+if exists('+conceallevel')
   syntax conceal off
 endif
 
 
 
 " Tables
-syntax match VimwikiTableRow /^\s*|.\+|\s*$/ 
+syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
                            \ VimwikiWeblink1T,
@@ -183,9 +190,14 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiEqInT,
                            \ @Spell
 
-
+" TODO fix behavior within lists https://github.github.com/gfm/#list-items
+" indented code blocks https://github.github.com/gfm/#indented-code-blocks
+" execute 'syntax match VimwikiIndentedCodeBlock /' . vimwiki#vars#get_syntaxlocal('rxIndentedCodeBlock') . '/'
+" hi def link VimwikiIndentedCodeBlock VimwikiPre
 
 " syntax group highlighting
+hi def link VimwikiImage VimwikiLink
+hi def link VimwikiImageT VimwikiLink
 hi def link VimwikiWeblink1 VimwikiLink
 hi def link VimwikiWeblink1T VimwikiLink
 

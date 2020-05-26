@@ -1,8 +1,9 @@
-# VimWiki: A Personal Wiki For Vim
+![VimWiki: A Personal Wiki For Vim](doc/splash.png)
 
 [中文](README-cn.md)
 
 - [Intro](#intro)
+- [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
     - [VIM Packages](#installation-using-vim-packages-since-vim-741528)
@@ -19,31 +20,36 @@
 - [Wiki](https://github.com/vimwiki/vimwiki/wiki)
 - [License](#license)
 
-## Intro
+----
+
+## Introduction
 
 VimWiki is a personal wiki for Vim -- a number of linked text files that have
-their own syntax highlighting.
+their own syntax highlighting. See the [VimWiki Wiki](https://vimwiki.github.io/vimwikiwiki/)
+for an example website built with VimWiki!
 
-With VimWiki you can:
+For the latest features and fixes checkout the [dev branch](https://github.com/vimwiki/vimwiki/tree/dev).
+If you are interested in contributing see [this section](#helping-vimwiki).
 
- * Organize notes and ideas
- * Manage to-do lists
- * Write documentation
- * Maintain a diary
- * Export everything to HTML
+With VimWiki, you can:
 
-To do a quick start press `<Leader>ww` (this is usually `\ww`) to go to your
-index wiki file. By default it is located in `~/vimwiki/index.wiki`.
+- Organize notes and ideas
+- Manage to-do lists
+- Write documentation
+- Maintain a diary
+- Export everything to HTML
+
+To do a quick start, press `<Leader>ww` (default is `\ww`) to go to your index
+wiki file. By default, it is located in `~/vimwiki/index.wiki`. See `:h vimwiki_list`
+for registering a different path/wiki.
 
 Feed it with the following example:
 
-```
-
+```text
 = My knowledge base =
     * Tasks -- things to be done _yesterday_!!!
     * Project Gutenberg -- good books are power.
     * Scratchpad -- various temporary stuff.
-
 ```
 
 Place your cursor on `Tasks` and press Enter to create a link. Once pressed,
@@ -52,16 +58,14 @@ open it. Edit the file, save it, and then press Backspace to jump back to your
 index.
 
 A VimWiki link can be constructed from more than one word. Just visually
-select the words to be linked and press Enter. Try it with `Project Gutenberg`.
+select the words to be linked and press Enter. Try it, with `Project Gutenberg`.
 The result should look something like:
 
-```
-
+```text
 = My knowledge base =
     * [[Tasks]] -- things to be done _yesterday_!!!
     * [[Project Gutenberg]] -- good books are power.
     * Scratchpad -- various temporary stuff.
-
 ```
 
 ## Screenshots
@@ -73,20 +77,20 @@ The result should look something like:
 
 ## Installation
 
+VimWiki has been tested on **Vim >= 7.3**. It will likely work on older
+versions but will not be officially supported.
+
 ### Prerequisites
 
 Make sure you have these settings in your vimrc file:
 
 ```vim
-
 set nocompatible
 filetype plugin on
 syntax on
-
 ```
 
-Without them VimWiki will not work properly.
-
+Without them, VimWiki will not work properly.
 
 #### Installation using [Vim packages](http://vimhelp.appspot.com/repeat.txt.html#packages) (since Vim 7.4.1528)
 
@@ -94,9 +98,17 @@ Without them VimWiki will not work properly.
 
 git clone https://github.com/vimwiki/vimwiki.git ~/.vim/pack/plugins/start/vimwiki
 
+# to generate documentation i.e. ':h vimwiki'
+vim -c 'helptags ~/.vim/pack/plugins/start/vimwiki/doc' -c quit
+
 ```
 
-#### Installation using [Pathogen](http://www.vim.org/scripts/script.php?script_id=2332)
+Notes:
+
+- See `:h helptags` for issues with installing the documentation.
+- For general information on vim packages see `:h packages`.
+
+#### Installation using [Pathogen](https://github.com/tpope/vim-pathogen)
 
 ```sh
 
@@ -121,7 +133,7 @@ Then run `:PlugInstall`.
 
 #### Installation using [Vundle](https://github.com/VundleVim/Vundle.vim)
 
-Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run
+Add `Plugin 'vimwiki/vimwiki'` to your vimrc file and run:
 
 ```sh
 
@@ -129,16 +141,17 @@ vim +PluginInstall +qall
 
 ```
 
-Or download the [zip
-archive](https://github.com/vimwiki/vimwiki/archive/master.zip) and extract it
-in `~/.vim/bundle/`
+#### Manual Install
+
+Download the [zip archive](https://github.com/vimwiki/vimwiki/archive/master.zip)
+and extract it in `~/.vim/bundle/`
 
 Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was
 installed.
 
 ## Basic Markup
 
-```
+```text
 = Header1 =
 == Header2 ==
 === Header3 ===
@@ -151,9 +164,9 @@ _italic_ -- italic text
 [[wiki link|description]] -- wiki link with description
 ```
 
-### Lists:
+### Lists
 
-```
+```text
 * bullet list item 1
     - bullet list item 2
     - bullet list item 3
@@ -174,36 +187,49 @@ For other syntax elements, see `:h vimwiki-syntax`
 
 ## Key bindings
 
-Normal mode:
+### Normal mode
 
- * `<Leader>ww` -- Open default wiki index file.
- * `<Leader>wt` -- Open default wiki index file in a new tab.
- * `<Leader>ws` -- Select and open wiki index file.
- * `<Leader>wd` -- Delete wiki file you are in.
- * `<Leader>wr` -- Rename wiki file you are in.
- * `<Enter>` -- Follow/Create wiki link
- * `<Shift-Enter>` -- Split and follow/create wiki link
- * `<Ctrl-Enter>` -- Vertical split and follow/create wiki link
- * `<Backspace>` -- Go back to parent(previous) wiki link
- * `<Tab>` -- Find next wiki link
- * `<Shift-Tab>` -- Find previous wiki link
+**Note:** your terminal may prevent capturing some of the default bindings
+listed below. See `:h vimwiki-local-mappings` for suggestions for alternative
+bindings if you encounter a problem.
 
-For more keys, see `:h vimwiki-mappings`
+#### Basic key bindings
+
+- `<Leader>ww` -- Open default wiki index file.
+- `<Leader>wt` -- Open default wiki index file in a new tab.
+- `<Leader>ws` -- Select and open wiki index file.
+- `<Leader>wd` -- Delete wiki file you are in.
+- `<Leader>wr` -- Rename wiki file you are in.
+- `<Enter>` -- Follow/Create wiki link.
+- `<Shift-Enter>` -- Split and follow/create wiki link.
+- `<Ctrl-Enter>` -- Vertical split and follow/create wiki link.
+- `<Backspace>` -- Go back to parent(previous) wiki link.
+- `<Tab>` -- Find next wiki link.
+- `<Shift-Tab>` -- Find previous wiki link.
+
+#### Advanced key bindings
+
+Refer to the complete documentation at `:h vimwiki-mappings` to see many
+more bindings.
 
 ## Commands
 
- * `:Vimwiki2HTML` -- Convert current wiki link to HTML
- * `:VimwikiAll2HTML` -- Convert all your wiki links to HTML
- * `:help vimwiki-commands` -- list all commands
- * `:help vimwiki` -- General vimwiki help docs
+- `:Vimwiki2HTML` -- Convert current wiki link to HTML.
+- `:VimwikiAll2HTML` -- Convert all your wiki links to HTML.
+- `:help vimwiki-commands` -- List all commands.
+- `:help vimwiki` -- General vimwiki help docs.
 
 ## Changing Wiki Syntax
 
 VimWiki currently ships with 3 syntaxes: VimWiki (default), Markdown
-(markdown), and MediaWiki (media)
+(markdown), and MediaWiki (media).
+
+**NOTE:** Only the default syntax ships with a built-in HTML converter. For
+Markdown or MediaWiki see `:h vimwiki-option-custom_wiki2html`. Some examples
+and 3rd party tools are available [here](https://vimwiki.github.io/vimwikiwiki/Related%20Tools.html#Related%20Tools-External%20Tools).
 
 If you would prefer to use either Markdown or MediaWiki syntaxes, set the
-following option in your .vimrc:
+following option in your `.vimrc`:
 
 ```vim
 
@@ -214,15 +240,22 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 
 ## Getting help
 
-**Have a question?**  
-Visit the IRC channel [`#vimwiki`](https://webchat.freenode.net/?channels=#vimwiki) on Freenode ([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#vimwiki:matrix.org`) or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
+[GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary
+method for raising bug reports or feature requests.
+
+Additional resources include the IRC channel [#vimwiki](https://webchat.freenode.net/?channels=#vimwiki) on Freenode
+([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#freenode_#vimwiki:matrix.org` and [Telegram](https://t.me/joinchat/JqBaKBfWs04qNVrp5oWcMg))
+or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
 
 ## Helping VimWiki
 
 VimWiki has a lot of users but only very few recurring developers or people
 helping the community. Your help is therefore appreciated. Everyone can help!
-See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on
-how you can help.
+See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on how you can help.
+
+Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md).
+
+----
 
 ## License
 

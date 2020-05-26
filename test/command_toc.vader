@@ -1,0 +1,149 @@
+Include: vader_includes/vader_setup.vader
+
+Execute (Reset TOC header to default):
+  let g:vimwiki_global_vars['toc_header'] = "Contents"
+
+Given vimwiki (Headings):
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Execute (Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (With a TOC sw=8):
+  # Contents
+
+  - [Header 1](#Header 1)
+          - [Header 1.1](#Header 1#Header 1.1)
+                  - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+                  - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Execute (Set sw=4  && VimwikiTOC):
+  set sw=4
+  VimwikiTOC
+
+Expect (With a TOC sw=4):
+  # Contents
+
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC):
+  # Contents
+
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+
+Execute (Let toc_header = Sommaire && VimwikiTOC):
+  let g:vimwiki_global_vars['toc_header'] = "Sommaire"
+  VimwikiTOC
+
+Expect (Append a Sommaire && Leave Contents alone):
+  # Sommaire
+
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC with sommaire):
+  # Sommaire
+
+  - [Header 1](#Header 1)
+      - [Header 1.1](#Header 1#Header 1.1)
+          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
+  - [Header 2](#Header 2)
+          - [Header 2.1.1](#Header 2#Header 2.1.1)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+
+Include: vader_includes/vader_teardown.vader
+
+" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

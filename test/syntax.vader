@@ -1,0 +1,318 @@
+Include: vader_includes/vader_setup.vader
+
+
+# 1 Typeface {{{1
+#################
+
+Given vimwiki (TODO, XXX):
+  TODO
+  DONE
+  STARTED
+  FIXME
+  FIXED
+  XXX
+
+Execute (Assert Syntax VimwikiTodo):
+  AssertEqual SyntaxAt(1, 1), 'VimwikiTodo'
+  AssertEqual SyntaxAt(2, 1), 'VimwikiTodo'
+  AssertEqual SyntaxAt(3, 1), 'VimwikiTodo'
+  AssertEqual SyntaxAt(4, 1), 'VimwikiTodo'
+  AssertEqual SyntaxAt(5, 1), 'VimwikiTodo'
+  AssertEqual SyntaxAt(6, 1), 'VimwikiTodo'
+
+Given vimwiki (Typeface for markdown like italic):
+  **bold text 1**
+  __bold text 2__
+  *italic text 1*
+  _italic text 2_
+  ***bold italic text 1***
+  ___bold italic text 2___
+  ~~strikeout text~~
+  `code (no syntax) text`
+  sp^script^
+  sb,,script,,
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax for typeface):
+  AssertEqual SyntaxAt(1, 4), 'VimwikiBold'
+  AssertEqual SyntaxAt(2, 4), 'VimwikiBold'
+  AssertEqual SyntaxAt(3, 4), 'VimwikiItalic'
+  AssertEqual SyntaxAt(4, 4), 'VimwikiItalic'
+  AssertEqual SyntaxAt(5, 4), 'VimwikiBoldItalic'
+  AssertEqual SyntaxAt(6, 4), 'VimwikiItalicBold'
+  AssertEqual SyntaxAt(7, 4), 'VimwikiDelText'
+  AssertEqual SyntaxAt(8, 4), 'VimwikiCode'
+  AssertEqual SyntaxAt(9, 4), 'VimwikiSuperScript'
+  AssertEqual SyntaxAt(10, 4), 'VimwikiSubScript'
+
+
+# 2 Links {{{1
+#################
+
+Given vimwiki (Wiki Links):
+  Plain link: >
+    [[This is a link]]
+  With description: >
+    [[This is a link source|Description of the link]]
+  Interwiki1: >
+    [[wiki1:This is a link]]
+  Interwiki2: >
+    [[wn.My Name:This is a link]]
+  Interwiki3: >
+    [[wn.MyWiki:This is a link source|Description of the link]]
+  Diary: >
+    [[diary:2012-03-05]]
+  Anchor1: >
+    [[Todo List#Tomorrow|Tasks for tomorrow]]
+  Anchor2: >
+    [[#Tomorrow]]
+  Raw1: >
+    https://github.com/vimwiki/vimwiki.git
+  Raw2: >
+    mailto:habamax@gmail.com
+  Raw3: >
+    ftp://vim.org
+  File1: >
+    [[file:/home/somebody/a/b/c/music.mp3]]
+  File2: >
+    [[file:C:/Users/somebody/d/e/f/music.mp3]]
+  File3: >
+    [[file:~/a/b/c/music.mp3]]
+  File4: >
+    [[file:../assets/data.csv|Important Data]]
+  File5: >
+    [[local:C:/Users/somebody/d/e/f/music.mp3]]
+  File6: >
+    [[file:/home/user/documents/|Link to a directory]]
+  Thumbnail links: >
+    [[http://someaddr.com/bigpicture.jpg|{{http://someaddr.com/thumbnail.jpg}}]]
+
+Execute (Assert Syntax link):
+  AssertEqual SyntaxAt(2, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(4, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(6, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(8, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(10, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(12, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(14, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(16, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(18, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(20, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(22, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(24, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(26, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(28, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(30, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(32, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(34, 6), 'VimwikiLink'
+  AssertEqual SyntaxAt(36, 6), 'VimwikiLink'
+
+Given vimwiki (Markdown Links):
+  Inline link: >
+    [Looks like this](URL)
+
+  Image link: >
+    ![Looks like this](URL)
+
+  Reference-style links: >
+    a) [Link Name][Id]
+    b) [Id][], using the "implicit link name" shortcut
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax link):
+  AssertEqual SyntaxAt(2, 8), 'VimwikiWeblink1'
+  AssertEqual SyntaxAt(5, 8), 'VimwikiImage'
+  AssertEqual SyntaxAt(8, 8), 'VimwikiWikiLink1'
+  AssertEqual SyntaxAt(9, 8), 'VimwikiWikiLink1'
+
+
+# 3 Header {{{1
+###############
+
+Given vimwiki (Wiki Headers):
+  = Header level 1 =
+  == Header level 2 ==
+  === Header level 3 ===
+  ==== Header level 4 ====
+  ===== Header level 5 =====
+  ====== Header level 6 ======
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert Syntax Header):
+  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
+  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
+  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
+  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
+  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
+  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+
+Given vimwiki (Markdown Headers):
+  # Header level 1
+  ## Header level 2
+  ### Header level 3
+  #### Header level 4
+  ##### Header level 5
+  ###### Header level 6
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax Header):
+  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
+  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
+  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
+  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
+  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
+  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+
+
+# 10 Code {{{1
+# 10.1 Code Indent (4 spaces) {{{2
+#################################
+
+Given vimwiki (Code indent):
+  this is markdown
+      this is code
+
+Execute (Assert Syntax normal (i.e. no hi)):
+  AssertEqual SyntaxAt(1, 5), ''
+  AssertEqual SyntaxAt(2, 5), ''
+
+
+# 10.2 Code Inline (1 backtick) {{{2
+###################################
+
+Given vimwiki (Code inline):
+  Well use the `man`
+
+Execute (Assert Syntax Code):
+  AssertEqual SyntaxAt(1, 16), 'VimwikiCode'
+
+
+# 10.3 Code Block (3 backtiks) {{{2
+##################################
+
+Given vimwiki (Markdown, Text and Vim):
+  this is markdown
+  this is TODO
+
+  ```
+  this is text
+  ```
+
+  ```vim
+  " this is vim
+  set hlsearch
+  ```
+
+  `````vim
+  " this is vim
+  set hlsearch
+  `````
+
+  ~~~vim
+  " this is vim
+  set hlsearch
+  ~~~
+
+  ~~~~~vim
+  " this is vim
+  set hlsearch
+  ~~~~~~~~~~~
+
+Execute (Set syntax markdown):
+  let g:vimwiki_global_vars['vimwiki_automatic_nested_syntaxes'] = 1
+  call SetSyntax('markdown')
+
+Execute (Assert ft, normal syntax and VimwikiTodo):
+  AssertEqual &ft, 'vimwiki'
+  AssertEqual SyntaxAt(1, 1), ''
+  AssertEqual SyntaxAt(2, 9), 'VimwikiTodo'
+
+Execute (Assert Code syntax):
+  AssertEqual SyntaxAt(4, 1), 'VimwikiPreDelim'
+  AssertEqual SyntaxAt(5, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(9, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(10, 1), 'vimCommand'
+  AssertEqual SyntaxAt(13, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(14, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(15, 1), 'vimCommand'
+  AssertEqual SyntaxAt(16, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(18, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(19, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(20, 1), 'vimCommand'
+  AssertEqual SyntaxAt(21, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(23, 1), 'VimwikiPre'
+  AssertEqual SyntaxAt(24, 1), 'vimLineComment'
+  AssertEqual SyntaxAt(25, 1), 'vimCommand'
+  AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
+
+
+# 11 Math {{{1
+# 11.1 Math Markdown {{{2
+#######################
+
+Given vimwiki (Math markdown):
+  math inline: $ \sum_i a_i^2 = 1 $
+
+  math block:
+  $$
+  \sum_i a_i^2
+  =
+  1
+  $$
+
+  math block env:
+  $$%align%
+  \sum_i a_i^2 &= 1 + 1 \\
+  &= 2.
+  $$
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert math syntax):
+  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+  let syntax_5 = SyntaxAt(5, 1)
+  Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
+  let syntax_12 = SyntaxAt(12, 1)
+  Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
+
+
+# 11.2 Math Wiki {{{2
+##############################
+
+Given vimwiki (Math wiki):
+  math inline: $ \sum_i a_i^2 = 1 $
+
+  math block:
+  {{$
+  \sum_i a_i^2
+  =
+  1
+  }}$
+
+  math block env:
+  {{$%align%
+  \sum_i a_i^2 &= 1 + 1 \\
+  &= 2.
+  }}$
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert math syntax):
+  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+  let syntax_5 = SyntaxAt(5, 1)
+  Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
+  let syntax_12 = SyntaxAt(12, 1)
+  Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
+
+Include: vader_includes/vader_teardown.vader
+# vim: foldmethod=marker foldlevel=30 sw=2
