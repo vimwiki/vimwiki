@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 2.4
+                               Version: 2.5
 
 ==============================================================================
 CONTENTS                                                             *vimwiki*
@@ -3491,7 +3491,24 @@ Contributors and their Github usernames in roughly chronological order:
     - Mauro Morales (@mauromorales)
     - Valtteri Vallius (@kaphula)
     - Patrick Stockwell (@patstockwell)
-
+    - Henry Qin (@hq6)
+    - Hugo Hörnquist
+    - Greg Anders
+    - Steven Schmeiser
+    - Monkin (@monkinco)
+    - @AresMegaGlobal
+    - Cesar Tessarin (@tessarin)
+    - Clément Bœsch (@ubitux)
+    - Dave Gauer
+    - Eric Langlois (@edlanglois)
+    - James Moriarty
+    - Lionel Flandrin (@simias)
+    - Michael Brauweiler (@rattletat)
+    - Michal Cizmazia (@cizmazia)
+    - Samir Benmendil (@Ram-Z)
+    - Stefan Lehmann (@stevesteve)
+    - @graywolf
+    - flex (@bratekarate)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3503,14 +3520,13 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 
-2.5 (in progress)~
+2.5 (2020-05-26)~
 
 New:~
     * PR #787: |:VimwikiRenameFile| works for all directories: even
       wiki_root/diary/2019-12-11.md if current file is wiki_root/dir1/file.md.
     * Issue #764: fenced code blocks are properly supported for markdown
       syntax i.e. more than 3 backticks, adds tilde support.
-    * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.
     * PR #785: |:VimwikiGoto| completion works with part of filename and
       nested directories
     * Add test framework (vader, vint, vim-testbed)
@@ -3580,6 +3596,10 @@ Changed:~
     * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|
     * Issue #638: Rename |:VimwikiDeleteLink| to |:VimwikiDeleteFile|
     * Issue #638: Rename |:VimwikiRenameLink| to |:VimwikiRenameFile|
+    * For all three above the old commands still works but is deprecated and
+    * will be removed in later versions.
+    * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.
+    * Modify horizontal rule (thematic-breaks) syntax for markdown.
 
 Removed:~
     * PR #698: Remove awa check triggering silent file edits.
@@ -3589,7 +3609,7 @@ Removed:~
       point.
 
 Fixed:~
-    * Issue #90: VimwikiRenameLink doesn't update links in diary.
+    * Issue #90: |:VimwikiRenameFile| doesn't update links in diary.
     * Issue #790: Allow tags before a header with markdown syntax.
     * Issue #779: Vimwiki tags file meets ctags standard.
     * Issue #781: Compatablity fixes for older versions of Vim.
@@ -3603,7 +3623,6 @@ Fixed:~
       checking)
     * Issue #729: Normalize links uses relative paths in diary pages for
       Markdown syntax. This previously only worked for the default syntax.
-    * Modify horizontal rule (thematic-breaks) syntax for markdown.
     * Disable spell check in code and math inline/blocks.
     * Properly handle markdown image links `![]()`
     * Issue #415: Expand iabbrev entries on <CR>.
@@ -3611,11 +3630,11 @@ Fixed:~
     * Issue #240: Fix regex pattern for markdown '[]()' links
     * Issue #685: Error message for invalid user options fixed.
     * Issue #481: Allow surrounding URLs with '<' '>'
-    * Issue #237: VimwikiRenameLink now works for Markdown syntax
+    * Issue #237: |:VimwikiRenameFile| now works for Markdown syntax
     * Issue #612: GVim menu displayed duplicate names.
     * Issue #456: Omnicompletion of wikilinks under Windows. Note: this should
       be considered a temporary fix until #478 is closed.
-    * Issue #654: Fix `:VimwikiShowVersion` command.
+    * Issue #654: Fix |:VimwikiShowVersion| command.
     * PR #634: Removed extra newlines that were inserted before/after
       generated links.
     * Issue #543: Allow commands related to opening index files or diary pages
@@ -3629,7 +3648,7 @@ Fixed:~
       rendered correctly.
     * Issue #835: Pressing enter on the dash of a markdown list causes an error.
     * Issue #876: E684: list index out of range: 0, when creating a link containing a `.`.
-    * Issue #803: `:VimwikiGenerateLinks` for subdirectory only
+    * Issue #803: |:VimwikiGenerateLinks| for subdirectory only
     * Issue #776: Command [count]o can't repeat in vimwiki
 
 
