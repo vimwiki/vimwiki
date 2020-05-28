@@ -698,7 +698,7 @@ function! vimwiki#vars#populate_list_vars(wiki) abort
   "create regexp for bulleted list items
   if !empty(a:wiki.bullet_types)
     let rxListBullet =
-          \ join( map(a:wiki.bullet_types,
+          \ join( map(copy(a:wiki.bullet_types),
           \'vimwiki#u#escape(v:val).'
           \ .'repeat("\\+", recurring_bullets)'
           \ ) , '\|')
