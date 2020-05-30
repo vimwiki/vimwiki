@@ -3,6 +3,9 @@
 # credit to https://github.com/w0rp/ale for script ideas and the color vader
 # output function.
 
+# Global error return of the script
+o_error=0
+
 printHelp() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
@@ -12,10 +15,10 @@ printHelp() {
     echo ""
     echo "-n Specify vim/nvim version to run tests for."
     echo "   Multiple versions can be specified by quoting the value and"
-    echo "   separating versions with a space. E.g. -v \"vim1 vim2\"."
+    echo "   separating versions with a space. E.g. -n \"vim1 vim2\"."
     echo "   Default is all available versions."
     echo ""
-    echo "-l List available versions that can be used with the '-v' option"
+    echo "-l List available versions that can be used with the '-n' option"
     echo ""
     echo "-t Select test type: 'vader', 'vint', or 'all'"
     echo ""
@@ -29,6 +32,7 @@ printHelp() {
 printVersions() {
     # print the names of all vim/nvim versions
     getVers
+    exit 0
 }
 
 runVader() {
@@ -67,13 +71,15 @@ runVader() {
         # see README.md for more information
         docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
           /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
+        o_error=$(( $o_error | $? ))
 
         # remaining tests
         docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
           "$v" -u test/vimrc -i NONE "+Vader! ${res}" 2>&1 | vader_filter | vader_color
+        o_error=$(( $o_error | $? ))
         set +o pipefail
-
     done
+    return $o_error
 }
 
 runVint() {
@@ -115,11 +121,13 @@ vader_filter() {
     done
 
     if [[ "$err" == 1 ]]; then
+        o_error=1
         echo ""
         echo "!---------Failed tests detected---------!"
         echo "Run with the '-v' flag for verbose output"
         echo ""
     fi
+    return $o_error
 }
 
 # Say Hi
@@ -219,7 +227,6 @@ fi
 trap exit 1 SIGINT SIGTERM
 
 # select which tests should run
-o_error=0
 case $type in
     "vader" )
         runVader
@@ -244,5 +251,6 @@ case $type in
         exit 1
 esac
 
+# Exit
 echo "Script $(basename $0) exiting: $o_error"
 exit $o_error
