@@ -787,20 +787,20 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxWeblink1Suffix = ')'
   let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\()\)'
   let mkd_syntax.rxWeblink1Separator = ']('
-  let mkd_syntax.rxWeblink1Ext = ''
+  let rxWeblink1Ext = ''
   if vimwiki#vars#get_global('markdown_link_ext')
-    let mkd_syntax.rxWeblink1Ext = vimwiki#vars#get_wikilocal('ext')
+    let rxWeblink1Ext = '__FileExtention__'
   endif
   " [DESCRIPTION](URL)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
-        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ mkd_syntax.rxWeblink1Suffix
   " [DESCRIPTION](ANCHOR)
   let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
   " [DESCRIPTION](FILE#ANCHOR)
   let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
-        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Ext.
+        \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
 
   let valid_chars = '[^\\\]]'
@@ -815,18 +815,18 @@ function! s:populate_extra_markdown_vars() abort
         \ mkd_syntax.rx_wikilink_md_prefix .
         \ '.*' .
         \ rx_wikilink_md_separator .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
         \ rx_wikilink_md_separator .
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rxWeblink1Prefix.
         \ '.*' .
         \ mkd_syntax.rxWeblink1Separator.
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%('.vimwiki#vars#get_wikilocal('ext').'\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
         \ mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " 1. [DESCRIPTION](URL)

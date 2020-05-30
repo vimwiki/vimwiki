@@ -1023,8 +1023,8 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
     let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
     " Compute old url regex with filename between \zs and \ze
     let old_url_r = vimwiki#base#apply_template(
-          \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate',
-             \ vimwiki#vars#get_wikilocal('syntax', a:wiki_nr)), old_url_r, '', '')
+          \ vimwiki#vars#get_syntaxlocal('WikiLinkMatchUrlTemplate', vimwiki#vars#get_wikilocal('syntax', a:wiki_nr))
+            \, old_url_r, '', '', vimwiki#vars#get_wikilocal('ext', a:wiki_nr))
 
     return old_url_r
   endfunction
@@ -2110,10 +2110,11 @@ endfunction
 
 "   Construct a regular expression matching from template (with special
 "   characters properly escaped), by substituting rxUrl for __LinkUrl__, rxDesc
-"   for __LinkDescription__, and rxStyle for __LinkStyle__.  The three
-"   arguments rxUrl, rxDesc, and rxStyle are copied verbatim, without any
-"   special character escapes or substitutions.
-function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle) abort
+"   for __LinkDescription__, rxStyle for __LinkStyle__ and rxExtension for
+"   __FileExtention__.  The four arguments rxUrl, rxDesc, rxStyle and
+"   rxExtension are copied verbatim, without any special character escapes or
+"   substitutions.
+function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle, rxExtension) abort
   let lnk = a:template
   if a:rxUrl !=? ''
     let lnk = s:safesubstitute(lnk, '__LinkUrl__', a:rxUrl, 'g')
@@ -2123,6 +2124,9 @@ function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle) abort
   endif
   if a:rxStyle !=? ''
     let lnk = s:safesubstitute(lnk, '__LinkStyle__', a:rxStyle, 'g')
+  endif
+  if a:rxExtension !=? ''
+    let lnk = s:safesubstitute(lnk, '__FileExtention__', a:rxExtension, 'g')
   endif
   return lnk
 endfunction
