@@ -3521,7 +3521,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Samir Benmendil (@Ram-Z)
     - Stefan Lehmann (@stevesteve)
     - @graywolf
-    - flex (@bratekarate)*
+    - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
 
 ==============================================================================
