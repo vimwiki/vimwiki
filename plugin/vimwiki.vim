@@ -194,7 +194,7 @@ function! s:set_windowlocal_options() abort
   endif
 
   if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
-    let &conceallevel = vimwiki#vars#get_global('conceallevel')
+    let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
   endif
 
   if vimwiki#vars#get_global('auto_chdir')
