@@ -3521,7 +3521,8 @@ Contributors and their Github usernames in roughly chronological order:
     - Samir Benmendil (@Ram-Z)
     - Stefan Lehmann (@stevesteve)
     - @graywolf
-    - flex (@bratekarate)
+    - flex (@bratekarate)*
+    - Marius Lopez (@PtitCaius)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3532,6 +3533,8 @@ https://github.com/vimwiki/vimwiki/issues/, all others from
 http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+New:~
+    * PR #900: conceallevel is now setted locally for vimwiki buffers
 
 2.5 (2020-05-26)~
 
