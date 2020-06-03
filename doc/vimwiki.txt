@@ -1449,6 +1449,14 @@ Text which starts with 4 or more spaces is a blockquote.
     could be styled by CSS in HTML. Blockquotes are usually used to quote a
     long piece of text from another source.
 
+A group of lines prefixed with > also specifies a blockquote, with the caveat
+that the > syntax allow empty lines to signal multiple parragraphs.
+
+> This also signals a block quote.
+> 
+> You can use empty lines to signal multiple paragraphs kept inside the same
+> blockquote.
+
 
 ------------------------------------------------------------------------------
 5.10. Comments                                       *vimwiki-syntax-comments*
@@ -3633,6 +3641,7 @@ Contributors and their Github usernames in roughly chronological order:
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
+    - Rafael Castillo (@eltrufas)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3648,6 +3657,7 @@ New:~
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * PR #901: adds multiparagraph blockquotes using email style syntax
 
 2.5 (2020-05-26)~
 
