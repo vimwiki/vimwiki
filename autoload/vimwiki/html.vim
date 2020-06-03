@@ -664,6 +664,13 @@ function! s:close_tag_quote(quote, ldest) abort
   return a:quote
 endfunction
 
+function! s:close_tag_arrow_quote(arrow_quote, ldest) abort
+  if a:arrow_quote
+    call insert(a:ldest, '</p></blockquote>')
+    return 0
+  endif
+  return a:arrow_quote
+endfunction
 
 function! s:close_tag_para(para, ldest) abort
   if a:para
@@ -915,9 +922,33 @@ function! s:process_tag_quote(line, quote) abort
   return [processed, lines, quote]
 endfunction
 
+function! s:process_tag_arrow_quote(line, arrow_quote) abort
+  let lines = []
+  let arrow_quote = a:arrow_quote
+  let processed = 0
+  if a:line =~# '^&gt;'
+    if !arrow_quote
+      call add(lines, '<blockquote>')
+      call add(lines, '<p>')
+      let arrow_quote = 1
+    endif
+    let processed = 1
+    let stripped_line = substitute(a:line, '^&gt;\s*', '', '')
+    if stripped_line =~# '^\s*$'
+      call add(lines, '</p>')
+      call add(lines, '<p>')
+    endif
+    call add(lines, stripped_line)
+  elseif arrow_quote
+    call add(lines, '</p>')
+    call add(lines, '</blockquote>')
+    let arrow_quote = 0
+  endif
+  return [processed, lines, arrow_quote]
+endfunction
+
 
 function! s:process_tag_list(line, lists) abort
-
   function! s:add_checkbox(line, rx_list) abort
     let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
@@ -1209,6 +1240,7 @@ function! s:parse_line(line, state) abort
   let state = {}
   let state.para = a:state.para
   let state.quote = a:state.quote
+  let state.arrow_quote = a:state.arrow_quote
   let state.pre = a:state.pre[:]
   let state.math = a:state.math[:]
   let state.table = a:state.table[:]
@@ -1245,6 +1277,9 @@ function! s:parse_line(line, state) abort
       if processed && state.quote
         let state.quote = s:close_tag_quote(state.quote, lines)
       endif
+      if processed && state.arrow_quote
+        let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+      endif
       if processed && state.para
         let state.para = s:close_tag_para(state.para, lines)
       endif
@@ -1277,6 +1312,9 @@ function! s:parse_line(line, state) abort
     endif
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
     endif
     if processed && state.para
       let state.para = s:close_tag_para(state.para, lines)
@@ -1340,6 +1378,9 @@ function! s:parse_line(line, state) abort
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, lines)
     endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+    endif
     if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, lines)
     endif
@@ -1370,7 +1411,8 @@ function! s:parse_line(line, state) abort
       let state.table = s:close_tag_table(state.table, res_lines, state.header_ids)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.math = s:close_tag_math(state.math, res_lines)
-      let state.quote = s:close_tag_quote(state.quote, res_lines)
+      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, res_lines)
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
       let state.para = s:close_tag_para(state.para, res_lines)
 
       call add(res_lines, line)
@@ -1381,6 +1423,39 @@ function! s:parse_line(line, state) abort
   " quotes
   if !processed
     let [processed, lines, state.quote] = s:process_tag_quote(line, state.quote)
+    if processed && len(state.lists)
+      call s:close_tag_list(state.lists, lines)
+    endif
+    if processed && state.deflist
+      let state.deflist = s:close_tag_def_list(state.deflist, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+    endif
+    if processed && len(state.table)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
+    endif
+    if processed && state.pre[0]
+      let state.pre = s:close_tag_pre(state.pre, lines)
+    endif
+    if processed && state.math[0]
+      let state.math = s:close_tag_math(state.math, lines)
+    endif
+    if processed && state.para
+      let state.para = s:close_tag_para(state.para, lines)
+    endif
+
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
+
+    call extend(res_lines, lines)
+  endif
+
+  " arrow quotes
+  if !processed
+    let [processed, lines, state.arrow_quote] = s:process_tag_arrow_quote(line, state.arrow_quote)
+    if processed && state.quote
+      let state.quote = s:close_tag_quote(state.quote, lines)
+    endif
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
@@ -1435,8 +1510,11 @@ function! s:parse_line(line, state) abort
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
-    if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, res_lines)
+    if processed && (state.quote || state.arrow_quote)
+      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
     endif
     if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, res_lines)
@@ -1535,6 +1613,7 @@ function! s:convert_file(path_html, wikifile) abort
     let state = {}
     let state.para = 0
     let state.quote = 0
+    let state.arrow_quote = 0
     let state.pre = [0, 0] " [in_pre, indent_pre]
     let state.math = [0, 0] " [in_math, indent_math]
     let state.table = []
@@ -1595,6 +1674,7 @@ function! s:convert_file(path_html, wikifile) abort
     " close opened tags if any
     let lines = []
     call s:close_tag_quote(state.quote, lines)
+    call s:close_tag_arrow_quote(state.arrow_quote, lines)
     call s:close_tag_para(state.para, lines)
     call s:close_tag_pre(state.pre, lines)
     call s:close_tag_math(state.math, lines)
