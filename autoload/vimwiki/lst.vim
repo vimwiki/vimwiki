@@ -1710,4 +1710,3 @@ function! vimwiki#lst#fold_level(lnum) abort
   endif
   return '='
 endfunction
-

@@ -1,5 +1,6 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
+" Description: Vimwiki variable definition and manipulation
 " Home: https://github.com/vimwiki/vimwiki/
 
 
@@ -27,7 +28,6 @@
 
 
 function! s:populate_global_variables() abort
-
   let g:vimwiki_global_vars = {}
 
   call s:read_global_settings_from_user()
@@ -241,7 +241,6 @@ function! s:read_global_settings_from_user() abort
       break
     endif
   endfor
-
 endfunction
 
 
@@ -319,7 +318,6 @@ function! s:normalize_global_settings() abort
   if g:vimwiki_global_vars.use_mouse == 1 && g:vimwiki_global_vars.key_mappings.mouse == 0
     let g:vimwiki_global_vars.key_mappings.mouse = 1
   endif
-
 endfunction
 
 
@@ -518,11 +516,11 @@ function! s:normalize_wikilocal_settings() abort
       " default list margin to 0
       let wiki_settings.list_margin = 0
     endif
-
   endfor
 endfunction
 
 
+" TODO move to path
 function! s:normalize_path(path) abort
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
@@ -971,6 +969,12 @@ endfunction
 
 
 function! vimwiki#vars#get_global(key) abort
+  return g:vimwiki_global_vars[a:key]
+endfunction
+
+
+function! vimwiki#vars#set_global(key, value) abort
+  let g:vimwiki_global_vars[a:key] = a:value
   return g:vimwiki_global_vars[a:key]
 endfunction
 

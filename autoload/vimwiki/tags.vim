@@ -1,11 +1,8 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki autoload plugin file
-
-
-let s:TAGS_METADATA_FILE_NAME = '.vimwiki_tags'
-
-
-
+" Description: Tag manipulation functions
+" Home: https://github.com/vimwiki/vimwiki/
+"
 " Tags metadata in-memory format:
 " metadata := { 'pagename': [entries, ...] }
 " entry := { 'tagname':..., 'lineno':..., 'link':... }
@@ -22,11 +19,13 @@ let s:TAGS_METADATA_FILE_NAME = '.vimwiki_tags'
 " of missing parameters -- "pagename" and "link".
 
 
+let s:TAGS_METADATA_FILE_NAME = '.vimwiki_tags'
 
-"   Update tags metadata.
-"   a:full_rebuild == 1: re-scan entire wiki
-"   a:full_rebuild == 0: only re-scan current page
-"   a:all_files == '':   only if the file is newer than .tags
+
+" Update tags metadata.
+" Param: a:full_rebuild == 1: re-scan entire wiki
+" Param: a:full_rebuild == 0: only re-scan current page
+" a:all_files == '':   only if the file is newer than .tags
 function! vimwiki#tags#update_tags(full_rebuild, all_files) abort
   let all_files = a:all_files !=? ''
   if !a:full_rebuild
@@ -61,14 +60,15 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) abort
 endfunction
 
 
+" Substitute regexp but do not interpret replace
+" TODO mutualize with same function in base
 function! s:safesubstitute(text, search, replace, mode) abort
-  " Substitute regexp but do not interpret replace
   let escaped = escape(a:replace, '\&')
   return substitute(a:text, a:search, escaped, a:mode)
 endfunction
 
 
-"   Scans the list of text lines (argument) and produces tags metadata as a list of tag entries.
+" Scan the list of text lines (argument) and produces tags metadata as a list of tag entries.
 function! s:scan_tags(lines, page_name) abort
 
   let entries = []
@@ -150,14 +150,14 @@ function! s:scan_tags(lines, page_name) abort
 endfunction
 
 
-"   Returns tags metadata file path
+" Return: tags metadata file path
 function! vimwiki#tags#metadata_file_path() abort
   return fnamemodify(vimwiki#path#join_path(vimwiki#vars#get_wikilocal('path'),
         \ s:TAGS_METADATA_FILE_NAME), ':p')
 endfunction
 
 
-"   Loads tags metadata from file, returns a dictionary
+" Load tags metadata from file, returns a dictionary
 function! s:load_tags_metadata() abort
   let metadata_path = vimwiki#tags#metadata_file_path()
   if !filereadable(metadata_path)
@@ -208,8 +208,8 @@ function! s:load_tags_metadata() abort
 endfunction
 
 
-"   Removes all entries for given page from metadata in-place.  Returns updated
-"   metadata (just in case).
+" Remove all entries for given page from metadata in-place.  Returns updated
+" metadata (just in case).
 function! s:remove_page_from_tags(metadata, page_name) abort
   if has_key(a:metadata, a:page_name)
     call remove(a:metadata, a:page_name)
@@ -220,7 +220,7 @@ function! s:remove_page_from_tags(metadata, page_name) abort
 endfunction
 
 
-"   Merges metadata of one file into a:metadata
+" Merge metadata of one file into a:metadata
 function! s:merge_tags(metadata, pagename, file_metadata) abort
   let metadata = a:metadata
   let metadata[a:pagename] = a:file_metadata
@@ -228,15 +228,15 @@ function! s:merge_tags(metadata, pagename, file_metadata) abort
 endfunction
 
 
-"   Compares two actual lines from tags file.  Return value is in strcmp style.
-"   See help on sort() -- that's what this function is going to be used for.
-"   See also s:write_tags_metadata below -- that's where we compose these tags
-"   file lines.
+" Compare two actual lines from tags file.  Return value is in strcmp style.
+" See help on sort() -- that's what this function is going to be used for.
+" See also s:write_tags_metadata below -- that's where we compose these tags
+" file lines.
 "
-"   This function is needed for tags sorting, since plain sort() compares line
-"   numbers as strings, not integers, and so, for example, tag at line 14
-"   preceeds the same tag on the same page at line 9.  (Because string "14" is
-"   alphabetically 'less than' string "9".)
+" This function is needed for tags sorting, since plain sort() compares line
+" numbers as strings, not integers, and so, for example, tag at line 14
+" preceeds the same tag on the same page at line 9.  (Because string "14" is
+" alphabetically 'less than' string "9".)
 function! s:tags_entry_cmp(i1, i2) abort
   let items = []
   for orig_item in [a:i1, a:i2]
@@ -260,7 +260,7 @@ function! s:tags_entry_cmp(i1, i2) abort
 endfunction
 
 
-"   Saves metadata object into a file. Throws exceptions in case of problems.
+" Save metadata object into a file. Throws exceptions in case of problems.
 function! s:write_tags_metadata(metadata) abort
   let metadata_path = vimwiki#tags#metadata_file_path()
   let tags = []
@@ -297,7 +297,7 @@ function! s:write_tags_metadata(metadata) abort
 endfunction
 
 
-"   Returns list of unique tags found in the .tags file
+" Return: list of unique tags found in the .tags file
 function! vimwiki#tags#get_tags() abort
   let metadata = s:load_tags_metadata()
   let tags = {}
@@ -310,9 +310,10 @@ function! vimwiki#tags#get_tags() abort
 endfunction
 
 
-"   Similar to vimwiki#base#generate_links.  In the current buffer, appends
-"   tags and references to all their instances.  If no arguments (tags) are
-"   specified, outputs all tags.
+" Generate tags in current buffer
+" Similar to vimwiki#base#generate_links.  In the current buffer, appends
+" tags and references to all their instances.  If no arguments (tags) are
+" specified, outputs all tags.
 function! vimwiki#tags#generate_tags(create, ...) abort
   let specific_tags = a:000
   let header_level = vimwiki#vars#get_global('tags_header_level')
@@ -396,10 +397,10 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 endfunction
 
 
+" Complete tags
 function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort
   " We can safely ignore args if we use -custom=complete option, Vim engine
   " will do the job of filtering.
   let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
 endfunction
-

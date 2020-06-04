@@ -1741,4 +1741,3 @@ endfunction
 function! vimwiki#html#CatUrl(wikifile) abort
   execute '!echo file://'.s:get_wikifile_url(a:wikifile)
 endfunction
-

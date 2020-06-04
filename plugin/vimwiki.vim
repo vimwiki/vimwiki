@@ -4,6 +4,7 @@
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
 
 
+" Clause: load only onces
 if exists('g:loaded_vimwiki') || &compatible
   finish
 endif
@@ -15,10 +16,11 @@ let s:plugin_vers = -1
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
 
+" Save peace in the galaxy
 let s:old_cpo = &cpoptions
 set cpoptions&vim
 
-
+" Save autowriteall varaible state
 if exists('g:vimwiki_autowriteall')
   let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
 else
@@ -26,7 +28,7 @@ else
 endif
 
 
-" this is called when the cursor leaves the buffer
+" Autocommand called when the cursor leaves the buffer
 function! s:setup_buffer_leave() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -42,7 +44,7 @@ function! s:setup_buffer_leave() abort
 endfunction
 
 
-" create a new temporary wiki for the current buffer
+" Create a new temporary wiki for the current buffer
 function! s:create_temporary_wiki() abort
   let path = expand('%:p:h')
   let ext = '.'.expand('%:e')
@@ -67,7 +69,7 @@ function! s:create_temporary_wiki() abort
 endfunction
 
 
-" This function is called when Vim opens a new buffer with a known wiki
+" Autocommand called when Vim opens a new buffer with a known wiki
 " extension. Both when the buffer has never been opened in this session and
 " when it has.
 function! s:setup_new_wiki_buffer() abort
@@ -94,7 +96,7 @@ function! s:setup_new_wiki_buffer() abort
 endfunction
 
 
-" this is called when the cursor enters the buffer
+" Autocommand called when the cursor enters the buffer
 function! s:setup_buffer_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -106,7 +108,7 @@ function! s:setup_buffer_enter() abort
 endfunction
 
 
-" this is called when the buffer enters a window or when running a  diff
+" Autocommand called when the buffer enters a window or when running a  diff
 function! s:setup_buffer_win_enter() abort
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
   " a registered wiki and not a temporary wiki)
@@ -122,6 +124,7 @@ function! s:setup_buffer_win_enter() abort
 endfunction
 
 
+" Help syntax reloading
 function! s:setup_cleared_syntax() abort
   " highlight groups that get cleared
   " on colorscheme change because they are not linked to Vim-predefined groups
@@ -140,6 +143,7 @@ function! s:setup_cleared_syntax() abort
 endfunction
 
 
+" Return: list of extension known vy vimwiki
 function! s:vimwiki_get_known_extensions() abort
   " Getting all extensions that different wikis could have
   let extensions = {}
@@ -193,7 +197,7 @@ function! s:set_windowlocal_options() abort
     endif
   endif
 
-  if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
+  if exists('+conceallevel')
     let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
   endif
 
@@ -203,6 +207,8 @@ function! s:set_windowlocal_options() abort
 endfunction
 
 
+" Echo vimwiki version
+" Called by :VimwikiShowVersion
 function! s:get_version() abort
   if s:plugin_vers != -1
     echo 'Stable version: ' . string(s:plugin_vers)
@@ -223,10 +229,10 @@ function! s:get_version() abort
 endfunction
 
 
-
-" Initialization of Vimwiki starts here. Make sure everything below does not
-" cause autoload/vimwiki/base.vim to be loaded
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Initialization of Vimwiki starts here.
+" Make sure everything below does not cause autoload/vimwiki/base.vim
+" to be loaded
 call vimwiki#vars#init()
 
 
@@ -251,7 +257,7 @@ if !exists('*VimwikiWikiIncludeHandler')
 endif
 
 
-" write a level 1 header to new wiki files
+" Write a level 1 header to new wiki files
 " a:fname should be an absolute filepath
 function! s:create_h1(fname) abort
   if vimwiki#vars#get_global('auto_header')
@@ -297,7 +303,6 @@ function! s:create_h1(fname) abort
 endfunction
 
 " Define autocommands for all known wiki extensions
-
 let s:known_extensions = s:vimwiki_get_known_extensions()
 
 if index(s:known_extensions, '.wiki') > -1
@@ -341,6 +346,7 @@ augroup vimwiki
 augroup END
 
 
+" Declare global commands
 command! VimwikiUISelect call vimwiki#base#ui_select()
 
 " these commands take a count e.g. :VimwikiIndex 2
@@ -375,6 +381,7 @@ command! VimwikiDiaryGenerateLinks
 command! VimwikiShowVersion call s:get_version()
 
 
+" Declare global maps
 " <Plug> global definitions
 nnoremap <silent><script> <Plug>VimwikiIndex
     \ :<C-U>call vimwiki#base#goto_index(v:count)<CR>
@@ -397,10 +404,11 @@ nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
     \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))<CR>
 
-" get the user defined prefix (default <leader>w)
+" Get the user defined prefix (default <leader>w)
 let s:map_prefix = vimwiki#vars#get_global('map_prefix')
 
-" default global key mappings
+
+" Set default global key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').global)
   call vimwiki#u#map_key('n', s:map_prefix . 'w', '<Plug>VimwikiIndex', 2)
   call vimwiki#u#map_key('n', s:map_prefix . 't', '<Plug>VimwikiTabIndex', 2)
@@ -414,6 +422,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').global)
 endif
 
 
+" Build global wiki menu (GUI)
 function! s:build_menu(topmenu) abort
   let wnamelist = []
   for idx in range(vimwiki#vars#number_of_wikis())
@@ -442,6 +451,8 @@ function! s:build_menu(topmenu) abort
   endfor
 endfunction
 
+
+" Build global table menu (GUI)
 function! s:build_table_menu(topmenu) abort
   exe 'menu '.a:topmenu.'.-Sep- :'
   exe 'menu '.a:topmenu.'.Table.Create\ (enter\ cols\ rows) :VimwikiTable '
@@ -453,6 +464,7 @@ function! s:build_table_menu(topmenu) abort
 endfunction
 
 
+" Build Menus now
 if !empty(vimwiki#vars#get_global('menu'))
   call s:build_menu(vimwiki#vars#get_global('menu'))
   call s:build_table_menu(vimwiki#vars#get_global('menu'))
@@ -466,4 +478,5 @@ if vimwiki#vars#get_global('use_calendar')
 endif
 
 
+" Restore peace in the galaxy
 let &cpoptions = s:old_cpo
