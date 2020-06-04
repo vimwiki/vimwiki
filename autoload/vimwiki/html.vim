@@ -922,8 +922,8 @@ function! s:process_tag_list(line, lists) abort
     let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
     if !empty(chk) && len(chk[1]) > 0
-      let completion = index(vimwiki#vars#get_syntaxlocal('listsyms_list'), chk[1])
-      let n = len(vimwiki#vars#get_syntaxlocal('listsyms_list'))
+      let completion = index(vimwiki#vars#get_wikilocal('listsyms_list'), chk[1])
+      let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
       if completion == 0
         let st_tag = '<li class="done0">'
       elseif completion == -1 && chk[1] == vimwiki#vars#get_global('listsym_rejected')
@@ -1554,7 +1554,7 @@ function! s:convert_file(path_html, wikifile) abort
     endif
 
     " prepare regexps for lists
-    let s:bullets = '[*-]'
+    let s:bullets = vimwiki#vars#get_wikilocal('rx_bullet_char')
     let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
 
     for line in lsource

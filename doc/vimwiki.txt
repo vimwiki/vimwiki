@@ -1806,7 +1806,7 @@ parent items: >
 
 Parent items should change when their child items change. If not, use
 |vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
-child items (see also |g:vimwiki_listsyms|): >
+child items (see also |vimwiki-listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -2510,6 +2510,53 @@ Note: if you use Markdown or MediaWiki syntax, you probably would like to set
 this option to 0, because every indented line is considered verbatim text.
 
 
+*vimwiki-bullet_types*
+------------------------------------------------------------------------------
+Key               Default value~
+bullet_types      ['-', '*', '#'] (default-syntax)
+                  ['-', '*', '+'] (markdown-syntax)
+                  ['*', '#'] (mediawiki-syntax)
+
+List of the characters that can be used as bullets of lists. The default value
+depends on the chosen syntax.
+
+You can set it to include more fancy symbols like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'bullet_types' = ['-', '•', '→']}]
+
+
+*vimwiki-listsyms*
+------------------------------------------------------------------------------
+Key               Default value~
+listsyms          ' .oOX'
+
+String of at least two symbols to show the progression of todo list items.
+Default value is ' .oOX'. This overwrites the global |g:vimwiki_listsyms| on a
+per wiki base.
+
+The first char is for 0% done items.
+The last is for 100% done items.
+
+You can set it to some more fancy symbols like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'listsyms' = '✗○◐●✓'}]
+
+
+*vimwiki-listsym_rejected*
+------------------------------------------------------------------------------
+
+Character that is used to show that an item of a todo list will not be done.
+Default value is '-'. This overwrites the global |g:vimwiki_listsym_rejected| on a
+per wiki base.
+
+
+The character used here must not be part of |vimwiki-listsyms|.
+
+You can set it to a more fancy symbol like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'listsym_rejected' = '✗'}]
+
+
 *vimwiki-option-auto_tags*
 ------------------------------------------------------------------------------
 Key             Default value     Values~
@@ -2694,7 +2741,8 @@ Default: 'Vimwiki'
 *g:vimwiki_listsyms*
 
 String of at least two symbols to show the progression of todo list items.
-Default value is ' .oOX'.
+Default value is ' .oOX'. You can also set this on a per-wiki level with
+|vimwiki-listsyms|.
 
 The first char is for 0% done items.
 The last is for 100% done items.
@@ -2708,7 +2756,9 @@ You can set it to some more fancy symbols like this:
 *g:vimwiki_listsym_rejected*
 
 Character that is used to show that an item of a todo list will not be done.
-Default value is '-'.
+Default value is '-'. You can also set this on a per-wiki level with
+|vimwiki-listsym_rejected|.
+
 
 The character used here must not be part of |g:vimwiki_listsyms|.
 
@@ -3682,6 +3732,9 @@ New:~
     * glx on a list item marks a checkbox as won't do, see |vimwiki_glx|.
     * Add the option |g:vimwiki_listsym_rejected| to set the character used
       for won't-do list items.
+    * The effect of |g:vimwiki_listsyms| and |g:vimwiki_listsym_rejected| can
+      be set on a per wiki level, see |vimwiki-listsyms| and
+      |vimwili-listsym_rejected|
     * gln and glp change the "done" status of a checkbox, see |vimwiki_gln|.
     * |:VimwikiSplitLink| and |:VimwikiVSplitLink| can now reuse an existing
       split window and not move the cursor.

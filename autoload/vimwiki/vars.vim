@@ -357,6 +357,9 @@ function! s:populate_wikilocal_options() abort
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
         \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'bullet_types': {'type': type([]), 'default': []},
+        \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
+        \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
         \ }
 
   let g:vimwiki_wikilocal_vars = []
@@ -402,6 +405,13 @@ function! s:populate_wikilocal_options() abort
   let temporary_wiki_settings = deepcopy(default_wiki_settings)
   let temporary_wiki_settings.is_temporary_wiki = 1
   call add(g:vimwiki_wikilocal_vars, temporary_wiki_settings)
+  " Set up variables for the lists, depending on config and syntax
+  for wiki in g:vimwiki_wikilocal_vars
+    if len(wiki.bullet_types) == 0
+      let wiki.bullet_types = vimwiki#vars#get_syntaxlocal('bullet_types', wiki.syntax)
+    endif
+      call vimwiki#vars#populate_list_vars(wiki)
+  endfor
 
   " check some values individually
   let key = 'nested_syntaxes'
@@ -587,14 +597,6 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   let g:vimwiki_syntax_variables[a:syntax].rxMathEnd =
         \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
 
-  " list stuff
-  let g:vimwiki_syntax_variables[a:syntax].rx_bullet_chars =
-        \ '['.join(g:vimwiki_syntax_variables[a:syntax].bullet_types, '').']\+'
-
-  let g:vimwiki_syntax_variables[a:syntax].multiple_bullet_chars =
-        \ g:vimwiki_syntax_variables[a:syntax].recurring_bullets
-        \ ? g:vimwiki_syntax_variables[a:syntax].bullet_types : []
-
   let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
   let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
   for i in g:vimwiki_syntax_variables[a:syntax].number_types
@@ -630,36 +632,6 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   else
     "regex that matches nothing
     let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '$^'
-  endif
-
-  "the user can set the listsyms as string, but vimwiki needs a list
-  let g:vimwiki_syntax_variables[a:syntax].listsyms_list =
-        \ split(vimwiki#vars#get_global('listsyms'), '\zs')
-  if match(vimwiki#vars#get_global('listsyms'), vimwiki#vars#get_global('listsym_rejected')) != -1
-    echomsg 'Vimwiki Warning: the value of g:vimwiki_listsym_rejected ('''
-          \ . vimwiki#vars#get_global('listsym_rejected')
-          \ . ''') must not be a part of g:vimwiki_listsyms ('''
-          \ . vimwiki#vars#get_global('listsyms') . ''')'
-  endif
-  let g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB =
-        \ '^\s*\%(\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\|\('
-        \ .g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\)\s'
-  let g:vimwiki_syntax_variables[a:syntax].rxListItem =
-        \ g:vimwiki_syntax_variables[a:syntax].rxListItemWithoutCB
-        \ . '\+\%(\[\(['.vimwiki#vars#get_global('listsyms')
-        \ . vimwiki#vars#get_global('listsym_rejected').']\)\]\s\)\?'
-  if g:vimwiki_syntax_variables[a:syntax].recurring_bullets
-    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
-          \ '^\('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\)\s\+\[['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
-          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\%('
-          \ .g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\).*\|^$\|\s.*\)\)*'
-  else
-    let g:vimwiki_syntax_variables[a:syntax].rxListItemAndChildren =
-          \ '^\(\s*\)\%('.g:vimwiki_syntax_variables[a:syntax].rxListBullet.'\|'
-          \ . g:vimwiki_syntax_variables[a:syntax].rxListNumber.'\)\s\+\[['
-          \ . g:vimwiki_syntax_variables[a:syntax].listsyms_list[-1]
-          \ . vimwiki#vars#get_global('listsym_rejected') . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
@@ -708,6 +680,65 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
     call s:populate_extra_markdown_vars()
   endif
 endfunction
+
+
+function! vimwiki#vars#populate_list_vars(wiki) abort
+  let syntax = a:wiki.syntax
+
+  let a:wiki.rx_bullet_char = '['.escape(join(a:wiki.bullet_types, ''), ']^-\').']'
+  let a:wiki.rx_bullet_chars = a:wiki.rx_bullet_char.'\+'
+
+  let recurring_bullets = vimwiki#vars#get_syntaxlocal('recurring_bullets')
+  let rxListNumber = vimwiki#vars#get_syntaxlocal('rxListNumber')
+
+  let a:wiki.multiple_bullet_chars =
+        \ recurring_bullets
+        \ ? a:wiki.bullet_types : []
+  
+  "create regexp for bulleted list items
+  if !empty(a:wiki.bullet_types)
+    let rxListBullet =
+          \ join( map(copy(a:wiki.bullet_types),
+          \'vimwiki#u#escape(v:val).'
+          \ .'repeat("\\+", recurring_bullets)'
+          \ ) , '\|')
+  else
+    "regex that matches nothing
+    let rxListBullet = '$^'
+  endif
+
+  "the user can set the listsyms as string, but vimwiki needs a list
+  let a:wiki.listsyms_list = split(a:wiki.listsyms, '\zs')
+
+  if match(a:wiki.listsyms, a:wiki.listsym_rejected) != -1
+    echomsg 'Vimwiki Warning: the value of listsym_rejected ('''
+          \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
+          \ . a:wiki.listsyms . ''')'
+  endif
+
+  let a:wiki.rxListItemWithoutCB =
+        \ '^\s*\%(\('.rxListBullet.'\)\|\('
+        \ .rxListNumber.'\)\)\s'
+  let a:wiki.rxListItem =
+        \ a:wiki.rxListItemWithoutCB
+        \ . '\+\%(\[\(['.a:wiki.listsyms
+        \ . a:wiki.listsym_rejected.']\)\]\s\)\?'
+  if recurring_bullets
+    let a:wiki.rxListItemAndChildren =
+          \ '^\('.rxListBullet.'\)\s\+\[['
+          \ . a:wiki.listsyms_list[-1]
+          \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\%('
+          \ .rxListBullet.'\).*\|^$\|\s.*\)\)*'
+  else
+    let a:wiki.rxListItemAndChildren =
+          \ '^\(\s*\)\%('.rxListBullet.'\|'
+          \ . rxListNumber.'\)\s\+\[['
+          \ . a:wiki.listsyms_list[-1]
+          \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
+  endif
+endfunction
+
+
 
 
 function! s:populate_extra_markdown_vars() abort

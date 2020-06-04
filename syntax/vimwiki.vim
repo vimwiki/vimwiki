@@ -254,18 +254,18 @@ syntax match VimwikiCellSeparator
 
 
 " Lists
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'/'
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
-execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_syntaxlocal('rxListItem').'/'
+execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
 
 if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
-        \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
         \ . vimwiki#vars#get_global('listsym_rejected')
         \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
-        \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
+        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 
