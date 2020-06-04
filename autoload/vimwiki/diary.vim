@@ -38,17 +38,28 @@ function! vimwiki#diary#diary_date_link(...) abort
     let l:timestamp = localtime()
   endif
 
-  let l:delta = 0
+  let l:delta_periods = 0
   if a:0 > 1
-    let l:delta = a:2
+    let l:delta_periods = a:2
   endif
+
+  let l:day_s = 60*60*24
+
+  let l:weekday_number = {
+        \ 'monday': 1, 'tuesday': 2,
+        \ 'wednesday': 3, 'thursday': 4,
+        \ 'friday': 5, 'saturday': 6,
+        \ 'sunday': 0}
 
   let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
   if l:frequency == "weekly"
-    let l:start_week_monday = vimwiki#vars#get_wikilocal('diary_start_week_monday')
-    let l:computed_timestamp = l:timestamp + l:delta*60*60*24*7 - 60*60*24*((7-l:start_week_monday+str2nr(strftime("%w", l:timestamp))) % 7)
+    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
+    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+str2nr(strftime("%w", l:timestamp))) % 7
+    let l:computed_timestamp = l:timestamp
+          \ + 7*l:day_s*l:delta_periods
+          \ - l:day_s*l:days_to_end_of_week
   else "daily
-    let l:computed_timestamp = localtime() + l:delta*60*60*24
+    let l:computed_timestamp = localtime() + l:delta_periods*l:day_s
   endif
 
   return strftime('%Y-%m-%d', l:computed_timestamp) "vimwiki#diary#diary_period_start(l:timestamp))
