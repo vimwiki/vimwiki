@@ -1712,21 +1712,17 @@ function! vimwiki#lst#fold_level(lnum) abort
 endfunction
 
 
-function! s:remove_done(item)
-  let item = a:item
-  if item.type == 0 || item.cb ==# '' || s:get_rate(item) != 100
-    return 0
-  else
-    let num_removed_lines = 1
-    let child = s:get_first_child(item)
-    while child.type != 0
-      exec child.lnum.'delete _'
-      let child = s:get_first_child(item)
-      let num_removed_lines += 1
-    endwhile
-    exec item.lnum.'delete _'
-    return num_removed_lines
-  endif
+" Remove an list item and it's children (recursive)
+function! s:remove_including_children(item)
+  let num_removed_lines = 1
+  let child = s:get_first_child(a:item)
+  while child.type != 0
+    let num_removed_lines += s:remove_including_children(child)
+    let child = s:get_first_child(a:item)
+  endwhile
+  exec a:item.lnum.'delete _'
+  return num_removed_lines
+endfunction
 endfunction
 
 
@@ -1741,8 +1737,7 @@ function! vimwiki#lst#remove_done(first_line, last_line)
 
   let parent_items_of_lines = []
   let cur_ln = first_item.lnum
-  while 1
-    if cur_ln <= 0 || cur_ln > last_item.lnum | break | endif
+  while cur_ln > 0 && cur_ln <= last_item.lnum
     let cur_item = s:get_item(cur_ln)
     if cur_item.type != 0 && s:get_rate(cur_item) == 100
       let cur_parent_item = s:get_parent(cur_item)
@@ -1758,26 +1753,43 @@ function! vimwiki#lst#remove_done(first_line, last_line)
   endfor
 endfunction
 
-" Remove all lines containing task that are done in current list
-function! vimwiki#lst#remove_done_in_list()
-  let item = s:get_corresponding_item(line('.'))
-  if item.type == 0
+" Iterate over given todo list and remove all task that are done
+" If recursive is true, child items will be checked too
+function! s:remove_done_in_list(item, recursive)
+  if a:item.type == 0
     return
   endif
-  let first_item = s:get_first_item_in_list(l:item, 0)
+  let first_item = s:get_first_item_in_list(a:item, 0)
+  let total_lines_removed = 0
 
   let cur_item = first_item
   while 1
     let next_item = s:get_next_list_item(cur_item, 0)
-    let l:lines_removed = s:remove_done(cur_item)
+    if cur_item.cb !=# '' && s:get_rate(cur_item) == 100
+      let lines_removed = s:remove_including_children(cur_item)
+    elseif a:recursive
+      let lines_removed = s:remove_done_in_list(s:get_first_child(cur_item), a:recursive)
+    else
+      let lines_removed = 0
+    endif
+    let total_lines_removed += lines_removed
 
     if next_item.type == 0
       break
     else
-      let next_item.lnum -= l:lines_removed
+      let next_item.lnum -= lines_removed
       let cur_item = next_item
     endif
   endwhile
 
   call s:update_state(s:get_parent(first_item))
+  return total_lines_removed
+endfunction
+
+" Iterate over the list that the cursor is positioned in
+" and remove all lines of task that are done.
+" If recursive is true, child items will be checked too
+function! vimwiki#lst#remove_done_in_current_list(recursive)
+  let item = s:get_corresponding_item(line('.'))
+  call s:remove_done_in_list(item, a:recursive)
 endfunction
