@@ -1100,14 +1100,13 @@ function! s:set_indent(lnum, new_indent) abort
 endfunction
 
 
-function! s:decrease_level(item) abort
+function! s:decrease_level(item, by) abort
   let removed_indent = 0
   if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
         \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(a:item.mrkr)) > -1
     if s:string_length(a:item.mrkr) >= 2
       call s:substitute_string_in_line(a:item.lnum, s:first_char(a:item.mrkr), '')
-      let removed_indent = -1
     endif
   else
     let old_indent = indent(a:item.lnum)
@@ -1116,21 +1115,19 @@ function! s:decrease_level(item) abort
     else
       let new_indent = old_indent - vimwiki#u#sw()
     endif
-    call s:set_indent(a:item.lnum, new_indent)
-    let removed_indent = new_indent - old_indent
+    call s:set_indent(a:item.lnum, a:by * new_indent)
   endif
-  return removed_indent
+  call s:indent_cycle_bullets(a:item, -a:by)
 endfunction
 
 
-function! s:increase_level(item) abort
+function! s:increase_level(item, by) abort
   let additional_indent = 0
   if vimwiki#vars#get_syntaxlocal('recurring_bullets') && a:item.type == 1 &&
         \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
         \ s:first_char(a:item.mrkr)) > -1
     call s:substitute_string_in_line(a:item.lnum, a:item.mrkr, a:item.mrkr .
           \ s:first_char(a:item.mrkr))
-    let additional_indent = 1
   else
     let old_indent = indent(a:item.lnum)
     if &shiftround
@@ -1138,27 +1135,35 @@ function! s:increase_level(item) abort
     else
       let new_indent = old_indent + vimwiki#u#sw()
     endif
-    call s:set_indent(a:item.lnum, new_indent)
-    let additional_indent = new_indent - old_indent
+    call s:set_indent(a:item.lnum, a:by * new_indent)
   endif
-  return additional_indent
+  call s:indent_cycle_bullets(a:item, a:by)
 endfunction
 
+" s:indent_cycle_bullets cycles through the bullet list markers set in
+" `bullet_types` based on the indentation level
+" TODO there is potential to merge this with the change_marker* funcs further
+" up if we can make them operate on arbitrary lists of characters
+function! s:indent_cycle_bullets(item, indent_by) abort
+  if vimwiki#vars#get_syntaxlocal('cycle_bullets') && a:item.type == 1
+    let bullets = vimwiki#vars#get_syntaxlocal('bullet_types')
+    let i = index(bullets, s:first_char(a:item.mrkr)) + a:indent_by
+    " calculate the index in a way that wraps around the end of the list
+    " making it behave like a ring buffer
+    let new_mrkr = bullets[((i % len(bullets) + len(bullets)) % len(bullets))]
+    call vimwiki#lst#change_marker(a:item.lnum, a:item.lnum, new_mrkr, 'n')
+  endif
+endfunction
 
 "adds a:indent_by to the current indent
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) abort
   let item = s:get_item(a:lnum)
-  if vimwiki#vars#get_syntaxlocal('recurring_bullets') && item.type == 1 &&
-        \ index(vimwiki#vars#get_wikilocal('multiple_bullet_chars'),
-        \ s:first_char(item.mrkr)) > -1
-    if a:indent_by > 0
-      call s:substitute_string_in_line(a:lnum, item.mrkr, item.mrkr . s:first_char(item.mrkr))
-    elseif a:indent_by < 0
-      call s:substitute_string_in_line(a:lnum, s:first_char(item.mrkr), '')
-    endif
-  else
-    call s:set_indent(a:lnum, indent(a:lnum) + a:indent_by)
+  if a:indent_by > 0
+    call s:increase_level(item, a:indent_by)
+  elseif a:indent_by < 0
+    " double negate indent_by here
+    call s:decrease_level(item, -a:indent_by)
   endif
 endfunction
 
@@ -1208,8 +1213,8 @@ function! s:change_level(from_line, to_line, direction, plus_children) abort
   let first_line_level = s:get_level(from_item.lnum)
   let more_than_one_level_concerned = 0
 
-  let first_line_indented_by = (a:direction ==# 'increase') ?
-        \ s:increase_level(from_item) : s:decrease_level(from_item)
+  let first_line_indented_by = (a:direction ==# 'increase') ? 1 : -1
+  call s:indent_line_by(from_item.lnum, first_line_indented_by)
 
   let cur_ln = s:get_next_line(from_item.lnum)
   while cur_ln > 0 && cur_ln <= to_line
