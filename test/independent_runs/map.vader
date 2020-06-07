@@ -402,6 +402,55 @@ Expect (list -> *):
       1. Much
   * You
 
+Given (Bulleted list):
+  * I
+    - Relly
+  * Love
+    - Very
+      + Much
+  * You
+
+Execute (file .md):
+  file toto.md
+  edit!
+  AssertEqual 'vimwiki', &ft
+  set sw=2
+
+Do (2gll):
+  gLl
+
+Expect (Increase):
+    - I
+      + Relly
+  * Love
+    - Very
+      + Much
+  * You
+
+Do (3glh):
+  gLh
+
+Expect (Decrease):
+  * I
+    - Relly
+  * Love
+    - Very
+      + Much
+  * You
+
+Given (Bulleted list 2):
+  * Love
+    - Very
+      - Much
+
+Do (Go):
+  Go
+
+Expect (New item):
+  * Love
+    - Very
+      - Much
+      - 
 
 # 3 Text Object {{{1
 ####################
