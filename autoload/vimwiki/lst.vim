@@ -1146,8 +1146,8 @@ function! vimwiki#lst#remove_done_in_current_list(recursive)
 endfunction
 
 
-" Remove lines containing task that are done
-function! vimwiki#lst#remove_done(first_line, last_line)
+" Remove selected lines if they contain a task that is done
+function! vimwiki#lst#remove_done_in_range(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
 
@@ -1174,6 +1174,25 @@ function! vimwiki#lst#remove_done(first_line, last_line)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
   endfor
+endfunction
+
+
+" wrapper function to distinguish between function used with a range or not
+" vim 8.0.1089 and newer and corresponding neovim versions allow to use <range> to distinguish if
+" the function has been called with a range. For older versions we use remove_done_in_range if
+" first and last line are identical, which means there was either no range or the range was within
+" one line.
+function! vimwiki#lst#remove_done(recursive, range, first_line, last_line)
+  if a:range ==# '<range>'
+    let range = a:first_line != a:last_line
+  else
+    let range = a:range > 0
+  endif
+  if range
+    call vimwiki#lst#remove_done_in_range(a:first_line, a:last_line)
+  else
+    call vimwiki#lst#remove_done_in_current_list(a:recursive)
+  endif
 endfunction
 
 
