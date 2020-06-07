@@ -172,5 +172,28 @@ Expect (only first is removed):
   * [ ] Todo Post space
   * [X] Done Post space
 
+Given vimwiki (list):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [X] Done 2
+  * [X] Done 3
+  * [ ] Todo 2
+  * [X] Done 4
+
+Do (clean done, with range):
+  :1,6VimwikiRemoveDone\<Enter>
+
+Expect (only first is removed):
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [X] Done 3
+  * [ ] Todo 2
+  * [X] Done 4
+
 
 Include: vader_includes/vader_teardown.vader

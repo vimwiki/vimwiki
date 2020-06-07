@@ -1157,7 +1157,8 @@ function! vimwiki#lst#remove_done(first_line, last_line)
 
   let parent_items_of_lines = []
   let cur_ln = first_item.lnum
-  while cur_ln > 0 && cur_ln <= last_item.lnum
+  let end_ln = last_item.lnum
+  while cur_ln > 0 && cur_ln <= end_ln
     let cur_item = s:get_item(cur_ln)
     if s:is_done(cur_item)
       let cur_parent_item = s:get_parent(cur_item)
@@ -1165,6 +1166,8 @@ function! vimwiki#lst#remove_done(first_line, last_line)
         call insert(parent_items_of_lines, cur_parent_item)
       endif
       exe cur_ln.'delete _'
+      let cur_ln -= 1
+      let end_ln -= 1
     endif
     let cur_ln = s:get_next_line(cur_ln)
   endwhile
