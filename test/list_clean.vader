@@ -139,4 +139,25 @@ Expect (removed):
 
   * [ ] Post code Todo
 
+Given vimwiki (two lists):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+Do (clean done, with recursion):
+  :call vimwiki#lst#remove_done_in_current_list(1)\<Enter>
+
+Expect (only first is removed):
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+
 Include: vader_includes/vader_teardown.vader
