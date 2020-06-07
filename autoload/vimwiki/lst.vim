@@ -1106,12 +1106,14 @@ endfunction
 " Iterate over given todo list and remove all task that are done
 " If recursive is true, child items will be checked too
 function! s:remove_done_in_list(item, recursive)
+  " Clause non-null item type
   if a:item.type == 0
     return
   endif
+  
+  " Recurse self on list item
   let first_item = s:get_first_item_in_list(a:item, 0)
   let total_lines_removed = 0
-
   let cur_item = first_item
   while 1
     let next_item = s:get_next_list_item(cur_item, 0)
@@ -1132,6 +1134,7 @@ function! s:remove_done_in_list(item, recursive)
     endif
   endwhile
 
+  " Update state of parent item (percentage of done)
   call s:update_state(s:get_parent(first_item))
   return total_lines_removed
 endfunction
@@ -1151,10 +1154,12 @@ function! vimwiki#lst#remove_done_in_range(first_line, last_line)
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
 
+  " Clause non-null first and last type item
   if first_item.type == 0 || last_item.type == 0
     return
   endif
 
+  " For each line, delete done tasks
   let parent_items_of_lines = []
   let cur_ln = first_item.lnum
   let end_ln = last_item.lnum
@@ -1171,6 +1176,8 @@ function! vimwiki#lst#remove_done_in_range(first_line, last_line)
     endif
     let cur_ln = s:get_next_line(cur_ln)
   endwhile
+  
+  " Update all parent state (percentage of done)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
   endfor
