@@ -297,6 +297,7 @@ command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
 command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
 command! -buffer VimwikiRenumberAllLists call vimwiki#lst#adjust_whole_buffer()
 command! -buffer VimwikiListToggle call vimwiki#lst#toggle_list_item()
+command! -buffer -range VimwikiRemoveDone call vimwiki#lst#remove_done(1, "<range>", <line1>, <line2>)
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)

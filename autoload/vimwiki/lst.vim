@@ -155,6 +155,24 @@ function! s:line_has_marker(lnum) abort
 endfunction
 
 
+" Remove a list item and it's children (recursive)
+function! s:remove_including_children(item)
+  let num_removed_lines = 1
+  let child = s:get_first_child(a:item)
+  while child.type != 0
+    let num_removed_lines += s:remove_including_children(child)
+    let child = s:get_first_child(a:item)
+  endwhile
+  exec a:item.lnum.'delete _'
+  return num_removed_lines
+endfunction
+
+
+function! s:is_done(item)
+  return a:item.type != 0 && a:item.cb !=# '' && s:get_rate(a:item) == 100
+endfunction
+
+
 " ---------------------------------------------------------
 " get properties of a list item
 " ---------------------------------------------------------
@@ -1084,6 +1102,105 @@ function! vimwiki#lst#remove_cb_in_list() abort
   call s:update_state(s:get_parent(first_item))
 endfunction
 
+
+" Iterate over given todo list and remove all task that are done
+" If recursive is true, child items will be checked too
+function! s:remove_done_in_list(item, recursive)
+  " Clause non-null item type
+  if a:item.type == 0
+    return
+  endif
+  
+  " Recurse self on list item
+  let first_item = s:get_first_item_in_list(a:item, 0)
+  let total_lines_removed = 0
+  let cur_item = first_item
+  while 1
+    let next_item = s:get_next_list_item(cur_item, 0)
+    if s:is_done(cur_item)
+      let lines_removed = s:remove_including_children(cur_item)
+    elseif a:recursive
+      let lines_removed = s:remove_done_in_list(s:get_first_child(cur_item), a:recursive)
+    else
+      let lines_removed = 0
+    endif
+    let total_lines_removed += lines_removed
+
+    if next_item.type == 0
+      break
+    else
+      let next_item.lnum -= lines_removed
+      let cur_item = next_item
+    endif
+  endwhile
+
+  " Update state of parent item (percentage of done)
+  call s:update_state(s:get_parent(first_item))
+  return total_lines_removed
+endfunction
+
+
+" Iterate over the list that the cursor is positioned in
+" and remove all lines of task that are done.
+" If recursive is true, child items will be checked too
+function! vimwiki#lst#remove_done_in_current_list(recursive)
+  let item = s:get_corresponding_item(line('.'))
+  call s:remove_done_in_list(item, a:recursive)
+endfunction
+
+
+" Remove selected lines if they contain a task that is done
+function! vimwiki#lst#remove_done_in_range(first_line, last_line)
+  let first_item = s:get_corresponding_item(a:first_line)
+  let last_item = s:get_corresponding_item(a:last_line)
+
+  " Clause non-null first and last type item
+  if first_item.type == 0 || last_item.type == 0
+    return
+  endif
+
+  " For each line, delete done tasks
+  let parent_items_of_lines = []
+  let cur_ln = first_item.lnum
+  let end_ln = last_item.lnum
+  while cur_ln > 0 && cur_ln <= end_ln
+    let cur_item = s:get_item(cur_ln)
+    if s:is_done(cur_item)
+      let cur_parent_item = s:get_parent(cur_item)
+      if index(parent_items_of_lines, cur_parent_item) == -1
+        call insert(parent_items_of_lines, cur_parent_item)
+      endif
+      exe cur_ln.'delete _'
+      let cur_ln -= 1
+      let end_ln -= 1
+    endif
+    let cur_ln = s:get_next_line(cur_ln)
+  endwhile
+  
+  " Update all parent state (percentage of done)
+  for parent_item in parent_items_of_lines
+    call s:update_state(parent_item)
+  endfor
+endfunction
+
+
+" wrapper function to distinguish between function used with a range or not
+" vim 8.0.1089 and newer and corresponding neovim versions allow to use <range> to distinguish if
+" the function has been called with a range. For older versions we use remove_done_in_range if
+" first and last line are identical, which means there was either no range or the range was within
+" one line.
+function! vimwiki#lst#remove_done(recursive, range, first_line, last_line)
+  if a:range ==# '<range>'
+    let range = a:first_line != a:last_line
+  else
+    let range = a:range > 0
+  endif
+  if range
+    call vimwiki#lst#remove_done_in_range(a:first_line, a:last_line)
+  else
+    call vimwiki#lst#remove_done_in_current_list(a:recursive)
+  endif
+endfunction
 
 
 " ---------------------------------------------------------

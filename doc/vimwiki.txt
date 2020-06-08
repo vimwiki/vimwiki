@@ -799,6 +799,18 @@ Vimwiki file.
 *:VimwikiRenameFile*
     Rename the wiki page you are in.
 
+*:VimwikiRemoveDone*
+    With range: Remove all lines that have a checked |vimwiki-todo-lists| checkbox
+
+    Otherwise:
+    Remove all lines in the current todo-list that have a checked box. This is
+    applied to the list in which the cursor is in, as well as all its sublists.
+    The status of parents is updated accordingly.
+    If you want to remove only items of the current nesting level, (re)define
+    a command that calls the same function with `0` as first argument: >
+        :command! -buffer -range VimwikiRemoveDone call 
+           \ vimwiki#lst#remove_done(0, "<range>", <line1>, <line2>)
+<
 *:VimwikiNextTask*
     Jump to the next unfinished task in the current wiki page.
 
