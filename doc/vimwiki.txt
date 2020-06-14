@@ -1450,7 +1450,7 @@ Text which starts with 4 or more spaces is a blockquote.
     long piece of text from another source.
 
 A group of lines prefixed with > also specifies a blockquote, with the caveat
-that the > syntax allow empty lines to signal multiple parragraphs.
+that the > syntax allow empty lines to signal multiple paragraphs.
 
 > This also signals a block quote.
 > 
