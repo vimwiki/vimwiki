@@ -229,22 +229,22 @@ trap exit 1 SIGINT SIGTERM
 # select which tests should run
 case $type in
     "vader" )
-        runVader
-        echo "Vader: returned $?"
-        o_error=$(( $? | $o_error ))
+        runVader ; err=$?
+        echo "Vader: returned $err"
+        o_error=$(( $err | $o_error ))
         ;;
     "vint" )
-        runVint
-        echo "Vint: returned $?"
-        o_error=$(( $? | $o_error ))
+        runVint ; err=$?
+        echo "Vint: returned $err"
+        o_error=$(( $err | $o_error ))
         ;;
     "all" )
-        runVint
+        runVint ; err=$?
         echo "Vint: returned $?"
-        o_error=$(( $? | $o_error ))
-        runVader
-        echo "Vader: returned $?"
-        o_error=$(( $? | $o_error ))
+        o_error=$(( $err | $o_error ))
+        runVader ; err=$?
+        echo "Vader: returned $err"
+        o_error=$(( $err | $o_error ))
         ;;
     * )
         echo "Error: invalid type - '$type'" 1>&2

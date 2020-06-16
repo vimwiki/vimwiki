@@ -156,7 +156,7 @@ endfunction
 
 
 " Remove a list item and it's children (recursive)
-function! s:remove_including_children(item)
+function! s:remove_including_children(item) abort
   let num_removed_lines = 1
   let child = s:get_first_child(a:item)
   while child.type != 0
@@ -168,7 +168,7 @@ function! s:remove_including_children(item)
 endfunction
 
 
-function! s:is_done(item)
+function! s:is_done(item) abort
   return a:item.type != 0 && a:item.cb !=# '' && s:get_rate(a:item) == 100
 endfunction
 
@@ -1112,7 +1112,7 @@ endfunction
 
 " Iterate over given todo list and remove all task that are done
 " If recursive is true, child items will be checked too
-function! s:remove_done_in_list(item, recursive)
+function! s:remove_done_in_list(item, recursive) abort
   " Clause non-null item type
   if a:item.type == 0
     return
@@ -1150,14 +1150,14 @@ endfunction
 " Iterate over the list that the cursor is positioned in
 " and remove all lines of task that are done.
 " If recursive is true, child items will be checked too
-function! vimwiki#lst#remove_done_in_current_list(recursive)
+function! vimwiki#lst#remove_done_in_current_list(recursive) abort
   let item = s:get_corresponding_item(line('.'))
   call s:remove_done_in_list(item, a:recursive)
 endfunction
 
 
 " Remove selected lines if they contain a task that is done
-function! vimwiki#lst#remove_done_in_range(first_line, last_line)
+function! vimwiki#lst#remove_done_in_range(first_line, last_line) abort
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
 
@@ -1196,7 +1196,7 @@ endfunction
 " the function has been called with a range. For older versions we use remove_done_in_range if
 " first and last line are identical, which means there was either no range or the range was within
 " one line.
-function! vimwiki#lst#remove_done(recursive, range, first_line, last_line)
+function! vimwiki#lst#remove_done(recursive, range, first_line, last_line) abort
   if a:range ==# '<range>'
     let range = a:first_line != a:last_line
   else
