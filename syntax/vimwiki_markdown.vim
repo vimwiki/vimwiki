@@ -73,12 +73,11 @@ let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'
 let s:markdown_syntax.rxTableSep = '|'
 
 " Lists
-let s:markdown_syntax.bullet_types = ['*', '-', '+']
 let s:markdown_syntax.recurring_bullets = 0
-let s:markdown_syntax.cycle_bullets = 1
 let s:markdown_syntax.number_types = ['1.']
 let s:markdown_syntax.list_markers = ['-', '*', '+', '1.']
 let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
+let s:markdown_syntax.bullet_types = ['*', '-', '+']
 
 " Preformatted text (code blocks)
 let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'

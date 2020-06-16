@@ -8,18 +8,6 @@ Execute (Configure: Set vimwiki list to markdown resource):
   Log "Let mapleader = ,"
   let mapleader = ','
 
-  Log "Declare function DestroyVar"
-  function! DestroyVar(var)
-    if ! exists(a:var) | return | endif
-    execute "unlet " . a:var
-  endfunction
-
-  Log "Declare function AssertTab"
-  function! AssertTab(nr)
-    " Vader is creating 2 tabs
-    AssertEqual a:nr + 2, tabpagenr()
-  endfunction
-
   Log "Destroy vimrc or previous run heritage"
   call DestroyVar('g:vimwiki_list')
   call DestroyVar('g:vimwiki_global_vars')
@@ -380,6 +368,23 @@ Expect (Renumber):
       1. Much
   3. You
 
+
+# New launch
+#
+Given (Number list):
+  1. I
+    1. Relly
+  2. Love
+    1. Very
+      1. Much
+  3. You
+
+Execute (file .md):
+  file toto.md
+  edit!
+  AssertEqual 'vimwiki', &ft
+  set sw=2
+
 Do (gl*):
   gl*
 
@@ -402,6 +407,8 @@ Expect (list -> *):
       1. Much
   * You
 
+# New launch
+#
 Given (Bulleted list):
   * I
     - Relly
@@ -411,12 +418,14 @@ Given (Bulleted list):
   * You
 
 Execute (file .md):
+  set sw=2
   file toto.md
   edit!
+  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
+  let g:vimwiki_syntax_variables['markdown']['bullet_types'] = ['*', '-', '+']
   AssertEqual 'vimwiki', &ft
-  set sw=2
 
-Do (2gll):
+Do (gLl):
   gLl
 
 Expect (Increase):
@@ -451,6 +460,57 @@ Expect (New item):
     - Very
       - Much
       - 
+
+
+# New launch
+#
+Given (List ->):
+  * Item1
+
+Execute (file toto.md):
+  " Note: let s:markdown_syntax.bullet_types = ['*', '-', '+']
+  file toto.md
+  edit!
+  Log "Cycle bullets"
+  let g:vimwiki_syntax_variables['bullet_types'] = ['*', '-']
+  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
+  AssertEqual g:vimwiki_syntax_variables['markdown']['cycle_bullets'], 1
+  AssertEqual 'vimwiki', &ft
+  set sw=2
+  set expandtab " Otherwise, getting some tab before some items, when enought space
+
+Do (o):
+  oItem2
+
+Expect (Good bullet type):
+  * Item1
+  * Item2
+
+# TODO test more, (see real cycle, but do not work with low vim)
+Do (o + <C-t>):
+  o2
+  \<C-t>\<Esc>
+  o3
+  \<C-t>\<Esc>
+
+Expect (Good bullet type):
+  * Item1
+    - 2
+      + 3
+
+Do (o + <Cr>):
+  A1\<Cr>
+  2\<C-t>\<Cr>
+  3\<C-t>
+
+Expect (Good nested bullet type):
+  * Item11
+    - 2
+      + 3
+
+
+# TODO test: let g:vimwiki_bullet_types = ['-', '•', '→', '*']
+
 
 # 3 Text Object {{{1
 ####################

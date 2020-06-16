@@ -74,7 +74,7 @@ Before (Define functions):
     write %
   endfunction
 
-  " print a command output to the buffer
+  " Print a command output to the buffer
   function! PrintCommand(cmd)
     redir => message
     silent execute a:cmd
@@ -84,6 +84,18 @@ Before (Define functions):
     else
       silent put=message
     endif
+  endfunction
+
+  " Destroy a variable is exists (unlet)
+  function! DestroyVar(var)
+    if ! exists(a:var) | return | endif
+    execute "unlet " . a:var
+  endfunction
+
+  " Assert current tab is desired tab
+  function! AssertTab(nr)
+    " Vader is creating 2 tabs
+    AssertEqual a:nr + 2, tabpagenr()
   endfunction
 
 # vim: ft=vim

@@ -180,26 +180,32 @@ endfunction
 "Returns: the mainly used data structure in this file
 "An item represents a single list item and is a dictionary with the keys
 "lnum - the line number of the list item
-"type - 1 for bulleted item, 2 for numbered item, 0 for a regular line
-"mrkr - the concrete marker, e.g. '**' or 'b)'
+"type - 1 for bulleted item, 2 for numbered item, 0 for a regular line (default)
+"mrkr - the concrete marker, e.g. '**' or 'b)' (default '')
 "cb   - the char in the checkbox or '' if there is no checkbox
 function! s:get_item(lnum) abort
+  " Init default
   let item = {'lnum': a:lnum}
+  let item.type = 0
+  let item.mrkr = ''
+  let item.cb = ''
+
+  " Clause: Check lnum argument is in buffer line range
   if a:lnum == 0 || a:lnum > line('$')
-    let item.type = 0
     return item
   endif
 
+  " Search for list on current line
   let matches = matchlist(getline(a:lnum), vimwiki#vars#get_wikilocal('rxListItem'))
+  " Clause: If not on a list line => do not work
   if matches == [] ||
         \ (matches[1] ==? '' && matches[2] ==? '') ||
         \ (matches[1] !=? '' && matches[2] !=? '')
-    let item.type = 0
     return item
   endif
 
+  " Fill item
   let item.cb = matches[3]
-
   if matches[1] !=? ''
     let item.type = 1
     let item.mrkr = matches[1]
@@ -208,6 +214,7 @@ function! s:get_item(lnum) abort
     let item.mrkr = matches[2]
   endif
 
+  " See you on an other stack
   return item
 endfunction
 
@@ -1257,22 +1264,26 @@ function! s:increase_level(item, by) abort
   call s:indent_cycle_bullets(a:item, a:by)
 endfunction
 
-" s:indent_cycle_bullets cycles through the bullet list markers set in
+
+" Cycle through the bullet list markers set in
 " `bullet_types` based on the indentation level
 " TODO there is potential to merge this with the change_marker* funcs further
 " up if we can make them operate on arbitrary lists of characters
 function! s:indent_cycle_bullets(item, indent_by) abort
-  if vimwiki#vars#get_syntaxlocal('cycle_bullets') && a:item.type == 1
-    let bullets = vimwiki#vars#get_syntaxlocal('bullet_types')
-    let i = index(bullets, s:first_char(a:item.mrkr)) + a:indent_by
-    " calculate the index in a way that wraps around the end of the list
-    " making it behave like a ring buffer
-    let new_mrkr = bullets[((i % len(bullets) + len(bullets)) % len(bullets))]
-    call vimwiki#lst#change_marker(a:item.lnum, a:item.lnum, new_mrkr, 'n')
+  " Clause: Check if should work
+  if !vimwiki#vars#get_syntaxlocal('cycle_bullets') || a:item.type != 1
+    return
   endif
+  let bullets = vimwiki#vars#get_syntaxlocal('bullet_types')
+  let i = index(bullets, s:first_char(a:item.mrkr)) + a:indent_by
+  " Calculate the index in a way that wraps around the end of the list
+  " ... making it behave like a ring buffer
+  let new_mrkr = bullets[((i % len(bullets) + len(bullets)) % len(bullets))]
+  call vimwiki#lst#change_marker(a:item.lnum, a:item.lnum, new_mrkr, 'n')
 endfunction
 
-"adds a:indent_by to the current indent
+
+" Add a:indent_by to the current indent
 "a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) abort
   let item = s:get_item(a:lnum)
@@ -1285,7 +1296,7 @@ function! s:indent_line_by(lnum, indent_by) abort
 endfunction
 
 
-"changes lvl of lines in selection
+" Change lvl of lines in selection
 function! s:change_level(from_line, to_line, direction, plus_children) abort
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0

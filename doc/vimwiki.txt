@@ -2522,7 +2522,7 @@ Note: if you use Markdown or MediaWiki syntax, you probably would like to set
 this option to 0, because every indented line is considered verbatim text.
 
 
-*vimwiki-bullet_types*
+*vimwiki-option-bullet_types*
 ------------------------------------------------------------------------------
 Key               Default value~
 bullet_types      ['-', '*', '#'] (default-syntax)
@@ -2535,6 +2535,15 @@ depends on the chosen syntax.
 You can set it to include more fancy symbols like this:
 >
    let g:vimwiki_list = [{'path': '~/path/', 'bullet_types' = ['-', '•', '→']}]
+
+
+*vimwiki-option-bullet_types*
+------------------------------------------------------------------------------
+Key               Default value~
+cycle_bullets     0
+
+If set to 1 (true), cycle through |bullet_types| when changing list element
+identation
 
 
 *vimwiki-listsyms*
@@ -3596,6 +3605,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
 
 2.5 (2020-05-26)~
