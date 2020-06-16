@@ -692,7 +692,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
   " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
   let g:vimwiki_syntax_variables[a:syntax].rxWeblink =
-        \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]>]*'
+        \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]><]*'
   " 0a) match URL within URL
   let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchUrl =
         \ g:vimwiki_syntax_variables[a:syntax].rxWeblink
