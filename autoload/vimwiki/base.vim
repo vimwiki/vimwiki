@@ -2189,7 +2189,7 @@ endfunction
 "   Construct a regular expression matching from template (with special
 "   characters properly escaped), by substituting rxUrl for __LinkUrl__, rxDesc
 "   for __LinkDescription__, rxStyle for __LinkStyle__ and rxExtension for
-"   __FileExtention__.  The four arguments rxUrl, rxDesc, rxStyle and
+"   __FileExtension__.  The four arguments rxUrl, rxDesc, rxStyle and
 "   rxExtension are copied verbatim, without any special character escapes or
 "   substitutions.
 function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle, rxExtension) abort
@@ -2204,7 +2204,7 @@ function! vimwiki#base#apply_template(template, rxUrl, rxDesc, rxStyle, rxExtens
     let lnk = s:safesubstitute(lnk, '__LinkStyle__', a:rxStyle, 'g')
   endif
   if a:rxExtension !=? ''
-    let lnk = s:safesubstitute(lnk, '__FileExtention__', a:rxExtension, 'g')
+    let lnk = s:safesubstitute(lnk, '__FileExtension__', a:rxExtension, 'g')
   endif
   return lnk
 endfunction
@@ -2254,6 +2254,7 @@ endfunction
 
 
 " Treat link string towards normalization
+" [__LinkDescription__](__LinkUrl__.FileExtension)
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
   let url = matchstr(a:str, a:rxUrl)
   if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && vimwiki#vars#get_global('markdown_link_ext')
@@ -2266,8 +2267,11 @@ function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
     let descr = s:clean_url(url)
     if descr ==# '' | return url | endif
   endif
+  " Substiture placeholders
   let lnk = s:safesubstitute(a:template, '__LinkDescription__', descr, '')
   let lnk = s:safesubstitute(lnk, '__LinkUrl__', url, '')
+  let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+  let lnk = s:safesubstitute(lnk, '__FileExtension__', file_extension , '')
   return lnk
 endfunction
 
@@ -2358,12 +2362,16 @@ function! s:normalize_link_syntax_n() abort
       let sub = s:safesubstitute(
             \ vimwiki#vars#get_global('WikiLinkTemplate1'), '__LinkUrl__', lnk, '')
     endif
+    " Replace file extension
+    let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+    let sub = s:safesubstitute(sub, '__FileExtension__', file_extension , '')
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
 endfunction
 
 
+" TODO mutualize most code with syntax_n
 " Normalize link in visual mode Enter keypress
 function! s:normalize_link_syntax_v() abort
   let sel_save = &selection
@@ -2376,12 +2384,16 @@ function! s:normalize_link_syntax_v() abort
     normal! gv""y
 
     " Set substitution
+    " Replace Url
     if vimwiki#base#is_diary_file(expand('%:p'))
       let sub = vimwiki#base#normalize_link_in_diary(@")
     else
       let sub = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
             \ '__LinkUrl__', @", '')
     endif
+    " Replace file extension
+    let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+    let sub = s:safesubstitute(sub, '__FileExtension__', file_extension , '')
 
     " Put substitution in register " and change text
     let sc = vimwiki#vars#get_wikilocal('links_space_char')

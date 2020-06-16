@@ -874,10 +874,12 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxWeblink1Suffix = ')'
   let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\()\)'
   let mkd_syntax.rxWeblink1Separator = ']('
+
   let rxWeblink1Ext = ''
   if vimwiki#vars#get_global('markdown_link_ext')
-    let rxWeblink1Ext = '__FileExtention__'
+    let rxWeblink1Ext = '__FileExtension__'
   endif
+
   " [DESCRIPTION](URL)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
@@ -902,18 +904,18 @@ function! s:populate_extra_markdown_vars() abort
         \ mkd_syntax.rx_wikilink_md_prefix .
         \ '.*' .
         \ rx_wikilink_md_separator .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rx_wikilink_md_prefix .
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
         \ rx_wikilink_md_separator .
         \ mkd_syntax.rx_wikilink_md_suffix .
         \ '\|' .
         \ mkd_syntax.rxWeblink1Prefix.
         \ '.*' .
         \ mkd_syntax.rxWeblink1Separator.
-        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtention__\)\?'.
+        \ '\zs__LinkUrl__\ze\%(#.*\)\?\%(__FileExtension__\)\?'.
         \ mkd_syntax.rxWeblink1EscapeCharsSuffix
 
   " 1. [DESCRIPTION](URL)
