@@ -2537,7 +2537,7 @@ You can set it to include more fancy symbols like this:
    let g:vimwiki_list = [{'path': '~/path/', 'bullet_types' = ['-', '•', '→']}]
 
 
-*vimwiki-option-bullet_types*
+*vimwiki-option-cycle_bullets*
 ------------------------------------------------------------------------------
 Key               Default value~
 cycle_bullets     0
