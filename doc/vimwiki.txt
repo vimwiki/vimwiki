@@ -2537,7 +2537,7 @@ You can set it to include more fancy symbols like this:
    let g:vimwiki_list = [{'path': '~/path/', 'bullet_types' = ['-', '•', '→']}]
 
 
-*vimwiki-option-bullet_types*
+*vimwiki-option-cycle_bullets*
 ------------------------------------------------------------------------------
 Key               Default value~
 cycle_bullets     0
@@ -3594,6 +3594,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @graywolf
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
+    - Edward Bassett (@ebassett)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3605,6 +3606,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
 
