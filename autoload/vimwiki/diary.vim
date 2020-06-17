@@ -30,7 +30,6 @@ function! s:diary_index(...) abort
         \ vimwiki#vars#get_wikilocal('ext', idx)
 endfunction
 
-
 function! vimwiki#diary#diary_date_link(...) abort
   if a:0
     let l:timestamp = a:1
@@ -55,7 +54,8 @@ function! vimwiki#diary#diary_date_link(...) abort
 
   if l:frequency == "weekly"
     let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
-    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+str2nr(strftime("%w", l:timestamp))) % 7
+    let l:weekday_num = str2nr(strftime("%w", l:timestamp))
+    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
     let l:computed_timestamp = l:timestamp
           \ + 7*l:day_s*l:delta_periods
           \ - l:day_s*l:days_to_end_of_week
@@ -80,7 +80,7 @@ function! vimwiki#diary#diary_date_link(...) abort
     let l:computed_timestamp = localtime() + l:delta_periods*l:day_s
   endif
 
-  return strftime('%Y-%m-%d', l:computed_timestamp) "vimwiki#diary#diary_period_start(l:timestamp))
+  return strftime('%Y-%m-%d', l:computed_timestamp)
 
 endfunction
 
