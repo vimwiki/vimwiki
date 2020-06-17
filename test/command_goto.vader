@@ -1,0 +1,64 @@
+Include: vader_includes/vader_setup.vader
+
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+
+Execute (VimwikiGoto buzz_bozz && Assert):
+  VimwikiIndex 2
+  VimwikiGoto buzz_bozz
+  AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
+
+Do (VimwikiGoto <CR> buzz_bozz && Assert):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto\<CR>
+  buzz_bozz\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
+
+Execute (:VimwikiGoto + Completion):
+  VimwikiIndex 2
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
+  let s_complete=string(vimwiki#base#get_globlinks_escaped())
+  Assert -1 != stridx(s_complete, 'buzz_bozz')
+
+Execute (Create dir1/dir2/test_goto_file.md):
+  call system("mkdir $HOME/testmarkdown/dir1")
+  call system("mkdir $HOME/testmarkdown/dir1/dir2")
+  edit $HOME/testmarkdown/dir1/dir2/test_goto_file.md
+  call WriteMe()
+
+Execute (:VimwikiGoto + Completion in directory):
+  " Return to base
+  VimwikiIndex 2
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
+
+  " Complete without argment
+  let s_complete1=string(vimwiki#base#get_globlinks_escaped())
+  Assert -1 != stridx(s_complete1, 'test_goto_file')
+
+  " Complete with file argument
+  let s_complete2=string(vimwiki#base#get_globlinks_escaped('test_goto_file'))
+  Assert -1 != stridx(s_complete2, 'test_goto_file')
+
+  " Complete with start of file argument
+  let s_complete3=string(vimwiki#base#get_globlinks_escaped('test_got'))
+  Assert -1 != stridx(s_complete3, 'test_goto_file')
+
+  " Complete with (nested) dir2 argument
+  let s_complete4=string(vimwiki#base#get_globlinks_escaped('dir2'))
+  Assert -1 != stridx(s_complete4, 'test_goto_file')
+
+  " Complete with bad argument
+  let l_complete5=vimwiki#base#get_globlinks_escaped('this_string_is_nowhere')
+  let s_complete5=string(l_complete5)
+  Assert -1 == stridx(s_complete5, 'test_goto_file')
+  AssertEqual 0, len(l_complete5)
+
+Execute (Clean):
+  Log "End: Clean"
+  call system("rm $HOME/testmarkdown/dir1")
+
+Include: vader_includes/vader_teardown.vader
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

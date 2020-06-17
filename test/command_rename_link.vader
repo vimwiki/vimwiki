@@ -1,0 +1,189 @@
+Include: vader_includes/vader_setup.vader
+
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+
+Execute (Mkdir dir1 dir2 dir11 dir12):
+  call system("mkdir $HOME/testmarkdown/dir1")
+  call system("mkdir $HOME/testmarkdown/dir1/dir11")
+  call system("mkdir $HOME/testmarkdown/dir1/dir12")
+  call system("mkdir $HOME/testmarkdown/dir2")
+
+
+Given vimwiki (Void):
+
+
+Execute (Create Test-Rename -> dir1/dir11/in_dir11.md and dir1/dir12/in_dir12.md and dir2/in_dir2.md):
+  edit $HOME/testmarkdown/Test-Rename.md
+  AssertEqual $HOME . '/testmarkdown/Test-Rename.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  call append(0, ['# Test Rename', 'in_root.md', 'dir1/dir11/in_dir11.md', 'dir1/dir12/in_dir12.md', 'dir2/in_dir2.md'])
+  call WriteMe()
+
+Do (Create in_root):
+  :Log 'Open Test-Rename.md'\<CR>
+  :edit $HOME/testmarkdown/Test-Rename.md\<CR>
+  :AssertEqual $HOME . '/testmarkdown/Test-Rename.md', expand('%')\<CR>\<Esc>
+
+  :Log 'Delete last line (easyer latter checks without trailing spaces)'\<CR>
+  Gdd
+
+  :Log 'Open in_root.md'\<CR>
+  gg
+  j\<CR>
+  j\<CR>
+  j\<CR>
+  j\<CR>
+  ggj0y$
+  :AssertEqual '[in_root](in_root.md)', @"\<CR>
+  0\<CR>
+  :AssertEqual $HOME . '/testmarkdown/in_root.md', expand('%')\<CR>
+
+  :Log 'Add link in_root.md -> dir1/dir11/in_dir11'\<CR>
+  ggi# Title in root\<CR>\<Esc>
+  idir1/dir11/in_dir11\<Esc>
+  :call WriteMe()\<CR>
+  :AssertEqual $HOME . '/testmarkdown/in_root.md', expand('%')\<CR>
+
+  :Log 'Open in_dir11.md: creating dirs'\<CR>
+  ggj"ay$
+  :AssertEqual 'reg dir1/dir11/in_dir11', 'reg ' . @a\<CR>
+  0\<CR>\<CR>
+  :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11.md', 'file ' . expand('%')\<CR>
+
+  :Log 'One backspace for fun'\<CR>
+  \<BS>
+  :AssertEqual 'file ' . $HOME . '/testmarkdown/in_root.md', 'file ' . expand('%')\<CR>
+
+
+Do (Create dir_11 -> dir_11):
+  :edit $HOME/testmarkdown/dir1/dir11/in_dir11_fix.md\<CR>
+
+  :Log 'Add link in_dir11_fix.md -> in_dir11'\<CR>
+  ggi# Title in dir11 fix\<CR>\<Esc>
+  iin_dir11\<Esc>
+  :call WriteMe()\<CR>
+
+  :Log 'Open in_dir11.md: creating dirs'\<CR>
+  ggj"ay$
+  :AssertEqual 'reg in_dir11', 'reg ' . @a\<CR>
+  0\<CR>\<CR>
+  y\<CR>
+  :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11.md', 'file ' . expand('%')\<CR>
+
+  :Log 'One backspace for fun'\<CR>
+  \<BS>
+  :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11_fix.md', 'file ' . expand('%')\<CR>
+
+
+Execute (Fill in_dir11 content):
+  edit $HOME/testmarkdown/dir1/dir11/in_dir11.md
+  call append(0, ['# Title in_dir11', '[dir2 link](../../dir2/in_dir2.md)'])
+  call WriteMe()
+
+
+Do (RenameLink in_dir11 -> new_dir11):
+  :edit $HOME/testmarkdown/dir1/dir11/in_dir11.md\<CR>
+  :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11.md', 'file ' . expand('%')\<CR>
+  :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<CR>
+
+  :Log 'Rename'\<CR>
+  :call WriteMe()\<CR>
+  :VimwikiRenameFile\<CR>
+  y\<CR>
+  in_dir11_new\<CR>
+  :call WriteMe()\<Cr>
+
+  :Log 'Append filename'\<CR>
+  :call append('$', [expand('%')])\<CR>
+
+
+Expect(With new filename at the end):
+  # Title in_dir11
+  [dir2 link](../../dir2/in_dir2.md)
+
+  /home/vimtest/testmarkdown/dir1/dir11/in_dir11_new.md
+
+
+Execute (edit in_dir11_fix):
+  edit $HOME/testmarkdown/dir1/dir11/in_dir11_fix.md
+
+Expect(Link to in_dir11_new):
+  # Title in dir11 fix
+  [in_dir11](in_dir11_new)
+
+
+Execute (edit Test-Rename.md):
+  edit $HOME/testmarkdown/Test-Rename.md
+
+
+Expect (Link to in_dir11_new):
+  # Test Rename
+  [in_root](in_root.md)
+  [dir1 dir11 in_dir11](dir1/dir11/in_dir11_new.md)
+  [dir1 dir12 in_dir12](dir1/dir12/in_dir12.md)
+  [dir2 in_dir2](dir2/in_dir2.md)
+
+
+
+Do (in_dir2 -> in_dir2_new):
+  :edit $HOME/testmarkdown/dir2/in_dir2.md\<CR>
+
+  :Log 'Append filename'\<CR>
+  :call append('$', [expand('%')])\<CR>
+
+  :Log 'Rename'\<CR>
+  :call WriteMe()\<CR>
+  :VimwikiRenameFile\<CR>
+  y\<CR>
+  in_dir2_new\<CR>
+  :call WriteMe()\<Cr>
+
+  :Log 'Append filename'\<CR>
+  :call append('$', [expand('%')])\<CR>
+
+
+Expect (old and new filenames):
+
+  /home/vimtest/testmarkdown/dir2/in_dir2.md
+  /home/vimtest/testmarkdown/dir2/in_dir2_new.md
+
+Execute (edit Test-Rename.md):
+  edit $HOME/testmarkdown/Test-Rename.md
+
+
+Expect (Link to in_dir11_new):
+  # Test Rename
+  [in_root](in_root.md)
+  [dir1 dir11 in_dir11](dir1/dir11/in_dir11_new.md)
+  [dir1 dir12 in_dir12](dir1/dir12/in_dir12.md)
+  [dir2 in_dir2](dir2/in_dir2_new.md)
+
+
+Execute (edit in_dir11.md):
+  edit $HOME/testmarkdown/dir1/dir11/in_dir11_new.md
+
+
+Expect (Link to in_dir2_new):
+  # Title in_dir11
+  [dir2 link](../../dir2/in_dir2_new.md)
+
+  /home/vimtest/testmarkdown/dir1/dir11/in_dir11_new.md
+
+
+Execute (Clean dir1 and dir2):
+  Log "End: Clean"
+  call DeleteHiddenBuffers()
+  call system('rm $HOME/testmarkdown/Test-Rename.md')
+  call system('rm $HOME/testmarkdown/in_root.md')
+  call system('rm -r $HOME/testmarkdown/dir1')
+  call system('rm -r $HOME/testmarkdown/dir2')
+
+
+Include: vader_includes/vader_teardown.vader
+
+# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#

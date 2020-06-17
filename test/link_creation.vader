@@ -1,0 +1,125 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (Text that is not a wikilink):
+  test
+  www.google.com
+  https://www.google.com
+  multiple words
+  let's
+  let's
+  file.wiki
+  file.md
+  file.mw
+
+Execute (Set syntax to default):
+  call SetSyntax('default')
+
+Do (Create links default syntax):
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+
+Expect (Vimwiki links):
+  [[test]]
+  [[www.google.com]]
+  [[https://www.google.com]]
+  [[multiple words]]
+  [[let's]]
+  [[let]]'s
+  [[file.wiki]]
+  [[file.md]]
+  [[file.mw]]
+
+Execute (Set syntax to markdown):
+  call SetSyntax('markdown')
+
+Do (Create links markdown syntax):
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+
+Expect (Markdown links):
+  [test](test)
+  [www.google.com](www.google.com)
+  [https://www.google.com](https://www.google.com)
+  [multiple words](multiple words)
+  [let's](let's)
+  [let](let)'s
+  [file wiki](file.wiki)
+  [file](file.md)
+  [file mw](file.mw)
+
+Execute (Set syntax to mediawiki):
+  call SetSyntax('media')
+
+Do (Create links mediawiki syntax):
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  v$
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+  j
+  \<Enter>
+
+Expect (Mediawiki links):
+  [[test]]
+  [[www.google.com]]
+  [[https://www.google.com]]
+  [[multiple words]]
+  [[let's]]
+  [[let]]'s
+  [[file.wiki]]
+  [[file.md]]
+  [[file.mw]]
+
+Include: vader_includes/vader_teardown.vader

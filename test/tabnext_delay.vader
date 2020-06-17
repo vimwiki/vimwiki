@@ -1,0 +1,32 @@
+Include: vader_includes/vader_setup.vader
+
+Execute (Set fold method):
+  let g:vimwiki_folding = 'expr:quick'
+  call ReloadVimwiki()
+
+Execute (Expect < 0.5 second delay: Issue #580):
+  " prep
+  edit test/resources/delay.wiki
+  normal! 50%
+# TODO set ft and set wiki syntax or this error (no fold found)
+# normal! zozo
+  tabedit
+
+  " run test
+  let start = reltime()
+  tabprev
+  redraw
+  let end = str2float(reltimestr(reltime(start)))
+
+  " cleanup
+  bdelete test/resources/delay.wiki
+
+  " verify
+  Log 'Elapsed time = ' . string(end)
+  Assert end < 0.5, 'Took longer than expected: ' . string(end) . ' seconds'
+
+Execute (Reset variables):
+  let g:vimwiki_folding = ''
+  call ReloadVimwiki()
+
+Include: vader_includes/vader_teardown.vader

@@ -1,0 +1,67 @@
+source /rtp.vim
+set runtimepath+=/vader
+
+" vint: -ProhibitSetNoCompatible
+set nocompatible
+filetype plugin indent on
+syntax enable
+
+" Wiki's resources to be used after:
+"   :!cp -r /testplugin/test/resources/* $HOME/
+" or from a test.vader file Execute block:
+"   call CopyResources()
+" This complication aims for these copies to be writable
+
+" default syntax
+let vimwiki_default = {}
+let vimwiki_default.path = $HOME . '/testwiki'
+let vimwiki_default.path_html = $HOME . '/html/default'
+let vimwiki_default.syntax = 'default'
+let vimwiki_default.ext = '.wiki'
+let vimwiki_default.name = 'DefaultSyntax'
+
+" markdown syntax - https://github.github.com/gfm/
+let vimwiki_markdown = {}
+let vimwiki_markdown.path = $HOME . '/testmarkdown'
+let vimwiki_markdown.path_html = $HOME . '/html/markdown'
+let vimwiki_markdown.syntax = 'markdown'
+let vimwiki_markdown.ext = '.md'
+let vimwiki_markdown.name = 'MarkdownSyntax'
+
+" mediawiki syntax - https://www.mediawiki.org/wiki/Help:Formatting
+let vimwiki_mediawiki = {}
+let vimwiki_mediawiki.path = $HOME . '/testmediawiki'
+let vimwiki_mediawiki.path_html = $HOME . '/html/mediawiki'
+let vimwiki_mediawiki.syntax = 'media'
+let vimwiki_mediawiki.ext = '.mw'
+let vimwiki_mediawiki.name = 'MediaWikiSyntax'
+
+" register the 3 wikis
+let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
+
+" basic settings
+set backspace=indent,eol,start
+set wildmode=longest:full,full
+set wildmenu
+set wildignorecase
+set splitbelow
+set splitright
+set timeoutlen=600
+set ignorecase
+set smartcase
+set hidden
+set laststatus=2
+set hlsearch
+
+" use ctrl-p/n for history completion instead of up/down arrows
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
+
+" jj to go back to command mode
+inoremap jj <esc>
+
+" Use <C-L> to clear the highlighting of :set hlsearch and also preserve the
+" default behavior of redrawing the screen
+if maparg('<C-L>', 'n') ==# ''
+    nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+endif

@@ -1,0 +1,108 @@
+Include: vader_includes/vader_setup.vader
+
+Execute (Create temp directory):
+  silent execute '!mkdir -p $HOME/list_margin/'
+  cd $HOME/list_margin
+
+Execute (Create wiki files):
+  write page1.wiki
+  write page2.wiki
+  write page3.wiki
+  write page1.mw
+  write page2.mw
+  write page3.mw
+  write page1.md
+  write page2.md
+  write page3.md
+
+Given vimwiki (Scratch file):
+
+Execute (Set syntax default):
+  set shiftwidth=8
+  AssertEqual 8, &shiftwidth
+  call SetSyntax('default')
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
+
+Execute (Generate Links):
+  VimwikiGenerateLinks
+
+Expect (Links with default margin):
+
+
+  = Generated Links =
+          - [[page1]]
+          - [[page2]]
+          - [[page3]]
+
+Execute (Set list margin == 2):
+  call vimwiki#vars#set_wikilocal('list_margin', 2, vimwiki#vars#get_bufferlocal('wiki_nr'))
+  VimwikiGenerateLinks
+
+Expect (Links with margin == 2):
+
+
+  = Generated Links =
+    - [[page1]]
+    - [[page2]]
+    - [[page3]]
+
+Execute (Set syntax media):
+  call SetSyntax('media')
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
+
+Execute (Generate Links):
+  VimwikiGenerateLinks
+
+Expect (Links with default margin):
+
+
+  = Generated Links =
+          * [[page1]]
+          * [[page2]]
+          * [[page3]]
+
+Execute (Set list margin == 1):
+  call vimwiki#vars#set_wikilocal('list_margin', 1, vimwiki#vars#get_bufferlocal('wiki_nr'))
+  VimwikiGenerateLinks
+
+Expect (Links with margin == 1):
+
+
+  = Generated Links =
+   * [[page1]]
+   * [[page2]]
+   * [[page3]]
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+  " list margin should default to 0 for markdown
+
+Execute (Generate Links):
+  VimwikiGenerateLinks
+
+Expect (Links with default margin):
+
+
+  # Generated Links
+
+  - [page1](page1)
+  - [page2](page2)
+  - [page3](page3)
+
+Execute (Set list margin == 5):
+  call vimwiki#vars#set_wikilocal('list_margin', 5, vimwiki#vars#get_bufferlocal('wiki_nr'))
+  VimwikiGenerateLinks
+
+Expect (Links with margin == 5):
+
+
+  # Generated Links
+
+       - [page1](page1)
+       - [page2](page2)
+       - [page3](page3)
+
+Execute (Return to default location & cleanup):
+  cd /testplugin
+
+Include: vader_includes/vader_teardown.vader

@@ -1,0 +1,235 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (Todo list):
+  * [ ] Chap1
+   * [ ] Section1.1
+   * [ ] Section1.2
+   * [ ] Section1.3
+   * [ ] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (Toogle Chap2: <C-Space>):
+  Gk\<C-Space>
+
+Expect (Toogle Chap2):
+  * [ ] Chap1
+   * [ ] Section1.1
+   * [ ] Section1.2
+   * [ ] Section1.3
+   * [ ] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [ ] Chap2
+  End
+
+Do (Toogle Chap1: <C-Space>):
+  \<C-Space>
+
+Expect (Remove nested [ ] -> [X]):
+  * [X] Chap1
+   * [X] Section1.1
+   * [X] Section1.2
+   * [X] Section1.3
+   * [X] Section1.4
+   * [X] Section1.5
+   * [X] Section1.6
+   * [X] Section1.7
+   * [X] Section1.8
+   * [X] Section1.9
+   * [X] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle sub 1):
+  j\<C-Space>
+
+Expect (Completing [ ] -> [.]):
+  * [.] Chap1
+   * [X] Section1.1
+   * [ ] Section1.2
+   * [ ] Section1.3
+   * [ ] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle sub4):
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+
+Expect (Completing [ ] -> [.]):
+  * [o] Chap1
+   * [X] Section1.1
+   * [X] Section1.2
+   * [X] Section1.3
+   * [X] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle sub7):
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+
+Expect (Completing [ ] -> [.]):
+  * [O] Chap1
+   * [X] Section1.1
+   * [X] Section1.2
+   * [X] Section1.3
+   * [X] Section1.4
+   * [X] Section1.5
+   * [X] Section1.6
+   * [X] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle sub10):
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+  j\<C-Space>
+
+Expect (Completing [ ] -> [.]):
+  * [X] Chap1
+   * [X] Section1.1
+   * [X] Section1.2
+   * [X] Section1.3
+   * [X] Section1.4
+   * [X] Section1.5
+   * [X] Section1.6
+   * [X] Section1.7
+   * [X] Section1.8
+   * [X] Section1.9
+   * [X] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle delete todo box [gl]):
+  gl\<Space>
+
+Expect (Chap1 no checkbox):
+  * Chap1
+   * [ ] Section1.1
+   * [ ] Section1.2
+   * [ ] Section1.3
+   * [ ] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+Do (Toogle delete todo boxes [gL<Space>]):
+  jgL\<Space>
+
+Expect (Chap1.x no checkbox):
+  * [ ] Chap1
+   * Section1.1
+   * Section1.2
+   * Section1.3
+   * Section1.4
+   * Section1.5
+   * Section1.6
+   * Section1.7
+   * Section1.8
+   * Section1.9
+   * Section1.10
+  * [X] Chap2
+  End
+
+Do (Visual toogl [v<C-Space>]):
+  jvjjj\<C-Space>
+
+
+Expect (4 items toogled):
+  * [o] Chap1
+   * [X] Section1.1
+   * [X] Section1.2
+   * [X] Section1.3
+   * [X] Section1.4
+   * [ ] Section1.5
+   * [ ] Section1.6
+   * [ ] Section1.7
+   * [ ] Section1.8
+   * [ ] Section1.9
+   * [ ] Section1.10
+  * [X] Chap2
+  End
+
+################################################################################
+# Numbered Todo list
+
+Given vimwiki (Number TODO list):
+  1. [ ] Chap1
+  2. [ ] Chap2
+
+Do (Go):
+  Go
+
+# Note the space at the end of 3
+Expect (Introduce new Number todo item):
+  1. [ ] Chap1
+  2. [ ] Chap2
+  3. [ ] 
+
+Do (New item and ident):
+  o\<C-t>Chap1.1
+
+# Note the tab
+Expect (Introduce Chap1.1):
+  1. [ ] Chap1
+  	1. [ ] Chap1.1
+  2. [ ] Chap2
+
+Do (Toogle <C-Space>):
+  \<C-Space>
+
+Expect (Chap1 Done):
+  1. [X] Chap1
+  2. [ ] Chap2
+
+
+Include: vader_includes/vader_teardown.vader

@@ -1,0 +1,282 @@
+# Testting <CR> keypress in insert mode on list item
+# 
+# Note: some trailing spaces are necessary at the end of list items like `1.`
+#       better read this file with `set list`
+
+
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (List with hard wraps):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+  - Item 5
+
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 5<CR>
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+
+Do (Extend list):
+  4j
+  A\<CR>Another item\<Esc>
+  5j
+  A\<CR>New sub item\<Esc>
+
+Expect (Extended list):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Another item
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+    - New sub item
+  - Item 5
+
+Given vimwiki (List with code block):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+      ```
+      int x = 2 + 2;
+      return 0;
+      ```
+  - Item 5
+    ```c
+    int x = 2 + 2;
+    return 0;
+    ```
+  - Item 6 that is split
+    Across multiple lines.
+    Done.
+
+Do (CR and CR in code block):
+  4j
+  A\<CR>Another item\<Esc>
+  6j
+  A\<CR>int y = 1;\<Esc>
+  1j
+  A\<CR>x = x + y;\<Esc>
+  4j
+  A\<CR>int y = 2;\<Esc>
+  3j
+  A\<CR>A new bullet doesn't get added here, oh well.\<Esc>
+  3j
+  A\<CR>Done and Done\<Esc>
+
+Expect (No list continuation in code block):
+  - Item 1
+  - Item 2
+  - Item 3 that is split across multiple lines
+    This is the second line.
+    This is the third line.
+  - Another item
+  - Item 4
+    - Sub item 1
+    - Sub item split across multiple lines
+      This is the second line.
+      This is the third line.
+      ```
+      int y = 1;
+      int x = 2 + 2;
+      x = x + y;
+      return 0;
+      ```
+  - Item 5
+    ```c
+    int y = 2;
+    int x = 2 + 2;
+    return 0;
+    ```
+    A new bullet doesn't get added here, oh well.
+  - Item 6 that is split
+    Across multiple lines.
+    Done.
+  - Done and Done
+
+Given vimwiki (List from help file):
+  1. item
+  ---
+
+  1. item
+     continue
+
+  ---
+  1. 
+
+  ---
+    1. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 1<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+# Note: trailing space <- autoindent
+Expect (List per VimwikiReturn 1 1):
+  1. item
+  2. 
+  ---
+
+  1. item
+     continue
+     
+
+  ---
+  1. 
+  2. 
+
+  ---
+    1. 
+    2. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 2 2<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+# Note: some trailing space added
+Expect (List per VimwikiReturn 2 2):
+  1. item
+     
+  ---
+
+  1. item
+     continue
+  2. 
+
+  ---
+
+  1. 
+
+  ---
+
+    1. 
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 3<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+
+Expect (List per VimwikiReturn 3 3):
+  1. item
+  2. 
+  ---
+
+  1. item
+     continue
+  2. 
+
+  ---
+
+
+  ---
+
+
+  ---
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 4 4<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 4 4):
+  1. item
+     
+  ---
+
+  1. item
+     continue
+     
+
+  ---
+
+
+
+  ---
+
+
+
+  ---
+
+Execute (Map CR):
+  inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 3 5<CR>
+
+Do (List ops):
+  A\<CR>\<Esc>
+  4j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+  3j
+  A\<CR>\<Esc>
+
+Expect (List per VimwikiReturn 3 5):
+  1. item
+  2. 
+  ---
+
+  1. item
+     continue
+  2. 
+
+  ---
+
+
+  ---
+  1. 
+
+  ---
+Include: vader_includes/vader_teardown.vader
