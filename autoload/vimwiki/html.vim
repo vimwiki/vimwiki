@@ -926,14 +926,14 @@ function! s:process_tag_arrow_quote(line, arrow_quote) abort
   let lines = []
   let arrow_quote = a:arrow_quote
   let processed = 0
-  if a:line =~# '^&gt;'
+  if a:line =~# '^\s*&gt;'
     if !arrow_quote
       call add(lines, '<blockquote>')
       call add(lines, '<p>')
       let arrow_quote = 1
     endif
     let processed = 1
-    let stripped_line = substitute(a:line, '^&gt;\s*', '', '')
+    let stripped_line = substitute(a:line, '^\s*&gt;\s*', '', '')
     if stripped_line =~# '^\s*$'
       call add(lines, '</p>')
       call add(lines, '<p>')
