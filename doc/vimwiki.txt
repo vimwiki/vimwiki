@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 2.4
+                               Version: 2.5
 
 ==============================================================================
 CONTENTS                                                             *vimwiki*
@@ -280,7 +280,7 @@ See also |:VimwikiMakeTomorrowDiaryNote|
 
 Below is a listing of all local key mappings provided by Vimwiki. As local
 settings, they are available when |FileType| is set to "vimwiki". These
-mappings may overwrite pre-existing mappings but they can be remapped or
+mappings may overwrite pre-existing mappings, but they can be remapped or
 disabled (see |g:vimwiki_key_mappings|).
 
 To remap commands that begin with <Plug>, you should do the following:
@@ -387,13 +387,13 @@ MAP                MODE
 
                                                           *vimwiki_<Leader>wd*
 <Leader>wd         n    Delete wiki page you are in.
-                        Maps to |:VimwikiDeleteLink|.
-                        Remap command: `<Plug>VimwikiDeleteLink`
+                        Maps to |:VimwikiDeleteFile|.
+                        Remap command: `<Plug>VimwikiDeleteFile`
 
                                                           *vimwiki_<Leader>wr*
 <Leader>wr         n    Rename wiki page you are in.
-                        Maps to |:VimwikiRenameLink|.
-                        Remap command: `<Plug>VimwikiRenameLink`
+                        Maps to |:VimwikiRenameFile|.
+                        Remap command: `<Plug>VimwikiRenameFile`
 
                                                                    *vimwiki_=*
 =                  n    Add header level. Create if needed.
@@ -793,12 +793,24 @@ Vimwiki file.
     Supports |cmdline-completion| for link name. If name is not specified, a
     prompt will be shown.
 
-*:VimwikiDeleteLink*
+*:VimwikiDeleteFile*
     Delete the wiki page you are in.
 
-*:VimwikiRenameLink*
+*:VimwikiRenameFile*
     Rename the wiki page you are in.
 
+*:VimwikiRemoveDone*
+    With range: Remove all lines that have a checked |vimwiki-todo-lists| checkbox
+
+    Otherwise:
+    Remove all lines in the current todo-list that have a checked box. This is
+    applied to the list in which the cursor is in, as well as all its sublists.
+    The status of parents is updated accordingly.
+    If you want to remove only items of the current nesting level, (re)define
+    a command that calls the same function with `0` as first argument: >
+        :command! -buffer -range VimwikiRemoveDone call 
+           \ vimwiki#lst#remove_done(0, "<range>", <line1>, <line2>)
+<
 *:VimwikiNextTask*
     Jump to the next unfinished task in the current wiki page.
 
@@ -840,7 +852,7 @@ Vimwiki file.
 
     Hint: this feature is simply a wrapper around |:lvimgrep|. For a
     complete description of the search pattern format, see |:vimgrep|.
-    For example, to perform a case insensitive search, use >
+    For example, to perform a case-insensitive search, use >
     :VWS /\cpattern/
 
 *:VimwikiBacklinks*
@@ -890,7 +902,7 @@ Vimwiki file.
 
 
 *:VimwikiGenerateLinks* [pattern]
-    Insert the links of all available wiki files into the current buffer.
+    Insert a list of links to all available wiki files into the current buffer.
     If an optional 'pattern' is given as argument, the files will be searched
     in the wiki root folder according to the 'pattern' as |globpath|
 
@@ -1750,7 +1762,7 @@ normal text followed by a parenthesis.
 Roman numerals go up to MMMM) and numbers up to 2147483647. or
 9223372036854775807. depending if your Vim is 32 or 64 bit.
 
-Also note that you can, of course, mix different list symbols in one list, but
+Also, note that you can, of course, mix different list symbols in one list, but
 if you have the strange idea of putting a list with Roman numerals right after
 a list using letters or vice versa, Vimwiki will get confused because it
 cannot distinguish which is which (at least if the types are both upper case
@@ -1775,7 +1787,7 @@ Consider the following example: >
      * [X] Simple toggling between [ ] and [X].
      * [X] All list's subitems should be toggled on/off appropriately.
      * [X] Toggle child subitems only if current line is list item
-     * [X] Parent list item should be toggled depending on it's child items.
+     * [X] Parent list item should be toggled depending on its child items.
    * [X] Make numbered list items toggleable too
    * [X] Add highlighting to list item boxes
    * [X] Add [ ] to the next list item created with o, O and <CR>.
@@ -1799,14 +1811,14 @@ parent items: >
      * [ ] Simple toggling between [ ] and [X].
      * [X] All of a list's subitems should be toggled on/off appropriately.
      * [ ] Toggle child subitems only if current line is list item.
-     * [ ] Parent list item should be toggled depending on it's child items.
+     * [ ] Parent list item should be toggled depending on its child items.
    * [ ] Make numbered list items toggleable too.
    * [ ] Add highlighting to list item boxes.
    * [ ] Add [ ] to the next list item created using o, O or <CR>.
 
 Parent items should change when their child items change. If not, use
 |vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
-child items (see also |g:vimwiki_listsyms|): >
+child items (see also |vimwiki-listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -1920,7 +1932,7 @@ If you use markdown as the syntax for your wiki, there is a rubygem available
 at https://github.com/patrickdavey/vimwiki_markdown which you can use to
 convert the wiki markdown files into html.
 
-Also See |vimwiki-option-html_filename_parameterization| for supporting
+Also, See |vimwiki-option-html_filename_parameterization| for supporting
 functionality.
 
 ==============================================================================
@@ -2475,7 +2487,7 @@ Key               Default value~
 custom_wiki2html  ''
 
 Description~
-The full path to an user-provided script that converts a wiki page to HTML.
+The full path to a user-provided script that converts a wiki page to HTML.
 Vimwiki calls the provided |vimwiki-option-custom_wiki2html| script from the
 command-line, using |:!| invocation.
 
@@ -2538,6 +2550,62 @@ local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 
 Note: if you use Markdown or MediaWiki syntax, you probably would like to set
 this option to 0, because every indented line is considered verbatim text.
+
+
+*vimwiki-option-bullet_types*
+------------------------------------------------------------------------------
+Key               Default value~
+bullet_types      ['-', '*', '#'] (default-syntax)
+                  ['-', '*', '+'] (markdown-syntax)
+                  ['*', '#'] (mediawiki-syntax)
+
+List of the characters that can be used as bullets of lists. The default value
+depends on the chosen syntax.
+
+You can set it to include more fancy symbols like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'bullet_types' = ['-', '•', '→']}]
+
+
+*vimwiki-option-cycle_bullets*
+------------------------------------------------------------------------------
+Key               Default value~
+cycle_bullets     0
+
+If set to 1 (true), cycle through |bullet_types| when changing list element
+identation
+
+
+*vimwiki-listsyms*
+------------------------------------------------------------------------------
+Key               Default value~
+listsyms          ' .oOX'
+
+String of at least two symbols to show the progression of todo list items.
+Default value is ' .oOX'. This overwrites the global |g:vimwiki_listsyms| on a
+per wiki base.
+
+The first char is for 0% done items.
+The last is for 100% done items.
+
+You can set it to some more fancy symbols like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'listsyms' = '✗○◐●✓'}]
+
+
+*vimwiki-listsym_rejected*
+------------------------------------------------------------------------------
+
+Character that is used to show that an item of a todo list will not be done.
+Default value is '-'. This overwrites the global |g:vimwiki_listsym_rejected| on a
+per wiki base.
+
+
+The character used here must not be part of |vimwiki-listsyms|.
+
+You can set it to a more fancy symbol like this:
+>
+   let g:vimwiki_list = [{'path': '~/path/', 'listsym_rejected' = '✗'}]
 
 
 *vimwiki-option-auto_tags*
@@ -2706,8 +2774,8 @@ desired.
 *g:vimwiki_menu*
 
 Create a menu in the menu bar of GVim, where you can open the available wikis.
-If the wiki has an assigned name (see |vimwiki-option-name|) the menu entry
-will match the name. Otherwise the final folder of |vimwiki-option-path| will
+If the wiki has an assigned name (see |vimwiki-option-name|), the menu entry
+will match the name. Otherwise, the final folder of |vimwiki-option-path| will
 be used for the name. If there are duplicate entries the index number from
 |g:vimwiki_list| will be appended to the name.
 
@@ -2724,7 +2792,8 @@ Default: 'Vimwiki'
 *g:vimwiki_listsyms*
 
 String of at least two symbols to show the progression of todo list items.
-Default value is ' .oOX'.
+Default value is ' .oOX'. You can also set this on a per-wiki level with
+|vimwiki-listsyms|.
 
 The first char is for 0% done items.
 The last is for 100% done items.
@@ -2738,7 +2807,9 @@ You can set it to some more fancy symbols like this:
 *g:vimwiki_listsym_rejected*
 
 Character that is used to show that an item of a todo list will not be done.
-Default value is '-'.
+Default value is '-'. You can also set this on a per-wiki level with
+|vimwiki-listsym_rejected|.
+
 
 The character used here must not be part of |g:vimwiki_listsyms|.
 
@@ -2751,7 +2822,7 @@ You can set it to a more fancy symbol like this:
 *g:vimwiki_folding*
 
 Enable/disable Vimwiki's folding (outline) functionality. Folding in Vimwiki
-can uses either the 'expr' or the 'syntax' |foldmethod| of Vim.
+can use either the 'expr' or the 'syntax' |foldmethod| of Vim.
 
 Value           Description~
 ''              Disable folding
@@ -3160,7 +3231,7 @@ Default: 0
 *g:vimwiki_autowriteall*
 
 Automatically save a modified wiki buffer when switching wiki pages. Has the
-same effect like setting the Vim option 'autowriteall', but it works for wiki
+same effect as setting the Vim option 'autowriteall', but it works for wiki
 files only, while the Vim option is global.
 Hint: if you're just annoyed that you have to save files manually to switch
 wiki pages, consider setting the Vim option 'hidden' which makes that modified
@@ -3272,7 +3343,7 @@ The default is '<Leader>w'.
 *g:vimwiki_auto_chdir*
 
 When set to 1, enables auto-cd feature. Whenever Vimwiki page is opened,
-Vimwiki performs an |:lcd| to the root Vimwiki folder of the pages's wiki.
+Vimwiki performs an |:lcd| to the root Vimwiki folder of the page's wiki.
 
 
 Value           Description~
@@ -3493,7 +3564,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Daniel Trnka (@trnila)
     - Yuchen Pei (@ycpei)
     - @maqiv
-    - @dpc
+    - Dawid Ciężarkiewicz (@dpc)
     - Drew Hays (@Dru89)
     - Daniel Etrata (@danetrata)
     - Keith Haber (@kjhaber)
@@ -3507,7 +3578,20 @@ Contributors and their Github usernames in roughly chronological order:
     - Zhuang Ma (@mzlogin)
     - Huy Le (@huynle)
     - Nick Borden (@hcwndbyw)
+    - John Campbell (@johnmarcampbell)
+    - Petrus (@PetrusZ)
     - Steven Stallion (@sstallion)
+    - Daniel Quomsieh (@DQuomsieh)
+    - Fredrik Arnerup (@farnerup)
+    - CUI Hao (@cuihaoleo)
+    - Benjamin Brandtner (@BenjaminBrandtner)
+    - @sreejith994
+    - Raphael Feng (@raphaelfeng)
+    - Kasper Socha (@fte10kso)
+    - Nicolas Brailovsky (@nicolasbrailo)
+    - @BenMcH
+    - Stefan Huber (@shuber2)
+    - Hugo Hörnquist (@HugoNikanor)
     - Rane Brown (@ranebrown)
     - Patrik Willard (@padowi)
     - Steve Dondley (@sdondley)
@@ -3521,7 +3605,26 @@ Contributors and their Github usernames in roughly chronological order:
     - Mauro Morales (@mauromorales)
     - Valtteri Vallius (@kaphula)
     - Patrick Stockwell (@patstockwell)
-
+    - Henry Qin (@hq6)
+    - Hugo Hörnquist
+    - Greg Anders
+    - Steven Schmeiser
+    - Monkin (@monkinco)
+    - @AresMegaGlobal
+    - Cesar Tessarin (@tessarin)
+    - Clément Bœsch (@ubitux)
+    - Dave Gauer
+    - Eric Langlois (@edlanglois)
+    - James Moriarty
+    - Lionel Flandrin (@simias)
+    - Michael Brauweiler (@rattletat)
+    - Michal Cizmazia (@cizmazia)
+    - Samir Benmendil (@Ram-Z)
+    - Stefan Lehmann (@stevesteve)
+    - @graywolf
+    - flex (@bratekarate)
+    - Marius Lopez (@PtitCaius)
+    - Edward Bassett (@ebassett)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3532,15 +3635,18 @@ https://github.com/vimwiki/vimwiki/issues/, all others from
 http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+New:~
+    * PR #919: Fix duplicate helptag
+    * PR #907: Cycle bullets
+    * PR #900: conceallevel is now setted locally for vimwiki buffers
 
-2.5 (in progress)~
+2.5 (2020-05-26)~
 
 New:~
-    * PR #787: |:VimwikiRenameLink| works for all directories: even
+    * PR #787: |:VimwikiRenameFile| works for all directories: even
       wiki_root/diary/2019-12-11.md if current file is wiki_root/dir1/file.md.
     * Issue #764: fenced code blocks are properly supported for markdown
       syntax i.e. more than 3 backticks, adds tilde support.
-    * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.
     * PR #785: |:VimwikiGoto| completion works with part of filename and
       nested directories
     * Add test framework (vader, vint, vim-testbed)
@@ -3607,6 +3713,15 @@ New:~
     * PR #879: Generate links when diary & wiki dir are the same
     * PR #884: Configure diary frequency (daily, weekly, monthly, yearly)
 
+Changed:~
+    * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|
+    * Issue #638: Rename |:VimwikiDeleteLink| to |:VimwikiDeleteFile|
+    * Issue #638: Rename |:VimwikiRenameLink| to |:VimwikiRenameFile|
+    * For all three above the old commands still works but is deprecated and
+    * will be removed in later versions.
+    * Set default |vimwiki-option-list_margin| = 0 for markdown syntax.
+    * Modify horizontal rule (thematic-breaks) syntax for markdown.
+
 Removed:~
     * PR #698: Remove awa check triggering silent file edits.
     * Options g:vimwiki_use_mouse and g:vimwiki_table_mappings. These are
@@ -3615,8 +3730,7 @@ Removed:~
       point.
 
 Fixed:~
-    * Issue #90: VimwikiRenameLink doesn't update links in diary.
-    * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|
+    * Issue #90: |:VimwikiRenameFile| doesn't update links in diary.
     * Issue #790: Allow tags before a header with markdown syntax.
     * Issue #779: Vimwiki tags file meets ctags standard.
     * Issue #781: Compatablity fixes for older versions of Vim.
@@ -3630,7 +3744,6 @@ Fixed:~
       checking)
     * Issue #729: Normalize links uses relative paths in diary pages for
       Markdown syntax. This previously only worked for the default syntax.
-    * Modify horizontal rule (thematic-breaks) syntax for markdown.
     * Disable spell check in code and math inline/blocks.
     * Properly handle markdown image links `![]()`
     * Issue #415: Expand iabbrev entries on <CR>.
@@ -3638,11 +3751,11 @@ Fixed:~
     * Issue #240: Fix regex pattern for markdown '[]()' links
     * Issue #685: Error message for invalid user options fixed.
     * Issue #481: Allow surrounding URLs with '<' '>'
-    * Issue #237: VimwikiRenameLink now works for Markdown syntax
+    * Issue #237: |:VimwikiRenameFile| now works for Markdown syntax
     * Issue #612: GVim menu displayed duplicate names.
     * Issue #456: Omnicompletion of wikilinks under Windows. Note: this should
       be considered a temporary fix until #478 is closed.
-    * Issue #654: Fix `:VimwikiShowVersion` command.
+    * Issue #654: Fix |:VimwikiShowVersion| command.
     * PR #634: Removed extra newlines that were inserted before/after
       generated links.
     * Issue #543: Allow commands related to opening index files or diary pages
@@ -3656,9 +3769,15 @@ Fixed:~
       rendered correctly.
     * Issue #835: Pressing enter on the dash of a markdown list causes an error.
     * Issue #876: E684: list index out of range: 0, when creating a link containing a `.`.
-    * Issue #803: `:VimwikiGenerateLinks` for subdirectory only
+    * Issue #803: |:VimwikiGenerateLinks| for subdirectory only
     * Issue #776: Command [count]o can't repeat in vimwiki
 
+
+2.4.1 (2019-02-20)~
+Fixed:
+    * Fix VimwikiShowVersion function.
+    * strikethrough `~` characters were not hidden within tables
+    * Update and format README.md and update screen shots
 
 2.4 (2019-03-24)~
 
@@ -3668,6 +3787,9 @@ New:~
     * glx on a list item marks a checkbox as won't do, see |vimwiki_glx|.
     * Add the option |g:vimwiki_listsym_rejected| to set the character used
       for won't-do list items.
+    * The effect of |g:vimwiki_listsyms| and |g:vimwiki_listsym_rejected| can
+      be set on a per wiki level, see |vimwiki-listsyms| and
+      |vimwili-listsym_rejected|
     * gln and glp change the "done" status of a checkbox, see |vimwiki_gln|.
     * |:VimwikiSplitLink| and |:VimwikiVSplitLink| can now reuse an existing
       split window and not move the cursor.
@@ -3680,6 +3802,8 @@ New:~
     * Add the %date placeholder, see |vimwiki-date|.
     * Add the option |vimwiki-option-custom_wiki2html_args|.
     * Add support for HTML-style comments when using markdown syntax.
+    * Made headings link to themselves in HTML output.
+    * Add |:VimwikiShowVersion| to check the version
 
 Removed:~
     * Remove the undocumented and buggy command :VimwikiReadLocalOptions
@@ -3704,6 +3828,10 @@ Fixed:~
     * Opening the diary and wikis from the menu works correctly now.
     * Issue #497: Make |:VimwikiMakeDiaryNote| work outside a wiki buffer.
     * Use markdown syntax in the diary when appropriate.
+    * Improve handling of errors on opening files.
+    * Update links when renaming a page with |:VimwikiRenameLink|.
+    * Fix losing the highlighting in various situations.
+    * Improved link normalisation.
     * Various other minor fixes.
 
 
@@ -3734,7 +3862,7 @@ Removed:~
 
 Fixed:~
     * Issue #175: Don't do random things when the user has remapped the z key
-    * Don't ask for confirmation when following an URL in MacOS
+    * Don't ask for confirmation when following a URL in MacOS
     * Always jump to the first occurrence of a tag in a file
     * Don't move the cursor when updating the TOC
     * Fix some issues with the TOC when folding is enabled
@@ -3928,6 +4056,8 @@ http://code.google.com/p/vimwiki/issues/list
     * Issue 218: Command to generate HTML file and open it in webbrowser. See
       |:Vimwiki2HTMLBrowse|(bind to <Leader>whh)
     * NEW: Added <Leader>wh mapping to call |:Vimwiki2HTML|
+
+
 ...
 
 39 releases

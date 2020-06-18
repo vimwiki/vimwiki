@@ -1,6 +1,13 @@
 # Contributing to Vimwiki
 
-## Pull Requests
+# Filing a bug
+
+Before filing a bug or starting to write a patch, check the latest development version from
+https://github.com/vimwiki/vimwiki/tree/dev to see if your problem is already fixed.
+
+Issues can be filed at https://github.com/vimwiki/vimwiki/issues/ .
+
+# Creating a pull request
 
 If you want to provide a pull request on GitHub, please start from the `dev` branch, not from the
 `master` branch. (Caution, GitHub shows `master` as the default branch from which to start a PR.)
@@ -19,7 +26,7 @@ linter checks. See the [test README](test/README.md) for more info.
 - In addition to the included tests, there are more example wikis that can be used for testing
   [here](https://github.com/vimwiki/testwikis).
 
-## More info and advice for (aspiring) core developers
+# More info and advice for (aspiring) core developers
 
 - Before implementing a non-trivial feature, think twice what it means for the user. We should
   always try to keep backward compatibility. If you are not sure, discuss it on GitHub.

@@ -52,34 +52,34 @@ function! s:highlight_existing_links() abort
   " match [URL][]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template1')),
-        \ safe_links, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_links, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
   " match [DESCRIPTION][URL]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
-        \ safe_links, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_links, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
 
   " match [DIRURL][]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template1')),
-        \ safe_dirs, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_dirs, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
   " match [DESCRIPTION][DIRURL]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
-        \ safe_dirs, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_dirs, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
 
   " match [MKDREF][]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template1')),
-        \ safe_reflinks, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_reflinks, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
   " match [DESCRIPTION][MKDREF]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
-        \ safe_reflinks, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+        \ safe_reflinks, vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
   call s:add_target_syntax_ON(s:wrap_wikilink1_rx(target), 'VimwikiWikiLink1')
 endfunction
 
@@ -113,13 +113,13 @@ let s:rxSchemes = '\%('.
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template1')),
       \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'),
-      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
 call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 " b) match [DESCRIPTION][nonwiki-scheme-URL]
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_syntaxlocal('WikiLink1Template2')),
       \ s:rxSchemes . vimwiki#vars#get_syntaxlocal('rxWikiLink1Url'),
-      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '')
+      \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
 call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 
 

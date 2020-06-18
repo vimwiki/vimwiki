@@ -130,10 +130,16 @@ function! s:normalize_link_syntax_v() abort
             \ '__LinkUrl__', visual_selection, '')
     endif
 
-    " replace spaces with new character if option is set
+    " Replace spaces with new character if option is set
     let link = substitute(link, '\s', vimwiki#vars#get_wikilocal('links_space_char'), 'g')
 
+    " Replace description
     let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
+
+    " Replace file extension
+    let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+    let link = s:safesubstitute(link, '__FileExtension__', file_extension , '')
+
     call setreg('"', substitute(link, '\n', '', ''), visualmode())
 
     " paste result
@@ -148,15 +154,12 @@ endfunction
 
 
 function! vimwiki#markdown_base#normalize_link(is_visual_mode) abort
-  if 0
-    " Syntax-specific links
-  else
-    if !a:is_visual_mode
-      call s:normalize_link_syntax_n()
-    elseif line("'<") == line("'>")
-      " action undefined for multi-line visual mode selections
-      call s:normalize_link_syntax_v()
-    endif
+
+  if !a:is_visual_mode
+    call s:normalize_link_syntax_n()
+  elseif line("'<") == line("'>")
+    " action undefined for multi-line visual mode selections
+    call s:normalize_link_syntax_v()
   endif
 endfunction
 

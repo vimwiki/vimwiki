@@ -1,0 +1,199 @@
+Include: vader_includes/vader_setup.vader
+
+Given vimwiki (simple list):
+  * [X] Done 1
+  * [ ] Todo 1
+  * [X] Done 2
+  * [ ] Todo 2
+
+Execute (Set syntax to default):
+  call SetSyntax('default')
+
+Do (clean done, without recursion):
+  :call vimwiki#lst#remove_done_in_current_list(0)\<Enter>
+
+Expect (two removed):
+  * [ ] Todo 1
+  * [ ] Todo 2
+
+Given vimwiki (simple list):
+  * [X] Done 1
+  * [ ] Todo 1
+  * [X] Done 2
+  * [ ] Todo 2
+
+Do (clean done with recursion, function):
+  :call vimwiki#lst#remove_done_in_current_list(1)\<Enter>
+
+Expect (two removed):
+  * [ ] Todo 1
+  * [ ] Todo 2
+
+Given vimwiki (simple list):
+  * [X] Done 1
+  * [ ] Todo 1
+  * [X] Done 2
+  * [ ] Todo 2
+
+Do (clean done with recursion, command):
+  :VimwikiRemoveDone\<Enter>
+
+Expect (two removed):
+  * [ ] Todo 1
+  * [ ] Todo 2
+
+Given vimwiki (with sub items):
+  * [X] Done 1
+    * [X] Subdone 1
+  * [ ] Todo 1
+  * [o] Done 2
+    * [X] Subdone1
+    * [ ] Subtodo
+  * [ ] Todo 2
+
+Do (clean done, without recursion):
+  :call vimwiki#lst#remove_done_in_current_list(0)\<Enter>
+
+Expect (first removed):
+  * [ ] Todo 1
+  * [o] Done 2
+    * [X] Subdone1
+    * [ ] Subtodo
+  * [ ] Todo 2
+
+Given vimwiki (with sub items):
+  * [ ] Todo 1
+  * [o] Done 2
+    * [X] Subdone1
+    * [ ] Subtodo
+  * [ ] Todo 2
+
+Do (clean done, with recursion):
+  :call vimwiki#lst#remove_done_in_current_list(1)\<Enter>
+
+Expect (all removed):
+  * [ ] Todo 1
+  * [ ] Done 2
+    * [ ] Subtodo
+  * [ ] Todo 2
+
+Given vimwiki (nested list with space and code):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+  * [ ] Todo code
+     {{{code
+     * [X] print "hello, world"
+     }}}
+
+  * [ ] Post code Todo
+    * [X] Done Sub-child
+      * [X] Sub-sub-child
+      * Without cb
+  * [X] Post code Done
+    * [X] Done Sub-child
+      * [X] Sub-sub-child
+      * Without cb
+
+Do (clean done, without recursion):
+  :call vimwiki#lst#remove_done_in_current_list(0)\<Enter>
+
+Expect (removed):
+  * [ ] Todo 1
+
+  * [ ] Todo Post space
+
+  * [ ] Todo code
+     {{{code
+     * [X] print "hello, world"
+     }}}
+
+  * [ ] Post code Todo
+    * [X] Done Sub-child
+      * [X] Sub-sub-child
+      * Without cb
+
+Given vimwiki (nested list with space and code):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+  * [ ] Todo code
+     {{{code
+     * [X] print "hello, world"
+     }}}
+
+  * [ ] Post code Todo
+    * [X] Done Sub-child
+      * [X] Sub-sub-child
+      * Without cb
+  * [X] Post code Done
+    * [X] Done Sub-child
+      * [X] Sub-sub-child
+      * Without cb
+
+Do (clean done, with recursion):
+  :call vimwiki#lst#remove_done_in_current_list(1)\<Enter>
+
+Expect (removed):
+  * [ ] Todo 1
+
+  * [ ] Todo Post space
+
+  * [ ] Todo code
+     {{{code
+     * [X] print "hello, world"
+     }}}
+
+  * [ ] Post code Todo
+
+Given vimwiki (two lists):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+Do (clean done, with recursion):
+  :call vimwiki#lst#remove_done_in_current_list(1)\<Enter>
+
+Expect (only first is removed):
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [ ] Todo Post space
+  * [X] Done Post space
+
+Given vimwiki (list):
+  * [X] Done 1
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [X] Done 2
+  * [X] Done 3
+  * [ ] Todo 2
+  * [X] Done 4
+
+Do (clean done, with range):
+  :1,6VimwikiRemoveDone\<Enter>
+
+Expect (only first is removed):
+  * [ ] Todo 1
+
+  Line in between.
+
+  * [X] Done 3
+  * [ ] Todo 2
+  * [X] Done 4
+
+
+Include: vader_includes/vader_teardown.vader

@@ -1,0 +1,84 @@
+# Non regression tests for issues, see changelog
+# In reverse chronological order
+#
+# Thanks to all contributors with issues and pull request on github
+# 
+
+
+Include: vader_includes/vader_setup.vader
+
+
+# #735 Fix off-by-one error in get_next_line and get_prev_line
+Given vimwiki (P#735 -> I#407):
+  1. item1
+  2. item2
+    ```
+    echo "hello world"
+    ```
+  3. item3
+
+Do (o):
+  o
+
+Expect (Renumber all):
+  1. item1
+  2. 
+  3. item2
+    ```
+    echo "hello world"
+    ```
+  4. item3
+
+
+# TODO move to option
+# #899 conceallevel is setted globally when editing a wiki file
+Given vimwiki (Void):
+
+Execute (conceal):
+# First conceal 2
+  set conceallevel=1
+  let g:vimwiki_global_vars['conceallevel']=2
+  call SetSyntax('markdown')
+  file main.md
+  edit
+  AssertEqual &ft, 'vimwiki'
+  AssertEqual @%, 'main.md'
+  if exists('+conceallevel')
+    AssertEqual &conceallevel, 2
+  endif
+# Second New conceal 0
+#  let g:vimwiki_global_vars['conceallevel']=0
+#  edit new.md
+#  AssertEqual &ft, 'vimwiki'
+#  AssertEqual @%, 'new.md'
+#  if exists('+conceallevel')
+#    AssertEqual &conceallevel, 0
+#  endif
+#  bd!
+
+
+# PR #528: Add option |g:vimwiki_create_link| to prevent link creation
+Given vimwiki (Link):
+  Link
+
+Do (Enter):
+  \<CR>
+
+# TODO should be Link.md, revise the test
+Expect (Link):
+  [Link](Link)
+
+Do (<CR><CR>):
+  \<CR>\<CR>
+  :AssertEqual expand('%:t'), 'Link.md'\<CR>
+
+Given vimwiki (Link):
+  Link
+
+Do (No link: <CR><CR>):
+  :call vimwiki#vars#set_global('markdown_create_link', 0)
+  \<CR>\<CR>
+  :AssertEqual expand('%:t'), 'main.md'\<CR>
+
+
+Include: vader_includes/vader_teardown.vader

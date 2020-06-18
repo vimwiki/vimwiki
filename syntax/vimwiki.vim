@@ -51,33 +51,33 @@ function! s:highlight_existing_links() abort
   " match [[URL]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
-        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[URL|DESCRIPTION]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
-        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+        \ safe_links, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 
   " match {{URL}}
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate1')),
-        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '')
+        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match {{URL|...}}
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate2')),
-        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '')
+        \ safe_links, vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[DIRURL]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
-        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
   " match [[DIRURL|DESCRIPTION]]
   let target = vimwiki#base#apply_template(
         \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
-        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+        \ safe_dirs, vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 endfunction
 
@@ -114,26 +114,26 @@ let s:rxSchemes = '\%('.
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate1')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiLinkUrl'),
-      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 " b) match [[nonwiki-scheme-URL|DESCRIPTION]]
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiLinkTemplate2')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiLinkUrl'),
-      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '')
+      \ vimwiki#vars#get_global('rxWikiLinkDescr'), '', '')
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 " a) match {{nonwiki-scheme-URL}}
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate1')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiInclUrl'),
-      \ vimwiki#vars#get_global('rxWikiInclArgs'), '')
+      \ vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 " b) match {{nonwiki-scheme-URL}[{...}]}
 let s:target = vimwiki#base#apply_template(
       \ vimwiki#u#escape(vimwiki#vars#get_global('WikiInclTemplate2')),
       \ s:rxSchemes.vimwiki#vars#get_global('rxWikiInclUrl'),
-      \ vimwiki#vars#get_global('rxWikiInclArgs'), '')
+      \ vimwiki#vars#get_global('rxWikiInclArgs'), '', '')
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
@@ -254,18 +254,18 @@ syntax match VimwikiCellSeparator
 
 
 " Lists
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB').'/'
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
-execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_syntaxlocal('rxListItem').'/'
+execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
 
 if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
-        \ . '\s*\[['.vimwiki#vars#get_syntaxlocal('listsyms_list')[-1]
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
         \ . vimwiki#vars#get_global('listsym_rejected')
         \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
-        \ . vimwiki#vars#get_syntaxlocal('rxListItemAndChildren')
+        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 

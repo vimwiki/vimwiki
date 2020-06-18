@@ -2,11 +2,12 @@
 " Vimwiki filetype plugin file
 " Home: https://github.com/vimwiki/vimwiki/
 
+
+" Cause: load only onces per buffer
 if exists('b:did_ftplugin')
   finish
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
-
 
 
 setlocal commentstring=%%%s
@@ -22,7 +23,7 @@ setlocal isfname-=[,]
 exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 
-
+" Help for omnicompletion
 function! Complete_wikifiles(findstart, base) abort
   if a:findstart == 1
     let column = col('.')-2
@@ -80,7 +81,7 @@ function! Complete_wikifiles(findstart, base) abort
         let scheme = ''
       endif
 
-      let links = vimwiki#base#get_wikilinks(wikinumber, 1)
+      let links = vimwiki#base#get_wikilinks(wikinumber, 1, '')
       let result = []
       for wikifile in links
         if wikifile =~ '^'.vimwiki#u#escape(prefix)
@@ -115,8 +116,7 @@ endfunction
 setlocal omnifunc=Complete_wikifiles
 
 
-
-" settings necessary for the automatic formatting of lists
+" Declare settings necessary for the automatic formatting of lists
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
@@ -127,18 +127,20 @@ setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
 
-let &formatlistpat = vimwiki#vars#get_syntaxlocal('rxListItem')
+let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 
 
 " ------------------------------------------------
 " Folding stuff
 " ------------------------------------------------
 
+" Get fold level for a list
 function! VimwikiFoldListLevel(lnum) abort
   return vimwiki#lst#fold_level(a:lnum)
 endfunction
 
 
+" Get fold level for 1. line number
 function! VimwikiFoldLevel(lnum) abort
   let line = getline(a:lnum)
 
@@ -156,7 +158,7 @@ function! VimwikiFoldLevel(lnum) abort
 endfunction
 
 
-" Constants used by VimwikiFoldText
+" Declare constants used by VimwikiFoldText
 " use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
 let s:ellipsis = (&encoding ==? 'utf-8') ? "\u2026" : '...'
 let s:ell_len = strlen(s:ellipsis)
@@ -164,18 +166,20 @@ let s:newline = (&encoding ==? 'utf-8') ? "\u21b2 " : '  '
 let s:tolerance = 5
 
 
-" unused
+" unused: too naive
 function! s:shorten_text_simple(text, len) abort
   let spare_len = a:len - len(a:text)
   return (spare_len>=0) ? [a:text,spare_len] : [a:text[0:a:len].s:ellipsis, -1]
 endfunction
 
 
+" Shorten text
+" Called: by VimwikiFoldText
 " s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
 " for long enough "text", the string's length is within s:tolerance of "len"
 " (so that -s:tolerance <= spare <= s:tolerance, "string" ends with s:ellipsis)
+" Return: [string, spare]
 function! s:shorten_text(text, len) abort
-  " returns [string, spare]
   " strlen() returns lenght in bytes, not in characters, so we'll have to do a
   " trick here -- replace all non-spaces with dot, calculate lengths and
   " indexes on it, then use original string to break at selected index.
@@ -192,6 +196,7 @@ function! s:shorten_text(text, len) abort
 endfunction
 
 
+" Fold text chapter
 function! VimwikiFoldText() abort
   let line = getline(v:foldstart)
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
@@ -242,8 +247,14 @@ command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
-command! -buffer VimwikiDeleteLink call vimwiki#base#delete_link()
-command! -buffer VimwikiRenameLink call vimwiki#base#rename_link()
+command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
+command! -buffer VimwikiDeleteLink
+      \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
+      \ call vimwiki#base#delete_link()
+command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+command! -buffer VimwikiRenameLink
+      \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
+      \ call vimwiki#base#rename_link()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
 command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
@@ -286,6 +297,7 @@ command! -buffer VimwikiRemoveCBInList call vimwiki#lst#remove_cb_in_list()
 command! -buffer VimwikiRenumberList call vimwiki#lst#adjust_numbered_list()
 command! -buffer VimwikiRenumberAllLists call vimwiki#lst#adjust_whole_buffer()
 command! -buffer VimwikiListToggle call vimwiki#lst#toggle_list_item()
+command! -buffer -range VimwikiRemoveDone call vimwiki#lst#remove_done(1, "<range>", <line1>, <line2>)
 
 " table commands
 command! -buffer -nargs=* VimwikiTable call vimwiki#tbl#create(<f-args>)
@@ -304,6 +316,10 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiSearchTags VimwikiSearch /:<args>:/
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiGenerateTagLinks call vimwiki#tags#generate_tags(1, <f-args>)
+command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
+      \ VimwikiGenerateTags
+      \ call vimwiki#base#deprecate("VimwikiGenerateTags", "VimwikiGenerateTagLinks") |
+      \ call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
@@ -357,10 +373,10 @@ nnoremap <silent><script><buffer> <Plug>VimwikiPrevLink
     \ :VimwikiPrevLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiGoto
     \ :VimwikiGoto<CR>
-nnoremap <silent><script><buffer> <Plug>VimwikiDeleteLink
-    \ :VimwikiDeleteLink<CR>
-nnoremap <silent><script><buffer> <Plug>VimwikiRenameLink
-    \ :VimwikiRenameLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiDeleteFile
+    \ :VimwikiDeleteFile<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiRenameFile
+    \ :VimwikiRenameFile<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDiaryNextDay
     \ :VimwikiDiaryNextDay<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDiaryPrevDay
@@ -380,8 +396,8 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<TAB>', '<Plug>VimwikiNextLink')
   call vimwiki#u#map_key('n', '<S-TAB>', '<Plug>VimwikiPrevLink')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
-  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteLink')
-  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameLink')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteFile')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameFile')
   call vimwiki#u#map_key('n', '<C-Down>', '<Plug>VimwikiDiaryNextDay')
   call vimwiki#u#map_key('n', '<C-Up>', '<Plug>VimwikiDiaryPrevDay')
 endif
@@ -518,6 +534,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   endif
 endif
 
+" Not used
 function! s:CR(normal, just_mrkr) abort
   let res = vimwiki#tbl#kbd_cr()
   if res !=? ''
