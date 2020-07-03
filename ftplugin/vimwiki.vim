@@ -330,16 +330,12 @@ command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
 " ------------------------------------------------
 
 " Allow the use to redefine <TAB> and <S-TAB>.
-if exists('g:vimwiki_tab_key')
-  let s:vimwiki_tab_key = g:vimwiki_tab_key
-else
-  let s:vimwiki_tab_key = '<TAB>' 
+if !exists('g:vimwiki_tab_key')
+  let g:vimwiki_tab_key = '<TAB>' 
 endif
 
-if exists('g:vimwiki_shift_tab_key')
-  let s:vimwiki_shift_tab_key = g:vimwiki_shift_tab_key
-else
-  let s:vimwiki_shift_tab_key = '<S-TAB>' 
+if !exists('g:vimwiki_shift_tab_key')
+  let g:vimwiki_shift_tab_key = '<S-TAB>' 
 endif
 
 " mouse mappings
@@ -406,8 +402,8 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<D-CR>', '<Plug>VimwikiTabnewLink')
   call vimwiki#u#map_key('n', '<C-S-CR>', '<Plug>VimwikiTabnewLink', 1)
   call vimwiki#u#map_key('n', '<BS>', '<Plug>VimwikiGoBackLink')
-  call vimwiki#u#map_key('n', s:vimwiki_tab_key, '<Plug>VimwikiNextLink')
-  call vimwiki#u#map_key('n', s:vimwiki_shift_tab_key, '<Plug>VimwikiPrevLink')
+  call vimwiki#u#map_key('n', g:vimwiki_tab_key, '<Plug>VimwikiNextLink')
+  call vimwiki#u#map_key('n', g:vimwiki_shift_tab_key, '<Plug>VimwikiPrevLink')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteFile')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameFile')
@@ -560,8 +556,8 @@ endfunction
 
 " insert mode table mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
-  inoremap <expr><buffer> s:vimwiki_tab_key vimwiki#tbl#kbd_tab()
-  inoremap <expr><buffer> s:vimwiki_shift_tab_key vimwiki#tbl#kbd_shift_tab()
+  exe 'inoremap <expr><buffer> '.g:vimwiki_tab_key.' vimwiki#tbl#kbd_tab()'
+  exe 'inoremap <expr><buffer> '.g:vimwiki_shift_tab_key.' vimwiki#tbl#kbd_shift_tab()'
 endif
 
 " <Plug> table formatting definitions
