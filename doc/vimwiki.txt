@@ -3595,6 +3595,7 @@ Contributors and their Github usernames in roughly chronological order:
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
+    - Gary A. Howard (@Traap)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3609,6 +3610,7 @@ New:~
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * Support g:vimwiki_tab_key and g:vimwiki_shift_tab_key
 
 2.5 (2020-05-26)~
 
