@@ -829,6 +829,9 @@ Vimwiki file.
     converted or have been modified since their last conversion. With !,
     convert all pages, regardless of whether or not they are out-of-date.
 
+*:VimwikiRss*
+    Generate an RSS feed for the latest diary entries.
+
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
     See |vimwiki-todo-lists|.
@@ -1617,7 +1620,7 @@ If you do not want a wiki page to be converted to HTML, place:
 
 %nohtml
 
-into it.
+into it. This will also prevent inclusion in the RSS feed.
 
 
 ------------------------------------------------------------------------------
@@ -2693,6 +2696,34 @@ regeneration of HTML files.
 This setting also turns off the automatic deletion of files
 in the site_html directory which don't match existing wiki files.
 
+*vimwiki-option-rss_name*
+------------------------------------------------------------------------------
+Key             Default value~
+rss_name        rss.xml
+
+Description~
+Setup RSS file name: >
+  let g:vimwiki_list = [{'path': '~/my_pages/', 'rss_name': 'feed.rss'}]
+<
+Vimwiki will generate an RSS feed for the diary in this file.
+
+*vimwiki-option-rss_max_items*
+------------------------------------------------------------------------------
+Key             Default value~
+rss_max_items   10
+
+Description~
+This setting limits the number of diary entries exported into the RSS feed.
+
+*vimwiki-option-base_url*
+------------------------------------------------------------------------------
+Key             Default value~
+base_url        ''
+
+Description~
+This setting specifies the URL where the generated VimWiki HTML pages can
+be reached. It is used for the link to the RSS feed and for links to the
+diary entries inside the feed.
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
@@ -3642,6 +3673,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
     - Rafael Castillo (@eltrufas)
+    - Reiner Herrmann (@reinerh)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3658,6 +3690,7 @@ New:~
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
     * PR #901: adds multiparagraph blockquotes using email style syntax
+    * PR #934: RSS feed generation for diary with :VimwikiRss.
 
 2.5 (2020-05-26)~
 

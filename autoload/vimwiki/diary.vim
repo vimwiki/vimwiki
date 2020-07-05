@@ -262,6 +262,9 @@ function! s:sort(lst) abort
   endif
 endfunction
 
+function! vimwiki#diary#diary_sort(lst) abort
+  return s:sort(a:lst)
+endfunction
 
 " Create note
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
@@ -503,4 +506,8 @@ function! vimwiki#diary#calendar_sign(day, month, year) abort
   let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
         \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
+endfunction
+
+function! vimwiki#diary#diary_file_captions() abort
+  return s:read_captions(vimwiki#diary#get_diary_files())
 endfunction
