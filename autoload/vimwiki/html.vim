@@ -1574,7 +1574,7 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
   endif
 endfunction
 
-function s:convert_file_to_lines(wikifile, current_html_file) abort
+function! s:convert_file_to_lines(wikifile, current_html_file) abort
   let result = {}
 
   " the currently processed file name is needed when processing links
@@ -1679,7 +1679,7 @@ function s:convert_file_to_lines(wikifile, current_html_file) abort
   return result
 endfunction
 
-function s:convert_file_to_lines_template(wikifile, current_html_file) abort
+function! s:convert_file_to_lines_template(wikifile, current_html_file) abort
   let converted = s:convert_file_to_lines(a:wikifile, a:current_html_file)
   if converted['nohtml'] == 1
     return []
@@ -1696,6 +1696,10 @@ function s:convert_file_to_lines_template(wikifile, current_html_file) abort
   let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
   let css_name = substitute(css_name, '\', '/', 'g')
   call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
+
+  let rss_name = expand(vimwiki#vars#get_wikilocal('rss_name'))
+  let rss_name = substitute(rss_name, '\', '/', 'g')
+  call map(html_lines, 'substitute(v:val, "%rss%", "'. rss_name .'", "g")')
 
   let enc = &fileencoding
   if enc ==? ''
@@ -1837,4 +1841,92 @@ endfunction
 
 function! vimwiki#html#CatUrl(wikifile) abort
   execute '!echo file://'.s:get_wikifile_url(a:wikifile)
+endfunction
+
+
+function! s:rss_header() abort
+  let title = vimwiki#vars#get_wikilocal('diary_header')
+  let rss_url = vimwiki#vars#get_wikilocal('base_url') . vimwiki#vars#get_wikilocal('rss_name')
+  let link = vimwiki#vars#get_wikilocal('base_url')
+        \ . vimwiki#vars#get_wikilocal('diary_rel_path')
+        \ . vimwiki#vars#get_wikilocal('diary_index') . '.html'
+  let description = title
+  let pubdate = strftime('%a, %d %b %Y %T %z')
+  let header = [
+        \ '<?xml version="1.0" encoding="UTF-8" ?>',
+        \ '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+        \ '<channel>',
+        \ ' <title>' . title . '</title>',
+        \ ' <link>' . link . '</link>',
+        \ ' <description>' . description . '</description>',
+        \ ' <pubDate>' . pubdate . '</pubDate>',
+        \ ' <atom:link href="' . rss_url . '" rel="self" type="application/rss+xml" />'
+        \ ]
+  return header
+endfunction
+
+function! s:rss_footer() abort
+  let footer = ['</channel>', '</rss>']
+  return footer
+endfunction
+
+function! s:rss_item(path, title) abort
+  let diary_rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
+  let full_path = vimwiki#vars#get_wikilocal('path')
+        \ . diary_rel_path . a:path . vimwiki#vars#get_wikilocal('ext')
+  let fname_base = fnamemodify(a:path, ':t:r')
+  let htmlfile = fname_base . '.html'
+
+  let converted = s:convert_file_to_lines(full_path, htmlfile)
+  if converted['nohtml'] == 1
+    return []
+  endif
+
+  let link = vimwiki#vars#get_wikilocal('base_url')
+        \ . diary_rel_path
+        \ . fname_base . '.html'
+  let pubdate = strftime('%a, %d %b %Y %T %z', getftime(full_path))
+
+  let item_pre = [' <item>',
+        \ '  <title>' . a:title . '</title>',
+        \ '  <link>' . link . '</link>',
+        \ '  <guid isPermaLink="false">' . fname_base . '</guid>',
+        \ '  <description><![CDATA[']
+  let item_post = [']]></description>',
+        \ '  <pubDate>' . pubdate . '</pubDate>',
+        \ ' </item>'
+        \]
+  return item_pre + converted['html'] + item_post
+endfunction
+
+function! s:generate_rss(path) abort
+  let rss_path = a:path . vimwiki#vars#get_wikilocal('rss_name')
+  let max_items = vimwiki#vars#get_wikilocal('rss_max_items')
+
+  let rss_lines = []
+  call extend(rss_lines, s:rss_header())
+
+  let captions = vimwiki#diary#diary_file_captions()
+  let i = 0
+  for diary in vimwiki#diary#diary_sort(keys(captions))
+    if i >= max_items
+      break
+    endif
+    let title = captions[diary]['top']
+    if title ==? ''
+      let title = diary
+    endif
+    call extend(rss_lines, s:rss_item(diary, title))
+    let i += 1
+  endfor
+
+  call extend(rss_lines, s:rss_footer())
+  call writefile(rss_lines, rss_path)
+endfunction
+
+function! vimwiki#html#diary_rss() abort
+  echomsg 'Vimwiki: Saving RSS feed ...'
+  let path_html = expand(vimwiki#vars#get_wikilocal('path_html'))
+  call vimwiki#path#mkdir(path_html)
+  call s:generate_rss(path_html)
 endfunction
