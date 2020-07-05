@@ -1574,19 +1574,144 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
   endif
 endfunction
 
-
-function! s:convert_file(path_html, wikifile) abort
-  let done = 0
-
-  let wikifile = fnamemodify(a:wikifile, ':p')
-
-  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
-  let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
+function s:convert_file_to_lines(wikifile, current_html_file) abort
+  let result = {}
 
   " the currently processed file name is needed when processing links
   " yeah yeah, shame on me for using (quasi-) global variables
-  let s:current_wiki_file = wikifile
-  let s:current_html_file = path_html . htmlfile
+  let s:current_wiki_file = a:wikifile
+  let s:current_html_file = a:current_html_file
+
+  let lsource = readfile(a:wikifile)
+  let ldest = []
+
+  " nohtml placeholder -- to skip html generation.
+  let nohtml = 0
+
+  " template placeholder
+  let template_name = ''
+
+  " for table of contents placeholders.
+  let placeholders = []
+
+  " current state of converter
+  let state = {}
+  let state.para = 0
+  let state.quote = 0
+  let state.arrow_quote = 0
+  let state.pre = [0, 0] " [in_pre, indent_pre]
+  let state.math = [0, 0] " [in_math, indent_math]
+  let state.table = []
+  let state.deflist = 0
+  let state.lists = []
+  let state.placeholder = []
+  let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+       " [last seen header text in this level, number]
+
+  " prepare constants for s:safe_html_line()
+  let s:lt_pattern = '<'
+  let s:gt_pattern = '>'
+  if vimwiki#vars#get_global('valid_html_tags') !=? ''
+    let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
+    let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!'
+    let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
+  endif
+
+  " prepare regexps for lists
+  let s:bullets = vimwiki#vars#get_wikilocal('rx_bullet_char')
+  let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
+
+  for line in lsource
+    let oldquote = state.quote
+    let [lines, state] = s:parse_line(line, state)
+
+    " Hack: There could be a lot of empty strings before s:process_tag_quote
+    " find out `quote` is over. So we should delete them all. Think of the way
+    " to refactor it out.
+    if oldquote != state.quote
+      call s:remove_blank_lines(ldest)
+    endif
+
+    if !empty(state.placeholder)
+      if state.placeholder[0] ==# 'nohtml'
+        let nohtml = 1
+        break
+      elseif state.placeholder[0] ==# 'template'
+        let template_name = state.placeholder[1]
+      else
+        call add(placeholders, [state.placeholder, len(ldest), len(placeholders)])
+      endif
+      let state.placeholder = []
+    endif
+
+    call extend(ldest, lines)
+  endfor
+
+
+  let result['nohtml'] = nohtml
+  if nohtml
+    echon "\r".'%nohtml placeholder found'
+    return result
+  endif
+
+  call s:remove_blank_lines(ldest)
+
+  " process end of file
+  " close opened tags if any
+  let lines = []
+  call s:close_tag_quote(state.quote, lines)
+  call s:close_tag_arrow_quote(state.arrow_quote, lines)
+  call s:close_tag_para(state.para, lines)
+  call s:close_tag_pre(state.pre, lines)
+  call s:close_tag_math(state.math, lines)
+  call s:close_tag_list(state.lists, lines)
+  call s:close_tag_def_list(state.deflist, lines)
+  call s:close_tag_table(state.table, lines, state.header_ids)
+  call extend(ldest, lines)
+
+  let result['html'] = ldest
+
+  let result['template_name'] = template_name
+  let result['title'] = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
+  let result['date'] = s:process_date(placeholders, strftime('%Y-%m-%d'))
+  let result['wiki_path'] = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
+
+  return result
+endfunction
+
+function s:convert_file_to_lines_template(wikifile, current_html_file) abort
+  let converted = s:convert_file_to_lines(a:wikifile, a:current_html_file)
+  if converted['nohtml'] == 1
+    return []
+  endif
+  let html_lines = s:get_html_template(converted['template_name'])
+
+  " processing template variables (refactor to a function)
+  call map(html_lines, 'substitute(v:val, "%title%", "'. converted['title'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%date%", "'. converted['date'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%root_path%", "'.
+        \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. converted['wiki_path'] .'", "g")')
+
+  let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
+  let css_name = substitute(css_name, '\', '/', 'g')
+  call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
+
+  let enc = &fileencoding
+  if enc ==? ''
+    let enc = &encoding
+  endif
+  call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
+
+  let html_lines = s:html_insert_contents(html_lines, converted['html']) " %contents%
+
+  return html_lines
+endfunction
+
+function! s:convert_file(path_html, wikifile) abort
+  let done = 0
+  let wikifile = fnamemodify(a:wikifile, ':p')
+  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
 
   if s:use_custom_wiki2html()
     let force = 1
@@ -1595,122 +1720,14 @@ function! s:convert_file(path_html, wikifile) abort
   endif
 
   if s:syntax_supported() && done == 0
-    let lsource = readfile(wikifile)
-    let ldest = []
-
-    call vimwiki#path#mkdir(path_html)
-
-    " nohtml placeholder -- to skip html generation.
-    let nohtml = 0
-
-    " template placeholder
-    let template_name = ''
-
-    " for table of contents placeholders.
-    let placeholders = []
-
-    " current state of converter
-    let state = {}
-    let state.para = 0
-    let state.quote = 0
-    let state.arrow_quote = 0
-    let state.pre = [0, 0] " [in_pre, indent_pre]
-    let state.math = [0, 0] " [in_math, indent_math]
-    let state.table = []
-    let state.deflist = 0
-    let state.lists = []
-    let state.placeholder = []
-    let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-         " [last seen header text in this level, number]
-
-    " prepare constants for s:safe_html_line()
-    let s:lt_pattern = '<'
-    let s:gt_pattern = '>'
-    if vimwiki#vars#get_global('valid_html_tags') !=? ''
-      let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
-      let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!'
-      let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
-    endif
-
-    " prepare regexps for lists
-    let s:bullets = vimwiki#vars#get_wikilocal('rx_bullet_char')
-    let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
-
-    for line in lsource
-      let oldquote = state.quote
-      let [lines, state] = s:parse_line(line, state)
-
-      " Hack: There could be a lot of empty strings before s:process_tag_quote
-      " find out `quote` is over. So we should delete them all. Think of the way
-      " to refactor it out.
-      if oldquote != state.quote
-        call s:remove_blank_lines(ldest)
-      endif
-
-      if !empty(state.placeholder)
-        if state.placeholder[0] ==# 'nohtml'
-          let nohtml = 1
-          break
-        elseif state.placeholder[0] ==# 'template'
-          let template_name = state.placeholder[1]
-        else
-          call add(placeholders, [state.placeholder, len(ldest), len(placeholders)])
-        endif
-        let state.placeholder = []
-      endif
-
-      call extend(ldest, lines)
-    endfor
-
-
-    if nohtml
-      echon "\r".'%nohtml placeholder found'
+    let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
+    let html_lines = s:convert_file_to_lines_template(wikifile, path_html . htmlfile)
+    if html_lines == []
       return ''
     endif
-
-    call s:remove_blank_lines(ldest)
-
-    " process end of file
-    " close opened tags if any
-    let lines = []
-    call s:close_tag_quote(state.quote, lines)
-    call s:close_tag_arrow_quote(state.arrow_quote, lines)
-    call s:close_tag_para(state.para, lines)
-    call s:close_tag_pre(state.pre, lines)
-    call s:close_tag_math(state.math, lines)
-    call s:close_tag_list(state.lists, lines)
-    call s:close_tag_def_list(state.deflist, lines)
-    call s:close_tag_table(state.table, lines, state.header_ids)
-    call extend(ldest, lines)
-
-    let title = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
-    let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
-    let wiki_path = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
-
-    let html_lines = s:get_html_template(template_name)
-
-    " processing template variables (refactor to a function)
-    call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%root_path%", "'.
-          \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. wiki_path .'", "g")')
-
-    let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
-    let css_name = substitute(css_name, '\', '/', 'g')
-    call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
-
-    let enc = &fileencoding
-    if enc ==? ''
-      let enc = &encoding
-    endif
-    call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
-
-    let html_lines = s:html_insert_contents(html_lines, ldest) " %contents%
-
+    call vimwiki#path#mkdir(path_html)
     call writefile(html_lines, path_html.htmlfile)
     let done = 1
-
   endif
 
   if done == 0
