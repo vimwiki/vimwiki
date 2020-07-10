@@ -21,7 +21,16 @@ let s:markdown_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\%([[:punct:]]\|\s\|$\)\@='
 let s:markdown_syntax.char_bold = '\*\*\|__'
 
-" text: _emphasis_ or *emphasis*
+" text: ~emphasis~
+let s:markdown_syntax.rxEmphasis = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\~'.
+      \'\%([^~`[:space:]][^~`]*[^~`[:space:]]\|[^~`[:space:]]\)'.
+      \'\~'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:markdown_syntax.char_emphasis = '~'
+
+" text: _italic_
+" let s:markdown_syntax.rxItalic = '_[^_]\+_'
 let s:markdown_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\(\*\|_\)'.
       \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.

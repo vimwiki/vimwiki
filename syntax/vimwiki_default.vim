@@ -24,6 +24,14 @@ let s:default_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\%([[:punct:]]\|\s\|$\)\@='
 let s:default_syntax.char_bold = '*'
 
+" text: ~emphasis~
+let s:default_syntax.rxEmphasis = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\~'.
+      \'\%([^~`[:space:]][^~`]*[^~`[:space:]]\|[^~`[:space:]]\)'.
+      \'\~'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+let s:default_syntax.char_emphasis = '\~'
+
 " text: _emphasis_
 " let s:default_syntax.rxItalic = '_[^_]\+_'
 let s:default_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.

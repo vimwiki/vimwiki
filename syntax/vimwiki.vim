@@ -152,29 +152,28 @@ endfor
 
 
 
-" possibly concealed chars
-let s:conceal = exists('+conceallevel') ? ' conceal' : ''
+let s:conceal = exists("+conceallevel") ? ' conceal' : ''
 
-if vimwiki#vars#get_global('conceal_onechar_markers')
-  execute 'syn match VimwikiEqInChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
-  execute 'syn match VimwikiBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
-  execute 'syn match VimwikiItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
-  execute 'syn match VimwikiBoldItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
-  execute 'syn match VimwikiItalicBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
-  execute 'syn match VimwikiCodeChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
-  execute 'syn match VimwikiDelTextChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
-  execute 'syn match VimwikiSuperScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
-  execute 'syn match VimwikiSubScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
-endif
+execute 'syn match VimwikiEqInChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
+execute 'syn match VimwikiBoldChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
+execute 'syn match VimwikiEmphasisChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_emphasis').'/'.s:conceal
+execute 'syn match VimwikiItalicChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
+execute 'syn match VimwikiBoldItalicChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
+execute 'syn match VimwikiItalicBoldChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
+execute 'syn match VimwikiCodeChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
+execute 'syn match VimwikiDelTextChar contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
+execute 'syn match VimwikiSuperScript contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
+execute 'syn match VimwikiSubScript contained /'.
+      \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
 
 
 let s:options = ' contained transparent contains=NONE'
@@ -213,6 +212,8 @@ execute 'syn match VimwikiEqInCharT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_eqin').'/'
 execute 'syn match VimwikiBoldCharT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_bold').'/'
+execute 'syn match VimwikiEmphasisCharT contained /'
+      \ .vimwiki#vars#get_syntaxlocal('char_emphasis').'/'
 execute 'syn match VimwikiItalicCharT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_italic').'/'
 execute 'syn match VimwikiBoldItalicCharT contained /'
@@ -279,6 +280,12 @@ execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contains=VimwikiBoldChar,@Spell'
 execute 'syntax match VimwikiBoldT /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contained contains=VimwikiBoldCharT,@Spell'
+
+
+execute 'syntax match VimwikiEmphasis /'.vimwiki#vars#get_syntaxlocal('rxEmphasis').
+      \ '/ contains=VimwikiEmphasisChar,@Spell'
+execute 'syntax match VimwikiEmphasisT /'.vimwiki#vars#get_syntaxlocal('rxEmphasis').
+      \ '/ contained contains=VimwikiEmphasisCharT,@Spell'
 
 execute 'syntax match VimwikiItalic /'.vimwiki#vars#get_syntaxlocal('rxItalic').
       \ '/ contains=VimwikiItalicChar,@Spell'
@@ -381,6 +388,8 @@ hi def link VimwikiEqInT VimwikiEqIn
 
 hi def VimwikiBold term=bold cterm=bold gui=bold
 hi def link VimwikiBoldT VimwikiBold
+
+hi def link VimwikiEmphasisT VimwikiEmphasis
 
 hi def VimwikiItalic term=italic cterm=italic gui=italic
 hi def link VimwikiItalicT VimwikiItalic

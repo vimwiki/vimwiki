@@ -610,6 +610,8 @@ endfunction
 function! s:process_tags_typefaces(line, header_ids) abort
   let line = a:line
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxItalic'), 's:tag_em')
+  " different color for emphasizing words
+  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxEmphasis'), 's:tag_em2', a:header_ids)
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxBold'), 's:tag_strong', a:header_ids)
   let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxDelText'), 's:tag_strike')
