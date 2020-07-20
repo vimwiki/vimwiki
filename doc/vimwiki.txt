@@ -3595,6 +3595,7 @@ Contributors and their Github usernames in roughly chronological order:
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
+    - Aditya Harit (@adi93)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3606,6 +3607,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #942: Fixing wrong html link conversion in windows
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
