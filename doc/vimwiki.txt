@@ -1448,7 +1448,11 @@ Text which starts with 4 or more spaces is a blockquote.
 A line that starts with %% is a comment.
 E.g.: >
  %% this text would not be in HTML
-<
+
+The default commentstring can be disabled with |g:vimwiki_commentstring|
+so an alternative commentstring can be set, e.g.:
+  <!-- This may be a comment too -->
+
 
 ------------------------------------------------------------------------------
 5.11. Horizontal line                                      *vimwiki-syntax-hr*
@@ -3471,6 +3475,17 @@ take care when using it. Any plugin that uses a set filetype will be enabled.
 
 The default is `[ ]`
 
+
+------------------------------------------------------------------------------
+*g:vimwiki_commentstring*
+
+An option to disable the default commentstring %%%s.
+
+  let g:vimwiki_commentstring = 0
+
+The default is 1.
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3595,6 +3610,7 @@ Contributors and their Github usernames in roughly chronological order:
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
+    - Birger Niklas (@BirgerNi)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3606,6 +3622,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR: Add option |g:vimwiki_commentstring| to turn off vimwiki
+      commentstring %%%s
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
