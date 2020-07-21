@@ -38,10 +38,56 @@ endfunction
 " Return: <String> date
 function! vimwiki#diary#diary_date_link(...) abort
   if a:0
-    return strftime('%Y-%m-%d', a:1)
+    let l:timestamp = a:1
   else
-    return strftime('%Y-%m-%d')
+    let l:timestamp = localtime()
   endif
+
+  let l:delta_periods = 0
+  if a:0 > 1
+    let l:delta_periods = a:2
+  endif
+
+  let l:day_s = 60*60*24
+
+  let l:weekday_number = {
+        \ 'monday': 1, 'tuesday': 2,
+        \ 'wednesday': 3, 'thursday': 4,
+        \ 'friday': 5, 'saturday': 6,
+        \ 'sunday': 0}
+
+  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
+
+  if l:frequency == "weekly"
+    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
+    let l:weekday_num = str2nr(strftime("%w", l:timestamp))
+    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
+    let l:computed_timestamp = l:timestamp
+          \ + 7*l:day_s*l:delta_periods
+          \ - l:day_s*l:days_to_end_of_week
+
+  elseif l:frequency == "monthly"
+    let l:day_of_month = str2nr(strftime("%d", l:timestamp))
+    let l:beginning_of_month = l:timestamp - (l:day_of_month - 1)*l:day_s
+    let l:middle_of_month = l:beginning_of_month + 15*l:day_s
+    let l:middle_of_computed_month = l:middle_of_month + float2nr(30.5*l:day_s*l:delta_periods)
+    let l:day_of_computed_month = str2nr(strftime("%d", l:middle_of_computed_month)) - 1
+    let l:computed_timestamp = l:middle_of_computed_month - l:day_of_computed_month*l:day_s
+
+  elseif l:frequency == "yearly"
+    let l:day_of_year = str2nr(strftime("%j", l:timestamp))
+    let l:beginning_of_year = l:timestamp - (l:day_of_year - 1)*l:day_s
+    let l:middle_of_year = l:beginning_of_year + float2nr(365.25/2*l:day_s)
+    let l:middle_of_computed_year = l:middle_of_year + float2nr(365.25*l:day_s*l:delta_periods)
+    let l:day_of_computed_year = str2nr(strftime("%j", l:middle_of_computed_year)) - 1
+    let l:computed_timestamp = l:middle_of_computed_year - l:day_of_computed_year*l:day_s
+
+  else "daily
+    let l:computed_timestamp = localtime() + l:delta_periods*l:day_s
+  endif
+
+  return strftime('%Y-%m-%d', l:computed_timestamp)
+
 endfunction
 
 

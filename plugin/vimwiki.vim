@@ -369,11 +369,11 @@ command! -count=0 VimwikiTabMakeDiaryNote
 
 command! -count=0 VimwikiMakeYesterdayDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
+      \ vimwiki#diary#diary_date_link(localtime(), -1))
 
 command! -count=0 VimwikiMakeTomorrowDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
+      \ vimwiki#diary#diary_date_link(localtime(), 1))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
@@ -399,10 +399,10 @@ nnoremap <silent><script> <Plug>VimwikiTabMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 1)<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))<CR>
+    \ vimwiki#diary#diary_date_link(localtime(), -1))<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))<CR>
+    \ vimwiki#diary#diary_date_link(localtime(), 1))<CR>
 
 " Get the user defined prefix (default <leader>w)
 let s:map_prefix = vimwiki#vars#get_global('map_prefix')

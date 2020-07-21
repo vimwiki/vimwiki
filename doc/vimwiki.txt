@@ -1908,9 +1908,10 @@ Example of diary section: >
         * [[2011-12-09]]
         * [[2011-12-08]]
 
+The diary can be used with a frequency other than daily. See the appropriate
+per-wiki options.
 
 See |g:vimwiki_diary_months| if you would like to rename months.
-
 
 ------------------------------------------------------------------------------
 Calendar integration                                        *vimwiki-calendar*
@@ -2450,6 +2451,35 @@ Possible values:
 
 When the value is >= 1, the primary caption of each diary page is set to the
 first header read from that page if it is the unique lowest-level header.
+
+
+*vimwiki-option-diary_frequency*
+------------------------------------------------------------------------------
+Key               Default value~
+diary_frequency   daily
+
+Description~
+Controls the diary frequency used to create the date for which a diary entry
+is created.
+
+Possible values:
+  daily:  Create a diary entry dated for each day.
+ weekly:  Create a diary entry dated for the beginning of each week.
+monthly:  Create a diary entry dated for the beginning of each month.
+ yearly:  Create a diary entry dated for the beginning of each year.
+
+
+*vimwiki-option-diary_start_week_day*
+------------------------------------------------------------------------------
+Key                   Default value~
+diary_start_week_day  monday
+
+Description~
+Set the day to begin each week.
+
+Possible values:
+monday, tuesday, wednesday, thursday, friday, saturday, sunday
+
 
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
@@ -3681,6 +3711,7 @@ New:~
     * PR #47: Optimize table formatting for large tables.
     * PR #857: Make default template responsive
     * PR #879: Generate links when diary & wiki dir are the same
+    * PR #884: Configure diary frequency (daily, weekly, monthly, yearly)
 
 Changed:~
     * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|

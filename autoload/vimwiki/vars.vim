@@ -363,6 +363,8 @@ function! s:populate_wikilocal_options() abort
         \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
         \ 'custom_wiki2html': {'type': type(''), 'default': ''},
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
+        \ 'diary_frequency': {'type': type(''), 'default': 'daily', 'possible_values': ['daily', 'weekly', 'monthly', 'yearly']},
+        \ 'diary_start_week_day': {'type': type(''), 'default': 'monday', 'possible_values': ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']},
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
         \ 'diary_index': {'type': type(''), 'default': 'diary', 'min_length': 1},
         \ 'diary_rel_path': {'type': type(''), 'default': 'diary/', 'min_length': 0},
