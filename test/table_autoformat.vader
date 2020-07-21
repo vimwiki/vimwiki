@@ -1,6 +1,24 @@
 Include: vader_includes/vader_setup.vader
 
+# Do not alter config {{{1
+##########################
 
+Given vimwiki (Table Head \#891):
+  | foo | bar |
+
+Execute (set tw=71):
+  set tw=71
+  AssertEqual &tw, 71
+
+Do (A<Cr>):
+  A\<Cr>\<Esc>
+
+Expect (Table Head \#891):
+  | foo | bar |
+  |     |     |
+
+Execute (Assert tw=71):
+  AssertEqual &tw, 71
 
 # Autoformat {{{1
 #################
