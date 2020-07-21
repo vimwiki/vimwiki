@@ -378,6 +378,9 @@ function! vimwiki#diary#generate_diary_section() abort
           let bullet = vimwiki#lst#default_symbol().' '
           let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', topcap, '')
+          let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+          let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
+          let entry = substitute(entry, '__FileExtension__', extension, 'g')
           " If single H1 then that will be used as the description for the link to the file
           " if multple H1 then the filename will be used as the description for the link to the
           " file and multiple H1 headers will be indented by shiftwidth
