@@ -1424,10 +1424,6 @@ function! vimwiki#base#follow_link(split, ...) abort
       if processed_by_markdown_reflink
         return
       endif
-
-      " remove the extension from the filename if exists, because non-vimwiki
-      " markdown files usually include the extension in links
-      let lnk = substitute(lnk, '\'.vimwiki#vars#get_wikilocal('ext').'$', '', '')
     endif
 
     let current_tab_page = tabpagenr()

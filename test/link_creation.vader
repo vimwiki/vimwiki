@@ -1,5 +1,44 @@
 Include: vader_includes/vader_setup.vader
 
+# Link with dot {{{1
+####################
+
+Given vimwiki (filnames with dots):
+  part1.part2.part3
+  part1.part2.part3.md
+  noext
+
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Do (Linkify all):
+  \<Cr>
+  j\<Cr>
+  j\<Cr>
+
+Expect (Full Words are made as links, no extension addded . -> space):
+  [part1 part2 part3](part1.part2.part3)
+  [part1 part2 part3](part1.part2.part3.md)
+  [noext](noext)
+
+Given vimwiki (filnames with dots):
+  part1.part2.part3
+  part1.part2.part3.md
+  noext
+
+Do (Fllow link witout markdown):
+  \<Cr>\<Cr>
+  :AssertEqual  expand('%:t'), 'part1.part2.part3'\<Cr>
+
+Do (j<Cr><Cr>):
+  j\<Cr>\<Cr>
+  :AssertEqual  expand('%:t'), 'part1.part2.part3.md'\<Cr>
+
+
+# Rest {{{1
+##########################
+
 Given vimwiki (Text that is not a wikilink):
   test
   www.google.com
@@ -123,3 +162,4 @@ Expect (Mediawiki links):
   [[file.mw]]
 
 Include: vader_includes/vader_teardown.vader
+# vim: foldmethod=marker foldlevel=30
