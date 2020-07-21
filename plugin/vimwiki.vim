@@ -331,7 +331,6 @@ augroup vimwiki
   " autowrap tables.
   if vimwiki#vars#get_global('table_auto_fmt')
     exe 'autocmd InsertLeave '.pat.' call vimwiki#tbl#format(line("."), 2)'
-    exe 'autocmd InsertEnter '.pat.' call vimwiki#tbl#reset_tw(line("."))'
   endif
   if vimwiki#vars#get_global('folding') =~? ':quick$'
     " from http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text

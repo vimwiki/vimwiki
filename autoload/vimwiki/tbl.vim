@@ -15,9 +15,6 @@ endif
 let g:loaded_vimwiki_tbl_auto = 1
 
 
-let s:textwidth = &textwidth
-
-
 function! s:rxSep() abort
   return vimwiki#vars#get_syntaxlocal('rxTableSep')
 endfunction
@@ -679,6 +676,9 @@ function! vimwiki#tbl#format(lnum, ...) abort
     return
   endif
 
+  " Backup textwidth
+  let textwidth = &textwidth
+
   let depth = a:0 == 1 ? a:1 : 0
 
   if a:0 == 2
@@ -704,7 +704,8 @@ function! vimwiki#tbl#format(lnum, ...) abort
     endif
   endfor
 
-  let &textwidth = s:textwidth
+  " Restore user textwidth
+  let &textwidth = textwidth
 endfunction
 
 
@@ -750,20 +751,6 @@ function! vimwiki#tbl#align_or_cmd(cmd, ...) abort
   else
     exe 'normal! '.a:cmd
   endif
-endfunction
-
-
-function! vimwiki#tbl#reset_tw(lnum) abort
-  if !vimwiki#u#ft_is_vw()
-    return
-  endif
-  let line = getline(a:lnum)
-  if !s:is_table(line)
-    return
-  endif
-
-  let s:textwidth = &textwidth
-  let &textwidth = 0
 endfunction
 
 
