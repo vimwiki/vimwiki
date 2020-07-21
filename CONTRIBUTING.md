@@ -14,10 +14,15 @@ If you want to provide a pull request on GitHub, please start from the `dev` bra
 
 Make sure to update `doc/vimwiki.txt` with the following information:
 
-1. Update the changelog to include information on the new feature the PR introduces or the bug it
-   is fixing.
+1. Update the changelog to include, at the top of it, information on the new feature
+   the PR introduces or the bug it is fixing as well as the PR number and related issue number
+   if possible
 2. Add a help section to describe any new features or options.
 3. If you are a first time contributor add your name to the list of contributors.
+4. Add some non regression tests on:
+  - The bug you fixed
+  - The new feature you added
+  - The API function you added or changed
 
 **Testing:** Vimwiki uses [vader](https://github.com/junegunn/vader.vim) for unit tests and
 [vint](https://github.com/Kuniwak/vint) for linting. Any new PRs must add new tests and pass all
