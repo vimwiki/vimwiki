@@ -1,20 +1,20 @@
-FROM testbed/vim:17
+FROM testbed/vim:latest
 
-# add packages
-RUN apk --no-cache add bash=~5.0
-RUN apk --no-cache add git=~2.22
-RUN apk --no-cache add python3=~3.7
+# Add packages
+RUN apk --no-cache add bash
+RUN apk --no-cache add git
+RUN apk --no-cache add python3
 
-# get vint for linting
-RUN pip3 install vim-vint==0.3.21
+# Get vint for linting
+RUN pip3 install vim-vint
 
-# get vader for unit tests
+# Get vader for unit tests
 RUN git clone -n https://github.com/junegunn/vader.vim /vader
 WORKDIR /vader
 RUN git checkout de8a976f1eae2c2b680604205c3e8b5c8882493c
 
-# build vim and neovim versions we want to test
-# TODO uncomment nvim tag
+# Build vim and neovim versions we want to test
+# TODO add nvim tag
 WORKDIR /
 RUN install_vim -tag v7.3.429 -name vim_7.3.429 -build \
                 -tag v7.4.1099 -name vim_7.4.1099 -build \

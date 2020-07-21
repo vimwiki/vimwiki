@@ -1,3 +1,7 @@
+# Note: I dont know why <Tab> is inserting a Tab.
+#   Well better than to insert a Chair, but it should trigger completion
+#   So I used C-L
+
 Include: vader_includes/vader_setup.vader
 
 
@@ -17,7 +21,19 @@ Do (VimwikiGoto <CR> buzz_bozz && Assert):
   buzz_bozz\<CR>
   :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
-Execute (:VimwikiGoto + Completion):
+Do (VimwikiGoto + Completion(cmdline) && Assert):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto buzz_bo\<C-l>\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
+
+Do (VimwikiGoto <CR> buzz_bo + Completion(input()) && Assert):
+  :VimwikiIndex 2\<CR>
+  :VimwikiGoto\<CR>
+  buzz_bo\<C-l>\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
+
+
+Execute (:VimwikiGoto + Completion (API)):
   VimwikiIndex 2
   AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   let s_complete=string(vimwiki#base#get_globlinks_escaped())
