@@ -1364,35 +1364,33 @@ function! vimwiki#base#follow_link(split, ...) abort
   " Parse link at cursor and pass to VimwikiLinkHandler, or failing that, the
   " default open_link handler
 
-  " try WikiLink
+  " Try WikiLink
   let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
         \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
-  " try WikiIncl
+  " Try WikiIncl
   if lnk ==? ''
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
           \ vimwiki#vars#get_global('rxWikiInclMatchUrl'))
   endif
-  " try Weblink
+  " Try Weblink
   if lnk ==? ''
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink')),
           \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
   endif
-
-  if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-    " markdown image ![]()
-    if lnk ==# ''
-      let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxImage')),
-            \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
-      if lnk !=# ''
-        if lnk !~# '\%(\%('.vimwiki#vars#get_global('web_schemes1').'\):\%(\/\/\)\?\)\S\{-1,}'
-          " prepend file: scheme so link is opened by sytem handler if it isn't a web url
-          let lnk = 'file:'.lnk
-        endif
+  " Try markdown image ![]()
+  if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && lnk ==# ''
+    let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxImage')),
+          \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
+    if lnk !=# ''
+      if lnk !~# '\%(\%('.vimwiki#vars#get_global('web_schemes1').'\):\%(\/\/\)\?\)\S\{-1,}'
+        " prepend file: scheme so link is opened by sytem handler if it isn't a web url
+        let lnk = 'file:'.lnk
       endif
     endif
   endif
 
-  if lnk !=? ''    " cursor is indeed on a link
+  " If cursor is indeed on a link
+  if lnk !=? ''
     let processed_by_user_defined_handler = VimwikiLinkHandler(lnk)
     if processed_by_user_defined_handler
       return
@@ -1438,7 +1436,8 @@ function! vimwiki#base#follow_link(split, ...) abort
       endif
     endif
 
-  else  " cursor is not on a link
+  " Else cursor is not on a link
+  else
     if a:0 >= 3
       execute 'normal! '.a:3
     elseif vimwiki#vars#get_global('create_link')
@@ -2256,7 +2255,7 @@ endfunction
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
   let url = matchstr(a:str, a:rxUrl)
   if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && vimwiki#vars#get_global('markdown_link_ext')
-    " strip the extension if it exists so it doesn't get added multiple times
+    " Strip the extension if it exists so it doesn't get added multiple times
     let url = substitute(url, '\'.vimwiki#vars#get_wikilocal('ext').'$', '', '')
   endif
   let descr = matchstr(a:str, a:rxDesc)
