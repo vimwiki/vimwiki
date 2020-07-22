@@ -19,6 +19,7 @@ let vimwiki_default.path_html = $HOME . '/html/default'
 let vimwiki_default.syntax = 'default'
 let vimwiki_default.ext = '.wiki'
 let vimwiki_default.name = 'DefaultSyntax'
+let vimwiki_default.base_url = 'https://example.com/'
 
 " markdown syntax - https://github.github.com/gfm/
 let vimwiki_markdown = {}
