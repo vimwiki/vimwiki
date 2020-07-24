@@ -1721,6 +1721,7 @@ function! s:convert_file(path_html, wikifile) abort
     let force = 1
     call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
     let done = 1
+    return ''
   endif
 
   if s:syntax_supported() && done == 0
