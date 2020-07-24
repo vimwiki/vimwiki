@@ -4,6 +4,55 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
+" Get visual selection text content, optionaly replace its content
+" :param: Text to replace selection
+function! vimwiki#u#get_selection(...) abort
+  " Copyed from DarkWiiPlayer at stackoverflow
+  " https://stackoverflow.com/a/47051271/2544873
+  " Get selection extremity position,
+  " Discriminate selection mode
+  if mode() ==? 'v'
+    let [line_start, column_start] = getpos('v')[1:2]
+    let [line_end, column_end] = getpos('.')[1:2]
+  else
+    let [line_start, column_start] = getpos("'<")[1:2]
+    let [line_end, column_end] = getpos("'>")[1:2]
+  end
+
+  " Guard
+  if (line2byte(line_start)+column_start) > (line2byte(line_end)+column_end)
+    let [line_start, column_start, line_end, column_end] =
+    \   [line_end, column_end, line_start, column_start]
+  end
+  let lines = getline(line_start, line_end)
+  if len(lines) == 0
+    return ''
+  endif
+
+  " If want to modify selection
+  if a:0 > 0
+    " Grab new content
+    let line_link = a:1
+
+    " Grab the content of line around the link: pre and post
+    let start_link = max([column_start - 2, 0])
+    let line_pre = ''
+    if start_link > 0
+      let line_pre .= lines[0][ : start_link]
+    endif
+    let line_post = lines[0][column_end - (&selection ==# 'inclusive' ? 0 : 1) : ]
+
+    " Set the only single selected line
+    call setline(line_start, line_pre . line_link . line_post)
+  endif
+
+  " Get selection extremity position, take into account selection option
+  let lines[-1] = lines[-1][: column_end - (&selection ==# 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][column_start - 1:]
+  return join(lines, "\n")
+endfunction
+
+
 " Execute: string v:count times
 function! vimwiki#u#count_exe(cmd) abort
     for i in range( max([1, v:count]) )
@@ -12,6 +61,7 @@ function! vimwiki#u#count_exe(cmd) abort
 endfunction
 
 
+" Trim spaces: leading and trailing
 function! vimwiki#u#trim(string, ...) abort
   let chars = ''
   if a:0 > 0
@@ -42,11 +92,13 @@ function! vimwiki#u#os_name() abort
 endfunction
 
 
+" Check if OS is windows
 function! vimwiki#u#is_windows() abort
   return has('win32') || has('win64') || has('win95') || has('win16')
 endfunction
 
 
+" Check if OS is mac
 function! vimwiki#u#is_macos() abort
   if has('mac') || has('macunix') || has('gui_mac')
     return 1
@@ -81,15 +133,13 @@ endfunction
 
 
 " Backward compatible version of the built-in function shiftwidth()
-if exists('*shiftwidth')
-  function! vimwiki#u#sw() abort
+function! vimwiki#u#sw() abort
+  if exists('*shiftwidth')
     return shiftwidth()
-  endfunc
-else
-  function! vimwiki#u#sw() abort
+  else
     return &shiftwidth
-  endfunc
-endif
+  endif
+endfunc
 
 " a:mode single character indicating the mode as defined by :h maparg
 " a:key the key sequence to map
@@ -116,7 +166,7 @@ function! vimwiki#u#map_key(mode, key, plug, ...) abort
 endfunction
 
 
-" returns 1 if line is a code block or math block
+" Returns: 1 if line is a code block or math block
 "
 " The last two conditions are needed for this to correctly
 " detect nested syntaxes within code blocks

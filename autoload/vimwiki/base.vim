@@ -2380,50 +2380,55 @@ endfunction
 " TODO mutualize most code with syntax_n
 " Normalize link in visual mode Enter keypress
 function! s:normalize_link_syntax_v() abort
-  let sel_save = &selection
-  let &selection = 'old'
-  let default_register_save = @"
-  let registertype_save = getregtype('"')
+  " Get selection content
+  let visual_selection = vimwiki#u#get_selection()
 
-  try
-    " Save selected text to register "
-    normal! gv""y
-
-    " Set substitution
-    " Replace Url
-    if vimwiki#base#is_diary_file(expand('%:p'))
-      let sub = vimwiki#base#normalize_link_in_diary(@")
+  " Embed link in template
+  " In case of a diary link, wiki or markdown link
+  if vimwiki#base#is_diary_file(expand('%:p'))
+    let link = vimwiki#base#normalize_link_in_diary(visual_selection)
+  else
+    " Warning nested syntax discrimination
+    if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+      let template = vimwiki#vars#get_syntaxlocal('Weblink1Template')
     else
-      let sub = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate1'),
-            \ '__LinkUrl__', @", '')
+      let template = vimwiki#vars#get_global('WikiLinkTemplate1')
     endif
-    " Replace file extension
-    let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
-    let sub = s:safesubstitute(sub, '__FileExtension__', file_extension , '')
+    let link = s:safesubstitute(template, '__LinkUrl__', visual_selection, '')
+  endif
 
-    " Put substitution in register " and change text
-    let sc = vimwiki#vars#get_wikilocal('links_space_char')
-    call setreg('"', substitute(substitute(sub, '\n', '', ''), '\s', sc, 'g'), visualmode())
-    normal! `>""pgvd
-  finally
-    call setreg('"', default_register_save, registertype_save)
-    let &selection = sel_save
-  endtry
+  " Transform link:
+  " Replace description (used for markdown)
+  let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
+  " Replace file extension
+  let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+  let link = s:safesubstitute(link, '__FileExtension__', file_extension , '')
+  " Replace space characters
+  let sc = vimwiki#vars#get_wikilocal('links_space_char')
+  let link = substitute(link, '\s', sc, 'g')
+  " Remove newlines
+  let link = substitute(link, '\n', '', '')
+
+  " Paste result
+  call vimwiki#u#get_selection(link)
 endfunction
 
 
 " Normalize link
 function! vimwiki#base#normalize_link(is_visual_mode) abort
-  if exists('*vimwiki#'.vimwiki#vars#get_wikilocal('syntax').'_base#normalize_link')
-    " Syntax-specific links
-    call vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#normalize_link(a:is_visual_mode)
+  " Switch implementation
+  " If visual mode
+  " TODO elseif line("'<") == line("'>")
+  if a:is_visual_mode
+    return s:normalize_link_syntax_v()
+
+  " If Syntax-specific normalizer exists: call it
+  elseif exists('*vimwiki#'.vimwiki#vars#get_wikilocal('syntax').'_base#normalize_link')
+    return vimwiki#{vimwiki#vars#get_wikilocal('syntax')}_base#normalize_link()
+
+  " Normal mode default
   else
-    if !a:is_visual_mode
-      call s:normalize_link_syntax_n()
-    elseif line("'<") == line("'>")
-      " action undefined for multi-line visual mode selections
-      call s:normalize_link_syntax_v()
-    endif
+    return s:normalize_link_syntax_n()
   endif
 endfunction
 

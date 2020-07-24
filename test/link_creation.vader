@@ -1,5 +1,89 @@
 Include: vader_includes/vader_setup.vader
 
+# Visual Creatin {{{1
+# Issues: #382
+####################
+
+Execute (Log):
+  Log 'Visual Creation'
+
+# For markdown {{{2
+# ------------------
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, markdown syntax'
+  file wiki_test.md
+  call SetSyntax('markdown')
+  AssertEqual vimwiki#vars#get_wikilocal('syntax'), 'markdown'
+
+Do (v3e):
+  v3e\<Cr>
+
+Expect (3 Words []()):
+  [abc def ghi](abc def ghi) jkl
+
+Do (v3e):
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [def ghi](def ghi) jkl
+
+Do (selection=exclusive v3e):
+  :set selection=exclusive\<Cr>
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [def ghi](def ghi) jkl
+
+Do (selection=exclusive wv$):
+  :set selection=exclusive\<Cr>
+  wv$\<Cr>
+
+Expect (3 Words []()):
+  abc [def ghi jkl](def ghi jkl)
+
+
+# For Wiki {{{2
+# ------------------
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, wiki syntax'
+  file wiki_test.wiki
+  call SetSyntax('default')
+
+Do (v3e):
+  v3e\<Cr>
+
+Expect (3 Words []()):
+  [[abc def ghi]] jkl
+
+Do (v3e):
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [[def ghi]] jkl
+
+Do (selection=exclusive v3e):
+  :set selection=exclusive\<Cr>
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [[def ghi]] jkl
+
+Do (selection=exclusive wv$):
+  :set selection=exclusive\<Cr>
+  wv$\<Cr>
+
+Expect (3 Words []()):
+  abc [[def ghi jkl]]
+
+
 # Absolute links {{{1
 ####################
 
