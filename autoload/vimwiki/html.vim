@@ -1721,6 +1721,7 @@ function! s:convert_file(path_html, wikifile) abort
     let force = 1
     call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
     let done = 1
+    return ''
   endif
 
   if s:syntax_supported() && done == 0
@@ -1731,15 +1732,11 @@ function! s:convert_file(path_html, wikifile) abort
     endif
     call vimwiki#path#mkdir(path_html)
     call writefile(html_lines, path_html.htmlfile)
-    let done = 1
+    return path_html.htmlfile
   endif
 
-  if done == 0
-    echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
-    return ''
-  endif
-
-  return path_html.htmlfile
+  echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
+  return ''
 endfunction
 
 
