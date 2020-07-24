@@ -32,6 +32,10 @@ Do (VimwikiGoto <CR> buzz_bo + Completion(input()) && Assert):
   buzz_bo\<C-l>\<CR>
   :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
+Do (,wn buzz_bo + Completion(input()) && Assert):
+  ,wn
+  buzz_bo\<C-l>\<CR>
+  :AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')\<CR>
 
 Execute (:VimwikiGoto + Completion (API)):
   VimwikiIndex 2

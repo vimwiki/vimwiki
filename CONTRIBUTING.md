@@ -74,4 +74,4 @@ linter checks. See the [test README](test/README.md) for more info.
     immediately forget this plan.
 11. Tell the world.
 
-<!-- vim:tw=99 -->
+<!-- vim: set tw=99 : -->

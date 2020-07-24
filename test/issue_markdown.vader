@@ -8,7 +8,34 @@
 Include: vader_includes/vader_setup.vader
 
 
-# #735 Fix off-by-one error in get_next_line and get_prev_line
+Execute (Log):
+  Log '#949 <Enter> create link bug with Chinese characters'
+
+Given vimwiki (Madarin with vimwiki Yeeepy):
+  你
+  你好
+  你们好
+  你们好啊
+  你们好啊啊
+  你们好啊aaaaa
+  aaaaa你们好啊
+
+Do (Enter in all):
+  \<Cr>j \<Cr>j \<Cr>j \<Cr>j \<Cr>j \<Cr>j \<Cr>j
+
+Expect (all WORDS are links):
+  [你](你)
+  [你好](你好)
+  [你们好](你们好)
+  [你们好啊](你们好啊)
+  [你们好啊啊](你们好啊啊)
+  [你们好啊aaaaa](你们好啊aaaaa)
+  [aaaaa你们好啊](aaaaa你们好啊)
+
+
+Execute (Log):
+  Log '#735 Fix off-by-one error in get_next_line and get_prev_line'
+
 Given vimwiki (P#735 -> I#407):
   1. item1
   2. item2
@@ -30,14 +57,16 @@ Expect (Renumber all):
   4. item3
 
 
-# TODO move to option
-# #899 conceallevel is setted globally when editing a wiki file
+Execute (Log):
+  Log '#899 conceallevel is setted globally when editing a wiki file (PR #900)'
+
 Given vimwiki (Void):
 
 Execute (conceal):
-# First conceal 2
   set conceallevel=1
   let g:vimwiki_global_vars['conceallevel']=2
+
+  Log '    ConcealLevel is set to vimwiki for a .md'
   call SetSyntax('markdown')
   file main.md
   edit
@@ -46,18 +75,27 @@ Execute (conceal):
   if exists('+conceallevel')
     AssertEqual &conceallevel, 2
   endif
-# Second New conceal 0
-#  let g:vimwiki_global_vars['conceallevel']=0
-#  edit new.md
-#  AssertEqual &ft, 'vimwiki'
-#  AssertEqual @%, 'new.md'
-#  if exists('+conceallevel')
-#    AssertEqual &conceallevel, 0
-#  endif
-#  bd!
+
+  Log '    ConcealLevel is set to vim for a no_ext'
+  edit no_ext
+  AssertEqual &ft, ''
+  if exists('+conceallevel')
+    AssertEqual &conceallevel, 1
+  endif
+
+  Log '    Again ConcealLevel is set to vimwiki for a .md (just for fun)'
+  let g:vimwiki_global_vars['conceallevel']=0
+  edit new.md
+  AssertEqual &ft, 'vimwiki'
+  AssertEqual @%, 'new.md'
+  if exists('+conceallevel')
+    AssertEqual &conceallevel, 0
+  endif
 
 
-# PR #528: Add option |g:vimwiki_create_link| to prevent link creation
+Execute (Log):
+  Log 'PR #528: Add option |g:vimwiki_create_link| to prevent link creation'
+
 Given vimwiki (Link):
   Link
 

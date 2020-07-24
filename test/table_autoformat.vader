@@ -143,6 +143,33 @@ Expect (Table 8 x 3):
   |   |   |   |   |   |   |   |   |
 
 
+Given vimwiki (Table 5 x (1+3)):
+  | h1  | h2  | h3  | h4  | h5  |
+  |-----|-----|-----|-----|-----|
+  | l11 | l12 | l13 | l14 | l15 |
+  | l21 | l22 | l23 | l24 | l25 |
+  | l31 | l32 | l33 | l34 | l35 |
+
+Execute (VimwikiTableMoveColumnRight):
+  VimwikiTableMoveColumnRight
+
+Expect (Col: 1 -> 2):
+  | h2  | h1  | h3  | h4  | h5  |
+  |-----|-----|-----|-----|-----|
+  | l12 | l11 | l13 | l14 | l15 |
+  | l22 | l21 | l23 | l24 | l25 |
+  | l32 | l31 | l33 | l34 | l35 |
+
+Execute (VimwikiTableMoveColumnLeft):
+  call cursor(5, 16)
+  VimwikiTableMoveColumnLeft
+
+Expect (Col: 3 -> 2):
+  | h1  | h3  | h2  | h4  | h5  |
+  |-----|-----|-----|-----|-----|
+  | l11 | l13 | l12 | l14 | l15 |
+  | l21 | l23 | l22 | l24 | l25 |
+  | l31 | l33 | l32 | l34 | l35 |
 
 # Justify Cell Content {{{1
 ###########################
@@ -168,7 +195,22 @@ Expect (Text justified):
   | 2017-02-13 |  Tea   |   $2.10 |
   | 2017-03-14 |  Cake  | $143.12 |
 
+Given vimwiki (To be left aligned):
+  | Date       |  Item  |
+  |:------------|------:|
+  |yest|Coffee |
+  | 2017-02-13|  Tea|
+  |2017-03-14        |Cake  |
 
+Do (A to trigger insertLeave):
+  A
+
+Expect (Left justified and :--- -> ----):
+  | Date       |   Item |
+  |------------|-------:|
+  | yest       | Coffee |
+  | 2017-02-13 |    Tea |
+  | 2017-03-14 |   Cake |
 
 
 Include: vader_includes/vader_teardown.vader
