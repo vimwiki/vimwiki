@@ -332,8 +332,8 @@ function! s:normalize_global_settings() abort
   " TODO remove these checks and the table_mappings and use_mouse variables
   " backwards compatibility checks
   " if the old option isn't its default value then overwrite the new option
-  if g:vimwiki_global_vars.table_mappings == 0
-    let g:vimwiki_global_vars.key_mappings.table_mappings = 0 && g:vimwiki_global_vars.key_mappings.table_mappings == 1
+  if g:vimwiki_global_vars.table_mappings == 0 && g:vimwiki_global_vars.key_mappings.table_mappings == 0
+    let g:vimwiki_global_vars.key_mappings.table_mappings = 0
   endif
   if g:vimwiki_global_vars.use_mouse == 1 && g:vimwiki_global_vars.key_mappings.mouse == 0
     let g:vimwiki_global_vars.key_mappings.mouse = 1
