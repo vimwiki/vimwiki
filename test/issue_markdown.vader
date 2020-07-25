@@ -8,8 +8,12 @@
 Include: vader_includes/vader_setup.vader
 
 
+
+################################################################################
 Execute (Log):
   Log '#949 <Enter> create link bug with Chinese characters'
+  file wiki_test.md
+  call SetSyntax('markdown')
 
 Given vimwiki (Madarin with vimwiki Yeeepy):
   你
@@ -33,8 +37,11 @@ Expect (all WORDS are links):
   [aaaaa你们好啊](aaaaa你们好啊)
 
 
+################################################################################
 Execute (Log):
   Log '#735 Fix off-by-one error in get_next_line and get_prev_line'
+  file wiki_test.md
+  call SetSyntax('markdown')
 
 Given vimwiki (P#735 -> I#407):
   1. item1
@@ -57,8 +64,11 @@ Expect (Renumber all):
   4. item3
 
 
+################################################################################
 Execute (Log):
   Log '#899 conceallevel is setted globally when editing a wiki file (PR #900)'
+  file wiki_test.md
+  call SetSyntax('markdown')
 
 Given vimwiki (Void):
 
@@ -93,8 +103,10 @@ Execute (conceal):
   endif
 
 
+################################################################################
 Execute (Log):
   Log 'PR #528: Add option |g:vimwiki_create_link| to prevent link creation'
+  call SetSyntax('markdown')
 
 Given vimwiki (Link):
   Link

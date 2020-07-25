@@ -7,42 +7,49 @@
 o_error=0
 
 printHelp() {
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Runs Vimwiki Vader tests or Vint in a Docker container"
-    echo ""
-    echo "-h Print help message"
-    echo ""
-    echo "-n Specify vim/nvim version to run tests for."
-    echo "   Multiple versions can be specified by quoting the value and"
-    echo "   separating versions with a space. E.g. -n \"vim1 vim2\"."
-    echo "   Default is all available versions."
-    echo ""
-    echo "-l List available versions that can be used with the '-n' option"
-    echo ""
-    echo "-t Select test type: 'vader', 'vint', or 'all'"
-    echo ""
-    echo "-o Comma seperated list of tests to run."
-    echo "   E.g. -o \"list_margin,command_toc\""
-    echo ""
-    echo "-v Turn on verbose output."
+    cat << '        EOF' | sed -e 's/^        //'
+        Usage: bash run_tests.sh [OPTIONS]
+
+        Runs Vimwiki Vader tests or Vint in a Docker container
+
+        -h (Help) Print help message
+
+        -n (versioN) Specify vim/nvim version to run tests for.
+           Multiple versions can be specified by quoting the value and
+           separating versions with a space. E.g. -n "vim1 vim2".
+           Default is all available versions.
+
+        -f (File) Comma seperated list of tests to run.
+           E.g. -o "list_margin,command_toc"
+
+        -l (List) list available versions that can be used with the '-n' option
+
+        -t (Type) Select test type: 'vader', 'vint', or 'all'
+
+        -v (Verbose) Turn on verbose output.
+
+        E.g. bash run_tests.sh -v -t vader -n "vim_7.4.1099 vim_8.1.0519" -f link_creation.vader,issue_markdown.vader
+        EOF
+
     exit 0
 }
 
 printVersions() {
-    # print the names of all vim/nvim versions
+    # Print the names of all vim/nvim versions
     getVers
     exit 0
 }
 
 runVader() {
+    # Run Vader tests
     echo "Starting Docker container and Vader tests."
 
-    if [[ -z $only ]]; then
+    # Parse tests files to execute
+    if [[ -z $file_test ]]; then
        ind="test/independent_runs/*.vader" 
        res="test/*"
     else
-        IFS=',' read -ra TEST <<< "$only"
+        IFS=',' read -ra TEST <<< "$file_test"
         for i in "${TEST[@]}"; do
             if [[ -f "$i" ]]; then
                 res="$res test/${i}"
@@ -57,26 +64,27 @@ runVader() {
             fi
         done
     fi
+    echo "Vader: running files: $res and independantly $ind"
 
-    # run tests for each specified version
+    # Run tests for each specified version
     for v in $vers; do
-        echo ""
-        echo "Running version: $v"
+        echo -e "\nRunning version: $v"
         vim="/vim-build/bin/$v -u test/vimrc -i NONE"
         test_cmd="for VF in ${ind}; do $vim \"+Vader! \$VF\"; done"
 
         set -o pipefail
 
-        # tests that must be run in individual vim instances
+        # Run Fast tests
+        docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+          "$v" -u test/vimrc -i NONE "+Vader! ${res}" 2>&1 | vader_filter | vader_color
+        o_error=$(( $o_error | $? ))
+
+        # Run Tests that must be run in individual vim instances
         # see README.md for more information
         docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
           /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
         o_error=$(( $o_error | $? ))
 
-        # remaining tests
-        docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-          "$v" -u test/vimrc -i NONE "+Vader! ${res}" 2>&1 | vader_filter | vader_color
-        o_error=$(( $o_error | $? ))
         set +o pipefail
     done
     return $o_error
@@ -93,10 +101,11 @@ getVers() {
 }
 
 vader_filter() {
+    # Filter Vader Stdout
     local err=0
     while read -r; do
+        # Print only possible error cases
         if [[ "$verbose" == 0 ]]; then
-            # only print possible error cases
             if [[ "$REPLY" = *'docker:'* ]] || \
                [[ "$REPLY" = *'Starting Vader:'* ]] || \
                [[ "$REPLY" = *'Vader error:'* ]] || \
@@ -178,12 +187,12 @@ type="all"
 verbose=0
 
 # only run these tests
-only=""
+file_test=""
 
 # docker flags
 flags=(--rm -v "$PWD/../:/testplugin" -v "$PWD/../test:/home" -w /testplugin vimwiki)
 
-while getopts ":hvn:lt:o:" opt; do
+while getopts ":hvn:lt:f:" opt; do
     case ${opt} in
         h )
             printHelp
@@ -200,8 +209,8 @@ while getopts ":hvn:lt:o:" opt; do
         t )
             type="$OPTARG"
             ;;
-        o )
-            only="$OPTARG"
+        f )
+            file_test="$OPTARG"
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
