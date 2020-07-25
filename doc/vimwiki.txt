@@ -808,7 +808,7 @@ Vimwiki file.
     The status of parents is updated accordingly.
     If you want to remove only items of the current nesting level, (re)define
     a command that calls the same function with `0` as first argument: >
-        :command! -buffer -range VimwikiRemoveDone call 
+        :command! -buffer -range VimwikiRemoveDone call
            \ vimwiki#lst#remove_done(0, "<range>", <line1>, <line2>)
 <
 *:VimwikiNextTask*
@@ -3674,6 +3674,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Edward Bassett (@ebassett)
     - Rafael Castillo (@eltrufas)
     - Reiner Herrmann (@reinerh)
+
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*

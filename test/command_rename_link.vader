@@ -129,7 +129,6 @@ Expect (Link to in_dir11_new):
   [dir2 in_dir2](dir2/in_dir2.md)
 
 
-
 Do (in_dir2 -> in_dir2_new):
   :edit $HOME/testmarkdown/dir2/in_dir2.md\<CR>
 
@@ -148,7 +147,7 @@ Do (in_dir2 -> in_dir2_new):
 
 
 Expect (old and new filenames):
-
+  
   /home/vimtest/testmarkdown/dir2/in_dir2.md
   /home/vimtest/testmarkdown/dir2/in_dir2_new.md
 
