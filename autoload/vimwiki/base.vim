@@ -1304,7 +1304,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
         \ . s:safesubstitute(vimwiki#vars#get_syntaxlocal(header_level),
         \ '__Header__', a:start_header, '')
   keepjumps call append(start_lnum - 1, new_header)
-  let start_lnum += 1
+  let start_lnum += 2
   let lines_diff += 1
   if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
     for _ in range(vimwiki#vars#get_global('markdown_header_style'))
