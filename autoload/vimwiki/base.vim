@@ -2255,7 +2255,7 @@ endfunction
 " [__LinkDescription__](__LinkUrl__.FileExtension)
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
   let url = matchstr(a:str, a:rxUrl)
-  if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && vimwiki#vars#get_global('markdown_link_ext')
+  if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && vimwiki#vars#get_wikilocal('markdown_link_ext')
     " Strip the extension if it exists so it doesn't get added multiple times
     let url = substitute(url, '\'.vimwiki#vars#get_wikilocal('ext').'$', '', '')
   endif
@@ -2406,11 +2406,9 @@ function! s:normalize_link_syntax_v() abort
 endfunction
 
 
-" Normalize link
+" Normalize link (Implemented as a switch function)
 function! vimwiki#base#normalize_link(is_visual_mode) abort
-  " Switch implementation
   " If visual mode
-  " TODO elseif line("'<") == line("'>")
   if a:is_visual_mode
     return s:normalize_link_syntax_v()
 

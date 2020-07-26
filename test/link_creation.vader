@@ -1,6 +1,36 @@
 Include: vader_includes/vader_setup.vader
 
-# Visual Creatin {{{1
+
+# vimwiki_markdown_link_ext {{{1
+####################
+
+Execute (Log):
+  Log 'vimwiki_markdown_link_ext'
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, markdown syntax'
+  file wiki_test.md
+  let g:vimwiki_markdown_link_ext = 1
+  call ReloadVars()
+  call SetSyntax('markdown')
+  AssertEqual vimwiki#vars#get_wikilocal('syntax'), 'markdown'
+  AssertEqual vimwiki#vars#get_wikilocal('markdown_link_ext'), 1
+
+Do (vee<CR>):
+  vee\<CR>
+
+Expect (append md suffix):
+  [abc def](abc def.md) ghi jkl
+
+Execute (Restore variable g:vimwiki_markdown_link_ext):
+  unlet g:vimwiki_markdown_link_ext
+  call ReloadVars()
+
+
+# Visual Creation {{{1
 # Issues: #382
 ####################
 

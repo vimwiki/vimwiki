@@ -1,5 +1,5 @@
 Before (Define functions):
-  " change the syntax using a temporary wiki
+  " Change the syntax using a temporary wiki
   function! SetSyntax(vw_syn)
     if a:vw_syn ==# 'default'
       let ext = 'wiki'
@@ -29,22 +29,28 @@ Before (Define functions):
       let num_wikis = num_wikis - 1
     endwhile
 
-    " add the new wiki
+    " Add the new wiki
     call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
     call vimwiki#vars#set_bufferlocal('wiki_nr', 3)
 
-    " verify syntax was set correctly
+    " Verify syntax was set correctly
     Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 'ERROR: Vimwiki syntax not set correctly.'
   endfunction
 
-  " reload plugin to change settings
+  " Reload plugin to change settings
   function! ReloadVimwiki()
-    " clear mappings so plugin can be reloaded
+    " Clear mappings so plugin can be reloaded
     " this is needed if running manually multiple times
     nmapclear
 
     unlet g:loaded_vimwiki
     source plugin/vimwiki.vim
+  endfunction
+
+  function! ReloadVars()
+    " vars#init will not reload syntax varaible if not set
+    unlet g:vimwiki_syntax_variables
+    call vimwiki#vars#init()
   endfunction
 
   " Copy wiki test resources so that vimtest user can write them
@@ -61,7 +67,7 @@ Before (Define functions):
     let tpbl=[]
     call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
     for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
-      if bufname(buf) =~ 'Vader'
+      if bufname(buf) =~? 'Vader'
           continue
       endif
       silent execute 'bwipeout!' buf
@@ -89,7 +95,7 @@ Before (Define functions):
   " Destroy a variable is exists (unlet)
   function! DestroyVar(var)
     if ! exists(a:var) | return | endif
-    execute "unlet " . a:var
+    execute 'unlet ' . a:var
   endfunction
 
   " Assert current tab is desired tab

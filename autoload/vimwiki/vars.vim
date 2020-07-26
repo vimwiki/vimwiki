@@ -30,7 +30,7 @@
 let s:margin_set_by_user = 0
 
 
-" Helper, Init global and local variables
+" Init global and local variables
 function! vimwiki#vars#init() abort
   call s:populate_global_variables()
   call s:populate_wikilocal_options()
@@ -201,7 +201,6 @@ function! s:read_global_settings_from_user() abort
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
-        \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -352,6 +351,7 @@ function! s:populate_wikilocal_options() abort
   let g:vimwiki_wikilocal_vars = []
 
   " Declare default values
+  " Please: keep alphabetical sort
   let default_values = {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -373,9 +373,15 @@ function! s:populate_wikilocal_options() abort
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
         \ 'exclude_files': {'type': type([]), 'default': []},
         \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
+        \ 'bullet_types': {'type': type([]), 'default': []},
+        \ 'cycle_bullets': {'type': type(0), 'default': 0},
+        \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
         \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
+        \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
+        \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
+        \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'name': {'type': type(''), 'default': ''},
         \ 'nested_syntaxes': {'type': type({}), 'default': {}},
@@ -388,11 +394,6 @@ function! s:populate_wikilocal_options() abort
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
-        \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'bullet_types': {'type': type([]), 'default': []},
-        \ 'cycle_bullets': {'type': type(0), 'default': 0},
-        \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
-        \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
         \ }
 
   " Fill default setting <- user or plugin values
@@ -593,6 +594,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
 
   " Init syntax variable dictionary
   let g:vimwiki_syntax_variables[a:syntax] = {}
+  let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
 
   " Autoload default syntax file
   execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
@@ -646,66 +648,66 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
   endif
 
-  let g:vimwiki_syntax_variables[a:syntax].rxPreStart =
-        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreStart
-  let g:vimwiki_syntax_variables[a:syntax].rxPreEnd =
-        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreEnd.'\s*$'
+  let syntax_dic.rxPreStart =
+        \ '^\s*'.syntax_dic.rxPreStart
+  let syntax_dic.rxPreEnd =
+        \ '^\s*'.syntax_dic.rxPreEnd.'\s*$'
 
-  let g:vimwiki_syntax_variables[a:syntax].rxMathStart =
-        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathStart
-  let g:vimwiki_syntax_variables[a:syntax].rxMathEnd =
-        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathEnd.'\s*$'
+  let syntax_dic.rxMathStart =
+        \ '^\s*'.syntax_dic.rxMathStart
+  let syntax_dic.rxMathEnd =
+        \ '^\s*'.syntax_dic.rxMathEnd.'\s*$'
 
-  let g:vimwiki_syntax_variables[a:syntax].number_kinds = []
-  let g:vimwiki_syntax_variables[a:syntax].number_divisors = ''
-  for i in g:vimwiki_syntax_variables[a:syntax].number_types
-    call add(g:vimwiki_syntax_variables[a:syntax].number_kinds, i[0])
-    let g:vimwiki_syntax_variables[a:syntax].number_divisors .= vimwiki#u#escape(i[1])
+  let syntax_dic.number_kinds = []
+  let syntax_dic.number_divisors = ''
+  for i in syntax_dic.number_types
+    call add(syntax_dic.number_kinds, i[0])
+    let syntax_dic.number_divisors .= vimwiki#u#escape(i[1])
   endfor
 
   let char_to_rx = {'1': '\d\+', 'i': '[ivxlcdm]\+', 'I': '[IVXLCDM]\+',
         \ 'a': '\l\{1,2}', 'A': '\u\{1,2}'}
 
   " Create regexp for bulleted list items
-  if !empty(g:vimwiki_syntax_variables[a:syntax].bullet_types)
-    let g:vimwiki_syntax_variables[a:syntax].rxListBullet =
-          \ join( map(copy(g:vimwiki_syntax_variables[a:syntax].bullet_types),
+  if !empty(syntax_dic.bullet_types)
+    let syntax_dic.rxListBullet =
+          \ join( map(copy(syntax_dic.bullet_types),
           \'vimwiki#u#escape(v:val).'
-          \ .'repeat("\\+", g:vimwiki_syntax_variables[a:syntax].recurring_bullets)'
+          \ .'repeat("\\+", syntax_dic.recurring_bullets)'
           \ ) , '\|')
   else
     "regex that matches nothing
-    let g:vimwiki_syntax_variables[a:syntax].rxListBullet = '$^'
+    let syntax_dic.rxListBullet = '$^'
   endif
 
   " Create regex for numbered list items
-  if !empty(g:vimwiki_syntax_variables[a:syntax].number_types)
-    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '\C\%('
-    for type in g:vimwiki_syntax_variables[a:syntax].number_types[:-2]
-      let g:vimwiki_syntax_variables[a:syntax].rxListNumber .= char_to_rx[type[0]] .
+  if !empty(syntax_dic.number_types)
+    let syntax_dic.rxListNumber = '\C\%('
+    for type in syntax_dic.number_types[:-2]
+      let syntax_dic.rxListNumber .= char_to_rx[type[0]] .
             \ vimwiki#u#escape(type[1]) . '\|'
     endfor
-    let g:vimwiki_syntax_variables[a:syntax].rxListNumber .=
-          \ char_to_rx[g:vimwiki_syntax_variables[a:syntax].number_types[-1][0]].
-          \ vimwiki#u#escape(g:vimwiki_syntax_variables[a:syntax].number_types[-1][1]) . '\)'
+    let syntax_dic.rxListNumber .=
+          \ char_to_rx[syntax_dic.number_types[-1][0]].
+          \ vimwiki#u#escape(syntax_dic.number_types[-1][1]) . '\)'
   else
     "regex that matches nothing
-    let g:vimwiki_syntax_variables[a:syntax].rxListNumber = '$^'
+    let syntax_dic.rxListNumber = '$^'
   endif
 
   " 0. URL : free-standing links: keep URL UR(L) strip trailing punct: URL; URL) UR(L))
   " let g:vimwiki_rxWeblink = '[\["(|]\@<!'. g:vimwiki_rxWeblinkUrl .
   " \ '\%([),:;.!?]\=\%([ \t]\|$\)\)\@='
-  let g:vimwiki_syntax_variables[a:syntax].rxWeblink =
+  let syntax_dic.rxWeblink =
         \ '\<'. g:vimwiki_global_vars.rxWeblinkUrl . '[^[:space:]><]*'
   " 0a) match URL within URL
-  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchUrl =
-        \ g:vimwiki_syntax_variables[a:syntax].rxWeblink
+  let syntax_dic.rxWeblinkMatchUrl =
+        \ syntax_dic.rxWeblink
   " 0b) match DESCRIPTION within URL
-  let g:vimwiki_syntax_variables[a:syntax].rxWeblinkMatchDescr = ''
+  let syntax_dic.rxWeblinkMatchDescr = ''
 
   " template for matching all wiki links with a given target file
-  let g:vimwiki_syntax_variables[a:syntax].WikiLinkMatchUrlTemplate =
+  let syntax_dic.WikiLinkMatchUrlTemplate =
         \ g:vimwiki_global_vars.rx_wikilink_prefix .
         \ '\zs__LinkUrl__\ze\%(#.*\)\?' .
         \ g:vimwiki_global_vars.rx_wikilink_suffix .
@@ -717,19 +719,19 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
         \ g:vimwiki_global_vars.rx_wikilink_suffix
 
   " a) match [[URL|DESCRIPTION]]
-  let g:vimwiki_syntax_variables[a:syntax].rxWikiLink = g:vimwiki_global_vars.rx_wikilink_prefix.
+  let syntax_dic.rxWikiLink = g:vimwiki_global_vars.rx_wikilink_prefix.
         \ g:vimwiki_global_vars.rxWikiLinkUrl.'\%('.g:vimwiki_global_vars.rx_wikilink_separator.
         \ g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
-  let g:vimwiki_syntax_variables[a:syntax].rxAnyLink =
-        \ g:vimwiki_syntax_variables[a:syntax].rxWikiLink.'\|'.
-        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.g:vimwiki_syntax_variables[a:syntax].rxWeblink
+  let syntax_dic.rxAnyLink =
+        \ syntax_dic.rxWikiLink.'\|'.
+        \ g:vimwiki_global_vars.rxWikiIncl.'\|'.syntax_dic.rxWeblink
   " b) match URL within [[URL|DESCRIPTION]]
-  let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchUrl =
+  let syntax_dic.rxWikiLinkMatchUrl =
         \ g:vimwiki_global_vars.rx_wikilink_prefix . '\zs'. g:vimwiki_global_vars.rxWikiLinkUrl
         \ .'\ze\%('. g:vimwiki_global_vars.rx_wikilink_separator
         \ . g:vimwiki_global_vars.rxWikiLinkDescr.'\)\?'.g:vimwiki_global_vars.rx_wikilink_suffix
   " c) match DESCRIPTION within [[URL|DESCRIPTION]]
-  let g:vimwiki_syntax_variables[a:syntax].rxWikiLinkMatchDescr =
+  let syntax_dic.rxWikiLinkMatchDescr =
         \ g:vimwiki_global_vars.rx_wikilink_prefix . g:vimwiki_global_vars.rxWikiLinkUrl
         \ . g:vimwiki_global_vars.rx_wikilink_separator.'\%(\zs'
         \ . g:vimwiki_global_vars.rxWikiLinkDescr. '\ze\)\?'
@@ -881,7 +883,7 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxWeblink1Separator = ']('
 
   let rxWeblink1Ext = ''
-  if vimwiki#vars#get_global('markdown_link_ext')
+  if vimwiki#vars#get_wikilocal('markdown_link_ext')
     let rxWeblink1Ext = '__FileExtension__'
   endif
 
