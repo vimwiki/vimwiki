@@ -24,13 +24,12 @@ env:
   # Define jobs <- vim version <- hard copied from Dockerfile
   # First to be launched
   - VIM_VERSION=vim_7.3.429
-  - VIM_VERSION=nvim_0.2.2
+  - VIM_VERSION=nvim_0.3.8
   # More
   - VIM_VERSION=vim_7.4.1099
   - VIM_VERSION=vim_7.4.1546
   - VIM_VERSION=vim_8.0.0027
   - VIM_VERSION=vim_8.1.0519
-  - VIM_VERSION=nvim_0.3.8
 
 script:
   # Run All tests

@@ -117,15 +117,26 @@ setlocal omnifunc=Complete_wikifiles
 
 
 " Declare settings necessary for the automatic formatting of lists
+" ------------------------------------------------
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
-setlocal comments=""
+
+" Set comments: to insert and format 'comments' or cheat
+setlocal comments=
+" Used to break blockquote prepending one on each new line (see: #915)
+setlocal comments+=n:>
+
+" Set format options (:h fo-table)
 setlocal formatoptions-=c
 setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
+" Used to join blockquotes (see: #915)
+if v:version > 703
+  setlocal formatoptions+=j
+endif
 
 let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 

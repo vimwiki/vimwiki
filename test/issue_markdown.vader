@@ -8,6 +8,43 @@
 Include: vader_includes/vader_setup.vader
 
 
+################################################################################
+Execute (Log):
+  Log '#915 Vimwiki Markdown Blockquote Syntax issue'
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Given vimwiki (One blockquote):
+  > Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam faucibus rhoncus est sed facilisis. Sed imperdiet massa tellus, eu fermentum felis fringilla vel.
+
+Do (gqq):
+  gqq
+
+Expect (Well formated and cursor on Sed):
+  > Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam faucibus rhoncus
+  > est sed facilisis. Sed imperdiet massa tellus, eu fermentum felis fringilla
+  > vel.
+
+Do (move cursor and gww):
+  fS
+  gww
+  i__HERE__
+
+Expect (Well formated and cursor on Sed):
+  > Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam faucibus rhoncus
+  > est sed facilisis. __HERE__Sed imperdiet massa tellus, eu fermentum felis fringilla
+  > vel.
+
+Given vimwiki (Multiple line blockquote):
+  > Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam faucibus rhoncus
+  > est sed facilisis. Sed imperdiet massa tellus, eu fermentum felis fringilla
+  > vel.
+
+Execute (no JJ && Assert for Version > 7.3):
+  normal JJ
+  if v:version > 703
+    AssertEqual getline(1), '> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam faucibus rhoncus est sed facilisis. Sed imperdiet massa tellus, eu fermentum felis fringilla vel.'
+  endif
 
 ################################################################################
 Execute (Log):

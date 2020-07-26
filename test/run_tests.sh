@@ -172,13 +172,13 @@ runVint() {
     local err=0
     cmd="vint -s . && vint -s test/vimrc"
     if echo "$vers" | grep "local" > /dev/null; then
-        echo "Running Vint: $cmd : in $wiki_path"
+        echo -e "\nRunning Vint: $cmd : in $wiki_path"
         pushd $wiki_path > /dev/null
         $cmd
         err=$(( $err | $? ))
         popd > /dev/null
     else
-        echo "Starting Docker container and running Vint: $cmd"
+        echo -e "\nStarting Docker container and running Vint: $cmd"
         docker run -a stdout "${flags[@]}" bash -c "$cmd"
         err=$(( $err | $? ))
     fi
