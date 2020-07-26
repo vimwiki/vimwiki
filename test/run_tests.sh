@@ -3,8 +3,15 @@
 # credit to https://github.com/w0rp/ale for script ideas and the color vader
 # output function.
 
-# Global error return of the script
-o_error=0
+# Say Hi
+echo -en "Starting $(basename $0) for VimWiki\n"
+
+# For windows: Cmder bash is appending busybox to the path and
+#   and a smlll vim is included, so that override the windows path vim
+if [[ -v OLD_PATH ]]; then
+    echo "Setting path from OLD_PATH : $OLD_PATH"
+    export PATH="$OLD_PATH"
+fi
 
 printHelp() {
     cat << '        EOF' | sed -e 's/^        //'
@@ -15,6 +22,8 @@ printHelp() {
         -h (Help) Print help message
 
         -n (versioN) Specify vim/nvim version to run tests for.
+           Specify "local" to run on your current vim install
+           for example on Windows.
            Multiple versions can be specified by quoting the value and
            separating versions with a space. E.g. -n "vim1 vim2".
            Default is all available versions.
@@ -28,7 +37,10 @@ printHelp() {
 
         -v (Verbose) Turn on verbose output.
 
-        E.g. bash run_tests.sh -v -t vader -n "vim_7.4.1099 vim_8.1.0519" -f link_creation.vader,issue_markdown.vader
+        E.g. On Linux
+        bash run_tests.sh -v -t vader -n "vim_7.4.1099 vim_8.1.0519" -f link_creation.vader,issue_markdown.vader
+        E.g. On Windows
+        bash run_tests.sh -v -t vader -n local -f z_success.vader | cat
         EOF
 
     exit 0
@@ -42,7 +54,8 @@ printVersions() {
 
 runVader() {
     # Run Vader tests
-    echo "Starting Docker container and Vader tests."
+    echo -e "\nStarting Vader tests."
+    local err=0
 
     # Parse tests files to execute
     if [[ -z $file_test ]]; then
@@ -64,36 +77,112 @@ runVader() {
             fi
         done
     fi
-    echo "Vader: running files: $res and independantly $ind"
+    echo "Vader: will run files: $res and independantly $ind"
 
     # Run tests for each specified version
     for v in $vers; do
         echo -e "\nRunning version: $v"
-        vim="/vim-build/bin/$v -u test/vimrc -i NONE"
-        test_cmd="for VF in ${ind}; do $vim \"+Vader! \$VF\"; done"
+
+        # Set local environment variables
+        if [[ "$v" == "local" ]]; then
+            # Save HOME var
+            home_save="$HOME"
+
+            # Create temporary root
+            mkdir -p $tmp_dir/vader_wiki
+            mkdir -p $tmp_dir/vader_wiki/home
+            mkdir -p $tmp_dir/vader_wiki/home/test
+            mkdir -p $tmp_dir/vader_wiki/testplugin
+
+            # Set vars
+            export ROOT="$tmp_dir/vader_wiki/"
+            export HOME="$tmp_dir/vader_wiki/home"
+            vim="vim"
+            vim_opt="-u ~/test/vimrc -i NONE"
+        else
+            # Only set dockerized vars
+            export ROOT="/"  # So no if in vimrc
+            vim="/vim-build/bin/$v"
+            vim_opt="-u test/vimrc -i NONE"
+        fi
 
         set -o pipefail
 
-        # Run Fast tests
-        docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-          "$v" -u test/vimrc -i NONE "+Vader! ${res}" 2>&1 | vader_filter | vader_color
-        o_error=$(( $o_error | $? ))
+        # Copy the resources to temporary directory
+        if [[ "$v" == "local" ]]; then
+            # flags=(--rm -v "$PWD/../:/testplugin" -v "$PWD/../test:/home" -w /testplugin vimwiki)
+            echo -e "\nCopying resources to $ROOT"
+            # Copy testplugin
+            cp -rf $wiki_path/* $ROOT/testplugin/
+            # Copy home
+            cp -rf $script_path/* $HOME/test/
+            # Copy rtp.vim
+            cp -rf $script_path/resources/rtp_local.vim $ROOT/rtp.vim
+            # Copy vader <- internet
+            echo 'Cloning Vader (git, do not care the fatal)'
+            git clone --depth 10 https://github.com/junegunn/vader.vim /tmp/vader_wiki/vader 2>&1
+        fi
+
+        # Run batch of tests
+        if [[ "$v" == "local" ]]; then
+            pushd $tmp_dir/vader_wiki/testplugin
+
+            # Run the tests
+            echo -e "\nStarting vim with Vader"
+            "$vim" $vim_opt "+Vader! ${res}" 2>&1
+            err=$(( $err | $? ))
+
+            popd
+        else  # In docker
+            echo -e "\nStarting docker with vim with Vader"
+            docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+              "$v" $vim_opt "+Vader! ${res}" 2>&1 | vader_filter | vader_color
+            err=$(( $err | $? ))
+        fi
 
         # Run Tests that must be run in individual vim instances
         # see README.md for more information
-        docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-          /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
-        o_error=$(( $o_error | $? ))
+        test_cmd="for VF in ${ind}; do $vim $vim_opt \"+Vader! \$VF\"; done"
+        if [[ "$v" == "local" ]]; then
+            pushd $tmp_dir/vader_wiki/testplugin
+
+            echo "Starting vim with Vader"
+            bash -c "$test_cmd" 2>&1
+            err=$(( $err | $? ))
+
+            popd
+        else  # In docker
+            echo "Starting docker with vim with Vader"
+            docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+              /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
+            err=$(( $err | $? ))
+        fi
 
         set +o pipefail
+
+        # Restore what must (I know it should be refactored in a while)
+        if [[ "$v" == "local" ]]; then
+            export HOME=$home_save
+        fi
     done
-    return $o_error
+    return $err
 }
 
 runVint() {
-    echo "Starting Docker container and running Vint."
-
-    docker run -a stdout "${flags[@]}" vint -s .
+    local err=0
+    cmd="vint -s . && vint -s test/vimrc"
+    if echo "$vers" | grep "local" > /dev/null; then
+        echo "Running Vint: $cmd : in $wiki_path"
+        pushd $wiki_path > /dev/null
+        $cmd
+        err=$(( $err | $? ))
+        popd > /dev/null
+    else
+        echo "Starting Docker container and running Vint: $cmd"
+        docker run -a stdout "${flags[@]}" bash -c "$cmd"
+        err=$(( $err | $? ))
+    fi
+    return $err
 }
 
 getVers() {
@@ -130,17 +219,13 @@ vader_filter() {
     done
 
     if [[ "$err" == 1 ]]; then
-        o_error=1
         echo ""
         echo "!---------Failed tests detected---------!"
         echo "Run with the '-v' flag for verbose output"
         echo ""
     fi
-    return $o_error
+    return $err
 }
-
-# Say Hi
-echo -en "Starting $(basename $0) for VimWiki\n"
 
 
 red='\033[0;31m'
@@ -176,6 +261,12 @@ vader_color() {
 
     echo -en "$nc"
 }
+
+# path of the script, supposing no spaces
+script_file="$(dirname $0)"
+script_path="$( realpath $script_file )"
+wiki_path="$( realpath $script_path/.. )"
+tmp_dir=$(dirname $(mktemp -u))
 
 # list of vim/nvim versions
 vers="$(getVers)"
@@ -235,6 +326,9 @@ fi
 # stop tests on ctrl-c or ctrl-z
 trap exit 1 SIGINT SIGTERM
 
+# Global error return of the script
+o_error=0
+
 # select which tests should run
 case $type in
     "vader" )
@@ -249,7 +343,7 @@ case $type in
         ;;
     "all" )
         runVint ; err=$?
-        echo "Vint: returned $?"
+        echo "Vint: returned $err"
         o_error=$(( $err | $o_error ))
         runVader ; err=$?
         echo "Vader: returned $err"
