@@ -429,11 +429,7 @@ function! vimwiki#base#generate_links(create, ...) abort
     for link in links
       let link_infos = vimwiki#base#resolve_link(link)
       if !vimwiki#base#is_diary_file(link_infos.filename, copy(l:diary_file_paths))
-        if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
-        else
-          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
-        endif
+        let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
 
         let link_caption = vimwiki#base#read_caption(link_infos.filename)
         if link_caption ==? '' " default to link if caption not found
@@ -2252,7 +2248,7 @@ endfunction
 
 
 " Treat link string towards normalization
-" [__LinkDescription__](__LinkUrl__.FileExtension)
+" [__LinkDescription__](__LinkUrl__.__FileExtension__)
 function! vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template) abort
   let url = matchstr(a:str, a:rxUrl)
   if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && vimwiki#vars#get_wikilocal('markdown_link_ext')
@@ -2284,6 +2280,7 @@ endfunction
 
 
 " Normalize link in a diary file
+" Refactor: in diary
 function! vimwiki#base#normalize_link_in_diary(lnk) abort
   let sc = vimwiki#vars#get_wikilocal('links_space_char')
   let link = a:lnk . vimwiki#vars#get_wikilocal('ext')
@@ -2313,7 +2310,7 @@ function! vimwiki#base#normalize_link_in_diary(lnk) abort
   endif
 
   if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
-    let template = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+    let template = vimwiki#vars#get_syntaxlocal('Link1')
   endif
 
   return vimwiki#base#normalize_link_helper(str, rxUrl, rxDesc, template)
@@ -2380,13 +2377,8 @@ function! s:normalize_link_syntax_v() abort
   if vimwiki#base#is_diary_file(expand('%:p'))
     let link = vimwiki#base#normalize_link_in_diary(visual_selection)
   else
-    " Warning nested syntax discrimination
-    if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-      let template = vimwiki#vars#get_syntaxlocal('Weblink1Template')
-    else
-      let template = vimwiki#vars#get_global('WikiLinkTemplate1')
-    endif
-    let link = s:safesubstitute(template, '__LinkUrl__', visual_selection, '')
+    let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
+    let link = s:safesubstitute(link_tpl, '__LinkUrl__', visual_selection, '')
   endif
 
   " Transform link:

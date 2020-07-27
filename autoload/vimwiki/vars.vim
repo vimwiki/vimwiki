@@ -563,7 +563,7 @@ endfunction
 
 
 " Helper path
-" TODO move to path
+" TODO move to path: Conflict with: vimwiki#path#path_norm && vimwiki#path#normalize
 function! s:normalize_path(path) abort
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
@@ -741,6 +741,8 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   if a:syntax ==# 'markdown'
     call s:populate_extra_markdown_vars()
   endif
+
+  call s:normalize_syntax_settings(a:syntax)
 endfunction
 
 
@@ -972,6 +974,23 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxMkdRefMatchUrl =
         \ '\['.g:vimwiki_global_vars.rxWikiLinkDescr.']:\%(\s\+\|\n\)\zs'.
         \ mkd_syntax.rxWeblink0.'\ze'
+endfunction
+
+
+" Normalize syntax setting
+"   so that we dont have to branch for the syntax at each operation
+" Called: vimwiki#vars#populate_syntax_vars
+function! s:normalize_syntax_settings(syntax) abort
+  let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
+
+  " Link1: used when:
+  "   user press enter on a non-link (normalize_link)
+  "   command generate link form file name (generate_link)
+  if a:syntax ==# 'markdown'
+    let syntax_dic.Link1 = syntax_dic.Weblink1Template
+  else
+    let syntax_dic.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
+  endif
 endfunction
 
 

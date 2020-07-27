@@ -102,7 +102,7 @@ function! s:normalize_link_syntax_n() abort
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
             \ vimwiki#vars#get_global('rxWord'), '',
-            \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+            \ vimwiki#vars#get_syntaxlocal('Link1'))
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
