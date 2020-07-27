@@ -4,8 +4,49 @@ Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
-# 1 VimwikiGenerateLinks
+# 1 VimwikiGenerateLinks {{{1
 ##########################
+# Wiki Syntax {{{2
+#################
+
+Execute (Log):
+  Log 'Wiki Syntax'
+
+Given (Void):
+
+Execute (VimwikiGenerateLinks):
+  edit $HOME/testwiki/Test.wiki
+  VimwikiGenerateLinks
+
+Expect (The links with a header):
+
+
+  = Generated Links =
+          - [[buzz_bozz]]
+          - [[index]]
+
+Execute (VimwikiGenerateLinks x 2):
+  edit $HOME/testwiki/Test.wiki
+  VimwikiGenerateLinks
+  call append('$', 'Last Line')
+  VimwikiGenerateLinks
+
+Expect (The links with a header):
+
+
+  = Generated Links =
+          - [[buzz_bozz]]
+          - [[index]]
+
+Execute (Clean Test.wiki):
+  call DeleteFile('$HOME/testwiki/Test.wiki')
+
+
+# Markdown Syntax {{{2
+#################
+
+Execute (Log):
+  Log 'Markdown Syntax'
 
 Given (Void):
 
@@ -18,7 +59,6 @@ Execute (Edit Test file / VimwikiGenerateLinks):
   AssertEqual $HOME . '/testmarkdown/Test.md', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
-
   VimwikiGenerateLinks
 
 Expect (The links with a header):
@@ -31,8 +71,8 @@ Expect (The links with a header):
 
 Do (Save Test.md && Re-GenerateLinks):
   :edit $HOME/testmarkdown/Test.md\<CR>
-  :set bt=\<CR>
-  :write %\<CR>
+  :call WriteMe()\<CR>
+  :VimwikiGenerateLinks\<CR>
   :VimwikiGenerateLinks\<CR>
 
 Expect (The links with a header with file Test):
@@ -44,9 +84,67 @@ Expect (The links with a header with file Test):
   - [Buzz Bozz](buzz_bozz)
   - [Test Wiki](index)
 
+Execute (Clean: Remove Test.md):
+  call DeleteFile('$HOME/testmarkdown/Test.md')
 
-# 2 VimwikiDiaryGenerateLinks
+
+# 2 VimwikiDiaryGenerateLinks {{{1
 #############################
+
+# Wiki Syntax {{{1
+#################
+
+Execute (Log):
+  Log 'Wiki Syntax'
+
+Do (Create diary files):
+  :edit $HOME/testwiki/diary/2019-12-10.wiki\<Cr>
+  :call append('$', 'Content')\<Cr>
+  :call WriteMe()\<Cr>
+  :edit $HOME/testwiki/diary/2019-07-13.wiki\<Cr>
+  :call append('$', 'Content')\<Cr>
+  :call WriteMe()\<Cr>
+  :edit $HOME/testwiki/diary/2019-03-01.wiki\<Cr>
+  :call append('$', 'Content')\<Cr>
+  :call WriteMe()\<Cr>
+
+Do (Edit diary.wiki && GenerateDiaryLinks):
+  :edit $HOME/testwiki/diary/diary.wiki\<CR>
+  :VimwikiDiaryGenerateLinks\<CR>
+
+Expect (diary index generated):
+  = Diary =
+  == 2020 ==
+
+  === July ===
+          - [[2020-07-25|day 4]]
+          - [[2020-07-24|day 3]]
+          - [[2020-07-23|Day 2]]
+          - [[2020-07-22]]
+
+  == 2019 ==
+
+  === December ===
+          - [[2019-12-10]]
+
+  === July ===
+          - [[2019-07-13]]
+
+  === March ===
+          - [[2019-03-01]]
+
+Execute (Clean):
+  Log "End: Clean"
+  call DeleteFile('$HOME/testwiki/diary/2019-12-10.wiki')
+  call DeleteFile('$HOME/testwiki/diary/2019-07-13.wiki')
+  call DeleteFile('$HOME/testwiki/diary/2019-03-01.wiki')
+  Log "End: Reset shiftwidth to the default: 8"
+
+# Wiki Markdown {{{1
+#################
+
+Execute (Log):
+  Log 'Markdown Syntax'
 
 Execute (New Command):
   Log "2. Testing VimwikiDiaryGenerateLinks TODO"
@@ -92,12 +190,13 @@ Expect (diary index generated):
 
 Execute (Clean):
   Log "End: Clean"
-  call system("rm $HOME/testmarkdown/diary/2019-12-10.md")
-  call system("rm $HOME/testmarkdown/diary/2019-07-13.md")
-  call system("rm $HOME/testmarkdown/diary/2019-03-01.md")
-  call system("rm $HOME/testmarkdown/diary/diary.md")
+  call DeleteFile('$HOME/testmarkdown/diary/2019-12-10.md')
+  call DeleteFile('$HOME/testmarkdown/diary/2019-07-13.md')
+  call DeleteFile('$HOME/testmarkdown/diary/2019-03-01.md')
+  Log "End: Reset shiftwidth to the default: 8"
+  set sw&
 
 
 Include: vader_includes/vader_teardown.vader
 
-" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
+# vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:

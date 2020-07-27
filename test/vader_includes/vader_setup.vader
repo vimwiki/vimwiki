@@ -80,6 +80,18 @@ Before (Define functions):
     write %
   endfunction
 
+  function! DeleteFile(path)
+    let path = expand(a:path)
+    " Delete file
+    try
+      call delete(path)
+    catch | endtry
+    " Delete Buffer
+    try
+      execute 'bdelete! ' . path
+    catch | endtry
+  endfunction
+
   " Print a command output to the buffer
   function! PrintCommand(cmd)
     redir => message
@@ -104,4 +116,4 @@ Before (Define functions):
     AssertEqual a:nr + 2, tabpagenr()
   endfunction
 
-# vim: ft=vim
+# vim: ft=vim:sw=2
