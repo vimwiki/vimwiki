@@ -1223,12 +1223,12 @@ endfunction
 " Called: by functions adding listing to buffer (this is an util function)
 function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
       \ content_regex, default_lnum, header_level, create) abort
-  " Vim behaves strangely when files change while in diff mode
+  " Clause: Vim behaves strangely when files change while in diff mode
   if &diff || &readonly
     return
   endif
 
-  " Check if the listing is already there
+  " Clause: Check if the listing is already there
   let already_there = 0
 
   let header_level = 'rxH' . a:header_level . '_Template'
@@ -1248,17 +1248,21 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     return
   endif
 
+  " Save state
   let winview_save = winsaveview()
+  " Work is supposing an initial visibility (Issue: #921)
+  let foldlevel_save = &l:foldlevel
+  let &l:foldlevel = 100
   let cursor_line = winview_save.lnum
   let is_cursor_after_listing = 0
 
   let is_fold_closed = 1
-
   let lines_diff = 0
 
+  " Set working range according to listing presence
   if already_there
     let is_fold_closed = ( foldclosed(start_lnum) > -1 )
-    " delete the old listing
+    " Delete the old listing
     let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
     let end_lnum = start_lnum + 1
     while end_lnum <= line('$') && getline(end_lnum) =~# a:content_regex
@@ -1278,7 +1282,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     let start_lnum = a:default_lnum
     let is_cursor_after_listing = ( cursor_line > a:default_lnum )
     let whitespaces_in_first_line = ''
-    " append newline if not replacing first line
+    " Append newline if not replacing first line
     if start_lnum > 1
       keepjumps call append(start_lnum -1, '')
       let start_lnum += 1
@@ -1324,6 +1328,9 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
   if is_cursor_after_listing
     let winview_save.lnum += lines_diff
   endif
+
+  " Restore state
+  let &l:foldlevel = foldlevel_save
   call winrestview(winview_save)
 endfunction
 
