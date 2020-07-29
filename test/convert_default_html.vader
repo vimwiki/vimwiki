@@ -6,6 +6,159 @@ Execute (Copy Wiki's Resources):
 
 
 
+Given vimwiki (Table no heading {{{1):
+  | header1 | header2 |
+  |  val1    | val2    |
+  |  val1    | val2    |
+  |  val1    | val2    |
+
+Do (Convert):
+# Note: gg"bdG = Cut
+# Note: ggdG"bp = Replace file content by clipboard "b
+# Fill file with a name
+  :let g:buf_vader = bufnr('%')\<Cr>
+  gg"bdG
+  :edit $HOME/testwiki/test_html_table.wiki\<Cr>
+  ggdG"bp
+  :call WriteMe()\<Cr>
+# Convert
+  :Vimwiki2HTML\<Cr>
+# Copy output
+  :edit $HOME/html/default/test_html_table.html\<Cr>
+  gg"bdG
+# Paste output in [Vader] buffer
+  :execute 'buffer ' . g:buf_vader\<Cr>
+  ggdG"bp
+
+# Keep only body
+  ggd/<body>\<Cr>
+
+
+Expect (Table no heading):
+  <body>
+
+  <table>
+  <tr>
+  <td>
+  header1
+  </td>
+  <td>
+  header2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  </table>
+
+  </body>
+  </html>
+
+Execute(Delete):
+  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
+  call DeleteFile('$HOME/html/default/test_html_table.html')
+
+
+Given vimwiki (Table with heading {{{1):
+  | header1 | header2 | header3 |
+  |---------|---------|---------|
+  |  val1    | val2    | var3 |
+  |  val4    | val5    | var6 |
+
+Do (Convert):
+# Note: gg"bdG = Cut
+# Note: ggdG"bp = Replace file content by clipboard "b
+# Fill file with a name
+  :let g:buf_vader = bufnr('%')\<Cr>
+  gg"bdG
+  :edit $HOME/testwiki/test_html_table.wiki\<Cr>
+  ggdG"bp
+  :call WriteMe()\<Cr>
+# Convert
+  :Vimwiki2HTML\<Cr>
+# Copy output
+  :edit $HOME/html/default/test_html_table.html\<Cr>
+  gg"bdG
+# Paste output in [Vader] buffer
+  :execute 'buffer ' . g:buf_vader\<Cr>
+  ggdG"bp
+
+# Keep only body
+  ggd/<body>\<Cr>
+
+
+Expect (Table with heading):
+  <body>
+
+  <table>
+  <thead>
+  <tr>
+  <th>
+  header1
+  </th>
+  <th>
+  header2
+  </th>
+  <th>
+  header3
+  </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  <td>
+  var3
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val4
+  </td>
+  <td>
+  val5
+  </td>
+  <td>
+  var6
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  </body>
+  </html>
+
+
+Execute(Delete):
+  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
+  call DeleteFile('$HOME/html/default/test_html_table.html')
+
 
 #################################################
 Execute (Log):
@@ -61,6 +214,9 @@ Expect (Local link):
   </body>
 
 
+Execute (Delete):
+  call DeleteFile(' $HOME/testwiki/Test473.wiki')
+
 #################################################
 Given (Void):
 
@@ -114,4 +270,8 @@ Expect (Plain Html):
 
   </body>
 
+Execute (Delete):
+  call DeleteFile('$HOME/testwiki/TestHtml.wiki')
+
 Include: vader_includes/vader_teardown.vader
+# vim: sw=2 foldmethod=marker foldlevel=30
