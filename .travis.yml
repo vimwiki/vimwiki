@@ -23,6 +23,7 @@ before_install:
 env:
   # Define jobs <- vim version <- hard copied from Dockerfile
   # First to be launched
+  - VIM_VERSION=vint
   - VIM_VERSION=vim_7.3.429
   - VIM_VERSION=nvim_0.3.8
   # More
@@ -34,7 +35,9 @@ env:
 script:
   # Run All tests
   - pushd test
-  - bash run_tests.sh -v -n "$VIM_VERSION"
+  - if [[ "$VIM_VERSION" == 'vint' ]]; then bash run_tests.sh -v -t vint;
+    else bash run_tests.sh -v -t vader -n "$VIM_VERSION";
+    fi
   - popd
 
 

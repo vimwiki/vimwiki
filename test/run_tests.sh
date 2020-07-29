@@ -77,7 +77,7 @@ runVader() {
             fi
         done
     fi
-    echo "Vader: will run files: $res and independantly $ind"
+    echo "Vader: will run files: $res and independently $ind"
 
     # Run tests for each specified version
     for v in $vers; do
