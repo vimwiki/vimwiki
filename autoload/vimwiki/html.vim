@@ -797,14 +797,18 @@ function! s:close_tag_table(table, ldest, header_ids) abort
       endif
     endfor
     if head > 0
+      call add(ldest, '<thead>')
       for row in table[1 : head-1]
         if !empty(filter(row, '!empty(v:val)'))
           call s:close_tag_row(row, 1, ldest, a:header_ids)
         endif
       endfor
+      call add(ldest, '</thead>')
+      call add(ldest, '<tbody>')
       for row in table[head+1 :]
         call s:close_tag_row(row, 0, ldest, a:header_ids)
       endfor
+      call add(ldest, '</tbody>')
     else
       for row in table[1 :]
         call s:close_tag_row(row, 0, ldest, a:header_ids)

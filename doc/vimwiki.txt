@@ -3672,6 +3672,7 @@ Contributors and their Github usernames in roughly chronological order:
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
+    - Gaurang Kher (@gaurangkher)
     - Rafael Castillo (@eltrufas)
     - Reiner Herrmann (@reinerh)
     - Ryan Winograd
@@ -3687,6 +3688,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #940: Render table header inside thead element and rest under
+      tbody element if table header specified in wiki
     * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
