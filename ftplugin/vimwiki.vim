@@ -264,7 +264,8 @@ command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
 command! -buffer VimwikiDeleteLink
       \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
-command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
+      \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
 command! -buffer VimwikiRenameLink
       \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
       \ call vimwiki#base#rename_link()

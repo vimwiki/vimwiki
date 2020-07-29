@@ -1043,6 +1043,7 @@ endfunction
 " Update link for all files in dir
 " Param: old_url, new_url: path of the old, new url relative to ...
 " Param: dir: directory of the files, relative to wiki_root
+" Called: rename_link
 function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
   " Get list of wiki files
   let wiki_root = vimwiki#vars#get_wikilocal('path', a:wiki_nr)
@@ -1055,9 +1056,13 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
   let cache_dict = {}
 
   " Regex from path
-  function! s:compute_old_url_r(wiki_nr, dir_rel_fsource, old_url) abort
-    " Old url
-    let old_url_r = a:dir_rel_fsource . a:old_url
+  " Param: wiki_nr <int> to get the syntax template
+  " Param: old_location <string> relative to the current wiki fsource
+  function! s:compute_old_url_r(wiki_nr, old_location) abort
+    " Start, Read param
+    let old_url_r = a:old_location
+    " Escape the '\\/'
+    let old_url_r = escape(old_url_r, '\/')
     " Add potential  ./
     let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
     " Compute old url regex with filename between \zs and \ze
@@ -1087,14 +1092,14 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
     endif
 
     " New url
-    let new_url = dir_rel_fsource . a:new_url
+    let new_url = simplify(dir_rel_fsource . a:new_url)
 
     " Old url
     " Avoid E713
     let key = empty(dir_rel_fsource) ? 'NaF' : dir_rel_fsource
     if index(keys(cache_dict), key) == -1
       let cache_dict[key] = s:compute_old_url_r(
-            \ a:wiki_nr, dir_rel_fsource, a:old_url)
+            \ a:wiki_nr, dir_rel_fsource . a:old_url)
     endif
     let old_url_r = cache_dict[key]
 
@@ -1536,57 +1541,84 @@ function! vimwiki#base#delete_link() abort
 endfunction
 
 
-" Rename current file, update all links to it
-function! vimwiki#base#rename_link() abort
-  " Get filename relative to wiki root
-  let subdir = vimwiki#vars#get_bufferlocal('subdir')
-  let old_fname = subdir.expand('%:t')
-
-  " Get current path
-  let old_dir = expand('%:p:h')
-
-  " there is no file (new one maybe)
-  if glob(expand('%:p')) ==? ''
-    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:p').
-          \'". It does not exist! (New file? Save it before renaming.)'
-    return
-  endif
-
+" Ask user for a new filepath
+" Returns: '' if fails
+" Called: rename_link
+function! s:input_rename_link() abort
+  " Ask confirmation
   let val = input('Rename "'.expand('%:t:r').'" [y]es/[N]o? ')
   if val !~? '^y'
     return
   endif
 
+  " Ask new name
   let new_link = input('Enter new name: ')
 
+  " Guard: Check link
   if new_link =~# '[/\\]'
     echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
     return
   endif
-
   if substitute(new_link, '\s', '', 'g') ==? ''
     echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
     return
   endif
 
+  " Check if new file well formed
   let url = matchstr(new_link, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   if url !=? ''
-    let new_link = url
+    return url
   endif
+
+  return new_link
+endfunction
+
+
+" Rename current file, update all links to it
+" Param: [new_filepath <string>]
+function! vimwiki#base#rename_link(...) abort
+  " Get filename and dir relative to wiki root
+  let subdir = vimwiki#vars#get_bufferlocal('subdir')
+  " Get old file directory relative to current path
+  let old_dir = expand('%:p:h')
+  let old_fname = subdir.expand('%:t')
+  let wikiroot_path = vimwiki#vars#get_wikilocal('path')
+
+  " Clause: Check if there current buffer is a file (new buffer maybe)
+  if glob(expand('%:p')) ==? ''
+    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:p').
+          \'". Current file does not exist! (New file? Save it before renaming.)'
+    return
+  endif
+
+  " Read new_link <- command line || input()
+  let new_link = a:0 > 0 ? a:1 : s:input_rename_link()
+  if new_link ==# '' | return | endif
 
   let new_link = subdir.new_link
   let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
-  let new_fname = vimwiki#vars#get_wikilocal('path') . new_link . vimwiki#vars#get_wikilocal('ext')
+  let new_fname = simplify(wikiroot_path . new_link . vimwiki#vars#get_wikilocal('ext'))
 
-  " do not rename if file with such name exists
+  " Guard: Do not rename if file with such name exists
   let fname = glob(new_fname)
   if fname !=? ''
     echomsg 'Vimwiki Error: Cannot rename to "'.new_fname.'". File with that name exist!'
     return
   endif
-  " rename wiki link file
+
+  " TODO Check new_file is in a wiki dir and warn user if not
+  " Create new directory if needed
+  let new_dir = fnamemodify(new_fname, ':h')
+  if exists('*mkdir')
+    " Sometimes complaining E739 if directory exists
+    try
+      call mkdir(new_dir, 'p')
+    catch | endtry
+  endif
+
+  " Rename wiki link file
   try
-    echomsg 'Vimwiki: Renaming '.vimwiki#vars#get_wikilocal('path').old_fname.' to '.new_fname
+    echomsg 'Vimwiki: Renaming '.wikiroot_path.old_fname.' to '.new_fname
     let res = rename(expand('%:p'), expand(new_fname))
     if res != 0
       throw 'Cannot rename!'
@@ -1598,11 +1630,13 @@ function! vimwiki#base#rename_link() abort
 
   let &buftype='nofile'
 
+  " Save current buffer: [file_name, buffer_name]
   let cur_buffer = [expand('%:p'), vimwiki#vars#get_bufferlocal('prev_links')]
 
+  " Get all wiki buffer
   let blist = s:get_wiki_buffers()
 
-  " save wiki buffers
+  " Save wiki buffers
   for bitem in blist
     execute ':b '.escape(bitem[0], ' ')
     execute ':update'
@@ -1610,30 +1644,39 @@ function! vimwiki#base#rename_link() abort
 
   execute ':b '.escape(cur_buffer[0], ' ')
 
-  " remove wiki buffers
+  " Remove wiki buffers
   for bitem in blist
     execute 'bwipeout '.escape(bitem[0], ' ')
   endfor
 
-  let setting_more = &more
+  let more_save = &more
   setlocal nomore
 
-  " update links
-  call s:update_wiki_links(wiki_nr, old_dir, s:tail_name(old_fname), s:tail_name(new_fname))
+  " Update links
+  let old_fname_abs = wikiroot_path . old_fname
+  let old_fname_rel_dir = vimwiki#path#relpath(old_dir, old_fname_abs)
+  let new_fname_rel_dir = vimwiki#path#relpath(old_dir, new_fname)
+  call s:update_wiki_links(
+        \ wiki_nr, old_dir,
+        \ fnamemodify(old_fname_rel_dir, ':r'),
+        \ fnamemodify(new_fname_rel_dir, ':r')
+        \ )
 
-  " restore wiki buffers
+  " Restore wiki buffers
   for bitem in blist
     if !vimwiki#path#is_equal(bitem[0], cur_buffer[0])
       call s:open_wiki_buffer(bitem)
     endif
   endfor
 
+  " Open the new buffer
   call s:open_wiki_buffer([new_fname, cur_buffer[1]])
   " execute 'bwipeout '.escape(cur_buffer[0], ' ')
 
+  " Log success
   echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
 
-  let &more = setting_more
+  let &more = more_save
 endfunction
 
 
@@ -2439,6 +2482,23 @@ endfunction
 " Complete escaping globlinks
 function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
   return vimwiki#base#get_globlinks_escaped(a:ArgLead)
+endfunction
+
+
+" Complete filename relatie to current file
+" Called: rename_link
+function! vimwiki#base#complete_file(ArgLead, CmdLine, CursorPos) abort
+  " Start from current file
+  let base_path = expand('%:h')
+
+  " Get every file you can
+  let completion_pattern = base_path . '/' . a:ArgLead . '*'
+  let completion_list = split(glob(completion_pattern), '\n')
+
+  " Remove base_path prefix from the result
+  let base_len = len(base_path)
+  let completion_list = map(completion_list, 'v:val[base_len+1:]')
+  return completion_list
 endfunction
 
 
