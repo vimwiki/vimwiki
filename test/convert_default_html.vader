@@ -4,6 +4,64 @@ Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
+
+
+
+#################################################
+Execute (Log):
+   Log '#473: Syntax "local:" doesnt work as expected. #473'
+
+Given vimwiki (Void Md):
+
+Execute (Edit Test473 Wiki):
+  edit $HOME/testwiki/TestHtml.wiki
+
+Do (Add local link: [[local:$HOME/here|Link]]):
+  :edit $HOME/testwiki/Test473.wiki\<CR>
+  i
+  [[local:
+  \<C-r>=$HOME\<Cr>
+  /here|Link]]
+  \<Esc>
+  :call WriteMe()\<Cr>
+  :Vimwiki2HTML\<Cr>
+
+
+Execute (Save and Convert to html):
+  edit $HOME/testwiki/Test473.wiki
+  Vimwiki2HTML
+  AssertEqual '[[local:'.$HOME.'/here|Link]]', getline(1)
+
+
+Given (Void Html):
+
+# TODO mutualise
+Do (Get Html body):
+  :read $HOME/html/default/Test473.html\<CR>
+# Goto body
+  gg/<body>\<CR>
+# Copy in b
+  "bdat
+# Delete All
+  ggdG
+# Paste body
+  "bP
+# Remove last line
+  Gdd
+# Save (Not necessary)
+  :write
+
+Expect (Local link):
+  <body>
+  
+  <p>
+  <a href="../../here">Link</a>
+  </p>
+  
+  </body>
+
+
+#################################################
 Given (Void):
 
 Execute (Edit TestHtml Wiki):

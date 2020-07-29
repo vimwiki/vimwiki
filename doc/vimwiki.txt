@@ -69,7 +69,7 @@ With Vimwiki you can:
     - maintain a diary
     - export your documents to HTML
 
-Getting started with Vimwiki is easy. Once intalled, simply type `vim` into
+Getting started with Vimwiki is easy. Once installed, simply type `vim` into
 your terminal to launch Vim and then type <Leader>ww (the <Leader> key is `\`
 by default) to create or open the index wiki file, the "top" page in your
 hierarchical collection of wiki pages. By default, this page will be located
@@ -808,7 +808,7 @@ Vimwiki file.
     The status of parents is updated accordingly.
     If you want to remove only items of the current nesting level, (re)define
     a command that calls the same function with `0` as first argument: >
-        :command! -buffer -range VimwikiRemoveDone call 
+        :command! -buffer -range VimwikiRemoveDone call
            \ vimwiki#lst#remove_done(0, "<range>", <line1>, <line2>)
 <
 *:VimwikiNextTask*
@@ -828,6 +828,9 @@ Vimwiki file.
     By default, only converts wiki pages which have not already been
     converted or have been modified since their last conversion. With !,
     convert all pages, regardless of whether or not they are out-of-date.
+
+*:VimwikiRss*
+    Generate an RSS feed for the latest diary entries.
 
 *:VimwikiToggleListItem*
     Toggle checkbox of a list item on/off.
@@ -1009,15 +1012,23 @@ With description: >
 
 Wiki files don't need to be in the root directory of your wiki, you can put
 them in subdirectories as well: >
-   [[projects/Important Project 1]]
+  [[projects/Important Project 1]]
 To jump from that file back to the index file, use this link: >
-   [[../index]]
+  [[../index]]
 or: >
-   [[/index]]
+  [[/index]]
 The latter works because wiki links starting with "/" are considered to be
 absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
+
+If you want an absolute path in your local box you can prefix the path
+with // >
+  [[//absolute_path]]
+For example: >
+  [[///tmp/in_root_tmp]]
+  [[//~/in_home_dir]]
+  [[//$HOME/in_home_dir]]
 
 Links to subdirectories inside the wiki directory are also supported. They
 end with a "/": >
@@ -1441,6 +1452,14 @@ Text which starts with 4 or more spaces is a blockquote.
     could be styled by CSS in HTML. Blockquotes are usually used to quote a
     long piece of text from another source.
 
+A group of lines prefixed with > also specifies a blockquote, with the caveat
+that the > syntax allow empty lines to signal multiple paragraphs.
+
+> This also signals a block quote.
+> 
+> You can use empty lines to signal multiple paragraphs kept inside the same
+> blockquote.
+
 
 ------------------------------------------------------------------------------
 5.10. Comments                                       *vimwiki-syntax-comments*
@@ -1601,7 +1620,7 @@ If you do not want a wiki page to be converted to HTML, place:
 
 %nohtml
 
-into it.
+into it. This will also prevent inclusion in the RSS feed.
 
 
 ------------------------------------------------------------------------------
@@ -1908,9 +1927,10 @@ Example of diary section: >
         * [[2011-12-09]]
         * [[2011-12-08]]
 
+The diary can be used with a frequency other than daily. See the appropriate
+per-wiki options.
 
 See |g:vimwiki_diary_months| if you would like to rename months.
-
 
 ------------------------------------------------------------------------------
 Calendar integration                                        *vimwiki-calendar*
@@ -2451,6 +2471,35 @@ Possible values:
 When the value is >= 1, the primary caption of each diary page is set to the
 first header read from that page if it is the unique lowest-level header.
 
+
+*vimwiki-option-diary_frequency*
+------------------------------------------------------------------------------
+Key               Default value~
+diary_frequency   daily
+
+Description~
+Controls the diary frequency used to create the date for which a diary entry
+is created.
+
+Possible values:
+  daily:  Create a diary entry dated for each day.
+ weekly:  Create a diary entry dated for the beginning of each week.
+monthly:  Create a diary entry dated for the beginning of each month.
+ yearly:  Create a diary entry dated for the beginning of each year.
+
+
+*vimwiki-option-diary_start_week_day*
+------------------------------------------------------------------------------
+Key                   Default value~
+diary_start_week_day  monday
+
+Description~
+Set the day to begin each week.
+
+Possible values:
+monday, tuesday, wednesday, thursday, friday, saturday, sunday
+
+
 *vimwiki-option-custom_wiki2html*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -2647,6 +2696,34 @@ regeneration of HTML files.
 This setting also turns off the automatic deletion of files
 in the site_html directory which don't match existing wiki files.
 
+*vimwiki-option-rss_name*
+------------------------------------------------------------------------------
+Key             Default value~
+rss_name        rss.xml
+
+Description~
+Setup RSS file name: >
+  let g:vimwiki_list = [{'path': '~/my_pages/', 'rss_name': 'feed.rss'}]
+<
+Vimwiki will generate an RSS feed for the diary in this file.
+
+*vimwiki-option-rss_max_items*
+------------------------------------------------------------------------------
+Key             Default value~
+rss_max_items   10
+
+Description~
+This setting limits the number of diary entries exported into the RSS feed.
+
+*vimwiki-option-base_url*
+------------------------------------------------------------------------------
+Key             Default value~
+base_url        ''
+
+Description~
+This setting specifies the URL where the generated VimWiki HTML pages can
+be reached. It is used for the link to the RSS feed and for links to the
+diary entries inside the feed.
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
@@ -3596,6 +3673,10 @@ Contributors and their Github usernames in roughly chronological order:
     - Marius Lopez (@PtitCaius)
     - Edward Bassett (@ebassett)
     - Gaurang Kher (@gaurangkher)
+    - Rafael Castillo (@eltrufas)
+    - Reiner Herrmann (@reinerh)
+    - Ryan Winograd
+
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3609,9 +3690,13 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 New:~
     * Issue #940: Render table header inside thead element and rest under
       tbody element if table header specified in wiki
+    * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * PR #901: adds multiparagraph blockquotes using email style syntax
+    * PR #934: RSS feed generation for diary with :VimwikiRss.
+    * PR #959: Fix :VimwikiNextTask
 
 2.5 (2020-05-26)~
 
@@ -3684,6 +3769,7 @@ New:~
     * PR #47: Optimize table formatting for large tables.
     * PR #857: Make default template responsive
     * PR #879: Generate links when diary & wiki dir are the same
+    * PR #884: Configure diary frequency (daily, weekly, monthly, yearly)
 
 Changed:~
     * Issue #796: Rename |:VimwikiGenerateTags| to |:VimwikiGenerateTagLinks|

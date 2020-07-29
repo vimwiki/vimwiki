@@ -1,0 +1,10 @@
+# Succeding test just to test the script when everything goes fine
+
+Given (Text v0.01):
+  Text
+
+Do (press escape):
+  \<Esc>
+
+Expect (Text):
+  Text

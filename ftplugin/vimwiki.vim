@@ -117,15 +117,26 @@ setlocal omnifunc=Complete_wikifiles
 
 
 " Declare settings necessary for the automatic formatting of lists
+" ------------------------------------------------
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
-setlocal comments=""
+
+" Set comments: to insert and format 'comments' or cheat
+setlocal comments=
+" Used to break blockquote prepending one on each new line (see: #915)
+setlocal comments+=n:>
+
+" Set format options (:h fo-table)
 setlocal formatoptions-=c
 setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
+" Used to join blockquotes (see: #915)
+if v:version > 703
+  setlocal formatoptions+=j
+endif
 
 let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 
@@ -242,6 +253,8 @@ command! -buffer Vimwiki2HTMLBrowse
 command! -buffer -bang VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')), <bang>0)
 
+command! -buffer VimwikiRss call vimwiki#html#diary_rss()
+
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
 command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
@@ -251,7 +264,8 @@ command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
 command! -buffer VimwikiDeleteLink
       \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
-command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
+      \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
 command! -buffer VimwikiRenameLink
       \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
       \ call vimwiki#base#rename_link()

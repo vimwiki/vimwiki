@@ -360,7 +360,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
             let link_infos = vimwiki#base#resolve_link(taglink)
             if empty(link_infos.anchor)
-              let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+              let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
               let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
               let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
             else

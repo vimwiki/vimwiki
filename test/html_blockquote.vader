@@ -1,0 +1,71 @@
+Include: vader_includes/vader_setup.vader
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+Given (Void):
+
+Execute (Edit TestHtml Wiki):
+  edit $HOME/testwiki/TestHtml.wiki
+  AssertEqual $HOME . '/testwiki/TestHtml.wiki', expand('%')
+  AssertEqual 'default', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 0, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Markdown with arrow blockquotes):
+  :edit $HOME/testwiki/TestHtml.wiki\<CR>
+  ggdGi first paragraph\<CR>\<CR>
+  > block\<CR>
+  > quote\<CR>\<CR>
+  last paragraph\<CR>\<Esc>
+  :write\<CR>
+
+
+Execute (Save and Convert to html):
+  edit $HOME/testwiki/TestHtml.wiki
+  Vimwiki2HTML
+
+
+Given (Void):
+
+
+Do (Get Html body):
+  :read $HOME/html/default/TestHtml.html\<CR>
+# Goto body
+  gg/<body>\<CR>
+# Copy in b
+  "bdat
+# Delete All
+  ggdG
+# Paste body
+  "bP
+# Remove last line
+  Gdd
+# Save (Not necessary)
+  :write
+
+
+
+Expect (Plain Html):
+# the whole default html file should be here as a base + the modifications 
+# from "Given"
+  <body>
+
+  <p>
+   first paragraph
+  </p>
+   
+  <blockquote>
+  <p>
+  block
+  quote
+  </p>
+  </blockquote>
+   
+  <p>
+   last paragraph
+  </p>
+
+  </body>
+
+Include: vader_includes/vader_teardown.vader
