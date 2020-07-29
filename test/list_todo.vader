@@ -200,6 +200,23 @@ Expect (4 items toogled):
   End
 
 ################################################################################
+# Todo list with text above
+
+Given vimwiki (TODO list):
+  Some other text
+
+  - [ ] Todo Item
+
+Execute (:VimwikiNextTask):
+  :execute "VimwikiNextTask" | execute 'normal yyp'
+
+Expect (Introduce new todo item):
+  Some other text
+
+  - [ ] Todo Item
+  - [ ] Todo Item
+
+################################################################################
 # Numbered Todo list
 
 Given vimwiki (Number TODO list):

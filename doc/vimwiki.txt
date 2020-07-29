@@ -3674,6 +3674,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Edward Bassett (@ebassett)
     - Rafael Castillo (@eltrufas)
     - Reiner Herrmann (@reinerh)
+    - Ryan Winograd
 
 
 ==============================================================================
@@ -3692,6 +3693,7 @@ New:~
     * PR #900: conceallevel is now setted locally for vimwiki buffers
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
+    * PR #959: Fix :VimwikiNextTask
 
 2.5 (2020-05-26)~
 

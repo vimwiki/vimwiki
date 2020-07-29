@@ -1342,7 +1342,7 @@ endfunction
 
 " Find next task (Exported)
 function! vimwiki#base#find_next_task() abort
-  let taskRegex = vimwiki#vars#get_syntaxlocal('rxListItemWithoutCB')
+  let taskRegex = vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
     \ . '\+\(\[ \]\s\+\)\zs'
   call vimwiki#base#search_word(taskRegex, '')
 endfunction
