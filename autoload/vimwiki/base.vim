@@ -699,6 +699,14 @@ function! s:jump_to_anchor(anchor) abort
   let segments = split(anchor, '#', 0)
 
   for segment in segments
+
+    " Craft segment pattern so that it is case insensitive and also matches dashes
+    " in anchor link with spaces in heading
+    " Ignore case
+    let segment = substitute(segment, '\<\(.\)', '\\c\1', 'g')
+    " Treat - as [- or space]
+    let segment = substitute(segment , '-', '[ -]', 'g')
+
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
           \ '__Header__', segment, '')
@@ -864,6 +872,11 @@ endfunction
 
 
 " Open file (like :e)
+" :param: command <string>: ':e'
+" :param: filename <strign> vimwiki#vars#get_wikilocal('path') . key . vimwiki#vars#get_wikilocal('ext')
+" :param: anchor
+" :param: (1) vimwiki_prev_link
+" :param: (2) vimwiki#u#ft_is_vw()
 function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
   let fname = escape(a:filename, '% *|#`')
   let dir = fnamemodify(a:filename, ':p:h')
