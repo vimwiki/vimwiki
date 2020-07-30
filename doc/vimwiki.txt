@@ -1467,7 +1467,11 @@ that the > syntax allow empty lines to signal multiple paragraphs.
 A line that starts with %% is a comment.
 E.g.: >
  %% this text would not be in HTML
-<
+
+The default commentstring can be changed or disabled with
+|g:vimwiki_commentstring| so an alternative commentstring can be set, e.g.:
+  <!-- This may be a comment too -->
+
 
 ------------------------------------------------------------------------------
 5.11. Horizontal line                                      *vimwiki-syntax-hr*
@@ -3548,6 +3552,23 @@ take care when using it. Any plugin that uses a set filetype will be enabled.
 
 The default is `[ ]`
 
+
+------------------------------------------------------------------------------
+*g:vimwiki_commentstring*
+
+An option to change the default commentstring. Use
+
+  let g:vimwiki_commentstring = '<!--%s-->'
+
+for html-style comments. Use 
+
+  let g:vimwiki_commentstring = ""
+
+to not set commentstring by vimwiki.
+
+The default is %%%s.
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3676,7 +3697,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Rafael Castillo (@eltrufas)
     - Reiner Herrmann (@reinerh)
     - Ryan Winograd
-
+    - Birger Niklas (@BirgerNi)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3688,6 +3709,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #946: Add option |g:vimwiki_commentstring| to customize commentstring
     * Issue #940: Render table header inside thead element and rest under
       tbody element if table header specified in wiki
     * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
