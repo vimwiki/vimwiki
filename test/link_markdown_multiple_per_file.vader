@@ -14,7 +14,7 @@ Given vimwiki (Internal links zith spaces):
 
   One line here
 
-Execute (Set markdown):
+Execute (Set filename wiki_test.md):
   file wiki_test.md
   call SetSyntax('markdown')
 
@@ -55,7 +55,6 @@ Given vimwiki (Internal links + one link to filenew):
     - [filenew](filenew)
 
 Execute (Set filename wiki_test.md):
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Do (Navigate with <Tab>):
