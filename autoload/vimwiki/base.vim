@@ -659,9 +659,12 @@ function! s:jump_to_anchor(anchor) abort
 
   for segment in segments
 
-    " prepare segment pattern so that it is case insensitive and also matches dashes
+    " Craft segment pattern so that it is case insensitive and also matches dashes
     " in anchor link with spaces in heading
-    let segment = substitute(substitute(segment, '\<\(.\)', '\\c\1', 'g'), '-', '[ -]', 'g')
+    " Ignore case
+    let segment = substitute(segment, '\<\(.\)', '\\c\1', 'g')
+    " Treat - as [- or space]
+    let segment = substitute(segment , '-', '[ -]', 'g')
 
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
