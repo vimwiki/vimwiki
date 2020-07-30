@@ -2685,7 +2685,6 @@ Set this option to a list of file patterns to exclude when checking or
 generating links: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'exclude_files': ['**/README.md']}]
 
-
 *vimwiki-option-html_filename_parameterization*
 ------------------------------------------------------------------------------
 Key                             Default value     Values~
@@ -2699,6 +2698,30 @@ regeneration of HTML files.
 
 This setting also turns off the automatic deletion of files
 in the site_html directory which don't match existing wiki files.
+
+------------------------------------------------------------------------------
+*g:vimwiki_list_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in multiline list items.
+
+Value           Description~
+0               Newlines in a list item are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
+
+------------------------------------------------------------------------------
+*g:vimwiki_text_ignore_newline*
+
+This is HTML related.
+Convert newlines to <br />s in text.
+
+Value           Description~
+0               Newlines in text are converted to <br />s.
+1               Ignore newlines.
+
+Default: 1
 
 *vimwiki-option-rss_name*
 ------------------------------------------------------------------------------
@@ -2728,6 +2751,39 @@ Description~
 This setting specifies the URL where the generated VimWiki HTML pages can
 be reached. It is used for the link to the RSS feed and for links to the
 diary entries inside the feed.
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_header*
+
+A string with the magic header that tells Vimwiki where the Table of Contents
+(see |vimwiki-toc|) is located in a file. You can change it to the
+appropriate word in your mother tongue like this: >
+  let g:vimwiki_toc_header = 'Inhalt'
+
+The default is 'Contents'.
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_header_level*
+
+The header level of the Table of Contents (see |vimwiki-toc|). Valid values
+are from 1 to 6.
+
+The default is 1.
+
+------------------------------------------------------------------------------
+*g:vimwiki_toc_link_format*
+
+The format of the links in the Table of Contents (see |vimwiki-toc|).
+
+
+Value           Description~
+0               Extended: The link contains the description and URL. URL
+                references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
+
+Default: 0
+
 
 ------------------------------------------------------------------------------
 12.4 Global Options                                   *vimwiki-global-options*
@@ -2893,32 +2949,6 @@ Limitations:
 
 The options above can be suffixed with ':quick' (e.g.: 'expr:quick') in order
 to use some workarounds to make folds work faster.
-
-------------------------------------------------------------------------------
-*g:vimwiki_list_ignore_newline*
-
-This is HTML related.
-Convert newlines to <br />s in multiline list items.
-
-Value           Description~
-0               Newlines in a list item are converted to <br />s.
-1               Ignore newlines.
-
-Default: 1
-
-
-------------------------------------------------------------------------------
-*g:vimwiki_text_ignore_newline*
-
-This is HTML related.
-Convert newlines to <br />s in text.
-
-Value           Description~
-0               Newlines in text are converted to <br />s.
-1               Ignore newlines.
-
-Default: 1
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_use_calendar*
@@ -3342,42 +3372,6 @@ let g:vimwiki_diary_months = {
       \ 7: 'July', 8: 'August', 9: 'September',
       \ 10: 'October', 11: 'November', 12: 'December'
       \ }
-
-
-------------------------------------------------------------------------------
-*g:vimwiki_toc_header*
-
-A string with the magic header that tells Vimwiki where the Table of Contents
-(see |vimwiki-toc|) is located in a file. You can change it to the
-appropriate word in your mother tongue like this: >
-  let g:vimwiki_toc_header = 'Inhalt'
-
-The default is 'Contents'.
-
-
-------------------------------------------------------------------------------
-*g:vimwiki_toc_header_level*
-
-The header level of the Table of Contents (see |vimwiki-toc|). Valid values
-are from 1 to 6.
-
-The default is 1.
-
-
-------------------------------------------------------------------------------
-*g:vimwiki_toc_link_format*
-
-The format of the links in the Table of Contents (see |vimwiki-toc|).
-
-
-Value           Description~
-0               Extended: The link contains the description and URL. URL
-                references all levels.
-1               Brief: The link contains only the URL. URL references only
-                the immediate level.
-
-Default: 0
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_map_prefix*

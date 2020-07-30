@@ -1037,7 +1037,7 @@ function! s:process_tag_list(line, lists) abort
     call add(lines, substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
   elseif in_list && a:line =~# '^\s\+\S\+'
-    if vimwiki#vars#get_global('list_ignore_newline')
+    if vimwiki#vars#get_wikilocal('list_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, '<br />'.a:line)
@@ -1085,7 +1085,7 @@ function! s:process_tag_para(line, para) abort
       let para = 1
     endif
     let processed = 1
-    if vimwiki#vars#get_global('text_ignore_newline')
+    if vimwiki#vars#get_wikilocal('text_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, a:line.'<br />')
