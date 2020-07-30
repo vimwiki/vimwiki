@@ -1745,7 +1745,7 @@ endfunction
 
 
 function! vimwiki#html#Wiki2HTML(path_html, wikifile) abort
-  let result = s:convert_file(a:path_html, a:wikifile)
+  let result = s:convert_file(a:path_html, vimwiki#path#wikify_path(a:wikifile))
   if result !=? ''
     call s:create_default_CSS(a:path_html)
   endif
