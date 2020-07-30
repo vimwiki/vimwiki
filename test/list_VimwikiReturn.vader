@@ -4,8 +4,6 @@
 #       better read this file with `set list`
 
 
-Include: vader_includes/vader_setup.vader
-
 Given vimwiki (List with hard wraps):
   - Item 1
   - Item 2
@@ -279,4 +277,5 @@ Expect (List per VimwikiReturn 3 5):
   1. 
 
   ---
-Include: vader_includes/vader_teardown.vader
+
+# vim: sw=2:foldlevel=30:foldmethod=indent:

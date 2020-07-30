@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# List indentation <= shiftwidth
 
 Execute (Create temp directory):
   silent execute '!mkdir -p $HOME/list_margin/'
@@ -105,4 +105,4 @@ Expect (Links with margin == 5):
 Execute (Return to default location & cleanup):
   cd /testplugin
 
-Include: vader_includes/vader_teardown.vader
+# vim: sw=2:foldlevel=30:foldmethod=indent:

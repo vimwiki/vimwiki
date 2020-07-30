@@ -9,13 +9,11 @@
 
 
 
+" Clause: Load only once
 if exists('g:loaded_vimwiki_tbl_auto') || &compatible
   finish
 endif
 let g:loaded_vimwiki_tbl_auto = 1
-
-
-let s:textwidth = &textwidth
 
 
 function! s:rxSep() abort
@@ -56,12 +54,14 @@ function! s:sep_splitter() abort
 endfunction
 
 
+" Check if param:line is in a table
 function! s:is_table(line) abort
   return s:is_separator(a:line) ||
         \ (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
 endfunction
 
 
+" Check if param:line is a separator (ex: | --- | --- |)
 function! s:is_separator(line) abort
   return a:line =~# '^\s*'.s:rxSep().'\(:\=--\+:\='.s:rxSep().'\)\+\s*$'
 endfunction
@@ -671,6 +671,7 @@ endfunction
 
 
 function! vimwiki#tbl#format(lnum, ...) abort
+  " Clause in
   if !vimwiki#u#ft_is_vw()
     return
   endif
@@ -678,6 +679,9 @@ function! vimwiki#tbl#format(lnum, ...) abort
   if !s:is_table(line)
     return
   endif
+
+  " Backup textwidth
+  let textwidth = &textwidth
 
   let depth = a:0 == 1 ? a:1 : 0
 
@@ -704,7 +708,8 @@ function! vimwiki#tbl#format(lnum, ...) abort
     endif
   endfor
 
-  let &textwidth = s:textwidth
+  " Restore user textwidth
+  let &textwidth = textwidth
 endfunction
 
 
@@ -753,85 +758,68 @@ function! vimwiki#tbl#align_or_cmd(cmd, ...) abort
 endfunction
 
 
-function! vimwiki#tbl#reset_tw(lnum) abort
-  if !vimwiki#u#ft_is_vw()
-    return
-  endif
-  let line = getline(a:lnum)
-  if !s:is_table(line)
-    return
-  endif
-
-  let s:textwidth = &textwidth
-  let &textwidth = 0
-endfunction
-
-
 " TODO: move_column_left and move_column_right are good candidates to be refactored.
 function! vimwiki#tbl#move_column_left() abort
-
-  "echomsg "DEBUG move_column_left: "
-
+  " Clause in
   let line = getline('.')
-
   if !s:is_table(line)
     return
   endif
-
   let cur_col = s:cur_column()
   if cur_col == -1
     return
   endif
-
-  if cur_col > 0
-    call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
-    call cursor(line('.'), 1)
-
-    let sep = '\('.s:rxSep().'\).\zs'
-    let mpos = -1
-    let col = -1
-    while col < cur_col-1
-      let mpos = match(line, sep, mpos+1)
-      if mpos != -1
-        let col += 1
-      else
-        break
-      endif
-    endwhile
-
+  if cur_col <= 0
+    return
   endif
+
+  call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
+  call cursor(line('.'), 1)
+
+  let sep = '\('.s:rxSep().'\).\zs'
+  let mpos = -1
+  let col = -1
+  while col < cur_col-1
+    let mpos = match(line, sep, mpos+1)
+    if mpos != -1
+      let col += 1
+    else
+      break
+    endif
+  endwhile
 endfunction
 
 
 function! vimwiki#tbl#move_column_right() abort
-
+  " Clause in
   let line = getline('.')
-
   if !s:is_table(line)
     return
   endif
-
   let cur_col = s:cur_column()
   if cur_col == -1
     return
   endif
-
-  if cur_col < s:col_count(line('.'))-1
-    call vimwiki#tbl#format(line('.'), cur_col, cur_col+1)
-    call cursor(line('.'), 1)
-
-    let sep = '\('.s:rxSep().'\).\zs'
-    let mpos = -1
-    let col = -1
-    while col < cur_col+1
-      let mpos = match(line, sep, mpos+1)
-      if mpos != -1
-        let col += 1
-      else
-        break
-      endif
-    endwhile
+  if cur_col >= s:col_count(line('.'))-1
+    return
   endif
+
+  " Format table && Put cursor on first col
+  call vimwiki#tbl#format(line('.'), cur_col, cur_col+1)
+  call cursor(line('.'), 1)
+
+  " Change add one to all col
+  let sep = '\('.s:rxSep().'\).\zs'
+  let mpos = -1
+  let col = -1
+  while col < cur_col+1
+    let mpos = match(line, sep, mpos+1)
+    if mpos != -1
+      let col += 1
+    else
+      break
+    endif
+  endwhile
 endfunction
 
 
@@ -858,4 +846,3 @@ endfunction
 function! vimwiki#tbl#sep_splitter() abort
   return s:sep_splitter()
 endfunction
-

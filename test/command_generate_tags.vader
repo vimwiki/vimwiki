@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Tag generation
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -93,4 +93,4 @@ Execute (Clean Test-Tag and .vimwiki_tags):
   call system("rm $HOME/testmarkdown/Test-Tag.md")
   call DeleteHiddenBuffers()
 
-Include: vader_includes/vader_teardown.vader
+# vim: sw=2:foldlevel=30:foldmethod=indent:

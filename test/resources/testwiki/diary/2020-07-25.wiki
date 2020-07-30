@@ -1,0 +1,17 @@
+= day 4 =
+
+== subsection 1 ==
+
+here is some code:
+
+{{{
+#!/bin/sh
+echo "hello world"
+}}}
+
+== subsection 2 ==
+
+an important list:
+
+	* point 1
+	* point 2

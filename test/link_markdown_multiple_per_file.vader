@@ -1,4 +1,40 @@
-Include: vader_includes/vader_setup.vader
+# Link internal to a file
+# See issue #666 for anchor support (then internal links)
+
+
+# Link to anchor with spaces {{{!
+# PR #840
+# Issues: #831
+
+Given vimwiki (Internal links zith spaces):
+  [Any ! apparent name @#$](#basic-heading-many-spaces)
+  One line here
+
+  ## Basic HeAding Many SpacES
+
+  One line here
+
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Do (Enter link):
+  \<Cr>
+  A__HERE__\<Esc>
+
+Expect (Cursor at heading position):
+  [Any ! apparent name @#$](#basic-heading-many-spaces)
+  One line here
+
+  ## Basic HeAding Many SpacES__HERE__
+
+  One line here
+
+Execute (Clear wiki jumps (alias: prev_links)):
+  call vimwiki#vars#set_bufferlocal('prev_links', [])
+
+
+# Before {{{1
 
 Given vimwiki (Internal links + one link to filenew):
   # Contents
@@ -19,7 +55,6 @@ Given vimwiki (Internal links + one link to filenew):
     - [filenew](filenew)
 
 Execute (Set filename wiki_test.md):
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Do (Navigate with <Tab>):
@@ -221,5 +256,4 @@ Expect (Some chars appended at self link):
   - [Test1](#Test1)
   - [Test2](#Test2)
 
-
-Include: vader_includes/vader_teardown.vader
+# vim: foldmethod=marker foldlevel=30 sw=2

@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# VimwikiTOC
 
 Execute (Reset TOC header to default):
   let g:vimwiki_global_vars['toc_header'] = "Contents"
@@ -169,7 +169,4 @@ Expect (Content prepended):
   # Header 2
   ### Header 2.1.1
 
-
-Include: vader_includes/vader_teardown.vader
-
-" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
+" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#

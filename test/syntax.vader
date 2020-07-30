@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Syntax and Highlight
 
 
 # 1 Typeface {{{1
@@ -314,5 +314,4 @@ Execute (Assert math syntax):
   let syntax_12 = SyntaxAt(12, 1)
   Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
 
-Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30 sw=2

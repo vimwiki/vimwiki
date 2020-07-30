@@ -1,5 +1,3 @@
-Include: vader_setup
-
 Execute (Setup search testing wrapper):
   function! TestSearch(search_command, test_name)
     " Note: after each search, the location list of the current window (0)
@@ -62,5 +60,3 @@ Execute (Search failure message):
   silent VimwikiSearch not_exist
   redir END
   Assert match(output, 'VimwikiSearch: No match found.') > -1, "expected custom error"
-
-Include: vader_teardown
