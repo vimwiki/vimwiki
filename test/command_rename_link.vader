@@ -1,4 +1,5 @@
-Include: vader_includes/vader_setup.vader
+# VimwikiRenameFile
+# Related to link, file navigation
 
 
 # Create directories I remove at end {{{1
@@ -256,7 +257,5 @@ Execute (Clean dir1 and dir2):
   call system('rm -r $HOME/testmarkdown/dir1')
   call system('rm -r $HOME/testmarkdown/dir2')
 
-
-Include: vader_includes/vader_teardown.vader
 
 # vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#

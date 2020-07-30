@@ -1,6 +1,3 @@
-Include: vader_setup
-
-
 # 0 Configure {{{1
 ##################
 
@@ -566,5 +563,4 @@ Expect (Like 'aH', but excluding the header itself):
   # Head2
   content 2
 
-Include: vader_teardown
 # vim: foldmethod=marker foldlevel=30 sw=2

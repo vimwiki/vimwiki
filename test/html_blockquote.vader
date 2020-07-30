@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Blockquotes in html convertion
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -68,4 +68,4 @@ Expect (Plain Html):
 
   </body>
 
-Include: vader_includes/vader_teardown.vader
+# vim: sw=2:foldlevel=30:foldmethod=indent:

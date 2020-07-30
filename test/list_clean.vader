@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Task List with commands
 
 Given vimwiki (simple list):
   * [X] Done 1
@@ -194,6 +194,3 @@ Expect (only first is removed):
   * [X] Done 3
   * [ ] Todo 2
   * [X] Done 4
-
-
-Include: vader_includes/vader_teardown.vader

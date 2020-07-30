@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Feature to generate a diray RSS feed (PR #934)
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -106,5 +106,3 @@ Expect (RSS):
    </item>
   </channel>
   </rss>
-
-Include: vader_includes/vader_teardown.vader

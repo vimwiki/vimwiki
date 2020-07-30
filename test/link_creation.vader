@@ -1,4 +1,9 @@
-Include: vader_includes/vader_setup.vader
+# Link creation: my favorite (Tinmarino)
+# You know, when pressing Enter:
+#   in mode normal, visual 
+#   in OS windows, linux
+# Seems easy but tests are reaaly needed here
+
 
 # Link Normalisation {{{1
 # And configuration
@@ -363,5 +368,4 @@ Expect (Mediawiki links):
   [[file.md]]
   [[file.mw]]
 
-Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30

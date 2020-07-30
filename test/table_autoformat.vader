@@ -1,4 +1,5 @@
-Include: vader_includes/vader_setup.vader
+# Table autoformating
+# Very configurable: read doc/DesignNotes.md
 
 # Do not alter config {{{1
 ##########################
@@ -213,5 +214,4 @@ Expect (Left justified and :--- -> ----):
   | 2017-03-14 |   Cake |
 
 
-Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30

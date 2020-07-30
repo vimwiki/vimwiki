@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Conertion: Wiki -> Html
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -13,23 +13,7 @@ Given vimwiki (Table no heading {{{1):
   |  val1    | val2    |
 
 Do (Convert):
-# Note: gg"bdG = Cut
-# Note: ggdG"bp = Replace file content by clipboard "b
-# Fill file with a name
-  :let g:buf_vader = bufnr('%')\<Cr>
-  gg"bdG
-  :edit $HOME/testwiki/test_html_table.wiki\<Cr>
-  ggdG"bp
-  :call WriteMe()\<Cr>
-# Convert
-  :Vimwiki2HTML\<Cr>
-# Copy output
-  :edit $HOME/html/default/test_html_table.html\<Cr>
-  gg"bdG
-# Paste output in [Vader] buffer
-  :execute 'buffer ' . g:buf_vader\<Cr>
-  ggdG"bp
-
+  :call ConvertWiki2Html()\<Cr>
 # Keep only body
   ggd/<body>\<Cr>
 
@@ -87,23 +71,7 @@ Given vimwiki (Table with heading {{{1):
   |  val4    | val5    | var6 |
 
 Do (Convert):
-# Note: gg"bdG = Cut
-# Note: ggdG"bp = Replace file content by clipboard "b
-# Fill file with a name
-  :let g:buf_vader = bufnr('%')\<Cr>
-  gg"bdG
-  :edit $HOME/testwiki/test_html_table.wiki\<Cr>
-  ggdG"bp
-  :call WriteMe()\<Cr>
-# Convert
-  :Vimwiki2HTML\<Cr>
-# Copy output
-  :edit $HOME/html/default/test_html_table.html\<Cr>
-  gg"bdG
-# Paste output in [Vader] buffer
-  :execute 'buffer ' . g:buf_vader\<Cr>
-  ggdG"bp
-
+  :call ConvertWiki2Html()\<Cr>
 # Keep only body
   ggd/<body>\<Cr>
 
@@ -273,5 +241,4 @@ Expect (Plain Html):
 Execute (Delete):
   call DeleteFile('$HOME/testwiki/TestHtml.wiki')
 
-Include: vader_includes/vader_teardown.vader
 # vim: sw=2 foldmethod=marker foldlevel=30

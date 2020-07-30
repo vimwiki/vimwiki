@@ -1,8 +1,8 @@
+# VimwikiGoto
+#
 # Note: I dont know why <Tab> is inserting a Tab.
 #   Well better than to insert a Chair, but it should trigger completion
 #   So I used C-L
-
-Include: vader_includes/vader_setup.vader
 
 
 Execute (Copy Wiki's Resources):
@@ -80,5 +80,4 @@ Execute (Clean):
   Log "End: Clean"
   call system("rm $HOME/testmarkdown/dir1")
 
-Include: vader_includes/vader_teardown.vader
 # vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

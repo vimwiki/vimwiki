@@ -1,4 +1,8 @@
-Include: vader_includes/vader_setup.vader
+# Automatic link generation
+# Related to:
+#   - wiki file discovery 
+#   - buffer list insertion (see: vimwiki#base#update_listing_in_buffer)
+
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
@@ -195,8 +199,5 @@ Execute (Clean):
   call DeleteFile('$HOME/testmarkdown/diary/2019-03-01.md')
   Log "End: Reset shiftwidth to the default: 8"
   set sw&
-
-
-Include: vader_includes/vader_teardown.vader
 
 # vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:

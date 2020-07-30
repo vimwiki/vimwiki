@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# Todo lists
 
 Given vimwiki (Todo list):
   * [ ] Chap1
@@ -247,6 +247,3 @@ Do (Toogle <C-Space>):
 Expect (Chap1 Done):
   1. [X] Chap1
   2. [ ] Chap2
-
-
-Include: vader_includes/vader_teardown.vader

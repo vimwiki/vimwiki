@@ -5,9 +5,6 @@
 # 
 
 
-Include: vader_includes/vader_setup.vader
-
-
 ################################################################################
 Execute (Log):
   Log '#915 Vimwiki Markdown Blockquote Syntax issue'
@@ -166,6 +163,3 @@ Do (No link: <CR><CR>):
   :call vimwiki#vars#set_global('markdown_create_link', 0)
   \<CR>\<CR>
   :AssertEqual expand('%:t'), 'main.md'\<CR>
-
-
-Include: vader_includes/vader_teardown.vader
