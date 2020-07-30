@@ -11,11 +11,9 @@ let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
 " Enable/disable commentstring %%%s
 if !exists('g:vimwiki_commentstring')
-    let g:vimwiki_commentstring = 1
-endif
-
-if g:vimwiki_commentstring == 1
     setlocal commentstring=%%%s
+elseif g:vimwiki_commentstring != ""
+    let &l:commentstring=g:vimwiki_commentstring
 endif
 
 if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')

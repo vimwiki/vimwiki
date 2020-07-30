@@ -1449,8 +1449,8 @@ A line that starts with %% is a comment.
 E.g.: >
  %% this text would not be in HTML
 
-The default commentstring can be disabled with |g:vimwiki_commentstring|
-so an alternative commentstring can be set, e.g.:
+The default commentstring can be changed or disabled with
+|g:vimwiki_commentstring| so an alternative commentstring can be set, e.g.:
   <!-- This may be a comment too -->
 
 
@@ -3479,11 +3479,17 @@ The default is `[ ]`
 ------------------------------------------------------------------------------
 *g:vimwiki_commentstring*
 
-An option to disable the default commentstring %%%s.
+An option to change the default commentstring. Use
 
-  let g:vimwiki_commentstring = 0
+  let g:vimwiki_commentstring = '<!--%s-->'
 
-The default is 1.
+for html-style comments. Use 
+
+  let g:vimwiki_commentstring = ""
+
+to not set commentstring by vimwiki.
+
+The default is %%%s.
 
 
 ==============================================================================
@@ -3622,8 +3628,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-    * PR: Add option |g:vimwiki_commentstring| to turn off vimwiki
-      commentstring %%%s
+    * PR #946: Add option |g:vimwiki_commentstring| to customize commentstring
     * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
     * PR #900: conceallevel is now setted locally for vimwiki buffers
