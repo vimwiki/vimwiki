@@ -664,6 +664,13 @@ function! s:close_tag_quote(quote, ldest) abort
   return a:quote
 endfunction
 
+function! s:close_tag_arrow_quote(arrow_quote, ldest) abort
+  if a:arrow_quote
+    call insert(a:ldest, '</p></blockquote>')
+    return 0
+  endif
+  return a:arrow_quote
+endfunction
 
 function! s:close_tag_para(para, ldest) abort
   if a:para
@@ -790,14 +797,18 @@ function! s:close_tag_table(table, ldest, header_ids) abort
       endif
     endfor
     if head > 0
+      call add(ldest, '<thead>')
       for row in table[1 : head-1]
         if !empty(filter(row, '!empty(v:val)'))
           call s:close_tag_row(row, 1, ldest, a:header_ids)
         endif
       endfor
+      call add(ldest, '</thead>')
+      call add(ldest, '<tbody>')
       for row in table[head+1 :]
         call s:close_tag_row(row, 0, ldest, a:header_ids)
       endfor
+      call add(ldest, '</tbody>')
     else
       for row in table[1 :]
         call s:close_tag_row(row, 0, ldest, a:header_ids)
@@ -915,9 +926,33 @@ function! s:process_tag_quote(line, quote) abort
   return [processed, lines, quote]
 endfunction
 
+function! s:process_tag_arrow_quote(line, arrow_quote) abort
+  let lines = []
+  let arrow_quote = a:arrow_quote
+  let processed = 0
+  if a:line =~# '^\s*&gt;'
+    if !arrow_quote
+      call add(lines, '<blockquote>')
+      call add(lines, '<p>')
+      let arrow_quote = 1
+    endif
+    let processed = 1
+    let stripped_line = substitute(a:line, '^\s*&gt;\s*', '', '')
+    if stripped_line =~# '^\s*$'
+      call add(lines, '</p>')
+      call add(lines, '<p>')
+    endif
+    call add(lines, stripped_line)
+  elseif arrow_quote
+    call add(lines, '</p>')
+    call add(lines, '</blockquote>')
+    let arrow_quote = 0
+  endif
+  return [processed, lines, arrow_quote]
+endfunction
+
 
 function! s:process_tag_list(line, lists) abort
-
   function! s:add_checkbox(line, rx_list) abort
     let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
@@ -1002,7 +1037,7 @@ function! s:process_tag_list(line, lists) abort
     call add(lines, substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
   elseif in_list && a:line =~# '^\s\+\S\+'
-    if vimwiki#vars#get_global('list_ignore_newline')
+    if vimwiki#vars#get_wikilocal('list_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, '<br />'.a:line)
@@ -1050,7 +1085,7 @@ function! s:process_tag_para(line, para) abort
       let para = 1
     endif
     let processed = 1
-    if vimwiki#vars#get_global('text_ignore_newline')
+    if vimwiki#vars#get_wikilocal('text_ignore_newline')
       call add(lines, a:line)
     else
       call add(lines, a:line.'<br />')
@@ -1081,7 +1116,7 @@ function! s:process_tag_h(line, id) abort
     let h_id = s:escape_html_attribute(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# vimwiki#vars#get_global('toc_header')
+    if h_text !=# vimwiki#vars#get_wikilocal('toc_header')
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
@@ -1209,6 +1244,7 @@ function! s:parse_line(line, state) abort
   let state = {}
   let state.para = a:state.para
   let state.quote = a:state.quote
+  let state.arrow_quote = a:state.arrow_quote
   let state.pre = a:state.pre[:]
   let state.math = a:state.math[:]
   let state.table = a:state.table[:]
@@ -1245,6 +1281,9 @@ function! s:parse_line(line, state) abort
       if processed && state.quote
         let state.quote = s:close_tag_quote(state.quote, lines)
       endif
+      if processed && state.arrow_quote
+        let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+      endif
       if processed && state.para
         let state.para = s:close_tag_para(state.para, lines)
       endif
@@ -1277,6 +1316,9 @@ function! s:parse_line(line, state) abort
     endif
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
     endif
     if processed && state.para
       let state.para = s:close_tag_para(state.para, lines)
@@ -1340,6 +1382,9 @@ function! s:parse_line(line, state) abort
     if processed && state.quote
       let state.quote = s:close_tag_quote(state.quote, lines)
     endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+    endif
     if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, lines)
     endif
@@ -1370,7 +1415,8 @@ function! s:parse_line(line, state) abort
       let state.table = s:close_tag_table(state.table, res_lines, state.header_ids)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.math = s:close_tag_math(state.math, res_lines)
-      let state.quote = s:close_tag_quote(state.quote, res_lines)
+      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, res_lines)
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
       let state.para = s:close_tag_para(state.para, res_lines)
 
       call add(res_lines, line)
@@ -1381,6 +1427,39 @@ function! s:parse_line(line, state) abort
   " quotes
   if !processed
     let [processed, lines, state.quote] = s:process_tag_quote(line, state.quote)
+    if processed && len(state.lists)
+      call s:close_tag_list(state.lists, lines)
+    endif
+    if processed && state.deflist
+      let state.deflist = s:close_tag_def_list(state.deflist, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
+    endif
+    if processed && len(state.table)
+      let state.table = s:close_tag_table(state.table, lines, state.header_ids)
+    endif
+    if processed && state.pre[0]
+      let state.pre = s:close_tag_pre(state.pre, lines)
+    endif
+    if processed && state.math[0]
+      let state.math = s:close_tag_math(state.math, lines)
+    endif
+    if processed && state.para
+      let state.para = s:close_tag_para(state.para, lines)
+    endif
+
+    call map(lines, 's:process_inline_tags(v:val, state.header_ids)')
+
+    call extend(res_lines, lines)
+  endif
+
+  " arrow quotes
+  if !processed
+    let [processed, lines, state.arrow_quote] = s:process_tag_arrow_quote(line, state.arrow_quote)
+    if processed && state.quote
+      let state.quote = s:close_tag_quote(state.quote, lines)
+    endif
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
@@ -1435,8 +1514,11 @@ function! s:parse_line(line, state) abort
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
-    if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, res_lines)
+    if processed && (state.quote || state.arrow_quote)
+      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, lines)
+    endif
+    if processed && state.arrow_quote
+      let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
     endif
     if processed && state.pre[0]
       let state.pre = s:close_tag_pre(state.pre, res_lines)
@@ -1496,149 +1578,169 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
   endif
 endfunction
 
-
-function! s:convert_file(path_html, wikifile) abort
-  let done = 0
-
-  let wikifile = fnamemodify(a:wikifile, ':p')
-
-  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
-  let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
+function! s:convert_file_to_lines(wikifile, current_html_file) abort
+  let result = {}
 
   " the currently processed file name is needed when processing links
   " yeah yeah, shame on me for using (quasi-) global variables
-  let s:current_wiki_file = wikifile
-  let s:current_html_file = path_html . htmlfile
+  let s:current_wiki_file = a:wikifile
+  let s:current_html_file = a:current_html_file
+
+  let lsource = readfile(a:wikifile)
+  let ldest = []
+
+  " nohtml placeholder -- to skip html generation.
+  let nohtml = 0
+
+  " template placeholder
+  let template_name = ''
+
+  " for table of contents placeholders.
+  let placeholders = []
+
+  " current state of converter
+  let state = {}
+  let state.para = 0
+  let state.quote = 0
+  let state.arrow_quote = 0
+  let state.pre = [0, 0] " [in_pre, indent_pre]
+  let state.math = [0, 0] " [in_math, indent_math]
+  let state.table = []
+  let state.deflist = 0
+  let state.lists = []
+  let state.placeholder = []
+  let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+       " [last seen header text in this level, number]
+
+  " prepare constants for s:safe_html_line()
+  let s:lt_pattern = '<'
+  let s:gt_pattern = '>'
+  if vimwiki#vars#get_global('valid_html_tags') !=? ''
+    let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
+    let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!'
+    let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
+  endif
+
+  " prepare regexps for lists
+  let s:bullets = vimwiki#vars#get_wikilocal('rx_bullet_char')
+  let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
+
+  for line in lsource
+    let oldquote = state.quote
+    let [lines, state] = s:parse_line(line, state)
+
+    " Hack: There could be a lot of empty strings before s:process_tag_quote
+    " find out `quote` is over. So we should delete them all. Think of the way
+    " to refactor it out.
+    if oldquote != state.quote
+      call s:remove_blank_lines(ldest)
+    endif
+
+    if !empty(state.placeholder)
+      if state.placeholder[0] ==# 'nohtml'
+        let nohtml = 1
+        break
+      elseif state.placeholder[0] ==# 'template'
+        let template_name = state.placeholder[1]
+      else
+        call add(placeholders, [state.placeholder, len(ldest), len(placeholders)])
+      endif
+      let state.placeholder = []
+    endif
+
+    call extend(ldest, lines)
+  endfor
+
+
+  let result['nohtml'] = nohtml
+  if nohtml
+    echon "\r".'%nohtml placeholder found'
+    return result
+  endif
+
+  call s:remove_blank_lines(ldest)
+
+  " process end of file
+  " close opened tags if any
+  let lines = []
+  call s:close_tag_quote(state.quote, lines)
+  call s:close_tag_arrow_quote(state.arrow_quote, lines)
+  call s:close_tag_para(state.para, lines)
+  call s:close_tag_pre(state.pre, lines)
+  call s:close_tag_math(state.math, lines)
+  call s:close_tag_list(state.lists, lines)
+  call s:close_tag_def_list(state.deflist, lines)
+  call s:close_tag_table(state.table, lines, state.header_ids)
+  call extend(ldest, lines)
+
+  let result['html'] = ldest
+
+  let result['template_name'] = template_name
+  let result['title'] = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
+  let result['date'] = s:process_date(placeholders, strftime('%Y-%m-%d'))
+  let result['wiki_path'] = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
+
+  return result
+endfunction
+
+function! s:convert_file_to_lines_template(wikifile, current_html_file) abort
+  let converted = s:convert_file_to_lines(a:wikifile, a:current_html_file)
+  if converted['nohtml'] == 1
+    return []
+  endif
+  let html_lines = s:get_html_template(converted['template_name'])
+
+  " processing template variables (refactor to a function)
+  call map(html_lines, 'substitute(v:val, "%title%", "'. converted['title'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%date%", "'. converted['date'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%root_path%", "'.
+        \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. converted['wiki_path'] .'", "g")')
+
+  let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
+  let css_name = substitute(css_name, '\', '/', 'g')
+  call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
+
+  let rss_name = expand(vimwiki#vars#get_wikilocal('rss_name'))
+  let rss_name = substitute(rss_name, '\', '/', 'g')
+  call map(html_lines, 'substitute(v:val, "%rss%", "'. rss_name .'", "g")')
+
+  let enc = &fileencoding
+  if enc ==? ''
+    let enc = &encoding
+  endif
+  call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
+
+  let html_lines = s:html_insert_contents(html_lines, converted['html']) " %contents%
+
+  return html_lines
+endfunction
+
+function! s:convert_file(path_html, wikifile) abort
+  let done = 0
+  let wikifile = fnamemodify(a:wikifile, ':p')
+  let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
 
   if s:use_custom_wiki2html()
     let force = 1
     call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
     let done = 1
-  endif
-
-  if s:syntax_supported() && done == 0
-    let lsource = readfile(wikifile)
-    let ldest = []
-
-    call vimwiki#path#mkdir(path_html)
-
-    " nohtml placeholder -- to skip html generation.
-    let nohtml = 0
-
-    " template placeholder
-    let template_name = ''
-
-    " for table of contents placeholders.
-    let placeholders = []
-
-    " current state of converter
-    let state = {}
-    let state.para = 0
-    let state.quote = 0
-    let state.pre = [0, 0] " [in_pre, indent_pre]
-    let state.math = [0, 0] " [in_math, indent_math]
-    let state.table = []
-    let state.deflist = 0
-    let state.lists = []
-    let state.placeholder = []
-    let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
-         " [last seen header text in this level, number]
-
-    " prepare constants for s:safe_html_line()
-    let s:lt_pattern = '<'
-    let s:gt_pattern = '>'
-    if vimwiki#vars#get_global('valid_html_tags') !=? ''
-      let tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
-      let s:lt_pattern = '\c<\%(/\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?>\)\@!'
-      let s:gt_pattern = '\c\%(</\?\%('.tags.'\)\%(\s\{-1}\S\{-}\)\{-}/\?\)\@<!>'
-    endif
-
-    " prepare regexps for lists
-    let s:bullets = vimwiki#vars#get_wikilocal('rx_bullet_char')
-    let s:numbers = '\C\%(#\|\d\+)\|\d\+\.\|[ivxlcdm]\+)\|[IVXLCDM]\+)\|\l\{1,2})\|\u\{1,2})\)'
-
-    for line in lsource
-      let oldquote = state.quote
-      let [lines, state] = s:parse_line(line, state)
-
-      " Hack: There could be a lot of empty strings before s:process_tag_quote
-      " find out `quote` is over. So we should delete them all. Think of the way
-      " to refactor it out.
-      if oldquote != state.quote
-        call s:remove_blank_lines(ldest)
-      endif
-
-      if !empty(state.placeholder)
-        if state.placeholder[0] ==# 'nohtml'
-          let nohtml = 1
-          break
-        elseif state.placeholder[0] ==# 'template'
-          let template_name = state.placeholder[1]
-        else
-          call add(placeholders, [state.placeholder, len(ldest), len(placeholders)])
-        endif
-        let state.placeholder = []
-      endif
-
-      call extend(ldest, lines)
-    endfor
-
-
-    if nohtml
-      echon "\r".'%nohtml placeholder found'
-      return ''
-    endif
-
-    call s:remove_blank_lines(ldest)
-
-    " process end of file
-    " close opened tags if any
-    let lines = []
-    call s:close_tag_quote(state.quote, lines)
-    call s:close_tag_para(state.para, lines)
-    call s:close_tag_pre(state.pre, lines)
-    call s:close_tag_math(state.math, lines)
-    call s:close_tag_list(state.lists, lines)
-    call s:close_tag_def_list(state.deflist, lines)
-    call s:close_tag_table(state.table, lines, state.header_ids)
-    call extend(ldest, lines)
-
-    let title = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
-    let date = s:process_date(placeholders, strftime('%Y-%m-%d'))
-    let wiki_path = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
-
-    let html_lines = s:get_html_template(template_name)
-
-    " processing template variables (refactor to a function)
-    call map(html_lines, 'substitute(v:val, "%title%", "'. title .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%date%", "'. date .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%root_path%", "'.
-          \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
-    call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. wiki_path .'", "g")')
-
-    let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
-    let css_name = substitute(css_name, '\', '/', 'g')
-    call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
-
-    let enc = &fileencoding
-    if enc ==? ''
-      let enc = &encoding
-    endif
-    call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
-
-    let html_lines = s:html_insert_contents(html_lines, ldest) " %contents%
-
-    call writefile(html_lines, path_html.htmlfile)
-    let done = 1
-
-  endif
-
-  if done == 0
-    echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
     return ''
   endif
 
-  return path_html.htmlfile
+  if s:syntax_supported() && done == 0
+    let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
+    let html_lines = s:convert_file_to_lines_template(wikifile, path_html . htmlfile)
+    if html_lines == []
+      return ''
+    endif
+    call vimwiki#path#mkdir(path_html)
+    call writefile(html_lines, path_html.htmlfile)
+    return path_html.htmlfile
+  endif
+
+  echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
+  return ''
 endfunction
 
 
@@ -1740,4 +1842,92 @@ endfunction
 
 function! vimwiki#html#CatUrl(wikifile) abort
   execute '!echo file://'.s:get_wikifile_url(a:wikifile)
+endfunction
+
+
+function! s:rss_header() abort
+  let title = vimwiki#vars#get_wikilocal('diary_header')
+  let rss_url = vimwiki#vars#get_wikilocal('base_url') . vimwiki#vars#get_wikilocal('rss_name')
+  let link = vimwiki#vars#get_wikilocal('base_url')
+        \ . vimwiki#vars#get_wikilocal('diary_rel_path')
+        \ . vimwiki#vars#get_wikilocal('diary_index') . '.html'
+  let description = title
+  let pubdate = strftime('%a, %d %b %Y %T %z')
+  let header = [
+        \ '<?xml version="1.0" encoding="UTF-8" ?>',
+        \ '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+        \ '<channel>',
+        \ ' <title>' . title . '</title>',
+        \ ' <link>' . link . '</link>',
+        \ ' <description>' . description . '</description>',
+        \ ' <pubDate>' . pubdate . '</pubDate>',
+        \ ' <atom:link href="' . rss_url . '" rel="self" type="application/rss+xml" />'
+        \ ]
+  return header
+endfunction
+
+function! s:rss_footer() abort
+  let footer = ['</channel>', '</rss>']
+  return footer
+endfunction
+
+function! s:rss_item(path, title) abort
+  let diary_rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
+  let full_path = vimwiki#vars#get_wikilocal('path')
+        \ . diary_rel_path . a:path . vimwiki#vars#get_wikilocal('ext')
+  let fname_base = fnamemodify(a:path, ':t:r')
+  let htmlfile = fname_base . '.html'
+
+  let converted = s:convert_file_to_lines(full_path, htmlfile)
+  if converted['nohtml'] == 1
+    return []
+  endif
+
+  let link = vimwiki#vars#get_wikilocal('base_url')
+        \ . diary_rel_path
+        \ . fname_base . '.html'
+  let pubdate = strftime('%a, %d %b %Y %T %z', getftime(full_path))
+
+  let item_pre = [' <item>',
+        \ '  <title>' . a:title . '</title>',
+        \ '  <link>' . link . '</link>',
+        \ '  <guid isPermaLink="false">' . fname_base . '</guid>',
+        \ '  <description><![CDATA[']
+  let item_post = [']]></description>',
+        \ '  <pubDate>' . pubdate . '</pubDate>',
+        \ ' </item>'
+        \]
+  return item_pre + converted['html'] + item_post
+endfunction
+
+function! s:generate_rss(path) abort
+  let rss_path = a:path . vimwiki#vars#get_wikilocal('rss_name')
+  let max_items = vimwiki#vars#get_wikilocal('rss_max_items')
+
+  let rss_lines = []
+  call extend(rss_lines, s:rss_header())
+
+  let captions = vimwiki#diary#diary_file_captions()
+  let i = 0
+  for diary in vimwiki#diary#diary_sort(keys(captions))
+    if i >= max_items
+      break
+    endif
+    let title = captions[diary]['top']
+    if title ==? ''
+      let title = diary
+    endif
+    call extend(rss_lines, s:rss_item(diary, title))
+    let i += 1
+  endfor
+
+  call extend(rss_lines, s:rss_footer())
+  call writefile(rss_lines, rss_path)
+endfunction
+
+function! vimwiki#html#diary_rss() abort
+  echomsg 'Vimwiki: Saving RSS feed ...'
+  let path_html = expand(vimwiki#vars#get_wikilocal('path_html'))
+  call vimwiki#path#mkdir(path_html)
+  call s:generate_rss(path_html)
 endfunction

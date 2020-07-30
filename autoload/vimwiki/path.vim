@@ -4,7 +4,32 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-" Remove: trailing /
+
+" Unixify path
+function! s:unixify(path) abort
+    return substitute(a:path, '\', '/', 'g')
+endfunction
+
+
+" Windowsify path
+function! s:windowsify(path) abort
+    return substitute(a:path, '/', '\', 'g')
+endfunction
+
+
+" Define os specific path convertion
+if vimwiki#u#is_windows()
+  function! s:osxify(path) abort
+    return s:windowsify(a:path)
+  endfunction
+else
+  function! s:osxify(path) abort
+    return s:unixify(a:path)
+  endfunction
+endif
+
+
+" Remove last path delimitator (slash or backslash)
 function! vimwiki#path#chomp_slash(str) abort
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction
@@ -22,7 +47,7 @@ else
 endif
 
 
-" Collapse: sections like /a/b/../c to /a/c and /a/b/./c to /a/b/c
+" Collapse sections like /a/b/../c to /a/c and /a/b/./c to /a/b/c
 function! vimwiki#path#normalize(path) abort
   let path = a:path
   while 1
@@ -37,36 +62,34 @@ function! vimwiki#path#normalize(path) abort
 endfunction
 
 
-" Normalize: Convert \ -> /
+" Normalize path: \ -> / &&  /// -> / && resolve(symlinks)
 function! vimwiki#path#path_norm(path) abort
-  " /-slashes
-  if a:path !~# '^scp:'
-    let path = substitute(a:path, '\', '/', 'g')
-    " treat multiple consecutive slashes as one path separator
-    let path = substitute(path, '/\+', '/', 'g')
-    " ensure that we are not fooled by a symbolic link
-    return resolve(path)
-  else
-    return a:path
-  endif
+  " return if scp
+  if a:path =~# '^scp:' | return a:path | endif
+  " convert backslash to slash
+  let path = substitute(a:path, '\', '/', 'g')
+  " treat multiple consecutive slashes as one path separator
+  let path = substitute(path, '/\+', '/', 'g')
+  " ensure that we are not fooled by a symbolic link
+  return resolve(path)
 endfunction
 
 
-" Check: if link is to a directory.
+" Check if link is to a directory
 function! vimwiki#path#is_link_to_dir(link) abort
   " It should be ended with \ or /.
   return a:link =~# '\m[/\\]$'
 endfunction
 
 
-" Return: Absolute path, from a relative link
+" Get absolute path <- path relative to current file
 function! vimwiki#path#abs_path_of_link(link) abort
   return vimwiki#path#normalize(expand('%:p:h').'/'.a:link)
 endfunction
 
 
-" Return: longest common path prefix of 2 given paths.
-" '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
+" Returns: longest common path prefix of 2 given paths.
+" Ex: '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
 function! vimwiki#path#path_common_pfx(path1, path2) abort
   let p1 = split(a:path1, '[/\\]', 1)
   let p2 = split(a:path2, '[/\\]', 1)
@@ -84,7 +107,7 @@ function! vimwiki#path#path_common_pfx(path1, path2) abort
 endfunction
 
 
-" Return: Relative path
+" Convert path -> full resolved slashed path
 function! vimwiki#path#wikify_path(path) abort
   let result = resolve(fnamemodify(a:path, ':p'))
   if vimwiki#u#is_windows()
@@ -107,50 +130,41 @@ function! vimwiki#path#relpath(dir, file) abort
   if empty(a:dir) || a:dir =~# '^\.[/\\]\?$'
     return a:file
   endif
-  let result = []
-  if vimwiki#u#is_windows()
-    " TODO temporary fix see #478
-    " not sure why paths get converted back to using forward slash
-    " when passed to the function in the form C:\path\to\file
-    let dir = substitute(a:dir, '/', '\', 'g')
-    let file = substitute(a:file, '/', '\', 'g')
-    let dir = split(dir, '\')
-    let file = split(file, '\')
-  else
-    let dir = split(a:dir, '/')
-    let file = split(a:file, '/')
-  endif
+  " Unixify && Expand in
+  let s_dir = expand(s:unixify(a:dir))
+  let s_file = expand(s:unixify(a:file))
+
+  " Split path
+  let dir = split(s_dir, '/')
+  let file = split(s_file, '/')
+
+  " Shorten loop till equality
   while (len(dir) > 0 && len(file) > 0) && vimwiki#path#is_equal(dir[0], file[0])
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
+
+  " Return './' if nothing left
   if empty(dir) && empty(file)
-    if vimwiki#u#is_windows()
-      " TODO temporary fix see #478
-      return '.\'
-    else
-      return './'
-    endif
+    return s:osxify('./')
   endif
+
+  " Build path segment
+  let segments = []
   for segment in dir
-    let result += ['..']
+    let segments += ['..']
   endfor
   for segment in file
-    let result += [segment]
+    let segments += [segment]
   endfor
-  if vimwiki#u#is_windows()
-    " TODO temporary fix see #478
-    let result_path = join(result, '\')
-    if a:file =~? '\m\\$'
-      let result_path .= '\'
-    endif
-  else
-    let result_path = join(result, '/')
-    if a:file =~? '\m/$'
-      let result_path .= '/'
-    endif
+
+  " Join segments
+  let result_path = join(segments, '/')
+  if a:file =~# '\m/$'
+    let result_path .= '/'
   endif
-  return result_path
+
+  return s:osxify(result_path)
 endfunction
 
 

@@ -1,9 +1,191 @@
-Include: vader_includes/vader_setup.vader
+# Conertion: Wiki -> Html
 
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
+
+
+Given vimwiki (Table no heading {{{1):
+  | header1 | header2 |
+  |  val1    | val2    |
+  |  val1    | val2    |
+  |  val1    | val2    |
+
+Do (Convert):
+  :call ConvertWiki2Html()\<Cr>
+# Keep only body
+  ggd/<body>\<Cr>
+
+
+Expect (Table no heading):
+  <body>
+
+  <table>
+  <tr>
+  <td>
+  header1
+  </td>
+  <td>
+  header2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  </tr>
+  </table>
+
+  </body>
+  </html>
+
+Execute(Delete):
+  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
+  call DeleteFile('$HOME/html/default/test_html_table.html')
+
+
+Given vimwiki (Table with heading {{{1):
+  | header1 | header2 | header3 |
+  |---------|---------|---------|
+  |  val1    | val2    | var3 |
+  |  val4    | val5    | var6 |
+
+Do (Convert):
+  :call ConvertWiki2Html()\<Cr>
+# Keep only body
+  ggd/<body>\<Cr>
+
+
+Expect (Table with heading):
+  <body>
+
+  <table>
+  <thead>
+  <tr>
+  <th>
+  header1
+  </th>
+  <th>
+  header2
+  </th>
+  <th>
+  header3
+  </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>
+  val1
+  </td>
+  <td>
+  val2
+  </td>
+  <td>
+  var3
+  </td>
+  </tr>
+  <tr>
+  <td>
+  val4
+  </td>
+  <td>
+  val5
+  </td>
+  <td>
+  var6
+  </td>
+  </tr>
+  </tbody>
+  </table>
+
+  </body>
+  </html>
+
+
+Execute(Delete):
+  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
+  call DeleteFile('$HOME/html/default/test_html_table.html')
+
+
+#################################################
+Execute (Log):
+   Log '#473: Syntax "local:" doesnt work as expected. #473'
+
+Given vimwiki (Void Md):
+
+Execute (Edit Test473 Wiki):
+  edit $HOME/testwiki/TestHtml.wiki
+
+Do (Add local link: [[local:$HOME/here|Link]]):
+  :edit $HOME/testwiki/Test473.wiki\<CR>
+  i
+  [[local:
+  \<C-r>=$HOME\<Cr>
+  /here|Link]]
+  \<Esc>
+  :call WriteMe()\<Cr>
+  :Vimwiki2HTML\<Cr>
+
+
+Execute (Save and Convert to html):
+  edit $HOME/testwiki/Test473.wiki
+  Vimwiki2HTML
+  AssertEqual '[[local:'.$HOME.'/here|Link]]', getline(1)
+
+
+Given (Void Html):
+
+# TODO mutualise
+Do (Get Html body):
+  :read $HOME/html/default/Test473.html\<CR>
+# Goto body
+  gg/<body>\<CR>
+# Copy in b
+  "bdat
+# Delete All
+  ggdG
+# Paste body
+  "bP
+# Remove last line
+  Gdd
+# Save (Not necessary)
+  :write
+
+Expect (Local link):
+  <body>
+  
+  <p>
+  <a href="../../here">Link</a>
+  </p>
+  
+  </body>
+
+
+Execute (Delete):
+  call DeleteFile(' $HOME/testwiki/Test473.wiki')
+
+#################################################
 Given (Void):
 
 Execute (Edit TestHtml Wiki):
@@ -56,4 +238,7 @@ Expect (Plain Html):
 
   </body>
 
-Include: vader_includes/vader_teardown.vader
+Execute (Delete):
+  call DeleteFile('$HOME/testwiki/TestHtml.wiki')
+
+# vim: sw=2 foldmethod=marker foldlevel=30

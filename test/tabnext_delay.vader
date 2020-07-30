@@ -1,4 +1,4 @@
-Include: vader_includes/vader_setup.vader
+# See Issue #580
 
 Execute (Set fold method):
   let g:vimwiki_folding = 'expr:quick'
@@ -28,5 +28,3 @@ Execute (Expect < 0.5 second delay: Issue #580):
 Execute (Reset variables):
   let g:vimwiki_folding = ''
   call ReloadVimwiki()
-
-Include: vader_includes/vader_teardown.vader

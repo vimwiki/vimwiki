@@ -7,6 +7,7 @@ Vimwiki functionality. It is based on the following tools:
 - [Vader](https://github.com/junegunn/vader.vim)
 - [Vint](https://github.com/Kuniwak/vint)
 
+
 ## Resources
 
 - [Vim patches](http://ftp.vim.org/pub/vim/patches/)
@@ -16,10 +17,12 @@ Vimwiki functionality. It is based on the following tools:
     - [ale](https://github.com/w0rp/ale/tree/master/test)
     - [Other projects](https://github.com/junegunn/vader.vim/wiki/Projects-using-Vader)
 
+
 ## Building Docker Image
 
 To build the Docker image run `docker build -t vimwiki .` from the Vimwiki
 repository root (same location as the Dockerfile).
+
 
 ## Running Tests
 
@@ -43,13 +46,19 @@ automatically run all tests for all installed vim versions. The vim/nvim
 versions are parsed from the Dockerfile. This script will also run `Vint` for all
 plugin source files. For more information run `./run_tests.sh -h`.
 
-## Inside the container
+
+## Writing Tests
+
+You are advice to write tests at the top of the file where you want to include it because some `Execute` can have some side effect making it hard to debug
+
+### Inside the container
 
 - `$USER` -> `vimtest` : unprivileged => very hard to mess up things
 - `$HOME` -> `/home/vimtest` : but it is readonly !
 - `$PWD` -> `/testplugin` : mapped to vimwiki plugin root directory
 
 For more information, read the [base docker image](https://github.com/tweekmonster/vim-testbed)
+
 
 ## Known Issues
 
@@ -61,6 +70,7 @@ For more information, read the [base docker image](https://github.com/tweekmonst
 2. Vader does not play nice with the location list. Tests that use the location
    list should be placed in `independent_runs/`.
     - [Vader Issue #199](https://github.com/junegunn/vader.vim/issues/199)
+
 
 ## Notable Vim patches
 
