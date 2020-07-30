@@ -361,6 +361,7 @@ function! s:populate_wikilocal_options() abort
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'base_url': {'type': type(''), 'default': '', 'min_length': 1},
+        \ 'commentstring': {'type': type(''), 'default': '%%%s'},
         \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
         \ 'custom_wiki2html': {'type': type(''), 'default': ''},
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},

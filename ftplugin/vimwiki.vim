@@ -9,13 +9,6 @@ if exists('b:did_ftplugin')
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
-" Enable/disable commentstring %%%s
-if !exists('g:vimwiki_commentstring')
-    setlocal commentstring=%%%s
-elseif g:vimwiki_commentstring != ""
-    let &l:commentstring=g:vimwiki_commentstring
-endif
-
 if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
   let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
@@ -141,6 +134,10 @@ setlocal formatoptions+=n
 if v:version > 703
   setlocal formatoptions+=j
 endif
+
+" Set commentstring %%%s
+let &l:commentstring = vimwiki#vars#get_wikilocal('commentstring')
+
 
 let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 
