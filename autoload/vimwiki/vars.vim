@@ -207,9 +207,6 @@ function! s:read_global_settings_from_user() abort
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
         \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
-        \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
-        \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
-        \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
         \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -395,6 +392,9 @@ function! s:populate_wikilocal_options() abort
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
+        \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
+        \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ }
 
   " Fill default setting <- user or plugin values
@@ -1076,7 +1076,7 @@ endfunction
 
 
 " Return: wiki local named varaible
-" Param:   1: variable name (alias key, <string>)
+" Param: (1): variable name (alias key, <string>)
 " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
 " used
 function! vimwiki#vars#get_wikilocal(key, ...) abort
@@ -1095,11 +1095,18 @@ endfunction
 
 
 " Set local variable
-function! vimwiki#vars#set_wikilocal(key, value, wiki_nr) abort
-  if a:wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
+" Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
+" used
+function! vimwiki#vars#set_wikilocal(key, value, ...) abort
+  if a:0
+    let wiki_nr = a:1
+  else
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  endif
+  if wiki_nr == len(g:vimwiki_wikilocal_vars) - 1
     call insert(g:vimwiki_wikilocal_vars, {}, -1)
   endif
-  let g:vimwiki_wikilocal_vars[a:wiki_nr][a:key] = a:value
+  let g:vimwiki_wikilocal_vars[wiki_nr][a:key] = a:value
 endfunction
 
 

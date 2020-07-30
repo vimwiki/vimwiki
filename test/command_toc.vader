@@ -1,7 +1,11 @@
 # VimwikiTOC
+#
+# TODO (10min) test if g:vimwiki_to_header well readen
+# TODO (10min) test vimviki_toc_link_format
+# TODO (1h) test if really wiki dependant (for 2 diffrent wikis)
 
 Execute (Reset TOC header to default):
-  let g:vimwiki_global_vars['toc_header'] = "Contents"
+  call vimwiki#vars#set_wikilocal('toc_header', 'Contents')
 
 Given vimwiki (Headings):
   # Header 1
@@ -93,7 +97,7 @@ Expect (Brand new TOC):
 
 
 Execute (Let toc_header = Sommaire && VimwikiTOC):
-  let g:vimwiki_global_vars['toc_header'] = "Sommaire"
+  call vimwiki#vars#set_wikilocal('toc_header', 'Sommaire')
   VimwikiTOC
 
 Expect (Append a Sommaire && Leave Contents alone):
@@ -145,10 +149,10 @@ Expect (Brand new TOC with sommaire):
 
 
 Execute (call vimwiki#vars#set_global('toc_header_level', 6):
-  call vimwiki#vars#set_global('toc_header_level', 6)
+  call vimwiki#vars#set_wikilocal('toc_header_level', 6)
   VimwikiTOC
 # Reset default
-  call vimwiki#vars#set_global('toc_header_level', 1)
+  call vimwiki#vars#set_wikilocal('toc_header_level', 1)
 
 Expect (Content prepended):
   ###### Sommaire

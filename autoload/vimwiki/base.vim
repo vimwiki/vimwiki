@@ -2162,7 +2162,7 @@ endfunction
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create) abort
   let headers = s:collect_headers()
-  let toc_header_text = vimwiki#vars#get_global('toc_header')
+  let toc_header_text = vimwiki#vars#get_wikilocal('toc_header')
 
   if !a:create
     " Do nothing if there is no TOC to update. (This is a small performance optimization -- if
@@ -2198,7 +2198,7 @@ function! vimwiki#base#table_of_contents(create) abort
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
       let h_complete_id = ''
-      if vimwiki#vars#get_global('toc_link_format') == 0
+      if vimwiki#vars#get_wikilocal('toc_link_format') == 0
         for l in range(h_level-1)
           if headers_levels[l][0] !=? ''
             let h_complete_id .= headers_levels[l][0].'#'
@@ -2217,7 +2217,7 @@ function! vimwiki#base#table_of_contents(create) abort
     for [lvl, link, desc] in complete_header_infos
       if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
         let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
-      elseif vimwiki#vars#get_global('toc_link_format') == 0
+      elseif vimwiki#vars#get_wikilocal('toc_link_format') == 0
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
       else
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
@@ -2238,7 +2238,7 @@ function! vimwiki#base#table_of_contents(create) abort
         \ toc_header_text,
         \ links_rx,
         \ 1,
-        \ vimwiki#vars#get_global('toc_header_level'),
+        \ vimwiki#vars#get_wikilocal('toc_header_level'),
         \ a:create)
 endfunction
 

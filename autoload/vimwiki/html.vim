@@ -1116,7 +1116,7 @@ function! s:process_tag_h(line, id) abort
     let h_id = s:escape_html_attribute(h_text)
     let centered = (a:line =~# '^\s')
 
-    if h_text !=# vimwiki#vars#get_global('toc_header')
+    if h_text !=# vimwiki#vars#get_wikilocal('toc_header')
 
       let a:id[h_level-1] = [h_text, a:id[h_level-1][1]+1]
 
