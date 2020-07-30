@@ -1,0 +1,29 @@
+Include: vader_includes/vader_setup.vader
+
+After (clean up):
+  if exists('g:vimwiki_commentstring')
+    unlet g:vimwiki_commentstring
+  endif
+  if exists('b:did_ftplugin')
+    unlet b:did_ftplugin
+  endif
+
+Execute (default commentstring):
+  AssertEqual '/*%s*/', &commentstring
+
+Execute (default commenstring, ft vimwiki):
+  let g:vimwiki_commentstring=""
+  set ft=vimwiki
+  AssertEqual '/*%s*/', &commentstring
+
+Execute (default vimwiki commentstring):
+  set ft=vimwiki
+  AssertEqual '%%%s', &commentstring
+
+Execute (html commentstring):
+  let g:vimwiki_commentstring='<!-- %s -->'
+  set ft=vimwiki
+  AssertEqual '<!-- %s -->', &commentstring
+
+Include: vader_includes/vader_teardown.vader
+
