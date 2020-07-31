@@ -840,7 +840,7 @@ Vimwiki file.
     Toggle checkbox of a list item disabled/off.
     See |vimwiki-todo-lists|.
 
-*:VimwikiListChangeLevel* CMD
+*:VimwikiListChangeLvl* CMD
     Change the nesting level, or symbol, for a single-line list item.
     CMD may be ">>" or "<<" to change the indentation of the item, or
     one of the syntax-specific bullets: "*", "#", "1.", "-".
@@ -1456,7 +1456,7 @@ A group of lines prefixed with > also specifies a blockquote, with the caveat
 that the > syntax allow empty lines to signal multiple paragraphs.
 
 > This also signals a block quote.
-> 
+>
 > You can use empty lines to signal multiple paragraphs kept inside the same
 > blockquote.
 
@@ -2566,7 +2566,7 @@ Description~
 Width of left-hand margin for lists.  When negative, the current 'shiftwidth'
 is used.  This affects the appearance of the generated links (see
 |:VimwikiGenerateLinks|), the Table of contents (|vimwiki-toc|) and the
-behavior of the list manipulation commands |:VimwikiListChangeLevel| and the
+behavior of the list manipulation commands |:VimwikiListChangeLvl| and the
 local mappings |vimwiki_glstar|, |vimwiki_gl#| |vimwiki_gl-|, |vimwiki_gl-|,
 |vimwiki_gl1|, |vimwiki_gla|, |vimwiki_glA|, |vimwiki_gli|, |vimwiki_glI| and
 |vimwiki_i_<C-L>_<C-M>|.
@@ -3554,7 +3554,7 @@ An option to change the default commentstring. Use
 
   let g:vimwiki_commentstring = '<!--%s-->'
 
-for html-style comments. Use 
+for html-style comments. Use
 
   let g:vimwiki_commentstring = ""
 
@@ -3693,6 +3693,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Reiner Herrmann (@reinerh)
     - Ryan Winograd
     - Birger Niklas (@BirgerNi)
+    - Chip Senkbeil (@chipsenkbeil)
 
 
 ==============================================================================
@@ -3716,6 +3717,8 @@ New:~
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
     * PR #959: Fix :VimwikiNextTask
+    * PR #963: Replace VimwikiListChangeLevel references in doc with
+      VimwikiListChangeLvl as defined by command
 
 2.5 (2020-05-26)~
 
