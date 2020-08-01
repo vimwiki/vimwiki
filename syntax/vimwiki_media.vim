@@ -70,6 +70,9 @@ let s:media_syntax.rxPreEnd = '<\/pre>'
 let s:media_syntax.rxMathStart = '{{\$'
 let s:media_syntax.rxMathEnd = '}}\$'
 
+" NOTE: There is no multi-line comment syntax for MediaWiki
+let s:media_syntax.rxMultilineCommentStart = ''
+let s:media_syntax.rxMultilineCommentEnd = ''
 let s:media_syntax.rxComment = '^\s*%%.*$'
 let s:media_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
 

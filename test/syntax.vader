@@ -171,6 +171,47 @@ Execute (Assert Syntax Header):
   AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
   AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
 
+# 10 Comments {{{1
+###############
+
+Given vimwiki (%%):
+  %% This is a line comment
+      %% This is also a comment
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert Syntax VimwikiComment):
+  AssertEqual SyntaxAt(1, 1), 'VimwikiComment'
+  AssertEqual SyntaxAt(2, 4), 'VimwikiComment'
+
+Given vimwiki (%%+, +%%):
+  %%+ This
+  is a
+  multiline
+  comment +%%
+  %%+ This is a comment on one line +%%
+  %%+ One +%% Not a comment %%+ Two +%% Not a comment
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert Syntax VimwikiMultilineComment):
+  AssertEqual SyntaxAt(1, 1), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(1, 8), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(2, 1), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(3, 1), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(4, 1), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(5, 1), 'VimwikiMultilineComment'
+
+  AssertEqual SyntaxAt(6, 1), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(6, 11), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(6, 12), ''
+  AssertEqual SyntaxAt(6, 26), ''
+  AssertEqual SyntaxAt(6, 27), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(6, 37), 'VimwikiMultilineComment'
+  AssertEqual SyntaxAt(6, 38), ''
+  AssertEqual SyntaxAt(6, 51), ''
 
 # 10 Code {{{1
 # 10.1 Code Indent (4 spaces) {{{2

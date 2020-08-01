@@ -95,6 +95,8 @@ let s:default_syntax.rxPreEnd = '}}}'
 let s:default_syntax.rxMathStart = '{{\$'
 let s:default_syntax.rxMathEnd = '}}\$'
 
+let s:default_syntax.rxMultilineCommentStart = '%%+'
+let s:default_syntax.rxMultilineCommentEnd = '+%%'
 let s:default_syntax.rxComment = '^\s*%%.*$'
 let s:default_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:''[:space:]]\+:\)\+\%(\s\|$\)\@='
 

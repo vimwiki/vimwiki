@@ -4,8 +4,54 @@ Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
 
+#################################################
+Given vimwiki (Comments):
+  This is some text
+  %% This is a comment
+  Test%%+INLINE COMMENT+%%1
+  %%+INLINE COMMENT+%%Test2
+  Test3%%+INLINE COMMENT+%%
+  %%+ Multiline
+  comment
+  that
+  is
+  removed
+  +%%
+  Final text
+
+Do (Convert):
+  :call ConvertWiki2Html()\<Cr>
+# Keep only body
+  ggd/<body>\<Cr>
+
+Expect (Comments Removed):
+  <body>
+
+  <p>
+  This is some text
+  Test1
+  Test2
+  Test3
+  </p>
 
 
+
+
+
+
+  <p>
+  Final text
+  </p>
+
+  </body>
+  </html>
+
+
+Execute(Delete):
+  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
+  call DeleteFile('$HOME/html/default/test_html_table.html')
+
+#################################################
 Given vimwiki (Table no heading {{{1):
   | header1 | header2 |
   |  val1    | val2    |
@@ -127,7 +173,6 @@ Execute(Delete):
   call DeleteFile('$HOME/testwiki/test_html_table.wiki')
   call DeleteFile('$HOME/html/default/test_html_table.html')
 
-
 #################################################
 Execute (Log):
    Log '#473: Syntax "local:" doesnt work as expected. #473'
@@ -174,11 +219,11 @@ Do (Get Html body):
 
 Expect (Local link):
   <body>
-  
+
   <p>
   <a href="../../here">Link</a>
   </p>
-  
+
   </body>
 
 
@@ -226,7 +271,7 @@ Do (Get Html body):
 
 
 Expect (Plain Html):
-# the whole default html file should be here as a base + the modifications 
+# the whole default html file should be here as a base + the modifications
 # from "Given"
   <body>
 

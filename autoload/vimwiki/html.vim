@@ -1245,6 +1245,7 @@ function! s:parse_line(line, state) abort
   let state.para = a:state.para
   let state.quote = a:state.quote
   let state.arrow_quote = a:state.arrow_quote
+  let state.active_multiline_comment = a:state.active_multiline_comment
   let state.pre = a:state.pre[:]
   let state.math = a:state.math[:]
   let state.table = a:state.table[:]
@@ -1256,6 +1257,40 @@ function! s:parse_line(line, state) abort
   let res_lines = []
   let processed = 0
   let line = a:line
+
+  " Handle multiline comments, keeping in mind that they can mutate the
+  " current line while not marking as processed in the scenario where some
+  " text remains that needs to go through additional processing
+  if !processed
+    let mc_start = vimwiki#vars#get_syntaxlocal('rxMultilineCommentStart')
+    let mc_end = vimwiki#vars#get_syntaxlocal('rxMultilineCommentEnd')
+
+    " If either start or end is empty, we want to skip multiline handling
+    if !empty(mc_start) && !empty(mc_end)
+      " If we have an active multiline comment, we prepend the start of the
+      " multiline to our current line to make searching easier, knowing that
+      " it will be removed using substitute in all scenarios
+      if state.active_multiline_comment
+        let line = mc_start.line
+      endif
+
+      " Remove all instances of multiline comment pairs (start + end), using
+      " a lazy match so that we stop at the first ending multiline comment
+      " rather than potentially absorbing multiple
+      let line = substitute(line, mc_start.'.\{-\}'.mc_end, '', 'g')
+
+      " Check for a dangling multiline comment (comprised only of start) and
+      " remove all characters beyond it, also indicating that we are dangling
+      let mc_start_pos = match(line, mc_start)
+      if mc_start_pos >= 0
+        " NOTE: mc_start_pos is the byte offset, so should be fine with strpart
+        let line = strpart(line, 0, mc_start_pos)
+      endif
+
+      " If we had a dangling multiline comment, we want to flag as such
+      let state.active_multiline_comment = mc_start_pos >= 0
+    endif
+  endif
 
   if !processed
     " allows insertion of plain text to the final html conversion
@@ -1296,7 +1331,7 @@ function! s:parse_line(line, state) abort
     endif
   endif
 
-  let line = s:safe_html_line(a:line)
+  let line = s:safe_html_line(line)
 
   " pres
   if !processed
@@ -1325,7 +1360,6 @@ function! s:parse_line(line, state) abort
     endif
     call extend(res_lines, lines)
   endif
-
 
   if !processed
     if line =~# vimwiki#vars#get_syntaxlocal('rxComment')
@@ -1603,6 +1637,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
   let state.para = 0
   let state.quote = 0
   let state.arrow_quote = 0
+  let state.active_multiline_comment = 0
   let state.pre = [0, 0] " [in_pre, indent_pre]
   let state.math = [0, 0] " [in_math, indent_math]
   let state.table = []

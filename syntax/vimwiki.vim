@@ -348,6 +348,14 @@ if vimwiki#vars#get_global('valid_html_tags') !=? ''
 
   execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').
         \ '/ contains=@Spell,VimwikiTodo'
+
+  " Only do syntax highlighting for multiline comments if they exist
+  let s:mc_start = vimwiki#vars#get_syntaxlocal('rxMultilineCommentStart')
+  let s:mc_end = vimwiki#vars#get_syntaxlocal('rxMultilineCommentEnd')
+  if !empty(s:mc_start) && !empty(s:mc_end)
+    execute 'syntax region VimwikiMultilineComment start=/'.s:mc_start.
+          \ '/ end=/'.s:mc_end.'/ contains=@NoSpell,VimwikiTodo'
+  endif
 endif
 
 " tags
@@ -425,6 +433,7 @@ hi def link VimwikiSubScriptT VimwikiSubScript
 
 hi def link VimwikiTodo Todo
 hi def link VimwikiComment Comment
+hi def link VimwikiMultilineComment Comment
 
 hi def link VimwikiPlaceholder SpecialKey
 hi def link VimwikiPlaceholderParam String
@@ -487,4 +496,3 @@ call vimwiki#base#nested_syntax('tex',
 
 
 syntax spell toplevel
-
