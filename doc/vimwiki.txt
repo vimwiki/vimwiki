@@ -1472,6 +1472,15 @@ The default commentstring can be changed or disabled with
 |g:vimwiki_commentstring| so an alternative commentstring can be set, e.g.:
   <!-- This may be a comment too -->
 
+A multi-line comment is one that starts with %%+ and ends with +%%. This can
+traverse across multiple lines, or can be contained within part of a single
+line.
+E.g.:
+ %%+ this text
+ and this text
+ would not be
+ in html +%%
+ %%+ not included +%% is included %%+ also not included +%%
 
 ------------------------------------------------------------------------------
 5.11. Horizontal line                                      *vimwiki-syntax-hr*
@@ -3706,6 +3715,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #967: Add multiline comment support via %%+ and +%%
     * Issue #942: Fixing wrong html link conversion in windows
     * PR #946: Add option |g:vimwiki_commentstring| to customize commentstring
     * Issue #940: Render table header inside thead element and rest under
