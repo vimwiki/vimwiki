@@ -215,3 +215,79 @@ function! vimwiki#u#ft_is_vw() abort
     return 0
   endif
 endfunction
+
+" Helper: Create highlight region between two tags
+" :param: tag <string> example '<b>'
+" :param: syntax_group <string> example: VimwikiBold
+" :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
+" :param: (1) <boolean> is contained
+function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
+  let opt_is_contained = a:0 > 0  ? 'contained ' : ''
+  let opt_contains = ''
+  if a:contains !=# ''
+    let opt_contains = 'contains=' . a:contains . ' '
+  endif
+  let cmd = 'syn region ' . a:syntax_group . ' matchgroup=VimwikiHTMLDelimiter ' .
+        \ opt_is_contained .
+        \ 'start="' . a:tag_pre . '" ' .
+        \ 'end="' . a:tag_post . '" ' .
+        \ 'keepend ' .
+        \ opt_contains .
+        \ b:vimwiki_syntax_concealends
+  "echom cmd
+  exe cmd
+endfunction
+
+
+" Highight typeface: see $VIMRUNTIME/syntax/html.vim
+" -- Basically allow nesting with multiple definition contained
+" :param: dic <dic:list:list> must contain: bold, italic and underline, even if underline is often void,
+" -- see here for underline not defined: https://stackoverflow.com/questions/3003476
+function! vimwiki#u#hi_typeface(dic) abort
+  " Italic must go before, otherwise single * takes precedence over ** and ** is considered as
+  " a void italic.
+  " Note that the last syntax defined take precedence so that user can change at runtime
+  " (:h :syn-define)
+  for i in a:dic['italic']
+    "  -- Italic 1
+    call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiItalic ', 'VimwikiItalicBold,VimwikiItalicUnderline')
+    " -- Bold 2
+    call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline', 1)
+    " -- Bold 3
+    call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiBoldUnderlineItalic', '', 2)
+    " -- Underline 2
+    call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiUnderlineItalic', 'VimwikiUnderlineItalicBold', 1)
+    " -- Underline 3
+    call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiUnderlineBoldItalic', '', 2)
+  endfor
+  for b in a:dic['bold']
+    " -- Bold 1
+    call vimwiki#u#hi_tag(b[0],b[1], 'VimwikiBold', 'VimwikiBoldUnderline,VimwikiBoldItalic')
+    " -- Italic 2
+    call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiItalicBold', 'VimwikiItalicBoldUnderline', 1)
+    " -- Italic 3
+    call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiItalicUnderlineBold', '', 2)
+    " -- Underline 2
+    call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiUnderlineBold',  'VimwikiUnderlineBoldItalic', 1)
+    " -- Underline 3
+    call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiUnderlineItalicBold', '', 2)
+  endfor
+  " markdown
+  if has_key(a:dic, 'bold_italic')
+    for bi in a:dic['bold_italic']
+      call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline')
+    endfor
+  endif
+  for u in a:dic['underline']
+    " -- Underline 1
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiUnderline', 'VimwikiUnderlineBold,VimwikiUnderlineItalic')
+    " -- Bold 2
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiBoldUnderline', 'VimwikiBoldUnderlineItalic', 1)
+    " -- Bold 3
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiBoldItalicUnderline', '', 2)
+    " -- Italic 2
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiItalicUnderline', 'VimwikiItalicUnderlineBold', 1)
+    " -- Italic 3
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiItalicBoldUnderline', '', 2)
+  endfor
+endfunction

@@ -10,43 +10,37 @@
 let s:default_syntax = g:vimwiki_syntax_variables['default']
 
 
+" TODO mutualise
+" Get config: possibly concealed chars
+let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
+let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
+
+" Typeface:
+let s:default_syntax.dTypeface = {}
+
+" text: *strong*
+let s:default_syntax.dTypeface['bold'] = [
+      \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
+      \ ]
+
+" text: _italic_
+let s:default_syntax.dTypeface['italic'] = [
+      \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
+      \ ]
+
+" text: no underline defined
+let s:default_syntax.dTypeface['underline'] = []
+
+" text: *_bold italic_* or _*italic bold*_
+let s:default_syntax.dTypeface['bold_italic'] = [
+      \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
+      \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
+      \ ]
+
 
 " text: $ equation_inline $
 let s:default_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:default_syntax.char_eqin = '\$'
-
-" text: *strong*
-" let s:default_syntax.rxBold = '\*[^*]\+\*'
-let s:default_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\*'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:default_syntax.char_bold = '*'
-
-" text: _emphasis_
-" let s:default_syntax.rxItalic = '_[^_]\+_'
-let s:default_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_'.
-      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-      \'_'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:default_syntax.char_italic = '_'
-
-" text: *_bold italic_* or _*italic bold*_
-let s:default_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\*_'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'_\*'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:default_syntax.char_bolditalic = '\*_'
-
-let s:default_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'_\*'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\*_'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:default_syntax.char_italicbold = '_\*'
 
 " text: `code`
 let s:default_syntax.rxCode = '`[^`]\+`'

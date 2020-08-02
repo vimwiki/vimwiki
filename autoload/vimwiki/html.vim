@@ -9,6 +9,36 @@ if exists('g:loaded_vimwiki_html_auto') || &compatible
 endif
 let g:loaded_vimwiki_html_auto = 1
 
+" FIXME: Magics: Why not use the current syntax highlight
+" This is due to historical copy paste and lazyness of markdown user
+" text: **strong** or __strong__
+let s:rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\|_\)\{2\}'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1\{2\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+
+" text: _emphasis_ or *emphasis*
+let s:rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\|_\)'.
+      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
+      \'\1'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+
+" Fixme: and those ? are they converted ?
+" text: *_bold italic_* or _*italic bold*_
+let rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(\*\)\{3\}'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\1\{3\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+
+let rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
+      \'\(_\)\{3\}'.
+      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
+      \'\1\{3\}'.
+      \'\%([[:punct:]]\|\s\|$\)\@='
+
 
 function! s:root_path(subdir) abort
   return repeat('../', len(split(a:subdir, '[/\\]')))
@@ -609,8 +639,9 @@ endfunction
 
 function! s:process_tags_typefaces(line, header_ids) abort
   let line = a:line
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxItalic'), 's:tag_em')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxBold'), 's:tag_strong', a:header_ids)
+  " Convert line tag by tag
+  let line = s:make_tag(line, s:rxItalic, 's:tag_em')
+  let line = s:make_tag(line, s:rxBold, 's:tag_strong', a:header_ids)
   let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxDelText'), 's:tag_strike')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSuperScript'), 's:tag_super')
@@ -978,7 +1009,7 @@ function! s:process_tag_list(line, lists) abort
   " text.
   " XXX necessary? in *bold* text, no space must follow the first *
   if !in_list
-    let pos = match(a:line, '^\s*'.vimwiki#vars#get_syntaxlocal('rxBold'))
+    let pos = match(a:line, '^\s*' . s:rxBold)
     if pos != -1
       return [0, []]
     endif

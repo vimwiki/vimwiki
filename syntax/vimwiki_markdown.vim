@@ -9,40 +9,43 @@
 
 let s:markdown_syntax = g:vimwiki_syntax_variables['markdown']
 
+
+" TODO mutualise
+" Get config: possibly concealed chars
+let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
+let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
+
+
+" Typeface:
+let s:markdown_syntax.dTypeface = {}
+
+" text: **bold** or __bold__
+let s:markdown_syntax.dTypeface['bold'] = [
+      \ ['\S\@<=__\|__\S\@=', '\S\@<=__\|__\S\@='],
+      \ ['\S\@<=\*\*\|\*\*\S\@=', '\S\@<=\*\*\|\*\*\S\@='],
+      \ ]
+
+" text: *italic* or _italic_
+let s:markdown_syntax.dTypeface['italic'] = [
+      \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
+      \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
+      \ ]
+
+" text: no underline defined
+let s:markdown_syntax.dTypeface['underline'] = []
+
+" text: *_bold italic_* or _*italic bold*_ or ___bi___ or ***bi***
+let s:markdown_syntax.dTypeface['bold_italic'] = [
+      \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
+      \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
+      \ ['\S\@<=\*\*\*\|\*\*\*\S\@=', '\S\@<=\*\*\*\|\*\*\*\S\@='],
+      \ ['\S\@<=___\|___\S\@=', '\S\@<=___\|___\S\@='],
+      \ ]
+
+
 " text: $ equation_inline $
 let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:markdown_syntax.char_eqin = '\$'
-
-" text: **strong** or __strong__
-let s:markdown_syntax.rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\|_\)\{2\}'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\1\{2\}'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bold = '\*\*\|__'
-
-" text: _emphasis_ or *emphasis*
-let s:markdown_syntax.rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\|_\)'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\1'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italic = '\*\|_'
-
-" text: *_bold italic_* or _*italic bold*_
-let s:markdown_syntax.rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\)\{3\}'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\1\{3\}'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_bolditalic = '\*\*\*'
-
-let s:markdown_syntax.rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(_\)\{3\}'.
-      \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-      \'\1\{3\}'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-let s:markdown_syntax.char_italicbold = '___'
 
 " text: `code`
 let s:markdown_syntax.rxCode = '`[^`]\+`'

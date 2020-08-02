@@ -17,7 +17,7 @@ Given vimwiki (Typeface for html 1 like italic):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax for typeface):
+Execute (Assert Syntax for typeface 1):
   AssertEqual 'VimwikiBold'      , SyntaxAt(1, 15)
   AssertEqual 'VimwikiBold'      , SyntaxAt(2, 15)
   AssertEqual 'VimwikiItalic'    , SyntaxAt(3, 15)
@@ -32,7 +32,7 @@ Given vimwiki (Typeface for html 2 like italicUnderline):
   <u> Underline -cacaca<b>bold underline-------</b>asacc acaca-  </u>
   <u> Underline -cacaca<i>italic underline-----</i>asdacacc acaca-  </u>
 
-Execute (Assert Syntax for typeface):
+Execute (Assert Syntax for typeface 2):
   AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(1, 30)
   AssertEqual 'VimwikiBoldUnderline'  , GetSyntaxGroup(2, 30)
   AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(3, 30)
@@ -48,7 +48,7 @@ Given vimwiki (Typeface for html 3 like boldItalicUnderline):
   <u><b> <i> bold italic underline </i> </b></u>
   <u><i><b> bold italic underline </b></i></u>
 
-Execute (Assert Syntax for typeface):
+Execute (Assert Syntax for typeface 3):
   AssertEqual 'VimwikiBoldItalicUnderline1', GetSyntaxGroup(1, 22).1
   AssertEqual 'VimwikiBoldItalicUnderline2', GetSyntaxGroup(2, 22).2
   AssertEqual 'VimwikiBoldItalicUnderline3', GetSyntaxGroup(3, 22).3
@@ -92,16 +92,16 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax for typeface):
-  AssertEqual SyntaxAt(1, 4), 'VimwikiBold'
-  AssertEqual SyntaxAt(2, 4), 'VimwikiBold'
-  AssertEqual SyntaxAt(3, 4), 'VimwikiItalic'
-  AssertEqual SyntaxAt(4, 4), 'VimwikiItalic'
-  AssertEqual SyntaxAt(5, 4), 'VimwikiBoldItalic'
-  AssertEqual SyntaxAt(6, 4), 'VimwikiItalicBold'
-  AssertEqual SyntaxAt(7, 4), 'VimwikiDelText'
-  AssertEqual SyntaxAt(8, 4), 'VimwikiCode'
-  AssertEqual SyntaxAt(9, 4), 'VimwikiSuperScript'
-  AssertEqual SyntaxAt(10, 4), 'VimwikiSubScript'
+  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 4)
+  AssertEqual 'VimwikiBold'        , SyntaxAt(2, 4)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(3, 4)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(4, 4)
+  AssertEqual 'VimwikiBoldItalic'  , SyntaxAt(5, 4)
+  AssertEqual 'VimwikiBoldItalic'  , SyntaxAt(6, 4)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(7, 4)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(8, 4)
+  AssertEqual 'VimwikiSuperScript' , SyntaxAt(9, 4)
+  AssertEqual 'VimwikiSubScript'   , SyntaxAt(10, 4)
 
 
 # 2 Links {{{1

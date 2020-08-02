@@ -9,23 +9,30 @@
 
 let s:media_syntax = g:vimwiki_syntax_variables['media']
 
+let s:media_syntax.dTypeface = {}
+
+" text: '''strong'''
+let s:media_syntax.dTypeface['bold'] = [
+      \ ['\S\@<=''''''\|''''''\S\@=', '\S\@<=''''''\|''''''\S\@='],
+      \ ]
+
+" text: ''italic''
+let s:media_syntax.dTypeface['italic'] = [
+      \ ['\S\@<=''''\|''''\S\@=', '\S\@<=''''\|''''\S\@='],
+      \ ]
+
+" text: no underline defined
+let s:media_syntax.dTypeface['underline'] = []
+
+" text: '''''strong italic'''''
+let s:media_syntax.dTypeface['bold_italic'] = [
+      \ ['\S\@<=''''''''''\|''''''''''\S\@=', '\S\@<=''''''''''\|''''''''''\S\@='],
+      \ ]
+
+
 " text: $ equation_inline $
 let s:media_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:media_syntax.char_eqin = '\$'
-
-" text: '''strong'''
-let s:media_syntax.rxBold = "'''[^']\\+'''"
-let s:media_syntax.char_bold = "'''"
-
-" text: ''emphasis''
-let s:media_syntax.rxItalic = "''[^']\\+''"
-let s:media_syntax.char_italic = "''"
-
-" text: '''''strong italic'''''
-let s:media_syntax.rxBoldItalic = "'''''[^']\\+'''''"
-let s:media_syntax.rxItalicBold = s:media_syntax.rxBoldItalic
-let s:media_syntax.char_bolditalic = "'''''"
-let s:media_syntax.char_italicbold = s:media_syntax.char_bolditalic
 
 " text: `code`
 let s:media_syntax.rxCode = '`[^`]\+`'

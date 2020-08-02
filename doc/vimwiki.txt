@@ -2061,6 +2061,8 @@ conditionally, make sure the settings are set before Vimwiki loads (that is,
 before plugin/vimwiki.vim is sourced). If this is not possible, try this
 command after the Vimwiki settings are (re-) set: >
   :call vimwiki#vars#init()
+If you also want to reload syntax variables, prefix the last command by: >
+  :unlet g:vimwiki_syntax_variables
 
 ------------------------------------------------------------------------------
 12.1 Registered Wiki                  *g:vimwiki_list* *vimwiki-register-wiki*

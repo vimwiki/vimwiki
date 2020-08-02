@@ -162,14 +162,6 @@ endfor
 if vimwiki#vars#get_global('conceal_onechar_markers')
   execute 'syn match VimwikiEqInChar contained /'.
         \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiBoldItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiItalicBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiCodeChar contained /'.
         \ vimwiki#vars#get_syntaxlocal('char_code').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiDelTextChar contained /'.
@@ -215,14 +207,6 @@ execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
       \ '\+\s*$\)/'
 execute 'syn match VimwikiEqInCharT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_eqin').'/'
-execute 'syn match VimwikiBoldCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_bold').'/'
-execute 'syn match VimwikiItalicCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_italic').'/'
-execute 'syn match VimwikiBoldItalicCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'
-execute 'syn match VimwikiItalicBoldCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_italicbold').'/'
 execute 'syn match VimwikiCodeCharT contained /'
       \ .vimwiki#vars#get_syntaxlocal('char_code').'/'
 execute 'syn match VimwikiDelTextCharT contained /'
@@ -274,30 +258,10 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
 endif
 
 
-execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
-      \ '/ contains=VimwikiBoldChar,@Spell'
-execute 'syntax match VimwikiBoldT /'.vimwiki#vars#get_syntaxlocal('rxBold').
-      \ '/ contained contains=VimwikiBoldCharT,@Spell'
-
 execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
       \ '/ contains=VimwikiEqInChar,@NoSpell'
 execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
       \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
-
-execute 'syntax match VimwikiItalic /'.vimwiki#vars#get_syntaxlocal('rxItalic').
-      \ '/ contains=VimwikiItalicChar,@Spell'
-execute 'syntax match VimwikiItalicT /'.vimwiki#vars#get_syntaxlocal('rxItalic').
-      \ '/ contained contains=VimwikiItalicCharT,@Spell'
-
-execute 'syntax match VimwikiBoldItalic /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').
-      \ '/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiBoldItalicT /'.vimwiki#vars#get_syntaxlocal('rxBoldItalic').
-      \ '/ contained contains=VimwikiBoldItalicChatT,VimwikiItalicBoldCharT,@Spell'
-
-execute 'syntax match VimwikiItalicBold /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').
-      \ '/ contains=VimwikiBoldItalicChar,VimwikiItalicBoldChar,@Spell'
-execute 'syntax match VimwikiItalicBoldT /'.vimwiki#vars#get_syntaxlocal('rxItalicBold').
-      \ '/ contained contains=VimwikiBoldItalicCharT,VimsikiItalicBoldCharT,@Spell'
 
 execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').
       \ '/ contains=VimwikiDelTextChar,@Spell'
@@ -343,89 +307,14 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 
 " html tags
-" Copied from $VIMRUNTIME
-" Note: The me=s-1 was omited from the region definition
-"   See: `syn region VimwikiBoldUnderlineItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=VimwikiHTMLTag...`
-" Note: Not configurable
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
-  let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
-  exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
-
-  " Helper: Create highlight region between html tags
-  " :param: tag <string> example 'b'
-  " :param: syntax_group <string> example: VimwikiBold
-  " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
-  " :param: (1) <boolean> is contained
-  function! s:highlight_html(tag, syntax_group, contains, ...)
-    let opt_is_contained = a:0 > 0  ? 'contained ' : ''
-    let opt_contains = ''
-    if a:contains !=# ''
-      let opt_contains = 'contains=' . a:contains . ' '
-    endif
-    exe 'syn region ' a:syntax_group . ' matchgroup=VimwikiHTMLDelimiter ' .
-          \ opt_is_contained .
-          \ 'start="<' . a:tag . '>" end="</' . a:tag . '\_s*>" '.
-          \ opt_contains .
-          \ b:vimwiki_syntax_concealends
-  endfunction
-
-  " Bold
-  " -- Bold 1
-  call s:highlight_html('b', 'VimwikiBold', 'VimwikiBoldUnderline,VimwikiBoldItalic')
-  call s:highlight_html('strong', 'VimwikiBold', 'VimwikiBoldUnderline,VimwikiBoldItalic')
-  " -- Bold 2
-  call s:highlight_html('u', 'VimwikiBoldUnderline', 'VimwikiBoldUnderlineItalic', 1)
-  call s:highlight_html('i', 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline', 1)
-  call s:highlight_html('em', 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline', 1)
-  " -- Bold 3
-  call s:highlight_html('i', 'VimwikiBoldUnderlineItalic', '', 2)
-  call s:highlight_html('em', 'VimwikiBoldUnderlineItalic', '', 2)
-  call s:highlight_html('u', 'VimwikiBoldItalicUnderline', '', 2)
-
-  " Italic
-  "  -- Italic 1
-  call s:highlight_html('i', 'VimwikiItalic ', 'VimwikiItalicBold,VimwikiItalicUnderline')
-  call s:highlight_html('em', 'VimwikiItalic ', 'VimwikiItalicBold,VimwikiItalicUnderline')
-  " -- Italic 2
-  call s:highlight_html('b', 'VimwikiItalicBold', 'VimwikiItalicBoldUnderline', 1)
-  call s:highlight_html('strong', 'VimwikiItalicBold', 'VimwikiItalicBoldUnderline', 1)
-  call s:highlight_html('u', 'VimwikiItalicUnderline', 'VimwikiItalicUnderlineBold', 1)
-  " -- Italic 3
-  call s:highlight_html('u', 'VimwikiItalicBoldUnderline', '', 2)
-  call s:highlight_html('b', 'VimwikiItalicUnderlineBold', '', 2)
-  call s:highlight_html('strong', 'VimwikiItalicUnderlineBold', '', 2)
-
-  " Underline
-  " -- Underline 1
-  call s:highlight_html('u', 'VimwikiUnderline', 'VimwikiUnderlineBold,VimwikiUnderlineItalic')
-  " -- Underline 2
-  call s:highlight_html('b', 'VimwikiUnderlineBold',  'VimwikiUnderlineBoldItalic', 1)
-  call s:highlight_html('b','VimwikiUnderlineBold', 'VimwikiUnderlineBoldItalic', 1)
-  call s:highlight_html('strong', 'VimwikiUnderlineBold', 'VimwikiUnderlineBoldItalic', 1)
-  call s:highlight_html('i', 'VimwikiUnderlineItalic', 'VimwikiUnderlineItalicBold', 1)
-  call s:highlight_html('em', 'VimwikiUnderlineItalic', 'VimwikiUnderlineItalicBold', 1)
-  " -- Underline 3
-  call s:highlight_html('b', 'VimwikiUnderlineItalicBold', '', 2)
-  call s:highlight_html('strong', 'VimwikiUnderlineItalicBold', '', 2)
-  call s:highlight_html('i', 'VimwikiUnderlineBoldItalic', '', 2)
-  call s:highlight_html('em', 'VimwikiUnderlineBoldItalic', '', 2)
-
-  " Comment: home made
-  execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').
-        \ '/ contains=@Spell,VimwikiTodo'
-
-  " Only do syntax highlighting for multiline comments if they exist
-  let s:mc_start = vimwiki#vars#get_syntaxlocal('rxMultilineCommentStart')
-  let s:mc_end = vimwiki#vars#get_syntaxlocal('rxMultilineCommentEnd')
-  if !empty(s:mc_start) && !empty(s:mc_end)
-    execute 'syntax region VimwikiMultilineComment start=/'.s:mc_start.
-          \ '/ end=/'.s:mc_end.'/ contains=@NoSpell,VimwikiTodo'
-  endif
+  " Source html file here
+  execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
 endif
+
 
 " tags
 execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
-
 
 
 " header groups highlighting
@@ -445,7 +334,9 @@ else
   endfor
 endif
 
-
+" Highlight typefaces -> u.vim
+let s:syntax_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
+call vimwiki#u#hi_typeface(s:syntax_dic)
 
 hi def link VimwikiMarkers Normal
 
@@ -558,7 +449,7 @@ call vimwiki#u#reload_regexes_custom()
 let b:current_syntax='vimwiki'
 
 
-" EMBEDDED syntax setup
+" Code: EMBEDDED syntax setup
 let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
 if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
   let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), 'keep')
