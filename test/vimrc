@@ -24,7 +24,7 @@
   let vimwiki_default.ext = '.wiki'
   let vimwiki_default.name = 'DefaultSyntax'
   let vimwiki_default.base_url = 'https://example.com/'
-  
+
   " Declare markdown syntax - https://github.github.com/gfm/
   let vimwiki_markdown = {}
   let vimwiki_markdown.path = $HOME . '/testmarkdown'
@@ -32,7 +32,7 @@
   let vimwiki_markdown.syntax = 'markdown'
   let vimwiki_markdown.ext = '.md'
   let vimwiki_markdown.name = 'MarkdownSyntax'
-  
+
   " Declare mediawiki syntax - https://www.mediawiki.org/wiki/Help:Formatting
   let vimwiki_mediawiki = {}
   let vimwiki_mediawiki.path = $HOME . '/testmediawiki'
@@ -40,7 +40,7 @@
   let vimwiki_mediawiki.syntax = 'media'
   let vimwiki_mediawiki.ext = '.mw'
   let vimwiki_mediawiki.name = 'MediaWikiSyntax'
-  
+
   " Register the 3 wikis
   let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
 
@@ -64,10 +64,10 @@
   " Map ctrl-p/n for history completion instead of up/down arrows
   cnoremap <C-p> <Up>
   cnoremap <C-n> <Down>
-  
+
   " Map jj to go back to command mode
   inoremap jj <esc>
-  
+
   " Use <C-L> to clear the highlighting of :set hlsearch and also preserve the
   " default behavior of redrawing the screen
   if maparg('<C-L>', 'n') ==# ''
@@ -204,7 +204,7 @@
     1,$delete
 
     " Paste to a named file
-    " Edit a new file in wiki_root 
+    " Edit a new file in wiki_root
     edit $HOME/testwiki/test_Convert2Html.wiki
     " Ensure it is void
     1,$delete
@@ -230,5 +230,14 @@
     call DeleteFile('$HOME/html/default/test_Convert2Html.html')
     call DeleteFile('$HOME/testwiki/test_Convert2Html.wiki')
   endfunction
+
+
+  " Get normalized syntax group: usefull for boldItalic Vs italicBold
+  " -- Here, Vader's SyntaxAt is not enough
+  " From: https://stackoverflow.com/questions/9464844
+  function! GetSyntaxGroup(line, col)
+    let l:s = synID(a:line, a:col, 1)
+    return synIDattr(synIDtrans(l:s), 'name')
+  endfun
 
 " vim: ft=vim:sw=2

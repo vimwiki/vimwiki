@@ -13,6 +13,10 @@ endif
 
 let s:current_syntax = vimwiki#vars#get_wikilocal('syntax')
 
+" Get config: possibly concealed chars
+let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
+let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
+
 
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 
@@ -81,6 +85,9 @@ function! s:highlight_existing_links() abort
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 endfunction
 
+
+function! s:in_typeface(s_typeface_char)
+endfunction
 
 " use max highlighting - could be quite slow if there are too many wikifiles
 if vimwiki#vars#get_wikilocal('maxhi')
@@ -152,34 +159,31 @@ endfor
 
 
 
-" possibly concealed chars
-let s:conceal = exists('+conceallevel') ? ' conceal' : ''
-
 if vimwiki#vars#get_global('conceal_onechar_markers')
   execute 'syn match VimwikiEqInChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_bold').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_italic').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiBoldItalicChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_bolditalic').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiItalicBoldChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_italicbold').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiCodeChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiDelTextChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiSuperScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.b:vimwiki_syntax_conceal
   execute 'syn match VimwikiSubScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.s:conceal
+        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.b:vimwiki_syntax_conceal
 endif
 
 
 let s:options = ' contained transparent contains=NONE'
 if exists('+conceallevel')
-  let s:options .= s:conceal
+  let s:options .= b:vimwiki_syntax_conceal
 endif
 
 " A shortener for long URLs: LinkRest (a middle part of the URL) is concealed
@@ -270,15 +274,15 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
 endif
 
 
-execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contains=VimwikiEqInChar,@NoSpell'
-execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
-
 execute 'syntax match VimwikiBold /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contains=VimwikiBoldChar,@Spell'
 execute 'syntax match VimwikiBoldT /'.vimwiki#vars#get_syntaxlocal('rxBold').
       \ '/ contained contains=VimwikiBoldCharT,@Spell'
+
+execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
+      \ '/ contains=VimwikiEqInChar,@NoSpell'
+execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
+      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
 
 execute 'syntax match VimwikiItalic /'.vimwiki#vars#get_syntaxlocal('rxItalic').
       \ '/ contains=VimwikiItalicChar,@Spell'
@@ -339,13 +343,74 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 
 " html tags
+" Copied from $VIMRUNTIME
+" Note: The me=s-1 was omited from the region definition
+"   See: `syn region VimwikiBoldUnderlineItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=VimwikiHTMLTag...`
+" Note: Not configurable
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
   let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
-  execute 'syntax match VimwikiBold #\c<b>.\{-}</b># contains=VimwikiHTMLTag'
-  execute 'syntax match VimwikiItalic #\c<i>.\{-}</i># contains=VimwikiHTMLTag'
-  execute 'syntax match VimwikiUnderline #\c<u>.\{-}</u># contains=VimwikiHTMLTag'
 
+  " Helper: Create highlight region between html tags
+  " :param: tag <string> example 'b'
+  " :param: syntax_group <string> example: VimwikiBold
+  " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
+  " :param: (1) <boolean> is contained
+  function! s:highlight_html(tag, syntax_group, contains, ...)
+    let opt_is_contained = a:0 > 0  ? 'contained ' : ''
+    let opt_contains = ''
+    if a:contains !=# ''
+      let opt_contains = 'contains=' . a:contains . ' '
+    endif
+    exe 'syn region ' a:syntax_group . ' matchgroup=VimwikiHTMLDelimiter ' .
+          \ opt_is_contained .
+          \ 'start="<' . a:tag . '>" end="</' . a:tag . '\_s*>" '.
+          \ opt_contains .
+          \ b:vimwiki_syntax_concealends
+  endfunction
+
+  " Bold
+  " -- Bold 1
+  call s:highlight_html('b', 'VimwikiBold', 'VimwikiBoldUnderline,VimwikiBoldItalic')
+  call s:highlight_html('strong', 'VimwikiBold', 'VimwikiBoldUnderline,VimwikiBoldItalic')
+  " -- Bold 2
+  call s:highlight_html('u', 'VimwikiBoldUnderline', 'VimwikiBoldUnderlineItalic', 1)
+  call s:highlight_html('i', 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline', 1)
+  call s:highlight_html('em', 'VimwikiBoldItalic', 'VimwikiBoldItalicUnderline', 1)
+  " -- Bold 3
+  call s:highlight_html('i', 'VimwikiBoldUnderlineItalic', '', 2)
+  call s:highlight_html('em', 'VimwikiBoldUnderlineItalic', '', 2)
+  call s:highlight_html('u', 'VimwikiBoldItalicUnderline', '', 2)
+
+  " Italic
+  "  -- Italic 1
+  call s:highlight_html('i', 'VimwikiItalic ', 'VimwikiItalicBold,VimwikiItalicUnderline')
+  call s:highlight_html('em', 'VimwikiItalic ', 'VimwikiItalicBold,VimwikiItalicUnderline')
+  " -- Italic 2
+  call s:highlight_html('b', 'VimwikiItalicBold', 'VimwikiItalicBoldUnderline', 1)
+  call s:highlight_html('strong', 'VimwikiItalicBold', 'VimwikiItalicBoldUnderline', 1)
+  call s:highlight_html('u', 'VimwikiItalicUnderline', 'VimwikiItalicUnderlineBold', 1)
+  " -- Italic 3
+  call s:highlight_html('u', 'VimwikiItalicBoldUnderline', '', 2)
+  call s:highlight_html('b', 'VimwikiItalicUnderlineBold', '', 2)
+  call s:highlight_html('strong', 'VimwikiItalicUnderlineBold', '', 2)
+
+  " Underline
+  " -- Underline 1
+  call s:highlight_html('u', 'VimwikiUnderline', 'VimwikiUnderlineBold,VimwikiUnderlineItalic')
+  " -- Underline 2
+  call s:highlight_html('b', 'VimwikiUnderlineBold',  'VimwikiUnderlineBoldItalic', 1)
+  call s:highlight_html('b','VimwikiUnderlineBold', 'VimwikiUnderlineBoldItalic', 1)
+  call s:highlight_html('strong', 'VimwikiUnderlineBold', 'VimwikiUnderlineBoldItalic', 1)
+  call s:highlight_html('i', 'VimwikiUnderlineItalic', 'VimwikiUnderlineItalicBold', 1)
+  call s:highlight_html('em', 'VimwikiUnderlineItalic', 'VimwikiUnderlineItalicBold', 1)
+  " -- Underline 3
+  call s:highlight_html('b', 'VimwikiUnderlineItalicBold', '', 2)
+  call s:highlight_html('strong', 'VimwikiUnderlineItalicBold', '', 2)
+  call s:highlight_html('i', 'VimwikiUnderlineBoldItalic', '', 2)
+  call s:highlight_html('em', 'VimwikiUnderlineBoldItalic', '', 2)
+
+  " Comment: home made
   execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('rxComment').
         \ '/ contains=@Spell,VimwikiTodo'
 
@@ -387,18 +452,38 @@ hi def link VimwikiMarkers Normal
 hi def link VimwikiEqIn Number
 hi def link VimwikiEqInT VimwikiEqIn
 
+" Typeface 1
 hi def VimwikiBold term=bold cterm=bold gui=bold
 hi def link VimwikiBoldT VimwikiBold
 
 hi def VimwikiItalic term=italic cterm=italic gui=italic
 hi def link VimwikiItalicT VimwikiItalic
 
+hi def VimwikiUnderline term=underline cterm=underline gui=underline
+
+" Typeface 2
+" Bold > Italic > Underline
 hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
 hi def link VimwikiItalicBold VimwikiBoldItalic
 hi def link VimwikiBoldItalicT VimwikiBoldItalic
 hi def link VimwikiItalicBoldT VimwikiBoldItalic
 
-hi def VimwikiUnderline gui=underline
+hi def VimwikiBoldUnderline term=bold,underline cterm=bold,underline gui=bold,underline
+hi def link VimwikiUnderlineBold VimwikiBoldUnderline
+
+hi def VimwikiItalicUnderline term=italic,underline cterm=italic,underline gui=italic,underline
+hi def link VimwikiUnderlineItalic VimwikiItalicUnderline
+
+" Typeface 3
+hi def VimwikiItalicUnderline term=italic,underline cterm=italic,underline gui=italic,underline
+hi def link VimwikiBoldUnderlineItalic VimwikiBoldItalicUnderline
+hi def link VimwikiItalicBoldUnderline VimwikiBoldItalicUnderline
+hi def link VimwikiItalicUnderlineBold VimwikiBoldItalicUnderline
+hi def link VimwikiUnderlineBoldItalic VimwikiBoldItalicUnderline
+hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
+
+" Typeface 2
+hi def VimwikiBoldUnderlineItalic term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
 
 hi def link VimwikiCode PreProc
 hi def link VimwikiCodeT VimwikiCode

@@ -4,6 +4,60 @@
 # 1 Typeface {{{1
 #################
 
+# HTML types {{{2
+# Rememner Bold > Italic > Underline (my convention [Tinmarino])
+
+Given vimwiki (Typeface for html 1 like italic):
+  <b> ---- this is bold text 1 ---- </b>
+  <strong> - this is bold 2 -  </strong>
+  <i> Italic 1 --cacacacacacacaca-- </i>
+  <em> Italic 2 -cacacacacacacaca- </em>
+  <u> Underline -cacacacacc acaca-  </u>
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax for typeface):
+  AssertEqual 'VimwikiBold'      , SyntaxAt(1, 15)
+  AssertEqual 'VimwikiBold'      , SyntaxAt(2, 15)
+  AssertEqual 'VimwikiItalic'    , SyntaxAt(3, 15)
+  AssertEqual 'VimwikiItalic'    , SyntaxAt(4, 15)
+  AssertEqual 'VimwikiUnderline' , SyntaxAt(5, 15)
+
+Given vimwiki (Typeface for html 2 like italicUnderline):
+  <b> bold this is bold<i>bold italic ---------</i> text 1 ---- </b>
+  <strong> - this is bo<u>bold underline ------</u>d 2 -  </strong>
+  <i> Italic 1 --cacaca<b>bold italic----------</b>acacacaca-- </i>
+  <em> Italic 2 -cacaca<u>italic underline-----</u>cacacaca- </em>
+  <u> Underline -cacaca<b>bold underline-------</b>asacc acaca-  </u>
+  <u> Underline -cacaca<i>italic underline-----</i>asdacacc acaca-  </u>
+
+Execute (Assert Syntax for typeface):
+  AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(1, 30)
+  AssertEqual 'VimwikiBoldUnderline'  , GetSyntaxGroup(2, 30)
+  AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(3, 30)
+  AssertEqual 'VimwikiItalicUnderline', GetSyntaxGroup(4, 30)
+  AssertEqual 'VimwikiBoldUnderline'  , GetSyntaxGroup(5, 30)
+  AssertEqual 'VimwikiItalicUnderline', GetSyntaxGroup(6, 30)
+
+Given vimwiki (Typeface for html 3 like boldItalicUnderline):
+  <b><i><u> bold italic underline </u></i></b>
+  <b><u><i> bold italic underline </i></u></b>
+  <i><b><u> bold italic underline </u></b></i>
+  <i><u><b> bold italic underline </b></u></i>
+  <u><b> <i> bold italic underline </i> </b></u>
+  <u><i><b> bold italic underline </b></i></u>
+
+Execute (Assert Syntax for typeface):
+  AssertEqual 'VimwikiBoldItalicUnderline1', GetSyntaxGroup(1, 22).1
+  AssertEqual 'VimwikiBoldItalicUnderline2', GetSyntaxGroup(2, 22).2
+  AssertEqual 'VimwikiBoldItalicUnderline3', GetSyntaxGroup(3, 22).3
+  AssertEqual 'VimwikiBoldItalicUnderline4', GetSyntaxGroup(4, 22).4
+  AssertEqual 'VimwikiBoldItalicUnderline5', GetSyntaxGroup(5, 22).5
+  AssertEqual 'VimwikiBoldItalicUnderline6', GetSyntaxGroup(6, 22).6
+
+# Keyword uppercase {{{2
+
 Given vimwiki (TODO, XXX):
   TODO
   DONE
@@ -19,6 +73,8 @@ Execute (Assert Syntax VimwikiTodo):
   AssertEqual SyntaxAt(4, 1), 'VimwikiTodo'
   AssertEqual SyntaxAt(5, 1), 'VimwikiTodo'
   AssertEqual SyntaxAt(6, 1), 'VimwikiTodo'
+
+# Mardown types {{{2
 
 Given vimwiki (Typeface for markdown like italic):
   **bold text 1**
