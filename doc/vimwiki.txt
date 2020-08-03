@@ -3742,6 +3742,8 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #709: Support inline code spans inside emphasis
+      Refactoring code, del, eq, sup, sub as regions
     * Issue #847 #640: Refactor: Syntax highlighting typeface: match -> region
     * Issue #891: Fix: Table Pressing <Enter> autosets tw <- 0
     * Issue #894: Make all appropriate settings wikilocal (many commits)

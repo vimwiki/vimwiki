@@ -37,27 +37,6 @@ let s:default_syntax.dTypeface['bold_italic'] = [
       \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
       \ ]
 
-
-" text: $ equation_inline $
-let s:default_syntax.rxEqIn = '\$[^$`]\+\$'
-let s:default_syntax.char_eqin = '\$'
-
-" text: `code`
-let s:default_syntax.rxCode = '`[^`]\+`'
-let s:default_syntax.char_code = '`'
-
-" text: ~~deleted text~~
-let s:default_syntax.rxDelText = '\~\~[^~`]\+\~\~'
-let s:default_syntax.char_deltext = '\~\~'
-
-" text: ^superscript^
-let s:default_syntax.rxSuperScript = '\^[^^`]\+\^'
-let s:default_syntax.char_superscript = '^'
-
-" text: ,,subscript,,
-let s:default_syntax.rxSubScript = ',,[^,`]\+,,'
-let s:default_syntax.char_subscript = ',,'
-
 " generic headers
 let s:default_syntax.rxH = '='
 let s:default_syntax.symH = 1

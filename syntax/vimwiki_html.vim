@@ -17,6 +17,11 @@ let html_typeface = {
   \ 'bold': [['<b>', '</b\_s*>'], ['<strong>', '</strong\_s*>']],
   \ 'italic': [['<i>', '</i\_s*>'], ['<em>', '</em\_s*>']],
   \ 'underline': [['<u>', '</u\_s*>']],
+  \ 'code': [['<code>', '</code\_s*>']],
+  \ 'del': [['<del>', '</del\_s*>']],
+  \ 'eq': [],
+  \ 'sup': [['<sup>', '</sup\_s*>']],
+  \ 'sub': [['<sub>', '</sub\_s*>']],
   \ }
 call vimwiki#u#hi_typeface(html_typeface)
 

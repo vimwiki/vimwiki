@@ -40,6 +40,22 @@ let rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
 
+" text: $ equation_inline $
+let s:rxEqIn = '\$[^$`]\+\$'
+
+" text: `code`
+let s:rxCode = '`[^`]\+`'
+
+" text: ~~deleted text~~
+let s:rxDelText = '\~\~[^~`]\+\~\~'
+
+" text: ^superscript^
+let s:rxSuperScript = '\^[^^`]\+\^'
+
+" text: ,,subscript,,
+let s:rxSubScript = ',,[^,`]\+,,'
+
+
 function! s:root_path(subdir) abort
   return repeat('../', len(split(a:subdir, '[/\\]')))
 endfunction
@@ -598,12 +614,12 @@ function! s:make_tag(line, regexp, func, ...) abort
                     \ '\(<a href.\{-}</a>\)\|'.
                     \ '\(<img src.\{-}/>\)\|'.
                     \ '\(<pre.\{-}</pre>\)\|'.
-                    \ '\('.vimwiki#vars#get_syntaxlocal('rxEqIn').'\)'
+                    \ '\('.s:rxEqIn.'\)'
 
   "FIXME FIXME !!! these can easily occur on the same line!
   "XXX  {{{ }}} ??? obsolete
   if '`[^`]\+`' ==# a:regexp || '{{{.\+}}}' ==# a:regexp ||
-        \ vimwiki#vars#get_syntaxlocal('rxEqIn') ==# a:regexp
+        \ s:rxEqIn ==# a:regexp
     let res_line = s:subst_func(a:line, a:regexp, a:func)
   else
     let pos = 0
@@ -643,11 +659,11 @@ function! s:process_tags_typefaces(line, header_ids) abort
   let line = s:make_tag(line, s:rxItalic, 's:tag_em')
   let line = s:make_tag(line, s:rxBold, 's:tag_strong', a:header_ids)
   let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxDelText'), 's:tag_strike')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSuperScript'), 's:tag_super')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxSubScript'), 's:tag_sub')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxCode'), 's:tag_code')
-  let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxEqIn'), 's:tag_eqin')
+  let line = s:make_tag(line, s:rxDelText, 's:tag_strike')
+  let line = s:make_tag(line, s:rxSuperScript, 's:tag_super')
+  let line = s:make_tag(line, s:rxSubScript, 's:tag_sub')
+  let line = s:make_tag(line, s:rxCode, 's:tag_code')
+  let line = s:make_tag(line, s:rxEqIn, 's:tag_eqin')
   let line = s:make_tag(line, vimwiki#vars#get_syntaxlocal('rxTags'), 's:tag_tags', a:header_ids)
   return line
 endfunction

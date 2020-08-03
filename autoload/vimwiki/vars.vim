@@ -582,6 +582,7 @@ endfunction
 
 " Populate syntax variable
 " Exported: syntax/vimwiki.vim
+" TODO refactor <= too big function
 function! vimwiki#vars#populate_syntax_vars(syntax) abort
   " Create is not exists
   if !exists('g:vimwiki_syntax_variables')
@@ -599,6 +600,35 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
 
   " Autoload default syntax file
   execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
+
+  " text: `code` or ``code`` only inline
+  " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
+  let syntax_dic.dTypeface['code'] = [
+        \ ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+        \  '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
+        \ ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+        \  '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
+        \ ]
+
+  " text: ~~deleted text~~
+  let syntax_dic.dTypeface['del'] = ([
+        \ ['\~\~', '\~\~']])
+
+  " text: $ equation_inline $
+  " Match only one $
+  " ( ^ or not $) before $ and after: not $
+  let syntax_dic.dTypeface['eq'] = ([
+        \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
+        \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
+
+  " text: ^superscript^
+  let syntax_dic.dTypeface['sup'] = ([
+        \ ['\^', '\^']])
+
+  " text: ,,subscript,,
+  let syntax_dic.dTypeface['sub'] = ([
+        \ [',,', ',,']])
+
 
   " TODO make that clean (i.e clearify what is local to syntax ot to buffer)
   " Get from local vars

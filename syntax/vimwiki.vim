@@ -18,6 +18,8 @@ let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 
 
+" Populate all syntax vars
+" Include syntax/vimwiki_markdown.vim as "side effect"
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 
 
@@ -159,20 +161,6 @@ endfor
 
 
 
-if vimwiki#vars#get_global('conceal_onechar_markers')
-  execute 'syn match VimwikiEqInChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_eqin').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiCodeChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_code').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiDelTextChar contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_deltext').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiSuperScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_superscript').'/'.b:vimwiki_syntax_conceal
-  execute 'syn match VimwikiSubScript contained /'.
-        \ vimwiki#vars#get_syntaxlocal('char_subscript').'/'.b:vimwiki_syntax_conceal
-endif
-
-
 let s:options = ' contained transparent contains=NONE'
 if exists('+conceallevel')
   let s:options .= b:vimwiki_syntax_conceal
@@ -205,16 +193,6 @@ execute 'syn match VimwikiLinkChar /'.vimwiki#vars#get_global('rxWikiInclSuffix1
 execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
       \ vimwiki#vars#get_syntaxlocal('rxH').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH').
       \ '\+\s*$\)/'
-execute 'syn match VimwikiEqInCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_eqin').'/'
-execute 'syn match VimwikiCodeCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_code').'/'
-execute 'syn match VimwikiDelTextCharT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_deltext').'/'
-execute 'syn match VimwikiSuperScriptT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_superscript').'/'
-execute 'syn match VimwikiSubScriptT contained /'
-      \ .vimwiki#vars#get_syntaxlocal('char_subscript').'/'
 
 
 execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
@@ -237,6 +215,7 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
                            \ @Spell
+
 syntax match VimwikiCellSeparator
       \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
@@ -256,32 +235,6 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
         \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
-
-
-execute 'syntax match VimwikiEqIn /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contains=VimwikiEqInChar,@NoSpell'
-execute 'syntax match VimwikiEqInT /'.vimwiki#vars#get_syntaxlocal('rxEqIn').
-      \ '/ contained contains=VimwikiEqInCharT,@NoSpell'
-
-execute 'syntax match VimwikiDelText /'.vimwiki#vars#get_syntaxlocal('rxDelText').
-      \ '/ contains=VimwikiDelTextChar,@Spell'
-execute 'syntax match VimwikiDelTextT /'.vimwiki#vars#get_syntaxlocal('rxDelText').
-      \ '/ contained contains=VimwikiDelTextCharT,@Spell'
-
-execute 'syntax match VimwikiSuperScript /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
-      \ '/ contains=VimwikiSuperScriptChar,@Spell'
-execute 'syntax match VimwikiSuperScriptT /'.vimwiki#vars#get_syntaxlocal('rxSuperScript').
-      \ '/ contained contains=VimwikiSuperScriptCharT,@Spell'
-
-execute 'syntax match VimwikiSubScript /'.vimwiki#vars#get_syntaxlocal('rxSubScript').
-      \ '/ contains=VimwikiSubScriptChar,@Spell'
-execute 'syntax match VimwikiSubScriptT /'.vimwiki#vars#get_syntaxlocal('rxSubScript').
-      \ '/ contained contains=VimwikiSubScriptCharT,@Spell'
-
-execute 'syntax match VimwikiCode /'.vimwiki#vars#get_syntaxlocal('rxCode').
-      \ '/ contains=VimwikiCodeChar,@NoSpell'
-execute 'syntax match VimwikiCodeT /'.vimwiki#vars#get_syntaxlocal('rxCode').
-      \ '/ contained contains=VimwikiCodeCharT'
 
 
 " <hr> horizontal rule
@@ -308,7 +261,7 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 " html tags
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
-  " Source html file here
+  " Include: Source html file here
   execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
 endif
 
@@ -334,9 +287,11 @@ else
   endfor
 endif
 
-" Highlight typefaces -> u.vim
-let s:syntax_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
-call vimwiki#u#hi_typeface(s:syntax_dic)
+
+
+" Highlight Typefaces -> u.vim
+let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
+call vimwiki#u#hi_typeface(s:typeface_dic)
 
 hi def link VimwikiMarkers Normal
 hi def link VimwikiError Normal
@@ -377,6 +332,7 @@ hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
 " Typeface 2
 hi def VimwikiBoldUnderlineItalic term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
 
+" Code
 hi def link VimwikiCode PreProc
 hi def link VimwikiCodeT VimwikiCode
 
@@ -399,7 +355,14 @@ hi def link VimwikiCheckBoxDone Comment
 hi def link VimwikiHR Identifier
 hi def link VimwikiTag Keyword
 
-hi def link VimwikiDelText Constant
+
+" Deleted called strikethrough
+" See $VIMRUTIME/syntax/html.vim
+if v:version > 800 || v:version == 800 && has('patch1038')
+  hi def VimwikiDelText term=strikethrough cterm=strikethrough gui=strikethrough
+else
+  hi def link VimwikiDelText Constant
+endif
 hi def link VimwikiDelTextT VimwikiDelText
 
 hi def link VimwikiSuperScript Number
@@ -428,6 +391,7 @@ hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
 hi def link VimwikiHeaderChar VimwikiMarkers
 
+" TODO remove unsued due to region refactoring
 hi def link VimwikiEqInCharT VimwikiMarkers
 hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers
@@ -450,7 +414,7 @@ call vimwiki#u#reload_regexes_custom()
 let b:current_syntax='vimwiki'
 
 
-" Code: EMBEDDED syntax setup
+" Include: Code: EMBEDDED syntax setup -> base.vim
 let s:nested = vimwiki#vars#get_wikilocal('nested_syntaxes')
 if vimwiki#vars#get_wikilocal('automatic_nested_syntaxes')
   let s:nested = extend(s:nested, vimwiki#base#detect_nested_syntax(), 'keep')

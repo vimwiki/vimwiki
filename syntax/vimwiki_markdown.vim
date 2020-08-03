@@ -1,11 +1,9 @@
 " vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
 " Vimwiki syntax file
-" Description: Defines markdown syntax
 " Home: https://github.com/vimwiki/vimwiki/
-
-
-" see the comments in vimwiki_default.vim for some info about this file
-
+" Description: Defines markdown syntax
+" Called: vars.vim => Many other (common) variables are defined there
+" More in u.vim, base.vim (nested_syntax for multiline code)
 
 let s:markdown_syntax = g:vimwiki_syntax_variables['markdown']
 
@@ -20,47 +18,20 @@ let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 let s:markdown_syntax.dTypeface = {}
 
 " text: **bold** or __bold__
-let s:markdown_syntax.dTypeface['bold'] = [
-      \ ['\S\@<=__\|__\S\@=', '\S\@<=__\|__\S\@='],
-      \ ['\S\@<=\*\*\|\*\*\S\@=', '\S\@<=\*\*\|\*\*\S\@='],
-      \ ]
+let s:markdown_syntax.dTypeface['bold'] = vimwiki#u#hi_expand_regex([
+      \ ['__', '__'], ['\*\*', '\*\*']])
 
 " text: *italic* or _italic_
-let s:markdown_syntax.dTypeface['italic'] = [
-      \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
-      \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
-      \ ]
+let s:markdown_syntax.dTypeface['italic'] = vimwiki#u#hi_expand_regex([
+      \ ['\*', '\*'], ['_', '_']])
 
 " text: no underline defined
 let s:markdown_syntax.dTypeface['underline'] = []
 
 " text: *_bold italic_* or _*italic bold*_ or ___bi___ or ***bi***
-let s:markdown_syntax.dTypeface['bold_italic'] = [
-      \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
-      \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
-      \ ['\S\@<=\*\*\*\|\*\*\*\S\@=', '\S\@<=\*\*\*\|\*\*\*\S\@='],
-      \ ['\S\@<=___\|___\S\@=', '\S\@<=___\|___\S\@='],
-      \ ]
+let s:markdown_syntax.dTypeface['bold_italic'] = vimwiki#u#hi_expand_regex([
+      \ ['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']])
 
-" text: $ equation_inline $
-let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
-let s:markdown_syntax.char_eqin = '\$'
-
-" text: `code`
-let s:markdown_syntax.rxCode = '`[^`]\+`'
-let s:markdown_syntax.char_code = '`'
-
-" text: ~~deleted text~~
-let s:markdown_syntax.rxDelText = '\~\~[^~`]\+\~\~'
-let s:markdown_syntax.char_deltext = '\~\~'
-
-" text: ^superscript^
-let s:markdown_syntax.rxSuperScript = '\^[^^`]\+\^'
-let s:markdown_syntax.char_superscript = '^'
-
-" text: ,,subscript,,
-let s:markdown_syntax.rxSubScript = ',,[^,`]\+,,'
-let s:markdown_syntax.char_subscript = ',,'
 
 " generic headers
 let s:markdown_syntax.rxH = '#'

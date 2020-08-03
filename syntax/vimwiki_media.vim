@@ -30,26 +30,6 @@ let s:media_syntax.dTypeface['bold_italic'] = [
       \ ]
 
 
-" text: $ equation_inline $
-let s:media_syntax.rxEqIn = '\$[^$`]\+\$'
-let s:media_syntax.char_eqin = '\$'
-
-" text: `code`
-let s:media_syntax.rxCode = '`[^`]\+`'
-let s:media_syntax.char_code = '`'
-
-" text: ~~deleted text~~
-let s:media_syntax.rxDelText = '\~\~[^~]\+\~\~'
-let s:media_syntax.char_deltext = '\~\~'
-
-" text: ^superscript^
-let s:media_syntax.rxSuperScript = '\^[^^]\+\^'
-let s:media_syntax.char_superscript = '^'
-
-" text: ,,subscript,,
-let s:media_syntax.rxSubScript = ',,[^,]\+,,'
-let s:media_syntax.char_subscript = ',,'
-
 " generic headers
 let s:media_syntax.rxH = '='
 let s:media_syntax.symH = 1
