@@ -692,16 +692,28 @@ endfunction
 " Called: normalize and unnormalize anchor
 function! s:get_punctuaction_regex() abort
   " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
-  return '[^0-9a-zA-Z\u4e00-\u9fff_ \-]'
+  if v:version <= 703
+    " Retrocompatibility: Get invalid range for vim 7.03
+    return '[^0-9a-zA-Z_ \-]'
+  else
+    return '[^0-9a-zA-Z\u4e00-\u9fff_ \-]'
+  endif
 endfunction
 
 
 " :param: anchor <string> <= Heading line
+" :param: (1) previous_anchors <dic[IN/OUT]> of previous normalized anchor
+" -- to know if must append -2, updated on the fly
 " Return: anchor <string> => link in TOC
-function! s:normalize_anchor(anchor) abort
+function! s:normalize_anchor(anchor, ...) abort
   " Note: See unormalize
   " 0 Get in
   let anchor = a:anchor
+  if a:0
+    let previous_anchors = a:1
+  else
+    let previous_anchors = {}
+  endif
 
   " A Trim space
   let anchor = vimwiki#u#trim(anchor)
@@ -717,14 +729,25 @@ function! s:normalize_anchor(anchor) abort
   " 3 Change any space to a hyphen
   let anchor = substitute(anchor, ' ', '-', 'g')
 
-  " 4.2 TODO anchor: If that is not unique, add '-1', '-2', '-3',... to make it unique
+  " 4 Append '-1', '-2', '-3',... to make it unique <= If that not unique
+  if has_key(previous_anchors, anchor)
+    " Inc anchor number (before modifing the anchor)
+    let anchor_nb = previous_anchors[anchor] + 1
+    let previous_anchors[anchor] = anchor_nb
+    " Append suffix
+    let anchor .= '-' . string(anchor_nb)
+  else
+    " Save anchor in dic
+    let previous_anchors[anchor] = 1
+  endif
 
   return anchor
 endfunction
 
 
 " :param: anchor <string> <= link
-" Return: anchor <regex> to look for
+" Return: [anchor_re <regex>, anchor_nb <number>] to look for
+" -- Ex: ['toto", 2] => search for the second occurrence of toto
 function! s:unnormalize_anchor(anchor) abort
   " Note:
   " -- Pandoc keep the '_' in anchor
@@ -736,26 +759,32 @@ function! s:unnormalize_anchor(anchor) abort
 
   " 4 Add '-1', '-2', '-3',... to make it unique if not unique
   " -- Save the trailing -12
-  let sufix = substitute(anchor, '^.*-\(\d\+\)$', '\1', '')
-  if sufix !=# ''
-    let sufix = '[ \-]' . sufix
+  let anchor_nb = substitute(anchor, '^.*-\(\d\+\)$', '\1', '')
+  if anchor_nb ==# '' || anchor_nb == 0
+    " No Sufix: number = 1
+    let sufix = ''
+    let anchor_nb = 1
+  else
+    " Yes Sufix: number <- read suffix
+    let sufix = '[ \-]' . anchor_nb
+    let anchor_nb = str2nr(anchor_nb)
   endif
   " -- Remove it
   let anchor = substitute(anchor, '\(-\d\+\)$', '', '')
 
   " For each char
-  let anchor_r = ''
+  let anchor_loop = ''
   for char in split(anchor, '\zs')
     " 3 Change any space to a hyphen
     if char ==# '-'
-      let anchor_r .=  '[ \-]'
+      let anchor_loop .=  '[ \-]'
     " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
     " -- So add puncutation regex at each char
     else
-      let anchor_r .= char . punctuation_rx
+      let anchor_loop .= char . punctuation_rx
     endif
   endfor
-  let anchor = punctuation_rx . anchor_r
+  let anchor = punctuation_rx . anchor_loop
 
   " 1 Downcase the string
   let anchor = '\c' . anchor
@@ -763,7 +792,7 @@ function! s:unnormalize_anchor(anchor) abort
   " 4.bis Add the optional suffix
   let anchor = anchor . '\(' . sufix . '\)\?'
 
-  return anchor
+  return [anchor, anchor_nb]
 endfunction
 
 
@@ -771,32 +800,60 @@ endfunction
 " Called: edit_file
 " TODO treat the sufix: -2 -> Go to second anchor
 function! s:jump_to_anchor(anchor) abort
+  " Save cursor %% Initialize at top of line
   let oldpos = getpos('.')
   call cursor(1, 1)
 
+  " Get segments <= anchor
   let anchor = vimwiki#u#escape(a:anchor)
-
   let segments = split(anchor, '#', 0)
 
+  " For markdown: there is only one segment
   for segment in segments
     " Craft segment pattern so that it is case insensitive and also matches dashes
     " in anchor link with spaces in heading
-    let segment = s:unnormalize_anchor(segment)
+    let [segment_re, segment_nb] = s:unnormalize_anchor(segment)
 
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
-          \ '__Header__', segment, '')
+          \ '__Header__', segment_re, '')
     let anchor_bold = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('bold_match'),
-          \ '__Text__', segment, '')
+          \ '__Text__', segment_re, '')
     let anchor_tag = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('tag_match'),
-          \ '__Tag__', segment, '')
+          \ '__Tag__', segment_re, '')
 
-    if !search(anchor_tag, 'Wc') && !search(anchor_header, 'Wc') && !search(anchor_bold, 'Wc')
-      call setpos('.', oldpos)
+    " Go: Move cursor: maybe more than onces (see markdown suffix)
+    let success_nb = 0
+    let fail = 0
+    for i in range(segment_nb)
+      " Search
+      let pos = 0
+      let pos = pos != 0 ? pos : search(anchor_tag, 'Wc')
+      let pos = pos != 0 ? pos : search(anchor_header, 'Wc')
+      let pos = pos != 0 ? pos : search(anchor_bold, 'Wc')
+
+      " Get the result and reloop or leave
+      if pos != 0
+        " Avance, one line more to not rematch the same pattern if not last segment_nb
+        if success_nb < segment_nb-1 | let pos += 1 | endif
+        call cursor(pos, 1)
+        let success_nb += 1
+      else
+        " Next segment (default syntax)
+        call setpos('.', oldpos)
+        let fail = 1
+        break
+      endif
+    endfor
+
+    " Check if happy
+    if success_nb == segment_nb || fail == 1
       break
     endif
+
+    " Or keep on (i.e more than once segment)
     let oldpos = getpos('.')
   endfor
 endfunction
@@ -2296,6 +2353,8 @@ function! vimwiki#base#table_of_contents(create) abort
     let startindent = repeat(' ', vimwiki#lst#get_list_margin())
     let indentstring = repeat(' ', vimwiki#u#sw())
     let bullet = vimwiki#lst#default_symbol().' '
+    " Keep previous anchor => if redundant => add suffix -2
+    let previous_anchors = {}
     for [lvl, anchor, desc] in complete_header_infos
       if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
         let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
@@ -2306,7 +2365,7 @@ function! vimwiki#base#table_of_contents(create) abort
       endif
 
       " Normalize anchor
-      let anchor = s:normalize_anchor(anchor)
+      let anchor = s:normalize_anchor(anchor, previous_anchors)
 
       " Insert link in template
       let link = s:safesubstitute(link_tpl, '__LinkUrl__',
