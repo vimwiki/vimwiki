@@ -339,6 +339,7 @@ let s:syntax_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:syntax_dic)
 
 hi def link VimwikiMarkers Normal
+hi def link VimwikiError Normal
 
 hi def link VimwikiEqIn Number
 hi def link VimwikiEqInT VimwikiEqIn

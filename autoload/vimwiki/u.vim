@@ -292,4 +292,8 @@ function! vimwiki#u#hi_typeface(dic) abort
     " -- Italic 3
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiItalicBoldUnderline', '', 2)
   endfor
+
+  " Prevent var_with_underscore to trigger italic text
+  " -- See $VIMRUNTIME/syntax/markdown.vim
+  syn match VimwikiError "\w\@<=_\w\@="
 endfunction

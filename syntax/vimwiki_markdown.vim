@@ -42,7 +42,6 @@ let s:markdown_syntax.dTypeface['bold_italic'] = [
       \ ['\S\@<=___\|___\S\@=', '\S\@<=___\|___\S\@='],
       \ ]
 
-
 " text: $ equation_inline $
 let s:markdown_syntax.rxEqIn = '\$[^$`]\+\$'
 let s:markdown_syntax.char_eqin = '\$'
