@@ -2788,10 +2788,10 @@ The format of the links in the Table of Contents (see |vimwiki-toc|).
 
 
 Value           Description~
-0               Extended: The link contains the description and URL. URL
-                references all levels.
-1               Brief: The link contains only the URL. URL references only
+0               Brief: The link contains only the URL. URL references only
                 the immediate level.
+1               Extended: The link contains the description and URL. URL
+                references all levels.
 
 Default: 0
 
@@ -3718,19 +3718,27 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
     * PR #967: Add multiline comment support via %%+ and +%%
-    * Issue #942: Fixing wrong html link conversion in windows
     * PR #946: Add option |g:vimwiki_commentstring| to customize commentstring
     * Issue #940: Render table header inside thead element and rest under
       tbody element if table header specified in wiki
     * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
-    * PR #919: Fix duplicate helptag
     * PR #907: Cycle bullets
-    * PR #900: conceallevel is now setted locally for vimwiki buffers
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
-    * PR #959: Fix :VimwikiNextTask
-    * PR #963: Replace VimwikiListChangeLevel references in doc with
+
+Changed:~
+    * |g:vimwiki_toc_link_format| == 0 (default) means old behavior: short links
+
+Removed:~
+
+Fixed:~
+    * PR #963: Doc: Replace VimwikiListChangeLevel references in doc with
       VimwikiListChangeLvl as defined by command
+    * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * Issue #942: Fixing wrong html link conversion in windows
+    * PR #919: Fix duplicate helptag
+    * PR #959: Fix :VimwikiNextTask
+
 
 2.5 (2020-05-26)~
 

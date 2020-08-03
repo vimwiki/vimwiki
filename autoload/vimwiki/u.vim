@@ -61,7 +61,6 @@ function! vimwiki#u#count_exe(cmd) abort
 endfunction
 
 
-" Trim spaces: leading and trailing
 function! vimwiki#u#sort_len(list) abort
   function! s:len_compare(s1, s2) abort
     let i1 = len(a:s1)
@@ -72,6 +71,9 @@ function! vimwiki#u#sort_len(list) abort
 endfunction
 
 
+" Trim spaces: leading and trailing
+" :param: string in
+" :param: (1) <string> optional list of character to trim
 function! vimwiki#u#trim(string, ...) abort
   let chars = ''
   if a:0 > 0

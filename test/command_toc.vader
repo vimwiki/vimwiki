@@ -1,8 +1,51 @@
-# VimwikiTOC
+# VimwikiTOC {{{1
 #
 # TODO (10min) test if g:vimwiki_to_header well readen
 # TODO (10min) test vimviki_toc_link_format
 # TODO (1h) test if really wiki dependant (for 2 diffrent wikis)
+#
+# Doc: from #664:
+# -- 1. It downcases the string => OK: from previous big collection
+# -- 2. remove anything that is not a letter, number, space or hyphen (see the source for how Unicode is handled) => from 'bad characters'
+# -- 3. changes any space to a hyphen => OK: from previous big
+# -- 4. If that is not unique, add "-1", "-2", "-3",... to make it unique => TODO not implemented
+# 
+# Start {{{1
+
+" TODO
+"Given vimwiki (Two same heading {{{1):
+"  # One
+"  ## two
+"  ## Two
+"
+"Execute (Set syntax markdown && Set sw=8):
+"  call SetSyntax('markdown')
+"  set sw=8
+"  VimwikiTOC
+"
+"Expect (Suffix -1 and -2):
+"
+
+Given vimwiki (Heading with many bad caracters {{{1):
+  # One !@#@#(!%#&$^(!@
+  ## Two !!~!!:"@!>@!>?<
+
+Execute (Set syntax markdown && VimwikiTOC):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect (Bad characters are removed):
+  # Contents
+  
+  - [One !@#@#(!%#&$^(!@](#one-)
+          - [Two !!~!!:"@!>@!>?<](#two-)
+  
+  # One !@#@#(!%#&$^(!@
+  ## Two !!~!!:"@!>@!>?<
+
+
+# Large previous tests {{{1
 
 Execute (Reset TOC header to default):
   call vimwiki#vars#set_wikilocal('toc_header', 'Contents')
@@ -28,11 +71,11 @@ Execute (VimwikiTOC):
 Expect (With a TOC sw=8):
   # Contents
 
-  - [Header 1](#Header 1)
-          - [Header 1.1](#Header 1#Header 1.1)
-                  - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-                  - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+          - [Header 1.1](#header-11)
+                  - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+                  - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -51,11 +94,11 @@ Execute (Set sw=4  && VimwikiTOC):
 Expect (With a TOC sw=4):
   # Contents
 
-  - [Header 1](#Header 1)
-      - [Header 1.1](#Header 1#Header 1.1)
-          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -79,11 +122,11 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC):
   # Contents
 
-  - [Header 1](#Header 1)
-      - [Header 1.1](#Header 1#Header 1.1)
-          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -103,11 +146,11 @@ Execute (Let toc_header = Sommaire && VimwikiTOC):
 Expect (Append a Sommaire && Leave Contents alone):
   # Sommaire
 
-  - [Header 1](#Header 1)
-      - [Header 1.1](#Header 1#Header 1.1)
-          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -131,11 +174,11 @@ Execute (VimwikiTOC):
 Expect (Brand new TOC with sommaire):
   # Sommaire
 
-  - [Header 1](#Header 1)
-      - [Header 1.1](#Header 1#Header 1.1)
-          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -157,11 +200,11 @@ Execute (call vimwiki#vars#set_global('toc_header_level', 6):
 Expect (Content prepended):
   ###### Sommaire
 
-  - [Header 1](#Header 1)
-      - [Header 1.1](#Header 1#Header 1.1)
-          - [Header 1.1.1](#Header 1#Header 1.1#Header 1.1.1)
-  - [Header 2](#Header 2)
-          - [Header 2.1.1](#Header 2#Header 2.1.1)
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
 
   # Header 1
   random text
@@ -173,4 +216,4 @@ Expect (Content prepended):
   # Header 2
   ### Header 2.1.1
 
-" vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#
+" vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#

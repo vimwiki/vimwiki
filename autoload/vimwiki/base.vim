@@ -688,8 +688,88 @@ function! vimwiki#base#get_anchors(filename, syntax) abort
 endfunction
 
 
-" Jump to anchor
-" Called by edit_file
+" Helper to mutualize
+" Called: normalize and unnormalize anchor
+function! s:get_punctuaction_regex() abort
+  " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
+  return '[^0-9a-zA-Z\u4e00-\u9fff_ \-]'
+endfunction
+
+
+" :param: anchor <string> <= Heading line
+" Return: anchor <string> => link in TOC
+function! s:normalize_anchor(anchor) abort
+  " Note: See unormalize
+  " 0 Get in
+  let anchor = a:anchor
+
+  " A Trim space
+  let anchor = vimwiki#u#trim(anchor)
+
+  " 1 Downcase the string
+  let anchor = tolower(anchor)
+
+  " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
+  " TODO mutualize punctuation_rx with above
+  let punctuation_rx = s:get_punctuaction_regex()
+  let anchor = substitute(anchor, punctuation_rx, '', 'g')
+
+  " 3 Change any space to a hyphen
+  let anchor = substitute(anchor, ' ', '-', 'g')
+
+  " 4.2 TODO anchor: If that is not unique, add '-1', '-2', '-3',... to make it unique
+
+  return anchor
+endfunction
+
+
+" :param: anchor <string> <= link
+" Return: anchor <regex> to look for
+function! s:unnormalize_anchor(anchor) abort
+  " Note:
+  " -- Pandoc keep the '_' in anchor
+  " -- Done after: Add spaces leading and trailing => Later with the template
+  " Link: Inspired from https://gist.github.com/asabaylus/3071099
+  " Issue: #664 => Points to all others
+  let anchor = a:anchor
+  let punctuation_rx = s:get_punctuaction_regex() . '*'
+
+  " 4 Add '-1', '-2', '-3',... to make it unique if not unique
+  " -- Save the trailing -12
+  let sufix = substitute(anchor, '^.*-\(\d\+\)$', '\1', '')
+  if sufix !=# ''
+    let sufix = '[ \-]' . sufix
+  endif
+  " -- Remove it
+  let anchor = substitute(anchor, '\(-\d\+\)$', '', '')
+
+  " For each char
+  let anchor_r = ''
+  for char in split(anchor, '\zs')
+    " 3 Change any space to a hyphen
+    if char ==# '-'
+      let anchor_r .=  '[ \-]'
+    " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
+    " -- So add puncutation regex at each char
+    else
+      let anchor_r .= char . punctuation_rx
+    endif
+  endfor
+  let anchor = punctuation_rx . anchor_r
+
+  " 1 Downcase the string
+  let anchor = '\c' . anchor
+
+  " 4.bis Add the optional suffix
+  let anchor = anchor . '\(' . sufix . '\)\?'
+
+  return anchor
+endfunction
+
+
+" Jump to anchor, doing the oposite of normalize_anchor
+" Called: edit_file
+" TODO treat the sufix: -2 -> Go to second anchor
 function! s:jump_to_anchor(anchor) abort
   let oldpos = getpos('.')
   call cursor(1, 1)
@@ -699,13 +779,9 @@ function! s:jump_to_anchor(anchor) abort
   let segments = split(anchor, '#', 0)
 
   for segment in segments
-
     " Craft segment pattern so that it is case insensitive and also matches dashes
     " in anchor link with spaces in heading
-    " Ignore case
-    let segment = substitute(segment, '\<\(.\)', '\\c\1', 'g')
-    " Treat - as [- or space]
-    let segment = substitute(segment , '-', '[ -]', 'g')
+    let segment = s:unnormalize_anchor(segment)
 
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
@@ -2184,13 +2260,15 @@ function! vimwiki#base#table_of_contents(create) abort
   " copy all local variables into dict (add a: if arguments are needed)
   let GeneratorTOC = copy(l:)
   function! GeneratorTOC.f() abort
+    " Gather heading informations
     let numbering = vimwiki#vars#get_global('html_header_numbering')
+    " TODO numbering not used !
     let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
     let complete_header_infos = []
     for header in self.headers
       let h_text = header[2]
       let h_level = header[1]
-      " don't include the TOC's header itself
+      " Don't include the TOC's header itself
       if h_text ==# self.toc_header_text
         continue
       endif
@@ -2198,7 +2276,9 @@ function! vimwiki#base#table_of_contents(create) abort
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
       let h_complete_id = ''
-      if vimwiki#vars#get_wikilocal('toc_link_format') == 0
+
+      " Add description to the link if toc_link_format == 1 => extended
+      if vimwiki#vars#get_wikilocal('toc_link_format') == 1
         for l in range(h_level-1)
           if headers_levels[l][0] !=? ''
             let h_complete_id .= headers_levels[l][0].'#'
@@ -2210,20 +2290,27 @@ function! vimwiki#base#table_of_contents(create) abort
       call add(complete_header_infos, [h_level, h_complete_id, h_text])
     endfor
 
+    " Insert the information in the Link Template
+    " -- and create line list
     let lines = []
     let startindent = repeat(' ', vimwiki#lst#get_list_margin())
     let indentstring = repeat(' ', vimwiki#u#sw())
     let bullet = vimwiki#lst#default_symbol().' '
-    for [lvl, link, desc] in complete_header_infos
+    for [lvl, anchor, desc] in complete_header_infos
       if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
         let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
-      elseif vimwiki#vars#get_wikilocal('toc_link_format') == 0
+      elseif vimwiki#vars#get_wikilocal('toc_link_format') == 1
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
       else
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
       endif
+
+      " Normalize anchor
+      let anchor = s:normalize_anchor(anchor)
+
+      " Insert link in template
       let link = s:safesubstitute(link_tpl, '__LinkUrl__',
-            \ '#'.link, '')
+            \ '#'.anchor, '')
       let link = s:safesubstitute(link, '__LinkDescription__', desc, '')
       call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
     endfor
