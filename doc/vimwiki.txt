@@ -3717,11 +3717,21 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #847 #640: Feature: Markdown anchor
+      normalize and unormalize: better follow_link and |VimwikiTOC|
+    * Commit 5408d74b3: Syntax: Html support nested, concealable tag
+      and faster start syntax region for typeface
+    * Issue #926: Feature: VimwikiRenameFile 1/ to other dir
+      2/ take argument (completable)
+    * Test: travis run vint in an parallel jobs => faster
+    * Issue #915: Feature: blockquote (`> `) better joining (`J`) and wrap
+    * Issue #913: Allow |VimwikiGoto| completion after <CR>
     * PR #967: Add multiline comment support via %%+ and +%%
     * PR #946: Add option |g:vimwiki_commentstring| to customize commentstring
     * Issue #940: Render table header inside thead element and rest under
       tbody element if table header specified in wiki
     * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
+    * PR #906: Add |VimwikiRemoveDone| to remove all todo items that are done
     * PR #907: Cycle bullets
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
@@ -3732,6 +3742,12 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #847 #640: Refactor: Syntax highlighting typeface: match -> region
+    * Issue #891: Fix: Table Pressing <Enter> autosets tw <- 0
+    * Issue #894: Make all appropriate settings wikilocal (many commits)
+    * PR #902: Doc: Darken logo text
+    * PR #895: Fix: File extension for markdown -> syntax wide
+      __FileExtention__ keyword appears
     * PR #963: Doc: Replace VimwikiListChangeLevel references in doc with
       VimwikiListChangeLvl as defined by command
     * PR #900: conceallevel is now setted locally for vimwiki buffers
