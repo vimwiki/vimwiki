@@ -10,7 +10,7 @@
 # -- 2. remove anything that is not a letter, number, space or hyphen (see the source for how Unicode is handled) => from 'bad characters'
 # -- 3. changes any space to a hyphen => OK: from previous big
 # -- 4. If that is not unique, add "-1", "-2", "-3",... to make it unique => TODO not implemented
-# 
+#
 #
 # TODO if link in heading
 #Given vimwiki (Two same heading {{{1):
@@ -27,6 +27,60 @@
 #
 #
 # Start {{{1
+
+
+Given vimwiki (Underline header (SetExt) (#209) {{{1):
+  First with spaces
+  =====
+
+  toto
+
+  Second
+  -------
+  toto
+
+  Third
+  -----
+  toto
+
+  Four
+  =====
+  toto
+  Last
+  ----
+
+Execute (Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect (Heading SetExt created):
+  # Contents
+
+  - [First with spaces](#first-with-spaces)
+          - [Second](#second)
+          - [Third](#third)
+  - [Four](#four)
+          - [Last](#last)
+
+  First with spaces
+  =====
+
+  toto
+
+  Second
+  -------
+  toto
+
+  Third
+  -----
+  toto
+
+  Four
+  =====
+  toto
+  Last
+  ----
 
 
 
@@ -69,10 +123,10 @@ Execute (Set syntax markdown && VimwikiTOC):
 
 Expect (Bad characters are removed):
   # Contents
-  
+
   - [One !@#@#(!%#&$^(!@](#one-)
           - [Two !!~!!:"@!>@!>?<](#two-)
-  
+
   # One !@#@#(!%#&$^(!@
   ## Two !!~!!:"@!>@!>?<
 

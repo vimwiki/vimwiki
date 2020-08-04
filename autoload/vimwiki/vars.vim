@@ -638,6 +638,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
   else
     " asymmetric
+    " Note: For markdown rxH=# and asymetric
     for i in range(1,6)
       let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__'
@@ -650,8 +651,11 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
       let syntax_dic['rxH'.i.'_End'] =
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
     endfor
-    let syntax_dic.rxHeader =
-          \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
+    " Define header regex
+    " -- ATX heading := preceed by #*
+    let atx_heading = '^\s*\%('.header_symbol.'\{1,6}\)'
+    let atx_heading .= '\zs[^'.header_symbol.'].*\ze$'
+    let syntax_dic.rxHeader = atx_heading
   endif
 
   let syntax_dic.rxPreStart =

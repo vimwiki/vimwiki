@@ -3717,6 +3717,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+
+    * Issue #209: Feature: Markdown: Support SetExt Heading
     * Issue #847 #640: Feature: Markdown anchor
       normalize and unormalize: better follow_link and |VimwikiTOC|
     * Commit 5408d74b3: Syntax: Html support nested, concealable tag

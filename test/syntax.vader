@@ -328,6 +328,20 @@ Execute (Assert Syntax link):
 
 # 3 Header {{{1
 ###############
+Given vimwiki (Markdown SetExt Headers):
+  One
+  ===
+  two
+  ---
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax Header SetExt):
+  AssertEqual 'VimwikiHeader1', SyntaxAt(1, 1)
+  AssertEqual 'VimwikiHeader1', SyntaxAt(2, 1)
+  AssertEqual 'VimwikiHeader2', SyntaxAt(3, 1)
+  AssertEqual 'VimwikiHeader2', SyntaxAt(4, 1)
 
 Given vimwiki (Wiki Headers):
   = Header level 1 =

@@ -63,8 +63,25 @@ let s:markdown_syntax.rxMultilineCommentEnd = ''
 let s:markdown_syntax.rxComment = '^\s*%%.*$\|<!--[^>]*-->'
 let s:markdown_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
 
-let s:markdown_syntax.header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
-let s:markdown_syntax.header_match = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+
+" Used in code (base.vim)
+"""""""""""""""""""""""""
+
+" Header
+" TODO mutualise with rxHeader in vars.vim := Define atx_regex only onces
+" TODO regex_or function  => (1|2)
+let atx_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
+let atx_header_match  = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+
+let setex_header_search = '^\s\{0,3}\zs[^>].*\ze\n'
+let setex_header_search .= '^\s\{0,3}[=-]\{2,}$'
+
+let setex_header_match = '^\s\{0,3}>\@!__Header__\n'
+let setex_header_match .= '^\s\{0,3}[=-][=-]\+$'
+
+let s:markdown_syntax.header_search = '\%(' . atx_header_search . '\|' . setex_header_search . '\)'
+let s:markdown_syntax.header_match = '\%(' . atx_header_match . '\|' . setex_header_match . '\)'
+
 let s:markdown_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs'.
       \ '\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='
 let s:markdown_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.

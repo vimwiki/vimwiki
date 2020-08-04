@@ -1,8 +1,58 @@
 # Link internal to a file
 # See issue #666 for anchor support (then internal links)
+# Preambule set file onces and for all {{{1
+# Otherwise the bash script is freezing
+Given vimwiki (a):
+  a
 
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
 
-# Link to anchor with spaces {{{!
+Expect (a):
+  a
+
+# Link to anchor in SetExt {{{1
+# Like that
+# -----
+# Issue: #209
+
+Given vimwiki (Anchor SetExt):
+  [jump](#frst-one)
+
+  F!rst    One
+  =========
+
+Execute (Set filename wiki_test.md):
+  call SetSyntax('markdown')
+
+Do (Enter link):
+  \<Cr>
+  A__HERE__\<Esc>
+
+Expect (Cursor jumped SetExt):
+  [jump](#frst-one)
+
+  F!rst    One__HERE__
+  =========
+
+Given vimwiki (Bad Anchor SetExt):
+  [jump](#frst-one)
+
+  F!rst    One
+
+Execute (Set filename wiki_test.md):
+  call SetSyntax('markdown')
+
+Do (Enter link):
+  \<Cr>
+  A__HERE__\<Esc>
+
+Expect (Cursor stayed (not jumped) SetExt):
+  [jump](#frst-one)__HERE__
+
+  F!rst    One
+
+# Link to anchor with spaces {{{1
 # PR #840
 # Issues: #831
 
@@ -10,12 +60,11 @@ Given vimwiki (Internal links zith spaces):
   [Any ! apparent name @#$](#basic-heading-many-spaces)
   One line here
 
-  ## Basic HeAding Many SpacES
+  ##    Basic  HeAding Many   SpacES
 
   One line here
 
 Execute (Set filename wiki_test.md):
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Do (Enter link):
@@ -26,7 +75,7 @@ Expect (Cursor at heading position):
   [Any ! apparent name @#$](#basic-heading-many-spaces)
   One line here
 
-  ## Basic HeAding Many SpacES__HERE__
+  ##    Basic  HeAding Many   SpacES__HERE__
 
   One line here
 

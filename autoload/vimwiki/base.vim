@@ -727,7 +727,7 @@ function! s:normalize_anchor(anchor, ...) abort
   let anchor = substitute(anchor, punctuation_rx, '', 'g')
 
   " 3 Change any space to a hyphen
-  let anchor = substitute(anchor, ' ', '-', 'g')
+  let anchor = substitute(anchor, ' \+', '-', 'g')
 
   " 4 Append '-1', '-2', '-3',... to make it unique <= If that not unique
   if has_key(previous_anchors, anchor)
@@ -777,7 +777,7 @@ function! s:unnormalize_anchor(anchor) abort
   for char in split(anchor, '\zs')
     " 3 Change any space to a hyphen
     if char ==# '-'
-      let anchor_loop .=  '[ \-]'
+      let anchor_loop .=  '[ \-]\+'
     " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
     " -- So add puncutation regex at each char
     else
@@ -816,13 +816,13 @@ function! s:jump_to_anchor(anchor) abort
 
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
-          \ '__Header__', segment_re, '')
+          \ '__Header__', segment_re, 'g')
     let anchor_bold = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('bold_match'),
-          \ '__Text__', segment_re, '')
+          \ '__Text__', segment_re, 'g')
     let anchor_tag = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('tag_match'),
-          \ '__Tag__', segment_re, '')
+          \ '__Tag__', segment_re, 'g')
 
     " Go: Move cursor: maybe more than onces (see markdown suffix)
     let success_nb = 0
@@ -840,7 +840,10 @@ function! s:jump_to_anchor(anchor) abort
         if success_nb < segment_nb-1 | let pos += 1 | endif
         call cursor(pos, 1)
         let success_nb += 1
-      else
+      " Do not move
+      " But maybe suffix -2 is not the segment number but the real header suffix
+      " TODO make this more robust
+      elseif i == 0
         " Next segment (default syntax)
         call setpos('.', oldpos)
         let fail = 1
@@ -1048,6 +1051,8 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
       call vimwiki#u#ft_set()
     endif
   endif
+
+  " Goto anchor
   if a:anchor !=? ''
     call s:jump_to_anchor(a:anchor)
   endif
@@ -2154,8 +2159,12 @@ endfunction
 " Returns: all the headers in the current buffer as a list of the form
 " [[line_number, header_level, header_text], [...], [...], ...]
 function! s:collect_headers() abort
+  " Init loop variables
   let is_inside_pre_or_math = 0  " 1: inside pre, 2: inside math, 0: outside
   let headers = []
+  let rxHeader = vimwiki#vars#get_syntaxlocal('rxHeader')
+
+  " For all lines in file
   for lnum in range(1, line('$'))
     let line_content = getline(lnum)
     if (is_inside_pre_or_math == 1 && line_content =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')) ||
@@ -2174,17 +2183,31 @@ function! s:collect_headers() abort
       let is_inside_pre_or_math = 2
       continue
     endif
-    if line_content !~# vimwiki#vars#get_syntaxlocal('rxHeader')
-      continue
-    endif
-    if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-      if stridx(line_content, vimwiki#vars#get_syntaxlocal('rxH')) > 0
-        continue  " markdown headers must start in the first column
+
+    " Check SetExt Header
+    " TODO mutualise SetExt line (for consistency)
+    " TODO replace regex with =\+ or -\+
+    if line_content =~# '\s\{0,3}[=-][=-]\+$'
+      let header_level = stridx(line_content, '=') != -1 ? 1 : 2
+      let header_text = getline(lnum-1)
+    " Maybe ATX header
+    else
+      " Clause: Must match rxHeader
+      if line_content !~# rxHeader
+        continue
       endif
+      " Clause: markdown headers must start in the first column
+      if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+            \ && stridx(line_content, vimwiki#vars#get_syntaxlocal('rxH')) > 0
+        continue
+      endif
+      " Get header level && text
+      let header_level = vimwiki#u#count_first_sym(line_content)
+      let header_text = matchstr(line_content, rxHeader)
     endif
-    let header_level = vimwiki#u#count_first_sym(line_content)
-    let header_text =
-          \ vimwiki#u#trim(matchstr(line_content, vimwiki#vars#get_syntaxlocal('rxHeader')))
+
+    " Clean && Append to res
+    let header_text = vimwiki#u#trim(header_text)
     call add(headers, [lnum, header_level, header_text])
   endfor
 
@@ -2294,6 +2317,7 @@ endfunction
 " a:create == 1: creates or updates TOC in current file
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create) abort
+  " Collect headers
   let headers = s:collect_headers()
   let toc_header_text = vimwiki#vars#get_wikilocal('toc_header')
 

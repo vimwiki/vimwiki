@@ -186,6 +186,18 @@ for s:i in range(1,6)
         \ '/me=s-1 transparent fold'
 endfor
 
+" SetExt header
+" TODO mutualise SetExt Regexp
+let setex_header1_re = '^\s\{0,3}[^>].*\n\s\{0,3}==\+$'
+let setex_header2_re = '^\s\{0,3}[^>].*\n\s\{0,3}--\+$'
+execute 'syntax match VimwikiHeader1'
+    \ . ' /'. setex_header1_re . '/ '
+    \ 'contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
+    \ 'VimwikiLink,@Spell'
+execute 'syntax match VimwikiHeader2'
+    \ . ' /'. setex_header2_re . '/ ' .
+    \ 'contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
+    \ 'VimwikiLink,@Spell'
 
 
 let s:options = ' contained transparent contains=NONE'
