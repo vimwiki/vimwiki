@@ -2482,7 +2482,7 @@ function! vimwiki#base#is_diary_file(filename, ...) abort
   let l:normalised_file_paths =
         \ map(l:diary_file_paths, 'vimwiki#path#normalize(v:val)')
   let l:matching_files =
-        \ filter(l:normalised_file_paths, 'v:val =~# a:filename')
+        \ filter(l:normalised_file_paths, "v:val ==# '" . a:filename . "'" )
   return len(l:matching_files) > 0 " filename is a diary file if match is found
 endfunction
 
