@@ -14,30 +14,25 @@ let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 
 
-" Typeface:
-let s:markdown_syntax.dTypeface = {}
-
 " text: **bold** or __bold__
-let s:markdown_syntax.dTypeface['bold'] = vimwiki#u#hi_expand_regex([
+let s:markdown_syntax.dTypeface.bold = vimwiki#u#hi_expand_regex([
       \ ['__', '__'], ['\*\*', '\*\*']])
 
 " text: *italic* or _italic_
-let s:markdown_syntax.dTypeface['italic'] = vimwiki#u#hi_expand_regex([
+let s:markdown_syntax.dTypeface.italic = vimwiki#u#hi_expand_regex([
       \ ['\*', '\*'], ['_', '_']])
 
 " text: no underline defined
-let s:markdown_syntax.dTypeface['underline'] = []
+let s:markdown_syntax.dTypeface.underline = []
 
 " text: *_bold italic_* or _*italic bold*_ or ___bi___ or ***bi***
-let s:markdown_syntax.dTypeface['bold_italic'] = vimwiki#u#hi_expand_regex([
+let s:markdown_syntax.dTypeface.bold_italic = vimwiki#u#hi_expand_regex([
       \ ['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']])
 
 
 " generic headers
 let s:markdown_syntax.rxH = '#'
 let s:markdown_syntax.symH = 0
-
-
 
 " <hr>, horizontal rule
 let s:markdown_syntax.rxHR = '\(^---*$\|^___*$\|^\*\*\**$\)'

@@ -598,84 +598,59 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   let g:vimwiki_syntax_variables[a:syntax] = {}
   let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
 
+  " Init Typeface (filled in custom syntax)
+  let syntax_dic.dTypeface = {}
+
   " Autoload default syntax file
   execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
-
-  " text: `code` or ``code`` only inline
-  " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
-  let syntax_dic.dTypeface['code'] = [
-        \ ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
-        \  '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
-        \ ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
-        \  '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
-        \ ]
-
-  " text: ~~deleted text~~
-  let syntax_dic.dTypeface['del'] = ([
-        \ ['\~\~', '\~\~']])
-
-  " text: $ equation_inline $
-  " Match only one $
-  " ( ^ or not $) before $ and after: not $
-  let syntax_dic.dTypeface['eq'] = ([
-        \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
-        \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
-
-  " text: ^superscript^
-  let syntax_dic.dTypeface['sup'] = ([
-        \ ['\^', '\^']])
-
-  " text: ,,subscript,,
-  let syntax_dic.dTypeface['sub'] = ([
-        \ [',,', ',,']])
 
 
   " TODO make that clean (i.e clearify what is local to syntax ot to buffer)
   " Get from local vars
   let bullet_types = vimwiki#vars#get_wikilocal('bullet_types')
   if !empty(bullet_types)
-    let g:vimwiki_syntax_variables[a:syntax]['bullet_types'] = bullet_types
+    let syntax_dic['bullet_types'] = bullet_types
   endif
-  let g:vimwiki_syntax_variables[a:syntax]['cycle_bullets'] =
+  let syntax_dic['cycle_bullets'] =
         \ vimwiki#vars#get_wikilocal('cycle_bullets')
 
   " Populate generic stuff
-  let header_symbol = g:vimwiki_syntax_variables[a:syntax].rxH
-  if g:vimwiki_syntax_variables[a:syntax].symH
+  let header_symbol = syntax_dic.rxH
+  if syntax_dic.symH
     " symmetric headers
     for i in range(1,6)
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] =
+      let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__ '.repeat(header_symbol, i)
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
+      let syntax_dic['rxH'.i] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
             \ .header_symbol.'\{'.i.'}\s*$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+      let syntax_dic['rxH'.i.'_Text'] =
             \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze'
             \ .header_symbol.'\{'.i.'}\s*$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
+      let syntax_dic['rxH'.i.'_Start'] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
             \ .header_symbol.'\{'.i.'}\s*$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] =
+      let syntax_dic['rxH'.i.'_End'] =
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
             \ .header_symbol.'\{1,'.i.'}\s*$'
     endfor
-    let g:vimwiki_syntax_variables[a:syntax].rxHeader =
+    let syntax_dic.rxHeader =
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
   else
     " asymmetric
     for i in range(1,6)
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Template'] =
+      let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i] =
+      let syntax_dic['rxH'.i] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Text'] =
+      let syntax_dic['rxH'.i.'_Text'] =
             \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*\ze$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_Start'] =
+      let syntax_dic['rxH'.i.'_Start'] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
-      let g:vimwiki_syntax_variables[a:syntax]['rxH'.i.'_End'] =
+      let syntax_dic['rxH'.i.'_End'] =
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
     endfor
-    let g:vimwiki_syntax_variables[a:syntax].rxHeader =
+    let syntax_dic.rxHeader =
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*\ze$'
   endif
 

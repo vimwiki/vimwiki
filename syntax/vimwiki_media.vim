@@ -9,8 +9,6 @@
 
 let s:media_syntax = g:vimwiki_syntax_variables['media']
 
-let s:media_syntax.dTypeface = {}
-
 " text: '''strong'''
 let s:media_syntax.dTypeface['bold'] = [
       \ ['\S\@<=''''''\|''''''\S\@=', '\S\@<=''''''\|''''''\S\@='],
@@ -33,7 +31,6 @@ let s:media_syntax.dTypeface['bold_italic'] = [
 " generic headers
 let s:media_syntax.rxH = '='
 let s:media_syntax.symH = 1
-
 
 
 " <hr>, horizontal rule

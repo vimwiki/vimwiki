@@ -15,24 +15,21 @@ let s:default_syntax = g:vimwiki_syntax_variables['default']
 let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 
-" Typeface:
-let s:default_syntax.dTypeface = {}
-
 " text: *strong*
-let s:default_syntax.dTypeface['bold'] = [
+let s:default_syntax.dTypeface.bold = [
       \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
       \ ]
 
 " text: _italic_
-let s:default_syntax.dTypeface['italic'] = [
+let s:default_syntax.dTypeface.italic = [
       \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
       \ ]
 
 " text: no underline defined
-let s:default_syntax.dTypeface['underline'] = []
+let s:default_syntax.dTypeface.underline = []
 
 " text: *_bold italic_* or _*italic bold*_
-let s:default_syntax.dTypeface['bold_italic'] = [
+let s:default_syntax.dTypeface.bold_italic = [
       \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
       \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
       \ ]

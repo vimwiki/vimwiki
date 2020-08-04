@@ -22,6 +22,36 @@ let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 " Include syntax/vimwiki_markdown.vim as "side effect"
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 
+let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
+
+" text: `code` or ``code`` only inline
+" Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
+let syntax_dic.dTypeface.code = [
+      \ ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+      \  '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
+      \ ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+      \  '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
+      \ ]
+
+" text: ~~deleted text~~
+let syntax_dic.dTypeface.del = ([
+      \ ['\~\~', '\~\~']])
+
+" text: $ equation_inline $
+" Match only one $
+" ( ^ or not $) before $ and after: not $
+let syntax_dic.dTypeface.eq = ([
+      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
+      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
+
+" text: ^superscript^
+let syntax_dic.dTypeface.sup = ([
+      \ ['\^', '\^']])
+
+" text: ,,subscript,,
+let syntax_dic.dTypeface.sub = ([
+      \ [',,', ',,']])
+
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
 function! s:add_target_syntax_ON(target, type) abort
@@ -87,9 +117,6 @@ function! s:highlight_existing_links() abort
   call s:add_target_syntax_ON(target, 'VimwikiLink')
 endfunction
 
-
-function! s:in_typeface(s_typeface_char)
-endfunction
 
 " use max highlighting - could be quite slow if there are too many wikifiles
 if vimwiki#vars#get_wikilocal('maxhi')
