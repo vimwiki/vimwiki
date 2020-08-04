@@ -436,8 +436,15 @@ function! vimwiki#base#generate_links(create, ...) abort
           let link_caption = link
         endif
 
+        " Replace Url, Description
         let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
         let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+
+        " Replace Extension
+        let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+        let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
+        let entry = substitute(entry, '__FileExtension__', extension, 'g')
+
         call add(lines, bullet. entry)
       endif
     endfor

@@ -219,6 +219,14 @@ function! vimwiki#u#ft_is_vw() abort
 endfunction
 
 
+" Helper: Getter
+" :param: syntax <string> to retrive, default to current
+function! vimwiki#u#get_syntax_dic(...) abort
+  let syntax = a:0 ? a:1 : vimwiki#vars#get_wikilocal('syntax')
+  return g:vimwiki_syntax_variables[syntax]
+endfunction
+
+
 " Helper: Expand regex from reduced typeface delimiters
 " :param: list<list,delimiters>> with reduced regex
 " Return: list with extended regex delimiters (not inside a word)
@@ -269,19 +277,19 @@ function! vimwiki#u#hi_typeface(dic) abort
   " Italic must go before, otherwise single * takes precedence over ** and ** is considered as
   " -- a void italic.
   " Note:
-  " -- The last syntax defined take precedence so that user can change at runtime (:h :syn-define)
-  " -- Some cases are contained by default:
-  " -- -- ex: VimwikiCodeBoldUnderline is not defined in colorschemes -> VimwikiCode
-  " -- -- see: #709 asking for concealing quotes in bold, so it must be higlighted differently
-  " -- -- -- for the user to understand what is concealed around
+  " The last syntax defined take precedence so that user can change at runtime (:h :syn-define)
+  " Some cases are contained by default:
+  " -- ex: VimwikiCodeBoldUnderline is not defined in colorschemes -> VimwikiCode
+  " -- see: #709 asking for concealing quotes in bold, so it must be higlighted differently
+  " -- -- for the user to understand what is concealed around
+  " VimwikiCheckBoxDone and VimwikiDelText are as their are even when nested in bold or italic
+  " -- This is because it would add a lot of code (as n**2) at startup and is not often used
+  " -- Here n=3 (bold, italic, underline)
   " Bold > Italic > Underline
 
-  " Declare nesting capabilities
-  " -- to be embeded in standard: bold, italic, underline
-  let nested = 'VimwikiCode,VimwikiEqIn,VimwikiDelText,VimwikiSuperScript,VimwikiSubScript'
-  " -- to be embeded in exetended (the one above)
-  let nested .= ',VimwikiBold,VimwikiItalic,VimwikiUmderline'
+  let nested = vimwiki#u#get_syntax_dic().nested
 
+  " Italic
   for i in a:dic['italic']
     "  -- Italic 1
     call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiItalic ', nested .',VimwikiItalicBold,VimwikiItalicUnderline')
@@ -295,6 +303,7 @@ function! vimwiki#u#hi_typeface(dic) abort
     call vimwiki#u#hi_tag(i[0], i[1], 'VimwikiUnderlineBoldItalic', nested, 2)
   endfor
 
+  " Bold
   for b in a:dic['bold']
     " -- Bold 1
     call vimwiki#u#hi_tag(b[0],b[1], 'VimwikiBold', nested . ',VimwikiBoldUnderline,VimwikiBoldItalic')
@@ -308,12 +317,14 @@ function! vimwiki#u#hi_typeface(dic) abort
     call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiUnderlineItalicBold', nested, 2)
   endfor
 
+  " Bold Italic
   if has_key(a:dic, 'bold_italic')
     for bi in a:dic['bold_italic']
       call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', nested . ',VimwikiBoldItalicUnderline')
     endfor
   endif
 
+  " Underline
   for u in a:dic['underline']
     " -- Underline 1
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiUnderline', nested . ',VimwikiUnderlineBold,VimwikiUnderlineItalic')
@@ -327,14 +338,15 @@ function! vimwiki#u#hi_typeface(dic) abort
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiItalicBoldUnderline', nested, 2)
   endfor
 
+  " Strikethrough
+  " Note: VimwikiBoldDelText Not Implemented (see above)
+  for u in a:dic['del']
+    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiDelText', nested)
+  endfor
+
   "" Code do not contain anything but can be contained very nested
   for u in a:dic['code']
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiCode', '')
-  endfor
-
-  " Deleted
-  for u in a:dic['del']
-    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiDelText', nested)
   endfor
 
   "" Equation

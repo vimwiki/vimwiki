@@ -21,8 +21,14 @@ let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 " Populate all syntax vars
 " Include syntax/vimwiki_markdown.vim as "side effect"
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
-
 let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
+
+" Declare nesting capabilities
+" -- to be embeded in standard: bold, italic, underline
+let syntax_dic.nested_extended = 'VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript'
+" -- to be embeded in exetended (the one above)
+let syntax_dic.nested_typeface = 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'
+let syntax_dic.nested = syntax_dic.nested_extended . ',' . syntax_dic.nested_typeface
 
 " text: `code` or ``code`` only inline
 " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
@@ -264,11 +270,13 @@ execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWitho
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
 
+" Task list done
 if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
         \ . vimwiki#vars#get_global('listsym_rejected')
-        \ . ']\]\s.*$/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+        \ . ']\]\s\(.*\)$/ '
+        \ . 'contains=' . syntax_dic.nested . ',VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 elseif vimwiki#vars#get_global('hl_cb_checked') == 2
   execute 'syntax match VimwikiCheckBoxDone /'
         \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
@@ -331,6 +339,9 @@ endif
 " Highlight Typefaces -> u.vim
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
+
+" Link highlighting groups
+""""""""""""""""""""""""""
 
 hi def link VimwikiMarkers Normal
 hi def link VimwikiError Normal

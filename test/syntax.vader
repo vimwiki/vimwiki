@@ -4,6 +4,45 @@
 # 1 Typeface {{{1
 #################
 
+# With vimwiki_hl_cb_checked {{{2
+
+Given vimwiki (task list with code):
+  Normal syntax
+  - [X] Lorem __sit__  `sed do eiusmod
+        tempor` incididunt ut labore et dolore magna aliqua
+  Normal syntax
+
+Execute (let g:vimwiki_hl_cb_checked = 1):
+  let g:vimwiki_hl_cb_checked = 1
+  unlet g:vimwiki_syntax_variables
+  call vimwiki#vars#init()
+  call SetSyntax('markdown')
+
+Execute (Assert Done Syntax 1):
+  AssertEqual ''                   , SyntaxAt(1, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(2, 7)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(3, 7)
+  AssertEqual ''                   , SyntaxAt(4, 7)
+
+Given vimwiki (task list with code):
+  Normal syntax
+  - [X] Lorem __sit__  `sed do eiusmod
+        tempor` incididunt ut labore et dolore magna aliqua
+  Normal syntax
+
+Execute (let g:vimwiki_hl_cb_checked = 2):
+  let g:vimwiki_hl_cb_checked = 2
+  unlet g:vimwiki_syntax_variables
+  call vimwiki#vars#init()
+  call SetSyntax('markdown')
+
+Execute (Assert Done Syntax 2):
+  AssertEqual ''                   , SyntaxAt(1, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(2, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(3, 7)
+  AssertEqual ''                   , SyntaxAt(4, 7)
+
+
 # Extended types {{{2
 
 Given vimwiki (Extended Types mono):
