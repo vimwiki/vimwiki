@@ -786,7 +786,8 @@ function! s:populate_list_vars(wiki) abort
   " the user can set the listsyms as string, but vimwiki needs a list
   let a:wiki.listsyms_list = split(a:wiki.listsyms, '\zs')
 
-  if match(a:wiki.listsyms, a:wiki.listsym_rejected) != -1
+  " Guard: Check if listym_rejected is in listsyms
+  if match(a:wiki.listsyms, '[' . a:wiki.listsym_rejected . ']') != -1
     echomsg 'Vimwiki Warning: the value of listsym_rejected ('''
           \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
           \ . a:wiki.listsyms . ''')'
