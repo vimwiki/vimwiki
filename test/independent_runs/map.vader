@@ -114,8 +114,10 @@ Do (,w,m -> open tomorrow [Assert]):
 Execute (===========================================================):
   Log "Checking local map"
 
+
 # 2.1 Heading {{{2
 ##############
+
 
 Do (,wn -> Create new wiki [Assert]):
   ,wn
@@ -292,6 +294,24 @@ Expect (Dec header level):
 
 # 2.2 List {{{2
 ##############
+
+
+
+Given vimwiki (Completion list #813 {{{3):
+  complete1
+  complete2
+  complete3
+
+Do (Insert a list item and complete):
+  Go
+  * comp\<C-n>\<Down>\<Cr>
+
+Expect (With a completion but no new item):
+  complete1
+  complete2
+  complete3
+  * complete2
+
 
 Given (Number list):
   1. I

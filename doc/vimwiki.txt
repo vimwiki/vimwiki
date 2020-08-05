@@ -3717,7 +3717,6 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-
     * Issue #209: Feature: Markdown: Support SetExt Heading
     * Issue #847 #640: Feature: Markdown anchor
       normalize and unormalize: better follow_link and |VimwikiTOC|
@@ -3744,6 +3743,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #813: iMap <Cr> interfere with completion (pum)
     * Issue #709: Support inline code spans inside emphasis
       Refactoring code, del, eq, sup, sub as regions
     * Issue #847 #640: Refactor: Syntax highlighting typeface: match -> region
