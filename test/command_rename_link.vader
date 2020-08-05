@@ -1,5 +1,6 @@
 # VimwikiRenameFile
 # Related to link, file navigation
+# Many commands are made with Do: They block with Execute
 
 
 # Create directories I remove at end {{{1
@@ -32,6 +33,15 @@ Execute (Create 3 files):
   edit $HOME/testmarkdown/Test-Rename-Completion.md
   call WriteMe()
 
+
+Do (Testing Old buffer has been wiped out {{{2):
+  :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  :let buf_old = bufnr('%')\<Cr>
+  :VimwikiRenameFile Test-Rename-new1\<Cr>
+  :AssertEqual 'Test-Rename-new1', expand('%:t:r')\<Cr>
+  :VimwikiRenameFile Test-Rename-Completion\<Cr>
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
+
 Do (Testing Completion {{{2):
 # Rename and test (zzz)
   :VimwikiRenameFile Test-Rename-z\<C-l>1\<Cr>
@@ -45,6 +55,7 @@ Do (Testing transforward {{{2):
   :Log 'Forward: root -> dir1/dir11 {{{3'\<Cr>
 # Create dir1/dir11/Test-Rename and link to it
   :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  ggdG
   idir1/dir11/Test-Rename.md\<Esc>
   \<Cr>\<Cr>
   :VimwikiRenameFile ../Test-Rename-2\<Cr>
@@ -70,9 +81,8 @@ Do (Testing transforward {{{2):
   :VimwikiRenameFile dir1/Test-Rename-Completion-2\<Cr>
   :AssertEqual expand('%'), $HOME . '/testmarkdown/dir1/Test-Rename-Completion-2.md'\<Cr>
 
-# Delete smaller unit changed {{{2
 
-Execute (Clean):
+Execute (Delete smaller unit changed {{{2):
   call DeleteFile('$HOME/testmarkdown/Test-Rename-zzz.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-Completion_2.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-2.md')

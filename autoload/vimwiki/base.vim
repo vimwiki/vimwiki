@@ -1734,6 +1734,7 @@ endfunction
 
 " Rename current file, update all links to it
 " Param: [new_filepath <string>]
+" Exported: VimwikiRenameFile
 function! vimwiki#base#rename_link(...) abort
   " Get filename and dir relative to wiki root
   let subdir = vimwiki#vars#get_bufferlocal('subdir')
@@ -1788,25 +1789,22 @@ function! vimwiki#base#rename_link(...) abort
 
   let &buftype='nofile'
 
-  " Save current buffer: [file_name, buffer_name]
-  let cur_buffer = [expand('%:p'), vimwiki#vars#get_bufferlocal('prev_links')]
+  " Save current buffer: [file_name, previous_name, buffer_number]
+  let buf_old_info = [expand('%:p'), vimwiki#vars#get_bufferlocal('prev_links'), bufnr('%')]
+  if v:version > 800 || has('patch-8.0.0083')
+    let win_old_id = win_getid()
+  endif
 
   " Get all wiki buffer
   let blist = s:get_wiki_buffers()
 
-  " Save wiki buffers
+  " Dump wiki buffers: they may change
   for bitem in blist
     execute ':b '.escape(bitem[0], ' ')
     execute ':update'
   endfor
 
-  execute ':b '.escape(cur_buffer[0], ' ')
-
-  " Remove wiki buffers
-  for bitem in blist
-    execute 'bwipeout '.escape(bitem[0], ' ')
-  endfor
-
+  " Prevent prompt from scrolling alone
   let more_save = &more
   setlocal nomore
 
@@ -1820,20 +1818,39 @@ function! vimwiki#base#rename_link(...) abort
         \ fnamemodify(new_fname_rel_dir, ':r')
         \ )
 
-  " Restore wiki buffers
+  "" Restore wiki buffers
+  let autoread_save = &autoread
+  set autoread
   for bitem in blist
-    if !vimwiki#path#is_equal(bitem[0], cur_buffer[0])
-      call s:open_wiki_buffer(bitem)
-    endif
+    execute ':b '.escape(bitem[0], ' ')
+    execute ':e!'
   endfor
+  let &autoread = autoread_save
 
   " Open the new buffer
-  call s:open_wiki_buffer([new_fname, cur_buffer[1]])
-  " execute 'bwipeout '.escape(cur_buffer[0], ' ')
+  call s:open_wiki_buffer([new_fname, buf_old_info[1]])
+  let buf_new_nb = bufnr('%')
+
+  " Change old_buffer by new buffer in all window
+  windo if bufnr('%') == buf_old_info[2] | exe 'b ' . buf_new_nb | endif
+  " Goto the window I belong
+  if v:version > 800 || has('patch-8.0.0083')
+    call win_gotoid(win_old_id)
+  endif
+
+  " Wipeout the old buffer: avoid surprises <= If it is not the same
+  if buf_old_info[2] != buf_new_nb
+    exe 'bwipeout! ' . buf_old_info[2] 
+  else
+    " Should not happen
+    echomsg 'Vimwiki Error: New buffer is the same as old, so will not delete: '
+          \ . buf_new_nb . '.Please open an issue if see this messsage'
+  endif
 
   " Log success
   echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
 
+  " Restore prompt
   let &more = more_save
 endfunction
 
