@@ -1,6 +1,8 @@
 # VimwikiTOC {{{1
 #
-# TODO implement: If link in the heading (see README.md)
+# Just generate the TOC
+# See: link_* for link movement and creation
+#
 # TODO (10min) test if g:vimwiki_to_header well readen
 # TODO (10min) test vimviki_toc_link_format
 # TODO (1h) test if really wiki dependant (for 2 diffrent wikis)
@@ -27,6 +29,30 @@
 #
 #
 # Start {{{1
+
+Given vimwiki (With link header (#182) {{{1):
+  # A [link](anything here) B
+  # t[link](anything here)
+
+  ## 7.4.1528
+
+Execute (VimwikiTOC: Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect vimwiki (With link header (#182) {{{1):
+  # Contents
+
+  - [A link B](#a-link-b)
+  - [tlink](#tlink)
+          - [7.4.1528](#741528)
+
+  # A [link](anything here) B
+  # t[link](anything here)
+
+  ## 7.4.1528
+
 
 
 Given vimwiki (Underline header (SetExt) (#209) {{{1):

@@ -3743,6 +3743,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #182: VimwikiTOC support headers with link
     * Issue #813: iMap <Cr> interfere with completion (pum)
     * Issue #709: Support inline code spans inside emphasis
       Refactoring code, del, eq, sup, sub as regions

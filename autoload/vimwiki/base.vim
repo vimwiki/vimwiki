@@ -761,8 +761,13 @@ function! s:unnormalize_anchor(anchor) abort
   " -- Done after: Add spaces leading and trailing => Later with the template
   " Link: Inspired from https://gist.github.com/asabaylus/3071099
   " Issue: #664 => Points to all others
+
   let anchor = a:anchor
-  let punctuation_rx = s:get_punctuaction_regex() . '*'
+  let punctuation_rx = s:get_punctuaction_regex()
+  " Permit url part of link: '](www.i.did.it.my.way.cl)'
+  let link_rx = '\%(\]([^)]*)\)'
+  let invisible_rx =  '\%( \|-\|' . punctuation_rx . '\|' . link_rx . '\)'
+
 
   " 4 Add '-1', '-2', '-3',... to make it unique if not unique
   " -- Save the trailing -12
@@ -773,7 +778,7 @@ function! s:unnormalize_anchor(anchor) abort
     let anchor_nb = 1
   else
     " Yes Sufix: number <- read suffix
-    let sufix = '[ \-]' . anchor_nb
+    let sufix = invisible_rx.'*' . anchor_nb . invisible_rx.'*'
     let anchor_nb = str2nr(anchor_nb)
   endif
   " -- Remove it
@@ -782,22 +787,34 @@ function! s:unnormalize_anchor(anchor) abort
   " For each char
   let anchor_loop = ''
   for char in split(anchor, '\zs')
+    " Nest the char for easyer debugging
+    let anchor_loop .=  '\%('
+
     " 3 Change any space to a hyphen
     if char ==# '-'
-      let anchor_loop .=  '[ \-]\+'
+      " Match Space or hyphen or punctuation or link
+      let anchor_loop .=  invisible_rx.'\+'
+
     " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
     " -- So add puncutation regex at each char
     else
-      let anchor_loop .= char . punctuation_rx
+      " Match My_char . punctuation . ( link . punctuaction )?
+      " Note: Because there may be punctuation before ad after link
+      let anchor_loop .= char . punctuation_rx.'*'
+      let anchor_loop .= '\%(' . link_rx . punctuation_rx.'*' . '\)' . '\?'
+
     endif
+
+    " Close nest
+    let anchor_loop .=  '\)'
   endfor
-  let anchor = punctuation_rx . anchor_loop
+  let anchor = punctuation_rx.'*' . anchor_loop
 
   " 1 Downcase the string
   let anchor = '\c' . anchor
 
   " 4.bis Add the optional suffix
-  let anchor = anchor . '\(' . sufix . '\)\?'
+  let anchor = anchor . '\%(' . sufix . '\)\?'
 
   return [anchor, anchor_nb]
 endfunction
@@ -833,7 +850,7 @@ function! s:jump_to_anchor(anchor) abort
 
     " Go: Move cursor: maybe more than onces (see markdown suffix)
     let success_nb = 0
-    let fail = 0
+    let is_last_segment = 0
     for i in range(segment_nb)
       " Search
       let pos = 0
@@ -841,25 +858,42 @@ function! s:jump_to_anchor(anchor) abort
       let pos = pos != 0 ? pos : search(anchor_header, 'Wc')
       let pos = pos != 0 ? pos : search(anchor_bold, 'Wc')
 
+      echom 'Tin pos: ' . pos
+
       " Get the result and reloop or leave
       if pos != 0
         " Avance, one line more to not rematch the same pattern if not last segment_nb
-        if success_nb < segment_nb-1 | let pos += 1 | endif
+        if success_nb < segment_nb-1
+          let pos += 1
+          let is_last_segment = -1
+        endif
         call cursor(pos, 1)
         let success_nb += 1
+
+        " Break  if last line (avoid infinite loop)
+        " Anyway leave the loop: (Imagine heading # 7271212 at last line)
+        if pos >= line('$')
+          let is_last_segment = 1
+          break
+        endif
       " Do not move
       " But maybe suffix -2 is not the segment number but the real header suffix
       " TODO make this more robust
-      elseif i == 0
-        " Next segment (default syntax)
-        call setpos('.', oldpos)
-        let fail = 1
+      else
+        " If fail at first: do not move
+        if i == 0
+          call setpos('.', oldpos)
+        endif
+        " Anyway leave the loop: (Imagine heading # 7271212, you do not want to loop all that)
+        " Go one line back: if I advanced too much
+        if is_last_segment == -1 | call cursor(line('.')-1, 1) | endif
+        let is_last_segment = 1
         break
       endif
     endfor
 
     " Check if happy
-    if success_nb == segment_nb || fail == 1
+    if success_nb == segment_nb || is_last_segment == 1
       break
     endif
 
@@ -1840,7 +1874,7 @@ function! vimwiki#base#rename_link(...) abort
 
   " Wipeout the old buffer: avoid surprises <= If it is not the same
   if buf_old_info[2] != buf_new_nb
-    exe 'bwipeout! ' . buf_old_info[2] 
+    exe 'bwipeout! ' . buf_old_info[2]
   else
     " Should not happen
     echomsg 'Vimwiki Error: New buffer is the same as old, so will not delete: '
@@ -2258,6 +2292,22 @@ function! s:current_header(headers, line_number) abort
 endfunction
 
 
+" Returns: heading with link urls
+" Called: table_of_content
+function! s:clean_header_text(h_text) abort
+  " Note: I hardcode, who cares ?
+  let h_text = a:h_text
+
+  " Convert: [[url]] -> url
+  let h_text = substitute(h_text, '\[\[\([^]]*\)\]\]', '\1', 'g')
+
+  " Convert: [desc](url) -> url
+  let h_text = substitute(h_text, '\[\([^]]*\)\]([^)]*)', '\1', 'g')
+
+  return h_text
+endfunction
+
+
 " Returns: index of neighbor header
 " Called: by header cursor movements
 function! s:get_another_header(headers, current_index, direction, operation) abort
@@ -2341,7 +2391,7 @@ endfunction
 " a:create == 1: creates or updates TOC in current file
 " a:create == 0: update if TOC exists
 function! vimwiki#base#table_of_contents(create) abort
-  " Collect headers
+  " Gather heading
   let headers = s:collect_headers()
   let toc_header_text = vimwiki#vars#get_wikilocal('toc_header')
 
@@ -2365,7 +2415,7 @@ function! vimwiki#base#table_of_contents(create) abort
   " copy all local variables into dict (add a: if arguments are needed)
   let GeneratorTOC = copy(l:)
   function! GeneratorTOC.f() abort
-    " Gather heading informations
+    " Clean heading informations
     let numbering = vimwiki#vars#get_global('html_header_numbering')
     " TODO numbering not used !
     let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
@@ -2373,16 +2423,21 @@ function! vimwiki#base#table_of_contents(create) abort
     for header in self.headers
       let h_text = header[2]
       let h_level = header[1]
+
       " Don't include the TOC's header itself
       if h_text ==# self.toc_header_text
         continue
       endif
+
+       " Clean text
+       let h_text = s:clean_header_text(h_text)
+
+       " Treat levels
       let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
-      let h_complete_id = ''
-
       " Add description to the link if toc_link_format == 1 => extended
+      let h_complete_id = ''
       if vimwiki#vars#get_wikilocal('toc_link_format') == 1
         for l in range(h_level-1)
           if headers_levels[l][0] !=? ''
@@ -2392,6 +2447,7 @@ function! vimwiki#base#table_of_contents(create) abort
       endif
       let h_complete_id .= headers_levels[h_level-1][0]
 
+      " Store
       call add(complete_header_infos, [h_level, h_complete_id, h_text])
     endfor
 

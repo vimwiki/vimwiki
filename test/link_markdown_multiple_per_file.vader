@@ -1,7 +1,14 @@
 # Link internal to a file
+#
+# See: generate_toc.vim
+#
 # See issue #666 for anchor support (then internal links)
 # Preambule set file onces and for all {{{1
 # Otherwise the bash script is freezing
+
+
+
+
 Given vimwiki (a):
   a
 
@@ -10,6 +17,52 @@ Execute (Set filename wiki_test.md):
 
 Expect (a):
   a
+
+
+Given vimwiki (VimwikiTOC is broken against headers with link #182 {{{1):
+  [A link B](#a-link-b)
+  [tlink](#tlink)
+  [7.4.1528](#741528)
+  [link (333)](#link-333)
+
+  # A [link](anything here) B
+
+  # t[link](anything here)
+
+  ## 7.4.1528
+
+  #### [link]() (333)
+
+
+Execute (VimwikiTOC: Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+
+
+Do (Enter link):
+  gg\<Cr>
+  A__HERE1__\<Esc>
+  ggj\<Cr>
+  A__HERE2__\<Esc>
+  ggjj\<Cr>
+  A__HERE3__\<Esc>
+  ggjjj\<Cr>
+  A__HERE4__\<Esc>
+
+Expect vimwiki (Good anchor with link navigation):
+  [A link B](#a-link-b)
+  [tlink](#tlink)
+  [7.4.1528](#741528)
+  [link (333)](#link-333)
+
+  # A [link](anything here) B__HERE1__
+
+  # t[link](anything here)__HERE2__
+
+  ## 7.4.1528__HERE3__
+
+  #### [link]() (333)__HERE4__
+
+
 
 # Link to anchor in SetExt {{{1
 # Like that

@@ -900,14 +900,14 @@ function! s:populate_extra_markdown_vars() abort
     let rxWeblink1Ext = '__FileExtension__'
   endif
 
-  " [DESCRIPTION](URL)
+  " [DESCRIPTION](FILE.MD)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ mkd_syntax.rxWeblink1Suffix
-  " [DESCRIPTION](ANCHOR)
+  " [DESCRIPTION](FILE)
   let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
-  " [DESCRIPTION](FILE#ANCHOR)
+  " [DESCRIPTION](FILE.MD#ANCHOR)
   let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix

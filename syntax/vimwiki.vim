@@ -141,7 +141,7 @@ else
 endif
 
 
-" Weblink
+" Weblink [DESCRIPTION](FILE)
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink'), 'VimwikiLink')
 
 
