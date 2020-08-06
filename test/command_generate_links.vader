@@ -35,12 +35,14 @@ Execute (VimwikiGenerateLinks x 2):
   call append('$', 'Last Line')
   VimwikiGenerateLinks
 
-Expect (The links with a header):
+Expect (The links with a header (bis)):
 
 
   = Generated Links =
           - [[buzz_bozz]]
           - [[index]]
+
+  Last Line
 
 Execute (Clean Test.wiki):
   call DeleteFile('$HOME/testwiki/Test.wiki')

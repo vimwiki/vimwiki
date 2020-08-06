@@ -30,6 +30,37 @@
 #
 # Start {{{1
 
+Given vimwiki (One heading: May delete last line (#910) {{{1):
+  # Basic-title
+
+
+Execute (VimwikiTOC x 1):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+
+Expect(Good content with 1 item x 1):
+  # Contents
+
+  - [Basic-title](#basic-title)
+
+  # Basic-title
+
+Execute (VimwikiTOC x 2):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+  VimwikiTOC
+
+Expect(Good content with 1 item x 1):
+  # Contents
+
+  - [Basic-title](#basic-title)
+
+  # Basic-title
+
+
 Given vimwiki (With link header (#182) {{{1):
   # A [link](anything here) B
   # t[link](anything here)

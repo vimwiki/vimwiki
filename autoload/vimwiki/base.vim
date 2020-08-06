@@ -1468,8 +1468,8 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
 
   " Set working range according to listing presence
   if already_there
-    let is_fold_closed = ( foldclosed(start_lnum) > -1 )
     " Delete the old listing
+    let is_fold_closed = ( foldclosed(start_lnum) > -1 )
     let whitespaces_in_first_line = matchstr(getline(start_lnum), '\m^\s*')
     let end_lnum = start_lnum + 1
     while end_lnum <= line('$') && getline(end_lnum) =~# a:content_regex
@@ -1486,6 +1486,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     let &l:foldenable = foldenable_save
     let lines_diff = 0 - (end_lnum - start_lnum)
   else
+    " Create new listing
     let start_lnum = a:default_lnum
     let is_cursor_after_listing = ( cursor_line > a:default_lnum )
     let whitespaces_in_first_line = ''
@@ -1519,9 +1520,10 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
   endfor
 
   " Remove empty line if end of file, otherwise append if needed
-  if start_lnum == line('$')
+  let current_line = getline(start_lnum)
+  if start_lnum == line('$') && current_line =~# '^\s*$'
     silent exe 'keepjumps ' . start_lnum.'delete _'
-  elseif start_lnum < line('$') && getline(start_lnum) !~# '\m^\s*$'
+  elseif start_lnum <= line('$') && current_line !~# '\m^\s*$'
     keepjumps call append(start_lnum - 1, '')
     let lines_diff += 1
   endif
@@ -2491,8 +2493,7 @@ function! vimwiki#base#table_of_contents(create) abort
     return lines
   endfunction
 
-  let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
-
+  let links_rx = '\%(^\s*$\)\|\%(^\s*\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)\)'
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorTOC,
         \ toc_header_text,
