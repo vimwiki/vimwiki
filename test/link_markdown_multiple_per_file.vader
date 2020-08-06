@@ -19,6 +19,31 @@ Expect (a):
   a
 
 
+Given vimwiki (VimwikiTOC with link and number {{{1):
+  [link1](#i-v-p-741528)
+  [link2](#i-v-p-741528-2)
+
+  # I [V p](h) (7.415.28)
+
+  # I [V p](h) 741.528
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (Enter link):
+  gg\<Cr>
+  A__HERE1__\<Esc>
+  ggj\<Cr>
+  A__HERE2__\<Esc>
+
+Expect():
+  [link1](#i-v-p-741528)
+  [link2](#i-v-p-741528-2)
+
+  # I [V p](h) (7.415.28)__HERE1__
+
+  # I [V p](h) 741.528__HERE2__
+
 Given vimwiki (VimwikiTOC is broken against headers with link #182 {{{1):
   [A link B](#a-link-b)
   [tlink](#tlink)
@@ -34,7 +59,7 @@ Given vimwiki (VimwikiTOC is broken against headers with link #182 {{{1):
   #### [link]() (333)
 
 
-Execute (VimwikiTOC: Set syntax markdown && Set sw=8):
+Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 

@@ -363,17 +363,23 @@ function! vimwiki#tags#generate_tags(create, ...) abort
               let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
               let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
               let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
+              let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+              let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
             else
               let link_caption = split(link_infos.anchor, '#', 0)[-1]
               let link_text = split(taglink, '#', 1)[0]
               let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
               let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
               let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+              let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+              let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
             endif
 
             call add(lines, bullet . entry)
           else
             let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+            let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+            let link_tpl = s:safesubstitute(link_tpl, '__FileExtension__', file_extension , '')
             call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
           endif
         endfor

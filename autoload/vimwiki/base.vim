@@ -729,7 +729,6 @@ function! s:normalize_anchor(anchor, ...) abort
   let anchor = tolower(anchor)
 
   " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
-  " TODO mutualize punctuation_rx with above
   let punctuation_rx = s:get_punctuaction_regex()
   let anchor = substitute(anchor, punctuation_rx, '', 'g')
 
@@ -753,8 +752,10 @@ endfunction
 
 
 " :param: anchor <string> <= link
-" Return: [anchor_re <regex>, anchor_nb <number>] to look for
+" Return: [anchor_re <regex>, anchor_nb <number>, suffix_re <regex>] to look for
+" -- with or without suffix
 " -- Ex: ['toto", 2] => search for the second occurrence of toto
+" Called: jump_to_anchor
 function! s:unnormalize_anchor(anchor) abort
   " Note:
   " -- Pandoc keep the '_' in anchor
@@ -773,12 +774,15 @@ function! s:unnormalize_anchor(anchor) abort
   " -- Save the trailing -12
   let anchor_nb = substitute(anchor, '^.*-\(\d\+\)$', '\1', '')
   if anchor_nb ==# '' || anchor_nb == 0
-    " No Sufix: number = 1
-    let sufix = ''
+    " No Suffix: number = 1
+    let suffix = ''
     let anchor_nb = 1
   else
-    " Yes Sufix: number <- read suffix
-    let sufix = invisible_rx.'*' . anchor_nb . invisible_rx.'*'
+    " Yes suffix: number <- read suffix
+    let suffix = invisible_rx.'*'
+    for char in split(anchor_nb, '\zs')
+      let suffix .= char . invisible_rx.'*'
+    endfor
     let anchor_nb = str2nr(anchor_nb)
   endif
   " -- Remove it
@@ -813,21 +817,13 @@ function! s:unnormalize_anchor(anchor) abort
   " 1 Downcase the string
   let anchor = '\c' . anchor
 
-  " 4.bis Add the optional suffix
-  let anchor = anchor . '\%(' . sufix . '\)\?'
-
-  return [anchor, anchor_nb]
+  return [anchor, anchor_nb, suffix]
 endfunction
 
 
 " Jump to anchor, doing the oposite of normalize_anchor
 " Called: edit_file
-" TODO treat the sufix: -2 -> Go to second anchor
 function! s:jump_to_anchor(anchor) abort
-  " Save cursor %% Initialize at top of line
-  let oldpos = getpos('.')
-  call cursor(1, 1)
-
   " Get segments <= anchor
   let anchor = vimwiki#u#escape(a:anchor)
   let segments = split(anchor, '#', 0)
@@ -836,34 +832,48 @@ function! s:jump_to_anchor(anchor) abort
   for segment in segments
     " Craft segment pattern so that it is case insensitive and also matches dashes
     " in anchor link with spaces in heading
-    let [segment_re, segment_nb] = s:unnormalize_anchor(segment)
+    let [segment_re, segment_nb, segment_suffix] = s:unnormalize_anchor(segment)
+
+    " Try once with suffix (If header ends with number)
+    let res =  s:jump_to_segment(segment_re . segment_suffix, 1)
+    " Try segment_nb times otherwise
+    if res != 0
+      let res =  s:jump_to_segment(segment_re, segment_nb)
+    endif
+  endfor
+endfunction
+
+
+" Called: jump_to_anchor with suffix and withtou suffix
+function! s:jump_to_segment(segment_re, segment_nb) abort
+    " Save cursor %% Initialize at top of line
+    let oldpos = getpos('.')
+    call cursor(1, 1)
 
     let anchor_header = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('header_match'),
-          \ '__Header__', segment_re, 'g')
+          \ '__Header__', a:segment_re, 'g')
     let anchor_bold = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('bold_match'),
-          \ '__Text__', segment_re, 'g')
+          \ '__Text__', a:segment_re, 'g')
     let anchor_tag = s:safesubstitute(
           \ vimwiki#vars#get_syntaxlocal('tag_match'),
-          \ '__Tag__', segment_re, 'g')
+          \ '__Tag__', a:segment_re, 'g')
 
     " Go: Move cursor: maybe more than onces (see markdown suffix)
     let success_nb = 0
     let is_last_segment = 0
-    for i in range(segment_nb)
+    for i in range(a:segment_nb)
       " Search
       let pos = 0
       let pos = pos != 0 ? pos : search(anchor_tag, 'Wc')
       let pos = pos != 0 ? pos : search(anchor_header, 'Wc')
       let pos = pos != 0 ? pos : search(anchor_bold, 'Wc')
 
-      echom 'Tin pos: ' . pos
-
-      " Get the result and reloop or leave
+      " Succed: Get the result and reloop or leave
       if pos != 0
         " Avance, one line more to not rematch the same pattern if not last segment_nb
-        if success_nb < segment_nb-1
+        if success_nb < a:segment_nb-1
           let pos += 1
           let is_last_segment = -1
         endif
@@ -873,12 +883,11 @@ function! s:jump_to_anchor(anchor) abort
         " Break  if last line (avoid infinite loop)
         " Anyway leave the loop: (Imagine heading # 7271212 at last line)
         if pos >= line('$')
-          let is_last_segment = 1
-          break
+          return 0
         endif
+      " Fail:
       " Do not move
       " But maybe suffix -2 is not the segment number but the real header suffix
-      " TODO make this more robust
       else
         " If fail at first: do not move
         if i == 0
@@ -887,19 +896,20 @@ function! s:jump_to_anchor(anchor) abort
         " Anyway leave the loop: (Imagine heading # 7271212, you do not want to loop all that)
         " Go one line back: if I advanced too much
         if is_last_segment == -1 | call cursor(line('.')-1, 1) | endif
-        let is_last_segment = 1
-        break
+        return 1
       endif
     endfor
 
     " Check if happy
-    if success_nb == segment_nb || is_last_segment == 1
-      break
+    if success_nb == a:segment_nb
+      return 0
     endif
 
     " Or keep on (i.e more than once segment)
     let oldpos = getpos('.')
-  endfor
+
+    " Said 'fail' to caller
+    return 1
 endfunction
 
 
