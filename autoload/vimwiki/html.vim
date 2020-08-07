@@ -11,32 +11,19 @@ let g:loaded_vimwiki_html_auto = 1
 
 " FIXME: Magics: Why not use the current syntax highlight
 " This is due to historical copy paste and lazyness of markdown user
-" text: **strong** or __strong__
+" text: *strong*
+" let s:default_syntax.rxBold = '\*[^*]\+\*'
 let s:rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\|_\)\{2\}'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\1\{2\}'.
+      \'\*'.
+      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
+      \'\*'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
 " text: _emphasis_ or *emphasis*
 let s:rxItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\|_\)'.
-      \'\%([^*_`[:space:]][^*_`]*[^*_`[:space:]]\|[^*_`[:space:]]\)'.
-      \'\1'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-
-" Fixme: and those ? are they converted ?
-" text: *_bold italic_* or _*italic bold*_
-let rxBoldItalic = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(\*\)\{3\}'.
-      \'\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)'.
-      \'\1\{3\}'.
-      \'\%([[:punct:]]\|\s\|$\)\@='
-
-let rxItalicBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
-      \'\(_\)\{3\}'.
+      \'_'.
       \'\%([^_`[:space:]][^_`]*[^_`[:space:]]\|[^_`[:space:]]\)'.
-      \'\1\{3\}'.
+      \'_'.
       \'\%([[:punct:]]\|\s\|$\)\@='
 
 
