@@ -259,10 +259,10 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiSubScriptT,
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
+                           \ VimwikiEmoji,
                            \ @Spell
 
-syntax match VimwikiCellSeparator
-      \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
+syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
 " Lists
@@ -306,7 +306,7 @@ syntax match VimwikiPlaceholder
 syntax match VimwikiPlaceholderParam /.*/ contained
 
 
-" html tags
+" html tags <u>
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
   " Include: Source html file here
   execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
@@ -315,7 +315,6 @@ endif
 
 " tags
 execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
-
 
 " header groups highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
@@ -335,10 +334,16 @@ else
 endif
 
 
-
 " Highlight Typefaces -> u.vim
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
+
+
+" Emoji :dog: (after tags to take precedence)
+if and(vimwiki#vars#get_global('emoji_enable'), 1) != 0 && has('conceal')
+  call vimwiki#emoji#apply_conceal()
+endif
+
 
 " Link highlighting groups
 """"""""""""""""""""""""""

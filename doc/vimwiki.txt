@@ -3574,6 +3574,28 @@ to not set commentstring by vimwiki.
 The default is %%%s.
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_emoji_enable*
+
+Bitfield: Enable/disable emoji conceal and complete (with |i_CTRL-X_CTRL-U|).
+Note that the |completefunc| is only set if it does not exists already to keep
+other plugin works by default. It can be set it manualy with: >
+  set completefunc=vimwiki#emoji#complete
+
+To replace emoji alias (like :cat:) by their value (like 🐱) in current file: >
+  %s/:\([^:]\+\):/\=get(vimwiki#emoji#get_dic(), submatch(1), submatch(0))/g
+
+Emoji features hard copied from https://github.com/junegunn/vim-emoji
+
+Value           Description~
+0               Disable emoji support
+1               Enable emoji conceal
+2               Enable emoji complete
+3               Enable both
+
+Default: 3
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3717,6 +3739,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: Support Emoji (Conceal and Complete)
     * Issue #209: Feature: Markdown: Support SetExt Heading
     * Issue #847 #640: Feature: Markdown anchor
       normalize and unormalize: better follow_link and |VimwikiTOC|
