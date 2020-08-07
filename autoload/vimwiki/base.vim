@@ -1091,16 +1091,8 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
       echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
       return
     endtry
-
     " If the opened file was not already loaded by Vim, an autocommand is
     " triggered at this point
-
-    " Make sure no other plugin takes ownership over the new file. Vimwiki
-    " rules them all! Well, except for directories, which may be opened with
-    " Netrw
-    if !vimwiki#u#ft_is_vw() && fname !~? '\m/$'
-      call vimwiki#u#ft_set()
-    endif
   endif
 
   " Goto anchor

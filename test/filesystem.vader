@@ -1,0 +1,33 @@
+# Travel thought files
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+
+Given (Void for Accessing other files within vimwiki #979 {{{1):
+
+
+Do (At Index: Create and goto pythonfile):
+  :VimwikiIndex 2\<Cr>
+  Opyfile.py\<Esc>\<Cr>\<Cr>
+  :AssertEqual 'pyfile.py', expand('%:t')\<CR>
+  :AssertEqual 'python', &ft\<CR>
+  :Log "Clean pyfile"\<Cr>
+  dd
+  :VimwikiIndex 2\<Cr>
+  :call DeleteFile('pyfile.py')\<Cr>
+
+
+Do (At Index: Create and goto markdownfile):
+  :VimwikiIndex 2\<Cr>
+  Omdfile.md\<Esc>\<Cr>\<Cr>
+  :AssertEqual 'mdfile.md', expand('%:t')\<CR>
+  :AssertEqual 'vimwiki', &ft\<CR>
+  :Log "Clean mdfile"\<Cr>
+  :VimwikiIndex 2\<Cr>
+  dd
+  :call DeleteFile('mdfile.md')\<Cr>
+
+
+# vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:
