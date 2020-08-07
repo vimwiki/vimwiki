@@ -3766,6 +3766,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #886: VimwikiGenerateLinks crash with single quote in filename
     * Issue #910: Fix: VimwikiTOC removes next non-empty line
     * Issue #182: VimwikiTOC support headers with link
     * Issue #813: iMap <Cr> interfere with completion (pum)
