@@ -176,6 +176,7 @@ function! s:read_global_settings_from_user() abort
         \     10: 'October', 11: 'November', 12: 'December'
         \   }},
         \ 'dir_link': {'type': type(''), 'default': ''},
+        \ 'emoji_enable': {'type': type(0), 'default': 3, 'min':0, 'max': 3},
         \ 'ext2syntax': {'type': type({}), 'default': {'.md': 'markdown', '.mkdn': 'markdown',
         \     '.mdwn': 'markdown', '.mdown': 'markdown', '.markdown': 'markdown', '.mw': 'media'}},
         \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',

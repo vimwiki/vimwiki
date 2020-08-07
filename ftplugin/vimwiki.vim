@@ -110,7 +110,12 @@ function! Complete_wikifiles(findstart, base) abort
   endif
 endfunction
 
+" Set completion
 setlocal omnifunc=Complete_wikifiles
+if and(vimwiki#vars#get_global('emoji_enable'), 2) != 0
+      \ && &completefunc ==# ''
+  set completefunc=vimwiki#emoji#complete
+endif
 
 
 " Declare settings necessary for the automatic formatting of lists
