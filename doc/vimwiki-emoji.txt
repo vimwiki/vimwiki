@@ -509,7 +509,6 @@ CONTENTS                                                       *vimwiki-emoji*
 8. Flags                                                 *vimwiki-emoji-flags*
 ==============================================================================
 
-Tin  |                      |           ^
 | 🏳️ | white_flag           | 🏴 | black_flag          | 🏁 | checkered_flag
 | 🚩 | triangular_flag_on_post          | 🏳️‍🌈 | rainbow_flag
 | 🇦🇫 | afghanistan        | 🇦🇽 | aland_islands     | 🇦🇱 | albania

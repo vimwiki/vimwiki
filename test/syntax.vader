@@ -169,7 +169,7 @@ Execute (Multiline syantax but not sup and sub):
 
 
 # HTML types {{{2
-# Rememner Bold > Italic > Underline (my convention [Tinmarino])
+# Rememner Bold > Italic > Underline (my convention [tinmarino])
 
 Given vimwiki (Typeface for Italic var_with_underscore):
   var_with_underscore
