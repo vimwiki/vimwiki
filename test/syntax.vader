@@ -55,10 +55,10 @@ Given vimwiki (Extended Types mono):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types mono):
+Execute (Assert Syntax extended types x 1):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 8)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 8)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 8)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 8)
   AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 8)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 8)
 
@@ -73,10 +73,10 @@ Given vimwiki (Extended Types nested in basic):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types mono):
+Execute (Assert Syntax extended types x 2):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
   AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 23)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
 
@@ -93,8 +93,8 @@ Execute (Set syntax markdown):
 Execute (Assert Syntax extended types nested in extended):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 23)
-  AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(4, 23)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
 
 Given vimwiki (Basic Types nested in extended):
@@ -107,10 +107,10 @@ Given vimwiki (Basic Types nested in extended):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types nested in extended):
+Execute (Assert Syntax basic  types nested in extended):
   AssertEqual 'VimwikiBold'        , SyntaxAt(1, 23)
   AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiBold'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
   AssertEqual 'VimwikiItalic'      , SyntaxAt(4, 23)
   AssertEqual 'VimwikiBold'        , SyntaxAt(5, 23)
 
@@ -145,7 +145,7 @@ Given vimwiki (Multiline Typfaces Basic and extended):
   and mutli
   path
   `
-  and $ multi
+  but no $ multi
   equation
   $
   ^ but no multi
@@ -162,7 +162,7 @@ Execute (Multiline syantax but not sup and sub):
   AssertEqual 'VimwikiItalic'      , SyntaxAt(5, 1)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(8, 1)
   AssertEqual 'VimwikiCode'        , SyntaxAt(11, 1)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(14, 1)
+  AssertEqual ''                   , SyntaxAt(14, 1)
   AssertEqual ''                   , SyntaxAt(17, 1)
   AssertEqual ''                   , SyntaxAt(20, 1)
 
@@ -549,7 +549,7 @@ Execute (Assert Code syntax):
 #######################
 
 Given vimwiki (Math markdown):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $ aaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   $$
@@ -568,7 +568,7 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert math syntax 1):
-  AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
@@ -579,7 +579,7 @@ Execute (Assert math syntax 1):
 ##############################
 
 Given vimwiki (Math wiki):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $aaaaaaaaaaaaaaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   {{$
@@ -598,7 +598,7 @@ Execute (Set syntax default):
   call SetSyntax('default')
 
 Execute (Assert math syntax 2):
-  AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)

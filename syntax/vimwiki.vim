@@ -25,7 +25,7 @@ let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
 
 " Declare nesting capabilities
 " -- to be embeded in standard: bold, italic, underline
-let syntax_dic.nested_extended = 'VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript'
+let syntax_dic.nested_extended = 'VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'
 " -- to be embeded in exetended (the one above)
 let syntax_dic.nested_typeface = 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'
 let syntax_dic.nested = syntax_dic.nested_extended . ',' . syntax_dic.nested_typeface
@@ -43,13 +43,6 @@ let syntax_dic.dTypeface.code = [
 let syntax_dic.dTypeface.del = ([
       \ ['\~\~', '\~\~']])
 
-" text: $ equation_inline $
-" Match only one $
-" ( ^ or not $) before $ and after: not $
-let syntax_dic.dTypeface.eq = ([
-      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
-      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
-
 " text: ^superscript^
 let syntax_dic.dTypeface.sup = ([
       \ ['\^', '\^']])
@@ -57,6 +50,13 @@ let syntax_dic.dTypeface.sup = ([
 " text: ,,subscript,,
 let syntax_dic.dTypeface.sub = ([
       \ [',,', ',,']])
+
+" text: $ equation_inline $
+" Match only one $
+" ( ^ or not $) before $ and after: not $
+let syntax_dic.dTypeface.eq = ([
+      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
+      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
 
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
@@ -483,12 +483,26 @@ if !empty(s:nested)
   endfor
 endif
 
+" LaTex: Load
+if !empty(globpath(&runtimepath, 'syntax/tex.vim'))
+  execute 'syntax include @textGrouptex syntax/tex.vim'
+endif
+if !empty(globpath(&runtimepath, 'after/syntax/tex.vim'))
+  execute 'syntax include @textGrouptex after/syntax/tex.vim'
+endif
 
-" LaTeX
+" LaTeX: Block
 call vimwiki#base#nested_syntax('tex',
       \ vimwiki#vars#get_syntaxlocal('rxMathStart').'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')
 
+" LaTeX: Inline
+for u in syntax_dic.dTypeface.eq
+  execute 'syntax region textSniptex  matchgroup=texSnip'
+        \ . ' start="'.u[0].'" end="'.u[1].'"'
+        \ . ' contains=@texMathZoneGroup'
+        \ . ' keepend oneline '. b:vimwiki_syntax_concealends
+endfor
 
 syntax spell toplevel

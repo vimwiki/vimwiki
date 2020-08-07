@@ -349,11 +349,6 @@ function! vimwiki#u#hi_typeface(dic) abort
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiCode', '')
   endfor
 
-  "" Equation
-  for u in a:dic['eq']
-    call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiEqIn', nested)
-  endfor
-
   " Superscript
   for u in a:dic['sup']
     call vimwiki#u#hi_tag(u[0], u[1], 'VimwikiSuperScript', nested, 0, 'oneline')
