@@ -273,14 +273,11 @@ endfunction
 " Helper: Expand regex from reduced typeface delimiters
 " :param: list<list,delimiters>> with reduced regex
 " Return: list with extended regex delimiters (not inside a word)
-"   -- [['\*_', '_\*']] -> [['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@=']]
+"   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*']]
 function! vimwiki#u#hi_expand_regex(lst) abort
   let res = []
-  function! s:expand_regex(rx) abort
-    return '\S\@<=' .a:rx . '\|' . a:rx . '\S\@='
-  endfunction
   for delimiters in a:lst
-    call add(res, [s:expand_regex(delimiters[0]), s:expand_regex(delimiters[1])])
+    call add(res, [delimiters[0] . '\S\@=', '\S\@<=' . delimiters[1]])
   endfor
   return res
 endfunction

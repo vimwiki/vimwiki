@@ -16,23 +16,19 @@ let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 
 " text: *strong*
-let s:default_syntax.dTypeface.bold = [
-      \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.bold = vimwiki#u#hi_expand_regex([
+      \ ['\*', '\*']])
 
 " text: _italic_
-let s:default_syntax.dTypeface.italic = [
-      \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.italic = vimwiki#u#hi_expand_regex([
+      \ ['_', '_']])
 
 " text: no underline defined
 let s:default_syntax.dTypeface.underline = []
 
 " text: *_bold italic_* or _*italic bold*_
-let s:default_syntax.dTypeface.bold_italic = [
-      \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
-      \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.bold_italic = vimwiki#u#hi_expand_regex([
+      \ ['\*_', '_\*'], ['_\*', '\*_']])
 
 " generic headers
 let s:default_syntax.rxH = '='
