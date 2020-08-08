@@ -929,6 +929,8 @@ Vimwiki file.
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
     window.
+    With range: the wiki number, by default current wiki
+
 
 *:VimwikiRebuildTags*
     Rebuilds the tags metadata file for all wiki files newer than the metadata
@@ -3761,6 +3763,7 @@ New:~
     * PR #934: RSS feed generation for diary with :VimwikiRss.
 
 Changed:~
+    * VimwikiCheckLinks work on current wiki or on range
     * |g:vimwiki_toc_link_format| == 0 (default) means old behavior: short links
 
 Removed:~

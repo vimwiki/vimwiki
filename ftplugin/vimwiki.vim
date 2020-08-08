@@ -295,7 +295,7 @@ command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
-command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
+command! -buffer -range VimwikiCheckLinks call vimwiki#base#check_links(<range>, <line1>, <line2>)
 
 " list commands
 command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)

@@ -955,11 +955,20 @@ endfunction
 
 
 " Check if all wikilinks are reachable. Answer in quickfix
-function! vimwiki#base#check_links() abort
+function! vimwiki#base#check_links(range, line1, line2) abort
+  if a:range == 0
+    let wiki_list = [vimwiki#vars#get_bufferlocal('wiki_nr')]
+  elseif a:range == 1
+    let wiki_list = [a:line1]
+  else
+    let wiki_list = range(a:line1, a:line2)
+  endif
+  echom 'Vimwiki Checking links in wikis ' . string(wiki_list)
+
   let anchors_of_files = {}
   let links_of_files = {}
   let errors = []
-  for idx in range(vimwiki#vars#number_of_wikis())
+  for idx in wiki_list
     let syntax = vimwiki#vars#get_wikilocal('syntax', idx)
     let wikifiles = vimwiki#base#find_files(idx, 0)
     for wikifile in wikifiles
@@ -1013,7 +1022,7 @@ function! vimwiki#base#check_links() abort
   endfor
 
   " Mark: every index file as reachable
-  for idx in range(vimwiki#vars#number_of_wikis())
+  for idx in wiki_list
     let index_file = vimwiki#vars#get_wikilocal('path', idx) .
           \ vimwiki#vars#get_wikilocal('index', idx) . vimwiki#vars#get_wikilocal('ext', idx)
     if filereadable(index_file)
