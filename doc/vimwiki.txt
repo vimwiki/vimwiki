@@ -3598,6 +3598,39 @@ Value           Description~
 Default: 3
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_tag_format*
+
+Dictionary to describe the format of the tags vimwiki uses to highlight,
+generate and follow_link
+
+| Key       | Default  | Description
+----------------------------------------------------- ReGeX
+| pre       | '^\|\s'  | Limitations to tag precedence
+| pre_mark  | ':'      | Tag list opener
+| in  | '[:space:]]\+' | Tag permitted characters
+| sep       | ':'      | Tag separators in a tag list
+| post_mark | ':'      | Tag list closer
+| post      | '\s\|$'  | Limitations to tag following
+----------------------------------------------------- Number
+| conceal   |  0       | Do conceal the tag
+----------------------------------------------------- Character
+| cchar     |  ''      | If conceal, the conceal char
+
+
+The default dictionary gets |extends| with the user provided dictionary. So it
+is only necessary to provide the values to change. For Example, to use a:
+- Tag like: >
+  <<tag1|tag2>>
+- Set: >
+  let g:vimwiki_tag_format = {'pre_mark': '<<', 'post_mark': '>>', 'sep': '|'}
+- Tag like: >
+  tags: @tag1 @tag2
+- Set: >
+  let g:vimwiki_tag_format = {'pre': '\(^[ -]*tags\s*: .*\)\@<=',
+        \ 'pre_mark': '@', 'post_mark': '', 'sep': '>><<'}
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3741,6 +3774,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: #922 #928: g:vimwiki_tag_format to change the tag format
     * Feature: Support Emoji (Conceal and Complete)
     * Issue #209: Feature: Markdown: Support SetExt Heading
     * Issue #847 #640: Feature: Markdown anchor

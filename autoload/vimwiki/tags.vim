@@ -70,14 +70,15 @@ endfunction
 
 " Scan the list of text lines (argument) and produces tags metadata as a list of tag entries.
 function! s:scan_tags(lines, page_name) abort
-
-  let entries = []
-
   " Code wireframe to scan for headers -- borrowed from
   " vimwiki#base#get_anchors(), with minor modifications.
 
+  let entries = []
+
+  " Get syntax wide regex
   let rxheader = vimwiki#vars#get_syntaxlocal('header_search')
-  let rxtag = vimwiki#vars#get_syntaxlocal('tag_search')
+  let tag_search_rx = vimwiki#vars#get_syntaxlocal('tag_search')
+  let tag_format = vimwiki#vars#get_syntaxlocal('tag_format')
 
   let anchor_level = ['', '', '', '', '', '', '']
   let current_complete_anchor = ''
@@ -97,7 +98,7 @@ function! s:scan_tags(lines, page_name) abort
     let h_match = matchlist(line, rxheader)
     if !empty(h_match) " got a header
       let header_line_nr = line_nr
-      let header = vimwiki#u#trim(h_match[2])
+      let header = vimwiki#base#normalize_anchor(h_match[2])
       let level = len(h_match[1])
       let anchor_level[level-1] = header
       for l in range(level, 6)
@@ -120,28 +121,32 @@ function! s:scan_tags(lines, page_name) abort
     " Scan line for tags.  There can be many of them.
     let str = line
     while 1
-      let tag_group = matchstr(str, rxtag)
-      if tag_group ==? ''
+      " Get all matches
+      let tag_groups = []
+      call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
+      if tag_groups == []
         break
       endif
-      let tagend = matchend(str, rxtag)
+      let tagend = matchend(str, tag_search_rx)
       let str = str[(tagend):]
-      for tag in split(tag_group, ':')
-        " Create metadata entry
-        let entry = {}
-        let entry.tagname  = tag
-        let entry.lineno   = line_nr
-        if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
-          " Tag appeared at the top of the file
-          let entry.link   = a:page_name
-        elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-          " Tag appeared right below a header
-          let entry.link   = a:page_name . '#' . current_complete_anchor
-        else
-          " Tag stands on its own
-          let entry.link   = a:page_name . '#' . tag
-        endif
-        call add(entries, entry)
+      for tag_group in tag_groups
+        for tag in split(tag_group, tag_format.sep)
+          " Create metadata entry
+          let entry = {}
+          let entry.tagname  = tag
+          let entry.lineno   = line_nr
+          if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
+            " Tag appeared at the top of the file
+            let entry.link   = a:page_name
+          elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+            " Tag appeared right below a header
+            let entry.link   = a:page_name . '#' . current_complete_anchor
+          else
+            " Tag stands on its own
+            let entry.link   = a:page_name . '#' . tag
+          endif
+          call add(entries, entry)
+        endfor
       endfor
     endwhile
 
@@ -391,7 +396,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 
   let tag_match = printf('rxH%d', header_level + 1)
   let links_rx = '^\%('.vimwiki#vars#get_syntaxlocal(tag_match).'\)\|'.
-        \ '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
+        \ '\%(^\s*$\)\|^\s*\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
 
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorTags,

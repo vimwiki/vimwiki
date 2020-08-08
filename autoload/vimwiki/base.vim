@@ -453,7 +453,7 @@ function! vimwiki#base#generate_links(create, ...) abort
   endfunction
 
   " Update buffer with generator super power
-  let links_rx = '\%(^\s*$\)\|\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
+  let links_rx = '\%(^\s*$\)\|^\s*\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)'
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorLinks,
         \ vimwiki#vars#get_global('links_header'),
@@ -617,6 +617,7 @@ endfunction
 
 
 " Parse file. Returns list of all anchors
+" Called: vimwiki#base#check_links() for all wiki files
 function! vimwiki#base#get_anchors(filename, syntax) abort
   " Clause: if not readable
   if !filereadable(a:filename)
@@ -637,7 +638,7 @@ function! vimwiki#base#get_anchors(filename, syntax) abort
     " Collect: headers
     let h_match = matchlist(line, rxheader)
     if !empty(h_match)
-      let header = vimwiki#u#trim(h_match[2])
+      let header = vimwiki#base#normalize_anchor(h_match[2])
       " Mesure: header level
       let level = len(h_match[1])
       call add(anchors, header)
@@ -654,8 +655,8 @@ function! vimwiki#base#get_anchors(filename, syntax) abort
             let current_complete_anchor .= anchor_level[l].'#'
           endif
         endfor
-        " TODO: should not that be out of the if branch ?
         let current_complete_anchor .= header
+        " TODO: should not that be out of the if branch ?
         call add(anchors, current_complete_anchor)
       endif
     endif
@@ -681,7 +682,8 @@ function! vimwiki#base#get_anchors(filename, syntax) abort
       if tag_group_text ==? ''
         break
       endif
-      for tag_text in split(tag_group_text, ':')
+      let sep = vimwiki#vars#get_syntaxlocal('tag_format', a:syntax).sep
+      for tag_text in split(tag_group_text, sep)
         call add(anchors, tag_text)
         if current_complete_anchor !=? ''
           call add(anchors, current_complete_anchor.'#'.tag_text)
@@ -712,7 +714,8 @@ endfunction
 " :param: (1) previous_anchors <dic[IN/OUT]> of previous normalized anchor
 " -- to know if must append -2, updated on the fly
 " Return: anchor <string> => link in TOC
-function! s:normalize_anchor(anchor, ...) abort
+" Called: vimwiki#base#table_of_contents
+function! vimwiki#base#normalize_anchor(anchor, ...) abort
   " Note: See unormalize
   " 0 Get in
   let anchor = a:anchor
@@ -756,7 +759,7 @@ endfunction
 " -- with or without suffix
 " -- Ex: ['toto", 2] => search for the second occurrence of toto
 " Called: jump_to_anchor
-function! s:unnormalize_anchor(anchor) abort
+function! vimwiki#base#unnormalize_anchor(anchor) abort
   " Note:
   " -- Pandoc keep the '_' in anchor
   " -- Done after: Add spaces leading and trailing => Later with the template
@@ -832,84 +835,85 @@ function! s:jump_to_anchor(anchor) abort
   for segment in segments
     " Craft segment pattern so that it is case insensitive and also matches dashes
     " in anchor link with spaces in heading
-    let [segment_re, segment_nb, segment_suffix] = s:unnormalize_anchor(segment)
+    let [segment_norm_re, segment_nb, segment_suffix] = vimwiki#base#unnormalize_anchor(segment)
 
     " Try once with suffix (If header ends with number)
-    let res =  s:jump_to_segment(segment_re . segment_suffix, 1)
+    let res =  s:jump_to_segment(segment, segment_norm_re . segment_suffix, 1)
     " Try segment_nb times otherwise
     if res != 0
-      let res =  s:jump_to_segment(segment_re, segment_nb)
+      let res =  s:jump_to_segment(segment, segment_norm_re, segment_nb)
     endif
   endfor
 endfunction
 
 
 " Called: jump_to_anchor with suffix and withtou suffix
-function! s:jump_to_segment(segment_re, segment_nb) abort
-    " Save cursor %% Initialize at top of line
-    let oldpos = getpos('.')
-    call cursor(1, 1)
+function! s:jump_to_segment(segment, segment_norm_re, segment_nb) abort
+  " Save cursor %% Initialize at top of line
+  let oldpos = getpos('.')
+  call cursor(1, 1)
 
-    let anchor_header = s:safesubstitute(
-          \ vimwiki#vars#get_syntaxlocal('header_match'),
-          \ '__Header__', a:segment_re, 'g')
-    let anchor_bold = s:safesubstitute(
-          \ vimwiki#vars#get_syntaxlocal('bold_match'),
-          \ '__Text__', a:segment_re, 'g')
-    let anchor_tag = s:safesubstitute(
-          \ vimwiki#vars#get_syntaxlocal('tag_match'),
-          \ '__Tag__', a:segment_re, 'g')
+  " Get anchor regex
+  let anchor_header = s:safesubstitute(
+        \ vimwiki#vars#get_syntaxlocal('header_match'),
+        \ '__Header__', a:segment_norm_re, 'g')
+  let anchor_bold = s:safesubstitute(
+        \ vimwiki#vars#get_syntaxlocal('bold_match'),
+        \ '__Text__', a:segment, 'g')
+  let anchor_tag = s:safesubstitute(
+        \ vimwiki#vars#get_syntaxlocal('tag_match'),
+        \ '__Tag__', a:segment, 'g')
 
-    " Go: Move cursor: maybe more than onces (see markdown suffix)
-    let success_nb = 0
-    let is_last_segment = 0
-    for i in range(a:segment_nb)
-      " Search
-      let pos = 0
-      let pos = pos != 0 ? pos : search(anchor_tag, 'Wc')
-      let pos = pos != 0 ? pos : search(anchor_header, 'Wc')
-      let pos = pos != 0 ? pos : search(anchor_bold, 'Wc')
+  " Go: Move cursor: maybe more than onces (see markdown suffix)
+  let success_nb = 0
+  let is_last_segment = 0
+  for i in range(a:segment_nb)
+    " Search
+    let pos = 0
+    let pos = pos != 0 ? pos : search(anchor_tag, 'Wc')
+    let pos = pos != 0 ? pos : search(anchor_header, 'Wc')
+    let pos = pos != 0 ? pos : search(anchor_bold, 'Wc')
 
-      " Succed: Get the result and reloop or leave
-      if pos != 0
-        " Avance, one line more to not rematch the same pattern if not last segment_nb
-        if success_nb < a:segment_nb-1
-          let pos += 1
-          let is_last_segment = -1
-        endif
-        call cursor(pos, 1)
-        let success_nb += 1
-
-        " Break  if last line (avoid infinite loop)
-        " Anyway leave the loop: (Imagine heading # 7271212 at last line)
-        if pos >= line('$')
-          return 0
-        endif
-      " Fail:
-      " Do not move
-      " But maybe suffix -2 is not the segment number but the real header suffix
-      else
-        " If fail at first: do not move
-        if i == 0
-          call setpos('.', oldpos)
-        endif
-        " Anyway leave the loop: (Imagine heading # 7271212, you do not want to loop all that)
-        " Go one line back: if I advanced too much
-        if is_last_segment == -1 | call cursor(line('.')-1, 1) | endif
-        return 1
+    " Succeed: Get the result and reloop or leave
+    if pos != 0
+      " Avance, one line more to not rematch the same pattern if not last segment_nb
+      if success_nb < a:segment_nb-1
+        let pos += 1
+        let is_last_segment = -1
       endif
-    endfor
+      call cursor(pos, 1)
+      let success_nb += 1
 
-    " Check if happy
-    if success_nb == a:segment_nb
-      return 0
+      " Break  if last line (avoid infinite loop)
+      " Anyway leave the loop: (Imagine heading # 7271212 at last line)
+      if pos >= line('$')
+        return 0
+      endif
+    " Fail:
+    " Do not move
+    " But maybe suffix -2 is not the segment number but the real header suffix
+    else
+      " If fail at first: do not move
+      if i == 0
+        call setpos('.', oldpos)
+      endif
+      " Anyway leave the loop: (Imagine heading # 7271212, you do not want to loop all that)
+      " Go one line back: if I advanced too much
+      if is_last_segment == -1 | call cursor(line('.')-1, 1) | endif
+      return 1
     endif
+  endfor
 
-    " Or keep on (i.e more than once segment)
-    let oldpos = getpos('.')
+  " Check if happy
+  if success_nb == a:segment_nb
+    return 0
+  endif
 
-    " Said 'fail' to caller
-    return 1
+  " Or keep on (i.e more than once segment)
+  let oldpos = getpos('.')
+
+  " Said 'fail' to caller
+  return 1
 endfunction
 
 
@@ -2482,7 +2486,7 @@ function! vimwiki#base#table_of_contents(create) abort
       endif
 
       " Normalize anchor
-      let anchor = s:normalize_anchor(anchor, previous_anchors)
+      let anchor = vimwiki#base#normalize_anchor(anchor, previous_anchors)
 
       " Insert link in template
       let link = s:safesubstitute(link_tpl, '__LinkUrl__',
@@ -2494,7 +2498,7 @@ function! vimwiki#base#table_of_contents(create) abort
     return lines
   endfunction
 
-  let links_rx = '\%(^\s*$\)\|\%(^\s*\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)\)'
+  let links_rx = '\%(^\s*$\)\|^\s*\%(\%('.vimwiki#vars#get_syntaxlocal('rxListBullet').'\)\)'
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorTOC,
         \ toc_header_text,

@@ -38,7 +38,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 1. Global
+" 1. Global {{{1
 " ----------------------------------------------------------
 
 " Populate global variable <- user & default
@@ -337,12 +337,15 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 2. Buffer local
+" 2. Buffer local {{{1
 " ----------------------------------------------------------
 
 " Populate local variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_wikilocal_options() abort
+  " Warning Dev: if type is dict,
+  " -- the default dict gets extended and not replaced: keys are not deleted
+
   " Init local variable container
   let g:vimwiki_wikilocal_vars = []
 
@@ -393,6 +396,14 @@ function! s:populate_wikilocal_options() abort
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'tag_format': {'type': type({}), 'default': {
+        \   'pre': '^\|\s',
+        \   'pre_mark': ':',
+        \   'in': '[^:''[:space:]]\+',
+        \   'sep': ':',
+        \   'post_mark': ':',
+        \   'post': '\s\|$',
+        \   'conceal': 0, 'cchar':''}},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -402,8 +413,16 @@ function! s:populate_wikilocal_options() abort
   let default_wiki_settings = {}
   for key in keys(default_values)
     if exists('g:vimwiki_'.key)
+      " Check type
       call s:check_users_value(key, g:vimwiki_{key}, default_values[key], 1)
-      let default_wiki_settings[key] = g:vimwiki_{key}
+      " Update if dict
+      if default_values[key]['type'] == type({})
+        let default_wiki_settings[key] = default_values[key].default
+        call extend(default_wiki_settings[key], g:vimwiki_{key})
+      " Set if other var
+      else
+        let default_wiki_settings[key] = g:vimwiki_{key}
+      endif
     else
       let default_wiki_settings[key] = default_values[key].default
     endif
@@ -419,7 +438,14 @@ function! s:populate_wikilocal_options() abort
           if key ==# 'list_margin'
             let s:margin_set_by_user = 1
           endif
-          let new_wiki_settings[key] = users_wiki_settings[key]
+          " Update if dict
+          if default_values[key]['type'] == type({})
+            let new_wiki_settings[key] = extend({}, default_values[key].default)
+            let new_wiki_settings[key] = extend(new_wiki_settings.key, users_wiki_settings[key])
+          " Set if other var
+          else
+            let new_wiki_settings[key] = users_wiki_settings[key]
+          endif
         else
           let new_wiki_settings[key] = default_wiki_settings[key]
         endif
@@ -578,7 +604,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 3. Syntax specific
+" 3. Syntax specific {{{1
 " ----------------------------------------------------------
 
 " Populate syntax variable
@@ -614,6 +640,42 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   endif
   let syntax_dic['cycle_bullets'] =
         \ vimwiki#vars#get_wikilocal('cycle_bullets')
+
+  " Tag: get var
+  let syntax_dic.tag_format = {}
+  let tf = syntax_dic.tag_format
+  call extend(tf, vimwiki#vars#get_wikilocal('tag_format'))
+
+  " Tag: Close regex
+  for key in ['pre', 'pre_mark', 'in', 'sep', 'post_mark', 'post']
+    let tf[key] = '\%(' . tf[key] . '\)'
+  endfor
+
+  " Match \s<tag[:tag:tag:tag...]>\s
+  " Tag: highlighting
+  " Used: syntax/vimwiki.vim
+  let syntax_dic.rxTags =
+        \   tf.pre . '\@<=' . tf.pre_mark . tf.in
+        \ . '\%(' . tf.sep . tf.in . '\)*'
+        \ . tf.post_mark . tf.post . '\@='
+
+  " Tag: searching for all
+  " Used: vimwiki#base#get_anchors <- GenerateTagLinks
+  let syntax_dic.tag_search =
+        \   tf.pre . tf.pre_mark . '\zs'
+        \ . tf.in . '\%(' . tf.sep . tf.in . '\)*'
+        \ . '\ze' . tf.post_mark . tf.post
+
+  " Tag: matching a specific: when goto tag
+  " Used: tags.vim->s:scan_tags
+  " Match <[tag:tag:...tag:]__TAG__[:tag...:tag]>
+  let syntax_dic.tag_match =
+        \   tf.pre . tf.pre_mark
+        \ . '\%(' . tf.in . tf.sep . '\)*'
+        \ . '__Tag__'
+        \ . '\%(' . tf.sep . tf.in . '\)*'
+        \ . tf.post_mark . tf.post
+
 
   " Populate generic stuff
   let header_symbol = syntax_dic.rxH
@@ -771,7 +833,7 @@ function! s:populate_list_vars(wiki) abort
   let a:wiki.multiple_bullet_chars =
         \ recurring_bullets
         \ ? a:wiki.bullet_types : []
-  
+
   " Create regexp for bulleted list items
   if !empty(a:wiki.bullet_types)
     let rxListBullet =
@@ -1007,7 +1069,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 4. Getter, Setter (exported)
+" 4. Getter, Setter (exported) {{{1
 " ----------------------------------------------------------
 
 " Get syntax variable

@@ -141,11 +141,11 @@ else
 endif
 
 
-" Weblink [DESCRIPTION](FILE)
+" Weblink: [DESCRIPTION](FILE)
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink'), 'VimwikiLink')
 
 
-" WikiLink
+" WikiLink:
 " All remaining schemes are highlighted automatically
 let s:rxSchemes = '\%('.
       \ vimwiki#vars#get_global('schemes') . '\|'.
@@ -180,7 +180,7 @@ call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
 
-" Header levels, 1-6
+" Header Level: 1..6
 for s:i in range(1,6)
   execute 'syntax match VimwikiHeader'.s:i
       \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).
@@ -192,7 +192,7 @@ for s:i in range(1,6)
         \ '/me=s-1 transparent fold'
 endfor
 
-" SetExt header
+" SetExt Header:
 " TODO mutualise SetExt Regexp
 let setex_header1_re = '^\s\{0,3}[^>].*\n\s\{0,3}==\+$'
 let setex_header2_re = '^\s\{0,3}[^>].*\n\s\{0,3}--\+$'
@@ -244,7 +244,7 @@ execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
 
 
 
-" Tables
+" Table:
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
@@ -265,12 +265,12 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
 syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
-" Lists
+" List:
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
 
-" Task list done
+" Task List Done:
 if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
@@ -284,7 +284,7 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
 endif
 
 
-" <hr> horizontal rule
+" Horizontal Rule: <hr>
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
 let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
@@ -295,7 +295,7 @@ execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMath
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
 
-" placeholders
+" Placeholder:
 syntax match VimwikiPlaceholder /^\s*%nohtml\s*$/
 syntax match VimwikiPlaceholder
       \ /^\s*%title\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
@@ -306,17 +306,25 @@ syntax match VimwikiPlaceholder
 syntax match VimwikiPlaceholderParam /.*/ contained
 
 
-" html tags <u>
+" Html Tag: <u>
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
   " Include: Source html file here
   execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
 endif
 
 
-" tags
-execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
+" Tag:
+let tag_cmd = 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
+let tf = vimwiki#vars#get_wikilocal('tag_format')
+if exists('+conceallevel') && tf.conceal != 0
+  let tag_cmd .= ' conceal'
+  if tf.cchar !=# ''
+    let tag_cmd .= ' cchar=' . tf.cchar
+  endif
+endif
+execute tag_cmd
 
-" header groups highlighting
+" Header Groups: highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
   " Strangely in default colorscheme Title group is not set to bold for cterm...
   if !exists('g:colors_name')
@@ -334,12 +342,12 @@ else
 endif
 
 
-" Highlight Typefaces -> u.vim
+" Typeface: -> u.vim
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
 
 
-" Emoji :dog: (after tags to take precedence)
+" Emoji: :dog: (after tags to take precedence)
 if and(vimwiki#vars#get_global('emoji_enable'), 1) != 0 && has('conceal')
   call vimwiki#emoji#apply_conceal()
 endif

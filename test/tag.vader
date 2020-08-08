@@ -1,0 +1,211 @@
+# Tag generation and navigation
+# Note: The Generate must be in Execute
+
+Execute (Copy Wiki's Resources):
+  Log "Start: Copy Resources"
+  call CopyResources()
+
+Execute (Setup):
+  set sw=4
+  AssertEqual 4, &sw
+
+
+######################################################################
+Execute (Change delimiter <tag1|tag2> {{{1):
+  let g:vimwiki_tag_format = {'pre_mark': '<', 'post_mark': '>', 'sep': '|'}
+  unlet g:vimwiki_syntax_variables
+  call vimwiki#vars#init()
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Create File Content with <>):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  I
+  <tag-bar-1>\<CR>
+  \<CR>
+  # A header\<CR>
+  \<CR>
+  <tag-bar-2|tag-bar-3>\<CR>
+  \<CR>
+  # Another header\<CR>
+  \<CR>
+  Words here.
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  gg
+
+
+Execute (Generate tags):
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual 'VimwikiTag', SyntaxAt(1, 1)
+  VimwikiGenerateTagLinks
+  set tw=200
+
+Expect (Correctly generated tags section {{{3):
+  <tag-bar-1>
+
+  # A header
+
+  <tag-bar-2|tag-bar-3>
+
+  # Another header
+
+  Words here.
+
+  # Generated Tags
+
+  ## tag-bar-1
+
+  - [Test-Tag](Test-Tag)
+
+  ## tag-bar-2
+
+  - [a-header](Test-Tag#a-header)
+
+  ## tag-bar-3
+
+  - [a-header](Test-Tag#a-header)
+
+
+Do (Write a quick tag for a quick jump):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  ggdG
+  I
+  [go1](Test-Tag#tag-bar-1)\<Cr>
+  [go2](#tag-bar-1)\<Cr>
+  bla\<Cr>
+  <tag-bar-1>\<Esc>
+  ggl\<Cr>A __HERE1__\<Esc>
+  ggjl\<Cr>A __HERE2__\<Esc>
+
+Expect (Good jump {{{3):
+  [go1](Test-Tag#tag-bar-1)
+  [go2](#tag-bar-1)
+  bla
+  <tag-bar-1> __HERE1__ __HERE2__
+
+Execute (Clean Test-Tag and .vimwiki_tags -2):
+  let g:vimwiki_tag_format = {}
+  unlet g:vimwiki_syntax_variables
+  call vimwiki#vars#init()
+  call system("rm $HOME/testmarkdown/Test.md")
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag.md")
+  call DeleteHiddenBuffers()
+
+
+######################################################################
+Execute (Default tag generation {{{1):
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  set tw=200
+
+Do (Single file Part1):
+  :edit $HOME/testmarkdown/Test-Tag.md\<Cr>
+  ggdGO
+  :single-tag:\<Esc>
+  :write\<Cr>
+  :VimwikiRebuildTags!\<Cr>
+
+Execute (Generate tags):
+  edit $HOME/testmarkdown/Test-Tag.md
+  AssertEqual 'VimwikiTag', SyntaxAt(1, 1)
+  VimwikiGenerateTagLinks
+  write
+
+Expect (Single tags toc):
+  :single-tag:
+
+
+  # Generated Tags
+
+  ## single-tag
+
+  - [Test-Tag](Test-Tag)
+
+
+Do (Create File Content):
+  :edit $HOME/testmarkdown/Test-Tag.md\<CR>
+  ggdGO
+  :top-tag:\<CR>
+  \<CR>
+  # A header\<CR>
+  \<CR>
+  :test-tag:\<CR>
+  \<CR>
+  # Another header\<CR>
+  \<CR>
+  Words here.\<CR>
+  If tag isn't within 2 lines of header then it has a direct link instead of\<CR>
+  a link to the header.\<CR>
+  \<CR>
+  :second-tag:
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags\<CR>
+
+Execute (Edit tags file):
+  edit $HOME/testmarkdown/.vimwiki_tags
+  AssertEqual $HOME . '/testmarkdown/.vimwiki_tags', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+# Note: tags file uses tabs
+Expect (Correctly formatted tags file):
+  !_TAG_FILE_FORMAT	2
+  !_TAG_FILE_SORTED	1
+  !_TAG_OUTPUT_MODE	vimwiki-tags
+  !_TAG_PROGRAM_AUTHOR	Vimwiki
+  !_TAG_PROGRAM_NAME	Vimwiki Tags
+  !_TAG_PROGRAM_URL	https://github.com/vimwiki/vimwiki
+  !_TAG_PROGRAM_VERSION	2.5
+  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag
+  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header
+  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+
+Execute (Generate tags):
+  edit $HOME/testmarkdown/Test-Tag.md
+  VimwikiGenerateTagLinks
+
+Expect (Correctly generated tags section):
+  :top-tag:
+
+  # A header
+
+  :test-tag:
+
+  # Another header
+
+  Words here.
+  If tag isn't within 2 lines of header then it has a direct link instead of
+  a link to the header.
+
+  :second-tag:
+
+
+  # Generated Tags
+
+  ## second-tag
+
+  - [second-tag](Test-Tag#second-tag)
+
+  ## test-tag
+
+  - [a-header](Test-Tag#a-header)
+
+  ## top-tag
+
+  - [Test-Tag](Test-Tag)
+
+Execute (Clean Test-Tag and .vimwiki_tags -1 ):
+  call system("rm $HOME/testmarkdown/Test.md")
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag.md")
+  call DeleteHiddenBuffers()
+
+# vim: sw=2:foldlevel=30:foldmethod=marker:

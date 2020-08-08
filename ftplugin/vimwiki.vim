@@ -22,26 +22,38 @@ exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 " Help for omnicompletion
 function! Complete_wikifiles(findstart, base) abort
+  " s:line_context = link | tag | ''
   if a:findstart == 1
+    " Find line context
+    " Called: first time
     let column = col('.')-2
     let line = getline('.')[:column]
+
+    " Check Link:
+    " -- WikiLink
     let startoflink = match(line, '\[\[\zs[^\\[\]]*$')
     if startoflink != -1
-      let s:line_context = '['
+      let s:line_context = 'link'
       return startoflink
     endif
+    " -- WebLink
     if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
-        let s:line_context = '['
+        let s:line_context = 'link'
         return startofinlinelink
       endif
     endif
-    let startoftag = match(line, ':\zs[^:[:space:]]*$')
+
+    " Check Tag:
+    let tf = vimwiki#vars#get_syntaxlocal('tag_format')
+    let startoftag = match(line, tf.pre_mark . '\zs' . tf.in . '*$')
     if startoftag != -1
-      let s:line_context = ':'
+      let s:line_context = 'tag'
       return startoftag
     endif
+
+    " Nothing can do ...
     let s:line_context = ''
     return -1
   else
@@ -50,8 +62,8 @@ function! Complete_wikifiles(findstart, base) abort
     " solution, because calling col('.') here returns garbage.
     if s:line_context ==? ''
       return []
-    elseif s:line_context ==# ':'
-      " Tags completion
+    elseif s:line_context ==# 'tag'
+      " Look Tags: completion
       let tags = vimwiki#tags#get_tags()
       if a:base !=? ''
         call filter(tags,
@@ -59,8 +71,7 @@ function! Complete_wikifiles(findstart, base) abort
       endif
       return tags
     elseif a:base !~# '#'
-      " we look for wiki files
-
+      " Look Wiki: files
       if a:base =~# '\m^wiki\d\+:'
         let wikinumber = eval(matchstr(a:base, '\m^wiki\zs\d\+'))
         if wikinumber >= vimwiki#vars#number_of_wikis()
@@ -88,7 +99,7 @@ function! Complete_wikifiles(findstart, base) abort
       return result
 
     else
-      " we look for anchors in the given wikifile
+      " Look Anchor: in the given wikifile
 
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0] ==? '' ? expand('%:t:r') : segments[0]

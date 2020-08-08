@@ -68,7 +68,6 @@ let s:default_syntax.rxMathEnd = '}}\$'
 let s:default_syntax.rxMultilineCommentStart = '%%+'
 let s:default_syntax.rxMultilineCommentEnd = '+%%'
 let s:default_syntax.rxComment = '^\s*%%.*$'
-let s:default_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:''[:space:]]\+:\)\+\%(\s\|$\)\@='
 
 let s:default_syntax.header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let s:default_syntax.header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
@@ -77,6 +76,3 @@ let s:default_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:spa
 let s:default_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.
       \ '\%([[:punct:]]\|\s\|$\)\@='
 let s:default_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let s:default_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-let s:default_syntax.tag_match =  '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
-      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'
