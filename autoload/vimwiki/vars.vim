@@ -239,8 +239,8 @@ function! s:read_global_settings_from_user() abort
   for month in range(1, 12)
     if !has_key(users_value, month) || type(users_value[month]) != type('') ||
           \ empty(users_value[month])
-      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
       break
     endif
   endfor
@@ -249,8 +249,8 @@ function! s:read_global_settings_from_user() abort
   let users_value = g:vimwiki_global_vars[key]
   for ext in keys(users_value)
     if empty(ext) || index(['markdown', 'media', 'mediawiki', 'default'], users_value[ext]) == -1
-      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
       break
     endif
   endfor
@@ -343,7 +343,7 @@ endfunction
 " Populate local variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_wikilocal_options() abort
-  " Warning Dev: if type is dict,
+  " Dev: if type is dict,
   " -- the default dict gets extended and not replaced: keys are not deleted
 
   " Init local variable container
@@ -481,8 +481,8 @@ function! s:populate_wikilocal_options() abort
     for keyword in keys(users_value)
       if type(keyword) != type('') || empty(keyword) || type(users_value[keyword]) != type('') ||
             \ empty(users_value[keyword])
-        echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+        call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
         break
       endif
     endfor
@@ -493,7 +493,7 @@ endfunction
 
 
 " Helper, Check user setting
-" warn user with echo message if not good type
+" warn user with message if not good type
 " Param: 1: key <string>: varaible name
 " Param: 2: vimwiki_key <obj>: user value
 " Param: 3: value_infod <dict>: type and default value
@@ -514,44 +514,44 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
         \ 'vimwiki-option-'
 
   if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
-    echom printf('Vimwiki Error: The provided value of the option %s is a %s, ' .
+    call vimwiki#u#error(printf('The provided value of the option %s is a %s, ' .
           \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
-          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key)
+          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key))
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
         \ a:users_value < a:value_infos.min
-    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
           \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min, a:key)
+          \ setting_origin, a:value_infos.min, a:key))
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
         \ a:users_value > a:value_infos.max
-    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
           \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.max, a:key)
+          \ setting_origin, a:value_infos.max, a:key))
   endif
 
   if has_key(a:value_infos, 'possible_values') &&
         \ index(a:value_infos.possible_values, a:users_value) == -1
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s is'
           \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, string(a:value_infos.possible_values), a:key)
+          \ setting_origin, string(a:value_infos.possible_values), a:key))
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
         \ strwidth(a:users_value) != a:value_infos.length
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
           \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
-          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key)
+          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key))
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
         \ strwidth(a:users_value) < a:value_infos.min_length
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
           \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key)
+          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key))
   endif
 endfunction
 
@@ -851,9 +851,9 @@ function! s:populate_list_vars(wiki) abort
 
   " Guard: Check if listym_rejected is in listsyms
   if match(a:wiki.listsyms, '[' . a:wiki.listsym_rejected . ']') != -1
-    echomsg 'Vimwiki Warning: the value of listsym_rejected ('''
+    call vimwiki#u#warn('the value of listsym_rejected ('''
           \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
-          \ . a:wiki.listsyms . ''')'
+          \ . a:wiki.listsyms . ''')')
   endif
 
   let a:wiki.rxListItemWithoutCB =
@@ -1121,7 +1121,7 @@ function! vimwiki#vars#get_bufferlocal(key, ...) abort
   elseif a:key ==# 'markdown_refs'
     call setbufvar(buffer, 'vimwiki_markdown_refs', vimwiki#markdown_base#scan_reflinks())
   else
-    echoerr 'Vimwiki Error: unknown buffer variable ' . string(a:key)
+    call vimwiki#u#echo('unknown buffer variable ' . string(a:key))
   endif
 
   return getbufvar(buffer, 'vimwiki_'.a:key)

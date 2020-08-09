@@ -328,7 +328,7 @@ function! vimwiki#base#system_open_link(url) abort
       return
     endif
   endtry
-  echomsg 'Vimwiki Error: Default Vimwiki link handler was unable to open the HTML file!'
+  call vimwiki#u#error('Default Vimwiki link handler was unable to open the HTML file!')
 endfunction
 
 
@@ -343,12 +343,12 @@ function! vimwiki#base#open_link(cmd, link, ...) abort
 
   if link_infos.filename ==? ''
     if link_infos.index == -1
-      echomsg 'Vimwiki Error: No registered wiki ''' . link_infos.scheme . '''.'
+      call vimwiki#u#error('No registered wiki ''' . link_infos.scheme . '''.')
     elseif link_infos.index == -2
       " scheme field stores wiki name for this error case
-      echom 'Vimwiki Error: No wiki found with name "' . link_infos.scheme . '"'
+      call vimwiki#u#error('No wiki found with name "' . link_infos.scheme . '"')
     else
-      echomsg 'Vimwiki Error: Unable to resolve link!'
+      call vimwiki#u#error('Unable to resolve link!')
     endif
     return
   endif
@@ -509,7 +509,7 @@ function! vimwiki#base#backlinks() abort
   endfor
 
   if empty(locations)
-    echomsg 'Vimwiki: No other file links to this file'
+    call vimwiki#u#echo('No other file links to this file')
   else
     call setloclist(0, locations, 'r')
     lopen
@@ -967,7 +967,7 @@ function! vimwiki#base#check_links(range, line1, line2) abort
   else
     let wiki_list = range(a:line1, a:line2)
   endif
-  echom 'Vimwiki Checking links in wikis ' . string(wiki_list)
+  call vimwiki#u#echo('Checking links in wikis ' . string(wiki_list))
 
   let anchors_of_files = {}
   let links_of_files = {}
@@ -1063,7 +1063,7 @@ function! vimwiki#base#check_links(range, line1, line2) abort
 
   " Fill: QuickFix list
   if empty(errors)
-    echomsg 'Vimwiki: All links are OK'
+    call vimwiki#u#echo('All links are OK')
   else
     call setqflist(errors, 'r')
     copen
@@ -1084,8 +1084,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
   let ok = vimwiki#path#mkdir(dir, 1)
 
   if !ok
-    echomsg ' '
-    echomsg 'Vimwiki Error: Unable to edit file in non-existent directory: '.dir
+    call vimwiki#u#error('Unable to edit file in non-existent directory: '.dir)
     return
   endif
 
@@ -1097,11 +1096,11 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
     try
       execute a:command fname
     catch /E37:/
-      echomsg 'Vimwiki: Can''t leave the current buffer, because it is modified. Hint: Take a look at'
-            \ ''':h g:vimwiki_autowriteall'' to see how to save automatically.'
+      call vimwiki#u#warn('Can''t leave the current buffer, because it is modified. Hint: Take a look at'
+            \ . ''':h g:vimwiki_autowriteall'' to see how to save automatically.')
       return
     catch /E325:/
-      echom 'Vimwiki: Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.'
+      call vimwiki#u#warn('Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.')
       return
     endtry
     " If the opened file was not already loaded by Vim, an autocommand is
@@ -1129,7 +1128,7 @@ endfunction
 function! vimwiki#base#search_word(wikiRX, flags) abort
   let match_line = search(a:wikiRX, 's'.a:flags)
   if match_line == 0
-    echomsg 'Vimwiki: Wiki link not found'
+    call vimwiki#u#echo('Wiki link not found')
   endif
 endfunction
 
@@ -1228,7 +1227,7 @@ endfunction
 " Param: old: url regex of old path relative to wiki root
 " Param: new: url string of new path
 function! s:update_wiki_link(fname, old, new) abort
-  echo 'Updating links in '.a:fname
+  call vimwiki#u#echo('Updating links in '.a:fname)
   let has_updates = 0
   let dest = []
   for line in readfile(a:fname)
@@ -1701,7 +1700,7 @@ function! vimwiki#base#goto_index(wnum, ...) abort
   endif
 
   if a:wnum > vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in your Vimwiki settings!'
+    call vimwiki#u#error('Wiki '.a:wnum.' is not registered in your Vimwiki settings!')
     return
   endif
 
@@ -1736,14 +1735,14 @@ function! vimwiki#base#delete_link() abort
   try
     call delete(fname)
   catch /.*/
-    echomsg 'Vimwiki Error: Cannot delete "'.expand('%:t:r').'"!'
+    call vimwiki#u#error('Cannot delete "'.expand('%:t:r').'"!')
     return
   endtry
 
   call vimwiki#base#go_back_link()
   execute 'bdelete! '.escape(fname, ' ')
 
-  " reread buffer => deleted wiki link should appear as non-existent
+  " Reread buffer => deleted wiki link should appear as non-existent
   if expand('%:p') !=? ''
     execute 'e'
   endif
@@ -1765,11 +1764,11 @@ function! s:input_rename_link() abort
 
   " Guard: Check link
   if new_link =~# '[/\\]'
-    echomsg 'Vimwiki Error: Cannot rename to a filename with path!'
+    call vimwiki#u#error('Cannot rename to a filename with path!')
     return
   endif
   if substitute(new_link, '\s', '', 'g') ==? ''
-    echomsg 'Vimwiki Error: Cannot rename to an empty filename!'
+    call vimwiki#u#error('Cannot rename to an empty filename!')
     return
   endif
 
@@ -1796,8 +1795,8 @@ function! vimwiki#base#rename_link(...) abort
 
   " Clause: Check if there current buffer is a file (new buffer maybe)
   if glob(expand('%:p')) ==? ''
-    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:p').
-          \'". Current file does not exist! (New file? Save it before renaming.)'
+    call vimwiki#u#error('Cannot rename "'.expand('%:p')
+          \ . '". Current file does not exist! (New file? Save it before renaming.)')
     return
   endif
 
@@ -1812,7 +1811,7 @@ function! vimwiki#base#rename_link(...) abort
   " Guard: Do not rename if file with such name exists
   let fname = glob(new_fname)
   if fname !=? ''
-    echomsg 'Vimwiki Error: Cannot rename to "'.new_fname.'". File with that name exist!'
+    call vimwiki#u#error('Cannot rename to "'.new_fname.'". File with that name exist!')
     return
   endif
 
@@ -1828,13 +1827,13 @@ function! vimwiki#base#rename_link(...) abort
 
   " Rename wiki link file
   try
-    echomsg 'Vimwiki: Renaming '.wikiroot_path.old_fname.' to '.new_fname
+    call vimwiki#u#echo('Renaming '.wikiroot_path.old_fname.' to '.new_fname)
     let res = rename(expand('%:p'), expand(new_fname))
     if res != 0
       throw 'Cannot rename!'
     end
   catch /.*/
-    echomsg 'Vimwiki Error: Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"'
+    call vimwiki#u#error('Cannot rename "'.expand('%:t:r').'" to "'.new_fname.'"')
     return
   endtry
 
@@ -1894,12 +1893,12 @@ function! vimwiki#base#rename_link(...) abort
     exe 'bwipeout! ' . buf_old_info[2]
   else
     " Should not happen
-    echomsg 'Vimwiki Error: New buffer is the same as old, so will not delete: '
-          \ . buf_new_nb . '.Please open an issue if see this messsage'
+    call vimwiki#u#error('New buffer is the same as old, so will not delete: '
+          \ . buf_new_nb . '.Please open an issue if see this messsage')
   endif
 
   " Log success
-  echomsg 'Vimwiki: '.old_fname.' is renamed to '.new_fname
+  call vimwiki#u#echo(old_fname.' is renamed to '.new_fname)
 
   " Restore prompt
   let &more = more_save
@@ -2354,7 +2353,7 @@ function! vimwiki#base#goto_parent_header() abort
   if parent_header >= 0
     call cursor(headers[parent_header][0], 1)
   else
-    echo 'Vimwiki: no parent header found'
+    call vimwiki#u#echo('no parent header found')
   endif
 endfunction
 
@@ -2368,7 +2367,7 @@ function! vimwiki#base#goto_next_header() abort
   elseif current_header_index < 0 && !empty(headers)  " we're above the first header
     call cursor(headers[0][0], 1)
   else
-    echo 'Vimwiki: no next header found'
+    call vimwiki#u#echo('no next header found')
   endif
 endfunction
 
@@ -2384,7 +2383,7 @@ function! vimwiki#base#goto_prev_header() abort
   if current_header_index >= 0
     call cursor(headers[current_header_index][0], 1)
   else
-    echo 'Vimwiki: no previous header found'
+    call vimwiki#u#echo('no previous header found')
   endif
 endfunction
 
@@ -2399,7 +2398,7 @@ function! vimwiki#base#goto_sibling(direction) abort
         \ headers[current_header_index][1]
     call cursor(headers[next_potential_sibling][0], 1)
   else
-    echo 'Vimwiki: no sibling header found'
+    call vimwiki#u#echo('no sibling header found')
   endif
 endfunction
 
@@ -2804,7 +2803,7 @@ endfunction
 " Called by commands VimwikiSearch and VWS
 function! vimwiki#base#search(search_pattern) abort
   if empty(a:search_pattern)
-    echomsg 'Vimwiki Error: No search pattern given.'
+    call vimwiki#u#error('No search pattern given.')
     return
   endif
 
@@ -2825,17 +2824,10 @@ function! vimwiki#base#search(search_pattern) abort
   try
     execute cmd
   catch
-    echomsg 'VimwikiSearch: No match found.'
+    call vimwiki#u#echo('Search: No match found.')
   endtry
 endfunction
 
-
-" Warn deprecated feature
-function! vimwiki#base#deprecate(old, new) abort
-  echohl WarningMsg
-  echo a:old 'is deprecated and will be removed in future versions, use' a:new 'instead.'
-  echohl None
-endfunction
 
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality

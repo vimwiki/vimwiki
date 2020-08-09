@@ -256,17 +256,19 @@ endfunction
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
-      \                             expand('%'))
+      \ let res = vimwiki#html#Wiki2HTML(
+      \   expand(vimwiki#vars#get_wikilocal('path_html')), expand('%'))
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '
-      \      . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
+      \ if res != '' | call vimwiki#u#echo('HTML conversion is done, output: '
+      \      . expand(vimwiki#vars#get_wikilocal('path_html'))) | endif
+
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(vimwiki#vars#get_wikilocal('path_html')),
       \         expand('%')))
+
 command! -buffer -bang VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')), <bang>0)
 
@@ -566,7 +568,6 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   endif
 endif
 
-" Not used
 function! s:CR(normal, just_mrkr) abort
   let res = vimwiki#tbl#kbd_cr()
   if res !=? ''

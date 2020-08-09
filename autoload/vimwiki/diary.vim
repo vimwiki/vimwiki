@@ -281,7 +281,7 @@ function! vimwiki#diary#make_note(wnum, ...) abort
   endif
 
   if wiki_nr >= vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.wiki_nr.' is not registered in g:vimwiki_list!'
+    call vimwiki#u#error('Wiki '.wiki_nr.' is not registered in g:vimwiki_list!')
     return
   endif
 
@@ -321,7 +321,7 @@ function! vimwiki#diary#goto_diary_index(wnum) abort
   endif
 
   if a:wnum > vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
+    call vimwiki#u#error('Wiki '.a:wnum.' is not registered in g:vimwiki_list!')
     return
   endif
 
@@ -471,7 +471,7 @@ function! vimwiki#diary#generate_diary_section() abort
           \ 1,
           \ 1)
   else
-    echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
+    call vimwiki#u#error('You can generate diary links only in a diary index page!')
   endif
 endfunction
 

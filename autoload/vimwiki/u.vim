@@ -3,6 +3,49 @@
 " Description: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
 
+" Echo: msg
+" :param: (1) <string> highlighting group
+" :param: (2) <string> echo suffix (ex: 'n', 'm'
+function! vimwiki#u#echo(msg, ...) abort
+  let hl_group = a:0 > 0 ? a:1 : ''
+  let echo_suffix = a:0 > 1 ? a:2 : ''
+  " Start highlighting
+  if hl_group !=# ''
+    exe 'echohl ' . hl_group
+  endif
+  " Print
+  let msg = substitute(a:msg, "'", "''", 'g')
+  exe 'echo'.echo_suffix . " 'Vimwiki: " . msg . "'"
+  " Stop highlighting
+  if hl_group !=# ''
+    echohl None
+  endif
+endfunction
+
+" Debug: msg
+" let b:vimwiki_debug to trigger
+function! vimwiki#u#debug(msg) abort
+  if !exists('b:vimwiki_debug') || b:vimwiki_debug == 0
+    return
+  endif
+  echomsg 'DEBUG: ' . a:msg
+endfunction
+
+" Warn: msg
+function! vimwiki#u#warn(msg) abort
+  call vimwiki#u#echo('Warning: ' . a:msg, 'WarningMsg', '')
+endfunction
+
+" Error: msg
+function! vimwiki#u#error(msg) abort
+  call vimwiki#u#echo('Error: ' . a:msg, 'Error', 'msg')
+endfunction
+
+" Warn: deprecated feature: old -> new
+function! vimwiki#u#deprecate(old, new) abort
+  call vimwiki#u#warn('Deprecated: ' . a:old . ' is deprecated and '
+        \ . 'will be removed in future versions. Use ' . a:new . ' instead.')
+endfunction
 
 " Get visual selection text content, optionaly replace its content
 " :param: Text to replace selection
@@ -264,7 +307,6 @@ function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
         \ opt_contains .
         \ b:vimwiki_syntax_concealends .
         \ opt_more
-  "echom cmd
   exe cmd
 endfunction
 

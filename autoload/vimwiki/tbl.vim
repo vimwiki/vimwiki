@@ -617,7 +617,6 @@ function! s:kbd_goto_prev_col(jumpup) abort
   let cmd .= ":call vimwiki#tbl#goto_prev_col()\<CR>a"
   " let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'b', line('.'))\<CR>"
   " let cmd .= "a"
-  "echomsg "DEBUG kbd_goto_prev_col> ".cmd
   return cmd
 endfunction
 
@@ -645,7 +644,7 @@ function! vimwiki#tbl#kbd_tab() abort
 
   let last = s:is_last_column(lnum, col('.'))
   let is_sep = s:is_separator_tail(getline(lnum))
-  "echomsg "DEBUG kbd_tab> last=".last.", is_sep=".is_sep
+  "vimwiki#u#debug("DEBUG kbd_tab> last=".last.", is_sep=".is_sep)
   if (is_sep || last) && !s:is_table(getline(lnum+1))
     let cols = len(vimwiki#tbl#get_cells(getline(lnum)))
     return s:kbd_create_new_row(cols, 1)
@@ -662,7 +661,7 @@ function! vimwiki#tbl#kbd_shift_tab() abort
 
   let first = s:is_first_column(lnum, col('.'))
   let is_sep = s:is_separator_tail(getline(lnum))
-  "echomsg "DEBUG kbd_tab> ".first
+  "vimwiki#u#debug("kbd_tab> ".first)
   if (is_sep || first) && !s:is_table(getline(lnum-1))
     return ''
   endif

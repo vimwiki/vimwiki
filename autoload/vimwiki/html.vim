@@ -145,7 +145,7 @@ function! s:get_html_template(template) abort
       let lines = readfile(template_name)
       return lines
     catch /E484/
-      echomsg 'Vimwiki: HTML template '.template_name. ' does not exist!'
+      call vimwiki#u#echo('HTML template '.template_name. ' does not exist!')
     endtry
   endif
 
@@ -203,7 +203,7 @@ function! s:delete_html_files(path) abort
     try
       call delete(fname)
     catch
-      echomsg 'Vimwiki Error: Cannot delete '.fname
+      call vimwiki#u#error('Cannot delete '.fname)
     endtry
   endfor
 endfunction
@@ -1640,9 +1640,9 @@ function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
       \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
       \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
-  " Echo if non void
+  " Print if non void
   if output !~? '^\s*$'
-    echomsg output
+    call vimwiki#u#echo(string(output))
   endif
 endfunction
 
@@ -1723,7 +1723,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
 
   let result['nohtml'] = nohtml
   if nohtml
-    echon "\r".'%nohtml placeholder found'
+    call vimwiki#u#echo("\r".'%nohtml placeholder found', '', 'n')
     return result
   endif
 
@@ -1808,7 +1808,7 @@ function! s:convert_file(path_html, wikifile) abort
     return path_html.htmlfile
   endif
 
-  echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
+  call vimwiki#u#error('Conversion to HTML is not supported for this syntax')
   return ''
 endfunction
 
@@ -1824,11 +1824,11 @@ endfunction
 
 function! vimwiki#html#WikiAll2HTML(path_html, force) abort
   if !s:syntax_supported() && !s:use_custom_wiki2html()
-    echomsg 'Vimwiki Error: Conversion to HTML is not supported for this syntax'
+    call vimwiki#u#error('Conversion to HTML is not supported for this syntax')
     return
   endif
 
-  echomsg 'Vimwiki: Saving Vimwiki files ...'
+  call vimwiki#u#echo('Saving Vimwiki files ...')
   let save_eventignore = &eventignore
   let &eventignore = 'all'
   try
@@ -1842,12 +1842,12 @@ function! vimwiki#html#WikiAll2HTML(path_html, force) abort
   call vimwiki#path#mkdir(path_html)
 
   if !vimwiki#vars#get_wikilocal('html_filename_parameterization')
-    echomsg 'Vimwiki: Deleting non-wiki html files ...'
+    call vimwiki#u#echo('Deleting non-wiki html files ...')
     call s:delete_html_files(path_html)
   endif
 
-  echomsg 'Vimwiki: Converting wiki to html files ...'
   let setting_more = &more
+  call vimwiki#u#echo('Converting wiki to html files ...')
   setlocal nomore
 
   " temporarily adjust current_subdir global state variable
@@ -1865,11 +1865,11 @@ function! vimwiki#html#WikiAll2HTML(path_html, force) abort
     call vimwiki#vars#set_bufferlocal('invsubdir', vimwiki#base#invsubdir(subdir))
 
     if a:force || !s:is_html_uptodate(wikifile)
-      echomsg 'Vimwiki: Processing '.wikifile
+      call vimwiki#u#echo('Processing '.wikifile)
 
       call s:convert_file(path_html, wikifile)
     else
-      echomsg 'Vimwiki: Skipping '.wikifile
+      call vimwiki#u#echo('Skipping '.wikifile)
     endif
   endfor
   " reset 'subdir' state variable
@@ -1878,10 +1878,10 @@ function! vimwiki#html#WikiAll2HTML(path_html, force) abort
 
   let created = s:create_default_CSS(path_html)
   if created
-    echomsg 'Vimwiki: Default style.css has been created'
+    call vimwiki#u#echo('Default style.css has been created')
   endif
-  echomsg 'Vimwiki: HTML exported to '.path_html
-  echomsg 'Vimwiki: Done!'
+  call vimwiki#u#echo('HTML exported to '.path_html)
+  call vimwiki#u#echo('Done!')
 
   let &more = setting_more
 endfunction
@@ -1995,7 +1995,7 @@ function! s:generate_rss(path) abort
 endfunction
 
 function! vimwiki#html#diary_rss() abort
-  echomsg 'Vimwiki: Saving RSS feed ...'
+  call vimwiki#u#echo('Saving RSS feed ...')
   let path_html = expand(vimwiki#vars#get_wikilocal('path_html'))
   call vimwiki#path#mkdir(path_html)
   call s:generate_rss(path_html)

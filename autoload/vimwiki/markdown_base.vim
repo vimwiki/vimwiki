@@ -36,7 +36,6 @@ endfunction
 
 " try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) abort
-  " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
   let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   if has_key(mkd_refs, link)
