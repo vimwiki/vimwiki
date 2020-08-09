@@ -72,6 +72,8 @@ Do (Enter link):
   A__HERE3__\<Esc>
   ggjjj\<Cr>
   A__HERE4__\<Esc>
+  :AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')\<Cr>
+
 
 Expect vimwiki (Good anchor with link navigation):
   [A link B](#a-link-b)
@@ -299,7 +301,7 @@ Expect (Just Contents/test1 got the second shot):
     - [filenew](filenew) first shot
 
 Execute (Delete filenew buffer):
-  bd! /testplugin/filenew.md
+  call DeleteFile('/testplugin/filenew.md')
 
 Do (Navigate with <Tab> comeback with <Bs> too far):
   \<Tab>

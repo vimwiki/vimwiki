@@ -5,6 +5,7 @@
 
 # Say Hi
 echo -en "Starting $(basename $0) for VimWiki\n"
+start_time=`date +%s`
 
 # For windows: Cmder bash is appending busybox to the path and
 #   and a smlll vim is included, so that override the windows path vim
@@ -28,8 +29,8 @@ printHelp() {
            separating versions with a space. E.g. -n "vim1 vim2".
            Default is all available versions.
 
-        -f (File) Comma seperated list of tests to run.
-           E.g. -o "list_margin,command_toc"
+        -f (File) Space separated list of tests to run.
+           E.g. -o "list_* z_success"
 
         -l (List) list available versions that can be used with the '-n' option
 
@@ -38,7 +39,7 @@ printHelp() {
         -v (Verbose) Turn on verbose output.
 
         E.g. On Linux
-        bash run_tests.sh -v -t vader -n "vim_7.4.1099 vim_8.1.0519" -f link_creation.vader,issue_markdown.vader
+        bash run_tests.sh -v -t vader -n "vim_7.4.1099 vim_8.1.0519" -f link_creation.vader issue_markdown.vader
         E.g. On Windows
         bash run_tests.sh -v -t vader -n local -f z_success.vader | cat
         EOF
@@ -59,12 +60,16 @@ runVader() {
 
     # Parse tests files to execute
     if [[ -z $file_test ]]; then
-       ind="test/independent_runs/*.vader" 
-       res="test/*"
+        ind="test/independent_runs/*.vader" 
+        res="test/*"
     else
-        IFS=',' read -ra TEST <<< "$file_test"
+        read -ra TEST <<< "$file_test"
         for i in "${TEST[@]}"; do
-            if [[ -f "$i" ]]; then
+            if [[ "$i" == "independent_runs/"*"*"* ]]; then
+                ind="$ind test/${i}"
+            elif [[ "$i" == *"*"* ]]; then
+                res="$res test/${i}"
+            elif [[ -f "$i" ]]; then
                 res="$res test/${i}"
             elif [[ -f "${i}.vader" ]]; then
                 res="$res test/${i}.vader"
@@ -77,11 +82,11 @@ runVader() {
             fi
         done
     fi
-    echo "Vader: will run files: $res and independently $ind"
 
     # Run tests for each specified version
     for v in $vers; do
-        echo -e "\nRunning version: $v"
+        echo -e "\n\nRunning version: $v"
+        echo -e "============================="
 
         # Set local environment variables
         if [[ "$v" == "local" ]]; then
@@ -98,15 +103,24 @@ runVader() {
             export ROOT="$tmp_dir/vader_wiki/"
             export HOME="$tmp_dir/vader_wiki/home"
             vim="vim"
-            vim_opt="-u ~/test/vimrc -i NONE"
+            vim_opt="-u ~/test/vimrc"
         else
             # Only set dockerized vars
             export ROOT="/"  # So no if in vimrc
             vim="/vim-build/bin/$v"
-            vim_opt="-u test/vimrc -i NONE"
+            vim_opt="-u test/vimrc"
         fi
 
-        set -o pipefail
+        # Too talkative TODO make a verbose level 1..10 an 1 is not taking vim
+        #if [[ "$verbose" != 0 ]]; then
+        #    vim_opt+=' -V1'
+        #fi
+        # IDK why vim with -Es is returning ! and make fail:
+        # -- tabnext profiling
+        # -- map.vim
+        vim_opt+=' -i NONE -Es '
+
+        # set -o pipefail
 
         # Copy the resources to temporary directory
         if [[ "$v" == "local" ]]; then
@@ -124,41 +138,50 @@ runVader() {
         fi
 
         # Run batch of tests
-        if [[ "$v" == "local" ]]; then
-            pushd $tmp_dir/vader_wiki/testplugin
+        if [[ "$res" != "" ]]; then
+            if [[ "$v" == "local" ]]; then
+                pushd $tmp_dir/vader_wiki/testplugin
 
-            # Run the tests
-            echo -e "\nStarting vim with Vader"
-            "$vim" $vim_opt "+Vader! ${res}" 2>&1
-            err=$(( $err | $? ))
+                # Run the tests
+                echo -e "\nStarting Batch Vim/Vader <- $res"
+                "$vim" $vim_opt "+Vader! ${res}" 2>&1
+                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
+                echo -e "\nReturned Batch Vim/Vader -> $ret"
 
-            popd
-        else  # In docker
-            echo -e "\nStarting docker with vim with Vader"
-            docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-              "$v" $vim_opt "+Vader! ${res}" 2>&1 | vader_filter | vader_color
-            err=$(( $err | $? ))
+                popd
+            else
+                # In docker
+                echo -e "\nStarting Independant Vim/Vader <- $res"
+                docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+                  "$v" $vim_opt "+Vader! ${res}" 2>&1 | vader_filter | vader_color
+                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
+                echo -e "\nReturned Independant Docker/Vim/Vader -> $ret"
+            fi
         fi
 
         # Run Tests that must be run in individual vim instances
         # see README.md for more information
-        test_cmd="for VF in ${ind}; do $vim $vim_opt \"+Vader! \$VF\"; done"
-        if [[ "$v" == "local" ]]; then
-            pushd $tmp_dir/vader_wiki/testplugin
+        if [[ "$ind" != "" ]]; then
+            test_cmd="for VF in ${ind}; do $vim $vim_opt \"+Vader! \$VF\"; done"
+            if [[ "$v" == "local" ]]; then
+                pushd $tmp_dir/vader_wiki/testplugin
 
-            echo "Starting vim with Vader"
-            bash -c "$test_cmd" 2>&1
-            err=$(( $err | $? ))
+                echo -e "\nStarting Vim/Vader <- $test_cmd"
+                bash -c "$test_cmd" 2>&1
+                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
+                echo -e "\nReturned Vim/Vader -> $ret"
 
-            popd
-        else  # In docker
-            echo "Starting docker with vim with Vader"
-            docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-              /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
-            err=$(( $err | $? ))
+                popd
+            else  # In docker
+                echo -e "\nStarting Docker/Vim/Vader <- $test_cmd"
+                docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
+                  /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
+                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
+                echo -e "\nReturned Docker/Vim/Vader -> $ret"
+            fi
         fi
 
-        set +o pipefail
+        #set +o pipefail
 
         # Restore what must (I know it should be refactored in a while)
         if [[ "$v" == "local" ]]; then
@@ -186,43 +209,44 @@ runVint() {
 }
 
 getVers() {
+    # Get all possible version <- Dockerfile
     sed -n 's/.* -name \([^ ]*\) .*/\1/p' ../Dockerfile
 }
 
 vader_filter() {
     # Filter Vader Stdout
     local err=0
-    while read -r; do
+    # Keep indentation
+    local IFS=''
+    while read -r REPLY; do
         # Print only possible error cases
-        if [[ "$verbose" == 0 ]]; then
-            if [[ "$REPLY" = *'docker:'* ]] || \
-               [[ "$REPLY" = *'Starting Vader:'* ]] || \
-               [[ "$REPLY" = *'Vader error:'* ]] || \
-               [[ "$REPLY" = *'Vim: Error '* ]]; then
-                echo "$REPLY"
-            elif [[ "$REPLY" = *'[EXECUTE] (X)'* ]] || \
-                [[ "$REPLY" = *'[ EXPECT] (X)'* ]]; then
-                echo "$REPLY"
+        if [[ "$REPLY" = *'docker:'* ]] || \
+           [[ "$REPLY" = *'Starting Vader:'* ]] || \
+           [[ "$REPLY" = *'Vader error:'* ]] || \
+           [[ "$REPLY" = *'Vim: Error '* ]]; then
+            echo "$REPLY"
+        elif [[ "$REPLY" = *'[EXECUTE] (X)'* ]] || \
+            [[ "$REPLY" = *'[ EXPECT] (X)'* ]]; then
+            echo "$REPLY"
+            err=1
+        elif [[ "$REPLY" = *'Success/Total:'* ]]; then
+            success="$(echo -n "$REPLY" | grep -o '[0-9]\+/' | head -n1 | cut -d/ -f1)"
+            total="$(echo -n "$REPLY" | grep -o '/[0-9]\+' | head -n1 | cut -d/ -f2)"
+            if [ "$success" -lt "$total" ]; then
                 err=1
-            elif [[ "$REPLY" = *'Success/Total:'* ]]; then
-                success="$(echo -n "$REPLY" | grep -o '[0-9]\+/' | head -n1 | cut -d/ -f1)"
-                total="$(echo -n "$REPLY" | grep -o '/[0-9]\+' | head -n1 | cut -d/ -f2)"
-                if [ "$success" -lt "$total" ]; then
-                    err=1
-                fi
-                echo "$REPLY"
             fi
-        else
+            echo "$REPLY"
+        elif [[ "$verbose" != 0 ]]; then
             # just print everything
             echo "$REPLY"
         fi
     done
 
     if [[ "$err" == 1 ]]; then
-        echo ""
-        echo "!---------Failed tests detected---------!"
-        echo "Run with the '-v' flag for verbose output"
-        echo ""
+        echo -e "\033[0;31m"
+        echo -e "!---------Failed tests detected---------!"
+        echo -e "Run with the '-v' flag for verbose output"
+        echo -e "\033[0m"
     fi
     return $err
 }
@@ -329,24 +353,24 @@ trap exit 1 SIGINT SIGTERM
 # Global error return of the script
 o_error=0
 
-# select which tests should run
+# Select which tests should run
 case $type in
     "vader" )
         runVader ; err=$?
-        echo "Vader: returned $err"
+        echo "Main Vader: returned $err"
         o_error=$(( $err | $o_error ))
         ;;
     "vint" )
         runVint ; err=$?
-        echo "Vint: returned $err"
+        echo "Main Vint: returned $err"
         o_error=$(( $err | $o_error ))
         ;;
     "all" )
         runVint ; err=$?
-        echo "Vint: returned $err"
+        echo "Main Vint: returned $err"
         o_error=$(( $err | $o_error ))
         runVader ; err=$?
-        echo "Vader: returned $err"
+        echo "Main Vader: returned $err"
         o_error=$(( $err | $o_error ))
         ;;
     * )
@@ -354,6 +378,11 @@ case $type in
         exit 1
 esac
 
+# Calcultate time
+end_time=`date +%s`
+sec_time=$((end_time - start_time))
+printf -v script_time '%dh:%dm:%ds' $(($sec_time/3600)) $(($sec_time%3600/60)) $(($sec_time%60))
+
 # Exit
-echo "Script $(basename $0) exiting: $o_error"
+echo -ne "Script $(basename $0), in $script_time, Returned -> $o_error\n\n"
 exit $o_error

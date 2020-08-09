@@ -200,6 +200,11 @@ Do (Check in_tmp):
   jj\<Cr>
   :AssertEqual expand('%'), '/tmp/in_tmp.wiki'\<Cr>
 
+Execute(Clean: temporary):
+  call ReloadVimwiki()
+  call DeleteFile('$HOME/in_home1.md')
+  call DeleteFile('~/in_home2.md')
+  call DeleteFile('/tmp/in_tmp.md')
 
 # Link with dot {{{1
 ####################
@@ -367,5 +372,8 @@ Expect (Mediawiki links):
   [[file.wiki]]
   [[file.md]]
   [[file.mw]]
+
+Execute(Clean: Icreated many temporary wiki):
+  call ReloadVimwiki()
 
 # vim: foldmethod=marker foldlevel=30

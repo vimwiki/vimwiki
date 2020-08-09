@@ -29,5 +29,7 @@ Do (At Index: Create and goto markdownfile):
   dd
   :call DeleteFile('mdfile.md')\<Cr>
 
+Execute (Clean):
+  call DeleteFile("$HOME/testmarkdown/index.md")
 
 # vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:

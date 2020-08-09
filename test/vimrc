@@ -1,9 +1,18 @@
+" TODO treat if local (see $HOME in all tests)
+" TODO mutualise call CopyResources()
+" TODO mutualise (to prettify output) mode(1) to check if in -Es or not
+" TODO test tabnext in at least one travis job (without -Es)
+" TODO (idea) fasten travis difefrent job with the same vimwiki git (-8s)
+
 " Declare tipical Vim preambule
   " vint: -ProhibitSetNoCompatible
   set nocompatible
   filetype plugin indent on
   syntax enable
 
+" Usefull var: for one day, making tests on local
+  let $TPLUGIN = '/testplugin'
+  let $THOME = $HOME
 
 " Set chrooted virtual runtime path
   let rtp=$ROOT.'/rtp.vim'
@@ -43,9 +52,12 @@
 
   " Register the 3 wikis
   let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
+  let g:vimwiki_list_vimrc = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
 
 
 " Set basic settings
+  " Avoid more prompt
+  set nomore
   set backspace=indent,eol,start
   set wildmode=longest:full,full
   set wildmenu
@@ -119,8 +131,24 @@
     " this is needed if running manually multiple times
     nmapclear
 
-    unlet g:loaded_vimwiki
-    source plugin/vimwiki.vim
+    " UNlet what can be
+    for i in ['g:vimwiki_commentstring',
+          \ 'b:did_ftplugin',
+          \ 'g:loaded_vimwiki',
+          \ 'g:vimwiki_global_vars',
+          \ 'g:vimwiki_wikilocal_vars',
+          \ 'g:vimwiki_syntax_variables',
+          \ ]
+      if exists(i)
+        exe 'unlet ' . i
+      endif
+    endfor
+
+    " Reset list
+    let g:vimwiki_list = g:vimwiki_list_vimrc
+
+    " Source plugin: Go
+    runtime! plugin/vimwiki.vim
   endfunction
 
   function! ReloadVars()
@@ -165,7 +193,7 @@
     catch | endtry
     " Delete Buffer
     try
-      execute 'bdelete! ' . path
+      execute 'bwipeout! ' . path
     catch | endtry
   endfunction
 

@@ -36,10 +36,21 @@ Execute (Create 3 files):
 
 Do (Testing Old buffer has been wiped out {{{2):
   :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  :Log 'Get current Buffer'\<Cr>
   :let buf_old = bufnr('%')\<Cr>
+  :Log 'Is this wiki 2'\<Cr>
+  :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<Cr>
+  :Log 'Delete for loosers'\<Cr>
+  :call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')\<Cr>
+  :Log 'Rewrite ...'\<Cr>
+  :call WriteMe()\<Cr>
+  :Log 'Rename 1'\<Cr>
   :VimwikiRenameFile Test-Rename-new1\<Cr>
+  :Log 'Assert 1'\<Cr>
   :AssertEqual 'Test-Rename-new1', expand('%:t:r')\<Cr>
+  :Log 'Rename 2'\<Cr>
   :VimwikiRenameFile Test-Rename-Completion\<Cr>
+  :Log 'Assert 2'\<Cr>
   :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
 
 Do (Testing Completion {{{2):
@@ -83,6 +94,7 @@ Do (Testing transforward {{{2):
 
 
 Execute (Delete smaller unit changed {{{2):
+  call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')
   call DeleteFile('$HOME/testmarkdown/Test-Rename-zzz.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-Completion_2.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-2.md')

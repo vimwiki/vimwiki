@@ -4,11 +4,18 @@
 # Thanks to all contributors with issues and pull request on github
 # 
 
+Given vimwiki (a):
+  a
+
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+
+Expect (a):
+  a
 
 ################################################################################
 Execute (Log):
   Log '#915 Vimwiki Markdown Blockquote Syntax issue'
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Given vimwiki (One blockquote):
@@ -46,7 +53,6 @@ Execute (no JJ && Assert for Version > 7.3):
 ################################################################################
 Execute (Log):
   Log '#949 <Enter> create link bug with Chinese characters'
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Given vimwiki (Madarin with vimwiki Yeeepy):
@@ -101,7 +107,6 @@ Expect (Renumber all):
 ################################################################################
 Execute (Log):
   Log '#899 conceallevel is setted globally when editing a wiki file (PR #900)'
-  file wiki_test.md
   call SetSyntax('markdown')
 
 Given vimwiki (Void):
@@ -163,3 +168,10 @@ Do (No link: <CR><CR>):
   :call vimwiki#vars#set_global('markdown_create_link', 0)
   \<CR>\<CR>
   :AssertEqual expand('%:t'), 'main.md'\<CR>
+
+Expect (Link):
+  [Link](Link)
+
+Execute (wipeout):
+  " This solves many things
+  file /testplugin/[Vader-workbench]

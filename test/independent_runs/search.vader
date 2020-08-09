@@ -59,4 +59,4 @@ Execute (Search failure message):
   redir => output
   silent VimwikiSearch not_exist
   redir END
-  Assert match(output, 'VimwikiSearch: No match found.') > -1, "expected custom error"
+  Assert match(output, 'Vimwiki: Search: No match found.') > -1, "expected custom error"

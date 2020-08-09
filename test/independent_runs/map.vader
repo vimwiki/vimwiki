@@ -1,3 +1,8 @@
+# Maps
+# TODO make it without side effects
+# -- Use the normal vimwiki or reset it
+
+
 # 0 Configure {{{1
 ##################
 
@@ -26,7 +31,23 @@ Execute (Configure: Set vimwiki list to markdown resource):
   let g:vimwiki_ext2syntax = {'.md': 'markdown'}
 
   Log "Reload vimwiki <- vader_setup.vader"
-  call ReloadVimwiki()
+  nmapclear
+
+  " UNlet what can be
+  for i in ['g:vimwiki_commentstring',
+        \ 'b:did_ftplugin',
+        \ 'g:loaded_vimwiki',
+        \ 'g:vimwiki_global_vars',
+        \ 'g:vimwiki_wikilocal_vars',
+        \ 'g:vimwiki_syntax_variables',
+        \ ]
+    if exists(i)
+      exe 'unlet ' . i
+    endif
+  endfor
+
+  " Source plugin: Go
+  runtime! plugin/vimwiki.vim
 
 Execute (Assert: 2 wiki in Index):
   AssertEqual 2, len(vimwiki_wikilocal_vars)
@@ -304,7 +325,15 @@ Given vimwiki (Completion list #813 {{{3):
 
 Do (Insert a list item and complete):
   Go
-  * comp\<C-n>\<Down>\<Cr>
+  * comp\<C-n>\<C-n>\<Cr>\<Esc>
+# -Es -> Delete trailing *
+  :let mode = mode(1)\<Cr>
+  :Log 'Mode : ' .mode\<Cr>
+  :if mode ==# 'ce' || mode ==# 'cv'\<Cr>
+    try\<Cr>
+      g/^\* \?$/d\<Cr>
+    endtry\<Cr>
+  endif\<Cr>
 
 Expect (With a completion but no new item):
   complete1
