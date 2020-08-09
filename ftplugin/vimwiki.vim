@@ -136,11 +136,23 @@ setlocal nosmartindent
 setlocal nocindent
 
 " Set comments: to insert and format 'comments' or cheat
-setlocal comments=
 " Used to break blockquote prepending one on each new line (see: #915)
-setlocal comments+=n:>
+" B like blank character follow
+" blockquotes
+let comments = 'b:>'
+for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
+  " task list
+  for point in vimwiki#vars#get_wikilocal('listsyms_list')
+        \ + [vimwiki#vars#get_wikilocal('listsym_rejected')]
+    let comments .= ',b:' . bullet . ' [' . point . ']'
+  endfor
+  " list
+  let comments .= ',b:' . bullet
+endfor
+let &l:comments = comments
 
 " Set format options (:h fo-table)
+" Disable autocomment because, vimwiki does it better
 setlocal formatoptions-=c
 setlocal formatoptions-=r
 setlocal formatoptions-=o
