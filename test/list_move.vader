@@ -1,0 +1,45 @@
+# Move and edit a list (autocommand, config_
+
+# Test J {{{1
+############################################################
+
+Given vimwiki (Markdown * [ ] list {{{2):
+  * [ ] Top Level
+    * [o] Child 1
+    * [X] Child 2
+
+    * [X] Post space
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (JJJJ):
+  JJJJ
+  0y$
+  :call AssertIfVersion(704, '* [ ] Top Level Child 1 Child 2 Post space', @")\<Cr>
+
+
+
+Given vimwiki (Markdown * and - list {{{2):
+  * one
+  * two
+  - three
+  - for
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (JjJ):
+  JjJ
+  gg
+  0y$
+  :call AssertIfVersion(704, '* one two', @")\<Cr>
+  G
+  0y$
+  :call AssertIfVersion(704, '- three for', @")\<Cr>
+
+
+
+# vim: sw=2:foldlevel=30:foldmethod=indent:

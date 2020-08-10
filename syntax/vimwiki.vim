@@ -25,7 +25,7 @@ let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
 
 " Declare nesting capabilities
 " -- to be embeded in standard: bold, italic, underline
-let syntax_dic.nested_extended = 'VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'
+let syntax_dic.nested_extended = 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'
 " -- to be embeded in exetended (the one above)
 let syntax_dic.nested_typeface = 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'
 let syntax_dic.nested = syntax_dic.nested_extended . ',' . syntax_dic.nested_typeface

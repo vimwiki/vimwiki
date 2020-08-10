@@ -273,11 +273,11 @@ endfunction
 " Helper: Expand regex from reduced typeface delimiters
 " :param: list<list,delimiters>> with reduced regex
 " Return: list with extended regex delimiters (not inside a word)
-"   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*']]
+"   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
 function! vimwiki#u#hi_expand_regex(lst) abort
   let res = []
   for delimiters in a:lst
-    call add(res, [delimiters[0] . '\S\@=', '\S\@<=' . delimiters[1]])
+    call add(res, [delimiters[0] . '\S\@=', '\S\@<=' . delimiters[1] . '\%(\s\|\n\)\@='])
   endfor
   return res
 endfunction
@@ -400,5 +400,5 @@ function! vimwiki#u#hi_typeface(dic) abort
 
   " Prevent var_with_underscore to trigger italic text
   " -- See $VIMRUNTIME/syntax/markdown.vim
-  syn match VimwikiError "\w\@<=_\w\@="
+  syn match VimwikiError "\w\@<=[_*]\w\@="
 endfunction

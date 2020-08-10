@@ -268,4 +268,10 @@
     return synIDattr(synIDtrans(l:s), 'name')
   endfun
 
+  " Run Assert only if vim version higth enough
+  function! AssertIfVersion(version, one, two)
+    if v:version < a:version | return | endif
+    AssertEqual a:one, a:two
+  endfunction
+
 " vim: ft=vim:sw=2

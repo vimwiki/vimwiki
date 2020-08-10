@@ -1,12 +1,59 @@
 # Syntax and Highlight
 
+#Given vimwiki (bold and pre):
 
 # 1 Typeface {{{1
 #################
 
+Given vimwiki (Markdown bad __this_not_it__ {{{2):
+  See here  14 |
+  s2n_error
+  s*n*er_r_
+  n4rmal_aaaaaaaaaaaaaaaaaaaa_text_
+  n5t_italiccccccccccccccccccccc_no
+  n6t_italiccccccccccccccccccccccno
+  n7t*italiccccccccccccccccccccc_no
+  n8t*italiccccccccccccccccccccc*no
+  __not_italicccccccccc_but_boldd__
+  _a_asdasda_asdas_asdas_asdasda_a_
+  _jitaliccccccccccccccccccccccccc_
+  n12ormalllllllllllllllllllllllll_
+  _italic if at end of file unfortunately
+  Note: The decision to start a region is only based on a matching start
+  pattern.  There is no check for a matching end pattern.  This does NOT
+  work: (:h syn-region)
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiError2'     , SyntaxAt(2, 4) . 2
+  AssertEqual 'VimwikiError3'     , SyntaxAt(3, 4) . 3
+  AssertEqual '4'                 , SyntaxAt(4, 14) . 4
+  AssertEqual '5'                 , SyntaxAt(5, 14) . 5
+  AssertEqual '6'                 , SyntaxAt(6, 14) . 6
+  AssertEqual '7'                 , SyntaxAt(7, 14) . 7
+  AssertEqual '8'                 , SyntaxAt(8, 14) . 8
+  AssertEqual 'VimwikiBold9'      , SyntaxAt(9, 14) . 9
+  AssertEqual 'VimwikiItalic10'   , SyntaxAt(10, 14) . 10
+  AssertEqual 'VimwikiItalic11'   , SyntaxAt(11, 14) . 11
+  AssertEqual '12'                , SyntaxAt(12, 14) . 12
+
+Given vimwiki (bold and pre {{{2):
+  __startbold
+  ```
+  pre
+  ```
+  __endbold
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiPre'        , SyntaxAt(3, 1)
+
 # Emphasis stricker {{{2
 # See: https://github.github.com/gfm/#emphasis-and-strong-emphasis
-
 Given vimwiki (Emphasis and not):
   this __bold__ ok
   this _italic_ ok
@@ -23,7 +70,6 @@ Execute (Assert Syntax extended types x 1):
   AssertEqual ''                   , SyntaxAt(4, 9)
 
 # With vimwiki_hl_cb_checked {{{2
-
 Given vimwiki (task list with code):
   Normal syntax
   - [X] Lorem __sit__  `sed do eiusmod
@@ -116,11 +162,11 @@ Execute (Assert Syntax extended types nested in extended):
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
 
 Given vimwiki (Basic Types nested in extended):
-  From ^super t__bold          __ is crazy but^  morF
-  From ,,sub to _italic with en_  aaaaaaa,,      morF
+  From ^super  __bold          __ is crazy but^  morF
+  From ,,sub    _italic with en_  aaaaaaa,,      morF
   From $eq to  **boldboldboldbo** aaaaaaaaa         $
-  From ^super t *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
-  From ~~strike__bbbbbbbbbbbbb__ssssssssssssssssss~~
+  From ^super   *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
+  From ~~strik __bbbbbbbbbbbbb__ssssssssssssssssss~~
 
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
