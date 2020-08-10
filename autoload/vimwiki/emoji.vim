@@ -1768,8 +1768,9 @@ endfunction
 
 " Conceal
 function! vimwiki#emoji#apply_conceal() abort
+  syn iskeyword 0-9,a-z,A-Z,:-:
   for [name, emoji] in items(s:emoji_single)
-    exe 'syn match VimwikiEmoji ":' . name . ':" conceal cchar=' . emoji
+    exe 'syn keyword VimwikiEmoji :' . name . ': conceal cchar=' . emoji
   endfor
 endfunction
 

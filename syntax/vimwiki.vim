@@ -347,12 +347,6 @@ let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
 
 
-" Emoji: :dog: (after tags to take precedence)
-if and(vimwiki#vars#get_global('emoji_enable'), 1) != 0 && has('conceal')
-  call vimwiki#emoji#apply_conceal()
-endif
-
-
 " Link highlighting groups
 """"""""""""""""""""""""""
 
@@ -512,5 +506,12 @@ for u in syntax_dic.dTypeface.eq
         \ . ' contains=@texMathZoneGroup'
         \ . ' keepend oneline '. b:vimwiki_syntax_concealends
 endfor
+
+" Emoji: :dog: (after tags to take precedence, after nested to not be reset)
+if and(vimwiki#vars#get_global('emoji_enable'), 1) != 0 && has('conceal')
+  call vimwiki#emoji#apply_conceal()
+  exe 'syn iskeyword '.&iskeyword.',-,:'
+endif
+
 
 syntax spell toplevel

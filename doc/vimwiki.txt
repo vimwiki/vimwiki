@@ -3579,7 +3579,7 @@ The default is %%%s.
 ------------------------------------------------------------------------------
 *g:vimwiki_emoji_enable*
 
-Bitfield: Enable/disable emoji conceal and complete (with |i_CTRL-X_CTRL-U|).
+Bitfield: Enable/disable emoji conceal and complete
 Note that the |completefunc| is only set if it does not exists already to keep
 other plugin works by default. It can be set it manualy with: >
   set completefunc=vimwiki#emoji#complete
@@ -3592,7 +3592,7 @@ Emoji features hard copied from https://github.com/junegunn/vim-emoji
 Value           Description~
 0               Disable emoji support
 1               Enable emoji conceal
-2               Enable emoji complete
+2               Enable emoji complete (with |i_CTRL-X_CTRL-U|)
 3               Enable both
 
 Default: 3
