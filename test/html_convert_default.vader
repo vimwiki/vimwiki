@@ -241,6 +241,7 @@ Execute (Edit TestHtml Wiki):
 
 Do (Markdwon with %plainhtml):
   :edit $HOME/testwiki/TestHtml.wiki\<CR>
+  :normal ggdG\<Cr>
   i%plainhtml<div id="test">\<CR>
   my paragraph\<CR>
   %plainhtml</div>\<CR>\<Esc>

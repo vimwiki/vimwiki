@@ -61,7 +61,6 @@ let s:markdown_syntax.rxMathEnd = '\$\$'
 let s:markdown_syntax.rxMultilineCommentStart = ''
 let s:markdown_syntax.rxMultilineCommentEnd = ''
 let s:markdown_syntax.rxComment = '^\s*%%.*$\|<!--[^>]*-->'
-let s:markdown_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
 
 
 " Used in code (base.vim)
@@ -87,6 +86,3 @@ let s:markdown_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs'.
 let s:markdown_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.
       \ '\%([[:punct:]]\|\s\|$\)\@='
 let s:markdown_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let s:markdown_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-let s:markdown_syntax.tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
-      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'

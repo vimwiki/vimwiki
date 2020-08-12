@@ -929,6 +929,8 @@ Vimwiki file.
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
     window.
+    With range: the wiki number, by default current wiki
+
 
 *:VimwikiRebuildTags*
     Rebuilds the tags metadata file for all wiki files newer than the metadata
@@ -3574,6 +3576,61 @@ to not set commentstring by vimwiki.
 The default is %%%s.
 
 
+------------------------------------------------------------------------------
+*g:vimwiki_emoji_enable*
+
+Bitfield: Enable/disable emoji conceal and complete
+Note that the |completefunc| is only set if it does not exists already to keep
+other plugin works by default. It can be set it manualy with: >
+  set completefunc=vimwiki#emoji#complete
+
+To replace emoji alias (like :cat:) by their value (like 🐱) in current file: >
+  %s/:\([^:]\+\):/\=get(vimwiki#emoji#get_dic(), submatch(1), submatch(0))/g
+
+Emoji features hard copied from https://github.com/junegunn/vim-emoji
+
+Value           Description~
+0               Disable emoji support
+1               Enable emoji conceal
+2               Enable emoji complete (with |i_CTRL-X_CTRL-U|)
+3               Enable both
+
+Default: 3
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_tag_format*
+
+Dictionary to describe the format of the tags vimwiki uses to highlight,
+generate and follow_link
+
+| Key       | Default  | Description
+----------------------------------------------------- ReGeX
+| pre       | '^\|\s'  | Limitations to tag precedence
+| pre_mark  | ':'      | Tag list opener
+| in  | '[:space:]]\+' | Tag permitted characters
+| sep       | ':'      | Tag separators in a tag list
+| post_mark | ':'      | Tag list closer
+| post      | '\s\|$'  | Limitations to tag following
+----------------------------------------------------- Number
+| conceal   |  0       | Do conceal the tag
+----------------------------------------------------- Character
+| cchar     |  ''      | If conceal, the conceal char
+
+
+The default dictionary gets |extends| with the user provided dictionary. So it
+is only necessary to provide the values to change. For Example, to use a:
+- Tag like: >
+  <<tag1|tag2>>
+- Set: >
+  let g:vimwiki_tag_format = {'pre_mark': '<<', 'post_mark': '>>', 'sep': '|'}
+- Tag like: >
+  tags: @tag1 @tag2
+- Set: >
+  let g:vimwiki_tag_format = {'pre': '\(^[ -]*tags\s*: .*\)\@<=',
+        \ 'pre_mark': '@', 'post_mark': '', 'sep': '>><<'}
+
+
 ==============================================================================
 13. Getting help                                                *vimwiki-help*
 
@@ -3717,7 +3774,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-
+    * Feature: #922 #928: g:vimwiki_tag_format to change the tag format
+    * Feature: Support Emoji (Conceal and Complete)
     * Issue #209: Feature: Markdown: Support SetExt Heading
     * Issue #847 #640: Feature: Markdown anchor
       normalize and unormalize: better follow_link and |VimwikiTOC|
@@ -3739,11 +3797,17 @@ New:~
     * PR #934: RSS feed generation for diary with :VimwikiRss.
 
 Changed:~
+    * VimwikiCheckLinks work on current wiki or on range
     * |g:vimwiki_toc_link_format| == 0 (default) means old behavior: short links
 
 Removed:~
 
 Fixed:~
+    * Issue #979: Fix: Accessing other filetypes within vimwiki
+    * Issue #886: VimwikiGenerateLinks crash with single quote in filename
+    * Issue #910: Fix: VimwikiTOC removes next non-empty line
+    * Issue #182: VimwikiTOC support headers with link
+    * Issue #813: iMap <Cr> interfere with completion (pum)
     * Issue #709: Support inline code spans inside emphasis
       Refactoring code, del, eq, sup, sub as regions
     * Issue #847 #640: Refactor: Syntax highlighting typeface: match -> region

@@ -38,7 +38,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 1. Global
+" 1. Global {{{1
 " ----------------------------------------------------------
 
 " Populate global variable <- user & default
@@ -176,6 +176,7 @@ function! s:read_global_settings_from_user() abort
         \     10: 'October', 11: 'November', 12: 'December'
         \   }},
         \ 'dir_link': {'type': type(''), 'default': ''},
+        \ 'emoji_enable': {'type': type(0), 'default': 3, 'min':0, 'max': 3},
         \ 'ext2syntax': {'type': type({}), 'default': {'.md': 'markdown', '.mkdn': 'markdown',
         \     '.mdwn': 'markdown', '.mdown': 'markdown', '.markdown': 'markdown', '.mw': 'media'}},
         \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',
@@ -238,8 +239,8 @@ function! s:read_global_settings_from_user() abort
   for month in range(1, 12)
     if !has_key(users_value, month) || type(users_value[month]) != type('') ||
           \ empty(users_value[month])
-      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
       break
     endif
   endfor
@@ -248,8 +249,8 @@ function! s:read_global_settings_from_user() abort
   let users_value = g:vimwiki_global_vars[key]
   for ext in keys(users_value)
     if empty(ext) || index(['markdown', 'media', 'mediawiki', 'default'], users_value[ext]) == -1
-      echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+      call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+            \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
       break
     endif
   endfor
@@ -336,12 +337,15 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 2. Buffer local
+" 2. Buffer local {{{1
 " ----------------------------------------------------------
 
 " Populate local variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_wikilocal_options() abort
+  " Dev: if type is dict,
+  " -- the default dict gets extended and not replaced: keys are not deleted
+
   " Init local variable container
   let g:vimwiki_wikilocal_vars = []
 
@@ -392,6 +396,14 @@ function! s:populate_wikilocal_options() abort
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'tag_format': {'type': type({}), 'default': {
+        \   'pre': '^\|\s',
+        \   'pre_mark': ':',
+        \   'in': '[^:''[:space:]]\+',
+        \   'sep': ':',
+        \   'post_mark': ':',
+        \   'post': '\s\|$',
+        \   'conceal': 0, 'cchar':''}},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -401,8 +413,16 @@ function! s:populate_wikilocal_options() abort
   let default_wiki_settings = {}
   for key in keys(default_values)
     if exists('g:vimwiki_'.key)
+      " Check type
       call s:check_users_value(key, g:vimwiki_{key}, default_values[key], 1)
-      let default_wiki_settings[key] = g:vimwiki_{key}
+      " Update if dict
+      if default_values[key]['type'] == type({})
+        let default_wiki_settings[key] = default_values[key].default
+        call extend(default_wiki_settings[key], g:vimwiki_{key})
+      " Set if other var
+      else
+        let default_wiki_settings[key] = g:vimwiki_{key}
+      endif
     else
       let default_wiki_settings[key] = default_values[key].default
     endif
@@ -418,7 +438,14 @@ function! s:populate_wikilocal_options() abort
           if key ==# 'list_margin'
             let s:margin_set_by_user = 1
           endif
-          let new_wiki_settings[key] = users_wiki_settings[key]
+          " Update if dict
+          if default_values[key]['type'] == type({})
+            let new_wiki_settings[key] = extend({}, default_values[key].default)
+            let new_wiki_settings[key] = extend(new_wiki_settings.key, users_wiki_settings[key])
+          " Set if other var
+          else
+            let new_wiki_settings[key] = users_wiki_settings[key]
+          endif
         else
           let new_wiki_settings[key] = default_wiki_settings[key]
         endif
@@ -454,8 +481,8 @@ function! s:populate_wikilocal_options() abort
     for keyword in keys(users_value)
       if type(keyword) != type('') || empty(keyword) || type(users_value[keyword]) != type('') ||
             \ empty(users_value[keyword])
-        echom printf('Vimwiki Error: The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key)
+        call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
         break
       endif
     endfor
@@ -466,7 +493,7 @@ endfunction
 
 
 " Helper, Check user setting
-" warn user with echo message if not good type
+" warn user with message if not good type
 " Param: 1: key <string>: varaible name
 " Param: 2: vimwiki_key <obj>: user value
 " Param: 3: value_infod <dict>: type and default value
@@ -487,44 +514,44 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
         \ 'vimwiki-option-'
 
   if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
-    echom printf('Vimwiki Error: The provided value of the option %s is a %s, ' .
+    call vimwiki#u#error(printf('The provided value of the option %s is a %s, ' .
           \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
-          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key)
+          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key))
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
         \ a:users_value < a:value_infos.min
-    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
           \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min, a:key)
+          \ setting_origin, a:value_infos.min, a:key))
   endif
 
   if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
         \ a:users_value > a:value_infos.max
-    echom printf('Vimwiki Error: The provided value ''%i'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
           \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.max, a:key)
+          \ setting_origin, a:value_infos.max, a:key))
   endif
 
   if has_key(a:value_infos, 'possible_values') &&
         \ index(a:value_infos.possible_values, a:users_value) == -1
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s is'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s is'
           \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, string(a:value_infos.possible_values), a:key)
+          \ setting_origin, string(a:value_infos.possible_values), a:key))
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
         \ strwidth(a:users_value) != a:value_infos.length
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
           \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
-          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key)
+          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key))
   endif
 
   if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
         \ strwidth(a:users_value) < a:value_infos.min_length
-    echom printf('Vimwiki Error: The provided value ''%s'' of the option %s must'
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
           \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key)
+          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key))
   endif
 endfunction
 
@@ -577,7 +604,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 3. Syntax specific
+" 3. Syntax specific {{{1
 " ----------------------------------------------------------
 
 " Populate syntax variable
@@ -613,6 +640,42 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   endif
   let syntax_dic['cycle_bullets'] =
         \ vimwiki#vars#get_wikilocal('cycle_bullets')
+
+  " Tag: get var
+  let syntax_dic.tag_format = {}
+  let tf = syntax_dic.tag_format
+  call extend(tf, vimwiki#vars#get_wikilocal('tag_format'))
+
+  " Tag: Close regex
+  for key in ['pre', 'pre_mark', 'in', 'sep', 'post_mark', 'post']
+    let tf[key] = '\%(' . tf[key] . '\)'
+  endfor
+
+  " Match \s<tag[:tag:tag:tag...]>\s
+  " Tag: highlighting
+  " Used: syntax/vimwiki.vim
+  let syntax_dic.rxTags =
+        \   tf.pre . '\@<=' . tf.pre_mark . tf.in
+        \ . '\%(' . tf.sep . tf.in . '\)*'
+        \ . tf.post_mark . tf.post . '\@='
+
+  " Tag: searching for all
+  " Used: vimwiki#base#get_anchors <- GenerateTagLinks
+  let syntax_dic.tag_search =
+        \   tf.pre . tf.pre_mark . '\zs'
+        \ . tf.in . '\%(' . tf.sep . tf.in . '\)*'
+        \ . '\ze' . tf.post_mark . tf.post
+
+  " Tag: matching a specific: when goto tag
+  " Used: tags.vim->s:scan_tags
+  " Match <[tag:tag:...tag:]__TAG__[:tag...:tag]>
+  let syntax_dic.tag_match =
+        \   tf.pre . tf.pre_mark
+        \ . '\%(' . tf.in . tf.sep . '\)*'
+        \ . '__Tag__'
+        \ . '\%(' . tf.sep . tf.in . '\)*'
+        \ . tf.post_mark . tf.post
+
 
   " Populate generic stuff
   let header_symbol = syntax_dic.rxH
@@ -770,7 +833,7 @@ function! s:populate_list_vars(wiki) abort
   let a:wiki.multiple_bullet_chars =
         \ recurring_bullets
         \ ? a:wiki.bullet_types : []
-  
+
   " Create regexp for bulleted list items
   if !empty(a:wiki.bullet_types)
     let rxListBullet =
@@ -788,9 +851,9 @@ function! s:populate_list_vars(wiki) abort
 
   " Guard: Check if listym_rejected is in listsyms
   if match(a:wiki.listsyms, '[' . a:wiki.listsym_rejected . ']') != -1
-    echomsg 'Vimwiki Warning: the value of listsym_rejected ('''
+    call vimwiki#u#warn('the value of listsym_rejected ('''
           \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
-          \ . a:wiki.listsyms . ''')'
+          \ . a:wiki.listsyms . ''')')
   endif
 
   let a:wiki.rxListItemWithoutCB =
@@ -900,14 +963,14 @@ function! s:populate_extra_markdown_vars() abort
     let rxWeblink1Ext = '__FileExtension__'
   endif
 
-  " [DESCRIPTION](URL)
+  " [DESCRIPTION](FILE.MD)
   let mkd_syntax.Weblink1Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ mkd_syntax.rxWeblink1Suffix
-  " [DESCRIPTION](ANCHOR)
+  " [DESCRIPTION](FILE)
   let mkd_syntax.Weblink2Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. mkd_syntax.rxWeblink1Suffix
-  " [DESCRIPTION](FILE#ANCHOR)
+  " [DESCRIPTION](FILE.MD#ANCHOR)
   let mkd_syntax.Weblink3Template = mkd_syntax.rxWeblink1Prefix . '__LinkDescription__'.
         \ mkd_syntax.rxWeblink1Separator. '__LinkUrl__'. rxWeblink1Ext.
         \ '#__LinkAnchor__'. mkd_syntax.rxWeblink1Suffix
@@ -1006,7 +1069,7 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 4. Getter, Setter (exported)
+" 4. Getter, Setter (exported) {{{1
 " ----------------------------------------------------------
 
 " Get syntax variable
@@ -1058,7 +1121,7 @@ function! vimwiki#vars#get_bufferlocal(key, ...) abort
   elseif a:key ==# 'markdown_refs'
     call setbufvar(buffer, 'vimwiki_markdown_refs', vimwiki#markdown_base#scan_reflinks())
   else
-    echoerr 'Vimwiki Error: unknown buffer variable ' . string(a:key)
+    call vimwiki#u#echo('unknown buffer variable ' . string(a:key))
   endif
 
   return getbufvar(buffer, 'vimwiki_'.a:key)

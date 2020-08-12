@@ -21,5 +21,4 @@ RUN install_vim -tag v7.3.429 -name vim_7.3.429 -build \
                 -tag v7.4.1546 -name vim_7.4.1546 -build \
                 -tag v8.0.0027 -name vim_8.0.0027 -build \
                 -tag v8.1.0519 -name vim_8.1.0519 -build \
-+               -tag neovim:v0.2.2 -name nvim_0.2.2 -build \
-+               -tag neovim:v0.3.8 -name nvim_0.3.8 -build \
+                -tag neovim:v0.3.8 -name nvim_0.3.8 -build \

@@ -1,5 +1,6 @@
 # VimwikiRenameFile
 # Related to link, file navigation
+# Many commands are made with Do: They block with Execute
 
 
 # Create directories I remove at end {{{1
@@ -32,6 +33,26 @@ Execute (Create 3 files):
   edit $HOME/testmarkdown/Test-Rename-Completion.md
   call WriteMe()
 
+
+Do (Testing Old buffer has been wiped out {{{2):
+  :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  :Log 'Get current Buffer'\<Cr>
+  :let buf_old = bufnr('%')\<Cr>
+  :Log 'Is this wiki 2'\<Cr>
+  :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<Cr>
+  :Log 'Delete for loosers'\<Cr>
+  :call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')\<Cr>
+  :Log 'Rewrite ...'\<Cr>
+  :call WriteMe()\<Cr>
+  :Log 'Rename 1'\<Cr>
+  :VimwikiRenameFile Test-Rename-new1\<Cr>
+  :Log 'Assert 1'\<Cr>
+  :AssertEqual 'Test-Rename-new1', expand('%:t:r')\<Cr>
+  :Log 'Rename 2'\<Cr>
+  :VimwikiRenameFile Test-Rename-Completion\<Cr>
+  :Log 'Assert 2'\<Cr>
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
+
 Do (Testing Completion {{{2):
 # Rename and test (zzz)
   :VimwikiRenameFile Test-Rename-z\<C-l>1\<Cr>
@@ -45,6 +66,7 @@ Do (Testing transforward {{{2):
   :Log 'Forward: root -> dir1/dir11 {{{3'\<Cr>
 # Create dir1/dir11/Test-Rename and link to it
   :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  ggdG
   idir1/dir11/Test-Rename.md\<Esc>
   \<Cr>\<Cr>
   :VimwikiRenameFile ../Test-Rename-2\<Cr>
@@ -70,9 +92,9 @@ Do (Testing transforward {{{2):
   :VimwikiRenameFile dir1/Test-Rename-Completion-2\<Cr>
   :AssertEqual expand('%'), $HOME . '/testmarkdown/dir1/Test-Rename-Completion-2.md'\<Cr>
 
-# Delete smaller unit changed {{{2
 
-Execute (Clean):
+Execute (Delete smaller unit changed {{{2):
+  call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')
   call DeleteFile('$HOME/testmarkdown/Test-Rename-zzz.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-Completion_2.md')
   call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-2.md')

@@ -24,18 +24,19 @@ env:
   # Define jobs <- vim version <- hard copied from Dockerfile
   # First to be launched
   - VIM_VERSION=vint
-  - VIM_VERSION=vim_7.3.429
+  - VIM_VERSION=vim_7.3.429 
   - VIM_VERSION=nvim_0.3.8
-  # More
-  - VIM_VERSION=vim_7.4.1099
-  - VIM_VERSION=vim_7.4.1546
-  - VIM_VERSION=vim_8.0.0027
   - VIM_VERSION=vim_8.1.0519
+  # More
+  - VIM_VERSION=vim_7.4.1099 PATTERN='[a-k]*.vader'
+  - VIM_VERSION=vim_7.4.1546 PATTERN='l*.vader'
+  - VIM_VERSION=vim_8.0.0027 PATTERN='[m-z]*.vader'
 
 script:
   # Run All tests
   - pushd test
   - if [[ "$VIM_VERSION" == 'vint' ]]; then bash run_tests.sh -v -t vint;
+    elif [[ ! -z "$PATTERN" ]]; then bash run_tests.sh -v -t vader -n "$VIM_VERSION" -f "$PATTERN";
     else bash run_tests.sh -v -t vader -n "$VIM_VERSION";
     fi
   - popd

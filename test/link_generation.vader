@@ -7,6 +7,7 @@
 Execute (Copy Wiki's Resources):
   Log "Start: Copy Resources"
   call CopyResources()
+  set sw=8
 
 # 1 VimwikiGenerateLinks {{{1
 ##########################
@@ -35,12 +36,14 @@ Execute (VimwikiGenerateLinks x 2):
   call append('$', 'Last Line')
   VimwikiGenerateLinks
 
-Expect (The links with a header):
+Expect (The links with a header (bis)):
 
 
   = Generated Links =
           - [[buzz_bozz]]
           - [[index]]
+
+  Last Line
 
 Execute (Clean Test.wiki):
   call DeleteFile('$HOME/testwiki/Test.wiki')
@@ -193,7 +196,7 @@ Expect (diary index generated):
 
 
 Execute (Clean):
-  Log "End: Clean"
+  call DeleteFile("$HOME/testmarkdown/index.md")
   call DeleteFile('$HOME/testmarkdown/diary/2019-12-10.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-07-13.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-03-01.md')

@@ -25,7 +25,7 @@ let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
 
 " Declare nesting capabilities
 " -- to be embeded in standard: bold, italic, underline
-let syntax_dic.nested_extended = 'VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript'
+let syntax_dic.nested_extended = 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'
 " -- to be embeded in exetended (the one above)
 let syntax_dic.nested_typeface = 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'
 let syntax_dic.nested = syntax_dic.nested_extended . ',' . syntax_dic.nested_typeface
@@ -43,13 +43,6 @@ let syntax_dic.dTypeface.code = [
 let syntax_dic.dTypeface.del = ([
       \ ['\~\~', '\~\~']])
 
-" text: $ equation_inline $
-" Match only one $
-" ( ^ or not $) before $ and after: not $
-let syntax_dic.dTypeface.eq = ([
-      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
-      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
-
 " text: ^superscript^
 let syntax_dic.dTypeface.sup = ([
       \ ['\^', '\^']])
@@ -57,6 +50,13 @@ let syntax_dic.dTypeface.sup = ([
 " text: ,,subscript,,
 let syntax_dic.dTypeface.sub = ([
       \ [',,', ',,']])
+
+" text: $ equation_inline $
+" Match only one $
+" ( ^ or not $) before $ and after: not $
+let syntax_dic.dTypeface.eq = ([
+      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
+      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
 
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
@@ -141,11 +141,11 @@ else
 endif
 
 
-" Weblink
+" Weblink: [DESCRIPTION](FILE)
 call s:add_target_syntax_ON(vimwiki#vars#get_syntaxlocal('rxWeblink'), 'VimwikiLink')
 
 
-" WikiLink
+" WikiLink:
 " All remaining schemes are highlighted automatically
 let s:rxSchemes = '\%('.
       \ vimwiki#vars#get_global('schemes') . '\|'.
@@ -180,7 +180,7 @@ call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
 
-" Header levels, 1-6
+" Header Level: 1..6
 for s:i in range(1,6)
   execute 'syntax match VimwikiHeader'.s:i
       \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).
@@ -192,7 +192,7 @@ for s:i in range(1,6)
         \ '/me=s-1 transparent fold'
 endfor
 
-" SetExt header
+" SetExt Header:
 " TODO mutualise SetExt Regexp
 let setex_header1_re = '^\s\{0,3}[^>].*\n\s\{0,3}==\+$'
 let setex_header2_re = '^\s\{0,3}[^>].*\n\s\{0,3}--\+$'
@@ -244,7 +244,7 @@ execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
 
 
 
-" Tables
+" Table:
 syntax match VimwikiTableRow /^\s*|.\+|\s*$/
       \ transparent contains=VimwikiCellSeparator,
                            \ VimwikiLinkT,
@@ -259,18 +259,18 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ VimwikiSubScriptT,
                            \ VimwikiCodeT,
                            \ VimwikiEqInT,
+                           \ VimwikiEmoji,
                            \ @Spell
 
-syntax match VimwikiCellSeparator
-      \ /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
+syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
 
-" Lists
+" List:
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
 execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
 
-" Task list done
+" Task List Done:
 if vimwiki#vars#get_global('hl_cb_checked') == 1
   execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
         \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
@@ -284,7 +284,7 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
 endif
 
 
-" <hr> horizontal rule
+" Horizontal Rule: <hr>
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
 let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
@@ -295,7 +295,7 @@ execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMath
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
 
-" placeholders
+" Placeholder:
 syntax match VimwikiPlaceholder /^\s*%nohtml\s*$/
 syntax match VimwikiPlaceholder
       \ /^\s*%title\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
@@ -306,18 +306,25 @@ syntax match VimwikiPlaceholder
 syntax match VimwikiPlaceholderParam /.*/ contained
 
 
-" html tags
+" Html Tag: <u>
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
   " Include: Source html file here
   execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
 endif
 
 
-" tags
-execute 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
+" Tag:
+let tag_cmd = 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
+let tf = vimwiki#vars#get_wikilocal('tag_format')
+if exists('+conceallevel') && tf.conceal != 0
+  let tag_cmd .= ' conceal'
+  if tf.cchar !=# ''
+    let tag_cmd .= ' cchar=' . tf.cchar
+  endif
+endif
+execute tag_cmd
 
-
-" header groups highlighting
+" Header Groups: highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
   " Strangely in default colorscheme Title group is not set to bold for cterm...
   if !exists('g:colors_name')
@@ -335,10 +342,10 @@ else
 endif
 
 
-
-" Highlight Typefaces -> u.vim
+" Typeface: -> u.vim
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
+
 
 " Link highlighting groups
 """"""""""""""""""""""""""
@@ -478,12 +485,33 @@ if !empty(s:nested)
   endfor
 endif
 
+" LaTex: Load
+if !empty(globpath(&runtimepath, 'syntax/tex.vim'))
+  execute 'syntax include @textGrouptex syntax/tex.vim'
+endif
+if !empty(globpath(&runtimepath, 'after/syntax/tex.vim'))
+  execute 'syntax include @textGrouptex after/syntax/tex.vim'
+endif
 
-" LaTeX
+" LaTeX: Block
 call vimwiki#base#nested_syntax('tex',
       \ vimwiki#vars#get_syntaxlocal('rxMathStart').'\%(.*[[:blank:][:punct:]]\)\?'.
       \ '\%([[:blank:][:punct:]].*\)\?',
       \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')
+
+" LaTeX: Inline
+for u in syntax_dic.dTypeface.eq
+  execute 'syntax region textSniptex  matchgroup=texSnip'
+        \ . ' start="'.u[0].'" end="'.u[1].'"'
+        \ . ' contains=@texMathZoneGroup'
+        \ . ' keepend oneline '. b:vimwiki_syntax_concealends
+endfor
+
+" Emoji: :dog: (after tags to take precedence, after nested to not be reset)
+if and(vimwiki#vars#get_global('emoji_enable'), 1) != 0 && has('conceal')
+  call vimwiki#emoji#apply_conceal()
+  exe 'syn iskeyword '.&iskeyword.',-,:'
+endif
 
 
 syntax spell toplevel

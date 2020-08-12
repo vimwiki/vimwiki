@@ -58,7 +58,6 @@ let s:media_syntax.rxMathEnd = '}}\$'
 let s:media_syntax.rxMultilineCommentStart = ''
 let s:media_syntax.rxMultilineCommentEnd = ''
 let s:media_syntax.rxComment = '^\s*%%.*$'
-let s:media_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:[:space:]]\+:\)\+\%(\s\|$\)\@='
 
 let s:media_syntax.header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let s:media_syntax.header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
@@ -67,6 +66,3 @@ let s:media_syntax.bold_match = '''''''__Text__'''''''
 " ^- this strange looking thing is equivalent to "'''__Text__'''" but since we later
 " want to call escape() on this string, we must keep it in single quotes
 let s:media_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let s:media_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-let s:media_syntax.tag_match = '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
-      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'

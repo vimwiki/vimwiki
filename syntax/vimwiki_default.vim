@@ -16,23 +16,19 @@ let b:vimwiki_syntax_conceal = exists('+conceallevel') ? ' conceal' : ''
 let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 
 " text: *strong*
-let s:default_syntax.dTypeface.bold = [
-      \ ['\S\@<=\*\|\*\S\@=', '\S\@<=\*\|\*\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.bold = vimwiki#u#hi_expand_regex([
+      \ ['\*', '\*']])
 
 " text: _italic_
-let s:default_syntax.dTypeface.italic = [
-      \ ['\S\@<=_\|_\S\@=', '\S\@<=_\|_\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.italic = vimwiki#u#hi_expand_regex([
+      \ ['_', '_']])
 
 " text: no underline defined
 let s:default_syntax.dTypeface.underline = []
 
 " text: *_bold italic_* or _*italic bold*_
-let s:default_syntax.dTypeface.bold_italic = [
-      \ ['\S\@<=\*_\|\*_\S\@=', '\S\@<=_\*\|_\*\S\@='],
-      \ ['\S\@<=_\*\|_\*\S\@=', '\S\@<=\*_\|\*_\S\@='],
-      \ ]
+let s:default_syntax.dTypeface.bold_italic = vimwiki#u#hi_expand_regex([
+      \ ['\*_', '_\*'], ['_\*', '\*_']])
 
 " generic headers
 let s:default_syntax.rxH = '='
@@ -68,7 +64,6 @@ let s:default_syntax.rxMathEnd = '}}\$'
 let s:default_syntax.rxMultilineCommentStart = '%%+'
 let s:default_syntax.rxMultilineCommentEnd = '+%%'
 let s:default_syntax.rxComment = '^\s*%%.*$'
-let s:default_syntax.rxTags = '\%(^\|\s\)\@<=:\%([^:''[:space:]]\+:\)\+\%(\s\|$\)\@='
 
 let s:default_syntax.header_search = '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'
 let s:default_syntax.header_match = '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'
@@ -77,6 +72,3 @@ let s:default_syntax.bold_search = '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:spa
 let s:default_syntax.bold_match = '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*'.
       \ '\%([[:punct:]]\|\s\|$\)\@='
 let s:default_syntax.wikilink = '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'
-let s:default_syntax.tag_search = '\(^\|\s\)\zs:\([^:''[:space:]]\+:\)\+\ze\(\s\|$\)'
-let s:default_syntax.tag_match =  '\(^\|\s\):\([^:''[:space:]]\+:\)*__Tag__:'.
-      \ '\([^:[:space:]]\+:\)*\(\s\|$\)'

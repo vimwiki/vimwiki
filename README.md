@@ -2,7 +2,7 @@
 
 [中文](README-cn.md)
 
-- [Intro](#intro)
+- [Intro](#introduction)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)

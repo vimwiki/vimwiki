@@ -1,11 +1,75 @@
 # Syntax and Highlight
 
+#Given vimwiki (bold and pre):
 
 # 1 Typeface {{{1
 #################
 
-# With vimwiki_hl_cb_checked {{{2
+Given vimwiki (Markdown bad __this_not_it__ {{{2):
+  See here  14 |
+  s2n_error
+  s*n*er_r_
+  n4rmal_aaaaaaaaaaaaaaaaaaaa_text_
+  n5t_italiccccccccccccccccccccc_no
+  n6t_italiccccccccccccccccccccccno
+  n7t*italiccccccccccccccccccccc_no
+  n8t*italiccccccccccccccccccccc*no
+  __not_italicccccccccc_but_boldd__
+  _a_asdasda_asdas_asdas_asdasda_a_
+  _jitaliccccccccccccccccccccccccc_
+  n12ormalllllllllllllllllllllllll_
+  _italic if at end of file unfortunately
+  Note: The decision to start a region is only based on a matching start
+  pattern.  There is no check for a matching end pattern.  This does NOT
+  work: (:h syn-region)
 
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiError2'     , SyntaxAt(2, 4) . 2
+  AssertEqual 'VimwikiError3'     , SyntaxAt(3, 4) . 3
+  AssertEqual '4'                 , SyntaxAt(4, 14) . 4
+  AssertEqual '5'                 , SyntaxAt(5, 14) . 5
+  AssertEqual '6'                 , SyntaxAt(6, 14) . 6
+  AssertEqual '7'                 , SyntaxAt(7, 14) . 7
+  AssertEqual '8'                 , SyntaxAt(8, 14) . 8
+  AssertEqual 'VimwikiBold9'      , SyntaxAt(9, 14) . 9
+  AssertEqual 'VimwikiItalic10'   , SyntaxAt(10, 14) . 10
+  AssertEqual 'VimwikiItalic11'   , SyntaxAt(11, 14) . 11
+  AssertEqual '12'                , SyntaxAt(12, 14) . 12
+
+Given vimwiki (bold and pre {{{2):
+  __startbold
+  ```
+  pre
+  ```
+  __endbold
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiPre'        , SyntaxAt(3, 1)
+
+# Emphasis stricker {{{2
+# See: https://github.github.com/gfm/#emphasis-and-strong-emphasis
+Given vimwiki (Emphasis and not):
+  this __bold__ ok
+  this _italic_ ok
+  t__ no bold __ t
+  t_ no ital _ t
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 9)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 9)
+  AssertEqual ''                   , SyntaxAt(3, 9)
+  AssertEqual ''                   , SyntaxAt(4, 9)
+
+# With vimwiki_hl_cb_checked {{{2
 Given vimwiki (task list with code):
   Normal syntax
   - [X] Lorem __sit__  `sed do eiusmod
@@ -55,10 +119,10 @@ Given vimwiki (Extended Types mono):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types mono):
+Execute (Assert Syntax extended types x 1):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 8)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 8)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 8)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 8)
   AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 8)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 8)
 
@@ -73,10 +137,10 @@ Given vimwiki (Extended Types nested in basic):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types mono):
+Execute (Assert Syntax extended types x 2):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
   AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 23)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
 
@@ -93,26 +157,26 @@ Execute (Set syntax markdown):
 Execute (Assert Syntax extended types nested in extended):
   AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(3, 23)
-  AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(4, 23)
   AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
 
 Given vimwiki (Basic Types nested in extended):
-  From ^super t__bold          __ is crazy but^  morF
-  From ,,sub to _italic with en_  aaaaaaa,,      morF
+  From ^super  __bold          __ is crazy but^  morF
+  From ,,sub    _italic with en_  aaaaaaa,,      morF
   From $eq to  **boldboldboldbo** aaaaaaaaa         $
-  From ^super t *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
-  From ~~strike__ bbbbbbbbbbbbb__ssssssssssssssssss~~
+  From ^super   *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
+  From ~~strik __bbbbbbbbbbbbb__ssssssssssssssssss~~
 
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types nested in extended):
-  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 23)
-  AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 23)
-  AssertEqual 'VimwikiBold'        , SyntaxAt(3, 23)
-  AssertEqual 'VimwikiItalic'      , SyntaxAt(4, 23)
-  AssertEqual 'VimwikiBold'        , SyntaxAt(5, 23)
+Execute (Assert Syntax basic types nested in extended):
+  AssertEqual 'VimwikiBold1'        , SyntaxAt(1, 23) . 1
+  AssertEqual 'VimwikiItalic2'      , SyntaxAt(2, 23) . 2
+  AssertEqual 'textSnipTEX3'        , SyntaxAt(3, 23) . 3
+  AssertEqual 'VimwikiItalic4'      , SyntaxAt(4, 23) . 4
+  AssertEqual 'VimwikiBold5'        , SyntaxAt(5, 23) . 5
 
 Given vimwiki (Try to nest in code):
   From `codeto__no onenest in code__ end`
@@ -145,7 +209,7 @@ Given vimwiki (Multiline Typfaces Basic and extended):
   and mutli
   path
   `
-  and $ multi
+  but no $ multi
   equation
   $
   ^ but no multi
@@ -162,14 +226,14 @@ Execute (Multiline syantax but not sup and sub):
   AssertEqual 'VimwikiItalic'      , SyntaxAt(5, 1)
   AssertEqual 'VimwikiDelText'     , SyntaxAt(8, 1)
   AssertEqual 'VimwikiCode'        , SyntaxAt(11, 1)
-  AssertEqual 'VimwikiEqIn'        , SyntaxAt(14, 1)
+  AssertEqual ''                   , SyntaxAt(14, 1)
   AssertEqual ''                   , SyntaxAt(17, 1)
   AssertEqual ''                   , SyntaxAt(20, 1)
 
 
 
 # HTML types {{{2
-# Rememner Bold > Italic > Underline (my convention [Tinmarino])
+# Rememner Bold > Italic > Underline (my convention [tinmarino])
 
 Given vimwiki (Typeface for Italic var_with_underscore):
   var_with_underscore
@@ -549,7 +613,7 @@ Execute (Assert Code syntax):
 #######################
 
 Given vimwiki (Math markdown):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $ aaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   $$
@@ -568,7 +632,7 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert math syntax 1):
-  AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
@@ -579,7 +643,7 @@ Execute (Assert math syntax 1):
 ##############################
 
 Given vimwiki (Math wiki):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $aaaaaaaaaaaaaaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   {{$
@@ -598,7 +662,7 @@ Execute (Set syntax default):
   call SetSyntax('default')
 
 Execute (Assert math syntax 2):
-  AssertEqual 'VimwikiEqIn', SyntaxAt(1, 18)
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)

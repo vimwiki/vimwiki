@@ -77,7 +77,8 @@ Execute (:VimwikiGoto + Completion in directory):
   AssertEqual 0, len(l_complete5)
 
 Execute (Clean):
-  Log "End: Clean"
+  call DeleteFile("$HOME/testmarkdown/dir1/dir2/test_goto_file.md")
+  call DeleteFile("$HOME/testmarkdown/index.md")
   call system("rm $HOME/testmarkdown/dir1")
 
 # vim: sw=2 foldmethod=indent foldlevel=30 foldignore=
