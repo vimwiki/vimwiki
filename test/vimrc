@@ -122,33 +122,52 @@
     call vimwiki#vars#set_bufferlocal('wiki_nr', 3)
 
     " Verify syntax was set correctly
-    Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 'ERROR: Vimwiki syntax not set correctly.'
+    Assert vimwiki#vars#get_wikilocal('syntax') ==# a:vw_syn, 
+          \ 'ERROR: Vimwiki syntax not set correctly: '
+          \ . 'Want: ' . a:vw_syn . ' '
+          \ . 'Have: ' . vimwiki#vars#get_wikilocal('syntax') 
   endfunction
 
-  " Reload plugin to change settings
-  function! ReloadVimwiki()
+  function! UnloadVimwiki()
     " Clear mappings so plugin can be reloaded
     " this is needed if running manually multiple times
     nmapclear
 
     " UNlet what can be
+    " -- Note: getcompletion not present on vim7.3
     for i in ['g:vimwiki_commentstring',
           \ 'b:did_ftplugin',
           \ 'g:loaded_vimwiki',
           \ 'g:vimwiki_global_vars',
           \ 'g:vimwiki_wikilocal_vars',
           \ 'g:vimwiki_syntax_variables',
+          \ 'g:vimwiki_list',
           \ ]
       if exists(i)
         exe 'unlet ' . i
       endif
     endfor
 
+    " Unlet ftplugin:
+    " -- Vader often staty in same buffer: [Vader-workbench]
+    if exists('b:did_ftplugin')
+      unlet b:did_ftplugin
+    endif
+  endfunction
+
+  " Source plugin
+  function! LoadVimwiki()
+    runtime! plugin/vimwiki.vim
+  endfunction
+
+  " Reload plugin to change settings
+  function! ReloadVimwiki()
+    call UnloadVimwiki()
+
     " Reset list
     let g:vimwiki_list = g:vimwiki_list_vimrc
 
-    " Source plugin: Go
-    runtime! plugin/vimwiki.vim
+    call LoadVimwiki()
   endfunction
 
   function! ReloadVars()

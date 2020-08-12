@@ -16,6 +16,8 @@ Execute (Copy Wiki's Resources):
 
 Execute (Log):
   Log 'Wiki Syntax'
+  call ReloadVimwiki()
+  AssertEqual '-1_margin', vimwiki#vars#get_wikilocal('list_margin') . '_margin'
 
 Given (Void):
 
