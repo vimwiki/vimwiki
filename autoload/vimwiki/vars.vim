@@ -343,8 +343,8 @@ endfunction
 " Populate local variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_wikilocal_options() abort
-  " Dev: if type is dict,
-  " -- the default dict gets extended and not replaced: keys are not deleted
+  " TODO mutualise the g:vimwiki loop and the wiki_list
+  " -- after tests on specific cases (format_tag and list_margin)
 
   " Init local variable container
   let g:vimwiki_wikilocal_vars = []
@@ -415,8 +415,12 @@ function! s:populate_wikilocal_options() abort
     if exists('g:vimwiki_'.key)
       " Check type
       call s:check_users_value(key, g:vimwiki_{key}, default_values[key], 1)
-      " Update if dict
-      if default_values[key]['type'] == type({})
+      " List margin
+      if key ==# 'list_margin'
+        let s:margin_set_by_user = 1
+      endif
+      " Extend Tag format
+      if key ==# 'tag_format'
         let default_wiki_settings[key] = default_values[key].default
         call extend(default_wiki_settings[key], g:vimwiki_{key})
       " Set if other var
@@ -433,16 +437,17 @@ function! s:populate_wikilocal_options() abort
     for users_wiki_settings in g:vimwiki_list
       let new_wiki_settings = {}
       for key in keys(default_values)
+        " Key present
         if has_key(users_wiki_settings, key)
           call s:check_users_value(key, users_wiki_settings[key], default_values[key], 0)
+          " Set list margin
           if key ==# 'list_margin'
             let s:margin_set_by_user = 1
           endif
-          " Update if dict
-          if default_values[key]['type'] == type({})
+          " Extend Tag format
+          if key ==# 'tag_format'
             let new_wiki_settings[key] = extend({}, default_values[key].default)
-            let new_wiki_settings[key] = extend(new_wiki_settings.key, users_wiki_settings[key])
-          " Set if other var
+            let new_wiki_settings[key] = extend(new_wiki_settings[key], users_wiki_settings[key])
           else
             let new_wiki_settings[key] = users_wiki_settings[key]
           endif

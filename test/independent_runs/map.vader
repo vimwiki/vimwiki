@@ -30,7 +30,7 @@ Execute (Configure: Set vimwiki list to markdown resource):
   Log "Declare my extension for temporary wiki"
   let g:vimwiki_ext2syntax = {'.md': 'markdown'}
 
-  Log "Reload vimwiki <- vader_setup.vader"
+  Log "Reload vimwiki"
   nmapclear
 
   " UNlet what can be
