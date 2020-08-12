@@ -1,5 +1,5 @@
 # Test comment string PR #946
-# TODO try default 
+# TODO try default
 # TODO try editing other buffer
 #Execute (default commenstring, ft vimwiki):
 #  AssertEqual &filetype[0], 't'

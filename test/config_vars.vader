@@ -1,0 +1,75 @@
+# Test variable management (should be small)
+# Issue #980
+
+
+Given txt (txt):
+  txt
+
+Execute (VimWei vars #980):
+  call CopyResources()
+  " Set
+  call UnloadVimwiki()
+  let wiki = {}
+  let wiki.name = 'ChenWei  🦊VimwikiMd @^%@!*#&^'
+  let wiki.path = $HOME . '/testmarkdown'
+  let wiki.ext = '.md'
+  let wiki.syntax = 'markdown'
+  let wiki.nested_syntaxes = {'python': 'python'}
+  
+  " Make other tests crash
+  "let wiki.links_space_char = '_'
+  "let wiki.list_margin = 0
+  "let wiki.auto_toc = 1
+  "let wiki.auto_tags = 1
+  "let wiki.auto_generate_tags = 1
+
+  let g:vimwiki_list = [wiki]
+  let g:vimwiki_ext2syntax = {'.md': 'markdown'}
+  let g:vimwiki_global_ext = 1
+  let g:vimwiki_autowriteall = 1
+  let g:vimwiki_auto_chdir = 1
+  let g:vimwiki_folding = 'expr'
+  call LoadVimwiki()
+
+  " Log
+  Log 'Path (Current): ' . getcwd()
+  Log 'File: (Buffer)' . @%
+  Log 'List (Wiki): ' . string(g:vimwiki_list)
+  Log ''
+  Log 'Local (Vars):'
+  Log g:vimwiki_wikilocal_vars
+
+  " Work
+  edit $HOME/testmarkdown/index.md
+
+  " Assert
+  AssertEqual '/home/vimtest/testmarkdown_cwd', getcwd() . '_cwd'
+  AssertEqual '0_wiki_nr', vimwiki#vars#get_bufferlocal('wiki_nr') . '_wiki_nr'
+  AssertEqual 'markdown_syntax', vimwiki#vars#get_wikilocal('syntax') . '_syntax'
+  AssertEqual '0_margin', vimwiki#vars#get_wikilocal('list_margin') . '_margin'
+  Log 'Path (Current): ' . getcwd()
+  Log 'File (Buffer):' . @%
+  bprevious
+  Log 'Path (Current): ' . getcwd()
+  Log 'File (Buffer):' . @%
+  bdelete index.md
+  
+  " Clean
+  Log 'Clean up'
+  cd /testplugin 
+  unlet g:vimwiki_list
+  unlet g:vimwiki_ext2syntax
+  unlet g:vimwiki_global_ext
+  unlet g:vimwiki_autowriteall
+  unlet g:vimwiki_auto_chdir
+  unlet g:vimwiki_folding
+  unlet wiki
+  Log 'Path (Current): ' . getcwd()
+  Log 'File (Buffer):' . @%
+  call ReloadVimwiki()
+  Log g:vimwiki_wikilocal_vars
+
+Expect (txt):
+  txt
+
+# vim: sw=2:foldlevel=30:foldmethod=indent:
