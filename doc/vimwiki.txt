@@ -1189,6 +1189,19 @@ as a wiki page.
 To scan the page for new or changed definitions for reference-links, simply
 re-open the page ":e<CR>".
 
+Extract title from external links~
+
+It is possible to automagically extract the title of a web page to create a
+link. The function #vimwiki#base#linkify() will get the URL under the cursor
+and replace the url with a markdown link.
+
+If the URL cannot be retrieved, nothing is changed.
+If the <title> html tag cannot be extracted, the url is used as the link
+title.
+
+Suggested mapping: >
+  nnoremap <silent> <leader>uu :call vimwiki#base#linkify()<cr>
+
 ------------------------------------------------------------------------------
 5.3. Headers                                          *vimwiki-syntax-headers*
 
@@ -3762,6 +3775,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Ryan Winograd
     - Birger Niklas (@BirgerNi)
     - Chip Senkbeil (@chipsenkbeil)
+    - Jerome Gay (@jeromg)
 
 
 ==============================================================================
@@ -3774,6 +3788,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: #837 extract web page <title> from URL under cursor and create
+      a nice wiki link
     * Feature: #922 #928: g:vimwiki_tag_format to change the tag format
     * Feature: Support Emoji (Conceal and Complete)
     * Issue #209: Feature: Markdown: Support SetExt Heading
