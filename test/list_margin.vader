@@ -37,6 +37,7 @@ Expect (Links with default margin):
 Execute (Set list margin == 2):
   call vimwiki#vars#set_wikilocal('list_margin', 2, vimwiki#vars#get_bufferlocal('wiki_nr'))
   VimwikiGenerateLinks
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Expect (Links with margin == 2):
 
@@ -52,6 +53,7 @@ Execute (Set syntax media):
 
 Execute (Generate Links):
   VimwikiGenerateLinks
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Expect (Links with default margin):
 
@@ -64,6 +66,7 @@ Expect (Links with default margin):
 Execute (Set list margin == 1):
   call vimwiki#vars#set_wikilocal('list_margin', 1, vimwiki#vars#get_bufferlocal('wiki_nr'))
   VimwikiGenerateLinks
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Expect (Links with margin == 1):
 
@@ -92,6 +95,7 @@ Expect (Links with default margin):
 Execute (Set list margin == 5):
   call vimwiki#vars#set_wikilocal('list_margin', 5, vimwiki#vars#get_bufferlocal('wiki_nr'))
   VimwikiGenerateLinks
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
 
 Expect (Links with margin == 5):
 

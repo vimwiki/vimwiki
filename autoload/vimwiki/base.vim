@@ -716,17 +716,20 @@ endfunction
 " Return: anchor <string> => link in TOC
 " Called: vimwiki#base#table_of_contents
 function! vimwiki#base#normalize_anchor(anchor, ...) abort
-  " Note: See unormalize
-  " 0 Get in
-  let anchor = a:anchor
+  " A Trim space
+  let anchor = vimwiki#u#trim(a:anchor)
+
+  " Guard: work only for markdown
+  if vimwiki#vars#get_wikilocal('syntax') !=# 'markdown'
+    return anchor
+  endif
+
+  " Keep previous anchors cache: See unormalize
   if a:0
     let previous_anchors = a:1
   else
     let previous_anchors = {}
   endif
-
-  " A Trim space
-  let anchor = vimwiki#u#trim(anchor)
 
   " 1 Downcase the string
   let anchor = tolower(anchor)
@@ -766,7 +769,14 @@ function! vimwiki#base#unnormalize_anchor(anchor) abort
   " Link: Inspired from https://gist.github.com/asabaylus/3071099
   " Issue: #664 => Points to all others
 
-  let anchor = a:anchor
+  " A Trim space
+  let anchor = vimwiki#u#trim(a:anchor)
+
+  " Guard: work only for markdown
+  if vimwiki#vars#get_wikilocal('syntax') !=# 'markdown'
+    return [anchor, 1, '']
+  endif
+
   let punctuation_rx = s:get_punctuaction_regex()
   " Permit url part of link: '](www.i.did.it.my.way.cl)'
   let link_rx = '\%(\]([^)]*)\)'
@@ -2261,7 +2271,7 @@ function! s:collect_headers() abort
     " Check SetExt Header
     " TODO mutualise SetExt line (for consistency)
     " TODO replace regex with =\+ or -\+
-    if line_content =~# '\s\{0,3}[=-][=-]\+$'
+    if line_content =~# '^\s\{0,3}[=-][=-]\+\s*$'
       let header_level = stridx(line_content, '=') != -1 ? 1 : 2
       let header_text = getline(lnum-1)
     " Maybe ATX header
@@ -2275,7 +2285,7 @@ function! s:collect_headers() abort
             \ && stridx(line_content, vimwiki#vars#get_syntaxlocal('rxH')) > 0
         continue
       endif
-      " Get header level && text
+      " Get header level
       let header_level = vimwiki#u#count_first_sym(line_content)
       let header_text = matchstr(line_content, rxHeader)
     endif
@@ -2452,7 +2462,7 @@ function! vimwiki#base#table_of_contents(create) abort
       let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 
-      " Add description to the link if toc_link_format == 1 => extended
+      " Add parents header to format if toc_link_format == 0 => extended
       let h_complete_id = ''
       if vimwiki#vars#get_wikilocal('toc_link_format') == 1
         for l in range(h_level-1)
@@ -2476,10 +2486,13 @@ function! vimwiki#base#table_of_contents(create) abort
     " Keep previous anchor => if redundant => add suffix -2
     let previous_anchors = {}
     for [lvl, anchor, desc] in complete_header_infos
+      " [DESC](URL)
       if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
         let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
+      " [[URL]]
       elseif vimwiki#vars#get_wikilocal('toc_link_format') == 1
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+      " [[URL|DESC]]
       else
         let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
       endif

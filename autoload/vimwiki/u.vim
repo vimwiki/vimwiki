@@ -170,6 +170,7 @@ function! vimwiki#u#count_first_sym(line) abort
 endfunction
 
 
+" Escape string for literal magic regex match
 function! vimwiki#u#escape(string) abort
   return escape(a:string, '~.*[]\^$')
 endfunction

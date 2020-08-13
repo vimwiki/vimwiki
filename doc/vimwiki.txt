@@ -2790,10 +2790,10 @@ The format of the links in the Table of Contents (see |vimwiki-toc|).
 
 
 Value           Description~
-0               Brief: The link contains only the URL. URL references only
-                the immediate level.
-1               Extended: The link contains the description and URL. URL
+0               Extended: The link contains the description and URL. URL
                 references all levels.
+1               Brief: The link contains only the URL. URL references only
+                the immediate level.
 
 Default: 0
 
@@ -3798,7 +3798,6 @@ New:~
 
 Changed:~
     * VimwikiCheckLinks work on current wiki or on range
-    * |g:vimwiki_toc_link_format| == 0 (default) means old behavior: short links
 
 Removed:~
 
