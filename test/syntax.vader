@@ -5,6 +5,16 @@
 # 1 Typeface {{{1
 #################
 
+Given vimwiki (Markdown with punctuation #340 {{{2):
+  __bold__, not bold
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax (alpha)):
+  AssertEqual 'VimwikiBold1'       , SyntaxAt(1, 5) . 1
+  AssertEqual '2'                  , SyntaxAt(1, 16) . 2
+
 Given vimwiki (Markdown bad __this_not_it__ {{{2):
   See here  14 |
   s2n_error
@@ -26,7 +36,7 @@ Given vimwiki (Markdown bad __this_not_it__ {{{2):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types x 1):
+Execute (Assert Syntax (bravo)):
   AssertEqual 'VimwikiError2'     , SyntaxAt(2, 4) . 2
   AssertEqual 'VimwikiError3'     , SyntaxAt(3, 4) . 3
   AssertEqual '4'                 , SyntaxAt(4, 14) . 4
@@ -49,7 +59,7 @@ Given vimwiki (bold and pre {{{2):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types x 1):
+Execute (Assert Syntax (charlie)):
   AssertEqual 'VimwikiPre'        , SyntaxAt(3, 1)
 
 # Emphasis stricker {{{2
@@ -63,7 +73,7 @@ Given vimwiki (Emphasis and not):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax extended types x 1):
+Execute (Assert Syntax (delta)):
   AssertEqual 'VimwikiBold'        , SyntaxAt(1, 9)
   AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 9)
   AssertEqual ''                   , SyntaxAt(3, 9)

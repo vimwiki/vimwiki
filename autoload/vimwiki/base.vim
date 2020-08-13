@@ -697,19 +697,6 @@ function! vimwiki#base#get_anchors(filename, syntax) abort
 endfunction
 
 
-" Helper to mutualize
-" Called: normalize and unnormalize anchor
-function! s:get_punctuaction_regex() abort
-  " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
-  if v:version <= 703
-    " Retrocompatibility: Get invalid range for vim 7.03
-    return '[^0-9a-zA-Z_ \-]'
-  else
-    return '[^0-9a-zA-Z\u4e00-\u9fff_ \-]'
-  endif
-endfunction
-
-
 " :param: anchor <string> <= Heading line
 " :param: (1) previous_anchors <dic[IN/OUT]> of previous normalized anchor
 " -- to know if must append -2, updated on the fly
@@ -735,7 +722,7 @@ function! vimwiki#base#normalize_anchor(anchor, ...) abort
   let anchor = tolower(anchor)
 
   " 2 Remove anything that is not a letter, number, CJK character, hyphen or space
-  let punctuation_rx = s:get_punctuaction_regex()
+  let punctuation_rx = vimwiki#u#get_punctuation_regex()
   let anchor = substitute(anchor, punctuation_rx, '', 'g')
 
   " 3 Change any space to a hyphen
@@ -777,7 +764,7 @@ function! vimwiki#base#unnormalize_anchor(anchor) abort
     return [anchor, 1, '']
   endif
 
-  let punctuation_rx = s:get_punctuaction_regex()
+  let punctuation_rx = vimwiki#u#get_punctuation_regex()
   " Permit url part of link: '](www.i.did.it.my.way.cl)'
   let link_rx = '\%(\]([^)]*)\)'
   let invisible_rx =  '\%( \|-\|' . punctuation_rx . '\|' . link_rx . '\)'

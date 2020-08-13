@@ -271,14 +271,40 @@ function! vimwiki#u#get_syntax_dic(...) abort
 endfunction
 
 
+" Helper to mutualize
+" Called: normalize and unnormalize anchor
+function! vimwiki#u#get_punctuation_regex() abort
+  " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
+  " Faster
+  " Unused now
+  if v:version <= 703
+    " Retrocompatibility: Get invalid range for vim 7.03
+    return '[^0-9a-zA-Z_ \-]'
+  else
+    return '[^0-9a-zA-Z\u4e00-\u9fff_ \-]'
+  endif
+endfunction
+
+
+" Faster
+function! vimwiki#u#get_punctuation_string() abort
+  " See: https://github.github.com/gfm/#ascii-punctuation-character
+  return '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
+endfunction
+
+
 " Helper: Expand regex from reduced typeface delimiters
 " :param: list<list,delimiters>> with reduced regex
 " Return: list with extended regex delimiters (not inside a word)
 "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
+" See: https://github.github.com/gfm/#left-flanking-delimiter-run
 function! vimwiki#u#hi_expand_regex(lst) abort
   let res = []
+  let p = vimwiki#u#get_punctuation_string()
   for delimiters in a:lst
-    call add(res, [delimiters[0] . '\S\@=', '\S\@<=' . delimiters[1] . '\%(\s\|\n\)\@='])
+    call add(res, [
+          \ delimiters[0] . '\S\@=',
+          \ '\S\@<=' . delimiters[1] . '\%(\_[[:space:]' . p . ']\)\@='])
   endfor
   return res
 endfunction
