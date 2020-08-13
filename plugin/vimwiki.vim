@@ -92,7 +92,6 @@ function! s:setup_new_wiki_buffer() abort
   " this makes that ftplugin/vimwiki.vim and afterwards syntax/vimwiki.vim are
   " sourced
   call vimwiki#u#ft_set()
-
 endfunction
 
 
@@ -260,45 +259,47 @@ endif
 " Write a level 1 header to new wiki files
 " a:fname should be an absolute filepath
 function! s:create_h1(fname) abort
-  if vimwiki#vars#get_global('auto_header')
-    let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
+  " Clause: Don't do anything for unregistered wikis
+  let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
+  if idx == -1
+    return
+  endif
 
-    " don't do anything for unregistered wikis
-    if idx == -1
-      return
-    endif
+  " Clause: no auto_header
+  if !vimwiki#vars#get_global('auto_header')
+    return
+  endif
 
-    " don't create header for the diary index page
-    if vimwiki#path#is_equal(a:fname,
-          \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx).
-          \ vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx))
-      return
-    endif
+  " Clause: don't create header for the diary index page
+  if vimwiki#path#is_equal(a:fname,
+        \ vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx).
+        \ vimwiki#vars#get_wikilocal('diary_index', idx).vimwiki#vars#get_wikilocal('ext', idx))
+    return
+  endif
 
-    " get tail of filename without extension
-    let title = expand('%:t:r')
+  " Get tail of filename without extension
+  let title = expand('%:t:r')
 
-    " don't insert header for index page
-    if title ==# vimwiki#vars#get_wikilocal('index', idx)
-      return
-    endif
+  " Clause: don't insert header for index page
+  if title ==# vimwiki#vars#get_wikilocal('index', idx)
+    return
+  endif
 
-    " don't substitute space char for diary pages
-    if title !~# '^\d\{4}-\d\d-\d\d'
-      " NOTE: it is possible this could remove desired characters if the 'links_space_char'
-      " character matches characters that are intentionally used in the title.
-      let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')
-    endif
+  " Don't substitute space char for diary pages
+  if title !~# '^\d\{4}-\d\d-\d\d'
+    " NOTE: it is possible this could remove desired characters if the 'links_space_char'
+    " character matches characters that are intentionally used in the title.
+    let title = substitute(title, vimwiki#vars#get_wikilocal('links_space_char'), ' ', 'g')
+  endif
 
-    " insert the header
-    if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
-      keepjumps call append(0, '# ' . title)
-      for _ in range(vimwiki#vars#get_global('markdown_header_style'))
-        keepjumps call append(1, '')
-      endfor
-    else
-      keepjumps call append(0, '= ' . title . ' =')
-    endif
+  " Insert the header
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
+    keepjumps call append(0, '# ' . title)
+    for _ in range(vimwiki#vars#get_global('markdown_header_style'))
+      keepjumps call append(1, '')
+    endfor
+  else
+    keepjumps call append(0, '= ' . title . ' =')
   endif
 endfunction
 
@@ -307,7 +308,7 @@ let s:known_extensions = s:vimwiki_get_known_extensions()
 
 if index(s:known_extensions, '.wiki') > -1
   augroup filetypedetect
-    " clear FlexWiki's stuff
+    " Clear FlexWiki's stuff
     au! * *.wiki
   augroup end
 endif
