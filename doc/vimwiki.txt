@@ -465,7 +465,7 @@ glp                     Decrease the "done" status.
 
                                                   *vimwiki_gll* *vimwiki_gLl*
 gll               n     Increase the level of a list item.
-                        Remap commnad: `<Plug>VimwikiIncreaseLvlSingleItem`
+                        Remap command: `<Plug>VimwikiIncreaseLvlSingleItem`
 gLl                     Increase the level of a list item and all child items.
                         Remap command: `<Plug>VimwikiIncreaseLvlWholeItem`
 
@@ -3837,6 +3837,7 @@ Fixed:~
     * Issue #942: Fixing wrong html link conversion in windows
     * PR #919: Fix duplicate helptag
     * PR #959: Fix :VimwikiNextTask
+    * PR #986: Fix typo in help file
 
 
 2.5 (2020-05-26)~
