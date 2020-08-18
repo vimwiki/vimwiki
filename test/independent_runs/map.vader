@@ -39,7 +39,7 @@ Execute (Configure: Set vimwiki list to markdown resource):
         \ 'g:loaded_vimwiki',
         \ 'g:vimwiki_global_vars',
         \ 'g:vimwiki_wikilocal_vars',
-        \ 'g:vimwiki_syntax_variables',
+        \ 'g:vimwiki_syntaxlocal_vars',
         \ ]
     if exists(i)
       exe 'unlet ' . i
@@ -467,8 +467,8 @@ Execute (file .md):
   set sw=2
   file toto.md
   edit!
-  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
-  let g:vimwiki_syntax_variables['markdown']['bullet_types'] = ['*', '-', '+']
+  let g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'] = 1
+  let g:vimwiki_syntaxlocal_vars['markdown']['bullet_types'] = ['*', '-', '+']
   AssertEqual 'vimwiki', &ft
 
 Do (gLl):
@@ -518,9 +518,9 @@ Execute (file toto.md):
   file toto.md
   edit!
   Log "Cycle bullets"
-  let g:vimwiki_syntax_variables['bullet_types'] = ['*', '-']
-  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
-  AssertEqual g:vimwiki_syntax_variables['markdown']['cycle_bullets'], 1
+  let g:vimwiki_syntaxlocal_vars['bullet_types'] = ['*', '-']
+  let g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'] = 1
+  AssertEqual g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'], 1
   AssertEqual 'vimwiki', &ft
   set sw=2
   set expandtab " Otherwise, getting some tab before some items, when enought space

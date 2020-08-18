@@ -21,43 +21,13 @@ let b:vimwiki_syntax_concealends = has('conceal') ? ' concealends' : ''
 " Populate all syntax vars
 " Include syntax/vimwiki_markdown.vim as "side effect"
 call vimwiki#vars#populate_syntax_vars(s:current_syntax)
-let syntax_dic = g:vimwiki_syntax_variables[s:current_syntax]
+let syntax_dic = g:vimwiki_syntaxlocal_vars[s:current_syntax]
 
 " Declare nesting capabilities
 " -- to be embeded in standard: bold, italic, underline
-let syntax_dic.nested_extended = 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'
-" -- to be embeded in exetended (the one above)
-let syntax_dic.nested_typeface = 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'
-let syntax_dic.nested = syntax_dic.nested_extended . ',' . syntax_dic.nested_typeface
 
 " text: `code` or ``code`` only inline
 " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
-let syntax_dic.dTypeface.code = [
-      \ ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
-      \  '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
-      \ ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
-      \  '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
-      \ ]
-
-" text: ~~deleted text~~
-let syntax_dic.dTypeface.del = ([
-      \ ['\~\~', '\~\~']])
-
-" text: ^superscript^
-let syntax_dic.dTypeface.sup = ([
-      \ ['\^', '\^']])
-
-" text: ,,subscript,,
-let syntax_dic.dTypeface.sub = ([
-      \ [',,', ',,']])
-
-" text: $ equation_inline $
-" Match only one $
-" ( ^ or not $) before $ and after: not $
-let syntax_dic.dTypeface.eq = ([
-      \ ['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=',
-      \  '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']])
-
 
 " LINKS: highlighting is complicated due to "nonexistent" links feature
 function! s:add_target_syntax_ON(target, type) abort
@@ -236,7 +206,7 @@ execute 'syn match VimwikiLinkChar /'.vimwiki#vars#get_global('rxWikiInclSuffix1
 
 " non concealed chars
 execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
-      \ vimwiki#vars#get_syntaxlocal('rxH').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('rxH').
+      \ vimwiki#vars#get_syntaxlocal('header_symbol').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('header_symbol').
       \ '\+\s*$\)/'
 
 
@@ -308,10 +278,32 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 
 " Html Tag: <u>
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
-  " Include: Source html file here
-  execute 'source ' . expand('<sfile>:h') . '/vimwiki_html.vim'
+  let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
+  exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
+  
+  " Typeface:
+  let html_typeface = {
+    \ 'bold': [['<b>', '</b\_s*>'], ['<strong>', '</strong\_s*>']],
+    \ 'italic': [['<i>', '</i\_s*>'], ['<em>', '</em\_s*>']],
+    \ 'underline': [['<u>', '</u\_s*>']],
+    \ 'code': [['<code>', '</code\_s*>']],
+    \ 'del': [['<del>', '</del\_s*>']],
+    \ 'eq': [],
+    \ 'sup': [['<sup>', '</sup\_s*>']],
+    \ 'sub': [['<sub>', '</sub\_s*>']],
+    \ }
+  call vimwiki#u#hi_typeface(html_typeface)
 endif
 
+" Comment: home made
+execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('comment_regex').
+    \ '/ contains=@Spell,VimwikiTodo'
+" Only do syntax highlighting for multiline comments if they exist
+let mc_format = vimwiki#vars#get_syntaxlocal('multiline_comment_format')
+if !empty(mc_format.pre_mark) && !empty(mc_format.post_mark)
+execute 'syntax region VimwikiMultilineComment start=/'.mc_format.pre_mark.
+      \ '/ end=/'.mc_format.post_mark.'/ contains=@NoSpell,VimwikiTodo'
+endif
 
 " Tag:
 let tag_cmd = 'syntax match VimwikiTag /'.vimwiki#vars#get_syntaxlocal('rxTags').'/'
@@ -343,7 +335,7 @@ endif
 
 
 " Typeface: -> u.vim
-let s:typeface_dic = vimwiki#vars#get_syntaxlocal('dTypeface')
+let s:typeface_dic = vimwiki#vars#get_syntaxlocal('typeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
 
 
@@ -500,7 +492,7 @@ call vimwiki#base#nested_syntax('tex',
       \ vimwiki#vars#get_syntaxlocal('rxMathEnd'), 'VimwikiMath')
 
 " LaTeX: Inline
-for u in syntax_dic.dTypeface.eq
+for u in syntax_dic.typeface.eq
   execute 'syntax region textSniptex  matchgroup=texSnip'
         \ . ' start="'.u[0].'" end="'.u[1].'"'
         \ . ' contains=@texMathZoneGroup'

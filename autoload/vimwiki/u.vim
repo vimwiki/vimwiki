@@ -5,17 +5,22 @@
 
 " Echo: msg
 " :param: (1) <string> highlighting group
-" :param: (2) <string> echo suffix (ex: 'n', 'm'
+" :param: (2) <string> echo suffix (ex: 'n', 'm')
+" :param: (3) <string> message prefix, default Vimwiki
 function! vimwiki#u#echo(msg, ...) abort
   let hl_group = a:0 > 0 ? a:1 : ''
   let echo_suffix = a:0 > 1 ? a:2 : ''
+  let msg_prefix = a:0 > 2 ? a:3 : 'Vimwiki: '
   " Start highlighting
   if hl_group !=# ''
     exe 'echohl ' . hl_group
   endif
-  " Print
+
+  " Escape
   let msg = substitute(a:msg, "'", "''", 'g')
-  exe 'echo'.echo_suffix . " 'Vimwiki: " . msg . "'"
+  " Print
+  exe 'echo'.echo_suffix . " '" . msg_prefix . msg . "'"
+
   " Stop highlighting
   if hl_group !=# ''
     echohl None
@@ -267,7 +272,7 @@ endfunction
 " :param: syntax <string> to retrive, default to current
 function! vimwiki#u#get_syntax_dic(...) abort
   let syntax = a:0 ? a:1 : vimwiki#vars#get_wikilocal('syntax')
-  return g:vimwiki_syntax_variables[syntax]
+  return g:vimwiki_syntaxlocal_vars[syntax]
 endfunction
 
 

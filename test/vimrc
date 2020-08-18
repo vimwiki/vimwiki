@@ -140,7 +140,7 @@
           \ 'g:loaded_vimwiki',
           \ 'g:vimwiki_global_vars',
           \ 'g:vimwiki_wikilocal_vars',
-          \ 'g:vimwiki_syntax_variables',
+          \ 'g:vimwiki_syntaxlocal_vars',
           \ 'g:vimwiki_list',
           \ ]
       if exists(i)
@@ -172,7 +172,7 @@
 
   function! ReloadVars()
     " vars#init will not reload syntax varaible if not set
-    unlet g:vimwiki_syntax_variables
+    unlet g:vimwiki_syntaxlocal_vars
     call vimwiki#vars#init()
   endfunction
 

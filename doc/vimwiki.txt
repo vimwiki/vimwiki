@@ -46,7 +46,8 @@ CONTENTS                                                             *vimwiki*
         12.1. Registered Wiki        |vimwiki-register-wiki|
         12.2. Temporary Wiki         |vimwiki-temporary-wiki|
         12.3. Per-Wiki Options       |vimwiki-local-options|
-        12.4. Global Options         |vimwiki-global-options|
+        12.4. Per-Syntax Options     |vimwiki-syntax-options|
+        12.5. Global Options         |vimwiki-global-options|
     13. Getting help                 |vimwiki-help|
     14. Contributing & Bug reports   |vimwiki-contributing|
     15. Development                  |vimwiki-development|
@@ -721,6 +722,13 @@ These key mappings can be modified by replacing the default keys: >
 *:VimwikiUISelect*
     Displays a list of registered wikis and opens the index file of the
     selected wiki.
+
+*:VimwikiVar* [varname] [value]
+    Get / Set vimwiki variable. Depending on the number of argument:
+    0. Echo vimwiki's variables
+    1. Echo variable varname. Completion works with existing variables
+    2. Set variable varname to value. Completion works with the current value
+       of variable
 
 *:VimwikiDiaryIndex* [count]
     Open diary index file of the current wiki. If a [count] is given the
@@ -2077,7 +2085,7 @@ before plugin/vimwiki.vim is sourced). If this is not possible, try this
 command after the Vimwiki settings are (re-) set: >
   :call vimwiki#vars#init()
 If you also want to reload syntax variables, prefix the last command by: >
-  :unlet g:vimwiki_syntax_variables
+  :unlet g:vimwiki_syntaxlocal_vars
 
 ------------------------------------------------------------------------------
 12.1 Registered Wiki                  *g:vimwiki_list* *vimwiki-register-wiki*
@@ -2812,12 +2820,29 @@ Default: 0
 
 
 ------------------------------------------------------------------------------
-12.4 Global Options                                   *vimwiki-global-options*
+12.4 Syntax Options                                   *vimwiki-global-options*
+
+Syntax options are configured using the following pattern: >
+
+    let g:vimwiki_syntax_list['markdown']['bullet_type'] = ['*', '-', '+']
+
+Where:
+- `markdown` is the syntax name. It can be (`default`, `markdown` or `media`)
+- `bullet_type` is the option_name (see below)
+- `['*', '-', '+']` is the option value
+
+
+------------------------------------------------------------------------------
+12.5 Global Options                                   *vimwiki-global-options*
 
 
 Global options are configured using the following pattern: >
 
-    let g:option_name = option_value
+    let g:vimwiki_global_ext = 1
+
+Where:
+- `global_ext` is the option name
+- `1` is the option value
 
 
 ------------------------------------------------------------------------------
@@ -3788,6 +3813,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: PR #988: Command VimwikiVar to list, get and set variables
     * Feature: #837 extract web page <title> from URL under cursor and create
       a nice wiki link
     * Feature: #922 #928: g:vimwiki_tag_format to change the tag format
