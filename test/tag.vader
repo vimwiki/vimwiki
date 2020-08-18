@@ -13,7 +13,7 @@ Execute (Setup):
 ######################################################################
 Execute (Change delimiter <tag1|tag2> {{{1):
   let g:vimwiki_tag_format = {'pre_mark': '<', 'post_mark': '>', 'sep': '|'}
-  unlet g:vimwiki_syntax_variables
+  unlet g:vimwiki_syntaxlocal_vars
   call vimwiki#vars#init()
   edit $HOME/testmarkdown/Test-Tag.md
   AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
@@ -89,7 +89,7 @@ Expect (Good jump {{{3):
 
 Execute (Clean Test-Tag and .vimwiki_tags -2):
   let g:vimwiki_tag_format = {}
-  unlet g:vimwiki_syntax_variables
+  unlet g:vimwiki_syntaxlocal_vars
   call vimwiki#vars#init()
   call system("rm $HOME/testmarkdown/Test.md")
   call system("rm $HOME/testmarkdown/.vimwiki_tags")

@@ -2163,7 +2163,7 @@ function! vimwiki#base#AddHeaderLevel(...) abort
   endif
   let lnum = line('.')
   let line = getline(lnum)
-  let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
+  let rxHdr = vimwiki#vars#get_syntaxlocal('header_symbol')
   if line =~# '^\s*$'
     return
   endif
@@ -2197,7 +2197,7 @@ function! vimwiki#base#RemoveHeaderLevel(...) abort
   endif
   let lnum = line('.')
   let line = getline(lnum)
-  let rxHdr = vimwiki#vars#get_syntaxlocal('rxH')
+  let rxHdr = vimwiki#vars#get_syntaxlocal('header_symbol')
   if line =~# '^\s*$'
     return
   endif
@@ -2269,7 +2269,7 @@ function! s:collect_headers() abort
       endif
       " Clause: markdown headers must start in the first column
       if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-            \ && stridx(line_content, vimwiki#vars#get_syntaxlocal('rxH')) > 0
+            \ && stridx(line_content, vimwiki#vars#get_syntaxlocal('header_symbol')) > 0
         continue
       endif
       " Get header level

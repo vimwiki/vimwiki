@@ -17,7 +17,7 @@
 "   dictionaries, one dict for every registered wiki. The last dictionary contains default values
 "   (used for temporary wikis).
 "
-" - syntax variables. Stored in the dict g:vimwiki_syntax_variables which holds all the regexes and
+" - syntax variables. Stored in the dict g:vimwiki_syntaxlocal_vars which holds all the regexes and
 "   other stuff which is needed for highlighting.
 "
 " - buffer-local variables. They are stored as buffer variables directly (b:foo)
@@ -32,23 +32,177 @@ let s:margin_set_by_user = 0
 
 " Init global and local variables
 function! vimwiki#vars#init() abort
+  " Init && Populate: global variable container
+  let g:vimwiki_global_vars = {}
   call s:populate_global_variables()
+
+  " Init && Populate: local variable container
+  let g:vimwiki_wikilocal_vars = []
   call s:populate_wikilocal_options()
 endfunction
+
+
+" Helper: Check user setting
+" warn user with message if not good type
+" Param: 1: key <string>: varaible name
+" Param: 2: vimwiki_key <obj>: user value
+" Param: 3: value_infod <dict>: type and default value
+" Param: 4: coming from a global variable <bool>
+function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
+  let type_code_to_name = {
+        \ type(0): 'number',
+        \ type(''): 'string',
+        \ type([]): 'list',
+        \ type({}): 'dictionary'}
+
+  let setting_origin = a:comes_from_global_variable ?
+        \ printf('''g:vimwiki_%s''', a:key) :
+        \ printf('''%s'' in g:vimwiki_list', a:key)
+
+  let help_text = a:comes_from_global_variable ?
+        \ 'g:vimwiki_' :
+        \ 'vimwiki-option-'
+
+  if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
+    call vimwiki#u#error(printf('The provided value of the option %s is a %s, ' .
+          \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
+          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key))
+  endif
+
+  if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
+        \ a:users_value < a:value_infos.min
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
+          \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
+          \ setting_origin, a:value_infos.min, a:key))
+  endif
+
+  if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
+        \ a:users_value > a:value_infos.max
+    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
+          \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
+          \ setting_origin, a:value_infos.max, a:key))
+  endif
+
+  if has_key(a:value_infos, 'possible_values') &&
+        \ index(a:value_infos.possible_values, a:users_value) == -1
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s is'
+          \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
+          \ setting_origin, string(a:value_infos.possible_values), a:key))
+  endif
+
+  if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
+        \ strwidth(a:users_value) != a:value_infos.length
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
+          \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
+          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key))
+  endif
+
+  if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
+        \ strwidth(a:users_value) < a:value_infos.min_length
+    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
+          \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
+          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key))
+  endif
+endfunction
+
+
+" Helper: Treat special variables
+function! s:update_key(output_dic, key, old, new) abort
+  " Set list margin
+  if a:key ==# 'list_margin'
+    let s:margin_set_by_user = 1
+    let a:output_dic[a:key] = a:new
+    return
+  " Extend Tag format
+  elseif a:key ==# 'tag_format'
+    let a:output_dic[a:key] = {}
+    call extend(a:output_dic[a:key], a:old)
+    call extend(a:output_dic[a:key], a:new)
+    return
+  else
+    let a:output_dic[a:key] = a:new
+    return
+  endif
+endfunction
+
 
 
 " ----------------------------------------------------------
 " 1. Global {{{1
 " ----------------------------------------------------------
 
+" Get default wikilocal values
+" Please: keep alphabetical sort
+function! s:get_default_global() abort
+  return {
+        \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'auto_header': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
+        \ 'conceal_onechar_markers': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'conceal_pre': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'create_link': {'type': type(0), 'default': 1, 'min':0, 'max': 1},
+        \ 'diary_months': {'type': type({}), 'default':
+        \   {
+        \     1: 'January', 2: 'February', 3: 'March',
+        \     4: 'April', 5: 'May', 6: 'June',
+        \     7: 'July', 8: 'August', 9: 'September',
+        \     10: 'October', 11: 'November', 12: 'December'
+        \   }},
+        \ 'dir_link': {'type': type(''), 'default': ''},
+        \ 'emoji_enable': {'type': type(0), 'default': 3, 'min':0, 'max': 3},
+        \ 'ext2syntax': {'type': type({}), 'default': {'.md': 'markdown', '.mkdn': 'markdown',
+        \     '.mdwn': 'markdown', '.mdown': 'markdown', '.markdown': 'markdown', '.mw': 'media'}},
+        \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',
+        \     'list', 'custom', ':quick', 'expr:quick', 'syntax:quick', 'list:quick',
+        \     'custom:quick']},
+        \ 'filetypes': {'type': type([]), 'default': []},
+        \ 'global_ext': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'hl_cb_checked': {'type': type(0), 'default': 0, 'min': 0, 'max': 2},
+        \ 'hl_headers': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'html_header_numbering': {'type': type(0), 'default': 0, 'min': 0, 'max': 6},
+        \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
+        \ 'key_mappings': {'type': type({}), 'default':
+        \   {
+        \     'all_maps': 1, 'global': 1, 'headers': 1, 'text_objs': 1,
+        \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'links': 1,
+        \     'html': 1, 'mouse': 0,
+        \   }},
+        \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
+        \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
+        \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
+        \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
+        \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
+        \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
+        \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
+        \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
+        \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
+        \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
+        \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'user_htmls': {'type': type(''), 'default': ''},
+        \ 'valid_html_tags': {'type': type(''), 'default':
+        \   'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em'},
+        \ 'w32_dir_enc': {'type': type(''), 'default': ''},
+        \ }
+endfunction
+
+
 " Populate global variable <- user & default
 " Called: s:vimwiki#vars#init
 function! s:populate_global_variables() abort
-  let g:vimwiki_global_vars = {}
-
   call s:read_global_settings_from_user()
   call s:normalize_global_settings()
+  call s:internal_global_settings()
+endfunction
 
+
+" Read nromalized settings and create some more usefull variables to use internally
+function! s:internal_global_settings() abort
   " non-configurable global variables:
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
@@ -156,84 +310,38 @@ function! s:populate_global_variables() abort
 endfunction
 
 
+" Extend global dictionary <- default <- user
+function! s:extend_global(output_dic, default_dic) abort
+  " Note: user_dic is unused here because it comes from g:vimwiki_* vars
+  " Copy the user's settings from variables of the form g:vimwiki_<option> into the dict
+  " g:vimwiki_global_vars (or set a default value)
+  for key in keys(a:default_dic)
+    let value_infos = a:default_dic[key]
+    if exists('g:vimwiki_'.key)
+      let user_value = g:vimwiki_{key}
+
+      call s:check_users_value(key, user_value, value_infos, 1)
+
+      call s:update_key(a:output_dic, key, value_infos.default, user_value)
+      " Remove user_value to prevent type mismatch (E706) errors in vim <7.4.1546
+      unlet user_value
+    else
+      let a:output_dic[key] = value_infos.default
+    endif
+  endfor
+  return a:output_dic
+endfunction
+
+
 " Read user global settings
 " Called: s:populate_global_variables
 function! s:read_global_settings_from_user() abort
-  let global_settings = {
-        \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'auto_header': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'autowriteall': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'conceallevel': {'type': type(0), 'default': 2, 'min': 0, 'max': 3},
-        \ 'conceal_onechar_markers': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'conceal_pre': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'create_link': {'type': type(0), 'default': 1, 'min':0, 'max': 1},
-        \ 'diary_months': {'type': type({}), 'default':
-        \   {
-        \     1: 'January', 2: 'February', 3: 'March',
-        \     4: 'April', 5: 'May', 6: 'June',
-        \     7: 'July', 8: 'August', 9: 'September',
-        \     10: 'October', 11: 'November', 12: 'December'
-        \   }},
-        \ 'dir_link': {'type': type(''), 'default': ''},
-        \ 'emoji_enable': {'type': type(0), 'default': 3, 'min':0, 'max': 3},
-        \ 'ext2syntax': {'type': type({}), 'default': {'.md': 'markdown', '.mkdn': 'markdown',
-        \     '.mdwn': 'markdown', '.mdown': 'markdown', '.markdown': 'markdown', '.mw': 'media'}},
-        \ 'folding': {'type': type(''), 'default': '', 'possible_values': ['', 'expr', 'syntax',
-        \     'list', 'custom', ':quick', 'expr:quick', 'syntax:quick', 'list:quick',
-        \     'custom:quick']},
-        \ 'filetypes': {'type': type([]), 'default': []},
-        \ 'global_ext': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'hl_cb_checked': {'type': type(0), 'default': 0, 'min': 0, 'max': 2},
-        \ 'hl_headers': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'html_header_numbering': {'type': type(0), 'default': 0, 'min': 0, 'max': 6},
-        \ 'html_header_numbering_sym': {'type': type(''), 'default': ''},
-        \ 'key_mappings': {'type': type({}), 'default':
-        \   {
-        \     'all_maps': 1, 'global': 1, 'headers': 1, 'text_objs': 1,
-        \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'links': 1,
-        \     'html': 1, 'mouse': 0,
-        \   }},
-        \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
-        \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
-        \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
-        \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
-        \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
-        \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
-        \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
-        \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'tags_header': {'type': type(''), 'default': 'Generated Tags', 'min_length': 1},
-        \ 'tags_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 5},
-        \ 'url_maxsave': {'type': type(0), 'default': 15, 'min': 0},
-        \ 'use_calendar': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
-        \ 'use_mouse': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
-        \ 'user_htmls': {'type': type(''), 'default': ''},
-        \ 'valid_html_tags': {'type': type(''), 'default':
-        \   'b,i,s,u,sub,sup,kbd,br,hr,div,center,strong,em'},
-        \ 'w32_dir_enc': {'type': type(''), 'default': ''},
-        \ }
+  let default_dic = s:get_default_global()
 
-  " copy the user's settings from variables of the form g:vimwiki_<option> into the dict
-  " g:vimwiki_global_vars (or set a default value)
-  for key in keys(global_settings)
-    if exists('g:vimwiki_'.key)
-      let users_value = g:vimwiki_{key}
-      let value_infos = global_settings[key]
+  " Update batch
+  call s:extend_global(g:vimwiki_global_vars, default_dic)
 
-      call s:check_users_value(key, users_value, value_infos, 1)
-
-      let g:vimwiki_global_vars[key] = users_value
-      " Remove users_value to prevent type mismatch (E706) errors in vim <7.4.1546
-      unlet users_value
-    else
-      let g:vimwiki_global_vars[key] = global_settings[key].default
-    endif
-  endfor
-
-  " validate some settings individually
-
+  " Validate some settings individually
   let key = 'diary_months'
   let users_value = g:vimwiki_global_vars[key]
   for month in range(1, 12)
@@ -337,21 +445,13 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 2. Buffer local {{{1
+" 3. Wiki local {{{1
 " ----------------------------------------------------------
 
-" Populate local variable <- user & default
-" Called: s:vimwiki#vars#init
-function! s:populate_wikilocal_options() abort
-  " TODO mutualise the g:vimwiki loop and the wiki_list
-  " -- after tests on specific cases (format_tag and list_margin)
-
-  " Init local variable container
-  let g:vimwiki_wikilocal_vars = []
-
-  " Declare default values
-  " Please: keep alphabetical sort
-  let default_values = {
+" Get default wikilocal values
+" Please: keep alphabetical sort
+function! s:get_default_wikilocal() abort
+  return {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_generate_links': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -408,156 +508,79 @@ function! s:populate_wikilocal_options() abort
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ }
+endfunction
 
-  " Fill default setting <- user or plugin values
-  let default_wiki_settings = {}
-  for key in keys(default_values)
-    if exists('g:vimwiki_'.key)
-      " Check type
-      call s:check_users_value(key, g:vimwiki_{key}, default_values[key], 1)
-      " List margin
-      if key ==# 'list_margin'
-        let s:margin_set_by_user = 1
-      endif
-      " Extend Tag format
-      if key ==# 'tag_format'
-        let default_wiki_settings[key] = default_values[key].default
-        call extend(default_wiki_settings[key], g:vimwiki_{key})
-      " Set if other var
-      else
-        let default_wiki_settings[key] = g:vimwiki_{key}
-      endif
+" Extend syntaxlocal dictionary <- global <- user (default for type check)
+function! s:extend_local(output_dic, default_dic, global_dic, user_dic) abort
+  " IDEA: can work lazily and not on all wikis at first call
+  " IDEA: have a special variable for wikitmp
+  for key in keys(a:default_dic)
+    " Key present
+    if has_key(a:user_dic, key)
+      call s:check_users_value(key, a:user_dic[key], a:default_dic[key], 0)
+      call s:update_key(a:output_dic, key, a:global_dic[key], a:user_dic[key])
     else
-      let default_wiki_settings[key] = default_values[key].default
+      let a:output_dic[key] = a:global_dic[key]
     endif
   endfor
+  return a:output_dic
+endfunction
 
-  " Set the wiki-local variables according to g:vimwiki_list (or the default settings)
-  if exists('g:vimwiki_list')
-    for users_wiki_settings in g:vimwiki_list
-      let new_wiki_settings = {}
-      for key in keys(default_values)
-        " Key present
-        if has_key(users_wiki_settings, key)
-          call s:check_users_value(key, users_wiki_settings[key], default_values[key], 0)
-          " Set list margin
-          if key ==# 'list_margin'
-            let s:margin_set_by_user = 1
-          endif
-          " Extend Tag format
-          if key ==# 'tag_format'
-            let new_wiki_settings[key] = extend({}, default_values[key].default)
-            let new_wiki_settings[key] = extend(new_wiki_settings[key], users_wiki_settings[key])
-          else
-            let new_wiki_settings[key] = users_wiki_settings[key]
-          endif
-        else
-          let new_wiki_settings[key] = default_wiki_settings[key]
-        endif
-      endfor
 
-      let new_wiki_settings.is_temporary_wiki = 0
+" Populate local variable <- user & default
+" Called: s:vimwiki#vars#init
+function! s:populate_wikilocal_options() abort
+  " Retrieve default
+  let default_dic = s:get_default_wikilocal()
 
-      call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
-    endfor
-  else
+  " Extend from global setting
+  let global_wiki_dic = s:extend_global({}, default_dic)
+
+  " Extend from g:vimwiki_list
+  if !exists('g:vimwiki_list')
     " if the user hasn't registered any wiki, we register one wiki using the default values
-    let new_wiki_settings = deepcopy(default_wiki_settings)
-    let new_wiki_settings.is_temporary_wiki = 0
-    call add(g:vimwiki_wikilocal_vars, new_wiki_settings)
+    let new_wiki_dic = deepcopy(global_wiki_dic)
+    let new_wiki_dic.is_temporary_wiki = 0
+    call add(g:vimwiki_wikilocal_vars, new_wiki_dic)
+  else
+    for user_dic in g:vimwiki_list
+      let new_wiki_dic = s:extend_local({}, default_dic, global_wiki_dic, user_dic)
+      let new_wiki_dic.is_temporary_wiki = 0
+      call add(g:vimwiki_wikilocal_vars, new_wiki_dic)
+    endfor
   endif
 
-  " default values for temporary wikis
-  let temporary_wiki_settings = deepcopy(default_wiki_settings)
-  let temporary_wiki_settings.is_temporary_wiki = 1
-  call add(g:vimwiki_wikilocal_vars, temporary_wiki_settings)
-  " Set up variables for the lists, depending on config and syntax
-  for wiki in g:vimwiki_wikilocal_vars
-    if len(wiki.bullet_types) == 0
-      let wiki.bullet_types = vimwiki#vars#get_syntaxlocal('bullet_types', wiki.syntax)
-    endif
-      call s:populate_list_vars(wiki)
-  endfor
+  " Set default values for temporary wikis
+  let temp_dic = deepcopy(global_wiki_dic)
+  let temp_dic.is_temporary_wiki = 1
+  call add(g:vimwiki_wikilocal_vars, temp_dic)
 
   " Check some values individually
-  let key = 'nested_syntaxes'
-  for wiki_settings in g:vimwiki_wikilocal_vars
-    let users_value = wiki_settings[key]
-    for keyword in keys(users_value)
-      if type(keyword) != type('') || empty(keyword) || type(users_value[keyword]) != type('') ||
-            \ empty(users_value[keyword])
+  """"""""""""""""""""""""""""""""
+
+  " Set up variables for the lists, depending on config and syntax
+  for wiki in g:vimwiki_wikilocal_vars
+    " Treat lists
+    " TODO remove me: I am syntaxlocal
+    if !has_key(wiki, 'bullet_types') || len(wiki.bullet_types) == 0
+      let wiki.bullet_types = vimwiki#vars#get_syntaxlocal('bullet_types', wiki.syntax)
+    endif
+    call s:populate_list_vars(wiki)
+
+    " Check nested syntax
+    for keyword in keys(wiki.nested_syntaxes)
+      if type(keyword) != type('') || empty(keyword) || type(wiki.nested_syntaxes[keyword]) != type('') ||
+            \ empty(wiki.nested_syntaxes[keyword])
         call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-              \ . ' invalid. See '':h g:vimwiki_%s''.', string(users_value), key, key))
+              \ . ' invalid. See '':h g:vimwiki_%s''.', string(wiki.nested_syntaxes), 'nested_syntaxes', 'nested_syntaxes'))
         break
       endif
     endfor
   endfor
 
+
+  " Normalize and leave
   call s:normalize_wikilocal_settings()
-endfunction
-
-
-" Helper, Check user setting
-" warn user with message if not good type
-" Param: 1: key <string>: varaible name
-" Param: 2: vimwiki_key <obj>: user value
-" Param: 3: value_infod <dict>: type and default value
-" Param: 4: coming from a global variable <bool>
-function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
-  let type_code_to_name = {
-        \ type(0): 'number',
-        \ type(''): 'string',
-        \ type([]): 'list',
-        \ type({}): 'dictionary'}
-
-  let setting_origin = a:comes_from_global_variable ?
-        \ printf('''g:vimwiki_%s''', a:key) :
-        \ printf('''%s'' in g:vimwiki_list', a:key)
-
-  let help_text = a:comes_from_global_variable ?
-        \ 'g:vimwiki_' :
-        \ 'vimwiki-option-'
-
-  if has_key(a:value_infos, 'type') && type(a:users_value) != a:value_infos.type
-    call vimwiki#u#error(printf('The provided value of the option %s is a %s, ' .
-          \ 'but expected is a %s. See '':h '.help_text.'%s''.', setting_origin,
-          \ type_code_to_name[type(a:users_value)], type_code_to_name[a:value_infos.type], a:key))
-  endif
-
-  if a:value_infos.type == type(0) && has_key(a:value_infos, 'min') &&
-        \ a:users_value < a:value_infos.min
-    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
-          \ . ' too small. The minimum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min, a:key))
-  endif
-
-  if a:value_infos.type == type(0) && has_key(a:value_infos, 'max') &&
-        \ a:users_value > a:value_infos.max
-    call vimwiki#u#error(printf('The provided value ''%i'' of the option %s is'
-          \ . ' too large. The maximum value is %i. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.max, a:key))
-  endif
-
-  if has_key(a:value_infos, 'possible_values') &&
-        \ index(a:value_infos.possible_values, a:users_value) == -1
-    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s is'
-          \ . ' invalid. Allowed values are %s. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, string(a:value_infos.possible_values), a:key))
-  endif
-
-  if a:value_infos.type == type('') && has_key(a:value_infos, 'length') &&
-        \ strwidth(a:users_value) != a:value_infos.length
-    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
-          \ . ' contain exactly %i character(s) but has %i. See '':h '.help_text.'_%s''.',
-          \ a:users_value, setting_origin, a:value_infos.length, strwidth(a:users_value), a:key))
-  endif
-
-  if a:value_infos.type == type('') && has_key(a:value_infos, 'min_length') &&
-        \ strwidth(a:users_value) < a:value_infos.min_length
-    call vimwiki#u#error(printf('The provided value ''%s'' of the option %s must'
-          \ . ' have at least %d character(s) but has %d. See '':h '.help_text.'%s''.', a:users_value,
-          \ setting_origin, a:value_infos.min_length, strwidth(a:users_value), a:key))
-  endif
 endfunction
 
 
@@ -609,33 +632,195 @@ endfunction
 
 
 " ----------------------------------------------------------
-" 3. Syntax specific {{{1
+" 2. Syntax specific {{{1
 " ----------------------------------------------------------
+
+" Get default syntaxlocal variable dictionary
+function! s:get_default_syntaxlocal() abort
+  " type, default, min, max, possible_values, min_length
+  return extend(s:get_common_syntaxlocal(), {
+        \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
+        \ 'bold_search': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='},
+        \ 'bullet_types': {'type': type([]), 'default': ['-', '*', '#']},
+        \ 'header_match': {'type': type(''), 'default': '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'},
+        \ 'header_search': {'type': type(''), 'default': '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'},
+        \ 'list_markers': {'type': type([]), 'default': ['-', '1.', '*', 'I)', 'a)']},
+        \ 'number_types': {'type': type([]), 'default': ['1)', '1.', 'i)', 'I)', 'a)', 'A)']},
+        \ 'recurring_bullets': {'type': type(0), 'default': 0},
+        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
+        \ 'header_symbol': {'type': type(''), 'default': '='},
+        \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
+        \ 'rxListDefine': {'type': type(''), 'default': '::\(\s\|$\)'},
+        \ 'math_format': {'type': type({}), 'default': {
+        \   'pre_mark': '{{\$',
+        \   'post_mark': '}}\$'}},
+        \ 'multiline_comment_format': {'type': type({}), 'default': {
+        \   'pre_mark': '%%+',
+        \   'post_mark': '+%%'}},
+        \ 'pre_format': {'type': type({}), 'default': {
+        \   'pre_mark': '{{{',
+        \   'post_mark': '}}}'}},
+        \ 'symH': {'type': type(1), 'default': 1},
+        \ 'typeface': {'type': type({}), 'default': {
+        \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*']]),
+        \   'italic': vimwiki#u#hi_expand_regex([['_', '_']]),
+        \   'underline': vimwiki#u#hi_expand_regex([]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_']]),
+        \   'code': [
+        \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
+        \       ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
+        \       ],
+        \   'del': [['\~\~', '\~\~']],
+        \   'sup': [['\^', '\^']],
+        \   'sub': [[',,', ',,']],
+        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   }},
+        \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
+        \ })
+endfunction
+
+function! s:get_markdown_syntaxlocal() abort
+  let atx_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
+  let atx_header_match  = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
+
+  let setex_header_search = '^\s\{0,3}\zs[^>].*\ze\n'
+  let setex_header_search .= '^\s\{0,3}[=-]\{2,}$'
+
+  let setex_header_match = '^\s\{0,3}>\@!__Header__\n'
+  let setex_header_match .= '^\s\{0,3}[=-][=-]\+$'
+
+  return extend(s:get_common_syntaxlocal(), {
+        \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
+        \ 'bold_search': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='},
+        \ 'bullet_types': {'type': type([]), 'default': ['*', '-', '+']},
+        \ 'header_match': {'type': type(''), 'default': '\%(' . atx_header_match . '\|' . setex_header_match . '\)'},
+        \ 'header_search': {'type': type(''), 'default': '\%(' . atx_header_search . '\|' . setex_header_search . '\)'},
+        \ 'list_markers': {'type': type([]), 'default': ['-', '*', '+', '1.']},
+        \ 'number_types': {'type': type([]), 'default': ['1.']},
+        \ 'recurring_bullets': {'type': type(0), 'default': 0},
+        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$\|<!--[^>]*-->'},
+        \ 'header_symbol': {'type': type(''), 'default': '#'},
+        \ 'rxHR': {'type': type(''), 'default': '\(^---*$\|^___*$\|^\*\*\**$\)'},
+        \ 'rxListDefine': {'type': type(''), 'default': '::\%(\s\|$\)'},
+        \ 'math_format': {'type': type({}), 'default': {
+        \   'pre_mark': '\$\$',
+        \   'post_mark': '\$\$'}},
+        \ 'multiline_comment_format': {'type': type({}), 'default': {
+        \   'pre_mark': '',
+        \   'post_mark': ''}},
+        \ 'pre_format': {'type': type({}), 'default': {
+        \   'pre_mark': '\%(`\{3,}\|\~\{3,}\)',
+        \   'post_mark': '\%(`\{3,}\|\~\{3,}\)'}},
+        \ 'symH': {'type': type(0), 'default': 0},
+        \ 'typeface': {'type': type({}), 'default': {
+        \   'bold': vimwiki#u#hi_expand_regex([['__', '__'], ['\*\*', '\*\*']]),
+        \   'italic': vimwiki#u#hi_expand_regex([['\*', '\*'], ['_', '_']]),
+        \   'underline': vimwiki#u#hi_expand_regex([]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']]),
+        \   'code': [
+        \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
+        \       ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
+        \       ],
+        \   'del': [['\~\~', '\~\~']],
+        \   'sup': [['\^', '\^']],
+        \   'sub': [[',,', ',,']],
+        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   }},
+        \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
+        \ })
+endfunction
+
+function! s:get_media_syntaxlocal() abort
+  return extend(s:get_common_syntaxlocal(), {
+        \ 'bold_match': {'type': type(''), 'default': '''''''__Text__'''''''},
+        \ 'bold_search': {'type': type(''), 'default': "'''\\zs[^']\\+\\ze'''"},
+        \ 'bullet_types': {'type': type([]), 'default': ['*', '#']},
+        \ 'header_match': {'type': type(''), 'default': '^\s*\(=\{1,6}\)=\@!\s*__Header__\s*\1=\@!\s*$'},
+        \ 'header_search': {'type': type(''), 'default': '^\s*\(=\{1,6}\)\([^=].*[^=]\)\1\s*$'},
+        \ 'list_markers': {'type': type([]), 'default': ['*', '#']},
+        \ 'number_types': {'type': type([]), 'default': []},
+        \ 'recurring_bullets': {'type': type(1), 'default': 1},
+        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
+        \ 'header_symbol': {'type': type(''), 'default': '='},
+        \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
+        \ 'rxListDefine': {'type': type(''), 'default': '^\%(;\|:\)\s'},
+        \ 'math_format': {'type': type({}), 'default': {
+        \   'pre_mark': '{{\$',
+        \   'post_mark': '}}\$'}},
+        \ 'multiline_comment_format': {'type': type({}), 'default': {
+        \   'pre_mark': '',
+        \   'post_mark': ''}},
+        \ 'pre_format': {'type': type({}), 'default': {
+        \   'pre_mark': '<pre>',
+        \   'post_mark': '<\/pre>'}},
+        \ 'symH': {'type': type(1), 'default': 1},
+        \ 'typeface': {'type': type({}), 'default': {
+        \   'bold': [['\S\@<=''''''\|''''''\S\@=', '\S\@<=''''''\|''''''\S\@=']],
+        \   'italic': [['\S\@<=''''\|''''\S\@=', '\S\@<=''''\|''''\S\@=']],
+        \   'underline': [],
+        \   'bold_italic': [['\S\@<=''''''''''\|''''''''''\S\@=', '\S\@<=''''''''''\|''''''''''\S\@=']],
+        \   'code': [
+        \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
+        \       ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+        \        '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
+        \       ],
+        \   'del': [['\~\~', '\~\~']],
+        \   'sup': [['\^', '\^']],
+        \   'sub': [[',,', ',,']],
+        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   }},
+        \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
+        \ })
+endfunction
+
+function! s:get_common_syntaxlocal() abort
+  let res = {}
+  let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
+  let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'}
+  let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
+  let res.rxTableSep = {'type': type(''), 'default': '|'}
+  return res
+endfunction
+
 
 " Populate syntax variable
 " Exported: syntax/vimwiki.vim
-" TODO refactor <= too big function
 function! vimwiki#vars#populate_syntax_vars(syntax) abort
+  " TODO refactor <= too big function
+  " TODO permit user conf in some var like g:vimwiki_syntaxlocal_vars
+  " TODO internalize match and search (header and bold)
   " Create is not exists
-  if !exists('g:vimwiki_syntax_variables')
-    let g:vimwiki_syntax_variables = {}
+  if !exists('g:vimwiki_syntaxlocal_vars')
+    let g:vimwiki_syntaxlocal_vars = {}
   endif
 
   " Clause: leave if already filled
-  if has_key(g:vimwiki_syntax_variables, a:syntax)
+  if has_key(g:vimwiki_syntaxlocal_vars, a:syntax)
     return
   endif
 
-  " Init syntax variable dictionary
-  let g:vimwiki_syntax_variables[a:syntax] = {}
-  let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
+  " Init internal dic
+  let g:vimwiki_syntaxlocal_vars[a:syntax] = {}
+  let syntax_dic = g:vimwiki_syntaxlocal_vars[a:syntax]
 
-  " Init Typeface (filled in custom syntax)
-  let syntax_dic.dTypeface = {}
+  " Get default dic
+  let default_dic = extend({}, function('s:get_' . a:syntax . '_syntaxlocal')())
 
-  " Autoload default syntax file
-  execute 'runtime! syntax/vimwiki_'.a:syntax.'.vim'
-
+  " Extend <- default <- user global
+  call s:extend_global(syntax_dic, default_dic)
+  " Extend <- user wikilocal
+  let wikilocal = g:vimwiki_wikilocal_vars[vimwiki#vars#get_bufferlocal('wiki_nr')]
+  " TODO remake tests
+  "call s:extend_local(syntax_dic, default_dic, syntax_dic, wikilocal)
+  " Extend <- user syntaxlocal
+  if exists('g:vimwiki_syntax_list') && has_key(g:vimwiki_syntax_list, a:syntax)
+    call s:extend_local(syntax_dic, default_dic, syntax_dic, g:vimwiki_syntax_list[a:syntax])
+  endif
 
   " TODO make that clean (i.e clearify what is local to syntax ot to buffer)
   " Get from local vars
@@ -647,6 +832,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
         \ vimwiki#vars#get_wikilocal('cycle_bullets')
 
   " Tag: get var
+  " TODO rename for internal
   let syntax_dic.tag_format = {}
   let tf = syntax_dic.tag_format
   call extend(tf, vimwiki#vars#get_wikilocal('tag_format'))
@@ -683,7 +869,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
 
 
   " Populate generic stuff
-  let header_symbol = syntax_dic.rxH
+  let header_symbol = syntax_dic.header_symbol
   if syntax_dic.symH
     " symmetric headers
     for i in range(1,6)
@@ -727,14 +913,14 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   endif
 
   let syntax_dic.rxPreStart =
-        \ '^\s*'.syntax_dic.rxPreStart
+        \ '^\s*'.syntax_dic.pre_format.pre_mark
   let syntax_dic.rxPreEnd =
-        \ '^\s*'.syntax_dic.rxPreEnd.'\s*$'
+        \ '^\s*'.syntax_dic.pre_format.post_mark.'\s*$'
 
   let syntax_dic.rxMathStart =
-        \ '^\s*'.syntax_dic.rxMathStart
+        \ '^\s*'.syntax_dic.math_format.pre_mark
   let syntax_dic.rxMathEnd =
-        \ '^\s*'.syntax_dic.rxMathEnd.'\s*$'
+        \ '^\s*'.syntax_dic.math_format.post_mark.'\s*$'
 
   let syntax_dic.number_kinds = []
   let syntax_dic.number_divisors = ''
@@ -886,7 +1072,7 @@ endfunction
 
 " Populate markdown specific syntax variables
 function! s:populate_extra_markdown_vars() abort
-  let mkd_syntax = g:vimwiki_syntax_variables['markdown']
+  let mkd_syntax = g:vimwiki_syntaxlocal_vars['markdown']
 
   " 0a) match [[URL|DESCRIPTION]]
   let mkd_syntax.rxWikiLink0 = mkd_syntax.rxWikiLink
@@ -1058,9 +1244,9 @@ endfunction
 
 " Normalize syntax setting
 "   so that we dont have to branch for the syntax at each operation
-" Called: vimwiki#vars#populate_syntax_vars
+" Called: populate_syntax_vars
 function! s:normalize_syntax_settings(syntax) abort
-  let syntax_dic = g:vimwiki_syntax_variables[a:syntax]
+  let syntax_dic = g:vimwiki_syntaxlocal_vars[a:syntax]
 
   " Link1: used when:
   "   user press enter on a non-link (normalize_link)
@@ -1069,6 +1255,244 @@ function! s:normalize_syntax_settings(syntax) abort
     let syntax_dic.Link1 = syntax_dic.Weblink1Template
   else
     let syntax_dic.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
+  endif
+endfunction
+
+
+" ----------------------------------------------------------
+" 4. Command (exported) {{{1
+" ----------------------------------------------------------
+
+
+" Get variable anywhere
+" Returns: [value, location] where loc=global|wikilocal|syntaxlocal|bufferlocal|none
+" Called: cmd <- VimvikiVar
+" TODO get more preformant approach when this file has been well refactored:
+" -- calls only the necessary functions and not syntaxlocal anytime
+function! s:get_anywhere(key, ...) abort
+  " Alias common info
+  let s:syntax = vimwiki#vars#get_wikilocal('syntax')
+  let s:wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  let s:wikilocal = g:vimwiki_wikilocal_vars[s:wiki_nr]
+  let s:user_wiki = get(g:vimwiki_list, s:wiki_nr, {})
+
+  " Convert value
+  let value = ''
+  if a:0
+    exe 'let value = ' . a:1
+  endif
+
+  function! s:any_bufferlocal(key, value) abort
+    if !(v:version > 703 && exists('b:vimwiki_'.a:key)) | return | endif
+    exe 'let b:vimwiki_' . a:key . ' = ' . a:1
+  endfunction
+
+  " Define: Set syntax: only reparse wikilocal
+  " Note: call set_wikilocal before
+  function! s:any_syntaxlocal(key, value) abort
+    "let syntaxlocal[a:key] = a:1
+    " Prepare
+    if exists('b:current_syntax')
+      unlet b:current_syntax
+    endif
+    unlet g:vimwiki_syntaxlocal_vars
+
+    " Build vars
+    call vimwiki#vars#populate_syntax_vars(s:syntax)
+
+    " Update syntax
+    syntax clear
+    runtime syntax/vimwiki.vim
+    redraw
+  endfunction
+
+  " Define: Set local
+  function! s:any_wikilocal(key, value) abort
+    "let wikilocal[a:key] = a:1
+    " Clause: The key must be in the wikilocal keys
+    if !has_key(s:get_default_wikilocal(), a:key) | return | endif
+
+    " Set: Local
+    let s:user_wiki[a:key] = a:value
+    call vimwiki#vars#init()
+    call s:populate_wikilocal_options()
+  endfunction
+
+  function! s:any_global(key, value) abort
+    "let g:vimwiki_global_vars[a:key] = a:1
+    exe 'let g:vimwiki_' . a:key . ' = ' . string(a:value)
+    call s:populate_global_variables()
+  endfunction
+
+  " Switch
+  " -- Global
+  if has_key(s:get_default_global(), a:key)
+    if a:0
+      call s:any_global(a:key, value)
+      call s:any_wikilocal(a:key, value)
+      call s:any_syntaxlocal(a:key, value)
+      call s:any_bufferlocal(a:key, value)
+    endif
+    return [g:vimwiki_global_vars[a:key], 'global']
+
+  " -- Wiki Local
+  elseif has_key(s:get_default_wikilocal(), a:key)
+    if a:0
+      call s:any_wikilocal(a:key, value)
+      call s:any_syntaxlocal(a:key, value)
+      call s:any_bufferlocal(a:key, value)
+    endif
+    return [s:wikilocal[a:key], 'wikilocal']
+
+  " -- Syntax Local
+  elseif has_key(g:vimwiki_syntaxlocal_vars[s:syntax], a:key)
+    if a:0
+      call s:any_wikilocal(a:key, value)
+      call s:any_syntaxlocal(a:key, value)
+      call s:any_bufferlocal(a:key, value)
+    endif
+    return [g:vimwiki_syntaxlocal_vars[s:syntax][a:key], 'syntaxlocal']
+
+  " -- Buffer Local
+  elseif v:version > 703 && exists('b:vimwiki_'.a:key)
+    if a:0
+      call s:any_bufferlocal(a:key, value)
+    endif
+    return [get(getbufvar('%', ''), 'vimwiki_'.a:key, '/\/\'), 'bufferlocal']
+  else
+    return ['', 'none']
+  endif
+endfunction
+
+
+" Set or Get a vimwiki variable
+" :param: (1) key <string> [space] value <string>
+" -- name of the variable [space] value to evaluate and set the variable
+" Called: VimwikiVar
+function! vimwiki#vars#cmd(arg) abort
+  " Get key and value
+  let sep1 = stridx(a:arg, ' ')
+  let sep2 = sep1
+  while sep2!= -1 && a:arg[sep2] ==# ' ' | let sep2 += 1 | endwhile
+  let arg_key = sep1 == -1 ? a:arg : a:arg[:sep1-1]
+  let arg_value = a:arg[sep2 :]
+
+  " Case0: No argument => Print all keys and values
+  if arg_key ==# ''
+    " Get options keys
+    " Merge default dictionary
+    let d_global = s:get_default_global()
+    let d_wlocal = s:get_default_wikilocal()
+    let syntax = vimwiki#vars#get_wikilocal('syntax')
+    let d_slocal = function('s:get_' . syntax . '_syntaxlocal')()
+    let d_default = {}
+
+    " Define helpers
+    function! s:print_head(name) abort
+      call vimwiki#u#echo(repeat('-', 50), 'Statement', '', '')
+      call vimwiki#u#echo('  ' . a:name, 'Statement', '', '')
+      call vimwiki#u#echo(repeat('-', 50), 'Statement', '', '')
+    endfunction
+
+    " Print Global
+    call s:print_head('Global')
+    for key in sort(keys(d_global))
+      if !has_key(g:vimwiki_global_vars, key)
+        continue
+      endif
+      if string(g:vimwiki_global_vars[key]) == string(d_global[key].default)
+        let d_default[key] = string(d_global[key].default) . '          " From Global'
+      else
+        let msg = key .  ' = ' . string(g:vimwiki_global_vars[key])
+        call vimwiki#u#echo(msg, '', 'm', '')
+      endif
+    endfor
+
+    " Print SyntaxLocal
+    let syntaxlocal = g:vimwiki_syntaxlocal_vars[syntax]
+    call s:print_head('Syntax: ' . toupper(syntax[0]) . syntax[1:])
+    for key in sort(keys(d_slocal))
+      if !has_key(syntaxlocal, key)
+        continue
+      endif
+      if string(syntaxlocal[key]) == string(d_slocal[key].default)
+        let d_default[key] = string(d_slocal[key].default) . '          " From SyntaxLocal'
+      else
+        let msg = key .  ' = ' . string(syntaxlocal[key])
+        call vimwiki#u#echo(msg, '', 'm', '')
+      endif
+    endfor
+
+    " Print WikiLocal
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+    let wikilocal = g:vimwiki_wikilocal_vars[wiki_nr]
+    call s:print_head('Local: ' . wiki_nr)
+    for key in sort(keys(d_wlocal))
+      if !has_key(wikilocal, key)
+        continue
+      endif
+      if string(wikilocal[key]) == string(d_wlocal[key].default)
+        let d_default[key] = string(d_wlocal[key].default) . '          " From WikiLocal'
+      else
+        let msg = key .  ' = ' . string(wikilocal[key])
+        call vimwiki#u#echo(msg, '', 'm', '')
+      endif
+    endfor
+
+    " Print Default
+    call s:print_head('Default')
+    for key in sort(keys(d_default))
+      let msg = key .  ' = ' . d_default[key]
+      call vimwiki#u#echo(msg, '', 'm', '')
+    endfor
+
+  " Case1: Only key => Print value
+  elseif sep1 == -1 || arg_value =~# '^\s*$'
+    let [val, loc] = s:get_anywhere(arg_key)
+    let msg = 'Got: ' . arg_key . ' = ' . string(val) . '   " <= From: ' . toupper(loc[0]) . loc[1:]
+    call vimwiki#u#echo(msg, '', 'm')
+
+  " Case2: Key and value => Set value
+  else
+    let [val, loc] = s:get_anywhere(arg_key, arg_value)
+    let msg = 'Set: ' . arg_key . ' = ' . string(val) . '   " => To: ' . toupper(loc[0]) . loc[1:]
+    call vimwiki#u#echo(msg, '', 'm')
+  endif
+endfunction
+
+
+function! vimwiki#vars#complete(arglead, cmdline, pos) abort
+  " Get key and value: faster than split
+  " -- And must treat potential multispace in value
+  let arg_list = split(a:cmdline, '\s\+')
+  let sep1 = stridx(a:cmdline, ' ')
+  while sep1!= -1 && a:cmdline[sep1] ==# ' ' | let sep1 += 1 | endwhile
+  let sep2 = stridx(a:cmdline, ' ', sep1+1)
+  while sep2!= -1 && a:cmdline[sep2] ==# ' ' | let sep2 += 1 | endwhile
+  let arg_key = a:cmdline[sep1 : sep2]
+  let arg_value = a:cmdline[sep2 :]
+
+  " Case1: Complete key
+  if arg_key[-1:-1] !=# ' '
+    " Get options keys
+    let keys = []
+    call extend(keys, keys(s:get_default_global()))
+    call extend(keys, keys(s:get_default_wikilocal()))
+
+    " Filter and Return
+    " -- Use smart case matching
+    let arg_re = substitute(arg_key, '\u', '[\0\l\0]', 'g')
+    " -- Match anywhere in variable name
+    let arg_re = '.*' . arg_re . '.*'
+    call filter(keys, '-1 != match(v:val, arg_re)')
+
+    return keys
+  " Case2: Complete value
+  else
+    " Remove trailing space
+    let arg_key = substitute(arg_key, '\s\+$', '', '')
+    let value = s:get_anywhere(arg_key)[0]
+    return [string(value)]
   endif
 endfunction
 
@@ -1089,12 +1513,12 @@ function! vimwiki#vars#get_syntaxlocal(key, ...) abort
   endif
 
   " Create syntax varaible dict if not exists (lazy)
-  if !exists('g:vimwiki_syntax_variables') || !has_key(g:vimwiki_syntax_variables, syntax)
+  if !exists('g:vimwiki_syntaxlocal_vars') || !has_key(g:vimwiki_syntaxlocal_vars, syntax)
     call vimwiki#vars#populate_syntax_vars(syntax)
   endif
 
   " Return d_syntax[a:key]
-  return g:vimwiki_syntax_variables[syntax][a:key]
+  return g:vimwiki_syntaxlocal_vars[syntax][a:key]
 endfunction
 
 

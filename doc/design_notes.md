@@ -1,12 +1,12 @@
 # Design Notes
 
-This file is meant to document design decisions and algorithms inside vimwiki
+This file is meant to document design decisions and algorithms inside Vimwiki
 which are too large for code comments, and not necessarily interesting to
 users. Please create a new section to document each behavior.
 
 ## Formatting tables
 
-In vimwiki, formatting tables occurs dynamically, when navigating between cells
+In Vimwiki, formatting tables occurs dynamically, when navigating between cells
 and adding new rows in a table in the Insert mode, or statically, when pressing
 `gqq` or `gqw` (which are mappings for commands `VimwikiTableAlignQ` and
 `VimwikiTableAlignW` respectively) in the Normal mode. It also triggers when
@@ -107,7 +107,7 @@ variable `g:vimwiki_table_auto_fmt` is set. This means that formatting of the
 whole table is called on all those multiple interleaves between the Insert and
 the Normal mode in `s:kbd_create_new_row` (notice `\<ESC>`, `o`, etc.).
 
-### The newer table formating algorithm
+### The newer table formatting algorithm
 
 The newer algorithm was introduced to struggle against performance issues when
 formatting large tables.
@@ -184,3 +184,55 @@ viewport) until one of the being edited cells grows in length to a value big
 enough to trigger the older algorithm and the whole table gets aligned. When
 partial formatting is not desirable, the whole table can be formatted by
 pressing `gqq` in the Normal mode.
+
+
+## Scoped Variable
+
+Vimwiki's variables have a scope. They can be:
+
+1. Global [ex: `global_ext`]
+2. Wikilocal (1, 2, 3 ...) [ex: `path`]
+3. Syntaxlocal (default, markdown, media) [ex: `bullet_types`]
+4. Bufferlocal [ex: `b:vimwiki_wiki_nr`]
+
+They all can be configured, changed by user
+
+As a comparison, Vim's variables also have a scope (`:h variable-scope`) and
+can also be configured by users.
+
+While features kept stacking, it became more and more difficult to maintain the
+coherence and configurability between these variables: a type of markers, say
+`bullet_types`, can affect folding, highlighting, keystrokes mapping, indentation.
+All of those aspects often requires internal variables that should be calculated
+only once's when user is changing the variable and affect only the scope in which
+they are defined: a `markdown` syntax configuration should affect all `markdown`
+wikis but not `default` ones. So it was decided (#894) to keep a 3 global
+dictionaries to hold internal variables (there is only one bufferlocal variable
+so a dictionary was clearly overkill) and 3 other dictionaries for user
+configuration. The internal dictionaries get updated at startup (`:h extend`)
+with the user content but do not modify it. They can also be updated later with
+`VimwikiVar` function.
+
+Here, `key` is the variable name, `2` the wiki number and `markdown` the syntax
+
+```vim
+" External              -> Internal
+g:vimwiki_{key}         -> g:vimwiki_global_vars[key]
+g:vimwiki_syntax_list['markdown'][key]
+                        -> g:vimwiki_syntaxlocal_vars['markdown'][key]
+g:vimwiki_list[2][key]  -> g:vimwiki_wikilocal_vars[2][key]
+```
+
+All are defined in `vars.vim` and in case of a conflict while executing it, the
+innermost scope if privileged (as usual for variable scoping conflicts). The
+reasons for such a complex system is:
+1. The diversity of variables and developers
+2. The nature of new (2020) issues asking for some deep customisation (ex: of
+   the link format) or high functionality (ex: on demand wiki creation and
+   configuration)
+3. Historical excuses that Vimwiki was not designed to be highly configurable at
+   beginning and many temporary internal variables where created to "fix some
+   holes"
+
+
+<!-- vim: set tw=80: -->

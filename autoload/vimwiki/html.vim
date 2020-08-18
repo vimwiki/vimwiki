@@ -1296,8 +1296,9 @@ function! s:parse_line(line, state) abort
   " current line while not marking as processed in the scenario where some
   " text remains that needs to go through additional processing
   if !processed
-    let mc_start = vimwiki#vars#get_syntaxlocal('rxMultilineCommentStart')
-    let mc_end = vimwiki#vars#get_syntaxlocal('rxMultilineCommentEnd')
+    let mc_format = vimwiki#vars#get_syntaxlocal('multiline_comment_format')
+    let mc_start = mc_format.pre_mark
+    let mc_end = mc_format.post_mark
 
     " If either start or end is empty, we want to skip multiline handling
     if !empty(mc_start) && !empty(mc_end)
@@ -1396,7 +1397,7 @@ function! s:parse_line(line, state) abort
   endif
 
   if !processed
-    if line =~# vimwiki#vars#get_syntaxlocal('rxComment')
+    if line =~# vimwiki#vars#get_syntaxlocal('comment_regex')
       let processed = 1
     endif
   endif

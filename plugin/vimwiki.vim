@@ -380,6 +380,9 @@ command! VimwikiDiaryGenerateLinks
 
 command! VimwikiShowVersion call s:get_version()
 
+command! -nargs=* -complete=customlist,vimwiki#vars#complete
+      \ VimwikiVar call vimwiki#vars#cmd(<q-args>)
+
 
 " Declare global maps
 " <Plug> global definitions
@@ -404,12 +407,12 @@ nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
     \ vimwiki#diary#diary_date_link(localtime(), 1))<CR>
 
-" Get the user defined prefix (default <leader>w)
-let s:map_prefix = vimwiki#vars#get_global('map_prefix')
-
 
 " Set default global key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').global)
+  " Get the user defined prefix (default <leader>w)
+  let s:map_prefix = vimwiki#vars#get_global('map_prefix')
+
   call vimwiki#u#map_key('n', s:map_prefix . 'w', '<Plug>VimwikiIndex', 2)
   call vimwiki#u#map_key('n', s:map_prefix . 't', '<Plug>VimwikiTabIndex', 2)
   call vimwiki#u#map_key('n', s:map_prefix . 's', '<Plug>VimwikiUISelect', 2)

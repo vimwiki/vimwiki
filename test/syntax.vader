@@ -88,7 +88,7 @@ Given vimwiki (task list with code):
 
 Execute (let g:vimwiki_hl_cb_checked = 1):
   let g:vimwiki_hl_cb_checked = 1
-  unlet g:vimwiki_syntax_variables
+  unlet g:vimwiki_syntaxlocal_vars
   call vimwiki#vars#init()
   call SetSyntax('markdown')
 
@@ -106,7 +106,7 @@ Given vimwiki (task list with code):
 
 Execute (let g:vimwiki_hl_cb_checked = 2):
   let g:vimwiki_hl_cb_checked = 2
-  unlet g:vimwiki_syntax_variables
+  unlet g:vimwiki_syntaxlocal_vars
   call vimwiki#vars#init()
   call SetSyntax('markdown')
 

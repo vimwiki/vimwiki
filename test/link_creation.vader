@@ -18,8 +18,8 @@ Given vimwiki (abc def ghi jkl):
 
 Execute (Set filename wiki_test.md):
   call SetSyntax('markdown')
-  let save_link = g:vimwiki_syntax_variables.markdown.Link1
-  let g:vimwiki_syntax_variables.markdown.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
+  let save_link = g:vimwiki_syntaxlocal_vars.markdown.Link1
+  let g:vimwiki_syntaxlocal_vars.markdown.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
 
 Do (vee<CR>):
   vee\<CR>
@@ -28,7 +28,7 @@ Expect (append md suffix):
   [[abc def]] ghi jkl
 
 Execute (restore):
-  let g:vimwiki_syntax_variables.markdown.Link1 = save_link
+  let g:vimwiki_syntaxlocal_vars.markdown.Link1 = save_link
 
 
 # vimwiki_markdown_link_ext {{{1
