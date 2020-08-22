@@ -158,7 +158,7 @@ setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
 setlocal formatoptions+=n
-" Used to join blockquotes (see: #915)
+" Used to join 'commented' lines (blockquote, list) (see: #915)
 if v:version > 703
   setlocal formatoptions+=j
 endif

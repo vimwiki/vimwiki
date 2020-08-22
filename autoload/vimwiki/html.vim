@@ -1790,23 +1790,23 @@ function! s:convert_file(path_html, wikifile) abort
   let done = 0
   let wikifile = fnamemodify(a:wikifile, ':p')
   let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
+  let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
 
   if s:use_custom_wiki2html()
     let force = 1
     call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
     let done = 1
-    return ''
+    return path_html . htmlfile
   endif
 
   if s:syntax_supported() && done == 0
-    let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
     let html_lines = s:convert_file_to_lines_template(wikifile, path_html . htmlfile)
     if html_lines == []
       return ''
     endif
     call vimwiki#path#mkdir(path_html)
     call writefile(html_lines, path_html.htmlfile)
-    return path_html.htmlfile
+    return path_html . htmlfile
   endif
 
   call vimwiki#u#error('Conversion to HTML is not supported for this syntax')
