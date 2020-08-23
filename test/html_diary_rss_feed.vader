@@ -1,9 +1,5 @@
 # Feature to generate a diray RSS feed (PR #934)
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
 Given (Void):
 
 Execute (Generate HTML and RSS feed):
@@ -21,8 +17,9 @@ Do (Get HTML file):
   kdgg
 # Delete everything below
   jdG
-# Save (Not necessary)
-  :write
+# Save (Not necessary) => Actually make rest of batch freeze, do you really want
+# to quit buffer
+#  :write
 
 Expect (RSS link in HTML):
   <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
@@ -34,7 +31,7 @@ Do (Get RSS feed):
 # Replace pubDate with dummy as it's based on file modification time
   :%s@<pubDate>.*</pubDate>@<pubDate>...</pubDate>@g\<CR>
 # Save (Not necessary)
-  :write
+#  :write
 
 Expect (RSS):
 # TODO the next line is deleted with -Es
@@ -107,3 +104,6 @@ Expect (RSS):
    </item>
   </channel>
   </rss>
+
+Execute (Clean buffer modification):
+  edit! $HOME/testwiki/index.wiki

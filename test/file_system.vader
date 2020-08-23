@@ -1,10 +1,5 @@
 # Travel thought files
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
-
 Given (Void for Accessing other files within vimwiki #979 {{{1):
 
 
@@ -28,8 +23,5 @@ Do (At Index: Create and goto markdownfile):
   :VimwikiIndex 2\<Cr>
   dd
   :call DeleteFile('mdfile.md')\<Cr>
-
-Execute (Clean):
-  call DeleteFile("$HOME/testmarkdown/index.md")
 
 # vim: sw=2:foldmethod=marker:foldlevel=30:foldignore=:

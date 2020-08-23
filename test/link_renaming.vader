@@ -6,11 +6,6 @@
 # Create directories I remove at end {{{1
 ##########################################
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
-
 Execute (Mkdir dir1 dir2 dir11 dir12):
   call system("mkdir $HOME/testmarkdown/dir1")
   call system("mkdir $HOME/testmarkdown/dir1/dir11")

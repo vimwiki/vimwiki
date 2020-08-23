@@ -4,9 +4,7 @@
 #   - buffer list insertion (see: vimwiki#base#update_listing_in_buffer)
 
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
+Execute (Reset sw to default (due to batch)):
   set sw=8
 
 # 1 VimwikiGenerateLinks {{{1
@@ -198,7 +196,6 @@ Expect (diary index generated):
 
 
 Execute (Clean):
-  call DeleteFile("$HOME/testmarkdown/index.md")
   call DeleteFile('$HOME/testmarkdown/diary/2019-12-10.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-07-13.md')
   call DeleteFile('$HOME/testmarkdown/diary/2019-03-01.md')

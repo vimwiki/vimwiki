@@ -5,11 +5,6 @@
 #   So I used C-L
 
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
-
 Execute (VimwikiGoto buzz_bozz && Assert):
   VimwikiIndex 2
   VimwikiGoto buzz_bozz
@@ -78,7 +73,6 @@ Execute (:VimwikiGoto + Completion in directory):
 
 Execute (Clean):
   call DeleteFile("$HOME/testmarkdown/dir1/dir2/test_goto_file.md")
-  call DeleteFile("$HOME/testmarkdown/index.md")
   call system("rm $HOME/testmarkdown/dir1")
 
 # vim: sw=2 foldmethod=indent foldlevel=30 foldignore=

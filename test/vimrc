@@ -200,7 +200,7 @@
   " Write current file: helper to hide `set bt=`
   function! WriteMe()
     set buftype=
-    write %
+    write! %
   endfunction
 
   " Delete a file <- path <string>
@@ -292,5 +292,9 @@
     if v:version < a:version | return | endif
     AssertEqual a:one, a:two
   endfunction
+
+
+" Copy Wiki's Resources
+call CopyResources()
 
 " vim: ft=vim:sw=2

@@ -1,10 +1,6 @@
 # Tag generation and navigation
 # Note: The Generate must be in Execute
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
 Execute (Setup):
   set sw=4
   AssertEqual 4, &sw

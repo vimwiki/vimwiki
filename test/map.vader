@@ -6,63 +6,16 @@
 # 0 Configure {{{1
 ##################
 
-Execute (Configure: Set vimwiki list to markdown resource):
-  Log "Let mapleader = ,"
-  let mapleader = ','
-
-  Log "Destroy vimrc or previous run heritage"
-  call DestroyVar('g:vimwiki_list')
-  call DestroyVar('g:vimwiki_global_vars')
-  call DestroyVar('g:vimwiki_wikilocal_vars')
-
-  Log "Destroy vimrc variable, works better that way"
-  call DestroyVar('g:vimwiki_default')
-  call DestroyVar('g:vimwiki_markdown')
-  call DestroyVar('g:vimwiki_mediawiki')
-
-  Log "Declare my vimwiki_list"
-  let g:vimwiki_list = [{
-    \ 'path': 'test/resources/testmarkdown',
-    \ 'syntax': 'markdown',
-    \ 'ext': '.md'
-    \ }]
-
-  Log "Declare my extension for temporary wiki"
-  let g:vimwiki_ext2syntax = {'.md': 'markdown'}
-
-  Log "Reload vimwiki"
-  nmapclear
-
-  " UNlet what can be
-  for i in ['g:vimwiki_commentstring',
-        \ 'b:did_ftplugin',
-        \ 'g:loaded_vimwiki',
-        \ 'g:vimwiki_global_vars',
-        \ 'g:vimwiki_wikilocal_vars',
-        \ 'g:vimwiki_syntaxlocal_vars',
-        \ ]
-    if exists(i)
-      exe 'unlet ' . i
-    endif
-  endfor
-
-  " Source plugin: Go
-  runtime! plugin/vimwiki.vim
-
-Execute (Assert: 2 wiki in Index):
-  AssertEqual 2, len(vimwiki_wikilocal_vars)
-
 Execute (VimwikiIndex):
-  VimwikiIndex 1
+  VimwikiIndex 2
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
   AssertEqual 'vimwiki', &filetype
-  AssertEqual 'test/resources/testmarkdown/', vimwiki_wikilocal_vars[0]['path']
-  AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  AssertEqual $HOME . '/testmarkdown/', vimwiki_wikilocal_vars[0]['path']
+  AssertEqual $HOME . 'testmarkdown/index.md', expand('%')
 
 Execute (Open buzz bozz):
-  edit test/resources/testmarkdown/buzz_bozz.md
-  AssertEqual 'test/resources/testmarkdown/buzz_bozz.md', expand('%')
-
+  edit $HOME/testmarkdown/buzz_bozz.md
+  AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
 
 # 1 Global {{{1
 ###############
@@ -72,28 +25,28 @@ Execute (===========================================================):
 
 Do (,ww -> open index [Assert]):
   ,ww
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wt -> open index in tab [Assert]):
   ,wt
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(2)
   \<CR>
 
 Do (,w,w -> open diary [Assert]):
   ,w,w
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,t -> open diary in tab [Assert]):
   ,w,t
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
   \<CR>
   :call AssertTab(2)
   \<CR>
@@ -102,28 +55,28 @@ Do (,ws -> list and select wiki [Assert]):
   ,ws
   1
   \<CR>
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wi -> open diary index [Assert]):
   ,wi
-  :AssertEqual 'test/resources/testmarkdown/diary/diary.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/diary.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,y -> open yesterday [Assert]):
   ,w,y
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() - 60*60*24) . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() - 60*60*24) . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,m -> open tomorrow [Assert]):
   ,wm
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() + 60*60*24) . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() + 60*60*24) . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
@@ -144,13 +97,13 @@ Do (,wn -> Create new wiki [Assert]):
   ,wn
   new_file1
   \<CR>
-  :AssertEqual 'test/resources/testmarkdown/new_file1.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file1.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wd -> Delete wiki yes [Assert]):
-  :edit 'test/resources/testmarkdown/file_new1.md'
+  :edit $HOME . '/testmarkdown/file_new1.md'
   \<CR>
 
   ,wn
@@ -163,11 +116,11 @@ Do (,wd -> Delete wiki yes [Assert]):
   yes
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
 
 Do (,wd -> Delete wiki no [Assert]):
-  :edit 'test/resources/testmarkdown/file_new1.md'
+  :edit $HOME . '/testmarkdown/file_new1.md'
   \<CR>
 
   ,wn
@@ -180,7 +133,7 @@ Do (,wd -> Delete wiki no [Assert]):
   no
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file2.md', expand('%')
   \<CR>
 
 Do (,wn -> Rename wiki [Assert]):
@@ -194,7 +147,7 @@ Do (,wn -> Rename wiki [Assert]):
   new_file2
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file2.md', expand('%')
   \<CR>
 
 Given (Some headings):

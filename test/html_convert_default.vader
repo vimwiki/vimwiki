@@ -1,9 +1,5 @@
 # Conertion: Wiki -> Html
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
 #################################################
 Given vimwiki (Comments):
   This is some text

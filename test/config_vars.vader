@@ -6,7 +6,6 @@ Given txt (txt):
   txt
 
 Execute (VimWei vars #980):
-  call CopyResources()
   " Set
   call UnloadVimwiki()
   let wiki = {}
@@ -52,7 +51,7 @@ Execute (VimWei vars #980):
   bprevious
   Log 'Path (Current): ' . getcwd()
   Log 'File (Buffer):' . @%
-  bdelete index.md
+  bwipeout index.md
   
   " Clean
   Log 'Clean up'

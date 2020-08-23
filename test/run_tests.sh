@@ -4,8 +4,8 @@
 # output function.
 
 # Say Hi
-echo -en "Starting $(basename $0) for VimWiki\n"
-start_time=`date +%s`
+echo -en "Starting $(basename "$0") for VimWiki\n"
+start_time=$(date +%s)
 
 # For windows: Cmder bash is appending busybox to the path and
 #   and a smlll vim is included, so that override the windows path vim
@@ -60,23 +60,16 @@ runVader() {
 
     # Parse tests files to execute
     if [[ -z $file_test ]]; then
-        ind="test/independent_runs/*.vader" 
         res="test/*"
     else
         read -ra TEST <<< "$file_test"
         for i in "${TEST[@]}"; do
-            if [[ "$i" == "independent_runs/"*"*"* ]]; then
-                ind="$ind test/${i}"
-            elif [[ "$i" == *"*"* ]]; then
+            if [[ "$i" == *"*"* ]]; then
                 res="$res test/${i}"
             elif [[ -f "$i" ]]; then
                 res="$res test/${i}"
             elif [[ -f "${i}.vader" ]]; then
                 res="$res test/${i}.vader"
-            elif [[ -f "independent_runs/${i}" ]]; then
-                ind="$ind test/independent_runs/${i}"
-            elif [[ -f "independent_runs/${i}.vader" ]]; then
-                ind="$ind test/independent_runs/${i}.vader"
             else
                 printf "WARNING: Test \"%s\" not found.\n", "$i"
             fi
@@ -94,10 +87,10 @@ runVader() {
             home_save="$HOME"
 
             # Create temporary root
-            mkdir -p $tmp_dir/vader_wiki
-            mkdir -p $tmp_dir/vader_wiki/home
-            mkdir -p $tmp_dir/vader_wiki/home/test
-            mkdir -p $tmp_dir/vader_wiki/testplugin
+            mkdir -p "$tmp_dir/vader_wiki"
+            mkdir -p "$tmp_dir/vader_wiki/home"
+            mkdir -p "$tmp_dir/vader_wiki/home/test"
+            mkdir -p "$tmp_dir/vader_wiki/testplugin"
 
             # Set vars
             export ROOT="$tmp_dir/vader_wiki/"
@@ -127,57 +120,40 @@ runVader() {
             # flags=(--rm -v "$PWD/../:/testplugin" -v "$PWD/../test:/home" -w /testplugin vimwiki)
             echo -e "\nCopying resources to $ROOT"
             # Copy testplugin
-            cp -rf $wiki_path/* $ROOT/testplugin/
+            cp -rf "$wiki_path/"* "$ROOT/testplugin/"
             # Copy home
-            cp -rf $script_path/* $HOME/test/
+            cp -rf "$script_path/"* "$HOME/test/"
             # Copy rtp.vim
-            cp -rf $script_path/resources/rtp_local.vim $ROOT/rtp.vim
+            cp -rf "$script_path/resources/rtp_local.vim" "$ROOT/rtp.vim"
             # Copy vader <- internet
             echo 'Cloning Vader (git, do not care the fatal)'
             git clone --depth 10 https://github.com/junegunn/vader.vim /tmp/vader_wiki/vader 2>&1
         fi
 
         # Run batch of tests
+        # shellcheck disable=SC2086,SC2206
         if [[ "$res" != "" ]]; then
             if [[ "$v" == "local" ]]; then
-                pushd $tmp_dir/vader_wiki/testplugin
+                pushd "$tmp_dir/vader_wiki/testplugin" \
+                    || echo 'Warning pushd testplugin failed'
 
                 # Run the tests
-                echo -e "\nStarting Batch Vim/Vader <- $res"
-                "$vim" $vim_opt "+Vader! ${res}" 2>&1
-                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
+                acmd=("$vim" $vim_opt \"+Vader! ${res}\" "2>&1")
+                echo -e "\nStarting Batch Vim/Vader:\n${acmd[*]}\n<- $res\n"
+                ${acmd[*]}
+                ret=${PIPESTATUS[1]}; err=$(( err + ret ))
                 echo -e "\nReturned Batch Vim/Vader -> $ret"
 
-                popd
+                popd \
+                    || echo 'Warning popd also failed'
             else
                 # In docker
-                echo -e "\nStarting Independant Vim/Vader <- $res"
-                docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-                  "$v" $vim_opt "+Vader! ${res}" 2>&1 | vader_filter | vader_color
-                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
-                echo -e "\nReturned Independant Docker/Vim/Vader -> $ret"
-            fi
-        fi
-
-        # Run Tests that must be run in individual vim instances
-        # see README.md for more information
-        if [[ "$ind" != "" ]]; then
-            test_cmd="for VF in ${ind}; do $vim $vim_opt \"+Vader! \$VF\"; done"
-            if [[ "$v" == "local" ]]; then
-                pushd $tmp_dir/vader_wiki/testplugin
-
-                echo -e "\nStarting Vim/Vader <- $test_cmd"
-                bash -c "$test_cmd" 2>&1
-                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
-                echo -e "\nReturned Vim/Vader -> $ret"
-
-                popd
-            else  # In docker
-                echo -e "\nStarting Docker/Vim/Vader <- $test_cmd"
-                docker run -a stderr -e VADER_OUTPUT_FILE=/dev/stderr "${flags[@]}" \
-                  /bin/bash -c "$test_cmd" 2>&1 | vader_filter | vader_color
-                ret=${PIPESTATUS[1]}; err=$(( $err + $ret ))
-                echo -e "\nReturned Docker/Vim/Vader -> $ret"
+                acmd=(docker run -a stderr -e "VADER_OUTPUT_FILE=/dev/stderr"
+                    "${flags[@]}" "$v" $vim_opt \"+Vader! ${res}\" "2>&1")
+                echo -e "\nStarting Batch Vim/Vader:\n${acmd[*]}\n<- $res\n"
+                ${acmd[*]} | vader_filter | vader_color
+                ret=${PIPESTATUS[1]}; err=$(( err + ret ))
+                echo -e "\nReturned Batch Docker/Vim/Vader -> $ret"
             fi
         fi
 
@@ -196,14 +172,16 @@ runVint() {
     cmd="vint -s . && vint -s test/vimrc"
     if echo "$vers" | grep "local" > /dev/null; then
         echo -e "\nRunning Vint: $cmd : in $wiki_path"
-        pushd $wiki_path > /dev/null
+        pushd "$wiki_path" > /dev/null \
+            || echo 'Warning pushd wiki_path failed'
         $cmd
-        err=$(( $err | $? ))
-        popd > /dev/null
+        err=$(( err | $? ))
+        popd > /dev/null \
+            || echo 'Warning popd also failed'
     else
         echo -e "\nStarting Docker container and running Vint: $cmd"
         docker run -a stdout "${flags[@]}" bash -c "$cmd"
-        err=$(( $err | $? ))
+        err=$(( err | $? ))
     fi
     return $err
 }
@@ -287,10 +265,10 @@ vader_color() {
 }
 
 # path of the script, supposing no spaces
-script_file="$(dirname $0)"
-script_path="$( realpath $script_file )"
-wiki_path="$( realpath $script_path/.. )"
-tmp_dir=$(dirname $(mktemp -u))
+script_file="$(dirname "$0")"
+script_path="$( realpath "$script_file" )"
+wiki_path="$( realpath "$script_path/.." )"
+tmp_dir="$(dirname "$(mktemp -u)")"
 
 # list of vim/nvim versions
 vers="$(getVers)"
@@ -358,20 +336,20 @@ case $type in
     "vader" )
         runVader ; err=$?
         echo "Main Vader: returned $err"
-        o_error=$(( $err | $o_error ))
+        o_error=$(( err | o_error ))
         ;;
     "vint" )
         runVint ; err=$?
         echo "Main Vint: returned $err"
-        o_error=$(( $err | $o_error ))
+        o_error=$(( err | o_error ))
         ;;
     "all" )
         runVint ; err=$?
         echo "Main Vint: returned $err"
-        o_error=$(( $err | $o_error ))
+        o_error=$(( err | o_error ))
         runVader ; err=$?
         echo "Main Vader: returned $err"
-        o_error=$(( $err | $o_error ))
+        o_error=$(( err | o_error ))
         ;;
     * )
         echo "Error: invalid type - '$type'" 1>&2
@@ -379,10 +357,10 @@ case $type in
 esac
 
 # Calcultate time
-end_time=`date +%s`
+end_time=$(date +%s)
 sec_time=$((end_time - start_time))
-printf -v script_time '%dh:%dm:%ds' $(($sec_time/3600)) $(($sec_time%3600/60)) $(($sec_time%60))
+printf -v script_time '%dh:%dm:%ds' $((sec_time/3600)) $((sec_time%3600/60)) $((sec_time%60))
 
 # Exit
-echo -ne "Script $(basename $0), in $script_time, Returned -> $o_error\n\n"
+echo -ne "Script $(basename "$0"), in $script_time, Returned -> $o_error\n\n"
 exit $o_error

@@ -1,9 +1,5 @@
 # Blockquotes in html convertion
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
 Given (Void):
 
 Execute (Edit TestHtml Wiki):
