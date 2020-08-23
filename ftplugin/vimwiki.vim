@@ -144,20 +144,25 @@ for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
   " task list
   for point in vimwiki#vars#get_wikilocal('listsyms_list')
         \ + [vimwiki#vars#get_wikilocal('listsym_rejected')]
-    let comments .= ',b:' . bullet . ' [' . point . ']'
+    let comments .= ',fb:' . bullet . ' [' . point . ']'
   endfor
   " list
-  let comments .= ',b:' . bullet
+  let comments .= ',fb:' . bullet
 endfor
 let &l:comments = comments
 
 " Set format options (:h fo-table)
 " Disable autocomment because, vimwiki does it better
-setlocal formatoptions-=c
 setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
+" Autowrap with leading comment
+setlocal formatoptions+=c
+" Do not wrap if line was already long
+setlocal formatoptions+=l
+" AutoWrap inteligent with lists
 setlocal formatoptions+=n
+let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 " Used to join 'commented' lines (blockquote, list) (see: #915)
 if v:version > 703
   setlocal formatoptions+=j
@@ -165,9 +170,6 @@ endif
 
 " Set commentstring %%%s
 let &l:commentstring = vimwiki#vars#get_wikilocal('commentstring')
-
-
-let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
 
 
 " ------------------------------------------------

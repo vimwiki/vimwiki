@@ -4,6 +4,50 @@
 #       better read this file with `set list`
 
 
+Given vimwiki (List will hard wrap (Issue #991):
+  - one two three four five six seven
+
+Execute (Change textwith):
+  let textwidth = &textwidth
+  let linebreak = &linebreak
+  Log 'Textwidth, Linebreak was: ' . textwidth . ', ' . linebreak
+  set textwidth=40
+  set linebreak
+
+Do (Insert more than tw and press return):
+  A indented line 1
+  \<Cr>
+  indented line 2
+
+Expect (Indentation after autowrap and <CR>):
+  - one two three four five six seven
+    indented line 1
+    indented line 2
+
+Do (o new item):
+  A indented line 1
+  \<Esc>o
+  new item
+
+Expect (New item created):
+  - one two three four five six seven
+    indented line 1
+  - new item
+
+Do (VimwikiReturn 3 5):
+  A indented line 1\<Esc>
+  :VimwikiReturn 3 5\<Cr>
+  new item
+
+Expect (New item created):
+  - one two three four five six seven
+    indented line 1
+  - new item
+
+Execute (Restore textwith):
+  let &textwidth = textwidth
+  let &linebreak = linebreak
+
 Given vimwiki (List with hard wraps):
   - Item 1
   - Item 2
