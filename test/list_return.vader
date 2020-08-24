@@ -4,7 +4,54 @@
 #       better read this file with `set list`
 
 
-Given vimwiki (List will hard wrap (Issue #991):
+Given vimwiki (List Blockquote (Issue #55) {{{2):
+  1. Outer Item 1
+      1. Inner Item 1
+
+          > quote 1
+
+      2. Inner Item 2
+  2. Outer Item 2
+
+  > quote 2
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (o):
+  o
+  toto
+
+Expect (Good number 1):
+  1. Outer Item 1
+  2. toto
+      1. Inner Item 1
+
+          > quote 1
+
+      2. Inner Item 2
+  3. Outer Item 2
+
+  > quote 2
+
+Do (jo):
+  jo
+  toto
+
+Expect (Good number 2):
+  1. Outer Item 1
+      1. Inner Item 1
+      2. toto
+
+          > quote 1
+
+      3. Inner Item 2
+  2. Outer Item 2
+
+  > quote 2
+
+
+Given vimwiki (List will hard wrap (Issue #991) {{{2):
   - one two three four five six seven
 
 Execute (Change textwith):

@@ -3844,6 +3844,8 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #55: Newlines in blockquotes are not honored
+    * Issue #55: BlockQuote restarts list numbering
     * Issue #979: Fix: Accessing other filetypes within vimwiki
     * Issue #886: VimwikiGenerateLinks crash with single quote in filename
     * Issue #910: Fix: VimwikiTOC removes next non-empty line

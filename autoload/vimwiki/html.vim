@@ -690,9 +690,9 @@ function! s:close_tag_math(math, ldest) abort
 endfunction
 
 
-function! s:close_tag_quote(quote, ldest) abort
+function! s:close_tag_precode(quote, ldest) abort
   if a:quote
-    call insert(a:ldest, '</blockquote>')
+    call insert(a:ldest, '</pre></code>')
     return 0
   endif
   return a:quote
@@ -942,21 +942,30 @@ function! s:process_tag_math(line, math) abort
 endfunction
 
 
-function! s:process_tag_quote(line, quote) abort
+function! s:process_tag_precode(line, quote) abort
+  " Process indented precode
   let lines = []
+  let line = a:line
   let quote = a:quote
   let processed = 0
-  if a:line =~# '^\s\{4,}\S'
+
+  " Check if start
+  if line =~# '^\s\{4,}'
+    let line = substitute(line, '^\s*', '', '')
     if !quote
-      call add(lines, '<blockquote>')
+    " Check if must decrease level
+      let line = '<pre><code>' . line
       let quote = 1
     endif
     let processed = 1
-    call add(lines, substitute(a:line, '^\s*', '', ''))
+    call add(lines, line)
+
+  " Check if end
   elseif quote
-    call add(lines, '</blockquote>')
+    call add(lines, '</code></pre>')
     let quote = 0
   endif
+
   return [processed, lines, quote]
 endfunction
 
@@ -964,23 +973,33 @@ function! s:process_tag_arrow_quote(line, arrow_quote) abort
   let lines = []
   let arrow_quote = a:arrow_quote
   let processed = 0
-  if a:line =~# '^\s*&gt;'
-    if !arrow_quote
+  let line = a:line
+
+  " Check if must increase level
+  if line =~# '^' . repeat('\s*&gt;', arrow_quote + 1)
+    " Increase arrow_quote
+    while line =~# '^' . repeat('\s*&gt;', arrow_quote + 1)
       call add(lines, '<blockquote>')
       call add(lines, '<p>')
-      let arrow_quote = 1
-    endif
-    let processed = 1
-    let stripped_line = substitute(a:line, '^\s*&gt;\s*', '', '')
+      let arrow_quote .= 1
+    endwhile
+
+    " Treat & Add line
+    let stripped_line = substitute(a:line, '^\%(\s*&gt;\)\+', '', '')
     if stripped_line =~# '^\s*$'
       call add(lines, '</p>')
       call add(lines, '<p>')
     endif
     call add(lines, stripped_line)
-  elseif arrow_quote
-    call add(lines, '</p>')
-    call add(lines, '</blockquote>')
-    let arrow_quote = 0
+    let processed = 1
+
+  " Check if must decrease level
+  elseif arrow_quote > 0
+    while line !~# '^' . repeat('\s*&gt;', arrow_quote - 1)
+      call add(lines, '</p>')
+      call add(lines, '</blockquote>')
+      let arrow_quote -= 1
+    endwhile
   endif
   return [processed, lines, arrow_quote]
 endfunction
@@ -1038,6 +1057,26 @@ function! s:process_tag_list(line, lists) abort
     let lstRegExp = ''
   endif
 
+  " Jump empty lines
+  if in_list && a:line =~# '^$'
+    " Just Passing my way, do you mind ?
+    let [processed, lines, quote] = s:process_tag_precode(a:line, g:state.quote)
+    let processed = 1
+    return [processed, lines]
+  endif
+
+  " Can embeded indented code in list (Issue #55)
+  let b_permit = in_list
+  let b_match = lstSym ==# '' && a:line =~# '^\s\{4,}[^[:space:]>*-]'
+  let b_match = b_match || g:state.quote
+  if b_permit && b_match
+    let [processed, lines, g:state.quote] = s:process_tag_precode(a:line, g:state.quote)
+    if processed == 1
+      return [processed, lines]
+    endif
+  endif
+
+  " New switch
   if lstSym !=? ''
     " To get proper indent level 'retab' the line -- change all tabs
     " to spaces*tabstop
@@ -1070,6 +1109,7 @@ function! s:process_tag_list(line, lists) abort
     call add(lines, st_tag)
     call add(lines, substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
     let processed = 1
+
   elseif in_list && a:line =~# '^\s\+\S\+'
     if vimwiki#vars#get_wikilocal('list_ignore_newline')
       call add(lines, a:line)
@@ -1077,9 +1117,12 @@ function! s:process_tag_list(line, lists) abort
       call add(lines, '<br />'.a:line)
     endif
     let processed = 1
+
+  " Close tag
   else
     call s:close_tag_list(a:lists, lines)
   endif
+
   return [processed, lines]
 endfunction
 
@@ -1349,7 +1392,7 @@ function! s:parse_line(line, state) abort
         let state.deflist = s:close_tag_def_list(state.deflist, lines)
       endif
       if processed && state.quote
-        let state.quote = s:close_tag_quote(state.quote, lines)
+        let state.quote = s:close_tag_precode(state.quote, lines)
       endif
       if processed && state.arrow_quote
         let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
@@ -1385,7 +1428,7 @@ function! s:parse_line(line, state) abort
       let state.deflist = s:close_tag_def_list(state.deflist, lines)
     endif
     if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, lines)
+      let state.quote = s:close_tag_precode(state.quote, lines)
     endif
     if processed && state.arrow_quote
       let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
@@ -1449,7 +1492,7 @@ function! s:parse_line(line, state) abort
   if !processed
     let [processed, lines] = s:process_tag_list(line, state.lists)
     if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, lines)
+      let state.quote = s:close_tag_precode(state.quote, lines)
     endif
     if processed && state.arrow_quote
       let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
@@ -1484,7 +1527,7 @@ function! s:parse_line(line, state) abort
       let state.table = s:close_tag_table(state.table, res_lines, state.header_ids)
       let state.pre = s:close_tag_pre(state.pre, res_lines)
       let state.math = s:close_tag_math(state.math, res_lines)
-      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, res_lines)
+      let state.quote = s:close_tag_precode(state.quote || state.arrow_quote, res_lines)
       let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
       let state.para = s:close_tag_para(state.para, res_lines)
 
@@ -1495,7 +1538,7 @@ function! s:parse_line(line, state) abort
 
   " quotes
   if !processed
-    let [processed, lines, state.quote] = s:process_tag_quote(line, state.quote)
+    let [processed, lines, state.quote] = s:process_tag_precode(line, state.quote)
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
@@ -1527,7 +1570,7 @@ function! s:parse_line(line, state) abort
   if !processed
     let [processed, lines, state.arrow_quote] = s:process_tag_arrow_quote(line, state.arrow_quote)
     if processed && state.quote
-      let state.quote = s:close_tag_quote(state.quote, lines)
+      let state.quote = s:close_tag_precode(state.quote, lines)
     endif
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
@@ -1584,7 +1627,7 @@ function! s:parse_line(line, state) abort
       call s:close_tag_list(state.lists, lines)
     endif
     if processed && (state.quote || state.arrow_quote)
-      let state.quote = s:close_tag_quote(state.quote || state.arrow_quote, lines)
+      let state.quote = s:close_tag_precode(state.quote || state.arrow_quote, lines)
     endif
     if processed && state.arrow_quote
       let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
@@ -1611,7 +1654,6 @@ function! s:parse_line(line, state) abort
   endif
 
   return [res_lines, state]
-
 endfunction
 
 
@@ -1682,6 +1724,9 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
   let state.header_ids = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
        " [last seen header text in this level, number]
 
+  " Cheat, see cheaters who access me
+  let g:state = state
+
   " prepare constants for s:safe_html_line()
   let s:lt_pattern = '<'
   let s:gt_pattern = '>'
@@ -1699,7 +1744,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
     let oldquote = state.quote
     let [lines, state] = s:parse_line(line, state)
 
-    " Hack: There could be a lot of empty strings before s:process_tag_quote
+    " Hack: There could be a lot of empty strings before s:process_tag_precode
     " find out `quote` is over. So we should delete them all. Think of the way
     " to refactor it out.
     if oldquote != state.quote
@@ -1733,7 +1778,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
   " process end of file
   " close opened tags if any
   let lines = []
-  call s:close_tag_quote(state.quote, lines)
+  call s:close_tag_precode(state.quote, lines)
   call s:close_tag_arrow_quote(state.arrow_quote, lines)
   call s:close_tag_para(state.para, lines)
   call s:close_tag_pre(state.pre, lines)

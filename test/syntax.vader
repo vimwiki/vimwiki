@@ -494,7 +494,31 @@ Execute (Assert Syntax Header):
   AssertEqual 'VimwikiHeader5' , SyntaxAt(5, 10)
   AssertEqual 'VimwikiHeader6' , SyntaxAt(6, 10)
 
-# 10 Comments {{{1
+
+# 4 Blockquote {{{1
+# Issues: #55
+###############
+
+
+#### 4.1 Blokquotes markdown
+Given vimwiki (BlockQuote restarts list numbering #55 {{{3):
+  1. Item 1
+  2. Item 2
+      Block Quote
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (Gototo):
+  Gototo
+
+Expect (Good numbering):
+  1. Item 1
+  2. Item 2
+      Block Quote
+  3. toto
+
+# 9 Comment {{{1
 ###############
 
 Given vimwiki (%%):

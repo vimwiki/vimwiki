@@ -1,6 +1,76 @@
-# Blockquotes in html convertion
+# Blockquotes in html convertion #55
+# TODO replace remove newline before end of pre tag: \n</pre></code> -> </pre></code>
 
-Given (Void):
+
+Given (Issue 2: BlockQuote restarts list numbering {{{3):
+  # Item 1
+  # Item 2
+
+       Block Quote Text
+  # Item 3
+
+Execute (2Html):
+  call ConvertWiki2Body()
+  1d | $d | $d
+
+Expect (Tested by hand 2):
+  <ul>
+  <li>
+  Item 1
+
+  <li>
+  Item 2
+  <pre><code>Block Quote Text
+  </code></pre>
+
+  <li>
+  Item 3
+
+  </ul>
+
+
+#Given (Issue 3: BlockQuote at multiple list levels {{{3):
+#  1. Outer Item 1
+#      1. Inner Item 1
+#
+#          > quote 1
+#
+#      2. Inner Item 2
+#  2. Outer Item 2
+#
+#  > quote 2
+#
+#Execute (2Html):
+#  call ConvertWiki2Body()
+#  1d | $d | $d
+#
+#Expect (Got with pandoc):
+
+
+Given (Issue 5: Newlines in blockquotes are not honored {{{3):
+  Before
+
+      line 1
+      line 2
+  After
+
+Execute (2Html):
+  call ConvertWiki2Body()
+  1d | $d | $d
+
+Expect (Got with pandoc 5):
+  <p>
+  Before
+  </p>
+  <pre><code>line 1
+  line 2
+  </code></pre>
+  <p>
+  After
+  </p>
+
+
+Given (Void: Basic test {{{1):
 
 Execute (Edit TestHtml Wiki):
   edit $HOME/testwiki/TestHtml.wiki
@@ -22,46 +92,46 @@ Execute (Save and Convert to html):
   Vimwiki2HTML
 
 
-Given (Void):
-
-
-Do (Get Html body):
-  :read $HOME/html/default/TestHtml.html\<CR>
-# Goto body
-  gg/<body>\<CR>
-# Copy in b
-  "bdat
-# Delete All
-  ggdG
-# Paste body
-  "bP
-# Remove last line
-  Gdd
-# Save (Not necessary)
-  :write
-
-
-
-Expect (Plain Html):
-# the whole default html file should be here as a base + the modifications 
-# from "Given"
-  <body>
-
-  <p>
-   first paragraph
-  </p>
-   
-  <blockquote>
-  <p>
-  block
-  quote
-  </p>
-  </blockquote>
-   
-  <p>
-   last paragraph
-  </p>
-
-  </body>
-
-# vim: sw=2:foldlevel=30:foldmethod=indent:
+#Given (Void):
+#
+#
+#Do (Get Html body):
+#  :read $HOME/html/default/TestHtml.html\<CR>
+## Goto body
+#  gg/<body>\<CR>
+## Copy in b
+#  "bdat
+## Delete All
+#  ggdG
+## Paste body
+#  "bP
+## Remove last line
+#  Gdd
+## Save (Not necessary)
+#  :write
+#
+#
+#
+#Expect (Plain Html):
+## the whole default html file should be here as a base + the modifications
+## from "Given"
+#  <body>
+#
+#  <p>
+#   first paragraph
+#  </p>
+#
+#  <blockquote>
+#  <p>
+#  block
+#  quote
+#  </p>
+#  </blockquote>
+#
+#  <p>
+#   last paragraph
+#  </p>
+#
+#  </body>
+#
+## vim: sw=2:foldlevel=30:foldmethod=indent:

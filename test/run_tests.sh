@@ -138,22 +138,31 @@ runVader() {
                     || echo 'Warning pushd testplugin failed'
 
                 # Run the tests
-                acmd=("$vim" $vim_opt \"+Vader! ${res}\" "2>&1")
-                echo -e "\nStarting Batch Vim/Vader:\n${acmd[*]}\n<- $res\n"
-                ${acmd[*]}
-                ret=${PIPESTATUS[1]}; err=$(( err + ret ))
+                fcmd(){
+                    $vim $vim_opt "+Vader! ${res}" 2>&1
+                    return ${PIPESTATUS[1]}
+                }
+                echo -e "\nStarting Batch Vim/Vader:\n<- $res\n"
+                type fcmd | sed  -n '/^    /{s/^    //p}' | sed '$s/.*/&;/' ; shift ;
+                fcmd; ret=$?
+                err=$(( err + ret ))
                 echo -e "\nReturned Batch Vim/Vader -> $ret"
 
                 popd \
                     || echo 'Warning popd also failed'
             else
                 # In docker
-                acmd=(docker run -a stderr -e "VADER_OUTPUT_FILE=/dev/stderr"
-                    "${flags[@]}" "$v" $vim_opt \"+Vader! ${res}\" "2>&1")
-                echo -e "\nStarting Batch Vim/Vader:\n${acmd[*]}\n<- $res\n"
-                ${acmd[*]} | vader_filter | vader_color
-                ret=${PIPESTATUS[1]}; err=$(( err + ret ))
-                echo -e "\nReturned Batch Docker/Vim/Vader -> $ret"
+                fcmd() {
+                    docker run -a stderr -e "VADER_OUTPUT_FILE=/dev/stderr" \
+                      "${flags[@]}" "$v" $vim_opt "+Vader! ${res}" 2>&1 \
+                      | vader_filter | vader_color
+                    return ${PIPESTATUS[1]}
+                }
+                echo -e "\nStarting Batch Vim/Vader:\n<- $res\n"
+                type fcmd | sed  -n '/^    /{s/^    //p}' | sed '$s/.*/&;/' ; shift ;
+                fcmd; ret=$?
+                err=$(( err + ret ))
+                echo -e "\nReturned Batch Docker/Vim/Vader -> $ret : ${PIPESTATUS[*]}"
             fi
         fi
 
@@ -192,6 +201,7 @@ getVers() {
 }
 
 vader_filter() {
+    echo 'Tin vader filter called'
     # Filter Vader Stdout
     local err=0
     # Keep indentation
@@ -213,6 +223,7 @@ vader_filter() {
             if [ "$success" -lt "$total" ]; then
                 err=1
             fi
+            echo "Tin got success $success and total $total"
             echo "$REPLY"
         elif [[ "$verbose" != 0 ]]; then
             # just print everything

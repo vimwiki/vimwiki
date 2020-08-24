@@ -278,6 +278,25 @@
     call DeleteFile('$HOME/testwiki/test_Convert2Html.wiki')
   endfunction
 
+  " Get only body
+  function! ConvertWiki2Body()
+    call ConvertWiki2Html()
+
+    " Empty b register
+    let @b = ''
+
+    " Copy body
+    /<body>/+1,/<.body>/-1:g/^/y B
+
+    " Delete All lines
+    1,$d
+
+    " Paste body
+    0put! b
+
+    " Remove last line
+    0d
+  endfunction
 
   " Get normalized syntax group: usefull for boldItalic Vs italicBold
   " -- Here, Vader's SyntaxAt is not enough

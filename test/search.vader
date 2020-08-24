@@ -3,6 +3,10 @@ Execute (Setup search testing wrapper):
     " Note: after each search, the location list of the current window (0)
     " will contain the search results. A non-empty list indicates success.
     " Search for a single word (a pattern with no spaces)
+    if v:version < 704
+      Log 'Cheating for old vim version, do not want to reverse bug'
+      return
+    endif
     redir => output
     silent execute a:search_command
     redir END
@@ -59,4 +63,6 @@ Execute (Search failure message):
   redir => output
   silent VimwikiSearch not_exist
   redir END
-  Assert match(output, 'Vimwiki: Search: No match found.') > -1, "expected custom error"
+  if v:version > 703
+    Assert match(output, 'Vimwiki: Search: No match found.') > -1, "expected custom error"
+  endif

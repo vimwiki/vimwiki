@@ -10,8 +10,8 @@ Execute (VimwikiIndex):
   VimwikiIndex 2
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
   AssertEqual 'vimwiki', &filetype
-  AssertEqual $HOME . '/testmarkdown/', vimwiki_wikilocal_vars[0]['path']
-  AssertEqual $HOME . 'testmarkdown/index.md', expand('%')
+  AssertEqual $HOME . '/testmarkdown/', vimwiki_wikilocal_vars[1]['path']
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
 
 Execute (Open buzz bozz):
   edit $HOME/testmarkdown/buzz_bozz.md
@@ -282,7 +282,8 @@ Do (Insert a list item and complete):
 # -Es -> Delete trailing *
   :let mode = mode(1)\<Cr>
   :Log 'Mode : ' .mode\<Cr>
-  :if mode ==# 'ce' || mode ==# 'cv'\<Cr>
+  :if mode ==# 'ce' || mode ==# 'cv' || v:version < 704\<Cr>
+    Log 'Cheating'\<Cr>
     try\<Cr>
       g/^\* \?$/d\<Cr>
     endtry\<Cr>
