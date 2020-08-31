@@ -9,9 +9,6 @@ if exists('b:did_ftplugin')
 endif
 let b:did_ftplugin = 1  " Don't load another plugin for this buffer
 
-
-setlocal commentstring=%%%s
-
 if vimwiki#vars#get_global('conceallevel') && exists('+conceallevel')
   let &l:conceallevel = vimwiki#vars#get_global('conceallevel')
 endif
@@ -25,26 +22,38 @@ exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 " Help for omnicompletion
 function! Complete_wikifiles(findstart, base) abort
+  " s:line_context = link | tag | ''
   if a:findstart == 1
+    " Find line context
+    " Called: first time
     let column = col('.')-2
     let line = getline('.')[:column]
+
+    " Check Link:
+    " -- WikiLink
     let startoflink = match(line, '\[\[\zs[^\\[\]]*$')
     if startoflink != -1
-      let s:line_context = '['
+      let s:line_context = 'link'
       return startoflink
     endif
+    " -- WebLink
     if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
       let startofinlinelink = match(line, '\[.*\](\zs[^)]*$')
       if startofinlinelink != -1
-        let s:line_context = '['
+        let s:line_context = 'link'
         return startofinlinelink
       endif
     endif
-    let startoftag = match(line, ':\zs[^:[:space:]]*$')
+
+    " Check Tag:
+    let tf = vimwiki#vars#get_syntaxlocal('tag_format')
+    let startoftag = match(line, tf.pre_mark . '\zs' . tf.in . '*$')
     if startoftag != -1
-      let s:line_context = ':'
+      let s:line_context = 'tag'
       return startoftag
     endif
+
+    " Nothing can do ...
     let s:line_context = ''
     return -1
   else
@@ -53,8 +62,8 @@ function! Complete_wikifiles(findstart, base) abort
     " solution, because calling col('.') here returns garbage.
     if s:line_context ==? ''
       return []
-    elseif s:line_context ==# ':'
-      " Tags completion
+    elseif s:line_context ==# 'tag'
+      " Look Tags: completion
       let tags = vimwiki#tags#get_tags()
       if a:base !=? ''
         call filter(tags,
@@ -62,8 +71,7 @@ function! Complete_wikifiles(findstart, base) abort
       endif
       return tags
     elseif a:base !~# '#'
-      " we look for wiki files
-
+      " Look Wiki: files
       if a:base =~# '\m^wiki\d\+:'
         let wikinumber = eval(matchstr(a:base, '\m^wiki\zs\d\+'))
         if wikinumber >= vimwiki#vars#number_of_wikis()
@@ -91,7 +99,7 @@ function! Complete_wikifiles(findstart, base) abort
       return result
 
     else
-      " we look for anchors in the given wikifile
+      " Look Anchor: in the given wikifile
 
       let segments = split(a:base, '#', 1)
       let given_wikifile = segments[0] ==? '' ? expand('%:t:r') : segments[0]
@@ -113,21 +121,55 @@ function! Complete_wikifiles(findstart, base) abort
   endif
 endfunction
 
+" Set completion
 setlocal omnifunc=Complete_wikifiles
+if and(vimwiki#vars#get_global('emoji_enable'), 2) != 0
+      \ && &completefunc ==# ''
+  set completefunc=vimwiki#emoji#complete
+endif
 
 
 " Declare settings necessary for the automatic formatting of lists
+" ------------------------------------------------
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
-setlocal comments=""
-setlocal formatoptions-=c
+
+" Set comments: to insert and format 'comments' or cheat
+" Used to break blockquote prepending one on each new line (see: #915)
+" B like blank character follow
+" blockquotes
+let comments = 'b:>'
+for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
+  " task list
+  for point in vimwiki#vars#get_wikilocal('listsyms_list')
+        \ + [vimwiki#vars#get_wikilocal('listsym_rejected')]
+    let comments .= ',fb:' . bullet . ' [' . point . ']'
+  endfor
+  " list
+  let comments .= ',fb:' . bullet
+endfor
+let &l:comments = comments
+
+" Set format options (:h fo-table)
+" Disable autocomment because, vimwiki does it better
 setlocal formatoptions-=r
 setlocal formatoptions-=o
 setlocal formatoptions-=2
+" Autowrap with leading comment
+setlocal formatoptions+=c
+" Do not wrap if line was already long
+setlocal formatoptions+=l
+" AutoWrap inteligent with lists
 setlocal formatoptions+=n
-
 let &formatlistpat = vimwiki#vars#get_wikilocal('rxListItem')
+" Used to join 'commented' lines (blockquote, list) (see: #915)
+if v:version > 703
+  setlocal formatoptions+=j
+endif
+
+" Set commentstring %%%s
+let &l:commentstring = vimwiki#vars#get_wikilocal('commentstring')
 
 
 " ------------------------------------------------
@@ -228,19 +270,23 @@ endfunction
 command! -buffer Vimwiki2HTML
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
-      \ let res = vimwiki#html#Wiki2HTML(expand(vimwiki#vars#get_wikilocal('path_html')),
-      \                             expand('%'))
+      \ let res = vimwiki#html#Wiki2HTML(
+      \   expand(vimwiki#vars#get_wikilocal('path_html')), expand('%'))
       \ <bar>
-      \ if res != '' | echo 'Vimwiki: HTML conversion is done, output: '
-      \      . expand(vimwiki#vars#get_wikilocal('path_html')) | endif
+      \ if res != '' | call vimwiki#u#echo('HTML conversion is done, output: '
+      \      . expand(vimwiki#vars#get_wikilocal('path_html'))) | endif
+
 command! -buffer Vimwiki2HTMLBrowse
       \ if filewritable(expand('%')) | silent noautocmd w | endif
       \ <bar>
       \ call vimwiki#base#system_open_link(vimwiki#html#Wiki2HTML(
       \         expand(vimwiki#vars#get_wikilocal('path_html')),
       \         expand('%')))
+
 command! -buffer -bang VimwikiAll2HTML
       \ call vimwiki#html#WikiAll2HTML(expand(vimwiki#vars#get_wikilocal('path_html')), <bang>0)
+
+command! -buffer VimwikiRss call vimwiki#html#diary_rss()
 
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
@@ -251,7 +297,8 @@ command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
 command! -buffer VimwikiDeleteLink
       \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
-command! -buffer VimwikiRenameFile call vimwiki#base#rename_link()
+command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
+      \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
 command! -buffer VimwikiRenameLink
       \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
       \ call vimwiki#base#rename_link()
@@ -275,7 +322,7 @@ command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links_escaped
       \ VimwikiGoto call vimwiki#base#goto(<f-args>)
 
-command! -buffer VimwikiCheckLinks call vimwiki#base#check_links()
+command! -buffer -range VimwikiCheckLinks call vimwiki#base#check_links(<range>, <line1>, <line2>)
 
 " list commands
 command! -buffer -nargs=+ VimwikiReturn call <SID>CR(<f-args>)
@@ -486,17 +533,18 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'o', '<Plug>VimwikiListo')
   call vimwiki#u#map_key('n', 'O', '<Plug>VimwikiListO')
 
-  " handle case of existing VimwikiReturn mappings outside the <Plug> definition
+  " Handle case of existing VimwikiReturn mappings outside the <Plug> definition
+  " Note: Avoid interfering with popup/completion menu if it's active (#813)
   if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
     if has('patch-7.3.489')
       " expand iabbrev on enter
-      inoremap <silent><buffer> <CR> <C-]><Esc>:VimwikiReturn 1 5<CR>
+      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<C-]><Esc>:VimwikiReturn 1 5<CR>'
     else
-      inoremap <silent><buffer> <CR> <Esc>:VimwikiReturn 1 5<CR>
+      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 1 5<CR>'
     endif
   endif
   if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
-    inoremap <silent><buffer> <S-CR> <Esc>:VimwikiReturn 2 2<CR>
+    inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
   endif
 
   " change symbol for bulleted lists
@@ -534,7 +582,6 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   endif
 endif
 
-" Not used
 function! s:CR(normal, just_mrkr) abort
   let res = vimwiki#tbl#kbd_cr()
   if res !=? ''

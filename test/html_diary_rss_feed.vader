@@ -1,0 +1,110 @@
+# Feature to generate a diray RSS feed (PR #934)
+# TODO bug with 7.3
+
+#Given (Void):
+#
+#Execute (Generate HTML and RSS feed):
+#  edit $HOME/testwiki/index.wiki
+#  Vimwiki2HTML
+#  VimwikiRss
+#
+#Given (Void):
+#
+#Do (Get HTML file):
+#  :read $HOME/html/default/index.html\<CR>
+## Go to line with RSS link
+#  gg/RSS\<CR>
+## Delete everything above
+#  kdgg
+## Delete everything below
+#  jdG
+## Save (Not necessary) => Actually make rest of batch freeze, do you really want
+## to quit buffer
+##  :write
+#
+#Expect (RSS link in HTML):
+#  <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+#
+#Do (Get RSS feed):
+#  :read $HOME/html/default/rss.xml\<CR>
+## Remove first line
+#  ggdd
+## Replace pubDate with dummy as it's based on file modification time
+#  :%s@<pubDate>.*</pubDate>@<pubDate>...</pubDate>@g\<CR>
+## Save (Not necessary)
+##  :write
+#
+#Expect (RSS):
+## TODO the next line is deleted with -Es
+##  <?xml version="1.0" encoding="UTF-8" ?>
+#  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+#  <channel>
+#   <title>Diary</title>
+#   <link>https://example.com/diary/diary.html</link>
+#   <description>Diary</description>
+#   <pubDate>...</pubDate>
+#   <atom:link href="https://example.com/rss.xml" rel="self" type="application/rss+xml" />
+#   <item>
+#    <title>day 4</title>
+#    <link>https://example.com/diary/2020-07-25.html</link>
+#    <guid isPermaLink="false">2020-07-25</guid>
+#    <description><![CDATA[
+#  <div id="day 4"><h1 id="day 4" class="header"><a href="#day 4">day 4</a></h1></div>
+#  
+#  <div id="day 4-subsection 1"><h2 id="subsection 1" class="header"><a href="#day 4-subsection 1">subsection 1</a></h2></div>
+#  
+#  <p>
+#  here is some code:
+#  </p>
+#  
+#  <pre>
+#  #!/bin/sh
+#  echo "hello world"
+#  </pre>
+#  
+#  <div id="day 4-subsection 2"><h2 id="subsection 2" class="header"><a href="#day 4-subsection 2">subsection 2</a></h2></div>
+#  
+#  <p>
+#  an important list:
+#  </p>
+#  
+#  <ul>
+#  <li>
+#  point 1
+#  
+#  <li>
+#  point 2
+#  
+#  </ul>
+#  ]]></description>
+#    <pubDate>...</pubDate>
+#   </item>
+#   <item>
+#    <title>Day 2</title>
+#    <link>https://example.com/diary/2020-07-23.html</link>
+#    <guid isPermaLink="false">2020-07-23</guid>
+#    <description><![CDATA[
+#  <div id="Day 2"><h1 id="Day 2" class="header"><a href="#Day 2">Day 2</a></h1></div>
+#  
+#  <p>
+#  another diary entry
+#  </p>
+#  ]]></description>
+#    <pubDate>...</pubDate>
+#   </item>
+#   <item>
+#    <title>2020-07-22</title>
+#    <link>https://example.com/diary/2020-07-22.html</link>
+#    <guid isPermaLink="false">2020-07-22</guid>
+#    <description><![CDATA[
+#  <p>
+#  example diary entry for day 1.
+#  </p>
+#  ]]></description>
+#    <pubDate>...</pubDate>
+#   </item>
+#  </channel>
+#  </rss>
+#
+#Execute (Clean buffer modification):
+#  edit! $HOME/testwiki/index.wiki

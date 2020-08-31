@@ -36,7 +36,6 @@ endfunction
 
 " try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) abort
-  " echom "vimwiki#markdown_base#open_reflink"
   let link = a:link
   let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   if has_key(mkd_refs, link)
@@ -102,7 +101,7 @@ function! s:normalize_link_syntax_n() abort
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
             \ vimwiki#vars#get_global('rxWord'), '',
-            \ vimwiki#vars#get_syntaxlocal('Weblink1Template'))
+            \ vimwiki#vars#get_syntaxlocal('Link1'))
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
@@ -111,55 +110,7 @@ function! s:normalize_link_syntax_n() abort
 endfunction
 
 
-function! s:normalize_link_syntax_v() abort
-  let lnum = line('.')
-  let sel_save = &selection
-  let &selection = 'old'
-  let rv = @"
-  let rt = getregtype('"')
-  let done = 0
-
-  try
-    norm! gvy
-    let visual_selection = @"
-
-    if vimwiki#base#is_diary_file(expand('%:p'))
-      let link = vimwiki#base#normalize_link_in_diary(visual_selection)
-    else
-      let link = s:safesubstitute(vimwiki#vars#get_syntaxlocal('Weblink1Template'),
-            \ '__LinkUrl__', visual_selection, '')
-    endif
-
-    " Replace spaces with new character if option is set
-    let link = substitute(link, '\s', vimwiki#vars#get_wikilocal('links_space_char'), 'g')
-
-    " Replace description
-    let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
-
-    " Replace file extension
-    let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
-    let link = s:safesubstitute(link, '__FileExtension__', file_extension , '')
-
-    call setreg('"', substitute(link, '\n', '', ''), visualmode())
-
-    " paste result
-    norm! `>""pgvd
-
-  finally
-    call setreg('"', rv, rt)
-    let &selection = sel_save
-  endtry
-
+function! vimwiki#markdown_base#normalize_link() abort
+  " TODO mutualize with base
+  call s:normalize_link_syntax_n()
 endfunction
-
-
-function! vimwiki#markdown_base#normalize_link(is_visual_mode) abort
-
-  if !a:is_visual_mode
-    call s:normalize_link_syntax_n()
-  elseif line("'<") == line("'>")
-    " action undefined for multi-line visual mode selections
-    call s:normalize_link_syntax_v()
-  endif
-endfunction
-

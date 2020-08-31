@@ -2,7 +2,7 @@
 
 [中文](README-cn.md)
 
-- [Intro](#intro)
+- [Intro](#introduction)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
@@ -253,7 +253,7 @@ VimWiki has a lot of users but only very few recurring developers or people
 helping the community. Your help is therefore appreciated. Everyone can help!
 See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on how you can help.
 
-Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md).
+Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md) and [design_notes.md](doc/design_notes.md)
 
 ----
 

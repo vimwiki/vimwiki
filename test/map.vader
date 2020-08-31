@@ -1,50 +1,21 @@
-Include: vader_setup
+# Maps
+# TODO make it without side effects
+# -- Use the normal vimwiki or reset it
 
 
 # 0 Configure {{{1
 ##################
 
-Execute (Configure: Set vimwiki list to markdown resource):
-  Log "Let mapleader = ,"
-  let mapleader = ','
-
-  Log "Destroy vimrc or previous run heritage"
-  call DestroyVar('g:vimwiki_list')
-  call DestroyVar('g:vimwiki_global_vars')
-  call DestroyVar('g:vimwiki_wikilocal_vars')
-
-  Log "Destroy vimrc variable, works better that way"
-  call DestroyVar('g:vimwiki_default')
-  call DestroyVar('g:vimwiki_markdown')
-  call DestroyVar('g:vimwiki_mediawiki')
-
-  Log "Declare my vimwiki_list"
-  let g:vimwiki_list = [{
-    \ 'path': 'test/resources/testmarkdown',
-    \ 'syntax': 'markdown',
-    \ 'ext': '.md'
-    \ }]
-
-  Log "Declare my extension for temporary wiki"
-  let g:vimwiki_ext2syntax = {'.md': 'markdown'}
-
-  Log "Reload vimwiki <- vader_setup.vader"
-  call ReloadVimwiki()
-
-Execute (Assert: 2 wiki in Index):
-  AssertEqual 2, len(vimwiki_wikilocal_vars)
-
 Execute (VimwikiIndex):
-  VimwikiIndex 1
+  VimwikiIndex 2
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
   AssertEqual 'vimwiki', &filetype
-  AssertEqual 'test/resources/testmarkdown/', vimwiki_wikilocal_vars[0]['path']
-  AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  AssertEqual $HOME . '/testmarkdown/', vimwiki_wikilocal_vars[1]['path']
+  AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
 
 Execute (Open buzz bozz):
-  edit test/resources/testmarkdown/buzz_bozz.md
-  AssertEqual 'test/resources/testmarkdown/buzz_bozz.md', expand('%')
-
+  edit $HOME/testmarkdown/buzz_bozz.md
+  AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
 
 # 1 Global {{{1
 ###############
@@ -54,28 +25,28 @@ Execute (===========================================================):
 
 Do (,ww -> open index [Assert]):
   ,ww
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wt -> open index in tab [Assert]):
   ,wt
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(2)
   \<CR>
 
 Do (,w,w -> open diary [Assert]):
   ,w,w
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,t -> open diary in tab [Assert]):
   ,w,t
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d') . '.md', expand('%')
   \<CR>
   :call AssertTab(2)
   \<CR>
@@ -84,28 +55,28 @@ Do (,ws -> list and select wiki [Assert]):
   ,ws
   1
   \<CR>
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wi -> open diary index [Assert]):
   ,wi
-  :AssertEqual 'test/resources/testmarkdown/diary/diary.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/diary.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,y -> open yesterday [Assert]):
   ,w,y
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() - 60*60*24) . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() - 60*60*24) . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,w,m -> open tomorrow [Assert]):
   ,wm
-  :AssertEqual 'test/resources/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() + 60*60*24) . '.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/diary/' . strftime('%Y-%m-%d', localtime() + 60*60*24) . '.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
@@ -117,20 +88,22 @@ Do (,w,m -> open tomorrow [Assert]):
 Execute (===========================================================):
   Log "Checking local map"
 
+
 # 2.1 Heading {{{2
 ##############
+
 
 Do (,wn -> Create new wiki [Assert]):
   ,wn
   new_file1
   \<CR>
-  :AssertEqual 'test/resources/testmarkdown/new_file1.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file1.md', expand('%')
   \<CR>
   :call AssertTab(1)
   \<CR>
 
 Do (,wd -> Delete wiki yes [Assert]):
-  :edit 'test/resources/testmarkdown/file_new1.md'
+  :edit $HOME . '/testmarkdown/file_new1.md'
   \<CR>
 
   ,wn
@@ -143,11 +116,11 @@ Do (,wd -> Delete wiki yes [Assert]):
   yes
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/index.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
   \<CR>
 
 Do (,wd -> Delete wiki no [Assert]):
-  :edit 'test/resources/testmarkdown/file_new1.md'
+  :edit $HOME . '/testmarkdown/file_new1.md'
   \<CR>
 
   ,wn
@@ -160,7 +133,7 @@ Do (,wd -> Delete wiki no [Assert]):
   no
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file2.md', expand('%')
   \<CR>
 
 Do (,wn -> Rename wiki [Assert]):
@@ -174,7 +147,7 @@ Do (,wn -> Rename wiki [Assert]):
   new_file2
   \<CR>
 
-  :AssertEqual 'test/resources/testmarkdown/new_file2.md', expand('%')
+  :AssertEqual $HOME . '/testmarkdown/new_file2.md', expand('%')
   \<CR>
 
 Given (Some headings):
@@ -295,6 +268,33 @@ Expect (Dec header level):
 
 # 2.2 List {{{2
 ##############
+
+
+
+Given vimwiki (Completion list #813 {{{3):
+  complete1
+  complete2
+  complete3
+
+Do (Insert a list item and complete):
+  Go
+  * comp\<C-n>\<C-n>\<Cr>\<Esc>
+# -Es -> Delete trailing *
+  :let mode = mode(1)\<Cr>
+  :Log 'Mode : ' .mode\<Cr>
+  :if mode ==# 'ce' || mode ==# 'cv' || v:version < 704\<Cr>
+    Log 'Cheating'\<Cr>
+    try\<Cr>
+      g/^\* \?$/d\<Cr>
+    endtry\<Cr>
+  endif\<Cr>
+
+Expect (With a completion but no new item):
+  complete1
+  complete2
+  complete3
+  * complete2
+
 
 Given (Number list):
   1. I
@@ -421,8 +421,8 @@ Execute (file .md):
   set sw=2
   file toto.md
   edit!
-  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
-  let g:vimwiki_syntax_variables['markdown']['bullet_types'] = ['*', '-', '+']
+  let g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'] = 1
+  let g:vimwiki_syntaxlocal_vars['markdown']['bullet_types'] = ['*', '-', '+']
   AssertEqual 'vimwiki', &ft
 
 Do (gLl):
@@ -472,9 +472,9 @@ Execute (file toto.md):
   file toto.md
   edit!
   Log "Cycle bullets"
-  let g:vimwiki_syntax_variables['bullet_types'] = ['*', '-']
-  let g:vimwiki_syntax_variables['markdown']['cycle_bullets'] = 1
-  AssertEqual g:vimwiki_syntax_variables['markdown']['cycle_bullets'], 1
+  let g:vimwiki_syntaxlocal_vars['bullet_types'] = ['*', '-']
+  let g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'] = 1
+  AssertEqual g:vimwiki_syntaxlocal_vars['markdown']['cycle_bullets'], 1
   AssertEqual 'vimwiki', &ft
   set sw=2
   set expandtab " Otherwise, getting some tab before some items, when enought space
@@ -566,5 +566,4 @@ Expect (Like 'aH', but excluding the header itself):
   # Head2
   content 2
 
-Include: vader_teardown
 # vim: foldmethod=marker foldlevel=30 sw=2

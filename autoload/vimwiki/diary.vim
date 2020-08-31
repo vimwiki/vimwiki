@@ -38,10 +38,56 @@ endfunction
 " Return: <String> date
 function! vimwiki#diary#diary_date_link(...) abort
   if a:0
-    return strftime('%Y-%m-%d', a:1)
+    let l:timestamp = a:1
   else
-    return strftime('%Y-%m-%d')
+    let l:timestamp = localtime()
   endif
+
+  let l:delta_periods = 0
+  if a:0 > 1
+    let l:delta_periods = a:2
+  endif
+
+  let l:day_s = 60*60*24
+
+  let l:weekday_number = {
+        \ 'monday': 1, 'tuesday': 2,
+        \ 'wednesday': 3, 'thursday': 4,
+        \ 'friday': 5, 'saturday': 6,
+        \ 'sunday': 0}
+
+  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
+
+  if l:frequency ==? 'weekly'
+    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
+    let l:weekday_num = str2nr(strftime('%w', l:timestamp))
+    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
+    let l:computed_timestamp = l:timestamp
+          \ + 7*l:day_s*l:delta_periods
+          \ - l:day_s*l:days_to_end_of_week
+
+  elseif l:frequency ==? 'monthly'
+    let l:day_of_month = str2nr(strftime('%d', l:timestamp))
+    let l:beginning_of_month = l:timestamp - (l:day_of_month - 1)*l:day_s
+    let l:middle_of_month = l:beginning_of_month + 15*l:day_s
+    let l:middle_of_computed_month = l:middle_of_month + float2nr(30.5*l:day_s*l:delta_periods)
+    let l:day_of_computed_month = str2nr(strftime('%d', l:middle_of_computed_month)) - 1
+    let l:computed_timestamp = l:middle_of_computed_month - l:day_of_computed_month*l:day_s
+
+  elseif l:frequency ==? 'yearly'
+    let l:day_of_year = str2nr(strftime('%j', l:timestamp))
+    let l:beginning_of_year = l:timestamp - (l:day_of_year - 1)*l:day_s
+    let l:middle_of_year = l:beginning_of_year + float2nr(365.25/2*l:day_s)
+    let l:middle_of_computed_year = l:middle_of_year + float2nr(365.25*l:day_s*l:delta_periods)
+    let l:day_of_computed_year = str2nr(strftime('%j', l:middle_of_computed_year)) - 1
+    let l:computed_timestamp = l:middle_of_computed_year - l:day_of_computed_year*l:day_s
+
+  else "daily
+    let l:computed_timestamp = localtime() + l:delta_periods*l:day_s
+  endif
+
+  return strftime('%Y-%m-%d', l:computed_timestamp)
+
 endfunction
 
 
@@ -216,6 +262,9 @@ function! s:sort(lst) abort
   endif
 endfunction
 
+function! vimwiki#diary#diary_sort(lst) abort
+  return s:sort(a:lst)
+endfunction
 
 " Create note
 " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
@@ -232,7 +281,7 @@ function! vimwiki#diary#make_note(wnum, ...) abort
   endif
 
   if wiki_nr >= vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.wiki_nr.' is not registered in g:vimwiki_list!'
+    call vimwiki#u#error('Wiki '.wiki_nr.' is not registered in g:vimwiki_list!')
     return
   endif
 
@@ -272,7 +321,7 @@ function! vimwiki#diary#goto_diary_index(wnum) abort
   endif
 
   if a:wnum > vimwiki#vars#number_of_wikis()
-    echomsg 'Vimwiki Error: Wiki '.a:wnum.' is not registered in g:vimwiki_list!'
+    call vimwiki#u#error('Wiki '.a:wnum.' is not registered in g:vimwiki_list!')
     return
   endif
 
@@ -378,6 +427,9 @@ function! vimwiki#diary#generate_diary_section() abort
           let bullet = vimwiki#lst#default_symbol().' '
           let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
           let entry = substitute(entry, '__LinkDescription__', topcap, '')
+          let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+          let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
+          let entry = substitute(entry, '__FileExtension__', extension, 'g')
           " If single H1 then that will be used as the description for the link to the file
           " if multple H1 then the filename will be used as the description for the link to the
           " file and multiple H1 headers will be indented by shiftwidth
@@ -419,7 +471,7 @@ function! vimwiki#diary#generate_diary_section() abort
           \ 1,
           \ 1)
   else
-    echomsg 'Vimwiki Error: You can generate diary links only in a diary index page!'
+    call vimwiki#u#error('You can generate diary links only in a diary index page!')
   endif
 endfunction
 
@@ -454,4 +506,8 @@ function! vimwiki#diary#calendar_sign(day, month, year) abort
   let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
         \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
+endfunction
+
+function! vimwiki#diary#diary_file_captions() abort
+  return s:read_captions(vimwiki#diary#get_diary_files())
 endfunction

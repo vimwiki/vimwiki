@@ -1,0 +1,32 @@
+# Test comment string PR #946
+# TODO try default
+# TODO try editing other buffer
+#Execute (default commenstring, ft vimwiki):
+#  AssertEqual &filetype[0], 't'
+#  AssertEqual '/*%s*/', &commentstring
+
+
+Given txt (txt):
+  txt
+
+After (clean up):
+  if exists('g:vimwiki_commentstring')
+    unlet g:vimwiki_commentstring
+  endif
+  if exists('b:did_ftplugin')
+    unlet b:did_ftplugin
+  endif
+
+Execute (default vimwiki commentstring):
+  call vimwiki#vars#init()
+  set ft=vimwiki
+  AssertEqual '%%%s', &commentstring
+
+Execute (html commentstring):
+  let g:vimwiki_commentstring='<!-- %s -->'
+  call vimwiki#vars#init()
+  set ft=vimwiki
+  AssertEqual '<!-- %s -->', &commentstring
+
+Expect (void):
+  txt

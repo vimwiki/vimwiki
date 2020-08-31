@@ -1,4 +1,255 @@
-Include: vader_includes/vader_setup.vader
+# Link creation: my favorite (tinmarino)
+# You know, when pressing Enter:
+#   in mode normal, visual
+#   in OS windows, linux
+# Seems easy but tests are reaaly needed here
+
+
+# Link Normalisation {{{1
+# And configuration
+# Issues: #892
+####################
+
+Execute (Log):
+  Log 'Markdown change Link1 : Pressing enter to create a [[double bracket]] #892'
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  call SetSyntax('markdown')
+  let save_link = g:vimwiki_syntaxlocal_vars.markdown.Link1
+  let g:vimwiki_syntaxlocal_vars.markdown.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
+
+Do (vee<CR>):
+  vee\<CR>
+
+Expect (append md suffix):
+  [[abc def]] ghi jkl
+
+Execute (restore):
+  let g:vimwiki_syntaxlocal_vars.markdown.Link1 = save_link
+
+
+# vimwiki_markdown_link_ext {{{1
+####################
+
+Execute (Log):
+  Log 'vimwiki_markdown_link_ext'
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, markdown syntax'
+  file wiki_test.md
+  let g:vimwiki_markdown_link_ext = 1
+  call ReloadVars()
+  call SetSyntax('markdown')
+  AssertEqual vimwiki#vars#get_wikilocal('syntax'), 'markdown'
+  AssertEqual vimwiki#vars#get_wikilocal('markdown_link_ext'), 1
+
+Do (vee<CR>):
+  vee\<CR>
+
+Expect (append md suffix):
+  [abc def](abc def.md) ghi jkl
+
+Execute (Restore variable g:vimwiki_markdown_link_ext):
+  unlet g:vimwiki_markdown_link_ext
+  call ReloadVars()
+
+
+# Visual Creation {{{1
+# Issues: #382
+####################
+
+Execute (Log):
+  Log 'Visual Creation'
+
+# For markdown {{{2
+# ------------------
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, markdown syntax'
+  file wiki_test.md
+  call SetSyntax('markdown')
+  AssertEqual vimwiki#vars#get_wikilocal('syntax'), 'markdown'
+
+Do (v3e):
+  v3e\<Cr>
+
+Expect (3 Words []()):
+  [abc def ghi](abc def ghi) jkl
+
+Do (v3e):
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [def ghi](def ghi) jkl
+
+Do (selection=exclusive v3e):
+  :set selection=exclusive\<Cr>
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [def ghi](def ghi) jkl
+
+Do (selection=exclusive wv$):
+  :set selection=exclusive\<Cr>
+  wv$\<Cr>
+
+Expect (3 Words []()):
+  abc [def ghi jkl](def ghi jkl)
+
+
+# For Wiki {{{2
+# ------------------
+
+Given vimwiki (abc def ghi jkl):
+  abc def ghi jkl
+
+Execute (Set filename wiki_test.md):
+  Log '>> Visual creation, wiki syntax'
+  file wiki_test.wiki
+  call SetSyntax('default')
+
+Do (v3e):
+  v3e\<Cr>
+
+Expect (3 Words []()):
+  [[abc def ghi]] jkl
+
+Do (v3e):
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [[def ghi]] jkl
+
+Do (selection=exclusive v3e):
+  :set selection=exclusive\<Cr>
+  wv2e\<Cr>
+
+Expect (2 Words []()):
+  abc [[def ghi]] jkl
+
+Do (selection=exclusive wv$):
+  :set selection=exclusive\<Cr>
+  wv$\<Cr>
+
+Expect (3 Words []()):
+  abc [[def ghi jkl]]
+
+
+# Absolute links {{{1
+####################
+
+Execute (Log):
+  Log 'Absolute links'
+
+# For markdown {{{2
+# ------------------
+
+Execute (Set filename wiki_test.md):
+  Log '>> Absolute link, markdown syntax'
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Given vimwiki(some wiki link):
+  [test1](//$HOME/in_home1)
+  [test2](//~/in_home2)
+  [test3](///tmp/in_tmp)
+
+Do (Check in_home1):
+  \<Cr>
+  :AssertEqual expand('%'), $HOME.'/in_home1.md'\<Cr>
+
+Do (Check in_home2):
+  j\<Cr>
+  :AssertEqual expand('%'), $HOME.'/in_home2.md'\<Cr>
+
+Do (Check in_tmp):
+  jj\<Cr>
+  :AssertEqual expand('%'), '/tmp/in_tmp.md'\<Cr>
+
+# For Wiki {{{2
+# ------------------
+
+Execute (Set filename wiki_test.wiki):
+  Log '>> Absolute link, wiki syntax'
+  file wiki_test.wiki
+  call SetSyntax('default')
+
+Given vimwiki(some wiki link):
+  [[//$HOME/in_home1]]
+  [[//~/in_home2]]
+  [[///tmp/in_tmp]]
+
+Do (Check in_home1):
+  \<Cr>
+  :AssertEqual expand('%'), $HOME.'/in_home1.wiki'\<Cr>
+
+Do (Check in_home2):
+  j\<Cr>
+  :AssertEqual expand('%'), $HOME.'/in_home2.wiki'\<Cr>
+
+Do (Check in_tmp):
+  jj\<Cr>
+  :AssertEqual expand('%'), '/tmp/in_tmp.wiki'\<Cr>
+
+Execute(Clean: temporary):
+  call ReloadVimwiki()
+  call DeleteFile('$HOME/in_home1.md')
+  call DeleteFile('~/in_home2.md')
+  call DeleteFile('/tmp/in_tmp.md')
+
+# Link with dot {{{1
+####################
+
+Execute (Log):
+  Log 'Link  with dot'
+
+Given vimwiki (filnames with dots):
+  part1.part2.part3
+  part1.part2.part3.md
+  noext
+
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Do (Linkify all):
+  \<Cr>
+  j\<Cr>
+  j\<Cr>
+
+Expect (Full Words are made as links, no extension addded . -> space):
+  [part1 part2 part3](part1.part2.part3)
+  [part1 part2 part3](part1.part2.part3.md)
+  [noext](noext)
+
+Given vimwiki (filnames with dots):
+  part1.part2.part3
+  part1.part2.part3.md
+  noext
+
+Do (Fllow link witout markdown):
+  \<Cr>\<Cr>
+  :AssertEqual  expand('%:t'), 'part1.part2.part3'\<Cr>
+
+Do (j<Cr><Cr>):
+  j\<Cr>\<Cr>
+  :AssertEqual  expand('%:t'), 'part1.part2.part3.md'\<Cr>
+
+
+# Rest {{{1
+##########################
+
+Execute (Log):
+  Log 'And more'
 
 Given vimwiki (Text that is not a wikilink):
   test
@@ -122,4 +373,7 @@ Expect (Mediawiki links):
   [[file.md]]
   [[file.mw]]
 
-Include: vader_includes/vader_teardown.vader
+Execute(Clean: Icreated many temporary wiki):
+  call ReloadVimwiki()
+
+# vim: foldmethod=marker foldlevel=30

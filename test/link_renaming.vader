@@ -1,10 +1,10 @@
-Include: vader_includes/vader_setup.vader
+# VimwikiRenameFile
+# Related to link, file navigation
+# Many commands are made with Do: They block with Execute
 
 
-Execute (Copy Wiki's Resources):
-  Log "Start: Copy Resources"
-  call CopyResources()
-
+# Create directories I remove at end {{{1
+##########################################
 
 Execute (Mkdir dir1 dir2 dir11 dir12):
   call system("mkdir $HOME/testmarkdown/dir1")
@@ -12,6 +12,95 @@ Execute (Mkdir dir1 dir2 dir11 dir12):
   call system("mkdir $HOME/testmarkdown/dir1/dir12")
   call system("mkdir $HOME/testmarkdown/dir2")
 
+
+# Test Transdirectory and argument {{{1
+# New feature #926
+
+# Create smaller unit {{{2
+
+# we stick all along with these 3 files,
+# Follow them !
+Execute (Create 3 files):
+  edit $HOME/testmarkdown/Test-Rename-zzz.md
+  call WriteMe()
+  edit $HOME/testmarkdown/dir1/dir11/Test-Rename.md
+  call WriteMe()
+  edit $HOME/testmarkdown/Test-Rename-Completion.md
+  call WriteMe()
+
+
+Do (Testing Old buffer has been wiped out {{{2):
+  :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  :Log 'Get current Buffer'\<Cr>
+  :let buf_old = bufnr('%')\<Cr>
+  :Log 'Is this wiki 2'\<Cr>
+  :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<Cr>
+  :Log 'Delete for loosers'\<Cr>
+  :call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')\<Cr>
+  :Log 'Rewrite ...'\<Cr>
+  :call WriteMe()\<Cr>
+  :Log 'Rename 1'\<Cr>
+  :VimwikiRenameFile Test-Rename-new1\<Cr>
+  :Log 'Assert 1'\<Cr>
+  :AssertEqual 'Test-Rename-new1', expand('%:t:r')\<Cr>
+  :Log 'Rename 2'\<Cr>
+  :VimwikiRenameFile Test-Rename-Completion\<Cr>
+  :Log 'Assert 2'\<Cr>
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
+
+Do (Testing Completion {{{2):
+# Rename and test (zzz)
+  :VimwikiRenameFile Test-Rename-z\<C-l>1\<Cr>
+  :AssertEqual $HOME . '/testmarkdown/Test-Rename-zzz1.md', expand('%')\<CR>\<Esc>
+# Restore old name
+  :call WriteMe()\<Cr>
+  :VimwikiRenameFile Test-Rename-zzz\<Cr>
+
+
+Do (Testing transforward {{{2):
+  :Log 'Forward: root -> dir1/dir11 {{{3'\<Cr>
+# Create dir1/dir11/Test-Rename and link to it
+  :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  ggdG
+  idir1/dir11/Test-Rename.md\<Esc>
+  \<Cr>\<Cr>
+  :VimwikiRenameFile ../Test-Rename-2\<Cr>
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/dir1/Test-Rename-2.md'\<CR>\<Esc>
+
+# See what happend in root
+  :call WriteMe()\<Cr>
+  :edit $HOME/testmarkdown/Test-Rename-Completion.md\<Cr>
+  :AssertEqual getline(1), '[dir1 dir11 Test Rename](dir1/Test-Rename-2.md)'\<Cr>
+
+  :Log 'Backward dir1/dir11 -> root {{{3'\<Cr>
+# See what happend in dir1/dir11
+# I am in root so pressing Enter sends me to dir1/dir11
+  \<Cr>
+# Write forward path
+  dd
+  i../Test-Rename-Completion\<Esc>
+# Convert it to link
+  0\<Cr>\<Cr>
+
+# Now in root
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
+  :VimwikiRenameFile dir1/Test-Rename-Completion-2\<Cr>
+  :AssertEqual expand('%'), $HOME . '/testmarkdown/dir1/Test-Rename-Completion-2.md'\<Cr>
+
+
+Execute (Delete smaller unit changed {{{2):
+  call DeleteFile('$HOME/testmarkdown/Test-Rename-new1.md')
+  call DeleteFile('$HOME/testmarkdown/Test-Rename-zzz.md')
+  call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-Completion_2.md')
+  call DeleteFile('$HOME/testmarkdown/dir1/Test-Rename-2.md')
+
+
+# VimwikiRename Test same directory {{{1
+# Old big conf, from bad unit test design
+# Changing file in a single dir
+# Feel free to modify but as long as it works
+# I delay the cleaning
+####################################
 
 Given vimwiki (Void):
 
@@ -86,7 +175,10 @@ Execute (Fill in_dir11 content):
   call WriteMe()
 
 
-Do (RenameLink in_dir11 -> new_dir11):
+# Rename local {{{1
+###################
+
+Do (RenameLink in_dir11 -> in_dir11_new):
   :edit $HOME/testmarkdown/dir1/dir11/in_dir11.md\<CR>
   :AssertEqual 'file ' . $HOME . '/testmarkdown/dir1/dir11/in_dir11.md', 'file ' . expand('%')\<CR>
   :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<CR>
@@ -129,7 +221,6 @@ Expect (Link to in_dir11_new):
   [dir2 in_dir2](dir2/in_dir2.md)
 
 
-
 Do (in_dir2 -> in_dir2_new):
   :edit $HOME/testmarkdown/dir2/in_dir2.md\<CR>
 
@@ -148,7 +239,7 @@ Do (in_dir2 -> in_dir2_new):
 
 
 Expect (old and new filenames):
-
+  
   /home/vimtest/testmarkdown/dir2/in_dir2.md
   /home/vimtest/testmarkdown/dir2/in_dir2_new.md
 
@@ -184,6 +275,4 @@ Execute (Clean dir1 and dir2):
   call system('rm -r $HOME/testmarkdown/dir2')
 
 
-Include: vader_includes/vader_teardown.vader
-
-# vim: sw=2 foldmethod=indent foldlevel=30 foldignore=#
+# vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#

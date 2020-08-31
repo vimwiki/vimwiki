@@ -1,8 +1,315 @@
-Include: vader_includes/vader_setup.vader
+# Syntax and Highlight
 
+#Given vimwiki (bold and pre):
 
 # 1 Typeface {{{1
 #################
+
+Given vimwiki (Markdown with punctuation #340 {{{2):
+  __bold__, not bold
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax (alpha)):
+  AssertEqual 'VimwikiBold1'       , SyntaxAt(1, 5) . 1
+  AssertEqual '2'                  , SyntaxAt(1, 16) . 2
+
+Given vimwiki (Markdown bad __this_not_it__ {{{2):
+  See here  14 |
+  s2n_error
+  s*n*er_r_
+  n4rmal_aaaaaaaaaaaaaaaaaaaa_text_
+  n5t_italiccccccccccccccccccccc_no
+  n6t_italiccccccccccccccccccccccno
+  n7t*italiccccccccccccccccccccc_no
+  n8t*italiccccccccccccccccccccc*no
+  __not_italicccccccccc_but_boldd__
+  _a_asdasda_asdas_asdas_asdasda_a_
+  _jitaliccccccccccccccccccccccccc_
+  n12ormalllllllllllllllllllllllll_
+  _italic if at end of file unfortunately
+  Note: The decision to start a region is only based on a matching start
+  pattern.  There is no check for a matching end pattern.  This does NOT
+  work: (:h syn-region)
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax (bravo)):
+  AssertEqual 'VimwikiError2'     , SyntaxAt(2, 4) . 2
+  AssertEqual 'VimwikiError3'     , SyntaxAt(3, 4) . 3
+  AssertEqual '4'                 , SyntaxAt(4, 14) . 4
+  AssertEqual '5'                 , SyntaxAt(5, 14) . 5
+  AssertEqual '6'                 , SyntaxAt(6, 14) . 6
+  AssertEqual '7'                 , SyntaxAt(7, 14) . 7
+  AssertEqual '8'                 , SyntaxAt(8, 14) . 8
+  AssertEqual 'VimwikiBold9'      , SyntaxAt(9, 14) . 9
+  AssertEqual 'VimwikiItalic10'   , SyntaxAt(10, 14) . 10
+  AssertEqual 'VimwikiItalic11'   , SyntaxAt(11, 14) . 11
+  AssertEqual '12'                , SyntaxAt(12, 14) . 12
+
+Given vimwiki (bold and pre {{{2):
+  __startbold
+  ```
+  pre
+  ```
+  __endbold
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax (charlie)):
+  AssertEqual 'VimwikiPre'        , SyntaxAt(3, 1)
+
+# Emphasis stricker {{{2
+# See: https://github.github.com/gfm/#emphasis-and-strong-emphasis
+Given vimwiki (Emphasis and not):
+  this __bold__ ok
+  this _italic_ ok
+  t__ no bold __ t
+  t_ no ital _ t
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax (delta)):
+  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 9)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 9)
+  AssertEqual ''                   , SyntaxAt(3, 9)
+  AssertEqual ''                   , SyntaxAt(4, 9)
+
+# With vimwiki_hl_cb_checked {{{2
+Given vimwiki (task list with code):
+  Normal syntax
+  - [X] Lorem __sit__  `sed do eiusmod
+        tempor` incididunt ut labore et dolore magna aliqua
+  Normal syntax
+
+Execute (let g:vimwiki_hl_cb_checked = 1):
+  let g:vimwiki_hl_cb_checked = 1
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+  call SetSyntax('markdown')
+
+Execute (Assert Done Syntax 1):
+  AssertEqual ''                   , SyntaxAt(1, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(2, 7)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(3, 7)
+  AssertEqual ''                   , SyntaxAt(4, 7)
+
+Given vimwiki (task list with code):
+  Normal syntax
+  - [X] Lorem __sit__  `sed do eiusmod
+        tempor` incididunt ut labore et dolore magna aliqua
+  Normal syntax
+
+Execute (let g:vimwiki_hl_cb_checked = 2):
+  let g:vimwiki_hl_cb_checked = 2
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+  call SetSyntax('markdown')
+
+Execute (Assert Done Syntax 2):
+  AssertEqual ''                   , SyntaxAt(1, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(2, 7)
+  AssertEqual 'VimwikiCheckBoxDone', SyntaxAt(3, 7)
+  AssertEqual ''                   , SyntaxAt(4, 7)
+
+
+# Extended types {{{2
+
+Given vimwiki (Extended Types mono):
+  `code          `
+  ~~ strike     ~~
+  $ equation     $
+  ^superscript   ^
+  ,, subscript   ,,
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 1):
+  AssertEqual 'VimwikiCode'        , SyntaxAt(1, 8)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 8)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 8)
+  AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 8)
+  AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 8)
+
+
+Given vimwiki (Extended Types nested in basic):
+  From __bold   `code in bold  ` end of bold__ morF
+  From _it and ~~ strieout in i~~ end of it_   morF
+  From __bold   $ equation     $ end bold        __
+    **bold      ^superscript   ^ end of bold morF**
+  From normal  ,, subscript    ,, still normal morF
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types x 2):
+  AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
+  AssertEqual 'VimwikiSuperScript' , SyntaxAt(4, 23)
+  AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
+
+Given vimwiki (Extended Types nested in extended):
+  From ^super to`code this     ` is crazy but^  morF
+  From ,,sub to~~ strike       ~~why not,,      morF
+  From ~~strike $ equation     $ end of strike~~morF
+  From $eq to   ^super         ^ Just inline   morF$
+  From ^super t,,sub           ,, end super eol    ^
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types nested in extended):
+  AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(2, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(3, 23)
+  AssertEqual 'textSnipTEX'        , SyntaxAt(4, 23)
+  AssertEqual 'VimwikiSubScript'   , SyntaxAt(5, 23)
+
+Given vimwiki (Basic Types nested in extended):
+  From ^super  __bold          __ is crazy but^  morF
+  From ,,sub    _italic with en_  aaaaaaa,,      morF
+  From $eq to  **boldboldboldbo** aaaaaaaaa         $
+  From ^super   *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
+  From ~~strik __bbbbbbbbbbbbb__ssssssssssssssssss~~
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax basic types nested in extended):
+  AssertEqual 'VimwikiBold1'        , SyntaxAt(1, 23) . 1
+  AssertEqual 'VimwikiItalic2'      , SyntaxAt(2, 23) . 2
+  AssertEqual 'textSnipTEX3'        , SyntaxAt(3, 23) . 3
+  AssertEqual 'VimwikiItalic4'      , SyntaxAt(4, 23) . 4
+  AssertEqual 'VimwikiBold5'        , SyntaxAt(5, 23) . 5
+
+Given vimwiki (Try to nest in code):
+  From `codeto__no onenest in code__ end`
+  From `codeto _no onenest in code_ end`
+  From `codeto ^no onenest in code^ end`
+  From `codeto ~~no onenest in code~~ end`
+  From `codeto ___no onenest in code___ end`
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax extended types nested in extended):
+  AssertEqual 'VimwikiCode'        , SyntaxAt(1, 23)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(2, 23)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(3, 23)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(4, 23)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(5, 23)
+
+
+Given vimwiki (Multiline Typfaces Basic and extended):
+  __and bold
+  multiline__
+
+  _and it
+  mutliline_
+
+  ~~and mutltie
+  strikeout~~
+  `
+  and mutli
+  path
+  `
+  but no $ multi
+  equation
+  $
+  ^ but no multi
+  sup ^
+  ,,
+  but no multi
+  sub ,,
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Multiline syantax but not sup and sub):
+  AssertEqual 'VimwikiBold'        , SyntaxAt(2, 1)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(5, 1)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(8, 1)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(11, 1)
+  AssertEqual ''                   , SyntaxAt(14, 1)
+  AssertEqual ''                   , SyntaxAt(17, 1)
+  AssertEqual ''                   , SyntaxAt(20, 1)
+
+
+
+# HTML types {{{2
+# Rememner Bold > Italic > Underline (my convention [tinmarino])
+
+Given vimwiki (Typeface for Italic var_with_underscore):
+  var_with_underscore
+  _this is
+  italic_
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax for typeface 1):
+  AssertEqual ''                  , SyntaxAt(1, 1)
+  AssertEqual 'VimwikiError'      , SyntaxAt(1, 4)
+  AssertEqual ''                  , SyntaxAt(1, 5)
+  AssertEqual 'VimwikiItalic'     , SyntaxAt(2, 2)
+  AssertEqual 'VimwikiItalic'     , SyntaxAt(3, 2)
+
+Given vimwiki (Typeface for html 1 like italic):
+  <b> ---- this is bold text 1 ---- </b>
+  <strong> - this is bold 2 -  </strong>
+  <i> Italic 1 --cacacacacacacaca-- </i>
+  <em> Italic 2 -cacacacacacacaca- </em>
+  <u> Underline -cacacacacc acaca-  </u>
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax for typeface 1):
+  AssertEqual 'VimwikiBold'      , SyntaxAt(1, 15)
+  AssertEqual 'VimwikiBold'      , SyntaxAt(2, 15)
+  AssertEqual 'VimwikiItalic'    , SyntaxAt(3, 15)
+  AssertEqual 'VimwikiItalic'    , SyntaxAt(4, 15)
+  AssertEqual 'VimwikiUnderline' , SyntaxAt(5, 15)
+
+Given vimwiki (Typeface for html 2 like italicUnderline):
+  <b> bold this is bold<i>bold italic ---------</i> text 1 ---- </b>
+  <strong> - this is bo<u>bold underline ------</u>d 2 -  </strong>
+  <i> Italic 1 --cacaca<b>bold italic----------</b>acacacaca-- </i>
+  <em> Italic 2 -cacaca<u>italic underline-----</u>cacacaca- </em>
+  <u> Underline -cacaca<b>bold underline-------</b>asacc acaca-  </u>
+  <u> Underline -cacaca<i>italic underline-----</i>asdacacc acaca-  </u>
+
+Execute (Assert Syntax for typeface 2):
+  AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(1, 30)
+  AssertEqual 'VimwikiBoldUnderline'  , GetSyntaxGroup(2, 30)
+  AssertEqual 'VimwikiBoldItalic'     , GetSyntaxGroup(3, 30)
+  AssertEqual 'VimwikiItalicUnderline', GetSyntaxGroup(4, 30)
+  AssertEqual 'VimwikiBoldUnderline'  , GetSyntaxGroup(5, 30)
+  AssertEqual 'VimwikiItalicUnderline', GetSyntaxGroup(6, 30)
+
+Given vimwiki (Typeface for html 3 like boldItalicUnderline):
+  <b><i><u> bold italic underline </u></i></b>
+  <b><u><i> bold italic underline </i></u></b>
+  <i><b><u> bold italic underline </u></b></i>
+  <i><u><b> bold italic underline </b></u></i>
+  <u><b> <i> bold italic underline </i> </b></u>
+  <u><i><b> bold italic underline </b></i></u>
+
+Execute (Assert Syntax for typeface 3):
+  AssertEqual 'VimwikiBoldItalicUnderline1', GetSyntaxGroup(1, 22).1
+  AssertEqual 'VimwikiBoldItalicUnderline2', GetSyntaxGroup(2, 22).2
+  AssertEqual 'VimwikiBoldItalicUnderline3', GetSyntaxGroup(3, 22).3
+  AssertEqual 'VimwikiBoldItalicUnderline4', GetSyntaxGroup(4, 22).4
+  AssertEqual 'VimwikiBoldItalicUnderline5', GetSyntaxGroup(5, 22).5
+  AssertEqual 'VimwikiBoldItalicUnderline6', GetSyntaxGroup(6, 22).6
+
+# Keyword uppercase {{{2
 
 Given vimwiki (TODO, XXX):
   TODO
@@ -20,6 +327,8 @@ Execute (Assert Syntax VimwikiTodo):
   AssertEqual SyntaxAt(5, 1), 'VimwikiTodo'
   AssertEqual SyntaxAt(6, 1), 'VimwikiTodo'
 
+# Mardown types {{{2
+
 Given vimwiki (Typeface for markdown like italic):
   **bold text 1**
   __bold text 2__
@@ -36,16 +345,16 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax for typeface):
-  AssertEqual SyntaxAt(1, 4), 'VimwikiBold'
-  AssertEqual SyntaxAt(2, 4), 'VimwikiBold'
-  AssertEqual SyntaxAt(3, 4), 'VimwikiItalic'
-  AssertEqual SyntaxAt(4, 4), 'VimwikiItalic'
-  AssertEqual SyntaxAt(5, 4), 'VimwikiBoldItalic'
-  AssertEqual SyntaxAt(6, 4), 'VimwikiItalicBold'
-  AssertEqual SyntaxAt(7, 4), 'VimwikiDelText'
-  AssertEqual SyntaxAt(8, 4), 'VimwikiCode'
-  AssertEqual SyntaxAt(9, 4), 'VimwikiSuperScript'
-  AssertEqual SyntaxAt(10, 4), 'VimwikiSubScript'
+  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 5)
+  AssertEqual 'VimwikiBold'        , SyntaxAt(2, 5)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(3, 5)
+  AssertEqual 'VimwikiItalic'      , SyntaxAt(4, 5)
+  AssertEqual 'VimwikiBoldItalic'  , SyntaxAt(5, 5)
+  AssertEqual 'VimwikiBoldItalic'  , SyntaxAt(6, 5)
+  AssertEqual 'VimwikiDelText'     , SyntaxAt(7, 5)
+  AssertEqual 'VimwikiCode'        , SyntaxAt(8, 5)
+  AssertEqual 'VimwikiSuperScript' , SyntaxAt(9, 5)
+  AssertEqual 'VimwikiSubScript'   , SyntaxAt(10, 5)
 
 
 # 2 Links {{{1
@@ -90,24 +399,24 @@ Given vimwiki (Wiki Links):
     [[http://someaddr.com/bigpicture.jpg|{{http://someaddr.com/thumbnail.jpg}}]]
 
 Execute (Assert Syntax link):
-  AssertEqual SyntaxAt(2, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(4, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(6, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(8, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(10, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(12, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(14, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(16, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(18, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(20, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(22, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(24, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(26, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(28, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(30, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(32, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(34, 6), 'VimwikiLink'
-  AssertEqual SyntaxAt(36, 6), 'VimwikiLink'
+  AssertEqual 'VimwikiLink', SyntaxAt(2, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(4, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(6, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(8, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(10, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(12, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(14, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(16, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(18, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(20, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(22, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(24, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(26, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(28, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(30, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(32, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(34, 6)
+  AssertEqual 'VimwikiLink', SyntaxAt(36, 6)
 
 Given vimwiki (Markdown Links):
   Inline link: >
@@ -124,14 +433,28 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax link):
-  AssertEqual SyntaxAt(2, 8), 'VimwikiWeblink1'
-  AssertEqual SyntaxAt(5, 8), 'VimwikiImage'
-  AssertEqual SyntaxAt(8, 8), 'VimwikiWikiLink1'
-  AssertEqual SyntaxAt(9, 8), 'VimwikiWikiLink1'
+  AssertEqual 'VimwikiWeblink1'  , SyntaxAt(2, 8)
+  AssertEqual 'VimwikiImage'     , SyntaxAt(5, 8)
+  AssertEqual 'VimwikiWikiLink1' , SyntaxAt(8, 8)
+  AssertEqual 'VimwikiWikiLink1' , SyntaxAt(9, 8)
 
 
 # 3 Header {{{1
 ###############
+Given vimwiki (Markdown SetExt Headers):
+  One
+  ===
+  two
+  ---
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax Header SetExt):
+  AssertEqual 'VimwikiHeader1', SyntaxAt(1, 1)
+  AssertEqual 'VimwikiHeader1', SyntaxAt(2, 1)
+  AssertEqual 'VimwikiHeader2', SyntaxAt(3, 1)
+  AssertEqual 'VimwikiHeader2', SyntaxAt(4, 1)
 
 Given vimwiki (Wiki Headers):
   = Header level 1 =
@@ -145,12 +468,12 @@ Execute (Set syntax default):
   call SetSyntax('default')
 
 Execute (Assert Syntax Header):
-  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
-  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
-  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
-  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
-  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
-  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+  AssertEqual 'VimwikiHeader1', SyntaxAt(1, 10)
+  AssertEqual 'VimwikiHeader2', SyntaxAt(2, 10)
+  AssertEqual 'VimwikiHeader3', SyntaxAt(3, 10)
+  AssertEqual 'VimwikiHeader4', SyntaxAt(4, 10)
+  AssertEqual 'VimwikiHeader5', SyntaxAt(5, 10)
+  AssertEqual 'VimwikiHeader6', SyntaxAt(6, 10)
 
 Given vimwiki (Markdown Headers):
   # Header level 1
@@ -164,13 +487,78 @@ Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax Header):
-  AssertEqual SyntaxAt(1, 10), 'VimwikiHeader1'
-  AssertEqual SyntaxAt(2, 10), 'VimwikiHeader2'
-  AssertEqual SyntaxAt(3, 10), 'VimwikiHeader3'
-  AssertEqual SyntaxAt(4, 10), 'VimwikiHeader4'
-  AssertEqual SyntaxAt(5, 10), 'VimwikiHeader5'
-  AssertEqual SyntaxAt(6, 10), 'VimwikiHeader6'
+  AssertEqual 'VimwikiHeader1' , SyntaxAt(1, 10)
+  AssertEqual 'VimwikiHeader2' , SyntaxAt(2, 10)
+  AssertEqual 'VimwikiHeader3' , SyntaxAt(3, 10)
+  AssertEqual 'VimwikiHeader4' , SyntaxAt(4, 10)
+  AssertEqual 'VimwikiHeader5' , SyntaxAt(5, 10)
+  AssertEqual 'VimwikiHeader6' , SyntaxAt(6, 10)
 
+
+# 4 Blockquote {{{1
+# Issues: #55
+###############
+
+
+#### 4.1 Blokquotes markdown
+Given vimwiki (BlockQuote restarts list numbering #55 {{{3):
+  1. Item 1
+  2. Item 2
+      Block Quote
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (Gototo):
+  Gototo
+
+Expect (Good numbering):
+  1. Item 1
+  2. Item 2
+      Block Quote
+  3. toto
+
+# 9 Comment {{{1
+###############
+
+Given vimwiki (%%):
+  %% This is a line comment
+      %% This is also a comment
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert Syntax VimwikiComment):
+  AssertEqual 'VimwikiComment' , SyntaxAt(1, 1)
+  AssertEqual 'VimwikiComment' , SyntaxAt(2, 4)
+
+Given vimwiki (%%+, +%%):
+  %%+ This
+  is a
+  multiline
+  comment +%%
+  %%+ This is a comment on one line +%%
+  %%+ One +%% Not a comment %%+ Two +%% Not a comment
+
+Execute (Set syntax default):
+  call SetSyntax('default')
+
+Execute (Assert Syntax VimwikiMultilineComment):
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(1, 1)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(1, 8)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(2, 1)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(3, 1)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(4, 1)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(5, 1)
+
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(6, 1)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(6, 11)
+  AssertEqual ''                        , SyntaxAt(6, 12)
+  AssertEqual ''                        , SyntaxAt(6, 26)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(6, 27)
+  AssertEqual 'VimwikiMultilineComment' , SyntaxAt(6, 37)
+  AssertEqual ''                        , SyntaxAt(6, 38)
+  AssertEqual ''                        , SyntaxAt(6, 51)
 
 # 10 Code {{{1
 # 10.1 Code Indent (4 spaces) {{{2
@@ -232,26 +620,26 @@ Execute (Set syntax markdown):
 
 Execute (Assert ft, normal syntax and VimwikiTodo):
   AssertEqual &ft, 'vimwiki'
-  AssertEqual SyntaxAt(1, 1), ''
-  AssertEqual SyntaxAt(2, 9), 'VimwikiTodo'
+  AssertEqual '', SyntaxAt(1, 1)
+  AssertEqual 'VimwikiTodo', SyntaxAt(2, 9)
 
 Execute (Assert Code syntax):
-  AssertEqual SyntaxAt(4, 1), 'VimwikiPreDelim'
-  AssertEqual SyntaxAt(5, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(9, 1), 'vimLineComment'
-  AssertEqual SyntaxAt(10, 1), 'vimCommand'
-  AssertEqual SyntaxAt(13, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(14, 1), 'vimLineComment'
-  AssertEqual SyntaxAt(15, 1), 'vimCommand'
-  AssertEqual SyntaxAt(16, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(18, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(19, 1), 'vimLineComment'
-  AssertEqual SyntaxAt(20, 1), 'vimCommand'
-  AssertEqual SyntaxAt(21, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(23, 1), 'VimwikiPre'
-  AssertEqual SyntaxAt(24, 1), 'vimLineComment'
-  AssertEqual SyntaxAt(25, 1), 'vimCommand'
-  AssertEqual SyntaxAt(26, 1), 'VimwikiPre'
+  AssertEqual 'VimwikiPreDelim', SyntaxAt(4, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(5, 1)
+  AssertEqual 'vimLineComment' , SyntaxAt(9, 1)
+  AssertEqual 'vimCommand'     , SyntaxAt(10, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(13, 1)
+  AssertEqual 'vimLineComment' , SyntaxAt(14, 1)
+  AssertEqual 'vimCommand'     , SyntaxAt(15, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(16, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(18, 1)
+  AssertEqual 'vimLineComment' , SyntaxAt(19, 1)
+  AssertEqual 'vimCommand'     , SyntaxAt(20, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(21, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(23, 1)
+  AssertEqual 'vimLineComment' , SyntaxAt(24, 1)
+  AssertEqual 'vimCommand'     , SyntaxAt(25, 1)
+  AssertEqual 'VimwikiPre'     , SyntaxAt(26, 1)
 
 
 # 11 Math {{{1
@@ -259,7 +647,7 @@ Execute (Assert Code syntax):
 #######################
 
 Given vimwiki (Math markdown):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $ aaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   $$
@@ -277,8 +665,8 @@ Given vimwiki (Math markdown):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert math syntax):
-  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+Execute (Assert math syntax 1):
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
@@ -289,7 +677,7 @@ Execute (Assert math syntax):
 ##############################
 
 Given vimwiki (Math wiki):
-  math inline: $ \sum_i a_i^2 = 1 $
+  math inline: $aaaaaaaaaaaaaaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
 
   math block:
   {{$
@@ -307,12 +695,11 @@ Given vimwiki (Math wiki):
 Execute (Set syntax default):
   call SetSyntax('default')
 
-Execute (Assert math syntax):
-  AssertEqual SyntaxAt(1, 18), 'VimwikiEqIn'
+Execute (Assert math syntax 2):
+  AssertEqual 'textSnipTEX', SyntaxAt(1, 18)
   let syntax_5 = SyntaxAt(5, 1)
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
   Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
 
-Include: vader_includes/vader_teardown.vader
 # vim: foldmethod=marker foldlevel=30 sw=2

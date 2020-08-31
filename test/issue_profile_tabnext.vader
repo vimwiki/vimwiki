@@ -1,0 +1,51 @@
+# See Issue #580
+
+Given vimwiki (Void):
+  Tabnext
+
+Execute (Set fold method):
+  let g:vimwiki_folding = 'expr:quick'
+  call ReloadVimwiki()
+
+Execute (Expect < 0.5 second delay: Issue #580):
+  let mode = mode(1)
+  Log 'Mode : ' .mode
+  if mode ==# 'ce' || mode ==# 'cv'  " -es (silent ex mode)
+    Log 'Skiped: Tabedit and tabnext are not working weel with -Es'
+  else
+    Log 'Prepare: Edit: mode: ' . mode
+    edit /testplugin/test/resources/delay.wiki
+    Log 'Prepare: Assert'
+    AssertEqual 'default', vimwiki#vars#get_wikilocal('syntax')
+    Log 'Prepare: Goto 50%'
+    normal! 50%
+# "TODO set ft and set wiki syntax or this error (no fold found)
+# "normal! zozo
+
+    Log 'Run: tabedit'
+    let start = reltime()
+    tabedit
+    let end = str2float(reltimestr(reltime(start)))
+
+    Log 'Verify redraw'
+    Log 'Elapsed time Tabedit = ' . string(end)
+    Assert end < 0.5, 'Redraw Took longer than expected: ' . string(end) . ' seconds'
+
+    Log 'Run: redraw'
+    let start = reltime()
+    tabprev
+    redraw
+    let end = str2float(reltimestr(reltime(start)))
+
+    Log 'Verify redraw'
+    Log 'Elapsed time redraw = ' . string(end)
+    Assert end < 0.5, 'Redraw Took longer than expected: ' . string(end) . ' seconds'
+  endif
+
+Execute (Reset variables):
+  call DeleteFile('/testplugin/test/resources/delay.wiki')
+  let g:vimwiki_folding = ''
+  call ReloadVimwiki()
+
+Expect vimwiki (Tabnext):
+  Tabnext

@@ -1,0 +1,413 @@
+# VimwikiTOC {{{1
+#
+# Just generate the TOC
+# See: link_* for link movement and creation
+#
+# TODO (10min) test if g:vimwiki_to_header well readen
+# TODO (10min) test vimviki_toc_link_format
+# TODO (1h) test if really wiki dependant (for 2 diffrent wikis)
+# TODO if link in heading
+
+Given vimwiki (Wiki with spaces {{{1):
+  = h1 h2 h3 h4 =
+
+Execute (Toc and enter (alpha)):
+  call SetSyntax('default')
+  call vimwiki#vars#set_wikilocal('list_margin', -1, vimwiki#vars#get_bufferlocal('wiki_nr'))
+  AssertEqual -1, vimwiki#vars#get_wikilocal('list_margin')
+  VimwikiTOC
+
+Expect (Toc alpha):
+  = Contents =
+          - [[#h1 h2 h3 h4]]
+
+  = h1 h2 h3 h4 =
+
+Given vimwiki (Wiki with bad characters {{{1):
+  = h!@$%^&() =
+
+Execute (Toc and beta):
+  call SetSyntax('default')
+  file wiki.wiki
+  VimwikiTOC
+
+Expect (Toc and jumpes well):
+  = Contents =
+          - [[#h!@$%^&()]]
+
+  = h!@$%^&() =
+
+
+Given vimwiki (One word headings (#981) {{{1):
+  = head1 =
+  == head2 ==
+  === head3 ===
+
+Execute (Wiki: toc_link_format=1 (to restore) VimwikiTOC x 1):
+  set sw=2
+  let vimwiki_toc_link_format = 1
+  call ReloadVimwiki()
+  call SetSyntax('default')
+  VimwikiTOC
+
+
+Expect(Headinds TOC one word (1)):
+  = Contents =
+    - [[#head1|head1]]
+      - [[#head1#head2|head2]]
+        - [[#head1#head2#head3|head3]]
+
+  = head1 =
+  == head2 ==
+  === head3 ===
+
+Execute (Wiki: toc_link_format=0 (restoring default) VimwikiTOC x 1):
+  let vimwiki_toc_link_format = 0
+  call ReloadVimwiki()
+  call SetSyntax('default')
+  VimwikiTOC
+
+Expect(Headinds TOC one word (0)):
+  = Contents =
+    - [[#head1]]
+      - [[#head2]]
+        - [[#head3]]
+
+  = head1 =
+  == head2 ==
+  === head3 ===
+
+
+Execute (Clean wiki TOC):
+
+
+Given vimwiki (One heading: May delete last line (#910) {{{1):
+  # Basic-title
+
+
+Execute (VimwikiTOC x 1):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+
+Expect(Good content with 1 item x 1):
+  # Contents
+
+  - [Basic-title](#basic-title)
+
+  # Basic-title
+
+Execute (VimwikiTOC x 2):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+  VimwikiTOC
+
+Expect(Good content with 1 item x 1):
+  # Contents
+
+  - [Basic-title](#basic-title)
+
+  # Basic-title
+
+
+Given vimwiki (With link header (#182) {{{1):
+  # A [link](anything here) B
+  # t[link](anything here)
+
+  ## 7.4.1528
+
+Execute (VimwikiTOC: Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect vimwiki (With link header (#182) {{{1):
+  # Contents
+
+  - [A link B](#a-link-b)
+  - [tlink](#tlink)
+          - [7.4.1528](#741528)
+
+  # A [link](anything here) B
+  # t[link](anything here)
+
+  ## 7.4.1528
+
+
+
+Given vimwiki (Underline header (SetExt) (#209) {{{1):
+  First with spaces
+  =====
+
+  toto
+
+  Second
+  -------
+  toto
+
+  Third
+  -----
+  toto
+
+  Four
+  =====
+  toto
+  Last
+  ----
+
+Execute (Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect (Heading SetExt created):
+  # Contents
+
+  - [First with spaces](#first-with-spaces)
+          - [Second](#second)
+          - [Third](#third)
+  - [Four](#four)
+          - [Last](#last)
+
+  First with spaces
+  =====
+
+  toto
+
+  Second
+  -------
+  toto
+
+  Third
+  -----
+  toto
+
+  Four
+  =====
+  toto
+  Last
+  ----
+
+
+
+Given vimwiki (Two same heading (#968) {{{1):
+  # One
+  toto
+  # ONE
+  like
+  ## oNe
+  you
+
+Execute (Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect (Suffix -2 and -3):
+  # Contents
+
+  - [One](#one)
+  - [ONE](#one-2)
+          - [oNe](#one-3)
+
+  # One
+  toto
+  # ONE
+  like
+  ## oNe
+  you
+
+
+Given vimwiki (Heading with many bad caracters {{{1):
+  # One !@#@#(!%#&$^(!@
+  ## Two !!~!!:"@!>@!>?<
+
+Execute (Set syntax markdown && VimwikiTOC):
+  call SetSyntax('markdown')
+  set sw=8
+  VimwikiTOC
+
+Expect (Bad characters are removed):
+  # Contents
+
+  - [One !@#@#(!%#&$^(!@](#one-)
+          - [Two !!~!!:"@!>@!>?<](#two-)
+
+  # One !@#@#(!%#&$^(!@
+  ## Two !!~!!:"@!>@!>?<
+
+
+# Large previous tests {{{1
+
+Execute (Reset TOC header to default):
+  call vimwiki#vars#set_wikilocal('toc_header', 'Contents')
+
+Given vimwiki (Headings):
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Execute (Set syntax markdown && Set sw=8):
+  call SetSyntax('markdown')
+  set sw=8
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (With a TOC sw=8):
+  # Contents
+
+  - [Header 1](#header-1)
+          - [Header 1.1](#header-11)
+                  - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+                  - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Execute (Set sw=4  && VimwikiTOC):
+  set sw=4
+  VimwikiTOC
+
+Expect (With a TOC sw=4):
+  # Contents
+
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC):
+  # Contents
+
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+
+Execute (Let toc_header = Sommaire && VimwikiTOC):
+  call vimwiki#vars#set_wikilocal('toc_header', 'Sommaire')
+  VimwikiTOC
+
+Expect (Append a Sommaire && Leave Contents alone):
+  # Sommaire
+
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+Do (Destroy some stuff):
+  jj
+  dd
+  jj
+  dd
+
+Execute (VimwikiTOC):
+  VimwikiTOC
+
+Expect (Brand new TOC with sommaire):
+  # Sommaire
+
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+
+Execute (call vimwiki#vars#set_global('toc_header_level', 6):
+  call vimwiki#vars#set_wikilocal('toc_header_level', 6)
+  VimwikiTOC
+# Reset default
+  call vimwiki#vars#set_wikilocal('toc_header_level', 1)
+
+Expect (Content prepended):
+  ###### Sommaire
+
+  - [Header 1](#header-1)
+      - [Header 1.1](#header-11)
+          - [Header 1.1.1](#header-111)
+  - [Header 2](#header-2)
+          - [Header 2.1.1](#header-211)
+
+  # Header 1
+  random text
+  ## Header 1.1
+  random text
+  ### Header 1.1.1
+  random text
+
+  # Header 2
+  ### Header 2.1.1
+
+" vim: sw=2 foldmethod=marker foldlevel=30 foldignore=#

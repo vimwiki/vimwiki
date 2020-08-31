@@ -4,7 +4,96 @@
 #       better read this file with `set list`
 
 
-Include: vader_includes/vader_setup.vader
+Given vimwiki (List Blockquote (Issue #55) {{{2):
+  1. Outer Item 1
+      1. Inner Item 1
+
+          > quote 1
+
+      2. Inner Item 2
+  2. Outer Item 2
+
+  > quote 2
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Do (o):
+  o
+  toto
+
+Expect (Good number 1):
+  1. Outer Item 1
+  2. toto
+      1. Inner Item 1
+
+          > quote 1
+
+      2. Inner Item 2
+  3. Outer Item 2
+
+  > quote 2
+
+Do (jo):
+  jo
+  toto
+
+Expect (Good number 2):
+  1. Outer Item 1
+      1. Inner Item 1
+      2. toto
+
+          > quote 1
+
+      3. Inner Item 2
+  2. Outer Item 2
+
+  > quote 2
+
+
+Given vimwiki (List will hard wrap (Issue #991) {{{2):
+  - one two three four five six seven
+
+Execute (Change textwith):
+  let textwidth = &textwidth
+  let linebreak = &linebreak
+  Log 'Textwidth, Linebreak was: ' . textwidth . ', ' . linebreak
+  set textwidth=40
+  set linebreak
+
+Do (Insert more than tw and press return):
+  A indented line 1
+  \<Cr>
+  indented line 2
+
+Expect (Indentation after autowrap and <CR>):
+  - one two three four five six seven
+    indented line 1
+    indented line 2
+
+Do (o new item):
+  A indented line 1
+  \<Esc>o
+  new item
+
+Expect (New item created):
+  - one two three four five six seven
+    indented line 1
+  - new item
+
+Do (VimwikiReturn 3 5):
+  A indented line 1\<Esc>
+  :VimwikiReturn 3 5\<Cr>
+  new item
+
+Expect (New item created):
+  - one two three four five six seven
+    indented line 1
+  - new item
+
+Execute (Restore textwith):
+  let &textwidth = textwidth
+  let &linebreak = linebreak
 
 Given vimwiki (List with hard wraps):
   - Item 1
@@ -279,4 +368,5 @@ Expect (List per VimwikiReturn 3 5):
   1. 
 
   ---
-Include: vader_includes/vader_teardown.vader
+
+# vim: sw=2:foldlevel=30:foldmethod=indent:
