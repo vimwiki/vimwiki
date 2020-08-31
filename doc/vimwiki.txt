@@ -3792,10 +3792,6 @@ Contributors and their Github usernames in roughly chronological order:
     - @graywolf
     - flex (@bratekarate)
     - Marius Lopez (@PtitCaius)
-<<<<<<< HEAD
-    - Edward Bassett (@ebassett)
-||||||| e182670
-=======
     - Edward Bassett (@ebassett)
     - Aditya Harit (@adi93)
     - Gaurang Kher (@gaurangkher)
@@ -3805,8 +3801,6 @@ Contributors and their Github usernames in roughly chronological order:
     - Birger Niklas (@BirgerNi)
     - Chip Senkbeil (@chipsenkbeil)
     - Jerome Gay (@jeromg)
-
->>>>>>> dc63a5dacc97d957f35995b1944a3a6a26647d85
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3818,10 +3812,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-<<<<<<< HEAD
     * PR #919: Fix duplicate helptag
-||||||| e182670
-=======
     * Feature: PR #988: Command VimwikiVar to list, get and set variables
     * Feature: #837 extract web page <title> from URL under cursor and create
       a nice wiki link
@@ -3843,7 +3834,6 @@ New:~
       tbody element if table header specified in wiki
     * PR #811: Feature: Added handling of absolute path to vimwiki (with //)
     * PR #906: Add |VimwikiRemoveDone| to remove all todo items that are done
->>>>>>> dc63a5dacc97d957f35995b1944a3a6a26647d85
     * PR #907: Cycle bullets
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
