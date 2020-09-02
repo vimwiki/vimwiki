@@ -2820,7 +2820,7 @@ Default: 0
 
 
 ------------------------------------------------------------------------------
-12.4 Syntax Options                                   *vimwiki-global-options*
+12.4 Syntax Options                                   *vimwiki-syntax-options*
 
 Syntax options are configured using the following pattern: >
 
@@ -3802,7 +3802,6 @@ Contributors and their Github usernames in roughly chronological order:
     - Chip Senkbeil (@chipsenkbeil)
     - Jerome Gay (@jeromg)
 
-
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
 
@@ -3813,6 +3812,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #919: Fix duplicate helptag
     * Feature: PR #988: Command VimwikiVar to list, get and set variables
     * Feature: #837 extract web page <title> from URL under cursor and create
       a nice wiki link
