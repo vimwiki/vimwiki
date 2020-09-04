@@ -371,6 +371,8 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
 
+command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_colorize
+      \ VimwikiColorize call vimwiki#base#colorize(<f-args>)
 
 " ------------------------------------------------
 " Keybindings
@@ -715,7 +717,6 @@ if str2nr(vimwiki#vars#get_global('key_mappings').headers)
   call vimwiki#u#map_key('n', ']=', '<Plug>VimwikiGoToNextSiblingHeader')
   call vimwiki#u#map_key('n', '[=', '<Plug>VimwikiGoToPrevSiblingHeader')
 endif
-
 
 if vimwiki#vars#get_wikilocal('auto_export')
   " Automatically generate HTML on page write.

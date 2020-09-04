@@ -295,6 +295,35 @@ if vimwiki#vars#get_global('valid_html_tags') !=? ''
   call vimwiki#u#hi_typeface(html_typeface)
 endif
 
+" Html Color: <span style="color:#FF0000";>Red paragraph</span>
+" -- See: h color_dic
+let color_dic = vimwiki#vars#get_wikilocal('color_dic')
+let color_tag = vimwiki#vars#get_wikilocal('color_tag_template')
+for [color_key, color_value] in items(color_dic)
+  let [fg, bg] = color_value
+  let delimiter = color_tag
+  let delimiter = substitute(delimiter, '__COLORFG__', fg, 'g')
+  let delimiter = substitute(delimiter, '__COLORBG__', bg, 'g')
+  " The user input has been already checked
+  let [pre_region, post_region] = split(delimiter, '__CONTENT__')
+  let cmd = 'syntax region Vimwiki' . color_key . ' matchgroup=VimwikiDelimiterColor'
+        \ . ' start=/' . pre_region . '/'
+        \ . ' end=/' . post_region . '/'
+        \ . ' ' . b:vimwiki_syntax_concealends
+  execute cmd
+
+  " Build hightlight command
+  let cmd = 'hi Vimwiki' . color_key
+  if fg !=# ''
+    let cmd .= ' guifg=' . fg
+  endif
+  if bg !=# ''
+    let cmd .= ' guibg=' . bg
+  endif
+  execute cmd
+endfor
+
+
 " Comment: home made
 execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('comment_regex').
     \ '/ contains=@Spell,VimwikiTodo'

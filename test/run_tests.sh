@@ -201,7 +201,6 @@ getVers() {
 }
 
 vader_filter() {
-    echo 'Tin vader filter called'
     # Filter Vader Stdout
     local err=0
     # Keep indentation
@@ -223,7 +222,6 @@ vader_filter() {
             if [ "$success" -lt "$total" ]; then
                 err=1
             fi
-            echo "Tin got success $success and total $total"
             echo "$REPLY"
         elif [[ "$verbose" != 0 ]]; then
             # just print everything

@@ -957,6 +957,15 @@ Vimwiki file.
     are specified, outputs all tags.  To make this command work properly, make
     sure the tags have been built (see |vimwiki-build-tags|).
 
+*:VimwikiColorize* red
+    Colorize current line with the color given in argument. The possible
+    colors are configured by |vimwiki-option-color_dic| and the format of the
+    surrounding color tags by |vimwiki-option-color_tag_template|
+    TODO
+    Currently only the current line is colorized, a support for the selection
+    will come. Maybe some mapping and color completion in popup (See
+    changelog
+
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
@@ -2818,6 +2827,25 @@ Value           Description~
 
 Default: 0
 
+------------------------------------------------------------------------------
+*vimwiki-option-color_dic*
+
+Dictionary containing the possible html colors for |:VimwikiColorize| the
+keys are the color names used as argument, the values are a list [foreground,
+backgroud] of the color. For example:
+
+{'red': ['#cc241d', ''], 'bred': ['', '#cc241d']}
+
+Provides two colors to |:VimwikiColorize|: 'red' => red foreground and 'bred'
+=> red background.
+
+
+------------------------------------------------------------------------------
+*vimwiki-option-color_tag_template*
+
+Not supposed to be edited already: a regex with __COLORFG__, __COLORBG__ and
+__CONTENT__ placeholders to surround the content with a tag to define its
+color. (See autoload/vimwiki/vars.vim)
 
 ------------------------------------------------------------------------------
 12.4 Syntax Options                                   *vimwiki-syntax-options*
@@ -3812,6 +3840,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #990: Feature request: highlight multiline selection
+      Add :VimwikiColorize with only  support to clorize the current line
     * PR #919: Fix duplicate helptag
     * Feature: PR #988: Command VimwikiVar to list, get and set variables
     * Feature: #837 extract web page <title> from URL under cursor and create

@@ -451,6 +451,13 @@ endfunction
 " Get default wikilocal values
 " Please: keep alphabetical sort
 function! s:get_default_wikilocal() abort
+  " Build color_tag_template regular expression
+  " Must be coherent with VimwikiColorize
+  let fg = 'color\s*:\s*__COLORFG__\s*;\s*'
+  let bg = 'background\s*:\s*__COLORBG__\s*;\s*'
+  let color_tag_rx = '<span \s*style\s*=\s*"\s*\(' 
+        \ . fg . bg . '\|' . fg . '\|' . bg 
+        \ . '\)"\s*>__CONTENT__<\/span>'
   return {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_export': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -460,6 +467,23 @@ function! s:get_default_wikilocal() abort
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'base_url': {'type': type(''), 'default': '', 'min_length': 1},
+        \ 'color_dic': {'type': type({}), 'default': {
+        \   'default': ['', '#d79921'],
+        \   'red': ['#cc241d', ''],
+        \   'bred': ['', '#cc241d'],
+        \   'green': ['#98971a', ''],
+        \   'bgreen': ['', '#98971a'],
+        \   'yellow': ['#d79921', ''],
+        \   'byellow': ['', '#d79921'],
+        \   'blue': ['#458588', ''],
+        \   'bblue': ['', '#458588'],
+        \   'purple': ['#b16286', ''],
+        \   'bpurple': ['', '#b16286'],
+        \   'orange': ['#d65d0e', ''],
+        \   'borange': ['', '#d65d0e'],
+        \   'gray': ['#a89984', ''],
+        \   'bgray': ['', '#a89984']}},
+        \ 'color_tag_template': {'type': type({}), 'default': color_tag_rx},
         \ 'commentstring': {'type': type(''), 'default': '%%%s'},
         \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
         \ 'custom_wiki2html': {'type': type(''), 'default': ''},

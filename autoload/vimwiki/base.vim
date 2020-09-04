@@ -2902,6 +2902,49 @@ function! vimwiki#base#linkify() abort
 endfunction
 
 
+function! vimwiki#base#complete_colorize(ArgLead, CmdLine, CursorPos) abort
+  " We can safely ignore args if we use -custom=complete option, Vim engine
+  " will do the job of filtering
+  let colorlist = keys(vimwiki#vars#get_wikilocal('color_dic'))
+  return join(colorlist, "\n")
+endfunction
+
+function! vimwiki#base#colorize(...) abort 
+  " TODO Must be coherent with color_tag_template
+  " -- Just removeing spaces, \/ -> /,  replacing COLORFG will do it
+  let key = a:0 ? a:1 : 'default'
+  let color_dic = vimwiki#vars#get_wikilocal('color_dic')
+
+  " Guard: color key nust exist
+  if !has_key(color_dic, key)
+    call vimwiki#u#error('color_dic variable has no key ''' . key . '''')
+    return
+  endif
+
+  " Get content
+  let content = getline('.')
+  " TODO save position for visual selection: see u#get_selection
+
+  " Surround
+  " -- pre
+  let [fg, bg] = color_dic[key]
+  let pre = '<span style="' 
+  if fg !=# ''
+    let pre .= 'color:' . fg . ';'
+  endif
+  if bg !=# ''
+    let pre .= 'background:' . bg . ';'
+  endif
+  let pre .= '">'
+  " -- post
+  let post = '</span>'
+  " -- concat
+  let content = pre . content . post
+
+  " Set buffer content
+  call setline('.', content)
+endfunction
+
 " -------------------------------------------------------------------------
 " Load syntax-specific Wiki functionality
 for s:syn in s:vimwiki_get_known_syntaxes()
