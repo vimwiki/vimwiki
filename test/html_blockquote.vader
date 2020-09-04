@@ -28,6 +28,39 @@ Expect (Tested by hand 2):
 
   </ul>
 
+Given vimwiki (Issue 1007: List with hard wraps and a blockquote):
+  - Item 1
+    wraps to the second line.
+      This is a blockquote.
+
+    And this is back to the list item
+  - [ ] Item 2
+        wraps to the second line.
+          This is a blockquote.
+
+        And this is back to the list item
+
+Execute (2Html):
+  call ConvertWiki2Body() | 1d | $d | $d
+
+Expect (No blockquote):
+  <ul>
+  <li>
+  Item 1
+    wraps to the second line.
+  <pre><code>This is a blockquote.
+  </code></pre>
+  </code></pre>
+    And this is back to the list item
+
+  <li class="done0">
+  Item 2
+        wraps to the second line.
+  <pre><code>This is a blockquote.
+  </code></pre>
+  And this is back to the list item
+
+  </ul>
 
 #Given (Issue 3: BlockQuote at multiple list levels {{{3):
 #  1. Outer Item 1
