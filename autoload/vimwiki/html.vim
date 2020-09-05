@@ -1062,7 +1062,7 @@ function! s:process_tag_list(line, lists, lstLeadingSpaces) abort
 
   " If we're at the start of a list, figure out how many spaces indented we are so we can later
   " determine whether we're indented enough to be at the setart of a blockquote
-  if lstSym != ''
+  if lstSym !=# ''
     let lstLeadingSpaces = strlen(matchstr(a:line, lstRegExp.maybeCheckboxRegExp))
   endif
 
