@@ -1005,7 +1005,7 @@ function! s:process_tag_arrow_quote(line, arrow_quote) abort
 endfunction
 
 
-function! s:process_tag_list(line, lists) abort
+function! s:process_tag_list(line, lists, lstLeadingSpaces) abort
   function! s:add_checkbox(line, rx_list) abort
     let st_tag = '<li>'
     let chk = matchlist(a:line, a:rx_list)
@@ -1026,6 +1026,7 @@ function! s:process_tag_list(line, lists) abort
 
 
   let in_list = (len(a:lists) > 0)
+  let lstLeadingSpaces = a:lstLeadingSpaces
 
   " If it is not list yet then do not process line that starts from *bold*
   " text.
@@ -1033,12 +1034,14 @@ function! s:process_tag_list(line, lists) abort
   if !in_list
     let pos = match(a:line, '^\s*' . s:rxBold)
     if pos != -1
-      return [0, []]
+      return [0, [], lstLeadingSpaces]
     endif
   endif
 
   let lines = []
   let processed = 0
+  let checkboxRegExp = '\s*\[\(.\)\]\s*'
+  let maybeCheckboxRegExp = '\%('.checkboxRegExp.'\)\?'
 
   if a:line =~# '^\s*'.s:bullets.'\s'
     let lstSym = matchstr(a:line, s:bullets)
@@ -1057,22 +1060,29 @@ function! s:process_tag_list(line, lists) abort
     let lstRegExp = ''
   endif
 
+  " If we're at the start of a list, figure out how many spaces indented we are so we can later
+  " determine whether we're indented enough to be at the setart of a blockquote
+  if lstSym !=# ''
+    let lstLeadingSpaces = strlen(matchstr(a:line, lstRegExp.maybeCheckboxRegExp))
+  endif
+
   " Jump empty lines
   if in_list && a:line =~# '^$'
     " Just Passing my way, do you mind ?
     let [processed, lines, quote] = s:process_tag_precode(a:line, g:state.quote)
     let processed = 1
-    return [processed, lines]
+    return [processed, lines, lstLeadingSpaces]
   endif
 
   " Can embeded indented code in list (Issue #55)
   let b_permit = in_list
-  let b_match = lstSym ==# '' && a:line =~# '^\s\{4,}[^[:space:]>*-]'
+  let blockquoteRegExp = '^\s\{' . (lstLeadingSpaces + 2) . ',}[^[:space:]>*-]'
+  let b_match = lstSym ==# '' && a:line =~# blockquoteRegExp
   let b_match = b_match || g:state.quote
   if b_permit && b_match
     let [processed, lines, g:state.quote] = s:process_tag_precode(a:line, g:state.quote)
     if processed == 1
-      return [processed, lines]
+      return [processed, lines, lstLeadingSpaces]
     endif
   endif
 
@@ -1083,8 +1093,7 @@ function! s:process_tag_list(line, lists) abort
     let line = substitute(a:line, '\t', repeat(' ', &tabstop), 'g')
     let indent = stridx(line, lstSym)
 
-    let checkbox = '\s*\[\(.\)\]\s*'
-    let [st_tag, en_tag] = s:add_checkbox(line, lstRegExp.checkbox)
+    let [st_tag, en_tag] = s:add_checkbox(line, lstRegExp.checkboxRegExp)
 
     if !in_list
       call add(a:lists, [lstTagClose, indent])
@@ -1107,7 +1116,7 @@ function! s:process_tag_list(line, lists) abort
 
     call add(a:lists, [en_tag, indent])
     call add(lines, st_tag)
-    call add(lines, substitute(a:line, lstRegExp.'\%('.checkbox.'\)\?', '', ''))
+    call add(lines, substitute(a:line, lstRegExp.maybeCheckboxRegExp, '', ''))
     let processed = 1
 
   elseif in_list && a:line =~# '^\s\+\S\+'
@@ -1123,7 +1132,7 @@ function! s:process_tag_list(line, lists) abort
     call s:close_tag_list(a:lists, lines)
   endif
 
-  return [processed, lines]
+  return [processed, lines, lstLeadingSpaces]
 endfunction
 
 
@@ -1323,6 +1332,7 @@ function! s:parse_line(line, state) abort
   let state.quote = a:state.quote
   let state.arrow_quote = a:state.arrow_quote
   let state.active_multiline_comment = a:state.active_multiline_comment
+  let state.list_leading_spaces = a:state.list_leading_spaces
   let state.pre = a:state.pre[:]
   let state.math = a:state.math[:]
   let state.table = a:state.table[:]
@@ -1490,7 +1500,7 @@ function! s:parse_line(line, state) abort
 
   " lists
   if !processed
-    let [processed, lines] = s:process_tag_list(line, state.lists)
+    let [processed, lines, state.list_leading_spaces] = s:process_tag_list(line, state.lists, state.list_leading_spaces)
     if processed && state.quote
       let state.quote = s:close_tag_precode(state.quote, lines)
     endif
@@ -1715,6 +1725,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
   let state.quote = 0
   let state.arrow_quote = 0
   let state.active_multiline_comment = 0
+  let state.list_leading_spaces = 0
   let state.pre = [0, 0] " [in_pre, indent_pre]
   let state.math = [0, 0] " [in_math, indent_math]
   let state.table = []
