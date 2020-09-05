@@ -89,21 +89,30 @@
 " Define functions
   " Change the syntax using a temporary wiki
   function! SetSyntax(vw_syn)
+    " Change extension and wiki_nr
+    let index=0
     if a:vw_syn ==# 'default'
       let ext = 'wiki'
+      let index=0
     elseif a:vw_syn ==# 'markdown'
       let ext = 'md'
+      let index=1
     elseif a:vw_syn ==# 'media'
       let ext = 'mw'
+      let index=2
     else
       Log 'ERROR: Invalid syntax "' . a:vw_syn . '" in SetSyntax()'
       Log 'NOTE: function only accepts "media" for setting mediawiki syntax'
       return
     endif
+
+    " Change temporary wiki
     let path = expand('%:p:h')
-    let new_temp_wiki_settings = {'path': path,
+    let new_temp_wiki_settings = {
+          \ 'path': path,
           \ 'ext': ext,
           \ 'syntax': a:vw_syn,
+          \ 'bullet_types': g:vimwiki_wikilocal_vars[index]['bullet_types'],
           \ }
 
     " Remove any temporary wikis each time this function is called.
@@ -305,6 +314,14 @@
     let l:s = synID(a:line, a:col, 1)
     return synIDattr(synIDtrans(l:s), 'name')
   endfun
+
+  " Debug helper
+  function! GetSyntaxStack()
+    if !exists('*synstack')
+      return
+    endif
+    return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+  endfunc
 
   " Run Assert only if vim version higth enough
   function! AssertIfVersion(version, one, two)

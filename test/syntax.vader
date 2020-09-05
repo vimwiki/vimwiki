@@ -467,7 +467,7 @@ Given vimwiki (Wiki Headers):
 Execute (Set syntax default):
   call SetSyntax('default')
 
-Execute (Assert Syntax Header):
+Execute (Assert Wiki Syntax Header):
   AssertEqual 'VimwikiHeader1', SyntaxAt(1, 10)
   AssertEqual 'VimwikiHeader2', SyntaxAt(2, 10)
   AssertEqual 'VimwikiHeader3', SyntaxAt(3, 10)
@@ -486,7 +486,10 @@ Given vimwiki (Markdown Headers):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
-Execute (Assert Syntax Header):
+Execute (Assert Markdown Syntax Header):
+  Log "Syntax of first heading: " . string(GetSyntaxStack())
+  Log "Regex of rxListWithoutCb: " . vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
+  Log "Bullet types: " . string(vimwiki#vars#get_wikilocal('bullet_types'))
   AssertEqual 'VimwikiHeader1' , SyntaxAt(1, 10)
   AssertEqual 'VimwikiHeader2' , SyntaxAt(2, 10)
   AssertEqual 'VimwikiHeader3' , SyntaxAt(3, 10)

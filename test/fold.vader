@@ -1,0 +1,59 @@
+# Fold
+
+Execute (Save state):
+  Log 'Previous foldmethod: ' . &foldmethod
+  let save_foldmethod = &foldmethod
+
+Given vimwiki (Markdown Headers):
+  Some stuff          1
+  # Header level 1    2
+  ## Header level 2   3
+    Content           4
+  ### Header level 3  5
+  # Header level 1    6
+    Content           7
+  ## Just to end      8: Vader cannot match end-of-file
+
+Execute (Markdown and Fold Syntax):
+  call SetSyntax('markdown')
+  set foldmethod=syntax
+
+Execute (Assert Markdown: Fold Syntax):
+  Log 'Supposing it starts at foldlevel 0'
+  AssertEqual 'line 1:0', 'line 1:' . foldlevel(1) 
+  AssertEqual 'line 2:0', 'line 2:' . foldlevel(2) 
+  AssertEqual 'line 3:1', 'line 3:' . foldlevel(3) 
+  AssertEqual 'line 4:2', 'line 4:' . foldlevel(4) 
+  AssertEqual 'line 5:2', 'line 5:' . foldlevel(5) 
+  AssertEqual 'line 6:0', 'line 6:' . foldlevel(6) 
+  AssertEqual 'line 7:0', 'line 7:' . foldlevel(7) 
+
+
+Given vimwiki (Wiki Headers):
+  Some stuff          1
+  = Header level 1    2 =
+  == Header level 2   3 ==
+    Content           4
+  === Header level 3  5 ===
+  = Header level 1    6 =
+    Content           7
+  == Just to end      8 ==
+
+Execute (Markdown and Fold Syntax):
+  call SetSyntax('default')
+  set foldmethod=syntax
+
+Execute (Assert Markdown: Fold Syntax):
+  Log 'Supposing it starts at foldlevel 0'
+  AssertEqual 'line 1:0', 'line 1:' . foldlevel(1) 
+  AssertEqual 'line 2:0', 'line 2:' . foldlevel(2) 
+  AssertEqual 'line 3:1', 'line 3:' . foldlevel(3) 
+  AssertEqual 'line 4:2', 'line 4:' . foldlevel(4) 
+  AssertEqual 'line 5:2', 'line 5:' . foldlevel(5) 
+  AssertEqual 'line 6:0', 'line 6:' . foldlevel(6) 
+  AssertEqual 'line 7:0', 'line 7:' . foldlevel(7) 
+
+Execute (Restore state):
+  let &foldmethod = save_foldmethod
+  Log 'Next foldmethod: ' . &foldmethod
+

@@ -579,30 +579,6 @@ function! s:populate_wikilocal_options() abort
   let temp_dic.is_temporary_wiki = 1
   call add(g:vimwiki_wikilocal_vars, temp_dic)
 
-  " Check some values individually
-  """"""""""""""""""""""""""""""""
-
-  " Set up variables for the lists, depending on config and syntax
-  for wiki in g:vimwiki_wikilocal_vars
-    " Treat lists
-    " TODO remove me: I am syntaxlocal
-    if !has_key(wiki, 'bullet_types') || len(wiki.bullet_types) == 0
-      let wiki.bullet_types = vimwiki#vars#get_syntaxlocal('bullet_types', wiki.syntax)
-    endif
-    call s:populate_list_vars(wiki)
-
-    " Check nested syntax
-    for keyword in keys(wiki.nested_syntaxes)
-      if type(keyword) != type('') || empty(keyword) || type(wiki.nested_syntaxes[keyword]) != type('') ||
-            \ empty(wiki.nested_syntaxes[keyword])
-        call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
-              \ . ' invalid. See '':h g:vimwiki_%s''.', string(wiki.nested_syntaxes), 'nested_syntaxes', 'nested_syntaxes'))
-        break
-      endif
-    endfor
-  endfor
-
-
   " Normalize and leave
   call s:normalize_wikilocal_settings()
 endfunction
@@ -611,6 +587,27 @@ endfunction
 " Normalize local settings
 function! s:normalize_wikilocal_settings() abort
   for wiki_settings in g:vimwiki_wikilocal_vars
+    " Check some values individually
+    """"""""""""""""""""""""""""""""
+    " Treat lists
+    " TODO remove me: I am syntaxlocal
+    if !has_key(wiki_settings, 'bullet_types') || len(wiki_settings.bullet_types) == 0
+      let wiki_settings.bullet_types = vimwiki#vars#get_syntaxlocal('bullet_types', wiki_settings.syntax)
+    endif
+    call s:populate_list_vars(wiki_settings)
+
+    " Check nested syntax
+    for keyword in keys(wiki_settings.nested_syntaxes)
+      if type(keyword) != type('') || empty(keyword) || type(wiki_settings.nested_syntaxes[keyword]) != type('') ||
+            \ empty(wiki_settings.nested_syntaxes[keyword])
+        call vimwiki#u#error(printf('The provided value ''%s'' of the option ''g:vimwiki_%s'' is'
+              \ . ' invalid. See '':h g:vimwiki_%s''.', string(wiki_settings.nested_syntaxes), 'nested_syntaxes', 'nested_syntaxes'))
+        break
+      endif
+    endfor
+
+    " Nomarlize
+    """"""""""""""""""""""""""""""""
     let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
 
     let path_html = wiki_settings['path_html']
@@ -910,7 +907,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
             \ .header_symbol.'\{'.i.'}\s*$'
       let syntax_dic['rxH'.i.'_End'] =
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*[^'.header_symbol.']'
-            \ .header_symbol.'\{1,'.i.'}\s*$'
+            \ .header_symbol.'\{1,'.i.'}\s*$\|\%$'
     endfor
     let syntax_dic.rxHeader =
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
@@ -927,7 +924,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
       let syntax_dic['rxH'.i.'_Start'] =
             \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
       let syntax_dic['rxH'.i.'_End'] =
-            \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$'
+            \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$\|\%$'
     endfor
     " Define header regex
     " -- ATX heading := preceed by #*
@@ -1036,8 +1033,10 @@ endfunction
 
 " Populate list variable
 " or how to search and treat list (ex: *,-, 1.)
+" TODO this should be syntax_local
 function! s:populate_list_vars(wiki) abort
   let syntax = a:wiki.syntax
+  let syntax_dic = g:vimwiki_syntaxlocal_vars[syntax]
 
   let a:wiki.rx_bullet_char = '['.escape(join(a:wiki.bullet_types, ''), ']^-\').']'
   let a:wiki.rx_bullet_chars = a:wiki.rx_bullet_char.'\+'
@@ -1641,6 +1640,8 @@ function! vimwiki#vars#add_temporary_wiki(settings) abort
   let new_temp_wiki_settings = copy(g:vimwiki_wikilocal_vars[-1])
   for [key, value] in items(a:settings)
     let new_temp_wiki_settings[key] = value
+    " Remove users_value to prevent type mismatch (E706) errors in vim <7.4.1546  (Issue #681)
+    unlet value
   endfor
   call insert(g:vimwiki_wikilocal_vars, new_temp_wiki_settings, -1)
   call s:normalize_wikilocal_settings()

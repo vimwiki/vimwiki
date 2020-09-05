@@ -3024,7 +3024,6 @@ Limitations:
   - Opening very large files may be slow when folding is enabled.
   - 'list' folding is particularly slow with larger files.
   - 'list' is intended to work with lists nicely indented with 'shiftwidth'.
-  - 'syntax' is only available for the default syntax so far.
 
 The options above can be suffixed with ':quick' (e.g.: 'expr:quick') in order
 to use some workarounds to make folds work faster.
@@ -3840,6 +3839,9 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
+      Also the VimwikiHeader1Folding (1..60 regions support end-of-file `/\%$`
+      as end maker
     * Issue #990: Feature request: highlight multiline selection
       Add :VimwikiColorize with only  support to clorize the current line
     * PR #919: Fix duplicate helptag

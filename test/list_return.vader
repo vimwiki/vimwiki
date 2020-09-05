@@ -2,7 +2,14 @@
 # 
 # Note: some trailing spaces are necessary at the end of list items like `1.`
 #       better read this file with `set list`
+#
+# Warning: Foldmethod dependant (and foldlevel ...)
 
+
+Execute (Save State):
+  let msg = 'Error: foldmethod must be manual for theses tests to work,'
+  let msg .= ' it is the default, so please restore it in the test that changed it'
+  AssertEqual &foldmethod, 'manual', msg
 
 Given vimwiki (List Blockquote (Issue #55) {{{2):
   1. Outer Item 1

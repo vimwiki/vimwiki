@@ -149,18 +149,21 @@ let s:target = vimwiki#base#apply_template(
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
-
 " Header Level: 1..6
 for s:i in range(1,6)
+  " WebLink are for markdown but putting them here avoidcode duplication 
+  " -- and syntax folding Issue #1009
   execute 'syntax match VimwikiHeader'.s:i
-      \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax).
-      \ '/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
-      \ 'VimwikiLink,@Spell'
-  execute 'syntax region VimwikiH'.s:i.'Folding start=/'.
-        \ vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_Start', s:current_syntax).'/ end=/'.
-        \ vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_End', s:current_syntax).
-        \ '/me=s-1 transparent fold'
+      \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax)
+      \ . '/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'
+      \ . 'VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,VimwikiList,VimwikiListTodo,@Spell'
+  execute 'syntax region VimwikiH'.s:i.'Folding start=/'
+      \ . vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_Start', s:current_syntax).'/ end=/'
+      \ . vimwiki#vars#get_syntaxlocal('rxH'.s:i.'_End', s:current_syntax)
+      \ . '/me=s-1'
+      \ . ' transparent fold'
 endfor
+
 
 " SetExt Header:
 " TODO mutualise SetExt Regexp
@@ -209,9 +212,7 @@ execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
       \ vimwiki#vars#get_syntaxlocal('header_symbol').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('header_symbol').
       \ '\+\s*$\)/'
 
-
 execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
-
 
 
 " Table:
@@ -233,7 +234,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ @Spell
 
 syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
-
 
 " List:
 execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
@@ -344,6 +344,7 @@ if exists('+conceallevel') && tf.conceal != 0
   endif
 endif
 execute tag_cmd
+
 
 " Header Groups: highlighting
 if vimwiki#vars#get_global('hl_headers') == 0
