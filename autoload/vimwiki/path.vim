@@ -164,7 +164,7 @@ function! vimwiki#path#relpath(dir, file) abort
     let result_path .= '/'
   endif
 
-  return s:osxify(result_path)
+  return result_path
 endfunction
 
 
