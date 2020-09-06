@@ -131,8 +131,8 @@ function! vimwiki#path#relpath(dir, file) abort
     return a:file
   endif
   " Unixify && Expand in
-  let s_dir = expand(s:unixify(a:dir))
-  let s_file = expand(s:unixify(a:file))
+  let s_dir = s:unixify(expand(a:dir))
+  let s_file = s:unixify(expand(a:file))
 
   " Split path
   let dir = split(s_dir, '/')
@@ -164,7 +164,7 @@ function! vimwiki#path#relpath(dir, file) abort
     let result_path .= '/'
   endif
 
-  return s:osxify(result_path)
+  return result_path
 endfunction
 
 

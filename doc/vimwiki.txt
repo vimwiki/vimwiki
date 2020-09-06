@@ -3828,6 +3828,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Birger Niklas (@BirgerNi)
     - Chip Senkbeil (@chipsenkbeil)
     - Jerome Gay (@jeromg)
+    - Benney Au (@chinwobble)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3876,6 +3877,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #886: :VimwikiGenerateLinks not working on Windows
     * Issue #55: Newlines in blockquotes are not honored
     * Issue #55: BlockQuote restarts list numbering
     * Issue #979: Fix: Accessing other filetypes within vimwiki
