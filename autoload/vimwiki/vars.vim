@@ -1036,7 +1036,6 @@ endfunction
 " TODO this should be syntax_local
 function! s:populate_list_vars(wiki) abort
   let syntax = a:wiki.syntax
-  let syntax_dic = g:vimwiki_syntaxlocal_vars[syntax]
 
   let a:wiki.rx_bullet_char = '['.escape(join(a:wiki.bullet_types, ''), ']^-\').']'
   let a:wiki.rx_bullet_chars = a:wiki.rx_bullet_char.'\+'
