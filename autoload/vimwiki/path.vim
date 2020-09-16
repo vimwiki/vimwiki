@@ -140,13 +140,16 @@ function! vimwiki#path#relpath(dir, file) abort
 
   " Shorten loop till equality
   while (len(dir) > 0 && len(file) > 0) && vimwiki#path#is_equal(dir[0], file[0])
+    if len(file) == 1
+      let holdfile = file[0]
+    endif
     call remove(dir, 0)
     call remove(file, 0)
   endwhile
 
   " Return './' if nothing left
   if empty(dir) && empty(file)
-    return s:osxify('./')
+    return s:osxify('../' . holdfile)
   endif
 
   " Build path segment
@@ -157,6 +160,11 @@ function! vimwiki#path#relpath(dir, file) abort
   for segment in file
     let segments += [segment]
   endfor
+
+  if segments[-1] == '..'
+    let segments += ['..']
+    let segments += [holdfile]
+  endif
 
   " Join segments
   let result_path = join(segments, '/')
