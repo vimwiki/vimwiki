@@ -476,7 +476,7 @@ function! s:tag_wikiincl(value) abort
     let descr = matchstr(str, s:incl_match_arg(1))
     let verbatim_str = matchstr(str, s:incl_match_arg(2))
 
-    let link_infos = vimwiki#base#resolve_link(url_0)
+    let link_infos = vimwiki#base#resolve_link(url_0, s:current_wiki_file)
 
     if link_infos.scheme =~# '\mlocal\|wiki\d\+\|diary'
       let url = vimwiki#path#relpath(fnamemodify(s:current_html_file, ':h'), link_infos.filename)
