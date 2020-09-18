@@ -2042,7 +2042,7 @@ For jumping inside a single file, you can omit the file in the link: >
 Table of Contents                    *vimwiki-toc* *vimwiki-table-of-contents*
 
 You can create a "table of contents" at the top of your wiki file.
-The commando |:VimwikiTOC| creates the magic header >
+The command |:VimwikiTOC| creates the magic header >
   = Contents =
 in the current file and below it a list of all the headers in this file as
 links, so you can directly jump to specific parts of the file.
