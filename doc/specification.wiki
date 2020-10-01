@@ -644,7 +644,7 @@ An *interwiki link* is represented by one of the following:
 An *indexed interwiki link* is represented by the following:
 1. A [[#link start seq|link start seq]]
 2. The sequence `wiki`
-3. One or more digits (`0-9`), but must be `1` or higher
+3. One or more digits (`0-9`), but must be `0` or higher
 4. A colon (`U+003A` aka `:`)
 5. A [[#link path|link path]]
 6. An optional [[#link anchor|link anchor]]
