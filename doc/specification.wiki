@@ -92,7 +92,7 @@ quotation.
 A blockquote is made of *one* or more [[#indented blockquote line|indented blockquote lines]]
 
 An *indented blockquote line* is made of the following:
-1. Four or more [[#whitespace characters|whitespace characters]]
+1. Four or more [[#whitespace character|whitespace characters]]
 2. All characters up until a [[#line ending|line ending]]
 3. A [[#line ending|line ending]] or end of input
 
