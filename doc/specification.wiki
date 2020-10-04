@@ -425,6 +425,12 @@ TODO ... wrapping a preformatted text block with another preformatted text
          avoid matching legit syntax but still provide the literal text
          upon rendering.
 
+TODO ... pandoc supports more than one metadata key/value pair via spaces
+         such as `{{{class="something" style="else"`. Wasn't clear if vimwiki
+         itself supports multiple metadata. *vimwiki-server* supports this
+         through semicolons because it was easier `{{{class="something";style="else"`
+         but isn't married to that approach
+
 ===== Syntax =====
 
 A *preformatted text* is composed of a [[#beginning preformatted text line|beginning preformatted text line]],
