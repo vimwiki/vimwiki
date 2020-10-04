@@ -30,9 +30,8 @@ mode) until the language has become relatively stable.
 
 == Language ==
 
-The following will describe the individual elements - hereby described as
-components - of the vimwiki language. It will cover each component's purpose
-and a clear description of the syntax.
+The following will describe the individual elements of the vimwiki language.
+It will cover each element's purpose and a clear description of the syntax.
 
 For details on parsing prescedence, see the [[#Specification#Parser Details|companion section]].
 
@@ -40,7 +39,7 @@ For details on parsing prescedence, see the [[#Specification#Parser Details|comp
 
 In order to define the vimwiki language, we first need to present several
 definitions for primitive building blocks used to shape up higher-level
-components. Relevant definitions are borrowed from
+elements. Relevant definitions are borrowed from
 [[https://spec.commonmark.org/0.29/#characters-and-lines|commonmark characters and lines]].
 
 A *character* in vimwiki is a valid UTF-8 code point.
@@ -58,10 +57,10 @@ A line with no characters, or a line containing only spaces (`U+0020`) or tabs
 
 A *whitespace character* is a space (`U+0020`) or tab (`U+0009`).
 
-=== Block Components ===
+=== Block Elements ===
 
-The vimwiki language has a variety of syntax that represent components within
-a page. In this section, we discuss block-level components, which are vimwiki
+The vimwiki language has a variety of syntax that represent elements within
+a page. In this section, we discuss block-level elements, which are vimwiki
 syntax that are standalone and can comprise one or more entire lines within
 a file.
 
@@ -133,16 +132,16 @@ zero or more [[#definition line|definition lines]]
 
 A *term line* is represented by the following:
 1. Starts at the beginning of a line
-2. One or more [[#inline components|inline components]] before the sequence `::`
+2. One or more [[#inline elements|inline elements]] before the sequence `::`
 3. The sequence `::`
-4. An optional one or more [[#inline components|inline components]] before [[#line ending|line ending]]
+4. An optional one or more [[#inline elements|inline elements]] before [[#line ending|line ending]]
    to be the first definition
 5. A [[#line ending|line ending]] or end of input
 
 A *definition line* is represented by the following:
 1. Starts at the beginning of a line
 2. The sequence `::`
-3. One or more [[#inline components|inline components]] before [[#line ending|line ending]]
+3. One or more [[#inline elements|inline elements]] before [[#line ending|line ending]]
 4. A [[#line ending|line ending]] or end of input
 
 *Extra Notes*: Each term and definition is trimmed to remove all leading and
@@ -182,7 +181,7 @@ A *header* is represented by the following:
 2. Zero or more [[#whitespace character|whitespace characters]] (implying
    whether or not a header is centered)
 3. One or more equal sign (`U+003D`) characters
-4. One or more [[#inline components|inline components]]
+4. One or more [[#inline elements|inline elements]]
 5. An equivalent number of equal sign characters as in step #3
 6. A [[#line ending|line ending]] or end of input
 
@@ -193,7 +192,7 @@ For example, `= header =` is equal to `=header=`.
 ==== List ====
 
 A list is composed of a series list items, each being comprised
-of [[#inline components|inline components]] and [[#list|sub lists]]. It mirrors the
+of [[#inline elements|inline elements]] and [[#list|sub lists]]. It mirrors the
 functionality available in an [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul|HTML Unordered List]]
 and [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol|HTML Ordered List]].
 
@@ -238,7 +237,7 @@ A *starting list item line* is represented by the following:
      for an ordered list
 4. A [[#whitespace character|whitespace character]]
 5. An optional [[#todo attribute|todo attribute]] and additional [[#whitespace character|whitespace character]]
-6. Zero or more [[#inline components|inline components]]
+6. Zero or more [[#inline elements|inline elements]]
 7. A [[#line ending|line ending]] or end of input
 
 A *companion list item line* is represented by the following:
@@ -248,7 +247,7 @@ A *companion list item line* is represented by the following:
 3. One of the following:
    * The start of a new [[#list|list]] (to be treated as a sublist of the
      current list item)
-   * A series of one or more [[#inline components|inline components]]
+   * A series of one or more [[#inline elements|inline elements]]
      (to be added to the content of the current list item) followed by
      a [[#line ending|line ending]] or end of input
    * A [[#blank line|blank line]] if there is guaranteed to still be some
@@ -343,7 +342,7 @@ A *paragraph line* is represented by the following:
    * [[#blockquote|blockquote]]
    * [[#divider|divider]]
    * [[#placeholder|placeholder]]
-4. One or more [[#inline components|inline components]]
+4. One or more [[#inline elements|inline elements]]
 5. A [[#line ending|line ending]] or end of input
 
 TODO ... should we combine [[#non-blank line|non-blank line]] with paragraph
@@ -473,7 +472,7 @@ An *ending preformatted text line* is represented by the following:
 
 ==== Table ====
 
-A table is composed of a series of rows containing various other components. It
+A table is composed of a series of rows containing various other elements. It
 mirrors [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table|HTML Table]].
 
 {{{vimwiki
@@ -526,7 +525,7 @@ A *span left cell* is represented by the following:
 
 A *content cell* is represented by the following:
 1. Zero or more [[#whitespace character|whitespace characters]]
-2. One or more [[#inline components|inline components]] not comprised of `|`
+2. One or more [[#inline elements|inline elements]] not comprised of `|`
 3. Zero or more [[#whitespace character|whitespace characters]]
 
 A *cell boundary* is represented by the pipe character (`U+007C` aka `|`).
@@ -534,7 +533,7 @@ A *cell boundary* is represented by the pipe character (`U+007C` aka `|`).
 ==== Non-blank Line ====
 
 A non-blank line is a single line that is not a paragraph. It is used to
-capture text not represented by any other component.
+capture text not represented by any other element.
 
 {{{vimwiki
   Some other text containing *bold* and [[links]].
@@ -544,22 +543,22 @@ capture text not represented by any other component.
 
 A *non-blank line* is represented by the following:
 1. Between one and three [[#whitespace character|whitespace characters]]
-2. One or more [[#inline components|inline components]]
+2. One or more [[#inline elements|inline elements]]
 3. A [[#line ending|line ending]] or end of input
 
 TODO ... should we combine [[#non-blank line|non-blank line]] with paragraph
          by having a paragraph trim all leading [[#whitespace character|whitespace]]?
 
-=== Inline Components ===
+=== Inline Elements ===
 
 The vimwiki language also has a variety of syntax that can be used within a
-line on a page. These are referred to as *inline components* and can be found
-within a variety of [[#block components|block components]] as well as nested
-within other inline components.
+line on a page. These are referred to as *inline elements* and can be found
+within a variety of [[#block elements|block elements]] as well as nested
+within other inline elements.
 
 ==== Math Inline ====
 
-A math inline component is composed of a single-line formula.
+A math inline element is composed of a single-line formula.
 Like its big brother, the [[#math block|math block]], it is rendered in HTML
 using the [[https://www.mathjax.org/|MathJax engine]].
 
@@ -568,23 +567,23 @@ $ \sum_i a_i^2 = 1 $
 }}}
 
 TODO ... is there a way to escape the `$` used to mark the beginning and end
-         of an inline math component? Is `$` even a concern within an
+         of an inline math element? Is `$` even a concern within an
          inline formula? If it is, maybe an escape sequence of `\$` would
          be applicable.
 
 ===== Syntax =====
 
-An *inline math* component is represented by the following:
+An *inline math* element is represented by the following:
 1. A dollar sign (`U+0024` aka `$`)
 2. One or more characters that are not a dollar sign or [[#line ending|line ending]]
 3. A dollar sign (`U+0024` aka `$`)
 
-*Extra Notes*: The formula within the inline component is trimmed to remove all
+*Extra Notes*: The formula within the inline element is trimmed to remove all
 leading and trailing [[#whitespace character|whitespace characters]].
 
 ==== Tags ====
 
-A tags component is composed of a series of individual tag elements. It is used
+A tags element is composed of a series of individual tag elements. It is used
 both to mark various places within a page as well as act as an [[#anchor|anchor]].
 
 {{{vimwiki
@@ -593,7 +592,7 @@ both to mark various places within a page as well as act as an [[#anchor|anchor]
 
 ===== Syntax =====
 
-A *tags* component is represented by the following:
+A *tags* element is represented by the following:
 1. A [[#tag separator|tag separator]]
 2. A sequence of [[#tag|tag]] separated by [[#tag separator|tag separator]]
 3. A [[#tag separator|tag separator]]
@@ -607,7 +606,7 @@ TODO ... should tags with whitespace be allowed?
 
 ==== Link ====
 
-A link is a crucial inline component of vimwiki and is able to connect pages
+A link is a crucial inline element of vimwiki and is able to connect pages
 with each other as well as external wikis and resources.
 
 {{{vimwiki
@@ -699,9 +698,9 @@ A *link description* is represented by one of the following:
 * One or more characters that are not a [[#link end seq|link end seq]] or [[#line ending|line ending]]
 
 A *link anchor* is represented by a series of pairs, each comprised of
-a [[#link anchor prefix|link anchor prefix]] and a [[#link anchor component|link anchor component]]
+a [[#link anchor prefix|link anchor prefix]] and a [[#link anchor element|link anchor element]]
 
-A *link anchor component* is represented by one or more characters that are
+A *link anchor element* is represented by one or more characters that are
 not a [[#link anchor prefix|link anchor prefix]], [[#link inner separator|link inner separator]],
 [[#link end seq|link end seq]], or [[#line ending|line ending]]
 
@@ -829,7 +828,7 @@ A *keyword* is represented as one of the following:
 ==== Text ====
 
 Text is a plain series of characters that have no special stylings applied
-directly, but can be included in other [[#inline components|inline components]].
+directly, but can be included in other [[#inline elements|inline elements]].
 
 ===== Syntax =====
 
@@ -844,8 +843,8 @@ is encountered:
 
 === Comments ===
 
-Separately from [[#block components|block components]] and [[#inline components|inline components]],
-comments are another component available within vimwiki. There are two
+Separately from [[#block elements|block elements]] and [[#inline elements|inline elements]],
+comments are another element available within vimwiki. There are two
 classifications:
 
 1. Line comment in the form of `%%CONTENT`
@@ -901,8 +900,8 @@ first linesecond line
 
 == Parser Details ==
 
-When building a parser for the vimwiki language, certain components may overlap
-in the text that they can match. This means that the order in which components
+When building a parser for the vimwiki language, certain elements may overlap
+in the text that they can match. This means that the order in which elements
 are evaluated can affect how a page is perceived.
 
 Additionally, the inclusion of [[#comments|comments]] further complicates the
@@ -912,14 +911,14 @@ multi-line comments can remove [[#line ending|line ending]] characters.
 To that end, a two-pass parser is required to support properly extracting
 comments prior to parsing the full vimwiki syntax:
 1. Parse all comments and remove from input
-2. Parse a page that is full of [[#block components|block components]]
+2. Parse a page that is full of [[#block elements|block elements]]
 
 {{{
 Comment =
    | Multi Line Comment
    | Line Comment
-Page = (Block Component)+
-Block Component =
+Page = (Block Element)+
+Block Element =
    | Header
    | Definition List
    | List
@@ -931,7 +930,7 @@ Block Component =
    | Placeholder
    | Paragraph
    | Non-blank Line
-Inline Component =
+Inline Element =
    | Math Inline
    | Tags
    | Link
