@@ -119,13 +119,10 @@ It mirrors the functionality available in an [[https://developer.mozilla.org/en-
 {{{vimwiki
 Term 1:: Some definition
 Term 2:: First def
-:: Second def
+:: Second def with [[link]]
 Term3::
-:: Some definition
+:: Some *bold* definition
 }}}
-
-TODO ... should the definitions and terms be raw text? Or can they support
-         decorations and links? e.g. `Term 1:: *Bold* def with [[link]]`
 
 ===== Syntax =====
 
@@ -136,16 +133,16 @@ zero or more [[#definition line|definition lines]]
 
 A *term line* is represented by the following:
 1. Starts at the beginning of a line
-2. One or more characters before the sequence `::`
+2. One or more [[#inline components|inline components]] before the sequence `::`
 3. The sequence `::`
-4. An optional one or more characters before [[#line ending|line ending]]
+4. An optional one or more [[#inline components|inline components]] before [[#line ending|line ending]]
    to be the first definition
 5. A [[#line ending|line ending]] or end of input
 
 A *definition line* is represented by the following:
 1. Starts at the beginning of a line
 2. The sequence `::`
-3. One or more characters before [[#line ending|line ending]]
+3. One or more [[#inline components|inline components]] before [[#line ending|line ending]]
 4. A [[#line ending|line ending]] or end of input
 
 *Extra Notes*: Each term and definition is trimmed to remove all leading and
@@ -173,13 +170,10 @@ A header is composed of some content surrounded by equals sign (`U+003D` aka
 `=`) of equal length. It mirrors the functionality of the [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements|HTML Heading]].
 
 {{{vimwiki
-= Some Heading =
-== Some Sub Headering ==
+= Some Header =
+== Some Sub Header ==
+= *Bold* Header with [[link]] =
 }}}
-
-TODO ... should the content of the header be raw text? Or can it support
-         decorations and links? e.g. `= *Bold* Header with [[link]] =`
-         Pandoc appears to support decorations, links, and other [[#inline components|inline components]]
 
 ===== Syntax =====
 
@@ -188,7 +182,7 @@ A *header* is represented by the following:
 2. Zero or more [[#whitespace character|whitespace characters]] (implying
    whether or not a header is centered)
 3. One or more equal sign (`U+003D`) characters
-4. Any character until an equal number of equal sign characters are found
+4. One or more [[#inline components|inline components]]
 5. An equivalent number of equal sign characters as in step #3
 6. A [[#line ending|line ending]] or end of input
 
