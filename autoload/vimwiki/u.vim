@@ -212,7 +212,7 @@ endfunc
 function! vimwiki#u#map_key(mode, key, plug, ...) abort
   if a:0 && a:1 == 2
     " global mappings
-    if !hasmapto(a:plug) && maparg(a:key, a:mode) ==# ''
+    if !hasmapto(a:plug, a:mode) && maparg(a:key, a:mode) ==# ''
       exe a:mode . 'map ' . a:key . ' ' . a:plug
     endif
   elseif a:0 && a:1 == 1
@@ -220,7 +220,7 @@ function! vimwiki#u#map_key(mode, key, plug, ...) abort
       exe a:mode . 'map <buffer> ' . a:key . ' ' . a:plug
   else
     " vimwiki buffer mappings
-    if !hasmapto(a:plug)
+    if !hasmapto(a:plug, a:mode)
       exe a:mode . 'map <buffer> ' . a:key . ' ' . a:plug
     endif
   endif
