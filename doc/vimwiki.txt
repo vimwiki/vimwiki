@@ -3829,6 +3829,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Chip Senkbeil (@chipsenkbeil)
     - Jerome Gay (@jeromg)
     - Benney Au (@chinwobble)
+    - David Sierra DiazGranados (@davidsierradz)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
