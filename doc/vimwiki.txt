@@ -3830,6 +3830,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Jerome Gay (@jeromg)
     - Benney Au (@chinwobble)
     - David Sierra DiazGranados (@davidsierradz)
+    - Daniel Moura (@dmouraneto)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3878,6 +3879,8 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #1029: Fix: error loading plugin when lang uses comma instead of
+      dot as decimal separator
     * Issue #886: :VimwikiGenerateLinks not working on Windows
     * Issue #55: Newlines in blockquotes are not honored
     * Issue #55: BlockQuote restarts list numbering
