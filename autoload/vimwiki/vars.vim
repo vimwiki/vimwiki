@@ -506,6 +506,7 @@ function! s:get_default_wikilocal() abort
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
         \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
         \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
+        \ 'listsyms_propagate': {'type': type(0), 'default': 1},
         \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'name': {'type': type(''), 'default': ''},

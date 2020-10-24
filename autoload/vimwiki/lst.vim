@@ -800,6 +800,10 @@ function! s:set_state_plus_children(item, new_rate, ...) abort
     call s:set_state(a:item, a:new_rate)
   endif
 
+  if vimwiki#vars#get_wikilocal('listsyms_propagate') == 0
+    return
+  endif
+
   let all_children_are_done = 1
   let all_children_are_rejected = 1
 
@@ -867,7 +871,7 @@ endfunction
 "updates the symbol of a checkboxed item according to the symbols of its
 "children
 function! s:update_state(item) abort
-  if a:item.type == 0 || a:item.cb ==? ''
+  if a:item.type == 0 || a:item.cb ==? '' || vimwiki#vars#get_wikilocal('listsyms_propagate') == 0
     return
   endif
 

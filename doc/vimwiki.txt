@@ -1880,9 +1880,10 @@ parent items: >
    * [ ] Add highlighting to list item boxes.
    * [ ] Add [ ] to the next list item created using o, O or <CR>.
 
-Parent items should change when their child items change. If not, use
-|vimwiki_glr|. The symbol between [ ] depends on the percentage of toggled
-child items (see also |vimwiki-listsyms|): >
+Parent items should change when their child items change unless disabled via
+|vimwiki-option-listsyms_propagate|. If not, use |vimwiki_glr|. The symbol
+between [ ] depends on the percentage of toggled child items (see also
+|vimwiki-listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -2672,6 +2673,16 @@ The character used here must not be part of |vimwiki-listsyms|.
 You can set it to a more fancy symbol like this:
 >
    let g:vimwiki_list = [{'path': '~/path/', 'listsym_rejected' = '✗'}]
+
+
+*vimwiki-option-listsyms_propagate*
+------------------------------------------------------------------------------
+Key                 Default value     Values~
+listsyms_propagate  1                 0, 1
+
+Description~
+Set this option to 0 to disable propagation of todo list item status to
+parents and children.
 
 
 *vimwiki-option-auto_tags*
@@ -3831,6 +3842,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Benney Au (@chinwobble)
     - David Sierra DiazGranados (@davidsierradz)
     - Daniel Moura (@dmouraneto)
+    - Tomáš Janoušek (@liskin)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3842,6 +3854,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: #954: Add option |vimwiki-option-listsyms_propagate| to disable
+      todo propagation to parents/children
     * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
       Also the VimwikiHeader1Folding (1..60 regions support end-of-file `/\%$`
       as end maker

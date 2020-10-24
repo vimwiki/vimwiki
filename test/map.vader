@@ -7,6 +7,7 @@
 ##################
 
 Execute (VimwikiIndex):
+  call SetSyntax('markdown')
   VimwikiIndex 2
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
   AssertEqual 'vimwiki', &filetype

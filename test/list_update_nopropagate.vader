@@ -1,0 +1,87 @@
+# Task list update, propagation disabled
+
+Given vimwiki (Sample nested list, vimwiki syntax):
+  * [ ] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+    * [ ] Child 3
+
+Execute (Set syntax to default):
+  set sw=2
+  call SetSyntax('default')
+  call vimwiki#vars#set_wikilocal('listsyms_propagate', 0)
+
+Do (Toggle top-level):
+  \<C-Space>
+
+Expect vimwiki (Only top updated):
+  * [X] Top Level
+    * [ ] Child 1
+    * [ ] Child 2
+    * [ ] Child 3
+
+Do (Toggle child 1):
+  j
+  \<C-Space>
+
+Expect vimwiki (Only child 1 updated):
+  * [ ] Top Level
+    * [X] Child 1
+    * [ ] Child 2
+    * [ ] Child 3
+
+Do (Toggle all children):
+  j
+  \<C-Space>
+  j
+  \<C-Space>
+  j
+  \<C-Space>
+
+Expect vimwiki (Only children updated):
+  * [ ] Top Level
+    * [X] Child 1
+    * [X] Child 2
+    * [X] Child 3
+
+Given vimwiki (Deeply nested list, vimwiki syntax):
+  * [ ] Top Level
+    * [ ] Child 1
+      * [X] Child 2
+
+Do (Indent child 2):
+  jj
+  a\<C-D>
+
+Expect vimwiki (Child 2 indent changed, checkmarks unchanged):
+  * [ ] Top Level
+    * [ ] Child 1
+    * [X] Child 2
+
+Do (Add child 3):
+  jj
+  o
+  Child 3
+
+Expect vimwiki (Child 3 added, checkmarks unchanged):
+  * [ ] Top Level
+    * [ ] Child 1
+      * [X] Child 2
+      * [ ] Child 3
+
+Do (Add and indent child 3):
+  jj
+  o
+  \<C-T>
+  Child 3
+
+Expect vimwiki (Child 3 added, checkmarks unchanged):
+  * [ ] Top Level
+    * [ ] Child 1
+      * [X] Child 2
+        * [ ] Child 3
+
+Execute (Clean):
+  set sw&
+
+# vim: sw=2:foldlevel=30:foldmethod=indent:
