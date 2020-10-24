@@ -1883,7 +1883,7 @@ parent items: >
 Parent items should change when their child items change unless disabled via
 |vimwiki-option-listsyms_propagate|. If not, use |vimwiki_glr|. The symbol
 between [ ] depends on the percentage of toggled child items (see also
-|vimwiki-listsyms|): >
+|vimwiki-option-listsyms|): >
     [ ] -- 0%
     [.] -- 1-33%
     [o] -- 34-66%
@@ -2643,7 +2643,7 @@ If set to 1 (true), cycle through |bullet_types| when changing list element
 identation
 
 
-*vimwiki-listsyms*
+*vimwiki-option-listsyms*
 ------------------------------------------------------------------------------
 Key               Default value~
 listsyms          ' .oOX'
@@ -2660,7 +2660,7 @@ You can set it to some more fancy symbols like this:
    let g:vimwiki_list = [{'path': '~/path/', 'listsyms' = '✗○◐●✓'}]
 
 
-*vimwiki-listsym_rejected*
+*vimwiki-option-listsym_rejected*
 ------------------------------------------------------------------------------
 
 Character that is used to show that an item of a todo list will not be done.
@@ -2668,7 +2668,7 @@ Default value is '-'. This overwrites the global |g:vimwiki_listsym_rejected| on
 per wiki base.
 
 
-The character used here must not be part of |vimwiki-listsyms|.
+The character used here must not be part of |vimwiki-option-listsyms|.
 
 You can set it to a more fancy symbol like this:
 >
@@ -2990,7 +2990,7 @@ Default: 'Vimwiki'
 
 String of at least two symbols to show the progression of todo list items.
 Default value is ' .oOX'. You can also set this on a per-wiki level with
-|vimwiki-listsyms|.
+|vimwiki-option-listsyms|.
 
 The first char is for 0% done items.
 The last is for 100% done items.
@@ -3005,7 +3005,7 @@ You can set it to some more fancy symbols like this:
 
 Character that is used to show that an item of a todo list will not be done.
 Default value is '-'. You can also set this on a per-wiki level with
-|vimwiki-listsym_rejected|.
+|vimwiki-option-listsym_rejected|.
 
 
 The character used here must not be part of |g:vimwiki_listsyms|.
@@ -3854,8 +3854,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-    * Feature: #954: Add option |vimwiki-option-listsyms_propagate| to disable
-      todo propagation to parents/children
+    * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
+      disable todo propagation to parents/children
     * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
       Also the VimwikiHeader1Folding (1..60 regions support end-of-file `/\%$`
       as end maker
@@ -4069,8 +4069,8 @@ New:~
     * Add the option |g:vimwiki_listsym_rejected| to set the character used
       for won't-do list items.
     * The effect of |g:vimwiki_listsyms| and |g:vimwiki_listsym_rejected| can
-      be set on a per wiki level, see |vimwiki-listsyms| and
-      |vimwili-listsym_rejected|
+      be set on a per wiki level, see |vimwiki-option-listsyms| and
+      |vimwili-option-listsym_rejected|
     * gln and glp change the "done" status of a checkbox, see |vimwiki_gln|.
     * |:VimwikiSplitLink| and |:VimwikiVSplitLink| can now reuse an existing
       split window and not move the cursor.
