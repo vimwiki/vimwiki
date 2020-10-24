@@ -606,7 +606,7 @@ function! s:normalize_wikilocal_settings() abort
       endif
     endfor
 
-    " Nomarlize
+    " Normalize
     """"""""""""""""""""""""""""""""
     let wiki_settings['path'] = s:normalize_path(wiki_settings['path'])
 
@@ -1288,8 +1288,8 @@ endfunction
 
 " Get variable anywhere
 " Returns: [value, location] where loc=global|wikilocal|syntaxlocal|bufferlocal|none
-" Called: cmd <- VimvikiVar
-" TODO get more preformant approach when this file has been well refactored:
+" Called: cmd <- VimwikiVar
+" TODO get more performant approach when this file has been well refactored:
 " -- calls only the necessary functions and not syntaxlocal anytime
 function! s:get_anywhere(key, ...) abort
   " Alias common info
@@ -1534,7 +1534,7 @@ function! vimwiki#vars#get_syntaxlocal(key, ...) abort
     let syntax = vimwiki#vars#get_wikilocal('syntax')
   endif
 
-  " Create syntax varaible dict if not exists (lazy)
+  " Create syntax variable dict if not exists (lazy)
   if !exists('g:vimwiki_syntaxlocal_vars') || !has_key(g:vimwiki_syntaxlocal_vars, syntax)
     call vimwiki#vars#populate_syntax_vars(syntax)
   endif
@@ -1599,7 +1599,7 @@ function! vimwiki#vars#set_global(key, value) abort
 endfunction
 
 
-" Return: wiki local named varaible
+" Return: wiki local named variable
 " Param: (1): variable name (alias key, <string>)
 " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
 " used
