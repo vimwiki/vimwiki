@@ -42,7 +42,13 @@ definitions for primitive building blocks used to shape up higher-level
 elements. Relevant definitions are borrowed from
 [[https://spec.commonmark.org/0.29/#characters-and-lines|commonmark characters and lines]].
 
-A *character* in vimwiki is a valid UTF-8 code point.
+A *character* in vimwiki is a valid UTF-8 code point. For the purposes of
+this document, we further restrict a character to not include any
+[[https://en.wikipedia.org/wiki/Control_character|control character]] as those will be referenced separately.
+
+An *alphanumeric character* is a [[#character|character]] that can only be in
+the range of a-z, A-Z, or 0-9 where these represent alphabet characters
+(abcdef...z) of lower and upper case as well as digits (0, 1, 2, ..., 9).
 
 A *line* is a sequence of zero or more [[#Specification#Language#Primitives#character|characters]] other than a
 newline (`U+000A` aka `\n`) or carriage return (`U+000D` aka `\r`), followed by
@@ -52,10 +58,20 @@ A *line ending* is a newline (`U+000A` aka `\n`), a carriage return (`U+000D`
 aka `\r`) not followed by a newline, or a carriage return and a following
 newline (`\r\n`).
 
-A line with no characters, or a line containing only spaces (`U+0020`) or tabs
+A line with no [[#character|characters]], or a line containing only spaces (`U+0020`) or tabs
 (`U+0009`), is called a *blank line*.
 
 A *whitespace character* is a space (`U+0020`) or tab (`U+0009`).
+
+*All characters until end of line* is any sequence of [[#character|characters]]
+leading up to but not including a [[#line ending|line ending]].
+
+A *user-defined content* is an arbitrary series of [[#character|characters]] or a function
+that yields those characters. Its purpose is to enable users of vimwiki to
+interject their own configuration into aspects of the vimwiki language.
+
+*User-definable* represents any language definition that can be altered to
+instead be represented by one or more [[#user-defined content|user-defined content]].
 
 === Block Elements ===
 
@@ -92,7 +108,7 @@ A blockquote is made of *one* or more [[#indented blockquote line|indented block
 
 An *indented blockquote line* is made of the following:
 1. Four or more [[#whitespace character|whitespace characters]]
-2. All characters up until a [[#line ending|line ending]]
+2. All [[#character|characters]] up until a [[#line ending|line ending]]
 3. A [[#line ending|line ending]] or end of input
 
 *Form 2*:
@@ -132,7 +148,7 @@ zero or more [[#definition line|definition lines]]
 
 A *term line* is represented by the following:
 1. Starts at the beginning of a line
-2. One or more [[#inline elements|inline elements]] before the sequence `::`
+2. One or more [[#inline elements|inline elements]] (except [[#tags|tags]]) before the sequence `::`
 3. The sequence `::`
 4. An optional one or more [[#inline elements|inline elements]] before [[#line ending|line ending]]
    to be the first definition
@@ -217,7 +233,8 @@ A *starting list item line* is represented by the following:
    still associated with this list item, if a new list item is the beginning
    of a sublist, if a new list item is a sibling, or if a new list item
    is the sibling of a parent
-3. One of the following prefixes that determines if the type of list item:
+3. One of the following default prefixes (this is also [[#user-definable|user definable]])
+   that determines the type of list item:
    * Hyphen (`U+002D` aka `-`) is for an unordered list
    * Asterisk (`U+002A` aka `*`) is for an unordered list
    * Pound (`U+0023` aka `#`) is for an ordered list
@@ -256,7 +273,7 @@ A *companion list item line* is represented by the following:
 A *todo attribute* is composed of surrounding square brackets in the form
 of a left square bracket (`U+005B` aka `[`) and right square bracket
 (`U+005D` aka `]`). Inbetween the square brackets is a single character to
-denote the todo status and is one of the following:
+denote the todo status and is by default one of the following or [[#user-definable|user-definable]]:
 * A space (`U+0020` aka ' ') meaning 0% or incomplete
 * A period (`U+002E` aka `.`) meaning 1-33% progress
 * A lowercase o (`U+006F` aka `o`) meaning 34-66% progress
@@ -295,16 +312,17 @@ A *beginning math block line* is represented by the following:
 3. The sequence `{{$`
 4. An optional [[#math environment|math environment]]
 5. Zero or more [[#whitespace character|whitespace characters]]
-6. A [[#line ending|line ending]] or end of input
+6. A [[#line ending|line ending]]
 
 A *math environment* is represented by the following:
 1. The percent sign (`U+0025` aka `%`)
-2. One or more characters that are not the percent sign or [[#line ending|line ending]]
+2. One or more [[#character|characters]] that are not the percent sign or [[#line ending|line ending]]
 3. The percent sign (`U+0025` aka `%`)
 
 A *math block line* is a line found after a [[#beginning math block line|beginning math block line]]
 and before an [[#ending math block line|ending math block line]] and is
-comprised of zero or more characters followed by a [[#line ending|line ending]].
+comprised of zero or more [[#character|characters]] representing [[https://en.wikipedia.org/wiki/TeX|TeX syntax]]
+followed by a [[#line ending|line ending]].
 
 An *ending math block line* is represented by the following:
 1. Starts at the beginning of a line
@@ -330,7 +348,7 @@ A *paragraph* is composed of one or more [[#paragraph line|paragraph lines]].
 
 A *paragraph line* is represented by the following:
 1. Starts at the beginning of a line
-2. Has no [[#whitespace character|whitespace]] indentation
+2. Has zero to three [[#whitespace character|whitespace]] characters for indentation
 3. Is not any of the following:
    * [[#header|header]]
    * [[#definition list|definition list]]
@@ -344,9 +362,6 @@ A *paragraph line* is represented by the following:
    * [[#placeholder|placeholder]]
 4. One or more [[#inline elements|inline elements]]
 5. A [[#line ending|line ending]] or end of input
-
-TODO ... should we combine [[#non-blank line|non-blank line]] with paragraph
-         by having a paragraph trim all leading [[#whitespace character|whitespace]]?
 
 ==== Placeholder ====
 
@@ -375,8 +390,7 @@ A *title placeholder* is represented by the following:
 2. A percent sign (`U+0025` aka `%`)
 3. The sequence `title`
 4. One or more [[#whitespace character|whitespace characters]]
-5. Any sequence of [[#whitespace character|whitespace characters]] and
-   non-whitespace characters leading up to a [[#line ending|line ending]]
+5. [[#all characters until end of line|all characters until end of line]]
 6. A [[#line ending|line ending]] or end of input
 
 A *nohtml placeholder* is represented by the following:
@@ -390,8 +404,7 @@ A *template placeholder* is represented by the following:
 2. A percent sign (`U+0025` aka `%`)
 3. The sequence `template`
 4. One or more [[#whitespace character|whitespace characters]]
-5. Any sequence of [[#whitespace character|whitespace characters]] and
-   non-whitespace characters leading up to a [[#line ending|line ending]]
+5. [[#all characters until end of line|all characters until end of line]]
 6. A [[#line ending|line ending]] or end of input
 
 A *date placeholder* is represented by the following:
@@ -399,9 +412,10 @@ A *date placeholder* is represented by the following:
 2. A percent sign (`U+0025` aka `%`)
 3. The sequence `date`
 4. One or more [[#whitespace character|whitespace characters]]
-5. A date string in the format `YYYY-MM-DD` where `YYYY` symbolizes a
-   four-digit year (e.g. `1990`), `MM` symbolizes a two-digit month (e.g.
-   `04`), and `DD` symbolizes a two-digit day (e.g. `23`)
+5. A date string in the format of [[https://en.wikipedia.org/wiki/ISO_8601|ISO 8601]] such as
+   `YYYY-MM-DD` where `YYYY` symbolizes a four-digit year (e.g. `1990`),
+   `MM` symbolizes a two-digit month (e.g. `04`),
+   and `DD` symbolizes a two-digit day (e.g. `23`)
 6. A [[#line ending|line ending]] or end of input
 
 ==== Preformatted Text ====
@@ -418,18 +432,6 @@ fn my_func() -> u32 {
 \}}}
 }}}
 
-TODO ... wrapping a preformatted text block with another preformatted text
-         isn't possible right now due to the use of `}}}` matching. We would
-         need some sort of escape like `\}}}` or `\{{{` that could be used to
-         avoid matching legit syntax but still provide the literal text
-         upon rendering.
-
-TODO ... pandoc supports more than one metadata key/value pair via spaces
-         such as `{{{class="something" style="else"`. Wasn't clear if vimwiki
-         itself supports multiple metadata. *vimwiki-server* supports this
-         through semicolons because it was easier `{{{class="something";style="else"`
-         but isn't married to that approach
-
 ===== Syntax =====
 
 A *preformatted text* is composed of a [[#beginning preformatted text line|beginning preformatted text line]],
@@ -445,23 +447,23 @@ A *beginning preformatted text line* is represented by the following:
 7. A [[#line ending|line ending]] or end of input
 
 A *preformatted language identifier* is represented by the following:
-1. One or more characters that are not equals sign (`U+003D` aka `=`)
-2. An optional semicolon (`U+003B` aka `;`)
+1. One or more [[#character|characters]] leading up to a [[#whitespace character|whitespace characters]]
+2. Is comprised of a series of any character except equals sign (`U+003D` aka `=`)
 
 A *preformatted metadata list* is composed of one or more
-[[#preformatted metadata list items|preformatted metadata list items]] separated by semicolons (`U+003B` aka `;`).
+[[#preformatted metadata list items|preformatted metadata list items]] separated by [[#whitespace character|whitespace characters]].
 
 A *preformatted metadata list item* is represented by the following:
-1. One or more characters leading up to an equals sign (`U+003D` aka `=`),
+1. One or more [[#character|characters]] leading up to an equals sign (`U+003D` aka `=`),
    not including a [[#line ending|line ending]]
 2. An equals sign (`U+003D` aka `=`)
 3. A quotation mark (`U+0022` aka `"`)
-4. One or more characters leading up to a quotation mark (`U+0022` aka `"`)
+4. One or more [[#character|characters]] leading up to a quotation mark (`U+0022` aka `"`)
 5. A quotation mark (`U+0022` aka `"`)
 
 A *preformatted text line* is a line found after a [[#beginning preformatted text line|beginning preformatted text line]]
 and before an [[#ending preformatted text line|ending preformatted text line]] and is
-comprised of zero or more characters followed by a [[#line ending|line ending]].
+comprised of zero or more [[#character|characters]] followed by a [[#line ending|line ending]].
 
 An *ending preformatted text line* is represented by the following:
 1. Starts at the beginning of a line
@@ -530,25 +532,6 @@ A *content cell* is represented by the following:
 
 A *cell boundary* is represented by the pipe character (`U+007C` aka `|`).
 
-==== Non-blank Line ====
-
-A non-blank line is a single line that is not a paragraph. It is used to
-capture text not represented by any other element.
-
-{{{vimwiki
-  Some other text containing *bold* and [[links]].
-}}}
-
-===== Syntax =====
-
-A *non-blank line* is represented by the following:
-1. Between one and three [[#whitespace character|whitespace characters]]
-2. One or more [[#inline elements|inline elements]]
-3. A [[#line ending|line ending]] or end of input
-
-TODO ... should we combine [[#non-blank line|non-blank line]] with paragraph
-         by having a paragraph trim all leading [[#whitespace character|whitespace]]?
-
 === Inline Elements ===
 
 The vimwiki language also has a variety of syntax that can be used within a
@@ -566,16 +549,12 @@ using the [[https://www.mathjax.org/|MathJax engine]].
 $ \sum_i a_i^2 = 1 $
 }}}
 
-TODO ... is there a way to escape the `$` used to mark the beginning and end
-         of an inline math element? Is `$` even a concern within an
-         inline formula? If it is, maybe an escape sequence of `\$` would
-         be applicable.
-
 ===== Syntax =====
 
 An *inline math* element is represented by the following:
 1. A dollar sign (`U+0024` aka `$`)
-2. One or more characters that are not a dollar sign or [[#line ending|line ending]]
+2. One or more [[#character|characters]] representing [[https://en.wikipedia.org/wiki/TeX|TeX syntax]]
+   that are not a dollar sign or [[#line ending|line ending]]
 3. A dollar sign (`U+0024` aka `$`)
 
 *Extra Notes*: The formula within the inline element is trimmed to remove all
@@ -597,12 +576,10 @@ A *tags* element is represented by the following:
 2. A sequence of [[#tag|tag]] separated by [[#tag separator|tag separator]]
 3. A [[#tag separator|tag separator]]
 
-A *tag* is represented by one or more characters that are not a colon,
+A *tag* is represented by one or more [[#character|characters]] that are not a colon,
 [[#whitespace character|whitespace]], or [[#line ending|line ending]]
 
 A *tag separator* is represented by a colon (`U+003A` aka `:`).
-
-TODO ... should tags with whitespace be allowed?
 
 ==== Link ====
 
@@ -643,7 +620,7 @@ An *interwiki link* is represented by one of the following:
 An *indexed interwiki link* is represented by the following:
 1. A [[#link start seq|link start seq]]
 2. The sequence `wiki`
-3. One or more digits (`0-9`), but must be `0` or higher
+3. One or more digits (`0-9`)
 4. A colon (`U+003A` aka `:`)
 5. A [[#link path|link path]]
 6. An optional [[#link anchor|link anchor]]
@@ -653,7 +630,7 @@ An *indexed interwiki link* is represented by the following:
 A *named interwiki link* is represented by the following:
 1. A [[#link start seq|link start seq]]
 2. The sequence `wn.`
-3. One or more characters that are not a colon (`U+003A` aka `:`) or [[#line ending|line ending]]
+3. One or more [[#alphanumeric character|alphanumeric characters]]
 4. A colon (`U+003A` aka `:`)
 5. A [[#link path|link path]]
 6. An optional [[#link anchor|link anchor]]
@@ -680,27 +657,27 @@ A *transclusion link* is represented by the following:
 4. The sequence `}}`
 
 A *link key value pair* is represented by the following:
-1. One or more characters that are not a pipe symbol (`U+007C`
+1. One or more [[#character|characters]] that are not a pipe symbol (`U+007C`
    aka `|`), equals sign (`U+003D` aka `=`), `}}`, or [[#line ending|line ending]]
 2. An equals sign (`U+003D` aka `=`)
 3. A quotation mark (`U+0022` aka `"`)
-4. One or more characters that are not a pipe symbol (`U+007C`
+4. One or more [[#character|characters]] that are not a pipe symbol (`U+007C`
    aka `|`), quotation mark (`U+0022` aka `"`), `}}`, or [[#line ending|line ending]]
 5. A quotation mark (`U+0022` aka `"`)
 
 A *link path* is represented by the following:
 1. Does not start with a [[#link anchor prefix|link anchor prefix]]
-2. One or more characters that are not a [[#link anchor prefix|link anchor prefix]],
+2. One or more [[#character|characters]] that are not a [[#link anchor prefix|link anchor prefix]],
    [[#link inner separator|link inner separator]], [[#link end seq|link end seq]], or [[#line ending|line ending]]
 
 A *link description* is represented by one of the following:
 * A [[#link uri|link uri]]
-* One or more characters that are not a [[#link end seq|link end seq]] or [[#line ending|line ending]]
+* One or more [[#character|characters]] that are not a [[#link end seq|link end seq]] or [[#line ending|line ending]]
 
 A *link anchor* is represented by a series of pairs, each comprised of
 a [[#link anchor prefix|link anchor prefix]] and a [[#link anchor element|link anchor element]]
 
-A *link anchor element* is represented by one or more characters that are
+A *link anchor element* is represented by one or more [[#character|characters]] that are
 not a [[#link anchor prefix|link anchor prefix]], [[#link inner separator|link inner separator]],
 [[#link end seq|link end seq]], or [[#line ending|line ending]]
 
@@ -716,10 +693,10 @@ A *link uri* is represented by the following:
 1. Starts with `www.`, `//`, or a [[#link uri scheme|link uri scheme]]
    a. If starting with `www.`, we add a virtual prefix of `https://` going forward
    b. If starting with `//`, we add a virtual prefix of `file:/` going forward
-2. One or more characters that are not [[#whitespace character|whitespace characters]]
+2. One or more [[#character|characters]] that are not [[#whitespace character|whitespace characters]]
    or [[#line ending|line ending]]
 
-A *link uri scheme* is represented by a series of alphanumeric characters
+A *link uri scheme* is represented by a series of alphanumeric [[#character|characters]]
  (`a-z`, `A-Z`, `0-9`) as well as plus (`U+002B` aka `+`), period (`U+002E`
  aka `.`), and hyphen (`U+002D` aka `-`). The scheme is terminated by a
  colon (`U+003A` aka `:`).
@@ -730,19 +707,19 @@ A *link uri scheme* is represented by a series of alphanumeric characters
 ==== Decorated Text ====
 
 Decorated text supports a variety of markups across [[#link|links]],
-[[#keyword|keywords]], and [[#text|text]]. It mirrors these different HTML elements:
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong|<strong>]]
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em|<em>]]
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s|<s>]]
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code|<code>]]
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup|<sup>]]
-* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub|<sub>]]
+[[#keyword|keywords]], non-repeating [[#decorated text|decorated text]], and [[#text|text]].
+
+It mirrors these different HTML elements:
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong|strong]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em|em]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s|s]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code|code]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup|sup]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub|sub]]
 
 {{{vimwiki
 *bold*
 _italic_
-*_bold italic_*
-_*bold italic*_
 ~~strikeout~~
 `code`
 ^superscript^
@@ -754,7 +731,6 @@ _*bold italic*_
 *Decorated text* is represented by one of the following:
 * [[#bold text|Bold text]]
 * [[#italic text|Italic text]]
-* [[#bold italic text|Bold italic text]]
 * [[#strikeout text|Strikeout text]]
 * [[#code text|Code text]]
 * [[#superscript text|Superscript text]]
@@ -762,58 +738,50 @@ _*bold italic*_
 
 *Bold text* is represented by the following:
 1. An asterisk (`U+002A` aka `*`)
-2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
    an asterisk (`U+002A` aka `*`) is encountered
 3. An asterisk (`U+002A` aka `*`)
 
 *Italic text* is represented by the following:
 1. An underscore (`U+005F` aka `_`)
-2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
    an underscore (`U+005F` aka `_`) is encountered
 3. An underscore (`U+005F` aka `_`)
 
-*Bold Italic text* is represented by either of the following:
-* Form 1
-   1. Sequence `*_`
-   2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
-      an `_*` is encountered
-   3. Sequence `_*`
-* Form 2
-   1. Sequence `_*`
-   2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
-      an `*_` is encountered
-   3. Sequence `*_`
-
 *Strikeout text* is represented by the following:
 1. Two tilde (`U+007E` aka `~`)
-2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
    two tilde (`U+007E` aka `~`) are encountered
 3. Two tilde (`U+007E` aka `~`)
 
 *Code text* is represented by the following:
-1. A backtick or grave accent (`U+0060`)
+1. A backtick (`U+0060`)
 2. Any character other than a backtick or [[#line ending|line ending]]
-3. A backtick or grave accent (`U+0060`)
+3. A backtick (`U+0060`)
 
 *Superscript text* is represented by the following:
 1. A carrot or circumflex accent (`U+005E` aka `^`)
-2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
    a carrot or circumflex accent (`U+005E` aka `^`) is encountered
 3. A carrot or circumflex accent (`U+005E` aka `^`)
 
 *Superscript text* is represented by the following:
 1. Two commas (`U+002C` aka `,`)
-2. One or more [[#link|links]], [[#keyword|keywords]], or [[#text|text]] until
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
    two commas (`U+002C` aka `,`) are encountered
 3. Two commas (`U+002C` aka `,`)
 
-TODO ... Cannot escape a backtick within code, is this something that we'd
-         expect to support?
+*Non-repeated decorated text* is represented as [[#decorated text|decorated text]]
+where no previous styling is seen again until that styling is closed. For
+example, if [[#bold text|bold text]] is first seen, there will not be another
+case of bold text until after the current one has ended
+(`*bold *inner bold* text*` is not allowed).
 
 ==== Keyword ====
 
 Keywords are specific, case-sensitive words that have an alternative
-highlighting within vim, but serve no other special purpose.
+highlighting within vim as well as provide highlighting in generated HTML
+via classes.
 
 ===== Syntax =====
 
@@ -827,12 +795,12 @@ A *keyword* is represented as one of the following:
 
 ==== Text ====
 
-Text is a plain series of characters that have no special stylings applied
+Text is a plain series of [[#character|characters]] that have no special stylings applied
 directly, but can be included in other [[#inline elements|inline elements]].
 
 ===== Syntax =====
 
-A *text* is represented as one or more characters until any of the following
+A *text* is represented as one or more [[#character|characters]] until any of the following
 is encountered:
 * [[#inline math|inline math]]
 * [[#tags|tags]]
@@ -841,51 +809,36 @@ is encountered:
 * [[#keyword|keyword]]
 * [[#line ending|line ending]]
 
-=== Comments ===
+==== Comments ====
 
-Separately from [[#block elements|block elements]] and [[#inline elements|inline elements]],
-comments are another element available within vimwiki. There are two
-classifications:
+A special type of inline element is the comment. Compared to all other inline
+elements, comments are unique in that they do not render into any other
+format (HTML, PDF, etc) and - in the case of multi-line comments - can span
+across more than one line.
+
+There are two types of comments:
 
 1. Line comment in the form of `%%CONTENT`
 2. Multi-line comment in the form of `%%+CONTENT++%`
 
-TODO ... if comments are removed from vimwiki before all other syntax is
-         evaluated, we need to provide an escape mechanism, otherwise the above syntax
-         within inline code will be removed when rendering to HTML, parsing, etc.
-
-TODO ... while vimwiki, pandoc, and vimwiki server do not yet offer this, should
-         we consider an escape sequence to enable leaving a comment within a vimwiki
-         file as normal text. Something like `\%%` would leave as `%%` and `\%%+` would
-         leave as `%%+`. Could use the same conceal vim syntax as with bold and other
-         decorations to head the preceding backslash.
-
-==== Line Comment Syntax ====
+===== Line Comment Syntax =====
 
 1. A *line comment* is represented by the following:
    1. The sequence `%%`
    2. Any character until [[#line ending|line ending]]
 
 *Extra Notes*: A line comment does not consume a [[#line ending|line ending]],
-only the characters leading up to one. If a line comment is at the beginning of
+only the [[#character|characters]] leading up to one. If a line comment is at the beginning of
 a line, it will leave a blank line in its place.
 
-TODO ... today, the documentation describes a line comment as starting at the
-         beginning of a line while pandoc and vimwiki-server support a line comment at
-         any position in a line. What stance do we want to take here? Would we need a
-         compatibility layer for people who might have leveraged %% within the middle of
-         a line not expecting it to be a comment? Or should this be one of the advantages
-         of finally defining a specification in that we can avoid hard backwards
-         compatibility?
-
-==== Multi-line Comment Syntax ====
+===== Multi-line Comment Syntax =====
 
 1. A *multi-line comment* is represented by the following:
    1. The sequence `%%+`
    2. Any character until the sequence `+%%`
    3. The sequence `+%%`
 
-*Extra Notes*: A multi-line comment consumes all characters - including
+*Extra Notes*: A multi-line comment consumes all [[#character|characters]] - including
 [[#line ending|line ending]] - between the surrounding character sequences. It
 can be used to join content in separate lines together. See example below.
 
@@ -905,18 +858,15 @@ in the text that they can match. This means that the order in which elements
 are evaluated can affect how a page is perceived.
 
 Additionally, the inclusion of [[#comments|comments]] further complicates the
-process of parsing a file. Comments should remove any content from a file and
-multi-line comments can remove [[#line ending|line ending]] characters.
+process of parsing a file. Comments can be placed alongside inline elements,
+which enables them to be in most locations within vimwiki. Compared to any
+other element, comments yield empty text when rendered. This can result in
+shortening of lines and even removal of [[#line ending|line ending]] characters.
 
-To that end, a two-pass parser is required to support properly extracting
-comments prior to parsing the full vimwiki syntax:
-1. Parse all comments and remove from input
-2. Parse a page that is full of [[#block elements|block elements]]
+Below is a breakdown of element categorization:
 
 {{{
 Comment =
-   | Multi Line Comment
-   | Line Comment
 Page = (Block Element)+
 Block Element =
    | Header
@@ -924,13 +874,17 @@ Block Element =
    | List
    | Table
    | Math Block
-   | Blank Line
    | Blockquote
    | Divider
    | Placeholder
    | Paragraph
-   | Non-blank Line
+Inline Block Element =
+   | List Item
+   | Term
+   | Definition
 Inline Element =
+   | Multi Line Comment
+   | Line Comment
    | Math Inline
    | Tags
    | Link
