@@ -478,12 +478,12 @@ A table is composed of a series of rows containing various other elements. It
 mirrors [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table|HTML Table]].
 
 {{{vimwiki
-| Year | Temperature (low) | Temperature (high)       | Temperature (avg) |
-|------|-------------------|--------------------------|-------------------|
-| 1990 | *50* degrees      | 90 according to [[link]] | 72                |
-| \/   | 45 degrees        | >                        | 80                |
-| \/   | \/                | >                        | 60                |
-| 2000 | >                 | >                        | >                 |
+| Year | Temperature (low) |    Temperature (high)    | Temperature (avg) |
+|------|-------------------|:------------------------:|------------------:|
+| 1990 | *50* degrees      | 90 according to [[link]] |                72 |
+| \/   | 45 degrees        |            >             |                80 |
+| \/   | \/                |            >             |                60 |
+| 2000 | >                 |            >             |                 > |
 }}}
 
 ===== Syntax =====
@@ -498,10 +498,14 @@ A *row* is represented by one of the following:
 A *divider row* is represented by the following:
 1. Starts at the beginning of a line
 2. Zero or more [[#whitespace character|whitespace characters]]
-3. A sequence of pairs comprised of a [[#cell boundary|cell boundary]] and
-   one or more hyphens (`U+002D` aka `-`)
+3. A sequence of pairs comprised of a [[#cell boundary|cell boundary]] and [[#divider column|divider column]]
 4. A final [[#cell boundary|cell boundary]]
 5. A [[#line ending|line ending]] or end of input
+
+A *divider column* is represented by the following:
+1. An optional colon (`U+003A` aka `:`)
+2. One or more hyphens (`U+002D` aka `-`)
+3. An optional colon (`U+003A` aka `:`)
 
 A *content row* is represented by the following:
 1. Starts at the beginning of a line
