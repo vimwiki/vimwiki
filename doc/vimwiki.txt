@@ -3843,6 +3843,7 @@ Contributors and their Github usernames in roughly chronological order:
     - David Sierra DiazGranados (@davidsierradz)
     - Daniel Moura (@dmouraneto)
     - Tomáš Janoušek (@liskin)
+    - Rajesh Sharem (@deepredsky)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3888,6 +3889,7 @@ New:~
     * PR #934: RSS feed generation for diary with :VimwikiRss.
 
 Changed:~
+    * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
     * VimwikiCheckLinks work on current wiki or on range
 
 Removed:~
