@@ -509,7 +509,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   if has('unix')
     call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem')
     call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem')
-  endi
+  endif
   call vimwiki#u#map_key('n', 'glx', '<Plug>VimwikiToggleRejectedListItem')
   call vimwiki#u#map_key('v', 'glx', '<Plug>VimwikiToggleRejectedListItem', 1)
   call vimwiki#u#map_key('n', 'gln', '<Plug>VimwikiIncrementListItem')
