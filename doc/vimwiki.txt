@@ -3895,6 +3895,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Enable strikethrough for Neovim
     * Issue #1029: Fix: error loading plugin when lang uses comma instead of
       dot as decimal separator
     * Issue #886: :VimwikiGenerateLinks not working on Windows

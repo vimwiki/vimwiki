@@ -437,7 +437,7 @@ hi def link VimwikiTag Keyword
 
 " Deleted called strikethrough
 " See $VIMRUTIME/syntax/html.vim
-if v:version > 800 || v:version == 800 && has('patch1038')
+if v:version > 800 || (v:version == 800 && has('patch1038')) || has('nvim-0.4.3')
   hi def VimwikiDelText term=strikethrough cterm=strikethrough gui=strikethrough
 else
   hi def link VimwikiDelText Constant
