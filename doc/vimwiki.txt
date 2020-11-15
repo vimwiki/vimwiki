@@ -1018,7 +1018,8 @@ For Markdown syntax these variations are used: >
   ***bold_italic text*** or ___italic_bold text___
 
 Furthermore, there are a number of words which are highlighted extra flashy:
-TODO, DONE, STARTED, FIXME, FIXED, XXX.
+TODO, DONE, STARTED, FIXME, FIXED, XXX (customisable, see
+vimwiki-option-rx_todo).
 
 When rendered as HTML, code blocks containing only a hash prefixed 6 digit hex
 number will be colored as themselves.  For example >
@@ -2859,6 +2860,14 @@ Provides two colors to |:VimwikiColorize|: 'red' => red foreground and 'bred'
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki-option-rx_todo*
+
+Regular expression used to highlight different TODO words.
+
+Default: `\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>`
+
+
+------------------------------------------------------------------------------
 *vimwiki-option-color_tag_template*
 
 Not supposed to be edited already: a regex with __COLORFG__, __COLORBG__ and
@@ -3864,6 +3873,7 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
     * Feature: enable re-mapping insert mode table mappings
+    * Feature: configure expression for Todo words
     * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
       disable todo propagation to parents/children
     * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
