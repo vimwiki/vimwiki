@@ -612,7 +612,14 @@ TABLE MAPPINGS, INSERT MODE                           *vimwiki-table-mappings*
 
                                                        *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
-                        last cell.
+                        last cell. Adjusts the whole column width according
+                        to the largest cell.
+                        Remap command: `<Plug>VimwikiTableNextCell`
+
+                                                       *vimwiki_i_<Tab>_table*
+<S-Tab>                 Go to the previous table cell. Adjusts the whole
+                        column width according to the largest cell.
+                        Remap command: `<Plug>VimwikiTablePrevCell`
 
 LIST MAPPINGS, INSERT MODE                             *vimwiki-list-mappings*
                                                               *vimwiki_i_<CR>*
@@ -3844,6 +3851,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Daniel Moura (@dmouraneto)
     - Tomáš Janoušek (@liskin)
     - Rajesh Sharem (@deepredsky)
+    - Amit Beka (@amitbeka)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3855,6 +3863,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: enable re-mapping insert mode table mappings
     * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
       disable todo propagation to parents/children
     * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
