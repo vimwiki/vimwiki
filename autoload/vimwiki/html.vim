@@ -1673,27 +1673,36 @@ function! s:use_custom_wiki2html() abort
         \ (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction
 
+function! s:shellescape(str) abort
+  let result = a:str
+  if result[len(result) - 1] == '\'
+    let result = result[:-2]
+  endif
+  return shellescape(result)
+endfunction
 
 function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
   call vimwiki#path#mkdir(a:path)
-  let output = system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
+  let output = vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
-      \ shellescape(a:path). ' '.
-      \ shellescape(a:wikifile). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
+      \ s:shellescape(a:path). ' '.
+      \ s:shellescape(a:wikifile). ' '.
+      \ s:shellescape(s:default_CSS_full_name(a:path)). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ?
-      \     shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
+      \     s:shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
-      \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
+      \     s:shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
+      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-') 
   " Print if non void
+  call confirm(output)
+  let output = system(output)
   if output !~? '^\s*$'
     call vimwiki#u#echo(string(output))
   endif
