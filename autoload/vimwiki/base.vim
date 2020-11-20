@@ -62,19 +62,12 @@ function! vimwiki#base#subdir(path, filename) abort
     let filename = a:filename
   endif
   let idx = 0
-  let pathelement = split(path, '[/\\]') 
-  let fileelement = split(filename, '[/\\]')
-  let minlen = min([len(pathelement), len(fileelement)])
-  let p = fileelement[:]
   "FIXME this can terminate in the middle of a path component!
-  while pathelement[idx] ==? fileelement[idx]
-    let p = p[1:]
+  while path[idx] ==? filename[idx]
     let idx = idx + 1
-    if idx == minlen
-      break
-    endif
   endwhile
 
+  let p = split(strpart(filename, idx), '[/\\]')
   let res = join(p[:-2], '/')
   if len(res) > 0
     let res = res.'/'
