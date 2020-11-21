@@ -505,10 +505,10 @@ nnoremap <silent><buffer> <Plug>VimwikiListO
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'gnt', '<Plug>VimwikiNextTask')
   call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
-  call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem', 1)
+  call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem')
   if has('unix')
-    call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
-    call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+    call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem')
+    call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem')
   endif
   call vimwiki#u#map_key('n', 'glx', '<Plug>VimwikiToggleRejectedListItem')
   call vimwiki#u#map_key('v', 'glx', '<Plug>VimwikiToggleRejectedListItem', 1)
@@ -595,9 +595,13 @@ function! s:CR(normal, just_mrkr) abort
 endfunction
 
 " insert mode table mappings
+inoremap <silent><buffer><expr> <Plug>VimwikiTableNextCell
+    \ vimwiki#tbl#kbd_tab()
+inoremap <silent><buffer><expr> <Plug>VimwikiTablePrevCell
+    \ vimwiki#tbl#kbd_shift_tab()
 if str2nr(vimwiki#vars#get_global('key_mappings').table_mappings)
-  inoremap <expr><buffer> <Tab> vimwiki#tbl#kbd_tab()
-  inoremap <expr><buffer> <S-Tab> vimwiki#tbl#kbd_shift_tab()
+  call vimwiki#u#map_key('i', '<Tab>', '<Plug>VimwikiTableNextCell')
+  call vimwiki#u#map_key('i', '<S-Tab>', '<Plug>VimwikiTablePrevCell')
 endif
 
 " <Plug> table formatting definitions

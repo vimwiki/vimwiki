@@ -295,8 +295,6 @@ function! s:internal_global_settings() abort
   let g:vimwiki_global_vars.rxWikiInclSuffix1 = g:vimwiki_global_vars.rxWikiInclArgs.
         \ g:vimwiki_global_vars.rxWikiInclSuffix
 
-  let g:vimwiki_global_vars.rxTodo = '\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>'
-
   " default colors when headers of different levels are highlighted differently
   " not making it yet another option; needed by ColorScheme autocommand
   let g:vimwiki_global_vars.hcolor_guifg_light = ['#aa5858', '#507030', '#1030a0', '#103040'
@@ -532,6 +530,7 @@ function! s:get_default_wikilocal() abort
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
         \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'rx_todo': {'type': type(''), 'default': '\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>'},
         \ }
 endfunction
 

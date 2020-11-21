@@ -645,7 +645,7 @@ function! s:process_tags_typefaces(line, header_ids) abort
   " Convert line tag by tag
   let line = s:make_tag(line, s:rxItalic, 's:tag_em')
   let line = s:make_tag(line, s:rxBold, 's:tag_strong', a:header_ids)
-  let line = s:make_tag(line, vimwiki#vars#get_global('rxTodo'), 's:tag_todo')
+  let line = s:make_tag(line, vimwiki#vars#get_wikilocal('rx_todo'), 's:tag_todo')
   let line = s:make_tag(line, s:rxDelText, 's:tag_strike')
   let line = s:make_tag(line, s:rxSuperScript, 's:tag_super')
   let line = s:make_tag(line, s:rxSubScript, 's:tag_sub')

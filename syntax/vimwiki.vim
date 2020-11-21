@@ -212,7 +212,7 @@ execute 'syn match VimwikiHeaderChar contained /\%(^\s*'.
       \ vimwiki#vars#get_syntaxlocal('header_symbol').'\+\)\|\%('.vimwiki#vars#get_syntaxlocal('header_symbol').
       \ '\+\s*$\)/'
 
-execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_global('rxTodo') .'/'
+execute 'syntax match VimwikiTodo /'. vimwiki#vars#get_wikilocal('rx_todo') .'/'
 
 
 " Table:
@@ -437,7 +437,7 @@ hi def link VimwikiTag Keyword
 
 " Deleted called strikethrough
 " See $VIMRUTIME/syntax/html.vim
-if v:version > 800 || v:version == 800 && has('patch1038')
+if v:version > 800 || (v:version == 800 && has('patch1038')) || has('nvim-0.4.3')
   hi def VimwikiDelText term=strikethrough cterm=strikethrough gui=strikethrough
 else
   hi def link VimwikiDelText Constant
