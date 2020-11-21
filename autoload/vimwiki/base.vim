@@ -66,7 +66,6 @@ function! vimwiki#base#subdir(path, filename) abort
   let fileelement = split(filename, '[/\\]')
   let minlen = min([len(pathelement), len(fileelement)])
   let p = fileelement[:]
-  "FIXME this can terminate in the middle of a path component!
   while pathelement[idx] ==? fileelement[idx]
     let p = p[1:]
     let idx = idx + 1
