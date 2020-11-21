@@ -327,6 +327,27 @@ Execute (Assert Syntax VimwikiTodo):
   AssertEqual SyntaxAt(5, 1), 'VimwikiTodo'
   AssertEqual SyntaxAt(6, 1), 'VimwikiTodo'
 
+Given vimwiki (custom TODO words):
+  NOW
+  LATER
+  DONE
+  TODO
+
+Execute (set custom syntax):
+  call vimwiki#vars#set_wikilocal('rx_todo', '\C\<\%(NOW\|LATER\|DONE\)\>', vimwiki#vars#get_bufferlocal('wiki_nr'))
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax VimwikiTodo):
+  AssertEqual 'VimwikiTodo1', SyntaxAt(1, 1) . 1
+  AssertEqual 'VimwikiTodo2', SyntaxAt(2, 1) . 2
+  AssertEqual 'VimwikiTodo3', SyntaxAt(3, 1) . 3
+  AssertEqual '4'           , SyntaxAt(4, 1) . 4
+
+Execute (Restore VimwikiTodo):
+  call vimwiki#vars#init()
+  call SetSyntax('markdown')
+
+
 # Mardown types {{{2
 
 Given vimwiki (Typeface for markdown like italic):

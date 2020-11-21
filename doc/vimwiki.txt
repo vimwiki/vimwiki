@@ -612,7 +612,14 @@ TABLE MAPPINGS, INSERT MODE                           *vimwiki-table-mappings*
 
                                                        *vimwiki_i_<Tab>_table*
 <Tab>                   Go to the next table cell, create a new row if on the
-                        last cell.
+                        last cell. Adjusts the whole column width according
+                        to the largest cell.
+                        Remap command: `<Plug>VimwikiTableNextCell`
+
+                                                       *vimwiki_i_<Tab>_table*
+<S-Tab>                 Go to the previous table cell. Adjusts the whole
+                        column width according to the largest cell.
+                        Remap command: `<Plug>VimwikiTablePrevCell`
 
 LIST MAPPINGS, INSERT MODE                             *vimwiki-list-mappings*
                                                               *vimwiki_i_<CR>*
@@ -1011,7 +1018,8 @@ For Markdown syntax these variations are used: >
   ***bold_italic text*** or ___italic_bold text___
 
 Furthermore, there are a number of words which are highlighted extra flashy:
-TODO, DONE, STARTED, FIXME, FIXED, XXX.
+TODO, DONE, STARTED, FIXME, FIXED, XXX (customisable, see
+vimwiki-option-rx_todo).
 
 When rendered as HTML, code blocks containing only a hash prefixed 6 digit hex
 number will be colored as themselves.  For example >
@@ -2852,6 +2860,14 @@ Provides two colors to |:VimwikiColorize|: 'red' => red foreground and 'bred'
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki-option-rx_todo*
+
+Regular expression used to highlight different TODO words.
+
+Default: `\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>`
+
+
+------------------------------------------------------------------------------
 *vimwiki-option-color_tag_template*
 
 Not supposed to be edited already: a regex with __COLORFG__, __COLORBG__ and
@@ -3843,6 +3859,8 @@ Contributors and their Github usernames in roughly chronological order:
     - David Sierra DiazGranados (@davidsierradz)
     - Daniel Moura (@dmouraneto)
     - Tomáš Janoušek (@liskin)
+    - Rajesh Sharem (@deepredsky)
+    - Amit Beka (@amitbeka)
     - Levi Rizki Saputra (@levirs565)
 
 ==============================================================================
@@ -3855,6 +3873,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: enable re-mapping insert mode table mappings
+    * Feature: configure expression for Todo words
     * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
       disable todo propagation to parents/children
     * Issue #1009: |foldmethod| syntax works for markdown (|g:vimwiki_folding|)
@@ -3889,6 +3909,7 @@ New:~
     * PR #934: RSS feed generation for diary with :VimwikiRss.
 
 Changed:~
+    * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
     * VimwikiCheckLinks work on current wiki or on range
     * PR #1057: Change how resolve subdir work
       Change how shell escaping work when using CustomWiki2HTML
@@ -3896,6 +3917,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Enable strikethrough for Neovim
     * Issue #1029: Fix: error loading plugin when lang uses comma instead of
       dot as decimal separator
     * Issue #886: :VimwikiGenerateLinks not working on Windows
