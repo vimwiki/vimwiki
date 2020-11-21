@@ -1675,6 +1675,7 @@ endfunction
 
 function! s:shellescape(str) abort
   let result = a:str
+  "" This fix CustomWiki2HTML at root dir problem in Windows
   if result[len(result) - 1] ==# '\'
     let result = result[:-2]
   endif
