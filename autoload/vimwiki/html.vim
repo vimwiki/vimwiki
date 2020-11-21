@@ -1675,7 +1675,7 @@ endfunction
 
 function! s:shellescape(str) abort
   let result = a:str
-  if result[len(result) - 1] == '\'
+  if result[len(result) - 1] ==# '\'
     let result = result[:-2]
   endif
   return shellescape(result)
