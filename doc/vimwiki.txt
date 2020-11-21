@@ -3843,6 +3843,7 @@ Contributors and their Github usernames in roughly chronological order:
     - David Sierra DiazGranados (@davidsierradz)
     - Daniel Moura (@dmouraneto)
     - Tomáš Janoušek (@liskin)
+    - Levi Rizki Saputra (@levirs565)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
