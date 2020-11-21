@@ -1683,7 +1683,7 @@ endfunction
 
 function! vimwiki#html#CustomWiki2HTML(root_path, path, wikifile, force) abort
   call vimwiki#path#mkdir(a:path)
-  let output = vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
+  let output = system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
@@ -1699,10 +1699,8 @@ function! vimwiki#html#CustomWiki2HTML(root_path, path, wikifile, force) abort
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
       \     s:shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-') 
+      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-')) 
   " Print if non void
-  call confirm(output)
-  let output = system(output)
   if output !~? '^\s*$'
     call vimwiki#u#echo(string(output))
   endif
