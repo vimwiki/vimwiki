@@ -3889,6 +3889,8 @@ New:~
 
 Changed:~
     * VimwikiCheckLinks work on current wiki or on range
+    * PR #1057: Change how resolve subdir work
+      Change how shell escaping work when using CustomWiki2HTML
 
 Removed:~
 
@@ -3919,6 +3921,8 @@ Fixed:~
     * PR #959: Fix :VimwikiNextTask
     * PR #986: Fix typo in help file
     * PR #1030: Allow overwriting insert mode mappings
+    * PR #1057: Fix renaming, updating link, and exporting HTML subdir wrong
+      Fix resolve subdir return wrong path in Windows
 
 
 2.5 (2020-05-26)~
