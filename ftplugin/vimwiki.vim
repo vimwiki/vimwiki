@@ -535,20 +535,23 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'o', '<Plug>VimwikiListo')
   call vimwiki#u#map_key('n', 'O', '<Plug>VimwikiListO')
 
-  " Handle case of existing VimwikiReturn mappings outside the <Plug> definition
-  " Note: Avoid interfering with popup/completion menu if it's active (#813)
-  if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
-    if has('patch-7.3.489')
-      " expand iabbrev on enter
-      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<C-]><Esc>:VimwikiReturn 1 5<CR>'
-    else
-      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 1 5<CR>'
+  " Set lists_return to 0, if you don't want <CR> mapped to VimwikiReturn
+  if str2nr(vimwiki#vars#get_global('key_mappings').lists_return)
+    " Handle case of existing VimwikiReturn mappings outside the <Plug> definition
+    " Note: Avoid interfering with popup/completion menu if it's active (#813)
+    if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
+      if has('patch-7.3.489')
+        " expand iabbrev on enter
+        inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<C-]><Esc>:VimwikiReturn 1 5<CR>'
+      else
+        inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 1 5<CR>'
+      endif
+    endif
+    if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
+      inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
     endif
   endif
-  if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
-    inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
-  endif
-
+  
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
     if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
