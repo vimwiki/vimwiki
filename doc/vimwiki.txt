@@ -3609,6 +3609,9 @@ The valid key groups and their associated mappings are shown below.
     |vimwiki_glsar|, |vimwiki_gLstar|, |vimwiki_gl#|, |vimwiki_gL#|, |vimwiki_gl-|, |vimwiki_gL-|
     |vimwiki_gl1|, |vimwiki_gL1|, |vimwiki_gla|, |vimwiki_gLa|, |vimwiki_glA|, |vimwiki_gLA|
     |vimwiki_gli|, |vimwiki_gLi|, |vimwiki_glI|, |vimwiki_gLI|, |vimwiki_glx|
+`lists_return`:
+    Mappings for lists return in insert mode.
+    |vimwiki_i_<CR>|, |vimwiki_i_<S-CR>|
 `links`:
     Mappings for link creation and navigation.
     |vimwiki_<Leader>w<Leader>i|, |vimwiki_<CR>|, |vimwiki_<S-CR>|, |vimwiki_<C-CR>|
@@ -3861,6 +3864,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Tomáš Janoušek (@liskin)
     - Rajesh Sharem (@deepredsky)
     - Amit Beka (@amitbeka)
+    - Yuuy Wei
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3872,6 +3876,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: PR #686: add a flag lists_return to disable mappings 
+      to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings
     * Feature: configure expression for Todo words
     * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
