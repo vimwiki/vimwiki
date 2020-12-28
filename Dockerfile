@@ -4,6 +4,7 @@ FROM testbed/vim:latest
 RUN apk --no-cache add bash
 RUN apk --no-cache add git
 RUN apk --no-cache add python3
+RUN apk --no-cache add py3-pip
 
 # Get vint for linting
 RUN pip3 install vim-vint
