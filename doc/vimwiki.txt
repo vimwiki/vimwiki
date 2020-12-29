@@ -3889,8 +3889,6 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
-    * Feature: Add option |vimwiki-option-template_date_format| to configure
-      alternative date string format
     * Feature: PR #686: add a flag lists_return to disable mappings 
       to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings
@@ -3927,6 +3925,8 @@ New:~
     * PR #907: Cycle bullets
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
+    * Feature: Add option |vimwiki-option-template_date_format| to configure
+      alternative date string format
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
