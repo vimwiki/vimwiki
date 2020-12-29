@@ -1691,7 +1691,8 @@ See |vimwiki-option-template_path| for details.
 %date                                                           *vimwiki-date*
 
 The date of the wiki page. The value can be used in the HTML template, see
-|vimwiki-option-template_path| for details.
+|vimwiki-option-template_path| for details. To set a specific date string
+format, see |vimwiki-option-template_date_format| for details.
 
 %date 2017-07-08
 %date
@@ -2373,6 +2374,17 @@ Description~
 Setup template filename extension.
 
 See |vimwiki-option-template_path| for details.
+
+
+*vimwiki-option-template_date_format*
+------------------------------------------------------------------------------
+Key                     Default value~
+template_date_format    %Y-%m-%d
+
+Description~
+Setup date string format in templates.
+
+See |vimwiki-date| for details.
 
 
 *vimwiki-option-css_name*
@@ -3865,6 +3877,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Rajesh Sharem (@deepredsky)
     - Amit Beka (@amitbeka)
     - Yuuy Wei
+    - Yifan Hu (@yhu266)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3876,6 +3889,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: Add option |vimwiki-option-template_date_format| to configure
+      alternative date string format
     * Feature: PR #686: add a flag lists_return to disable mappings 
       to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings

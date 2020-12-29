@@ -1803,7 +1803,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
 
   let result['template_name'] = template_name
   let result['title'] = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
-  let result['date'] = s:process_date(placeholders, strftime('%Y-%m-%d'))
+  let result['date'] = s:process_date(placeholders, strftime(vimwiki#vars#get_wikilocal('template_date_format')))
   let result['wiki_path'] = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
 
   return result

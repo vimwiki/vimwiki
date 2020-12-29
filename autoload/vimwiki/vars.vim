@@ -522,6 +522,7 @@ function! s:get_default_wikilocal() abort
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
+        \ 'template_date_format': {'type': type(''), 'default': '%Y-%m-%d'},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'tag_format': {'type': type({}), 'default': {
         \   'pre': '^\|\s',
