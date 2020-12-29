@@ -405,6 +405,9 @@ function! s:normalize_global_settings() abort
   if !has_key(g:vimwiki_global_vars.key_mappings, 'lists')
     let g:vimwiki_global_vars.key_mappings.lists = 1
   endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'lists_return')
+    let g:vimwiki_global_vars.key_mappings.lists_return = 1
+  endif
   if !has_key(g:vimwiki_global_vars.key_mappings, 'links')
     let g:vimwiki_global_vars.key_mappings.links = 1
   endif
@@ -424,6 +427,7 @@ function! s:normalize_global_settings() abort
     let g:vimwiki_global_vars.key_mappings.table_mappings = 0
     let g:vimwiki_global_vars.table_mappings = 0 " kept for backwards compatibility
     let g:vimwiki_global_vars.key_mappings.lists = 0
+    let g:vimwiki_global_vars.key_mappings.lists_return = 0
     let g:vimwiki_global_vars.key_mappings.links = 0
     let g:vimwiki_global_vars.key_mappings.html = 0
     let g:vimwiki_global_vars.key_mappings.mouse = 0
