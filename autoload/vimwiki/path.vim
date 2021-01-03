@@ -5,19 +5,19 @@
 
 
 
-" Unixify path
 function! s:unixify(path) abort
-    return substitute(a:path, '\', '/', 'g')
+  " Unixify Path:
+  return substitute(a:path, '\', '/', 'g')
 endfunction
 
 
-" Windowsify path
 function! s:windowsify(path) abort
-    return substitute(a:path, '/', '\', 'g')
+  " Windowsify Path:
+  return substitute(a:path, '/', '\', 'g')
 endfunction
 
 
-" Define os specific path convertion
+" Define: os specific path convertion
 if vimwiki#u#is_windows()
   function! s:osxify(path) abort
     return s:windowsify(a:path)
@@ -29,8 +29,8 @@ else
 endif
 
 
-" Remove last path delimitator (slash or backslash)
 function! vimwiki#path#chomp_slash(str) abort
+  " Remove Delimiter: of last path (slash or backslash)
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction
 
@@ -47,8 +47,8 @@ else
 endif
 
 
-" Collapse sections like /a/b/../c to /a/c and /a/b/./c to /a/b/c
 function! vimwiki#path#normalize(path) abort
+  " Collapse Sections: like /a/b/../c to /a/c and /a/b/./c to /a/b/c
   let path = a:path
   while 1
     let intermediateResult = substitute(path, '/[^/]\+/\.\.', '', '')
@@ -62,8 +62,8 @@ function! vimwiki#path#normalize(path) abort
 endfunction
 
 
-" Normalize path: \ -> / &&  /// -> / && resolve(symlinks)
 function! vimwiki#path#path_norm(path) abort
+  " Normalize Path: \ -> / &&  /// -> / && resolve(symlinks)
   " return if scp
   if a:path =~# '^scp:' | return a:path | endif
   " convert backslash to slash
@@ -75,22 +75,22 @@ function! vimwiki#path#path_norm(path) abort
 endfunction
 
 
-" Check if link is to a directory
 function! vimwiki#path#is_link_to_dir(link) abort
+  " Check: if link is to a directory
   " It should be ended with \ or /.
   return a:link =~# '\m[/\\]$'
 endfunction
 
 
-" Get absolute path <- path relative to current file
 function! vimwiki#path#abs_path_of_link(link) abort
+  " Get: absolute path <- path relative to current file
   return vimwiki#path#normalize(expand('%:p:h').'/'.a:link)
 endfunction
 
 
-" Returns: longest common path prefix of 2 given paths.
-" Ex: '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
 function! vimwiki#path#path_common_pfx(path1, path2) abort
+  " Returns: longest common path prefix of 2 given paths.
+  " Ex: '~/home/usrname/wiki', '~/home/usrname/wiki/shmiki' => '~/home/usrname/wiki'
   let p1 = split(a:path1, '[/\\]', 1)
   let p2 = split(a:path2, '[/\\]', 1)
 
@@ -107,8 +107,8 @@ function! vimwiki#path#path_common_pfx(path1, path2) abort
 endfunction
 
 
-" Convert path -> full resolved slashed path
 function! vimwiki#path#wikify_path(path) abort
+  " Convert: path -> full resolved slashed path
   let result = resolve(fnamemodify(a:path, ':p'))
   if vimwiki#u#is_windows()
     let result = substitute(result, '\\', '/', 'g')
@@ -118,14 +118,14 @@ function! vimwiki#path#wikify_path(path) abort
 endfunction
 
 
-" Return: Current file path relative
 function! vimwiki#path#current_wiki_file() abort
+  " Return: Current file path relative
   return vimwiki#path#wikify_path(expand('%:p'))
 endfunction
 
 
-" Return: the relative path from a:dir to a:file
 function! vimwiki#path#relpath(dir, file) abort
+  " Return: the relative path from a:dir to a:file
   " Check if dir here ('.') -> return file
   if empty(a:dir) || a:dir =~# '^\.[/\\]\?$'
     return a:file
@@ -168,11 +168,11 @@ function! vimwiki#path#relpath(dir, file) abort
 endfunction
 
 
-" Mkdir:
-" If the optional argument provided and nonzero,
-" it will ask before creating a directory
-" Returns: 1 iff directory exists or successfully created
 function! vimwiki#path#mkdir(path, ...) abort
+  " Mkdir:
+  " if the optional argument provided and nonzero,
+  " it will ask before creating a directory
+  " returns: 1 iff directory exists or successfully created
   let path = expand(a:path)
 
   if path =~# '^scp:'
@@ -202,8 +202,8 @@ function! vimwiki#path#mkdir(path, ...) abort
 endfunction
 
 
-" Check: if path is absolute
 function! vimwiki#path#is_absolute(path) abort
+  " Check: if path is absolute
   if vimwiki#u#is_windows()
     return a:path =~? '\m^\a:'
   else
@@ -212,11 +212,11 @@ function! vimwiki#path#is_absolute(path) abort
 endfunction
 
 
-" Combine: a directory and a file into one path, doesn't generate duplicate
-" path separator in case the directory is also having an ending / or \. This
-" is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
-" valid path.
 if vimwiki#u#is_windows()
+  " Combine: a directory and a file into one path, doesn't generate duplicate
+  " path separator in case the directory is also having an ending / or \. This
+  " is because on windows ~\vimwiki//.tags is invalid but ~\vimwiki/.tags is a
+  " valid path.
   function! vimwiki#path#join_path(directory, file) abort
     let directory = vimwiki#path#chomp_slash(a:directory)
     let file = substitute(a:file, '\m^[\\/]\+', '', '')

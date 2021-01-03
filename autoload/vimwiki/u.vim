@@ -3,11 +3,11 @@
 " Description: Utility functions
 " Home: https://github.com/vimwiki/vimwiki/
 
-" Echo: msg
-" :param: (1) <string> highlighting group
-" :param: (2) <string> echo suffix (ex: 'n', 'm')
-" :param: (3) <string> message prefix, default Vimwiki
 function! vimwiki#u#echo(msg, ...) abort
+  " Echo: msg
+  " :param: (1) <string> highlighting group
+  " :param: (2) <string> echo suffix (ex: 'n', 'm')
+  " :param: (3) <string> message prefix, default Vimwiki
   let hl_group = a:0 > 0 ? a:1 : ''
   let echo_suffix = a:0 > 1 ? a:2 : ''
   let msg_prefix = a:0 > 2 ? a:3 : 'Vimwiki: '
@@ -27,34 +27,34 @@ function! vimwiki#u#echo(msg, ...) abort
   endif
 endfunction
 
-" Debug: msg
-" let b:vimwiki_debug to trigger
 function! vimwiki#u#debug(msg) abort
+  " Debug: msg
+  " let b:vimwiki_debug to trigger
   if !exists('b:vimwiki_debug') || b:vimwiki_debug == 0
     return
   endif
   echomsg 'DEBUG: ' . a:msg
 endfunction
 
-" Warn: msg
 function! vimwiki#u#warn(msg) abort
+  " Warn: msg
   call vimwiki#u#echo('Warning: ' . a:msg, 'WarningMsg', '')
 endfunction
 
-" Error: msg
 function! vimwiki#u#error(msg) abort
+  " Error: msg
   call vimwiki#u#echo('Error: ' . a:msg, 'Error', 'msg')
 endfunction
 
-" Warn: deprecated feature: old -> new
 function! vimwiki#u#deprecate(old, new) abort
+  " Warn: deprecated feature: old -> new
   call vimwiki#u#warn('Deprecated: ' . a:old . ' is deprecated and '
         \ . 'will be removed in future versions. Use ' . a:new . ' instead.')
 endfunction
 
-" Get visual selection text content, optionaly replace its content
-" :param: Text to replace selection
 function! vimwiki#u#get_selection(...) abort
+  " Get visual selection text content, optionaly replace its content
+  " :param: Text to replace selection
   " Copyed from DarkWiiPlayer at stackoverflow
   " https://stackoverflow.com/a/47051271/2544873
   " Get selection extremity position,
@@ -101,11 +101,12 @@ function! vimwiki#u#get_selection(...) abort
 endfunction
 
 
-" Execute: string v:count times
 function! vimwiki#u#count_exe(cmd) abort
-    for i in range( max([1, v:count]) )
-        exe a:cmd
-    endfor
+  " Execute: string v:count times
+  " Called: prefixable mapping
+  for i in range( max([1, v:count]) )
+      exe a:cmd
+  endfor
 endfunction
 
 
@@ -119,10 +120,10 @@ function! vimwiki#u#sort_len(list) abort
 endfunction
 
 
-" Trim spaces: leading and trailing
-" :param: string in
-" :param: (1) <string> optional list of character to trim
 function! vimwiki#u#trim(string, ...) abort
+  " Trim spaces: leading and trailing
+  " :param: string in
+  " :param: (1) <string> optional list of character to trim
   let chars = ''
   if a:0 > 0
     let chars = a:1
@@ -133,15 +134,15 @@ function! vimwiki#u#trim(string, ...) abort
 endfunction
 
 
-" Builtin cursor doesn't work right with unicode characters.
 function! vimwiki#u#cursor(lnum, cnum) abort
+  " Builtin cursor doesn't work right with unicode characters.
   exe a:lnum
   exe 'normal! 0'.a:cnum.'|'
 endfunction
 
 
-" Returns: OS name, human readable
 function! vimwiki#u#os_name() abort
+  " Returns: OS name, human readable
   if vimwiki#u#is_windows()
     return 'Windows'
   elseif vimwiki#u#is_macos()
@@ -152,14 +153,14 @@ function! vimwiki#u#os_name() abort
 endfunction
 
 
-" Check if OS is windows
 function! vimwiki#u#is_windows() abort
+  " Check if OS is windows
   return has('win32') || has('win64') || has('win95') || has('win16')
 endfunction
 
 
-" Check if OS is mac
 function! vimwiki#u#is_macos() abort
+  " Check if OS is mac
   if has('mac') || has('macunix') || has('gui_mac')
     return 1
   endif
@@ -175,26 +176,26 @@ function! vimwiki#u#count_first_sym(line) abort
 endfunction
 
 
-" Escape string for literal magic regex match
 function! vimwiki#u#escape(string) abort
+  " Escape string for literal magic regex match
   return escape(a:string, '~.*[]\^$')
 endfunction
 
 
-" Load concrete Wiki syntax: sets regexes and templates for headers and links
 function! vimwiki#u#reload_regexes() abort
+  " Load concrete Wiki syntax: sets regexes and templates for headers and links
   execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'.vim'
 endfunction
 
 
-" Load syntax-specific functionality
 function! vimwiki#u#reload_regexes_custom() abort
+  " Load syntax-specific functionality
   execute 'runtime! syntax/vimwiki_'.vimwiki#vars#get_wikilocal('syntax').'_custom.vim'
 endfunction
 
 
-" Backward compatible version of the built-in function shiftwidth()
 function! vimwiki#u#sw() abort
+  " Backward compatible version of the built-in function shiftwidth()
   if exists('*shiftwidth')
     return shiftwidth()
   else
@@ -202,14 +203,14 @@ function! vimwiki#u#sw() abort
   endif
 endfunc
 
-" a:mode single character indicating the mode as defined by :h maparg
-" a:key the key sequence to map
-" a:plug the plug command the key sequence should be mapped to
-" a:1 optional argument with the following functionality:
-"   if a:1==1 then the hasmapto(<Plug>) check is skipped.
-"     this can be used to map different keys to the same <Plug> definition
-"   if a:1==2 then the mapping is not <buffer> specific i.e. it is global
 function! vimwiki#u#map_key(mode, key, plug, ...) abort
+  " a:mode single character indicating the mode as defined by :h maparg
+  " a:key the key sequence to map
+  " a:plug the plug command the key sequence should be mapped to
+  " a:1 optional argument with the following functionality:
+  "   if a:1==1 then the hasmapto(<Plug>) check is skipped.
+  "     this can be used to map different keys to the same <Plug> definition
+  "   if a:1==2 then the mapping is not <buffer> specific i.e. it is global
   if a:0 && a:1 == 2
     " global mappings
     if !hasmapto(a:plug, a:mode) && maparg(a:key, a:mode) ==# ''
@@ -227,11 +228,11 @@ function! vimwiki#u#map_key(mode, key, plug, ...) abort
 endfunction
 
 
-" Returns: 1 if line is a code block or math block
-"
-" The last two conditions are needed for this to correctly
-" detect nested syntaxes within code blocks
 function! vimwiki#u#is_codeblock(lnum) abort
+  " Returns: 1 if line is a code block or math block
+  "
+  " The last two conditions are needed for this to correctly
+  " detect nested syntaxes within code blocks
   let syn_g = synIDattr(synID(a:lnum,1,1),'name')
   if  syn_g =~# 'Vimwiki\(Pre.*\|IndentedCodeBlock\|Math.*\)'
         \ || (syn_g !~# 'Vimwiki.*' && syn_g !=? '')
@@ -241,10 +242,10 @@ function! vimwiki#u#is_codeblock(lnum) abort
   endif
 endfunction
 
-" Sets the filetype to vimwiki
-" If g:vimwiki_filetypes variable is set
-" the filetype will be vimwiki.<ft1>.<ft2> etc.
 function! vimwiki#u#ft_set() abort
+  " Sets the filetype to vimwiki
+  " If g:vimwiki_filetypes variable is set
+  " the filetype will be vimwiki.<ft1>.<ft2> etc.
   let ftypelist = vimwiki#vars#get_global('filetypes')
   let ftype = 'vimwiki'
   for ftypeadd in ftypelist
@@ -253,11 +254,11 @@ function! vimwiki#u#ft_set() abort
   let &filetype = ftype
 endfunction
 
-" Returns: 1 if filetype is vimwiki, 0 else
-" If multiple fileytpes are in use 1 is returned only if the
-" first ft is vimwiki which should always be the case unless
-" the user manually changes it to something else
 function! vimwiki#u#ft_is_vw() abort
+  " Returns: 1 if filetype is vimwiki, 0 else
+  " If multiple fileytpes are in use 1 is returned only if the
+  " first ft is vimwiki which should always be the case unless
+  " the user manually changes it to something else
   " Clause: is filetype defined
   if &filetype ==# '' | return 0 | endif
   if split(&filetype, '\.')[0] ==? 'vimwiki'
@@ -268,17 +269,17 @@ function! vimwiki#u#ft_is_vw() abort
 endfunction
 
 
-" Helper: Getter
-" :param: syntax <string> to retrive, default to current
 function! vimwiki#u#get_syntax_dic(...) abort
+  " Helper: Getter
+  " :param: syntax <string> to retrive, default to current
   let syntax = a:0 ? a:1 : vimwiki#vars#get_wikilocal('syntax')
   return g:vimwiki_syntaxlocal_vars[syntax]
 endfunction
 
 
-" Helper to mutualize
-" Called: normalize and unnormalize anchor
 function! vimwiki#u#get_punctuation_regex() abort
+  " Helper: to mutualize
+  " Called: normalize and unnormalize anchor
   " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
   " Faster
   " Unused now
@@ -291,19 +292,19 @@ function! vimwiki#u#get_punctuation_regex() abort
 endfunction
 
 
-" Faster
 function! vimwiki#u#get_punctuation_string() abort
+  " Faster
   " See: https://github.github.com/gfm/#ascii-punctuation-character
   return '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
 endfunction
 
 
-" Helper: Expand regex from reduced typeface delimiters
-" :param: list<list,delimiters>> with reduced regex
-" Return: list with extended regex delimiters (not inside a word)
-"   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
-" See: https://github.github.com/gfm/#left-flanking-delimiter-run
 function! vimwiki#u#hi_expand_regex(lst) abort
+  " Helper: Expand regex from reduced typeface delimiters
+  " :param: list<list,delimiters>> with reduced regex
+  " Return: list with extended regex delimiters (not inside a word)
+  "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
+  " See: https://github.github.com/gfm/#left-flanking-delimiter-run
   let res = []
   let p = vimwiki#u#get_punctuation_string()
   for delimiters in a:lst
@@ -315,13 +316,13 @@ function! vimwiki#u#hi_expand_regex(lst) abort
 endfunction
 
 
-" Helper: Create highlight region between two tags
-" :param: tag <string> example '<b>'
-" :param: syntax_group <string> example: VimwikiBold
-" :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
-" :param: (1) <boolean> is contained
-" :param: (2) <string> more param ex:oneline
 function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
+  " Helper: Create highlight region between two tags
+  " :param: tag <string> example '<b>'
+  " :param: syntax_group <string> example: VimwikiBold
+  " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
+  " :param: (1) <boolean> is contained
+  " :param: (2) <string> more param ex:oneline
   let opt_is_contained = a:0 > 0 && a:1 > 0 ? 'contained ' : ''
   let opt_more = a:0 > 1  ? ' ' . a:2 : ''
   let opt_contains = ''
@@ -340,11 +341,11 @@ function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
 endfunction
 
 
-" Highight typeface: see $VIMRUNTIME/syntax/html.vim
-" -- Basically allow nesting with multiple definition contained
-" :param: dic <dic:list:list> must contain: bold, italic and underline, even if underline is often void,
-" -- see here for underline not defined: https://stackoverflow.com/questions/3003476
 function! vimwiki#u#hi_typeface(dic) abort
+  " Highight typeface: see $VIMRUNTIME/syntax/html.vim
+  " -- Basically allow nesting with multiple definition contained
+  " :param: dic <dic:list:list> must contain: bold, italic and underline, even if underline is often void,
+  " -- see here for underline not defined: https://stackoverflow.com/questions/3003476
   " Italic must go before, otherwise single * takes precedence over ** and ** is considered as
   " -- a void italic.
   " Note:

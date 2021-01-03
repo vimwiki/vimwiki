@@ -134,17 +134,17 @@ function! vimwiki#lst#get_list_margin() abort
 endfunction
 
 
-"Returns: the column where the text of a line starts (possible list item
-"markers and checkboxes are skipped)
 function! s:text_begin(lnum) abort
+  " Returns: the column where the text of a line starts (possible list item
+  " markers and checkboxes are skipped)
   return s:string_length(matchstr(getline(a:lnum), vimwiki#vars#get_wikilocal('rxListItem')))
 endfunction
 
 
-"Returns: 2 if there is a marker and text
-" 1 for a marker and no text
-" 0 for no marker at all (empty line or only text)
 function! s:line_has_marker(lnum) abort
+  " Returns: 2 if there is a marker and text
+  " 1 for a marker and no text
+  " 0 for no marker at all (empty line or only text)
   if getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*$'
     return 1
   elseif getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*\S'
@@ -155,8 +155,8 @@ function! s:line_has_marker(lnum) abort
 endfunction
 
 
-" Remove a list item and it's children (recursive)
 function! s:remove_including_children(item) abort
+  " Remove a list item and it's children (recursive)
   let num_removed_lines = 1
   let child = s:get_first_child(a:item)
   while child.type != 0
@@ -177,13 +177,13 @@ endfunction
 " get properties of a list item
 " ---------------------------------------------------------
 
-"Returns: the mainly used data structure in this file
-"An item represents a single list item and is a dictionary with the keys
-"lnum - the line number of the list item
-"type - 1 for bulleted item, 2 for numbered item, 0 for a regular line (default)
-"mrkr - the concrete marker, e.g. '**' or 'b)' (default '')
-"cb   - the char in the checkbox or '' if there is no checkbox
 function! s:get_item(lnum) abort
+  " Returns: the mainly used data structure in this file
+  " An item represents a single list item and is a dictionary with the keys
+  " lnum - the line number of the list item
+  " type - 1 for bulleted item, 2 for numbered item, 0 for a regular line (default)
+  " mrkr - the concrete marker, e.g. '**' or 'b)' (default '')
+  " cb   - the char in the checkbox or '' if there is no checkbox
   " Init default
   let item = {'lnum': a:lnum}
   let item.type = 0
@@ -220,13 +220,14 @@ endfunction
 
 
 function! s:empty_item() abort
+  " Craft: empty item
   return {'type': 0}
 endfunction
 
 
-"Returns: level of the line
-"0 is the 'highest' level
 function! s:get_level(lnum) abort
+  " Returns: level of the line
+  " 0 is the 'highest' level
   if getline(a:lnum) =~# '^\s*$'
     return 0
   endif
@@ -243,10 +244,10 @@ function! s:get_level(lnum) abort
 endfunction
 
 
-"Returns: 1, a, i, A, I or ''
-"If in doubt if alphanumeric character or romanian
-"numeral, peek in the previous line
 function! s:guess_kind_of_numbered_item(item) abort
+  " Returns: 1, a, i, A, I or ''
+  " If in doubt if alphanumeric character or romanian
+  " numeral, peek in the previous line
   if a:item.type != 2 | return '' | endif
   let number_chars = a:item.mrkr[:-2]
   let divisor = a:item.mrkr[-1:]
@@ -324,8 +325,8 @@ function! s:regexp_of_marker(item) abort
 endfunction
 
 
-" Returns: Whether or not the checkbox of a list item is [X] or [-]
 function! s:is_closed(item) abort
+  " Returns: Whether or not the checkbox of a list item is [X] or [-]
   let state = a:item.cb
   return state ==# vimwiki#vars#get_wikilocal('listsyms_list')[-1]
         \ || state ==# vimwiki#vars#get_global('listsym_rejected')
@@ -335,9 +336,9 @@ endfunction
 " functions for navigating between items
 " ---------------------------------------------------------
 
-"Returns: the list item after a:item or an empty item
-"If a:ignore_kind is 1, the markers can differ
 function! s:get_next_list_item(item, ignore_kind) abort
+  " Returns: the list item after a:item or an empty item
+  " If a:ignore_kind is 1, the markers can differ
   let org_lvl = s:get_level(a:item.lnum)
   if !a:ignore_kind
     let org_regex = s:regexp_of_marker(a:item)
@@ -359,9 +360,9 @@ function! s:get_next_list_item(item, ignore_kind) abort
 endfunction
 
 
-"Returns: the list item before a:item or an empty item
-"If a:ignore_kind is 1, the markers can differ
 function! s:get_prev_list_item(item, ignore_kind) abort
+  " Returns: the list item before a:item or an empty item
+  " If a:ignore_kind is 1, the markers can differ
   let org_lvl = s:get_level(a:item.lnum)
   if !a:ignore_kind
     let org_regex = s:regexp_of_marker(a:item)
@@ -434,11 +435,11 @@ function! s:get_last_item_in_list(item, ignore_kind) abort
 endfunction
 
 
-"Returns: lnum+1 in most cases, but skips blank lines and preformatted text,
-"0 in case of nonvalid line.
-"If there is no second argument, 0 is returned at a header, otherwise the
-"header is skipped
 function! s:get_next_line(lnum, ...) abort
+  " Returns: lnum+1 in most cases, but skips blank lines and preformatted text,
+  " 0 in case of nonvalid line.
+  " If there is no second argument, 0 is returned at a header, otherwise the
+  " header is skipped
   if getline(a:lnum) =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     let cur_ln = a:lnum + 1
     while cur_ln <= line('$') && getline(cur_ln) !~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
@@ -464,9 +465,9 @@ function! s:get_next_line(lnum, ...) abort
 endfunction
 
 
-"Returns: lnum-1 in most cases, but skips blank lines and preformatted text
-"0 in case of nonvalid line and a header, because a header ends every list
 function! s:get_prev_line(lnum) abort
+  " Returns: lnum-1 in most cases, but skips blank lines and preformatted text
+  " 0 in case of nonvalid line and a header, because a header ends every list
   let cur_ln = a:lnum - 1
 
   if getline(cur_ln) =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
@@ -507,10 +508,10 @@ function! s:get_first_child(item) abort
 endfunction
 
 
-"Returns: the next sibling of a:child, given the parent item
-"Used for iterating over children
-"Note: child items do not necessarily have the same indent, i.e. level
 function! s:get_next_child_item(parent, child) abort
+  " Returns: the next sibling of a:child, given the parent item
+  " Used for iterating over children
+  " Note: child items do not necessarily have the same indent, i.e. level
   if a:parent.type == 0 | return s:empty_item() | endif
   let parent_lvl = s:get_level(a:parent.lnum)
   let cur_ln = s:get_last_line_of_item_incl_children(a:child)
@@ -556,8 +557,8 @@ function! s:get_parent(item) abort
 endfunction
 
 
-"Returns: the item above or the item below or an empty item
 function! s:get_a_neighbor_item(item) abort
+  " Returns: the item above or the item below or an empty item
   let prev_item = s:get_prev_list_item(a:item, 1)
   if prev_item.type != 0
     return prev_item
@@ -583,9 +584,9 @@ function! s:get_a_neighbor_item_in_column(lnum, column) abort
 endfunction
 
 
-"Returns: the item if there is one in a:lnum
-"else the multiline item a:lnum belongs to
 function! s:get_corresponding_item(lnum) abort
+  " Returns: the item if there is one in a:lnum
+  " else the multiline item a:lnum belongs to
   let item = s:get_item(a:lnum)
   if item.type != 0
     return item
@@ -607,8 +608,8 @@ function! s:get_corresponding_item(lnum) abort
 endfunction
 
 
-"Returns: the last line of a (possibly multiline) item, including all children
 function! s:get_last_line_of_item_incl_children(item) abort
+  " Returns: the last line of a (possibly multiline) item, including all children
   let cur_ln = a:item.lnum
   let org_lvl = s:get_level(a:item.lnum)
   while 1
@@ -621,9 +622,9 @@ function! s:get_last_line_of_item_incl_children(item) abort
 endfunction
 
 
-"Returns: the last line of a (possibly multiline) item
-"Note: there can be other list items between the first and last line
 function! s:get_last_line_of_item(item) abort
+  " Returns: the last line of a (possibly multiline) item
+  " Note: there can be other list items between the first and last line
   if a:item.type == 0 | return 0 | endif
   let org_lvl = s:get_level(a:item.lnum)
   let last_corresponding_line = a:item.lnum
@@ -650,9 +651,9 @@ endfunction
 " renumber list items
 " ---------------------------------------------------------
 
-"Renumbers the current list from a:item on downwards
-"Returns: the last item that was adjusted
 function! s:adjust_numbered_list_below(item, recursive) abort
+  " Renumbers the current list from a:item on downwards
+  " Returns: the last item that was adjusted
   if !(a:item.type == 2 || (a:item.type == 1 && a:recursive))
     return a:item
   endif
@@ -702,11 +703,11 @@ function! s:adjust_items_recursively(parent) abort
 endfunction
 
 
-"Renumbers the list a:item is in.
-"If a:ignore_kind == 0, only the items which have the same kind of marker as
-"a:item are considered, otherwise all items.
-"Returns: the last item that was adjusted
 function! s:adjust_numbered_list(item, ignore_kind, recursive) abort
+  " Renumbers the list a:item is in.
+  " If a:ignore_kind == 0, only the items which have the same kind of marker as
+  " a:item are considered, otherwise all items.
+  " Returns: the last item that was adjusted
   if !(a:item.type == 2 || (a:item.type == 1 && (a:ignore_kind || a:recursive)))
     return s:empty_item()
   end
@@ -731,9 +732,9 @@ function! s:adjust_numbered_list(item, ignore_kind, recursive) abort
 endfunction
 
 
-"Renumbers the list the cursor is in
-"also update its parents checkbox state
 function! vimwiki#lst#adjust_numbered_list() abort
+  " Renumbers the list the cursor is in
+  " also update its parents checkbox state
   let cur_item = s:get_corresponding_item(line('.'))
   if cur_item.type == 0 | return | endif
   call s:adjust_numbered_list(cur_item, 1, 0)
@@ -741,9 +742,9 @@ function! vimwiki#lst#adjust_numbered_list() abort
 endfunction
 
 
-"Renumbers all lists of the buffer
-"of course, this might take some seconds
 function! vimwiki#lst#adjust_whole_buffer() abort
+  " Renumbers all lists of the buffer
+  " of course, this might take some seconds
   let cur_ln = 1
   while 1
     let cur_item = s:get_item(cur_ln)
@@ -762,8 +763,8 @@ endfunction
 " checkbox stuff
 " ---------------------------------------------------------
 
-"Returns: the rate of checkboxed list item in percent
 function! s:get_rate(item) abort
+  " Returns: the rate of checkboxed list item in percent
   if a:item.type == 0 || a:item.cb ==? ''
     return -1
   endif
@@ -776,9 +777,9 @@ function! s:get_rate(item) abort
 endfunction
 
 
-"Set state of the list item to [ ] or [o] or whatever
-"Returns: 1 if the state changed, 0 otherwise
 function! s:set_state(item, new_rate) abort
+  " Set state of the list item to [ ] or [o] or whatever
+  " Returns: 1 if the state changed, 0 otherwise
   let new_state = s:rate_to_state(a:new_rate)
   let old_state = s:rate_to_state(s:get_rate(a:item))
   if new_state !=# old_state
@@ -790,10 +791,10 @@ function! s:set_state(item, new_rate) abort
 endfunction
 
 
-" Sets the state of the list item to [ ] or [o] or whatever. Updates the states of its child items.
-" If the new state should be [X] or [-], the state of the current list item is changed to this
-" state, but if a child item already has [X] or [-] it is left alone.
 function! s:set_state_plus_children(item, new_rate, ...) abort
+  " Sets the state of the list item to [ ] or [o] or whatever. Updates the states of its child items.
+  " If the new state should be [X] or [-], the state of the current list item is changed to this
+  " state, but if a child item already has [X] or [-] it is left alone.
   let retain_state_if_closed = a:0 > 0 && a:1 > 0
 
   if !(retain_state_if_closed && (a:new_rate == 100 || a:new_rate == -1) && s:is_closed(a:item))
@@ -849,8 +850,8 @@ function! s:set_state_plus_children(item, new_rate, ...) abort
 endfunction
 
 
-"Returns: the appropriate symbol for a given percent rate
 function! s:rate_to_state(rate) abort
+  " Returns: the appropriate symbol for a given percent rate
   let listsyms_list = vimwiki#vars#get_wikilocal('listsyms_list')
   let state = ''
   let n = len(listsyms_list)
@@ -868,9 +869,8 @@ function! s:rate_to_state(rate) abort
 endfunction
 
 
-"updates the symbol of a checkboxed item according to the symbols of its
-"children
 function! s:update_state(item) abort
+  " Updates the symbol of a checkboxed item according to the symbols of its children
   if a:item.type == 0 || a:item.cb ==? '' || vimwiki#vars#get_wikilocal('listsyms_propagate') == 0
     return
   endif
@@ -923,9 +923,9 @@ function! s:set_state_recursively(item, new_rate) abort
 endfunction
 
 
-"Creates checkbox in a list item.
-"Returns: 1 if successful
 function! s:create_cb(item, start_rate) abort
+  " Creates checkbox in a list item.
+  " Returns: 1 if successful
   if a:item.type == 0 || a:item.cb !=? ''
     return 0
   endif
@@ -950,8 +950,8 @@ function! s:remove_cb(item) abort
 endfunction
 
 
-" Change state of the checkboxes in the lines of the given range
 function! s:change_cb(from_line, to_line, new_rate) abort
+  " Change state of the checkboxes in the lines of the given range
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -973,13 +973,12 @@ function! s:change_cb(from_line, to_line, new_rate) abort
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
   endfor
-
 endfunction
 
 
-" Toggles checkbox between two states in the lines of the given range, creates checkboxes (with
-" a:start_rate as state) if there aren't any.
 function! s:toggle_create_cb(from_line, to_line, state1, state2, start_rate) abort
+  " Toggles checkbox between two states in the lines of the given range, creates checkboxes (with
+  " a:start_rate as state) if there aren't any.
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -1014,13 +1013,12 @@ function! s:toggle_create_cb(from_line, to_line, state1, state2, start_rate) abo
     call s:change_cb(a:from_line, a:to_line, new_rate)
 
   endif
-
 endfunction
 
 
-"Decrement checkbox between [ ] and [X]
-"in the lines of the given range
 function! vimwiki#lst#decrement_cb(from_line, to_line) abort
+  " Decrement checkbox between [ ] and [X]
+  " in the lines of the given range
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -1032,13 +1030,12 @@ function! vimwiki#lst#decrement_cb(from_line, to_line) abort
   let new_rate = max([rate_first_line - 100/(n-1)-1, 0])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
-
 endfunction
 
 
-"Increment checkbox between [ ] and [X]
-"in the lines of the given range
 function! vimwiki#lst#increment_cb(from_line, to_line) abort
+  " Increment checkbox between [ ] and [X]
+  " in the lines of the given range
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     return
@@ -1050,20 +1047,19 @@ function! vimwiki#lst#increment_cb(from_line, to_line) abort
   let new_rate = min([rate_first_line + 100/(n-1)+1, 100])
 
   call s:change_cb(a:from_line, a:to_line, new_rate)
-
 endfunction
 
 
-"Toggles checkbox between [ ] and [X] or creates one
-"in the lines of the given range
 function! vimwiki#lst#toggle_cb(from_line, to_line) abort
+  " Toggles checkbox between [ ] and [X] or creates one
+  " in the lines of the given range
   return s:toggle_create_cb(a:from_line, a:to_line, 100, 0, 0)
 endfunction
 
 
-"Toggles checkbox between [ ] and [-] or creates one
-"in the lines of the given range
 function! vimwiki#lst#toggle_rejected_cb(from_line, to_line) abort
+  " Toggles checkbox between [ ] and [-] or creates one
+  " in the lines of the given range
   return s:toggle_create_cb(a:from_line, a:to_line, -1, 0, -1)
 endfunction
 
@@ -1114,9 +1110,9 @@ function! vimwiki#lst#remove_cb_in_list() abort
 endfunction
 
 
-" Iterate over given todo list and remove all task that are done
-" If recursive is true, child items will be checked too
 function! s:remove_done_in_list(item, recursive) abort
+  " Iterate over given todo list and remove all task that are done
+  " If recursive is true, child items will be checked too
   " Clause non-null item type
   if a:item.type == 0
     return
@@ -1151,17 +1147,17 @@ function! s:remove_done_in_list(item, recursive) abort
 endfunction
 
 
-" Iterate over the list that the cursor is positioned in
-" and remove all lines of task that are done.
-" If recursive is true, child items will be checked too
 function! vimwiki#lst#remove_done_in_current_list(recursive) abort
+  " Iterate over the list that the cursor is positioned in
+  " and remove all lines of task that are done.
+  " If recursive is true, child items will be checked too
   let item = s:get_corresponding_item(line('.'))
   call s:remove_done_in_list(item, a:recursive)
 endfunction
 
 
-" Remove selected lines if they contain a task that is done
 function! vimwiki#lst#remove_done_in_range(first_line, last_line) abort
+  " Remove selected lines if they contain a task that is done
   let first_item = s:get_corresponding_item(a:first_line)
   let last_item = s:get_corresponding_item(a:last_line)
 
@@ -1195,12 +1191,12 @@ function! vimwiki#lst#remove_done_in_range(first_line, last_line) abort
 endfunction
 
 
-" wrapper function to distinguish between function used with a range or not
-" vim 8.0.1089 and newer and corresponding neovim versions allow to use <range> to distinguish if
-" the function has been called with a range. For older versions we use remove_done_in_range if
-" first and last line are identical, which means there was either no range or the range was within
-" one line.
 function! vimwiki#lst#remove_done(recursive, range, first_line, last_line) abort
+  " wrapper function to distinguish between function used with a range or not
+  " vim 8.0.1089 and newer and corresponding neovim versions allow to use <range> to distinguish if
+  " the function has been called with a range. For older versions we use remove_done_in_range if
+  " first and last line are identical, which means there was either no range or the range was within
+  " one line.
   if a:range ==# '<range>'
     let range = a:first_line != a:last_line
   else
@@ -1269,11 +1265,11 @@ function! s:increase_level(item, by) abort
 endfunction
 
 
-" Cycle through the bullet list markers set in
-" `bullet_types` based on the indentation level
-" TODO there is potential to merge this with the change_marker* funcs further
-" up if we can make them operate on arbitrary lists of characters
 function! s:indent_cycle_bullets(item, indent_by) abort
+  " Cycle through the bullet list markers set in
+  " `bullet_types` based on the indentation level
+  " TODO there is potential to merge this with the change_marker* funcs further
+  " up if we can make them operate on arbitrary lists of characters
   " Clause: Check if should work
   if !vimwiki#vars#get_syntaxlocal('cycle_bullets') || a:item.type != 1
     return
@@ -1287,9 +1283,9 @@ function! s:indent_cycle_bullets(item, indent_by) abort
 endfunction
 
 
-" Add a:indent_by to the current indent
-"a:indent_by can be negative
 function! s:indent_line_by(lnum, indent_by) abort
+  " Add a:indent_by to the current indent
+  "a:indent_by can be negative
   let item = s:get_item(a:lnum)
   if a:indent_by > 0
     call s:increase_level(item, a:indent_by)
@@ -1300,8 +1296,8 @@ function! s:indent_line_by(lnum, indent_by) abort
 endfunction
 
 
-" Change lvl of lines in selection
 function! s:change_level(from_line, to_line, direction, plus_children) abort
+  " Change lvl of lines in selection
   let from_item = s:get_corresponding_item(a:from_line)
   if from_item.type == 0
     if a:direction ==# 'increase' && a:from_line == a:to_line && empty(getline(a:from_line))
@@ -1385,8 +1381,8 @@ function! vimwiki#lst#change_level(from_line, to_line, direction, plus_children)
 endfunction
 
 
-"indent line a:lnum to be the continuation of a:prev_item
 function! s:indent_multiline(prev_item, lnum) abort
+  " Indent line a:lnum to be the continuation of a:prev_item
   if a:prev_item.type != 0
     call s:set_indent(a:lnum, s:text_begin(a:prev_item.lnum))
   endif
@@ -1397,8 +1393,8 @@ endfunction
 " change markers of list items
 " ---------------------------------------------------------
 
-"Returns: the position of a marker in g:vimwiki_list_markers
 function! s:get_idx_list_markers(item) abort
+  " Returns: the position of a marker in g:vimwiki_list_markers
   if a:item.type == 1
     let m = s:first_char(a:item.mrkr)
   else
@@ -1408,8 +1404,8 @@ function! s:get_idx_list_markers(item) abort
 endfunction
 
 
-"changes the marker of the given item to the next in g:vimwiki_list_markers
 function! s:get_next_mrkr(item) abort
+  " Changes the marker of the given item to the next in g:vimwiki_list_markers
   let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
     let new_mrkr = markers[0]
@@ -1421,8 +1417,8 @@ function! s:get_next_mrkr(item) abort
 endfunction
 
 
-"changes the marker of the given item to the previous in g:vimwiki_list_markers
 function! s:get_prev_mrkr(item) abort
+  " Changes the marker of the given item to the previous in g:vimwiki_list_markers
   let markers = vimwiki#vars#get_syntaxlocal('list_markers')
   if a:item.type == 0
     return markers[-1]
@@ -1519,8 +1515,8 @@ function! vimwiki#lst#change_marker_in_list(new_mrkr) abort
 endfunction
 
 
-"sets kind of the item depending on neighbor items and the parent item
 function! s:adjust_mrkr(item) abort
+  " Sets kind of the item depending on neighbor items and the parent item
   if a:item.type == 0 || vimwiki#vars#get_syntaxlocal('recurring_bullets')
     return
   endif
@@ -1771,12 +1767,11 @@ function! vimwiki#lst#kbd_cr(normal, just_mrkr) abort
   else
     startinsert
   endif
-
 endfunction
 
 
-"creates a list item in the current line or removes it
 function! vimwiki#lst#toggle_list_item() abort
+  " Creates a list item in the current line or removes it
   let cur_col_from_eol = col('$') - col("'^")
   let cur_item = s:get_item(line('.'))
 
