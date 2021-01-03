@@ -1759,6 +1759,7 @@ let s:emoji_dic = {}
 
 
 function! vimwiki#emoji#get_dic() abort
+  " Get Dic:
   if s:emoji_dic == {}
     call extend(s:emoji_dic, s:emoji_multiple)
     call extend(s:emoji_dic, s:emoji_single)
@@ -1766,17 +1767,17 @@ function! vimwiki#emoji#get_dic() abort
   return s:emoji_dic
 endfunction
 
-" Conceal
 function! vimwiki#emoji#apply_conceal() abort
+  " Apply Conceal:
   for [name, emoji] in items(s:emoji_single)
     exe 'syn keyword VimwikiEmoji :' . name . ': conceal cchar=' . emoji
   endfor
 endfunction
 
 
-" Junegunn fuzzy hack
 let s:max_score = 1000
 function! s:score(haystack, needle) abort
+  " Get Score: Junegunn fuzzy hack
   let idx = stridx(a:haystack, a:needle)
   if idx < 0  | return idx             | endif
   if idx == 0 | return s:max_score * 2 | endif
@@ -1785,8 +1786,8 @@ function! s:score(haystack, needle) abort
 endfunction
 
 
-" Complete
 function! vimwiki#emoji#complete(findstart, base) abort
+  " Complete:
   " Init full list if must
   if s:emojis == []
     let s:emojis = map(sort(keys(vimwiki#emoji#get_dic())),

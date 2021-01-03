@@ -417,9 +417,9 @@ function! s:tag_code(value) abort
 endfunction
 
 
-"   match n-th ARG within {{URL[|ARG1|ARG2|...]}}
-" *c,d,e),...
 function! s:incl_match_arg(nn_index) abort
+  "   match n-th ARG within {{URL[|ARG1|ARG2|...]}}
+  " *c,d,e),...
   let rx = vimwiki#vars#get_global('rxWikiInclPrefix'). vimwiki#vars#get_global('rxWikiInclUrl')
   let rx = rx . repeat(vimwiki#vars#get_global('rxWikiInclSeparator') .
         \ vimwiki#vars#get_global('rxWikiInclArg'), a:nn_index-1)

@@ -985,7 +985,11 @@ Vimwiki has evolved its own syntax that closely resembles Google's wiki
 markup.  This syntax is described in detail below.
 
 Vimwiki also supports alternative syntaxes, like Markdown and MediaWiki, to
-varying degrees; see |vimwiki-option-syntax|.  Static elements like headers,
+varying degrees; see |vimwiki-option-syntax|.
+The Markdown specification Vimwiki is trying to stick to can be found at:
+https://github.github.com/gfm
+
+Static elements like headers,
 quotations, and lists are customized in syntax/vimwiki_xxx.vim, where xxx
 stands for the chosen syntax.
 

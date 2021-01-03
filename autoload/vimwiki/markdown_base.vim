@@ -34,8 +34,8 @@ function! vimwiki#markdown_base#scan_reflinks() abort
 endfunction
 
 
-" try markdown reference links
 function! vimwiki#markdown_base#open_reflink(link) abort
+  " try markdown reference links
   let link = a:link
   let mkd_refs = vimwiki#vars#get_bufferlocal('markdown_refs')
   if has_key(mkd_refs, link)
@@ -106,7 +106,6 @@ function! s:normalize_link_syntax_n() abort
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
     return
   endif
-
 endfunction
 
 
