@@ -1,0 +1,66 @@
+# Table autoformating
+# Very configurable: read doc/design_notes.md
+
+# Move <Tab> and <S-Tab> map {{{1
+# See #1048
+##########################
+
+Given vimwiki (Table Number):
+  | A | B | C |
+  |---|---|---|
+  | 1 | 2 | 3 |
+  | 4 | 5 | 6 |
+
+Execute (testmap):
+  imap testmap1 <Plug>VimwikiTableNextCell
+  imap testmap2 <Plug>VimwikiTablePrevCell
+
+Do (2 x Next):
+  gga
+  testmap1
+  testmap1
+  \<Del>Z
+
+Expect (One Z in B):
+  | A | Z | C |
+  |---|---|---|
+  | 1 | 2 | 3 |
+  | 4 | 5 | 6 |
+
+Do (4 X Next):
+  gga
+  testmap1
+  testmap1
+  testmap1
+  testmap1
+  \<Del>Z
+
+Expect (One Z in 1):
+  | A | B | C |
+  |---|---|---|
+  | Z | 2 | 3 |
+  | 4 | 5 | 6 |
+
+Do (4 X Next + 1 X Prev):
+  gga
+  testmap1
+  testmap1
+  testmap1
+  testmap1
+  testmap1
+  testmap2
+  \<Del>Z
+
+Expect (One Z in 1):
+  | A | B | C |
+  |---|---|---|
+  | Z | 2 | 3 |
+  | 4 | 5 | 6 |
+
+
+Execute (Clean #1048):
+  iunmap testmap1
+  iunmap testmap2
+
+
+# vim: foldmethod=marker foldlevel=30
