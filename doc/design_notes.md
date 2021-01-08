@@ -240,8 +240,9 @@ reasons for such a complex system is:
 
 * [Vimwiki syntax specification](./specification.wiki)
 * [Syntax region](../syntax/vimwiki.vim)
+* [Nesting manager]( ../autoload/vimwiki/u.vim): vimwiki#u#hi_typeface(dic)
 
-TODO currently the typeface delmiters are customized that way:
+TODO currently the typeface delimiters are customized that way:
 
 ```vim
 " Typeface: -> u.vim

@@ -1,8 +1,7 @@
 " TODO treat if local (see $HOME in all tests)
-" TODO mutualise call CopyResources()
 " TODO mutualise (to prettify output) mode(1) to check if in -Es or not
 " TODO test tabnext in at least one travis job (without -Es)
-" TODO (idea) fasten travis difefrent job with the same vimwiki git (-8s)
+" IDEA fasten travis difefrent job with the same vimwiki git (-8s)
 
 " Declare tipical Vim preambule
   " vint: -ProhibitSetNoCompatible
@@ -29,6 +28,7 @@
   let vimwiki_default = {}
   let vimwiki_default.path = $HOME . '/testwiki'
   let vimwiki_default.path_html = $HOME . '/html/default'
+  let vimwiki_default.template_path = $HOME . '/testwiki/templates/'
   let vimwiki_default.syntax = 'default'
   let vimwiki_default.ext = '.wiki'
   let vimwiki_default.name = 'DefaultSyntax'

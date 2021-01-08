@@ -118,14 +118,20 @@ endfunction
 
 
 function! s:template_full_name(name) abort
-  if a:name ==? ''
+  let name = a:name
+  if name ==? ''
     let name = vimwiki#vars#get_wikilocal('template_default')
-  else
-    let name = a:name
   endif
 
-  let fname = expand(vimwiki#vars#get_wikilocal('template_path').
-        \ name . vimwiki#vars#get_wikilocal('template_ext'))
+  " Suffix Path by a / is not
+  let path = vimwiki#vars#get_wikilocal('template_path')
+  if strridx(path, '/') +1 != len(path) 
+    let path .= '/'
+  endif
+
+  let ext = vimwiki#vars#get_wikilocal('template_ext')
+
+  let fname = expand(path . name . ext)
 
   if filereadable(fname)
     return fname

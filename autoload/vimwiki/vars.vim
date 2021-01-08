@@ -1286,7 +1286,6 @@ endfunction
 " 4. Command (exported) {{{1
 " ----------------------------------------------------------
 
-
 function! s:get_anywhere(key, ...) abort
   " Get variable anywhere
   " Returns: [value, location] where loc=global|wikilocal|syntaxlocal|bufferlocal|none
@@ -1390,7 +1389,7 @@ endfunction
 
 function! vimwiki#vars#cmd(arg) abort
   " Set or Get a vimwiki variable
-  " :param: (1) key <string> [space] value <string>
+  " :param: (1) <string> command parameter: key [space] value
   " -- name of the variable [space] value to evaluate and set the variable
   " Called: VimwikiVar
   " Get key and value

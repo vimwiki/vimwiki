@@ -280,7 +280,33 @@ Expect (Plain Html):
 
   </body>
 
+
 Execute (Delete):
   call DeleteFile('$HOME/testwiki/TestHtml.wiki')
+
+
+Given vimwiki (PR: Add option to configure date string format 1073) {{{1):
+  %template template_1073
+  content
+
+Do (template_date_format):
+# Set conf
+  :let g:vimwiki_wikilocal_vars[0]['template_date_format'] = '%b %d, %Y'\<Cr>
+# Convert
+  :call ConvertWiki2Html()\<Cr>
+# Erase oth and date
+  :%s/[0-9]\+/Z/g\<Cr>
+  :%s/[A-Z][a-z][a-z]/Z/g\<Cr>
+# Restore peace
+  :let g:vimwiki_wikilocal_vars[0]['template_date_format'] = ''\<Cr>
+
+Expect (Date proper format):
+  <html>
+  <body>
+      <div class="content">
+          <p><small>Zt updated on Z Z, Z</small></p>
+      </div>
+  </body>
+  </html>
 
 # vim: sw=2 foldmethod=marker foldlevel=30
