@@ -333,6 +333,10 @@
     " Get output of `hi group`
     " From: https://vi.stackexchange.com/a/12294/5026
     " Return list ['bold','underline']
+    " Warning: must be called if version > 704
+    " Clause
+    if v:version < 704 | return [] | endif
+
     " Store output of group to variable
     let out = execute('hi ' . a:group)
 
