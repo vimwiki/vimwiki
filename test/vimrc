@@ -87,8 +87,8 @@
   endif
 
 " Define functions
-  " Change the syntax using a temporary wiki
   function! SetSyntax(vw_syn)
+    " Change the syntax using a temporary wiki
     " Change extension and wiki_nr
     let index=0
     if a:vw_syn ==# 'default'
@@ -164,13 +164,13 @@
     endif
   endfunction
 
-  " Source plugin
   function! LoadVimwiki()
+    " Source plugin
     runtime! plugin/vimwiki.vim
   endfunction
 
-  " Reload plugin to change settings
   function! ReloadVimwiki()
+    " Reload plugin to change settings
     call UnloadVimwiki()
 
     " Reset list
@@ -185,17 +185,17 @@
     call vimwiki#vars#init()
   endfunction
 
-  " Copy wiki test resources so that vimtest user can write them
   function! CopyResources()
+    " Copy wiki test resources so that vimtest user can write them
     call system('cp -r /testplugin/test/resources/* $HOME/')
     " Make diary directory
     call system('mkdir $HOME/testwiki/diary')
     call system('mkdir $HOME/testmarkdown/diary')
   endfunction
 
-  " Delete Hidden buffer, usefull to clean
-  " Stole from: https://stackoverflow.com/a/8459043/2544873
   function! DeleteHiddenBuffers()
+    " Delete Hidden buffer, usefull to clean
+    " See: https://stackoverflow.com/a/8459043/2544873
     let tpbl=[]
     call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
     for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
@@ -206,14 +206,14 @@
     endfor
   endfunction
 
-  " Write current file: helper to hide `set bt=`
   function! WriteMe()
+    " Write current file: helper to hide `set bt=`
     set buftype=
     write! %
   endfunction
 
-  " Delete a file <- path <string>
   function! DeleteFile(path)
+    " Delete a file <- path <string>
     let path = expand(a:path)
     " Delete file
     try
@@ -225,8 +225,8 @@
     catch | endtry
   endfunction
 
-  " Print a command output to the buffer
   function! PrintCommand(cmd)
+    " Print a command output to the buffer
     redir => message
     silent execute a:cmd
     redir END
@@ -237,21 +237,21 @@
     endif
   endfunction
 
-  " Destroy a variable is exists (unlet)
   function! DestroyVar(var)
+    " Destroy a variable is exists (unlet)
     if ! exists(a:var) | return | endif
     execute 'unlet ' . a:var
   endfunction
 
-  " Assert current tab is desired tab
   function! AssertTab(nr)
+    " Assert current tab is desired tab
     " Vader is creating 2 tabs
     AssertEqual a:nr + 2, tabpagenr()
   endfunction
 
-  " Convert current buffer: wiki -> html
-  " No side effect (if no bug)
   function! ConvertWiki2Html()
+    " Convert current buffer: wiki -> html
+    " No side effect (if no bug)
     " Save fbuffer number (to come back)
     let g:buf_vader = bufnr('%')
 
@@ -287,8 +287,8 @@
     call DeleteFile('$HOME/testwiki/test_Convert2Html.wiki')
   endfunction
 
-  " Get only body
   function! ConvertWiki2Body()
+    " Get only body
     call ConvertWiki2Html()
 
     " Empty b register
@@ -307,26 +307,45 @@
     0d
   endfunction
 
-  " Get normalized syntax group: usefull for boldItalic Vs italicBold
-  " -- Here, Vader's SyntaxAt is not enough
-  " From: https://stackoverflow.com/questions/9464844
   function! GetSyntaxGroup(line, col)
+    " Get normalized syntax group: usefull for boldItalic Vs italicBold
+    " -- Here, Vader's SyntaxAt is not enough
+    " From: https://stackoverflow.com/questions/9464844
     let l:s = synID(a:line, a:col, 1)
     return synIDattr(synIDtrans(l:s), 'name')
   endfun
 
-  " Debug helper
   function! GetSyntaxStack()
+    " Debug helper
     if !exists('*synstack')
       return
     endif
     return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
   endfunc
 
-  " Run Assert only if vim version higth enough
   function! AssertIfVersion(version, one, two)
+    " Run Assert only if vim version higth enough
     if v:version < a:version | return | endif
     AssertEqual a:one, a:two
+  endfunction
+
+  function! GetHighlightTerm(group, term)
+    " Get output of `hi group`
+    " From: https://vi.stackexchange.com/a/12294/5026
+    " Return list ['bold','underline']
+    " Store output of group to variable
+    let out = execute('hi ' . a:group)
+
+    " If links to, call parent
+    let parent = matchstr(out, 'links to *\zs[^ \t\n\r]*')
+    if parent !=# ''
+      " Return list_of_parent, parent
+      return GetHighlightTerm(parent, a:term)
+    endif
+
+      " Return the unique term we are looking for
+    let stg = matchstr(out, a:term.'=\zs[^ \t\n\r]*')
+    return split(stg, ',')
   endfunction
 
 

@@ -1150,24 +1150,24 @@ The primary purpose for wiki-include links is to include images.
 Transclude from a local URL: >
   {{file:../../images/vimwiki_logo.png}}
 or from a universal URL: >
-  {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png}}
+  {{https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png}}
 
 Transclude image with alternate text: >
-  {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png|Vimwiki}}
+  {{https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png|Vimwiki}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="Vimwiki"/>
 
 Transclude image with alternate text and some style: >
   {{http://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="cool stuff" style="width:150px; height:120px"/>
 
 Transclude image _without_ alternate text and with a CSS class: >
   {{http://.../vimwiki_logo.png||class="center flow blabla"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="" class="center flow blabla"/>
 
 A trial feature allows you to supply your own handler for wiki-include links.

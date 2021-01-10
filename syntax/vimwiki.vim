@@ -257,10 +257,12 @@ endif
 " Horizontal Rule: <hr>
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
 
+" Preformated Text: `like that`
 let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
 execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@NoSpell'.concealpre
 
+" Equation Text: $like that$
 execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
@@ -281,7 +283,7 @@ if vimwiki#vars#get_global('valid_html_tags') !=? ''
   let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
   
-  " Typeface:
+  " Html Typeface: <b>bold text</b>
   let html_typeface = {
     \ 'bold': [['<b>', '</b\_s*>'], ['<strong>', '</strong\_s*>']],
     \ 'italic': [['<i>', '</i\_s*>'], ['<em>', '</em\_s*>']],
@@ -292,6 +294,7 @@ if vimwiki#vars#get_global('valid_html_tags') !=? ''
     \ 'sup': [['<sup>', '</sup\_s*>']],
     \ 'sub': [['<sub>', '</sub\_s*>']],
     \ }
+  " Highlight now
   call vimwiki#u#hi_typeface(html_typeface)
 endif
 
@@ -401,15 +404,12 @@ hi def VimwikiItalicUnderline term=italic,underline cterm=italic,underline gui=i
 hi def link VimwikiUnderlineItalic VimwikiItalicUnderline
 
 " Typeface 3
-hi def VimwikiItalicUnderline term=italic,underline cterm=italic,underline gui=italic,underline
+hi def VimwikiBoldItalicUnderline term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
 hi def link VimwikiBoldUnderlineItalic VimwikiBoldItalicUnderline
 hi def link VimwikiItalicBoldUnderline VimwikiBoldItalicUnderline
 hi def link VimwikiItalicUnderlineBold VimwikiBoldItalicUnderline
 hi def link VimwikiUnderlineBoldItalic VimwikiBoldItalicUnderline
 hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
-
-" Typeface 2
-hi def VimwikiBoldUnderlineItalic term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
 
 " Code
 hi def link VimwikiCode PreProc

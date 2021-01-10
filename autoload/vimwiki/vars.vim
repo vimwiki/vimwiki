@@ -189,7 +189,7 @@ endfunction
 
 
 function! s:populate_global_variables() abort
-  " Populate global variable <- user & default
+  " Populate: global variable <- user & default
   " Called: s:vimwiki#vars#init
   call s:read_global_settings_from_user()
   call s:normalize_global_settings()
@@ -198,25 +198,32 @@ endfunction
 
 
 function! s:internal_global_settings() abort
-  " Read nromalized settings and create some more usefull variables to use internally
+  " Declare: normalized settings -> more usefull variables to use internally
   " non-configurable global variables:
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
   " able to <leader>w<leader>w without opening any vimwiki file first
+
+  " Know internal schemes
   let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
+
+  " Are used in markdown for image links
   let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
         \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
         \ 'git', 'ssh', 'fish', 'sftp'], '\|')
+
+  " Other possible schemes
   let web_schemes2 =
         \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
 
+  " Concatenate known schemes => regex
   let g:vimwiki_global_vars.rxSchemes = '\%('.
         \ g:vimwiki_global_vars.schemes . '\|'.
         \ g:vimwiki_global_vars.web_schemes1 . '\|'.
         \ web_schemes2 .
         \ '\)'
 
-  " match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
+  " Match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
   " http://tools.ietf.org/html/rfc3986
   let rxWebProtocols =
         \ '\%('.
@@ -227,7 +234,6 @@ function! s:internal_global_settings() abort
         \ '\|'.
           \ '\%('.web_schemes2.'\):'.
         \ '\)'
-
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
 
   let wikilink_prefix = '[['
