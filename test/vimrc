@@ -54,6 +54,23 @@
   let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
   let g:vimwiki_list_vimrc = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
 
+  " Test VimwikiColorize and ,wc
+  let g:vimwiki_color_dic = {
+        \   'default': ['', '#d79921'],
+        \   'red': ['#cc241d', ''],
+        \   'bred': ['', '#cc241d'],
+        \   'green': ['#98971a', ''],
+        \   'bgreen': ['', '#98971a'],
+        \   'yellow': ['#d79921', ''],
+        \   'byellow': ['', '#d79921'],
+        \   'blue': ['#458588', ''],
+        \   'bblue': ['', '#458588'],
+        \   'purple': ['#b16286', ''],
+        \   'bpurple': ['', '#b16286'],
+        \   'orange': ['#d65d0e', ''],
+        \   'borange': ['', '#d65d0e'],
+        \   'gray': ['#a89984', ''],
+        \   'bgray': ['', '#a89984']}
 
 " Set basic settings
   " Avoid more prompt

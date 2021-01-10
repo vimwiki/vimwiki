@@ -381,6 +381,11 @@ MAP                MODE
                         Maps to |:VimwikiPrevLink|.
                         Remap command: `<Plug>VimwikiPrevLink`
 
+                                                          *vimwiki_<Leader>wc*
+<Leader>wc         n v  Colorize line or selection if from visual mode
+                        Maps to |:VimwikiColorize| after asking user for color
+                        Remap command: `<Plug>VimwikiColorize`
+
                                                           *vimwiki_<Leader>wn*
 <Leader>wn         n    Goto or create new wiki page.
                         Maps to |:VimwikiGoto|.
@@ -965,13 +970,9 @@ Vimwiki file.
     sure the tags have been built (see |vimwiki-build-tags|).
 
 *:VimwikiColorize* red
-    Colorize current line with the color given in argument. The possible
+    Colorize |range| of lines with the color given in argument. The possible
     colors are configured by |vimwiki-option-color_dic| and the format of the
     surrounding color tags by |vimwiki-option-color_tag_template|
-    TODO
-    Currently only the current line is colorized, a support for the selection
-    will come. Maybe some mapping and color completion in popup (See
-    changelog
 
 
 ==============================================================================
@@ -2867,7 +2868,7 @@ Default: 0
 
 Dictionary containing the possible html colors for |:VimwikiColorize| the
 keys are the color names used as argument, the values are a list [foreground,
-backgroud] of the color. For example:
+background] of the color. For example:
 
 {'red': ['#cc241d', ''], 'bred': ['', '#cc241d']}
 
@@ -3902,6 +3903,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
     * Feature: PR #686: add a flag lists_return to disable mappings 
       to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings

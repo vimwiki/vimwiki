@@ -86,9 +86,90 @@ Do (,w,m -> open tomorrow [Assert]):
 # 2 Local {{{1
 ##############
 
-Execute (===========================================================):
-  Log "Checking local map"
+#Execute (===========================================================):
+#  Log "Checking local map"
+#
+#
+## 2.3 Font color {{{2
+Given (Some paragraphs):
+  Some paragraph with some words 1
+  Some paragraph with some words 2
+  Some paragraph with some words 3
+  Some paragraph with some words 4
 
+Execute(Colorize1: Current line):
+  set ft=vimwiki
+  call SetSyntax('markdown')
+  AssertEqual 3, vimwiki#vars#get_bufferlocal('wiki_nr')
+  AssertEqual 'vimwiki', &ft
+  "AssertEqual ',', mapleader
+  " Returns: Undefeind mapleader
+  VimwikiColorize red
+
+Expect (Some paragraphs):
+  <span style="color:#cc241d;">Some paragraph with some words 1</span>
+  Some paragraph with some words 2
+  Some paragraph with some words 3
+  Some paragraph with some words 4
+
+Execute(Colorize2: 2 lines):
+  2,3VimwikiColorize red
+
+Expect (Some paragraphs):
+  Some paragraph with some words 1
+  <span style="color:#cc241d;">Some paragraph with some words 2
+  Some paragraph with some words 3</span>
+  Some paragraph with some words 4
+
+Do(,wc):
+  \wc1\<Cr>\<Cr>
+
+Expect (Some paragraphs):
+  <span style="background:#458588;">Some paragraph with some words 1</span>
+  Some paragraph with some words 2
+  Some paragraph with some words 3
+  Some paragraph with some words 4
+
+Do(User leave menu):
+  ,wc\<Esc>
+
+Expect (Some paragraphs, nothing changed):
+  Some paragraph with some words 1
+  Some paragraph with some words 2
+  Some paragraph with some words 3
+  Some paragraph with some words 4
+
+Do(v,wc):
+  jwll
+  v
+  jjllll
+  \wc14\<Cr>
+
+Expect (Some paragraphs):
+  Some paragraph with some words 1
+  Some pa<span style="color:#cc241d;">ragraph with some words 2
+  Some paragraph with some words 3
+  Some paragra</span>ph with some words 4
+
+Do(With emoji):
+  Go
+  🤥 abcdefghi 🤥 🤥\<Cr>
+  🤥 abcdefghi 🤥 🤥\<Cr>
+  🤥 abcdefghi 🤥 🤥\<Esc>
+  /abc\<Cr>
+  ll
+  \<esc>\<C-v>
+  jjllll
+  \wc1\<Cr>
+
+Expect (Some paragraphs):
+  Some paragraph with some words 1
+  Some paragraph with some words 2
+  Some paragraph with some words 3
+  Some paragraph with some words 4
+  🤥 ab<span style="background:#458588;">cdefghi 🤥 🤥
+  🤥 abcdefghi 🤥 🤥
+  🤥 abcdefg</span>hi 🤥 🤥
 
 # 2.1 Heading {{{2
 ##############

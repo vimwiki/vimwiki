@@ -2918,11 +2918,39 @@ function! vimwiki#base#complete_colorize(ArgLead, CmdLine, CursorPos) abort
   return join(colorlist, "\n")
 endfunction
 
-function! vimwiki#base#colorize(...) abort 
+function! vimwiki#base#get_user_color(...) abort
+  " Returns a color key <- user input, '' if fails
+  let res = ''
+  let display_list = []
+  let color_dic = vimwiki#vars#get_wikilocal('color_dic')
+  let key_list = sort(keys(color_dic))
+  let i = 1
+  for key in key_list
+    call add(display_list, string(i) . '. ' . key)
+    let i += 1
+  endfor
+  call insert(display_list, 'Select color:')
+  " Ask user, fails if 0
+  let i_selected = inputlist(display_list)
+  if i_selected != 0
+    let res = key_list[i_selected - 1]
+  endif
+  return res
+endfunction
+
+function! vimwiki#base#colorize(...) range abort
   " TODO Must be coherent with color_tag_template
+  " Arg1: Key, list them with VimwikiColorize completion
+  " Arg2: visualmode()
   " -- Just removeing spaces, \/ -> /,  replacing COLORFG will do it
   let key = a:0 ? a:1 : 'default'
+  let mode = a:0 > 1 ? a:2 : ''
   let color_dic = vimwiki#vars#get_wikilocal('color_dic')
+
+  " Guard: if key = '', silently leave (user left inputlist)
+  if key ==# ''
+    return
+  endif
 
   " Guard: color key nust exist
   if !has_key(color_dic, key)
@@ -2930,11 +2958,19 @@ function! vimwiki#base#colorize(...) abort
     return
   endif
 
-  " Get content
-  let content = getline('.')
-  " TODO save position for visual selection: see u#get_selection
+  " Get content if called with a map with range
+  if mode !=# ''
+    " Visual mode
+    let firstline = getpos("'<")[1]
+    let lastline = getpos("'>")[1]
+  else
+    " Range command
+    let firstline = a:firstline
+    let lastline = a:lastline
+  endif
+  let lines = getline(firstline, lastline)
 
-  " Surround
+  " Prepare
   " -- pre
   let [fg, bg] = color_dic[key]
   let pre = '<span style="' 
@@ -2947,11 +2983,24 @@ function! vimwiki#base#colorize(...) abort
   let pre .= '">'
   " -- post
   let post = '</span>'
-  " -- concat
-  let content = pre . content . post
+
+  " Concat
+  if mode !=# ''
+    " Visual mode (vim indexing ...)
+    let pos = getpos("'>")[2] - 1
+    let lines[len(lines)-1] = strpart(lines[len(lines)-1], 0, pos+1) . post . strpart(lines[len(lines)-1], pos+1)
+    let pos = getpos("'<")[2]
+    let lines[0] = strpart(lines[0],0, pos-1) . pre . strpart(lines[0], pos-1)
+  else
+    " Normal or Command
+    let lines[len(lines)-1] = lines[len(lines)-1] . post
+    let lines[0] = pre . lines[0]
+  endif
 
   " Set buffer content
-  call setline('.', content)
+  for line in range(firstline, lastline)
+    call setline(line, lines[line - firstline])
+  endfor
 endfunction
 
 " -------------------------------------------------------------------------
