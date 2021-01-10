@@ -182,7 +182,12 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
   endif
 
   " Check if absolute or relative path
+  " TODO Clean that => just one call
   let is_absolute = 0
+  if vimwiki#path#is_absolute(link_text)
+    let is_absolute = 1
+    let link_text = expand(link_text)
+  endif
   if is_wiki_link && link_text[0] ==# '/'
     if link_text !=# '/'
       if link_text !=# '//' && link_text[0:1] ==# '//'
@@ -234,8 +239,9 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
         return link_infos
       endif
     endif
+
     if is_absolute
-        let root_dir = ''
+      let root_dir = ''
     elseif !is_relative || link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
     endif
@@ -262,8 +268,10 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
           \ vimwiki#vars#get_wikilocal('diary_rel_path', link_infos.index) .
           \ link_text .
           \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
+
   elseif (link_infos.scheme ==# 'file' || link_infos.scheme ==# 'local') && is_relative
     let link_infos.filename = simplify(root_dir . link_text)
+
   else " absolute file link
     " collapse repeated leading "/"'s within a link
     let link_text = substitute(link_text, '\m^/\+', '/', '')

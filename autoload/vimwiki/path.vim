@@ -204,11 +204,20 @@ endfunction
 
 function! vimwiki#path#is_absolute(path) abort
   " Check: if path is absolute
+  let res=0
+
+  " Match 'C:' or '/' or '~'
   if vimwiki#u#is_windows()
-    return a:path =~? '\m^\a:'
+    let res += a:path =~? '\m^\a:'
   else
-    return a:path =~# '\m^/\|\~/'
+    let res += a:path =~# '\m^/\|\~/'
   endif
+
+  " Do not prepent root_path to scp files
+  " See: https://vim.fandom.com/wiki/Editing_remote_files_via_scp_in_vim
+  let res += a:path =~# '\m^scp:'
+
+  return res
 endfunction
 
 

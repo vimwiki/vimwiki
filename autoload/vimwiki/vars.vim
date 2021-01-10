@@ -172,6 +172,13 @@ function! s:get_default_global() abort
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
+        \ 'schemes_web': {'type': type([]), 'default':
+        \   [
+        \     'http', 'https', 'file', 'ftp', 'gopher', 'telnet', 'nntp', 'ldap',
+        \     'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
+        \     'git', 'ssh', 'fish', 'sftp',
+        \   ]},
+        \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -205,22 +212,18 @@ function! s:internal_global_settings() abort
   " able to <leader>w<leader>w without opening any vimwiki file first
 
   " Know internal schemes
-  let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
 
-  " Are used in markdown for image links
-  let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
-        \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
-        \ 'git', 'ssh', 'fish', 'sftp'], '\|')
-
-  " Other possible schemes
-  let web_schemes2 =
-        \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
+  let g:vimwiki_global_vars.schemes_web = 
+        \ join(vimwiki#vars#get_global('schemes_web'), '\|')
+  let g:vimwiki_global_vars.schemes_any = 
+        \ join(vimwiki#vars#get_global('schemes_any'), '\|')
+  let g:vimwiki_global_vars.schemes_local = join(['wiki\d\+', 'diary', 'local'], '\|')
 
   " Concatenate known schemes => regex
   let g:vimwiki_global_vars.rxSchemes = '\%('.
-        \ g:vimwiki_global_vars.schemes . '\|'.
-        \ g:vimwiki_global_vars.web_schemes1 . '\|'.
-        \ web_schemes2 .
+        \ g:vimwiki_global_vars.schemes_local . '\|'.
+        \ g:vimwiki_global_vars.schemes_web . '\|'.
+        \ g:vimwiki_global_vars.schemes_any .
         \ '\)'
 
   " Match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
@@ -228,11 +231,11 @@ function! s:internal_global_settings() abort
   let rxWebProtocols =
         \ '\%('.
           \ '\%('.
-            \ '\%('.g:vimwiki_global_vars.web_schemes1 . '\):'.
+            \ '\%('. g:vimwiki_global_vars.schemes_web . '\):'.
             \ '\%(//\)'.
           \ '\)'.
         \ '\|'.
-          \ '\%('.web_schemes2.'\):'.
+          \ '\%('. g:vimwiki_global_vars.schemes_any .'\):'.
         \ '\)'
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
 

@@ -616,7 +616,7 @@ TABLE MAPPINGS, INSERT MODE                           *vimwiki-table-mappings*
                         to the largest cell.
                         Remap command: `<Plug>VimwikiTableNextCell`
 
-                                                       *vimwiki_i_<Tab>_table*
+                                                     *vimwiki_i_<S-Tab>_table*
 <S-Tab>                 Go to the previous table cell. Adjusts the whole
                         column width according to the largest cell.
                         Remap command: `<Plug>VimwikiTablePrevCell`
@@ -1023,7 +1023,7 @@ For Markdown syntax these variations are used: >
 
 Furthermore, there are a number of words which are highlighted extra flashy:
 TODO, DONE, STARTED, FIXME, FIXED, XXX (customisable, see
-vimwiki-option-rx_todo).
+|g:vimwiki-option-rx_todo|).
 
 When rendered as HTML, code blocks containing only a hash prefixed 6 digit hex
 number will be colored as themselves.  For example >
@@ -2830,8 +2830,8 @@ This setting specifies the URL where the generated VimWiki HTML pages can
 be reached. It is used for the link to the RSS feed and for links to the
 diary entries inside the feed.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_header*
+------------------------------------------------------------------------------
 
 A string with the magic header that tells Vimwiki where the Table of Contents
 (see |vimwiki-toc|) is located in a file. You can change it to the
@@ -2840,16 +2840,16 @@ appropriate word in your mother tongue like this: >
 
 The default is 'Contents'.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_header_level*
+------------------------------------------------------------------------------
 
 The header level of the Table of Contents (see |vimwiki-toc|). Valid values
 are from 1 to 6.
 
 The default is 1.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_link_format*
+------------------------------------------------------------------------------
 
 The format of the links in the Table of Contents (see |vimwiki-toc|).
 
@@ -2862,8 +2862,8 @@ Value           Description~
 
 Default: 0
 
-------------------------------------------------------------------------------
 *vimwiki-option-color_dic*
+------------------------------------------------------------------------------
 
 Dictionary containing the possible html colors for |:VimwikiColorize| the
 keys are the color names used as argument, the values are a list [foreground,
@@ -2875,16 +2875,16 @@ Provides two colors to |:VimwikiColorize|: 'red' => red foreground and 'bred'
 => red background.
 
 
-------------------------------------------------------------------------------
 *g:vimwiki-option-rx_todo*
+------------------------------------------------------------------------------
 
 Regular expression used to highlight different TODO words.
 
 Default: `\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>`
 
 
-------------------------------------------------------------------------------
 *vimwiki-option-color_tag_template*
+------------------------------------------------------------------------------
 
 Not supposed to be edited already: a regex with __COLORFG__, __COLORBG__ and
 __CONTENT__ placeholders to surround the content with a tag to define its
@@ -2915,6 +2915,16 @@ Where:
 - `global_ext` is the option name
 - `1` is the option value
 
+------------------------------------------------------------------------------
+*g:vimwiki_schemes_web* *g:vimwiki_schemes_any*
+
+List of know schemes. shemes_web will match if there is a "//" like in
+https://github.com
+
+Example: ~
+let g:vimwiki_schemes_web = ['http', 'https']
+Default:~
+['http', 'https', 'file',  ... , 'git', 'ssh', 'fish', 'sftp']
 
 ------------------------------------------------------------------------------
 *g:vimwiki_hl_headers*
@@ -2926,7 +2936,6 @@ Value           Description~
                 different header levels.
 0               Use |hl-Title| color for headers.
 Default: 0
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_hl_cb_checked*
