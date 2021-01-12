@@ -37,6 +37,17 @@ endfunction
 
 function! vimwiki#diary#diary_date_link(...) abort
   " Return: <String> date
+
+  let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  if wiki_nr < 0  " this happens when called outside a wiki buffer
+    let wiki_nr = 0
+  endif
+
+  if wiki_nr >= vimwiki#vars#number_of_wikis()
+    call vimwiki#u#error('Wiki '.wiki_nr.' is not registered in g:vimwiki_list!')
+    return
+  endif
+
   if a:0
     let l:timestamp = a:1
   else
@@ -56,10 +67,10 @@ function! vimwiki#diary#diary_date_link(...) abort
         \ 'friday': 5, 'saturday': 6,
         \ 'sunday': 0}
 
-  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
+  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency', wiki_nr)
 
   if l:frequency ==? 'weekly'
-    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
+    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day', wiki_nr)
     let l:weekday_num = str2nr(strftime('%w', l:timestamp))
     let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
     let l:computed_timestamp = l:timestamp
