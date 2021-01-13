@@ -509,11 +509,13 @@ nnoremap <silent><buffer> <Plug>VimwikiListO
 " Declare Map: default lists key mappings (again)
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'gnt', '<Plug>VimwikiNextTask')
-  call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
-  call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem')
-  if has('unix')
-    call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem')
-    call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem')
+  if !hasmapto('<Plug>VimwikiToggleListItem')
+    call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
+    call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem', 1)
+    if has('unix')
+      call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+      call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+    endif
   endif
   call vimwiki#u#map_key('n', 'glx', '<Plug>VimwikiToggleRejectedListItem')
   call vimwiki#u#map_key('v', 'glx', '<Plug>VimwikiToggleRejectedListItem', 1)
