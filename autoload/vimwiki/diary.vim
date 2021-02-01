@@ -11,8 +11,8 @@ endif
 let g:loaded_vimwiki_diary_auto = 1
 
 
-" Add zero prefix to a number
 function! s:prefix_zero(num) abort
+  " Add zero prefix to a number
   if a:num < 10
     return '0'.a:num
   endif
@@ -20,23 +20,34 @@ function! s:prefix_zero(num) abort
 endfunction
 
 
-" Return: diary directory path <String>
 function! s:diary_path(...) abort
+  " Return: diary directory path <String>
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return vimwiki#vars#get_wikilocal('path', idx).vimwiki#vars#get_wikilocal('diary_rel_path', idx)
 endfunction
 
 
-" Return: diary index file path <String>
 function! s:diary_index(...) abort
+  " Return: diary index file path <String>
   let idx = a:0 == 0 ? vimwiki#vars#get_bufferlocal('wiki_nr') : a:1
   return s:diary_path(idx).vimwiki#vars#get_wikilocal('diary_index', idx).
         \ vimwiki#vars#get_wikilocal('ext', idx)
 endfunction
 
 
-" Return: <String> date
 function! vimwiki#diary#diary_date_link(...) abort
+  " Return: <String> date
+
+  let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  if wiki_nr < 0  " this happens when called outside a wiki buffer
+    let wiki_nr = 0
+  endif
+
+  if wiki_nr >= vimwiki#vars#number_of_wikis()
+    call vimwiki#u#error('Wiki '.wiki_nr.' is not registered in g:vimwiki_list!')
+    return
+  endif
+
   if a:0
     let l:timestamp = a:1
   else
@@ -56,10 +67,10 @@ function! vimwiki#diary#diary_date_link(...) abort
         \ 'friday': 5, 'saturday': 6,
         \ 'sunday': 0}
 
-  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency')
+  let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency', wiki_nr)
 
   if l:frequency ==? 'weekly'
-    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day')
+    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day', wiki_nr)
     let l:weekday_num = str2nr(strftime('%w', l:timestamp))
     let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
     let l:computed_timestamp = l:timestamp
@@ -91,8 +102,8 @@ function! vimwiki#diary#diary_date_link(...) abort
 endfunction
 
 
-" Return: <int:index, list:links>
 function! s:get_position_links(link) abort
+  " Return: <int:index, list:links>
   let idx = -1
   let links = []
   if a:link =~# '^\d\{4}-\d\d-\d\d'
@@ -108,14 +119,14 @@ function! s:get_position_links(link) abort
 endfunction
 
 
-" Convert month: number -> name
 function! s:get_month_name(month) abort
+  " Convert month: number -> name
   return vimwiki#vars#get_global('diary_months')[str2nr(a:month)]
 endfunction
 
 
-" Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
 function! s:get_first_header(fl) abort
+  " Get the first header in the file within the first s:vimwiki_max_scan_for_caption lines.
   let header_rx = vimwiki#vars#get_syntaxlocal('rxHeader')
 
   for line in readfile(a:fl, '', g:vimwiki_max_scan_for_caption)
@@ -127,9 +138,9 @@ function! s:get_first_header(fl) abort
 endfunction
 
 
-" Get a list of all headers in a file up to a given level.
-" Return: list whose elements are pairs [level, title]
 function! s:get_all_headers(fl, maxlevel) abort
+  " Get a list of all headers in a file up to a given level.
+  " Return: list whose elements are pairs [level, title]
   let headers_rx = {}
   for i in range(1, a:maxlevel)
     let headers_rx[i] = vimwiki#vars#get_syntaxlocal('rxH'.i.'_Text')
@@ -147,8 +158,8 @@ function! s:get_all_headers(fl, maxlevel) abort
   return headers
 endfunction
 
-" Count headers with level <=  maxlevel in a list of [level, title] pairs.
 function! s:count_headers_level_less_equal(headers, maxlevel) abort
+  " Count headers with level <=  maxlevel in a list of [level, title] pairs.
   let l:count = 0
   for [header_level, _] in a:headers
     if header_level <= a:maxlevel
@@ -159,8 +170,8 @@ function! s:count_headers_level_less_equal(headers, maxlevel) abort
 endfunction
 
 
-" Get the minimum level of any header in a list of [level, title] pairs.
 function! s:get_min_header_level(headers) abort
+  " Get the minimum level of any header in a list of [level, title] pairs.
   if len(a:headers) == 0
     return 0
   endif
@@ -172,9 +183,9 @@ function! s:get_min_header_level(headers) abort
 endfunction
 
 
-" Read all cpation in 1. <List>files
-" Return: <Dic>: key -> caption
 function! s:read_captions(files) abort
+  " Read all cpation in 1. <List>files
+  " Return: <Dic>: key -> caption
   let result = {}
   let caption_level = vimwiki#vars#get_wikilocal('diary_caption_level')
 
@@ -215,8 +226,8 @@ function! s:read_captions(files) abort
 endfunction
 
 
-" Return: <list> diary file names
 function! vimwiki#diary#get_diary_files() abort
+  " Return: <list> diary file names
   let rx = '^\d\{4}-\d\d-\d\d'
   let s_files = glob(vimwiki#vars#get_wikilocal('path').
         \ vimwiki#vars#get_wikilocal('diary_rel_path').'*'.vimwiki#vars#get_wikilocal('ext'))
@@ -230,8 +241,8 @@ function! vimwiki#diary#get_diary_files() abort
 endfunction
 
 
-" Return: <dic> nested -> links
 function! s:group_links(links) abort
+  " Return: <dic> nested -> links
   let result = {}
   let p_year = 0
   let p_month = 0
@@ -253,8 +264,8 @@ function! s:group_links(links) abort
 endfunction
 
 
-" Sort list
 function! s:sort(lst) abort
+  " Sort list
   if vimwiki#vars#get_wikilocal('diary_sort') ==? 'desc'
     return reverse(sort(a:lst))
   else
@@ -266,11 +277,11 @@ function! vimwiki#diary#diary_sort(lst) abort
   return s:sort(a:lst)
 endfunction
 
-" Create note
-" The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
-" contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
-" is used.
 function! vimwiki#diary#make_note(wnum, ...) abort
+  " Create note
+  " The given wiki number a:wnum is 1 for the first wiki, 2 for the second and so on. This is in
+  " contrast to most other places, where counting starts with 0. When a:wnum is 0, the current wiki
+  " is used.
   if a:wnum == 0
     let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
     if wiki_nr < 0  " this happens when e.g. VimwikiMakeDiaryNote was called outside a wiki buffer
@@ -308,8 +319,8 @@ function! vimwiki#diary#make_note(wnum, ...) abort
 endfunction
 
 
-" Jump to diary index of 1. <Int> wikinumber
 function! vimwiki#diary#goto_diary_index(wnum) abort
+  " Jump to diary index of 1. <Int> wikinumber
   " if wnum = 0 the current wiki is used
   if a:wnum == 0
     let idx = vimwiki#vars#get_bufferlocal('wiki_nr')
@@ -334,8 +345,8 @@ function! vimwiki#diary#goto_diary_index(wnum) abort
 endfunction
 
 
-" Jump to next day
 function! vimwiki#diary#goto_next_day() abort
+  " Jump to next day
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -356,8 +367,8 @@ function! vimwiki#diary#goto_next_day() abort
 endfunction
 
 
-" Jump to previous day
 function! vimwiki#diary#goto_prev_day() abort
+  " Jump to previous day
   let link = ''
   let [idx, links] = s:get_position_links(expand('%:t:r'))
 
@@ -378,8 +389,8 @@ function! vimwiki#diary#goto_prev_day() abort
 endfunction
 
 
-" Create diary index content
 function! vimwiki#diary#generate_diary_section() abort
+  " Create diary index content
   let GeneratorDiary = copy(l:)
   function! GeneratorDiary.f() abort
     let lines = []
@@ -476,8 +487,8 @@ function! vimwiki#diary#generate_diary_section() abort
 endfunction
 
 
-" Callback function for Calendar.vim
 function! vimwiki#diary#calendar_action(day, month, year, week, dir) abort
+  " Callback function for Calendar.vim
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
 
@@ -499,8 +510,8 @@ function! vimwiki#diary#calendar_action(day, month, year, week, dir) abort
 endfunction
 
 
-" Callback function for Calendar.vim
 function! vimwiki#diary#calendar_sign(day, month, year) abort
+  " Callback function for Calendar.vim
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
   let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').

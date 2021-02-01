@@ -3,7 +3,7 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-" Cause: load only onces per buffer
+" Clause: load only onces per buffer
 if exists('b:did_ftplugin')
   finish
 endif
@@ -20,7 +20,7 @@ setlocal isfname-=[,]
 exe 'setlocal tags+=' . escape(vimwiki#tags#metadata_file_path(), ' \|"')
 
 
-" Help for omnicompletion
+" Helper: for omnicompletion
 function! Complete_wikifiles(findstart, base) abort
   " s:line_context = link | tag | ''
   if a:findstart == 1
@@ -121,7 +121,7 @@ function! Complete_wikifiles(findstart, base) abort
   endif
 endfunction
 
-" Set completion
+" Set Completion:
 setlocal omnifunc=Complete_wikifiles
 if and(vimwiki#vars#get_global('emoji_enable'), 2) != 0
       \ && &completefunc ==# ''
@@ -129,13 +129,13 @@ if and(vimwiki#vars#get_global('emoji_enable'), 2) != 0
 endif
 
 
-" Declare settings necessary for the automatic formatting of lists
+" Declare Settings: necessary for the automatic formatting of lists
 " ------------------------------------------------
 setlocal autoindent
 setlocal nosmartindent
 setlocal nocindent
 
-" Set comments: to insert and format 'comments' or cheat
+" Set Comments: to insert and format 'comments' or cheat
 " Used to break blockquote prepending one on each new line (see: #915)
 " B like blank character follow
 " blockquotes
@@ -151,7 +151,7 @@ for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
 endfor
 let &l:comments = comments
 
-" Set format options (:h fo-table)
+" Set Format Options: (:h fo-table)
 " Disable autocomment because, vimwiki does it better
 setlocal formatoptions-=r
 setlocal formatoptions-=o
@@ -200,7 +200,7 @@ function! VimwikiFoldLevel(lnum) abort
 endfunction
 
 
-" Declare constants used by VimwikiFoldText
+" Declare Constants: used by VimwikiFoldText
 " use \u2026 and \u21b2 (or \u2424) if enc=utf-8 to save screen space
 let s:ellipsis = (&encoding ==? 'utf-8') ? "\u2026" : '...'
 let s:ell_len = strlen(s:ellipsis)
@@ -215,7 +215,7 @@ function! s:shorten_text_simple(text, len) abort
 endfunction
 
 
-" Shorten text
+" Shorten Text:
 " Called: by VimwikiFoldText
 " s:shorten_text(text, len) = [string, spare] with "spare" = len-strlen(string)
 " for long enough "text", the string's length is within s:tolerance of "len"
@@ -238,7 +238,7 @@ function! s:shorten_text(text, len) abort
 endfunction
 
 
-" Fold text chapter
+" Fold: text chapter
 function! VimwikiFoldText() abort
   let line = getline(v:foldstart)
   let main_text = substitute(line, '^\s*', repeat(' ',indent(v:foldstart)), '')
@@ -370,9 +370,8 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
-
-command! -buffer -nargs=* -complete=custom,vimwiki#base#complete_colorize
-      \ VimwikiColorize call vimwiki#base#colorize(<f-args>)
+command! -buffer -nargs=* -range -complete=custom,vimwiki#base#complete_colorize
+      \ VimwikiColorize <line1>,<line2>call vimwiki#base#colorize(<f-args>)
 
 " ------------------------------------------------
 " Keybindings
@@ -430,8 +429,12 @@ nnoremap <silent><script><buffer> <Plug>VimwikiDiaryNextDay
     \ :VimwikiDiaryNextDay<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiDiaryPrevDay
     \ :VimwikiDiaryPrevDay<CR>
+noremap <script><buffer> <Plug>VimwikiColorizeNormal
+    \ :call vimwiki#base#colorize(vimwiki#base#get_user_color(), '')<CR>
+vnoremap <script><buffer> <Plug>VimwikiColorize
+    \ :call vimwiki#base#colorize(vimwiki#base#get_user_color(), visualmode())<CR>
 
-" default links key mappings
+" Declare Map: default links key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<CR>', '<Plug>VimwikiFollowLink')
   call vimwiki#u#map_key('n', '<S-CR>', '<Plug>VimwikiSplitLink')
@@ -447,11 +450,13 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'n', '<Plug>VimwikiGoto')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'d', '<Plug>VimwikiDeleteFile')
   call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'r', '<Plug>VimwikiRenameFile')
+  call vimwiki#u#map_key('n', vimwiki#vars#get_global('map_prefix').'c', '<Plug>VimwikiColorizeNormal')
+  call vimwiki#u#map_key('v', vimwiki#vars#get_global('map_prefix').'c', '<Plug>VimwikiColorize')
   call vimwiki#u#map_key('n', '<C-Down>', '<Plug>VimwikiDiaryNextDay')
   call vimwiki#u#map_key('n', '<C-Up>', '<Plug>VimwikiDiaryPrevDay')
 endif
 
-" <Plug> lists definitions
+" Map: <Plug> lists definitions
 nnoremap <silent><script><buffer> <Plug>VimwikiNextTask
     \ :VimwikiNextTask<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem
@@ -501,14 +506,16 @@ nnoremap <silent><buffer> <Plug>VimwikiListo
 nnoremap <silent><buffer> <Plug>VimwikiListO
     \ :<C-U>call vimwiki#u#count_exe('call vimwiki#lst#kbd_O()')<CR>
 
-" default lists key mappings
+" Declare Map: default lists key mappings (again)
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'gnt', '<Plug>VimwikiNextTask')
-  call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
-  call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem')
-  if has('unix')
-    call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem')
-    call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem')
+  if !hasmapto('<Plug>VimwikiToggleListItem')
+    call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
+    call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem', 1)
+    if has('unix')
+      call vimwiki#u#map_key('n', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+      call vimwiki#u#map_key('v', '<C-@>', '<Plug>VimwikiToggleListItem', 1)
+    endif
   endif
   call vimwiki#u#map_key('n', 'glx', '<Plug>VimwikiToggleRejectedListItem')
   call vimwiki#u#map_key('v', 'glx', '<Plug>VimwikiToggleRejectedListItem', 1)
@@ -535,20 +542,23 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'o', '<Plug>VimwikiListo')
   call vimwiki#u#map_key('n', 'O', '<Plug>VimwikiListO')
 
-  " Handle case of existing VimwikiReturn mappings outside the <Plug> definition
-  " Note: Avoid interfering with popup/completion menu if it's active (#813)
-  if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
-    if has('patch-7.3.489')
-      " expand iabbrev on enter
-      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<C-]><Esc>:VimwikiReturn 1 5<CR>'
-    else
-      inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 1 5<CR>'
+  " Set lists_return to 0, if you don't want <CR> mapped to VimwikiReturn
+  if str2nr(vimwiki#vars#get_global('key_mappings').lists_return)
+    " Handle case of existing VimwikiReturn mappings outside the <Plug> definition
+    " Note: Avoid interfering with popup/completion menu if it's active (#813)
+    if maparg('<CR>', 'i') !~# '.*VimwikiReturn*.'
+      if has('patch-7.3.489')
+        " expand iabbrev on enter
+        inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<C-]><Esc>:VimwikiReturn 1 5<CR>'
+      else
+        inoremap <expr><silent><buffer> <CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 1 5<CR>'
+      endif
+    endif
+    if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
+      inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
     endif
   endif
-  if  maparg('<S-CR>', 'i') !~# '.*VimwikiReturn*.'
-    inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
-  endif
-
+  
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
     if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
@@ -670,7 +680,7 @@ onoremap <silent><buffer> <Plug>VimwikiTextObjListSingle
 vnoremap <silent><buffer> <Plug>VimwikiTextObjListSingleV
     \ :<C-U>call vimwiki#lst#TO_list_item(1, 1)<CR>
 
-" default text object key mappings
+" Declare Map: default text object key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').text_objs)
   call vimwiki#u#map_key('o', 'ah', '<Plug>VimwikiTextObjHeader')
   call vimwiki#u#map_key('v', 'ah', '<Plug>VimwikiTextObjHeaderV')
@@ -694,7 +704,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').text_objs)
   call vimwiki#u#map_key('v', 'il', '<Plug>VimwikiTextObjListSingleV')
 endif
 
-" <Plug> header definitions
+" Map: <Plug> header definitions
 nnoremap <silent><buffer> <Plug>VimwikiAddHeaderLevel
       \ :<C-U>call vimwiki#base#AddHeaderLevel(v:count)<CR>
 nnoremap <silent><buffer> <Plug>VimwikiRemoveHeaderLevel
@@ -710,7 +720,7 @@ nnoremap <silent><buffer> <Plug>VimwikiGoToNextSiblingHeader
 nnoremap <silent><buffer> <Plug>VimwikiGoToPrevSiblingHeader
       \ :<C-u>call vimwiki#base#goto_sibling(-1)<CR>
 
-" default header key mappings
+" Declare Map Header: default header key mappings
 if str2nr(vimwiki#vars#get_global('key_mappings').headers)
   call vimwiki#u#map_key('n', '=', '<Plug>VimwikiAddHeaderLevel')
   call vimwiki#u#map_key('n', '-', '<Plug>VimwikiRemoveHeaderLevel')

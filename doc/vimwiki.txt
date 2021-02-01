@@ -381,6 +381,11 @@ MAP                MODE
                         Maps to |:VimwikiPrevLink|.
                         Remap command: `<Plug>VimwikiPrevLink`
 
+                                                          *vimwiki_<Leader>wc*
+<Leader>wc         n v  Colorize line or selection if from visual mode
+                        Maps to |:VimwikiColorize| after asking user for color
+                        Remap command: `<Plug>VimwikiColorize`
+
                                                           *vimwiki_<Leader>wn*
 <Leader>wn         n    Goto or create new wiki page.
                         Maps to |:VimwikiGoto|.
@@ -616,7 +621,7 @@ TABLE MAPPINGS, INSERT MODE                           *vimwiki-table-mappings*
                         to the largest cell.
                         Remap command: `<Plug>VimwikiTableNextCell`
 
-                                                       *vimwiki_i_<Tab>_table*
+                                                     *vimwiki_i_<S-Tab>_table*
 <S-Tab>                 Go to the previous table cell. Adjusts the whole
                         column width according to the largest cell.
                         Remap command: `<Plug>VimwikiTablePrevCell`
@@ -965,13 +970,9 @@ Vimwiki file.
     sure the tags have been built (see |vimwiki-build-tags|).
 
 *:VimwikiColorize* red
-    Colorize current line with the color given in argument. The possible
+    Colorize |range| of lines with the color given in argument. The possible
     colors are configured by |vimwiki-option-color_dic| and the format of the
     surrounding color tags by |vimwiki-option-color_tag_template|
-    TODO
-    Currently only the current line is colorized, a support for the selection
-    will come. Maybe some mapping and color completion in popup (See
-    changelog
 
 
 ==============================================================================
@@ -985,7 +986,11 @@ Vimwiki has evolved its own syntax that closely resembles Google's wiki
 markup.  This syntax is described in detail below.
 
 Vimwiki also supports alternative syntaxes, like Markdown and MediaWiki, to
-varying degrees; see |vimwiki-option-syntax|.  Static elements like headers,
+varying degrees; see |vimwiki-option-syntax|.
+The Markdown specification Vimwiki is trying to stick to can be found at:
+https://github.github.com/gfm
+
+Static elements like headers,
 quotations, and lists are customized in syntax/vimwiki_xxx.vim, where xxx
 stands for the chosen syntax.
 
@@ -1019,7 +1024,7 @@ For Markdown syntax these variations are used: >
 
 Furthermore, there are a number of words which are highlighted extra flashy:
 TODO, DONE, STARTED, FIXME, FIXED, XXX (customisable, see
-vimwiki-option-rx_todo).
+|g:vimwiki-option-rx_todo|).
 
 When rendered as HTML, code blocks containing only a hash prefixed 6 digit hex
 number will be colored as themselves.  For example >
@@ -1146,24 +1151,24 @@ The primary purpose for wiki-include links is to include images.
 Transclude from a local URL: >
   {{file:../../images/vimwiki_logo.png}}
 or from a universal URL: >
-  {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png}}
+  {{https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png}}
 
 Transclude image with alternate text: >
-  {{http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png|Vimwiki}}
+  {{https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png|Vimwiki}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="Vimwiki"/>
 
 Transclude image with alternate text and some style: >
   {{http://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="cool stuff" style="width:150px; height:120px"/>
 
 Transclude image _without_ alternate text and with a CSS class: >
   {{http://.../vimwiki_logo.png||class="center flow blabla"}}
 in HTML: >
-  <img src="http://vimwiki.googlecode.com/hg/images/vimwiki_logo.png"
+  <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="" class="center flow blabla"/>
 
 A trial feature allows you to supply your own handler for wiki-include links.
@@ -1691,7 +1696,8 @@ See |vimwiki-option-template_path| for details.
 %date                                                           *vimwiki-date*
 
 The date of the wiki page. The value can be used in the HTML template, see
-|vimwiki-option-template_path| for details.
+|vimwiki-option-template_path| for details. To set a specific date string
+format, see |vimwiki-option-template_date_format| for details.
 
 %date 2017-07-08
 %date
@@ -2375,6 +2381,17 @@ Setup template filename extension.
 See |vimwiki-option-template_path| for details.
 
 
+*vimwiki-option-template_date_format*
+------------------------------------------------------------------------------
+Key                     Default value~
+template_date_format    %Y-%m-%d
+
+Description~
+Setup date string format in templates.
+
+See |vimwiki-date| for details.
+
+
 *vimwiki-option-css_name*
 ------------------------------------------------------------------------------
 Key             Default value~
@@ -2814,8 +2831,8 @@ This setting specifies the URL where the generated VimWiki HTML pages can
 be reached. It is used for the link to the RSS feed and for links to the
 diary entries inside the feed.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_header*
+------------------------------------------------------------------------------
 
 A string with the magic header that tells Vimwiki where the Table of Contents
 (see |vimwiki-toc|) is located in a file. You can change it to the
@@ -2824,16 +2841,16 @@ appropriate word in your mother tongue like this: >
 
 The default is 'Contents'.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_header_level*
+------------------------------------------------------------------------------
 
 The header level of the Table of Contents (see |vimwiki-toc|). Valid values
 are from 1 to 6.
 
 The default is 1.
 
-------------------------------------------------------------------------------
 *g:vimwiki_toc_link_format*
+------------------------------------------------------------------------------
 
 The format of the links in the Table of Contents (see |vimwiki-toc|).
 
@@ -2846,12 +2863,12 @@ Value           Description~
 
 Default: 0
 
-------------------------------------------------------------------------------
 *vimwiki-option-color_dic*
+------------------------------------------------------------------------------
 
 Dictionary containing the possible html colors for |:VimwikiColorize| the
 keys are the color names used as argument, the values are a list [foreground,
-backgroud] of the color. For example:
+background] of the color. For example:
 
 {'red': ['#cc241d', ''], 'bred': ['', '#cc241d']}
 
@@ -2859,16 +2876,16 @@ Provides two colors to |:VimwikiColorize|: 'red' => red foreground and 'bred'
 => red background.
 
 
-------------------------------------------------------------------------------
 *g:vimwiki-option-rx_todo*
+------------------------------------------------------------------------------
 
 Regular expression used to highlight different TODO words.
 
 Default: `\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>`
 
 
-------------------------------------------------------------------------------
 *vimwiki-option-color_tag_template*
+------------------------------------------------------------------------------
 
 Not supposed to be edited already: a regex with __COLORFG__, __COLORBG__ and
 __CONTENT__ placeholders to surround the content with a tag to define its
@@ -2899,6 +2916,16 @@ Where:
 - `global_ext` is the option name
 - `1` is the option value
 
+------------------------------------------------------------------------------
+*g:vimwiki_schemes_web* *g:vimwiki_schemes_any*
+
+List of know schemes. shemes_web will match if there is a "//" like in
+https://github.com
+
+Example: ~
+let g:vimwiki_schemes_web = ['http', 'https']
+Default:~
+['http', 'https', 'file',  ... , 'git', 'ssh', 'fish', 'sftp']
 
 ------------------------------------------------------------------------------
 *g:vimwiki_hl_headers*
@@ -2910,7 +2937,6 @@ Value           Description~
                 different header levels.
 0               Use |hl-Title| color for headers.
 Default: 0
-
 
 ------------------------------------------------------------------------------
 *g:vimwiki_hl_cb_checked*
@@ -3609,6 +3635,9 @@ The valid key groups and their associated mappings are shown below.
     |vimwiki_glsar|, |vimwiki_gLstar|, |vimwiki_gl#|, |vimwiki_gL#|, |vimwiki_gl-|, |vimwiki_gL-|
     |vimwiki_gl1|, |vimwiki_gL1|, |vimwiki_gla|, |vimwiki_gLa|, |vimwiki_glA|, |vimwiki_gLA|
     |vimwiki_gli|, |vimwiki_gLi|, |vimwiki_glI|, |vimwiki_gLI|, |vimwiki_glx|
+`lists_return`:
+    Mappings for lists return in insert mode.
+    |vimwiki_i_<CR>|, |vimwiki_i_<S-CR>|
 `links`:
     Mappings for link creation and navigation.
     |vimwiki_<Leader>w<Leader>i|, |vimwiki_<CR>|, |vimwiki_<S-CR>|, |vimwiki_<C-CR>|
@@ -3861,6 +3890,8 @@ Contributors and their Github usernames in roughly chronological order:
     - Tomáš Janoušek (@liskin)
     - Rajesh Sharem (@deepredsky)
     - Amit Beka (@amitbeka)
+    - Yuuy Wei
+    - Yifan Hu (@yhu266)
     - Levi Rizki Saputra (@levirs565)
 
 ==============================================================================
@@ -3873,6 +3904,9 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
+    * Feature: PR #686: add a flag lists_return to disable mappings 
+      to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings
     * Feature: configure expression for Todo words
     * Feature: #954 #1041: Add option |vimwiki-option-listsyms_propagate| to
@@ -3907,6 +3941,8 @@ New:~
     * PR #907: Cycle bullets
     * PR #901: adds multiparagraph blockquotes using email style syntax
     * PR #934: RSS feed generation for diary with :VimwikiRss.
+    * Feature: Add option |vimwiki-option-template_date_format| to configure
+      alternative date string format
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem

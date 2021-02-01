@@ -129,8 +129,8 @@ function! s:setup_cleared_syntax() abort
   " on colorscheme change because they are not linked to Vim-predefined groups
   hi def VimwikiBold term=bold cterm=bold gui=bold
   hi def VimwikiItalic term=italic cterm=italic gui=italic
-  hi def VimwikiBoldItalic term=bold cterm=bold gui=bold,italic
-  hi def VimwikiUnderline gui=underline
+  hi def VimwikiBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
+  hi def VimwikiUnderline term=underline cterm=underline gui=underline
   if vimwiki#vars#get_global('hl_headers') == 1
     for i in range(1,6)
       execute 'hi def VimwikiHeader'.i.' guibg=bg guifg='

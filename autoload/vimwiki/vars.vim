@@ -3,8 +3,6 @@
 " Description: Vimwiki variable definition and manipulation
 " Home: https://github.com/vimwiki/vimwiki/
 
-
-
 " ------------------------------------------------------------------------------------------------
 " This file provides functions to manage the various state variables which are needed during a
 " Vimwiki session.
@@ -30,8 +28,8 @@
 let s:margin_set_by_user = 0
 
 
-" Init global and local variables
 function! vimwiki#vars#init() abort
+  " Init global and local variables
   " Init && Populate: global variable container
   let g:vimwiki_global_vars = {}
   call s:populate_global_variables()
@@ -42,13 +40,13 @@ function! vimwiki#vars#init() abort
 endfunction
 
 
-" Helper: Check user setting
-" warn user with message if not good type
-" Param: 1: key <string>: varaible name
-" Param: 2: vimwiki_key <obj>: user value
-" Param: 3: value_infod <dict>: type and default value
-" Param: 4: coming from a global variable <bool>
 function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
+  " Helper: Check user setting
+  " warn user with message if not good type
+  " Param: 1: key <string>: varaible name
+  " Param: 2: vimwiki_key <obj>: user value
+  " Param: 3: value_infod <dict>: type and default value
+  " Param: 4: coming from a global variable <bool>
   let type_code_to_name = {
         \ type(0): 'number',
         \ type(''): 'string',
@@ -106,8 +104,8 @@ function! s:check_users_value(key, users_value, value_infos, comes_from_global_v
 endfunction
 
 
-" Helper: Treat special variables
 function! s:update_key(output_dic, key, old, new) abort
+  " Helper: Treat special variables
   " Set list margin
   if a:key ==# 'list_margin'
     let s:margin_set_by_user = 1
@@ -125,15 +123,13 @@ function! s:update_key(output_dic, key, old, new) abort
   endif
 endfunction
 
-
-
 " ----------------------------------------------------------
 " 1. Global {{{1
 " ----------------------------------------------------------
 
-" Get default wikilocal values
-" Please: keep alphabetical sort
 function! s:get_default_global() abort
+  " Get default wikilocal values
+  " Please: keep alphabetical sort
   return {
         \ 'CJK_length': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'auto_chdir': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -166,8 +162,8 @@ function! s:get_default_global() abort
         \ 'key_mappings': {'type': type({}), 'default':
         \   {
         \     'all_maps': 1, 'global': 1, 'headers': 1, 'text_objs': 1,
-        \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'links': 1,
-        \     'html': 1, 'mouse': 0,
+        \     'table_format': 1, 'table_mappings': 1, 'lists': 1, 'lists_return': 1,
+        \     'links': 1, 'html': 1, 'mouse': 0,
         \   }},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
@@ -176,6 +172,13 @@ function! s:get_default_global() abort
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
         \ 'menu': {'type': type(''), 'default': 'Vimwiki'},
+        \ 'schemes_web': {'type': type([]), 'default':
+        \   [
+        \     'http', 'https', 'file', 'ftp', 'gopher', 'telnet', 'nntp', 'ldap',
+        \     'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
+        \     'git', 'ssh', 'fish', 'sftp',
+        \   ]},
+        \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -192,46 +195,48 @@ function! s:get_default_global() abort
 endfunction
 
 
-" Populate global variable <- user & default
-" Called: s:vimwiki#vars#init
 function! s:populate_global_variables() abort
+  " Populate: global variable <- user & default
+  " Called: s:vimwiki#vars#init
   call s:read_global_settings_from_user()
   call s:normalize_global_settings()
   call s:internal_global_settings()
 endfunction
 
 
-" Read nromalized settings and create some more usefull variables to use internally
 function! s:internal_global_settings() abort
+  " Declare: normalized settings -> more usefull variables to use internally
   " non-configurable global variables:
 
   " Scheme regexes must be defined even if syntax file is not loaded yet cause users should be
   " able to <leader>w<leader>w without opening any vimwiki file first
-  let g:vimwiki_global_vars.schemes = join(['wiki\d\+', 'diary', 'local'], '\|')
-  let g:vimwiki_global_vars.web_schemes1 = join(['http', 'https', 'file', 'ftp', 'gopher',
-        \ 'telnet', 'nntp', 'ldap', 'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
-        \ 'git', 'ssh', 'fish', 'sftp'], '\|')
-  let web_schemes2 =
-        \ join(['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data'], '\|')
 
+  " Know internal schemes
+
+  let g:vimwiki_global_vars.schemes_web = 
+        \ join(vimwiki#vars#get_global('schemes_web'), '\|')
+  let g:vimwiki_global_vars.schemes_any = 
+        \ join(vimwiki#vars#get_global('schemes_any'), '\|')
+  let g:vimwiki_global_vars.schemes_local = join(['wiki\d\+', 'diary', 'local'], '\|')
+
+  " Concatenate known schemes => regex
   let g:vimwiki_global_vars.rxSchemes = '\%('.
-        \ g:vimwiki_global_vars.schemes . '\|'.
-        \ g:vimwiki_global_vars.web_schemes1 . '\|'.
-        \ web_schemes2 .
+        \ g:vimwiki_global_vars.schemes_local . '\|'.
+        \ g:vimwiki_global_vars.schemes_web . '\|'.
+        \ g:vimwiki_global_vars.schemes_any .
         \ '\)'
 
-  " match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
+  " Match URL for common protocols; see http://en.wikipedia.org/wiki/URI_scheme
   " http://tools.ietf.org/html/rfc3986
   let rxWebProtocols =
         \ '\%('.
           \ '\%('.
-            \ '\%('.g:vimwiki_global_vars.web_schemes1 . '\):'.
+            \ '\%('. g:vimwiki_global_vars.schemes_web . '\):'.
             \ '\%(//\)'.
           \ '\)'.
         \ '\|'.
-          \ '\%('.web_schemes2.'\):'.
+          \ '\%('. g:vimwiki_global_vars.schemes_any .'\):'.
         \ '\)'
-
   let g:vimwiki_global_vars.rxWeblinkUrl = rxWebProtocols . '\S\{-1,}'. '\%(([^ \t()]*)\)\='
 
   let wikilink_prefix = '[['
@@ -308,8 +313,8 @@ function! s:internal_global_settings() abort
 endfunction
 
 
-" Extend global dictionary <- default <- user
 function! s:extend_global(output_dic, default_dic) abort
+  " Extend global dictionary <- default <- user
   " Note: user_dic is unused here because it comes from g:vimwiki_* vars
   " Copy the user's settings from variables of the form g:vimwiki_<option> into the dict
   " g:vimwiki_global_vars (or set a default value)
@@ -331,9 +336,9 @@ function! s:extend_global(output_dic, default_dic) abort
 endfunction
 
 
-" Read user global settings
-" Called: s:populate_global_variables
 function! s:read_global_settings_from_user() abort
+  " Read user global settings
+  " Called: s:populate_global_variables
   let default_dic = s:get_default_global()
 
   " Update batch
@@ -363,9 +368,9 @@ function! s:read_global_settings_from_user() abort
 endfunction
 
 
-" Normalize user global settings
-" Called: s:populate_global_variables
 function! s:normalize_global_settings() abort
+  " Normalize user global settings
+  " Called: s:populate_global_variables
   let keys = keys(g:vimwiki_global_vars.ext2syntax)
   for ext in keys
     " for convenience, we also allow the term 'mediawiki'
@@ -405,6 +410,9 @@ function! s:normalize_global_settings() abort
   if !has_key(g:vimwiki_global_vars.key_mappings, 'lists')
     let g:vimwiki_global_vars.key_mappings.lists = 1
   endif
+  if !has_key(g:vimwiki_global_vars.key_mappings, 'lists_return')
+    let g:vimwiki_global_vars.key_mappings.lists_return = 1
+  endif
   if !has_key(g:vimwiki_global_vars.key_mappings, 'links')
     let g:vimwiki_global_vars.key_mappings.links = 1
   endif
@@ -424,6 +432,7 @@ function! s:normalize_global_settings() abort
     let g:vimwiki_global_vars.key_mappings.table_mappings = 0
     let g:vimwiki_global_vars.table_mappings = 0 " kept for backwards compatibility
     let g:vimwiki_global_vars.key_mappings.lists = 0
+    let g:vimwiki_global_vars.key_mappings.lists_return = 0
     let g:vimwiki_global_vars.key_mappings.links = 0
     let g:vimwiki_global_vars.key_mappings.html = 0
     let g:vimwiki_global_vars.key_mappings.mouse = 0
@@ -446,9 +455,9 @@ endfunction
 " 3. Wiki local {{{1
 " ----------------------------------------------------------
 
-" Get default wikilocal values
-" Please: keep alphabetical sort
 function! s:get_default_wikilocal() abort
+  " Get default wikilocal values
+  " Please: keep alphabetical sort
   " Build color_tag_template regular expression
   " Must be coherent with VimwikiColorize
   let fg = 'color\s*:\s*__COLORFG__\s*;\s*'
@@ -518,6 +527,7 @@ function! s:get_default_wikilocal() abort
         \ 'template_default': {'type': type(''), 'default': 'default', 'min_length': 1},
         \ 'template_ext': {'type': type(''), 'default': '.tpl'},
         \ 'template_path': {'type': type(''), 'default': $HOME . '/vimwiki/templates/'},
+        \ 'template_date_format': {'type': type(''), 'default': '%Y-%m-%d'},
         \ 'text_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'tag_format': {'type': type({}), 'default': {
         \   'pre': '^\|\s',
@@ -534,8 +544,8 @@ function! s:get_default_wikilocal() abort
         \ }
 endfunction
 
-" Extend syntaxlocal dictionary <- global <- user (default for type check)
 function! s:extend_local(output_dic, default_dic, global_dic, user_dic) abort
+  " Extend syntaxlocal dictionary <- global <- user (default for type check)
   " IDEA: can work lazily and not on all wikis at first call
   " IDEA: have a special variable for wikitmp
   for key in keys(a:default_dic)
@@ -551,9 +561,9 @@ function! s:extend_local(output_dic, default_dic, global_dic, user_dic) abort
 endfunction
 
 
-" Populate local variable <- user & default
-" Called: s:vimwiki#vars#init
 function! s:populate_wikilocal_options() abort
+  " Populate local variable <- user & default
+  " Called: s:vimwiki#vars#init
   " Retrieve default
   let default_dic = s:get_default_wikilocal()
 
@@ -584,8 +594,8 @@ function! s:populate_wikilocal_options() abort
 endfunction
 
 
-" Normalize local settings
 function! s:normalize_wikilocal_settings() abort
+  " Normalize local settings
   for wiki_settings in g:vimwiki_wikilocal_vars
     " Check some values individually
     """"""""""""""""""""""""""""""""
@@ -639,9 +649,9 @@ function! s:normalize_wikilocal_settings() abort
 endfunction
 
 
-" Helper path
-" TODO move to path: Conflict with: vimwiki#path#path_norm && vimwiki#path#normalize
 function! s:normalize_path(path) abort
+  " Helper path
+  " TODO move to path: Conflict with: vimwiki#path#path_norm && vimwiki#path#normalize
   " trim trailing / and \ because otherwise resolve() doesn't work quite right
   let path = substitute(a:path, '[/\\]\+$', '', '')
   if path !~# '^scp:'
@@ -656,8 +666,8 @@ endfunction
 " 2. Syntax specific {{{1
 " ----------------------------------------------------------
 
-" Get default syntaxlocal variable dictionary
 function! s:get_default_syntaxlocal() abort
+  " Get default syntaxlocal variable dictionary
   " type, default, min, max, possible_values, min_length
   return extend(s:get_common_syntaxlocal(), {
         \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
@@ -809,9 +819,9 @@ function! s:get_common_syntaxlocal() abort
 endfunction
 
 
-" Populate syntax variable
-" Exported: syntax/vimwiki.vim
 function! vimwiki#vars#populate_syntax_vars(syntax) abort
+  " Populate syntax variable
+  " Exported: syntax/vimwiki.vim
   " TODO refactor <= too big function
   " TODO permit user conf in some var like g:vimwiki_syntaxlocal_vars
   " TODO internalize match and search (header and bold)
@@ -1031,10 +1041,10 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
 endfunction
 
 
-" Populate list variable
-" or how to search and treat list (ex: *,-, 1.)
-" TODO this should be syntax_local
 function! s:populate_list_vars(wiki) abort
+  " Populate list variable
+  " or how to search and treat list (ex: *,-, 1.)
+  " TODO this should be syntax_local
   let syntax = a:wiki.syntax
 
   let a:wiki.rx_bullet_char = '['.escape(join(a:wiki.bullet_types, ''), ']^-\').']'
@@ -1092,8 +1102,8 @@ function! s:populate_list_vars(wiki) abort
 endfunction
 
 
-" Populate markdown specific syntax variables
 function! s:populate_extra_markdown_vars() abort
+  " Populate markdown specific syntax variables
   let mkd_syntax = g:vimwiki_syntaxlocal_vars['markdown']
 
   " 0a) match [[URL|DESCRIPTION]]
@@ -1264,10 +1274,10 @@ function! s:populate_extra_markdown_vars() abort
 endfunction
 
 
-" Normalize syntax setting
-"   so that we dont have to branch for the syntax at each operation
-" Called: populate_syntax_vars
 function! s:normalize_syntax_settings(syntax) abort
+  " Normalize syntax setting
+  "   so that we dont have to branch for the syntax at each operation
+  " Called: populate_syntax_vars
   let syntax_dic = g:vimwiki_syntaxlocal_vars[a:syntax]
 
   " Link1: used when:
@@ -1285,13 +1295,12 @@ endfunction
 " 4. Command (exported) {{{1
 " ----------------------------------------------------------
 
-
-" Get variable anywhere
-" Returns: [value, location] where loc=global|wikilocal|syntaxlocal|bufferlocal|none
-" Called: cmd <- VimwikiVar
-" TODO get more performant approach when this file has been well refactored:
-" -- calls only the necessary functions and not syntaxlocal anytime
 function! s:get_anywhere(key, ...) abort
+  " Get variable anywhere
+  " Returns: [value, location] where loc=global|wikilocal|syntaxlocal|bufferlocal|none
+  " Called: cmd <- VimwikiVar
+  " TODO get more performant approach when this file has been well refactored:
+  " -- calls only the necessary functions and not syntaxlocal anytime
   " Alias common info
   let s:syntax = vimwiki#vars#get_wikilocal('syntax')
   let s:wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
@@ -1387,11 +1396,11 @@ function! s:get_anywhere(key, ...) abort
 endfunction
 
 
-" Set or Get a vimwiki variable
-" :param: (1) key <string> [space] value <string>
-" -- name of the variable [space] value to evaluate and set the variable
-" Called: VimwikiVar
 function! vimwiki#vars#cmd(arg) abort
+  " Set or Get a vimwiki variable
+  " :param: (1) <string> command parameter: key [space] value
+  " -- name of the variable [space] value to evaluate and set the variable
+  " Called: VimwikiVar
   " Get key and value
   let sep1 = stridx(a:arg, ' ')
   let sep2 = sep1
@@ -1523,10 +1532,10 @@ endfunction
 " 4. Getter, Setter (exported) {{{1
 " ----------------------------------------------------------
 
-" Get syntax variable
-" Param:   1: key (<string>)
-" Param: (2): syntax name (<string> ex:'markdown')
 function! vimwiki#vars#get_syntaxlocal(key, ...) abort
+  " Get syntax variable
+  " Param:   1: key (<string>)
+  " Param: (2): syntax name (<string> ex:'markdown')
   " Retrieve desired syntax name
   if a:0
     let syntax = a:1
@@ -1544,10 +1553,10 @@ function! vimwiki#vars#get_syntaxlocal(key, ...) abort
 endfunction
 
 
-" Return: buffer local variable
-" for the buffer we are currently in or for the given buffer (number or name).
-" Populate the variable, if it doesn't exist.
 function! vimwiki#vars#get_bufferlocal(key, ...) abort
+  " Return: buffer local variable
+  " for the buffer we are currently in or for the given buffer (number or name).
+  " Populate the variable, if it doesn't exist.
   let buffer = a:0 ? a:1 : '%'
 
   " 'get(getbufvar(...' handles vim < v7.3.831 that didn't allow a default value for getbufvar
@@ -1579,31 +1588,31 @@ function! vimwiki#vars#get_bufferlocal(key, ...) abort
 endfunction
 
 
-" Set buffer local variable
 function! vimwiki#vars#set_bufferlocal(key, value, ...) abort
+  " Set buffer local variable
   let buffer = a:0 ? a:1 : '%'
   call setbufvar(buffer, 'vimwiki_' . a:key, a:value)
 endfunction
 
 
-" Return: wiki global variable
 function! vimwiki#vars#get_global(key) abort
+  " Return: wiki global variable
   return g:vimwiki_global_vars[a:key]
 endfunction
 
 
-" Set global variable
 function! vimwiki#vars#set_global(key, value) abort
+  " Set global variable
   let g:vimwiki_global_vars[a:key] = a:value
   return g:vimwiki_global_vars[a:key]
 endfunction
 
 
-" Return: wiki local named variable
-" Param: (1): variable name (alias key, <string>)
-" Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
-" used
 function! vimwiki#vars#get_wikilocal(key, ...) abort
+  " Return: wiki local named variable
+  " Param: (1): variable name (alias key, <string>)
+  " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
+  " used
   if a:0
     return g:vimwiki_wikilocal_vars[a:1][a:key]
   else
@@ -1612,16 +1621,16 @@ function! vimwiki#vars#get_wikilocal(key, ...) abort
 endfunction
 
 
-" Return: wiki local variable (of default wiki [index -1])
 function! vimwiki#vars#get_wikilocal_default(key) abort
+  " Return: wiki local variable (of default wiki [index -1])
   return g:vimwiki_wikilocal_vars[-1][a:key]
 endfunction
 
 
-" Set local variable
-" Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
-" used
 function! vimwiki#vars#set_wikilocal(key, value, ...) abort
+  " Set local variable
+  " Param: (2): wiki number (<int>). When absent, the wiki of the currently active buffer is
+  " used
   if a:0
     let wiki_nr = a:1
   else
@@ -1634,8 +1643,8 @@ function! vimwiki#vars#set_wikilocal(key, value, ...) abort
 endfunction
 
 
-" Append new wiki to wiki list
 function! vimwiki#vars#add_temporary_wiki(settings) abort
+  " Append new wiki to wiki list
   let new_temp_wiki_settings = copy(g:vimwiki_wikilocal_vars[-1])
   for [key, value] in items(a:settings)
     let new_temp_wiki_settings[key] = value
@@ -1647,7 +1656,7 @@ function! vimwiki#vars#add_temporary_wiki(settings) abort
 endfunction
 
 
-" Return: number of registered wikis + temporary
 function! vimwiki#vars#number_of_wikis() abort
+  " Return: number of registered wikis + temporary
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction

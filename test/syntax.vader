@@ -1,7 +1,5 @@
 # Syntax and Highlight
 
-#Given vimwiki (bold and pre):
-
 # 1 Typeface {{{1
 #################
 
@@ -725,5 +723,40 @@ Execute (Assert math syntax 2):
   Assert syntax_5 == 'texStatement' || syntax_5 == 'texMathSymbol'
   let syntax_12 = SyntaxAt(12, 1)
   Assert syntax_12 == 'texStatement' || syntax_5 == 'texMathSymbol'
+
+# 21 Highlight {{{1
+##################
+Given vimwiki (One line):
+  content
+
+Execute (Assert highlight typeface 1):
+  " Typeface 1
+  call AssertIfVersion(704, ['bold'], GetHighlightTerm('VimwikiBold', 'term'))
+  call AssertIfVersion(704, ['bold'], GetHighlightTerm('VimwikiBold', 'cterm'))
+  call AssertIfVersion(704, ['bold'], GetHighlightTerm('VimwikiBold', 'gui'))
+  call AssertIfVersion(704, ['italic'], GetHighlightTerm('VimwikiItalic', 'cterm'))
+  call AssertIfVersion(704, ['underline'], GetHighlightTerm('VimwikiUnderline', 'gui'))
+
+Execute (Assert highlight typeface 2):
+  " Bold > Italic > Underline
+  call AssertIfVersion(704, sort(['bold', 'italic', '1']), sort(add(GetHighlightTerm('VimwikiBoldItalic', 'gui'), '1')))
+  call AssertIfVersion(704, sort(['bold', 'italic', '2']), sort(add(GetHighlightTerm('VimwikiBoldItalic', 'term'), '2')))
+
+  call AssertIfVersion(704, sort(['bold', 'underline', '3']), sort(add(GetHighlightTerm('VimwikiBoldUnderline', 'cterm'), '3')))
+  call AssertIfVersion(704, sort(['bold', 'underline', '4']), sort(add(GetHighlightTerm('VimwikiUnderlineBold', 'term'), '4')))
+
+  call AssertIfVersion(704, sort(['italic', 'underline', '5']), sort(add(GetHighlightTerm('VimwikiItalicUnderline', 'cterm'), '5')))
+
+Execute (Assert highlight typeface 3):
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '1']), sort(add(GetHighlightTerm('VimwikiBoldItalicUnderline', 'gui'), '1')))
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '2']), sort(add(GetHighlightTerm('VimwikiBoldUnderlineItalic', 'cterm'), '2')))
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '3']), sort(add(GetHighlightTerm('VimwikiItalicBoldUnderline', 'term'), '3')))
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '4']), sort(add(GetHighlightTerm('VimwikiItalicUnderlineBold', 'gui'), '4')))
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '5']), sort(add(GetHighlightTerm('VimwikiUnderlineBoldItalic', 'cterm'), '5')))
+  call AssertIfVersion(704, sort(['bold', 'italic', 'underline', '6']), sort(add(GetHighlightTerm('VimwikiUnderlineItalicBold', 'term'), '6')))
+
+Expect (One line):
+  content
+
 
 # vim: foldmethod=marker foldlevel=30 sw=2

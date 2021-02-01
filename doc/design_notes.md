@@ -4,6 +4,7 @@ This file is meant to document design decisions and algorithms inside Vimwiki
 which are too large for code comments, and not necessarily interesting to
 users. Please create a new section to document each behavior.
 
+
 ## Formatting tables
 
 In Vimwiki, formatting tables occurs dynamically, when navigating between cells
@@ -233,6 +234,21 @@ reasons for such a complex system is:
 3. Historical excuses that Vimwiki was not designed to be highly configurable at
    beginning and many temporary internal variables where created to "fix some
    holes"
+
+
+## Syntax and Highlight
+
+* [Vimwiki syntax specification](./specification.wiki)
+* [Syntax region](../syntax/vimwiki.vim)
+* [Nesting manager]( ../autoload/vimwiki/u.vim): vimwiki#u#hi_typeface(dic)
+
+TODO currently the typeface delimiters are customized that way:
+
+```vim
+" Typeface: -> u.vim
+let s:typeface_dic = vimwiki#vars#get_syntaxlocal('typeface')
+call vimwiki#u#hi_typeface(s:typeface_dic)
+```
 
 
 <!-- vim: set tw=80: -->

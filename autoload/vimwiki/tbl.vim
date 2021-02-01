@@ -8,7 +8,6 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
-
 " Clause: Load only once
 if exists('g:loaded_vimwiki_tbl_auto') || &compatible
   finish
@@ -54,15 +53,15 @@ function! s:sep_splitter() abort
 endfunction
 
 
-" Check if param:line is in a table
 function! s:is_table(line) abort
+  " Check if param:line is in a table
   return s:is_separator(a:line) ||
         \ (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
 endfunction
 
 
-" Check if param:line is a separator (ex: | --- | --- |)
 function! s:is_separator(line) abort
+  " Check if param:line is a separator (ex: | --- | --- |)
   return a:line =~# '^\s*'.s:rxSep().'\(:\=--\+:\='.s:rxSep().'\)\+\s*$'
 endfunction
 
@@ -417,8 +416,8 @@ function! s:get_aligned_rows(lnum, col1, col2, depth) abort
 endfunction
 
 
-" Number of the current column. Starts from 0.
 function! s:cur_column() abort
+  " Number of the current column. Starts from 0.
   let line = getline('.')
   if !s:is_table(line)
     return -1
@@ -542,8 +541,8 @@ function! s:kbd_goto_prev_row() abort
 endfunction
 
 
-" Used in s:kbd_goto_next_col
 function! vimwiki#tbl#goto_next_col() abort
+  " Used in s:kbd_goto_next_col
   let curcol = virtcol('.')
   let lnum = line('.')
   let depth = 2
@@ -577,8 +576,8 @@ function! s:kbd_goto_next_col(jumpdown) abort
 endfunction
 
 
-" Used in s:kbd_goto_prev_col
 function! vimwiki#tbl#goto_prev_col() abort
+  " Used in s:kbd_goto_prev_col
   let curcol = virtcol('.')
   let lnum = line('.')
   let depth = 2
@@ -757,8 +756,8 @@ function! vimwiki#tbl#align_or_cmd(cmd, ...) abort
 endfunction
 
 
-" TODO: move_column_left and move_column_right are good candidates to be refactored.
 function! vimwiki#tbl#move_column_left() abort
+  " TODO: move_column_left and move_column_right are good candidates to be refactored.
   " Clause in
   let line = getline('.')
   if !s:is_table(line)

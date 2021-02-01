@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #
 # This script converts markdown into html, to be used with vimwiki's
@@ -26,10 +26,10 @@
 # internal wiki2html converter.
 #
 
-MARKDOWN=markdown
 MKD2HTML=mkd2html
 
 
+# shellcheck disable=SC2034  # FORCE appears unused
 FORCE="$1"
 SYNTAX="$2"
 EXTENSION="$3"
@@ -37,14 +37,16 @@ OUTPUTDIR="$4"
 INPUT="$5"
 CSSFILE="$6"
 
-FORCEFLAG=
 
-[ $FORCE -eq 0 ] || { FORCEFLAG="-f"; };
-[ $SYNTAX = "markdown" ] || { echo "Error: Unsupported syntax"; exit -2; };
+[[ "$SYNTAX" == "markdown" ]] || { echo "Error: Unsupported syntax"; exit 2; };
 
-OUTPUT="$OUTPUTDIR"/$(basename "$INPUT" .$EXTENSION).html
+OUTPUT="$OUTPUTDIR/$(basename "$INPUT" . "$EXTENSION").html"
 
 # # Method 1:
+# FORCEFLAG=
+# (( "$FORCE" == 0 )) || { FORCEFLAG="-f"; };
+# MARKDOWN=markdown
+#
 # # markdown [-d] [-T] [-V] [-b url-base] [-C prefix] [-F bitmap] [-f flags] [-o file] [-s text] [-t text] [textfile]
 #
 # URLBASE=http://example.com
@@ -57,6 +59,3 @@ OUTPUT="$OUTPUTDIR"/$(basename "$INPUT" .$EXTENSION).html
 $MKD2HTML -css "$CSSFILE" "$INPUT"
 OUTPUTTMP=$(dirname "$INPUT")/$(basename "$INPUT" ."$EXTENSION").html
 mv -f "$OUTPUTTMP" "$OUTPUT"
-
-
-

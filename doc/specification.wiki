@@ -1,0 +1,898 @@
+= Specification =
+
+The following is a draft specification for the *vimwiki* markup language. It is
+provided as a guideline for consistent parsing and rendering of vimwiki
+content.
+
+Similar to the approach taken with [[https://www.commonmark.org/|commonmark]],
+this document attempts to specify *vimwiki* syntax unambiguously. It contains
+examples of the language and describes the specifics of the language in a way
+that tooling can more easily define parsers and generators.
+
+== Version ==
+
+Current: *0.1.0*
+
+This specification is versioned in order to provide a stable point of reference
+for external tools. [[https://semver.org/|Semantic versioning]] is used to keep
+track of the current state of the specification. *MAJOR.MINOR.PATCH* is the
+format.
+
+While the specification remains with a zero major version, the contents of this
+specification can change without any requirement to maintain compatibility.
+Once a non-zero major version is released, new vimwiki language elements may
+only be added in minor releases and any breaking change must be reflected by a
+major release. Tweaks in language that do not add, alter, or remove elements of
+vimwiki (such as typos, clarifications, etc) may be made with patch releases.
+
+The specification will continue to remain in a development mode (zero major
+mode) until the language has become relatively stable.
+
+== Language ==
+
+The following will describe the individual elements of the vimwiki language.
+It will cover each element's purpose and a clear description of the syntax.
+
+For details on parsing prescedence, see the [[#Specification#Parser Details|companion section]].
+
+=== Primitives ===
+
+In order to define the vimwiki language, we first need to present several
+definitions for primitive building blocks used to shape up higher-level
+elements. Relevant definitions are borrowed from
+[[https://spec.commonmark.org/0.29/#characters-and-lines|commonmark characters and lines]].
+
+A *character* in vimwiki is a valid UTF-8 code point. For the purposes of
+this document, we further restrict a character to not include any
+[[https://en.wikipedia.org/wiki/Control_character|control character]] as those will be referenced separately.
+
+An *alphanumeric character* is a [[#character|character]] that can only be in
+the range of a-z, A-Z, or 0-9 where these represent alphabet characters
+(abcdef...z) of lower and upper case as well as digits (0, 1, 2, ..., 9).
+
+A *line* is a sequence of zero or more [[#Specification#Language#Primitives#character|characters]] other than a
+newline (`U+000A` aka `\n`) or carriage return (`U+000D` aka `\r`), followed by
+a [[#Specification#Language#Primitives#line ending|line ending]] or by the end of a file.
+
+A *line ending* is a newline (`U+000A` aka `\n`), a carriage return (`U+000D`
+aka `\r`) not followed by a newline, or a carriage return and a following
+newline (`\r\n`).
+
+A line with no [[#character|characters]], or a line containing only spaces (`U+0020`) or tabs
+(`U+0009`), is called a *blank line*.
+
+A *whitespace character* is a space (`U+0020`) or tab (`U+0009`).
+
+*All characters until end of line* is any sequence of [[#character|characters]]
+leading up to but not including a [[#line ending|line ending]].
+
+A *user-defined content* is an arbitrary series of [[#character|characters]] or a function
+that yields those characters. Its purpose is to enable users of vimwiki to
+interject their own configuration into aspects of the vimwiki language.
+
+*User-definable* represents any language definition that can be altered to
+instead be represented by one or more [[#user-defined content|user-defined content]].
+
+=== Block Elements ===
+
+The vimwiki language has a variety of syntax that represent elements within
+a page. In this section, we discuss block-level elements, which are vimwiki
+syntax that are standalone and can comprise one or more entire lines within
+a file.
+
+==== Blockquote ====
+
+A blockquote has two different forms available: indented text or text prefixed
+with a right angle bracket or chevron `>`. Its purpose is to convey an extended
+quotation.
+
+*Form 1*:
+
+{{{vimwiki
+    This is a blockquote
+    that exists on more than one line
+}}}
+
+*Form 2*:
+
+{{{vimwiki
+> This is a blockquote
+> that exists on more than one line
+}}}
+
+===== Syntax =====
+
+*Form 1*:
+
+A blockquote is made of *one* or more [[#indented blockquote line|indented blockquote lines]]
+
+An *indented blockquote line* is made of the following:
+1. Four or more [[#whitespace character|whitespace characters]]
+2. All [[#character|characters]] up until a [[#line ending|line ending]]
+3. A [[#line ending|line ending]] or end of input
+
+*Form 2*:
+
+A blockquote is made of *one* or more [[#chevron blockquote line|chevron blockquote lines]], which may be
+separated by zero or more [[#blank line|blank lines]]
+
+A *chevron blockquote line* is made of the following:
+1. Starts at the beginning of a line
+2. A prefix right angle bracket or chevron (`U+003E` aka `>`)
+3. A [[#whitespace character|whitespace character]] such as ' ' or '\t'
+4. All characters up until a [[#line ending|line ending]]
+5. A [[#line ending|line ending]] or end of input
+
+*Extra Notes*: Each line of a blockquote, minus the indentation or chevron, is
+trimmed to remove all leading and trailing [[#whitespace character|whitespace characters]].
+
+==== Definition List ====
+
+A definition list is composed of a series of terms and associated definitions.
+It mirrors the functionality available in an [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl|HTML Description List]].
+
+{{{vimwiki
+Term 1:: Some definition
+Term 2:: First def
+:: Second def with [[link]]
+Term3::
+:: Some *bold* definition
+}}}
+
+===== Syntax =====
+
+A *definition list* is composed of one or more [[#term and definitions|term and definitions]]
+
+A *term and definitions* is composed of one [[#term line|term line]] and
+zero or more [[#definition line|definition lines]]
+
+A *term line* is represented by the following:
+1. Starts at the beginning of a line
+2. One or more [[#inline elements|inline elements]] (except [[#tags|tags]]) before the sequence `::`
+3. The sequence `::`
+4. An optional one or more [[#inline elements|inline elements]] before [[#line ending|line ending]]
+   to be the first definition
+5. A [[#line ending|line ending]] or end of input
+
+A *definition line* is represented by the following:
+1. Starts at the beginning of a line
+2. The sequence `::`
+3. One or more [[#inline elements|inline elements]] before [[#line ending|line ending]]
+4. A [[#line ending|line ending]] or end of input
+
+*Extra Notes*: Each term and definition is trimmed to remove all leading and
+trailing [[#whitespace character|whitespace characters]].
+
+==== Divider ====
+
+A divider is composed of a sequence of dashes (`U+002D`). It mirrors the
+functionality of the [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr|HTML Horizontal Rule]].
+
+{{{vimwiki
+----
+}}}
+
+===== Syntax =====
+
+A *divider* is represented by the following:
+1. Starts at the beginning of a line
+2. Four or more dashes (`U+002D`)
+3. A [[#line ending|line ending]] or end of input
+
+==== Header ====
+
+A header is composed of some content surrounded by equals sign (`U+003D` aka
+`=`) of equal length. It mirrors the functionality of the [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements|HTML Heading]].
+
+{{{vimwiki
+= Some Header =
+== Some Sub Header ==
+= *Bold* Header with [[link]] =
+}}}
+
+===== Syntax =====
+
+A *header* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]] (implying
+   whether or not a header is centered)
+3. One or more equal sign (`U+003D`) characters
+4. One or more [[#inline elements|inline elements]]
+5. An equivalent number of equal sign characters as in step #3
+6. A [[#line ending|line ending]] or end of input
+
+*Extra Notes*: Each header's content, minus the equals signs, is trimmed to
+remove all leading and trailing [[#whitespace character|whitespace characters]].
+For example, `= header =` is equal to `=header=`.
+
+==== List ====
+
+A list is composed of a series list items, each being comprised
+of [[#inline elements|inline elements]] and [[#list|sub lists]]. It mirrors the
+functionality available in an [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul|HTML Unordered List]]
+and [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol|HTML Ordered List]].
+
+{{{vimwiki
+- List item 1 has *bold* and [[links]]
+- List item 2 has content
+   1. Ordered sublist
+   2. within list item 2
+}}}
+
+===== Syntax =====
+
+A *list* is composed of one or more [[#list item|list items]].
+
+A *list item* is composed of a [[#starting list item line|starting list item line]]
+and zero or more [[#companion list item line|companion list item lines]].
+
+A *starting list item line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]] that signify
+   the level of indentation to use when understanding if later content is
+   still associated with this list item, if a new list item is the beginning
+   of a sublist, if a new list item is a sibling, or if a new list item
+   is the sibling of a parent
+3. One of the following default prefixes (this is also [[#user-definable|user definable]])
+   that determines the type of list item:
+   * Hyphen (`U+002D` aka `-`) is for an unordered list
+   * Asterisk (`U+002A` aka `*`) is for an unordered list
+   * Pound (`U+0023` aka `#`) is for an ordered list
+   * One or more digits followed by a period (`U+002E` aka `.`) or
+     a right parenthesis (`U+0029` aka `)`) is for an ordered list
+   * One or more lowercase alphabetic (`a-z`) followed by a period
+     (`U+002E` aka `.`) or a right parenthesis (`U+0029` aka `)`) is for an
+     ordered list
+   * One or more uppercase alphabetic (`A-Z`) followed by a period
+     (`U+002E` aka `.`) or a right parenthesis (`U+0029` aka `)`) is for an
+     ordered list
+   * One or more lowercase Roman numerals (any of `ivxlcdm`) followed by a
+     period (`U+002E` aka `.`) or a right parenthesis (`U+0029` aka `)`) is
+     for an ordered list
+   * One or more uppercase Roman numerals (any of  `IVXLCDM`) followed by a
+     period (`U+002E` aka `.`) or a right parenthesis (`U+0029` aka `)`) is
+     for an ordered list
+4. A [[#whitespace character|whitespace character]]
+5. An optional [[#todo attribute|todo attribute]] and additional [[#whitespace character|whitespace character]]
+6. Zero or more [[#inline elements|inline elements]]
+7. A [[#line ending|line ending]] or end of input
+
+A *companion list item line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]] that total
+   as many or more as the [[#starting list item line|starting list item line]] indentation
+3. One of the following:
+   * The start of a new [[#list|list]] (to be treated as a sublist of the
+     current list item)
+   * A series of one or more [[#inline elements|inline elements]]
+     (to be added to the content of the current list item) followed by
+     a [[#line ending|line ending]] or end of input
+   * A [[#blank line|blank line]] if there is guaranteed to still be some
+     list item content in later lines
+
+A *todo attribute* is composed of surrounding square brackets in the form
+of a left square bracket (`U+005B` aka `[`) and right square bracket
+(`U+005D` aka `]`). Inbetween the square brackets is a single character to
+denote the todo status and is by default one of the following or [[#user-definable|user-definable]]:
+* A space (`U+0020` aka ' ') meaning 0% or incomplete
+* A period (`U+002E` aka `.`) meaning 1-33% progress
+* A lowercase o (`U+006F` aka `o`) meaning 34-66% progress
+* An uppercase O (`U+004F` aka `O`) meaning 67-99% progress
+* An uppercase X (`U+0058` aka `X`) meaning 100% or completed
+* A hyphen (`U+002D` aka `-`) meaning rejected
+
+*Extra Notes*: Because of the ambiguity of alphabetic list items and Roman
+numerals, which are composed of specific alphabetic characters in various
+arrangements, a list needs to be evaluated across all of its items to determine
+if a list item's type is Roman or alphabetic. If all list items begin with
+valid Roman numerals, then the types are Roman numerals. If any list item is
+not a valid Roman numeral, then all list item type's for those prefixes are
+considered to be alphabetic.
+
+==== Math Block ====
+
+A math block is composed of a series of lines representing a mathematical
+formula. It is rendered in HTML using the [[https://www.mathjax.org/|MathJax engine]].
+
+{{{vimwiki
+{{$%align%
+\sum_i a_i^2 &= 1 + 1 \\
+&= 2.
+}}$
+}}}
+
+===== Syntax =====
+
+A *math block* is composed of a [[#beginning math block line|beginning math block line]],
+one or more [[#math block line|math block lines]], and an [[#ending math block line|ending math block line]].
+
+A *beginning math block line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. The sequence `{{$`
+4. An optional [[#math environment|math environment]]
+5. Zero or more [[#whitespace character|whitespace characters]]
+6. A [[#line ending|line ending]]
+
+A *math environment* is represented by the following:
+1. The percent sign (`U+0025` aka `%`)
+2. One or more [[#character|characters]] that are not the percent sign or [[#line ending|line ending]]
+3. The percent sign (`U+0025` aka `%`)
+
+A *math block line* is a line found after a [[#beginning math block line|beginning math block line]]
+and before an [[#ending math block line|ending math block line]] and is
+comprised of zero or more [[#character|characters]] representing [[https://en.wikipedia.org/wiki/TeX|TeX syntax]]
+followed by a [[#line ending|line ending]].
+
+An *ending math block line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. The sequence `}}$`
+4. Zero or more [[#whitespace character|whitespace characters]]
+5. A [[#line ending|line ending]] or end of input
+
+==== Paragraph ====
+
+A paragraph is composed of a series of lines representing some content. It
+mirrors [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p|HTML Paragraph]].
+
+{{{vimwiki
+Some paragraph containing
+multiple lines including
+*bold* and [[links]].
+}}}
+
+===== Syntax =====
+
+A *paragraph* is composed of one or more [[#paragraph line|paragraph lines]].
+
+A *paragraph line* is represented by the following:
+1. Starts at the beginning of a line
+2. Has zero to three [[#whitespace character|whitespace]] characters for indentation
+3. Is not any of the following:
+   * [[#header|header]]
+   * [[#definition list|definition list]]
+   * [[#list|list]]
+   * [[#table|table]]
+   * [[#preformatted text|preformatted text]]
+   * [[#math block|math block]]
+   * [[#blank link|blank line]]
+   * [[#blockquote|blockquote]]
+   * [[#divider|divider]]
+   * [[#placeholder|placeholder]]
+4. One or more [[#inline elements|inline elements]]
+5. A [[#line ending|line ending]] or end of input
+
+==== Placeholder ====
+
+A placeholder is composed of an identifier and some information. Its purpose
+is to provide metadata for use in rendering vimwiki to HTML and populating
+portions of the HTML template used with a vimwiki page.
+
+{{{vimwiki
+%title Some title
+%nohtml
+%template my_template
+%date 2020-12-23
+}}}
+
+===== Syntax =====
+
+
+A *placeholder* is represented by one of the following:
+* A [[#title placeholder|title placeholder]]
+* A [[#nohtml placeholder|nohtml placeholder]]
+* A [[#template placeholder|template placeholder]]
+* A [[#date placeholder|date placeholder]]
+
+A *title placeholder* is represented by the following:
+1. Starts at the beginning of a line
+2. A percent sign (`U+0025` aka `%`)
+3. The sequence `title`
+4. One or more [[#whitespace character|whitespace characters]]
+5. [[#all characters until end of line|all characters until end of line]]
+6. A [[#line ending|line ending]] or end of input
+
+A *nohtml placeholder* is represented by the following:
+1. Starts at the beginning of a line
+2. A percent sign (`U+0025` aka `%`)
+3. The sequence `nohtml`
+4. A [[#line ending|line ending]] or end of input
+
+A *template placeholder* is represented by the following:
+1. Starts at the beginning of a line
+2. A percent sign (`U+0025` aka `%`)
+3. The sequence `template`
+4. One or more [[#whitespace character|whitespace characters]]
+5. [[#all characters until end of line|all characters until end of line]]
+6. A [[#line ending|line ending]] or end of input
+
+A *date placeholder* is represented by the following:
+1. Starts at the beginning of a line
+2. A percent sign (`U+0025` aka `%`)
+3. The sequence `date`
+4. One or more [[#whitespace character|whitespace characters]]
+5. A date string in the format of [[https://en.wikipedia.org/wiki/ISO_8601|ISO 8601]] such as
+   `YYYY-MM-DD` where `YYYY` symbolizes a four-digit year (e.g. `1990`),
+   `MM` symbolizes a two-digit month (e.g. `04`),
+   and `DD` symbolizes a two-digit day (e.g. `23`)
+6. A [[#line ending|line ending]] or end of input
+
+==== Preformatted Text ====
+
+A preformatted text block is composed of a series of lines representing some
+content, usually related to a programming language. It mirrors
+[[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre|HTML Preformatted Text]].
+
+{{{vimwiki
+{{{rust
+fn my_func() -> u32 {
+    1 + 2
+}
+\}}}
+}}}
+
+===== Syntax =====
+
+A *preformatted text* is composed of a [[#beginning preformatted text line|beginning preformatted text line]],
+one or more [[#preformatted text line|preformatted text lines]], and an [[#ending preformatted text line|ending preformatted text line]].
+
+A *beginning preformatted text line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. The sequence `{{{`
+4. An optional [[#preformatted language identifier|preformatted language identifier]]
+5. An optional [[#preformatted metadata list|preformatted metadata list]]
+6. Zero or more [[#whitespace character|whitespace characters]]
+7. A [[#line ending|line ending]] or end of input
+
+A *preformatted language identifier* is represented by the following:
+1. One or more [[#character|characters]] leading up to a [[#whitespace character|whitespace characters]]
+2. Is comprised of a series of any character except equals sign (`U+003D` aka `=`)
+
+A *preformatted metadata list* is composed of one or more
+[[#preformatted metadata list items|preformatted metadata list items]] separated by [[#whitespace character|whitespace characters]].
+
+A *preformatted metadata list item* is represented by the following:
+1. One or more [[#character|characters]] leading up to an equals sign (`U+003D` aka `=`),
+   not including a [[#line ending|line ending]]
+2. An equals sign (`U+003D` aka `=`)
+3. A quotation mark (`U+0022` aka `"`)
+4. One or more [[#character|characters]] leading up to a quotation mark (`U+0022` aka `"`)
+5. A quotation mark (`U+0022` aka `"`)
+
+A *preformatted text line* is a line found after a [[#beginning preformatted text line|beginning preformatted text line]]
+and before an [[#ending preformatted text line|ending preformatted text line]] and is
+comprised of zero or more [[#character|characters]] followed by a [[#line ending|line ending]].
+
+An *ending preformatted text line* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. The sequence `}}}`
+4. Zero or more [[#whitespace character|whitespace characters]]
+5. A [[#line ending|line ending]] or end of input
+
+==== Table ====
+
+A table is composed of a series of rows containing various other elements. It
+mirrors [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table|HTML Table]].
+
+{{{vimwiki
+| Year | Temperature (low) |    Temperature (high)    | Temperature (avg) |
+|------|-------------------|:------------------------:|------------------:|
+| 1990 | *50* degrees      | 90 according to [[link]] |                72 |
+| \/   | 45 degrees        |            >             |                80 |
+| \/   | \/                |            >             |                60 |
+| 2000 | >                 |            >             |                 > |
+}}}
+
+===== Syntax =====
+
+A *table* is composed of one or more [[#row|rows]] with the indentation of
+the first row indicating whether the table is centered (is indented) or not.
+
+A *row* is represented by one of the following:
+* A [[#divider row|divider row]]
+* A [[#content row|content row]]
+
+A *divider row* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. A sequence of pairs comprised of a [[#cell boundary|cell boundary]] and [[#divider column|divider column]]
+4. A final [[#cell boundary|cell boundary]]
+5. A [[#line ending|line ending]] or end of input
+
+A *divider column* is represented by the following:
+1. An optional colon (`U+003A` aka `:`)
+2. One or more hyphens (`U+002D` aka `-`)
+3. An optional colon (`U+003A` aka `:`)
+
+A *content row* is represented by the following:
+1. Starts at the beginning of a line
+2. Zero or more [[#whitespace character|whitespace characters]]
+3. A sequence of pairs comprised of a [[#cell boundary|cell boundary]] and a [[#cell|cell]]
+4. A final [[#cell boundary|cell boundary]]
+5. A [[#line ending|line ending]] or end of input
+
+A *cell* is represented by one of the following:
+* A [[#span above cell|span above cell]]
+* A [[#span left cell|span left cell]]
+* A [[#content cell|content cell]]
+
+A *span above cell* is represented by the following:
+1. Zero or more [[#whitespace character|whitespace characters]]
+2. Sequence `\/`
+3. Zero or more [[#whitespace character|whitespace characters]]
+
+A *span left cell* is represented by the following:
+1. Zero or more [[#whitespace character|whitespace characters]]
+2. Sequence `>`
+3. Zero or more [[#whitespace character|whitespace characters]]
+
+A *content cell* is represented by the following:
+1. Zero or more [[#whitespace character|whitespace characters]]
+2. One or more [[#inline elements|inline elements]] not comprised of `|`
+3. Zero or more [[#whitespace character|whitespace characters]]
+
+A *cell boundary* is represented by the pipe character (`U+007C` aka `|`).
+
+=== Inline Elements ===
+
+The vimwiki language also has a variety of syntax that can be used within a
+line on a page. These are referred to as *inline elements* and can be found
+within a variety of [[#block elements|block elements]] as well as nested
+within other inline elements.
+
+==== Math Inline ====
+
+A math inline element is composed of a single-line formula.
+Like its big brother, the [[#math block|math block]], it is rendered in HTML
+using the [[https://www.mathjax.org/|MathJax engine]].
+
+{{{vimwiki
+$ \sum_i a_i^2 = 1 $
+}}}
+
+===== Syntax =====
+
+An *inline math* element is represented by the following:
+1. A dollar sign (`U+0024` aka `$`)
+2. One or more [[#character|characters]] representing [[https://en.wikipedia.org/wiki/TeX|TeX syntax]]
+   that are not a dollar sign or [[#line ending|line ending]]
+3. A dollar sign (`U+0024` aka `$`)
+
+*Extra Notes*: The formula within the inline element is trimmed to remove all
+leading and trailing [[#whitespace character|whitespace characters]].
+
+==== Tags ====
+
+A tags element is composed of a series of individual tag elements. It is used
+both to mark various places within a page as well as act as an [[#anchor|anchor]].
+
+{{{vimwiki
+:tag-1:tag-2:
+}}}
+
+===== Syntax =====
+
+A *tags* element is represented by the following:
+1. A [[#tag separator|tag separator]]
+2. A sequence of [[#tag|tag]] separated by [[#tag separator|tag separator]]
+3. A [[#tag separator|tag separator]]
+
+A *tag* is represented by one or more [[#character|characters]] that are not a colon,
+[[#whitespace character|whitespace]], or [[#line ending|line ending]]
+
+A *tag separator* is represented by a colon (`U+003A` aka `:`).
+
+==== Link ====
+
+A link is a crucial inline element of vimwiki and is able to connect pages
+with each other as well as external wikis and resources.
+
+{{{vimwiki
+[[other page|link to another page]]
+[[wiki1:page|link to page in another wiki]]
+[[#some#anchor|link to another location in same page]]
+[[diary:2020-12-23|link to diary entry]]
+{{https://example.com/img.jpg|Transclusion to pull in image}}
+[[https://example.com|{{https://example.com/img.jpg}}]]
+}}}
+
+===== Syntax =====
+
+A *link* is represented by one of the following:
+* A [[#wiki link|wiki link]]
+* An [[#interwiki link|interwiki link]]
+* A [[#diary link|diary link]]
+* An [[#external file link|external file link]]
+* A [[#raw link|raw link]]
+* A [[#transclusion link|transclusion link]]
+
+A *wiki link* is represented by the following:
+1. A [[#link start seq|link start seq]]
+2. At least one of the following (in order):
+   1. An optional [[#link path|link path]]
+   2. An optional [[#link anchor|link anchor]]
+3. An optional [[#link inner separator|link inner separator]] and [[#link description|link description]]
+4. A [[#link end seq|link end seq]]
+
+An *interwiki link* is represented by one of the following:
+* An [[#indexed interwiki link|indexed interwiki link]]
+* An [[#named interwiki link|named interwiki link]]
+
+An *indexed interwiki link* is represented by the following:
+1. A [[#link start seq|link start seq]]
+2. The sequence `wiki`
+3. One or more digits (`0-9`)
+4. A colon (`U+003A` aka `:`)
+5. A [[#link path|link path]]
+6. An optional [[#link anchor|link anchor]]
+7. An optional [[#link inner separator|link inner separator]] and [[#link description|link description]]
+8. A [[#link end seq|link end seq]]
+
+A *named interwiki link* is represented by the following:
+1. A [[#link start seq|link start seq]]
+2. The sequence `wn.`
+3. One or more [[#alphanumeric character|alphanumeric characters]]
+4. A colon (`U+003A` aka `:`)
+5. A [[#link path|link path]]
+6. An optional [[#link anchor|link anchor]]
+7. An optional [[#link inner separator|link inner separator]] and [[#link description|link description]]
+8. A [[#link end seq|link end seq]]
+
+An *external file link* is represented by the following:
+1. A [[#link start seq|link start seq]]
+2. A [[#link uri|link uri]] whose schema is `local` or `file` or has no schema
+   and starts with `//` for an absolute file path
+3. A [[#link path|link path]]
+4. An optional [[#link inner separator|link inner separator]] and [[#link description|link description]]
+5. A [[#link end seq|link end seq]]
+
+A *raw link* is represented by a [[#link uri|link uri]] not found within
+another link type.
+
+A *transclusion link* is represented by the following:
+1. The sequence `{{`
+2. A [[#link uri|link uri]]
+3. An optional [[#link inner separator|link inner separator]] and [[#link description|link description]]
+4. An optional sequence of [[#link key value pair|link key value pairs]],
+   each separated by [[#link inner separator|link inner separator]]
+4. The sequence `}}`
+
+A *link key value pair* is represented by the following:
+1. One or more [[#character|characters]] that are not a pipe symbol (`U+007C`
+   aka `|`), equals sign (`U+003D` aka `=`), `}}`, or [[#line ending|line ending]]
+2. An equals sign (`U+003D` aka `=`)
+3. A quotation mark (`U+0022` aka `"`)
+4. One or more [[#character|characters]] that are not a pipe symbol (`U+007C`
+   aka `|`), quotation mark (`U+0022` aka `"`), `}}`, or [[#line ending|line ending]]
+5. A quotation mark (`U+0022` aka `"`)
+
+A *link path* is represented by the following:
+1. Does not start with a [[#link anchor prefix|link anchor prefix]]
+2. One or more [[#character|characters]] that are not a [[#link anchor prefix|link anchor prefix]],
+   [[#link inner separator|link inner separator]], [[#link end seq|link end seq]], or [[#line ending|line ending]]
+
+A *link description* is represented by one of the following:
+* A [[#link uri|link uri]]
+* One or more [[#character|characters]] that are not a [[#link end seq|link end seq]] or [[#line ending|line ending]]
+
+A *link anchor* is represented by a series of pairs, each comprised of
+a [[#link anchor prefix|link anchor prefix]] and a [[#link anchor element|link anchor element]]
+
+A *link anchor element* is represented by one or more [[#character|characters]] that are
+not a [[#link anchor prefix|link anchor prefix]], [[#link inner separator|link inner separator]],
+[[#link end seq|link end seq]], or [[#line ending|line ending]]
+
+A *link anchor prefix* is represented by a pound symbol (`U+0023` aka `#`).
+
+A *link inner separator* is represented by a pipe symbol (`U+007C` aka `|`).
+
+A *link start seq* is represented by `[[`.
+
+A *link end seq* is represented by `]]`.
+
+A *link uri* is represented by the following:
+1. Starts with `www.`, `//`, or a [[#link uri scheme|link uri scheme]]
+   a. If starting with `www.`, we add a virtual prefix of `https://` going forward
+   b. If starting with `//`, we add a virtual prefix of `file:/` going forward
+2. One or more [[#character|characters]] that are not [[#whitespace character|whitespace characters]]
+   or [[#line ending|line ending]]
+
+A *link uri scheme* is represented by a series of alphanumeric [[#character|characters]]
+ (`a-z`, `A-Z`, `0-9`) as well as plus (`U+002B` aka `+`), period (`U+002E`
+ aka `.`), and hyphen (`U+002D` aka `-`). The scheme is terminated by a
+ colon (`U+003A` aka `:`).
+
+*Extra Notes*: Additional validation should be done to ensure that a
+[[#line uri|link uri]] properly adheres to [[https://tools.ietf.org/html/rfc3986|RFC3986]].
+
+==== Decorated Text ====
+
+Decorated text supports a variety of markups across [[#link|links]],
+[[#keyword|keywords]], non-repeating [[#decorated text|decorated text]], and [[#text|text]].
+
+It mirrors these different HTML elements:
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong|strong]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em|em]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s|s]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code|code]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup|sup]]
+* [[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub|sub]]
+
+{{{vimwiki
+*bold*
+_italic_
+~~strikeout~~
+`code`
+^superscript^
+,,superscript,,
+}}}
+
+===== Syntax =====
+
+*Decorated text* is represented by one of the following:
+* [[#bold text|Bold text]]
+* [[#italic text|Italic text]]
+* [[#strikeout text|Strikeout text]]
+* [[#code text|Code text]]
+* [[#superscript text|Superscript text]]
+* [[#subscript text|Subscript text]]
+
+*Bold text* is represented by the following:
+1. An asterisk (`U+002A` aka `*`)
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
+   an asterisk (`U+002A` aka `*`) is encountered
+3. An asterisk (`U+002A` aka `*`)
+
+*Italic text* is represented by the following:
+1. An underscore (`U+005F` aka `_`)
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
+   an underscore (`U+005F` aka `_`) is encountered
+3. An underscore (`U+005F` aka `_`)
+
+*Strikeout text* is represented by the following:
+1. Two tilde (`U+007E` aka `~`)
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
+   two tilde (`U+007E` aka `~`) are encountered
+3. Two tilde (`U+007E` aka `~`)
+
+*Code text* is represented by the following:
+1. A backtick (`U+0060`)
+2. Any character other than a backtick or [[#line ending|line ending]]
+3. A backtick (`U+0060`)
+
+*Superscript text* is represented by the following:
+1. A carrot or circumflex accent (`U+005E` aka `^`)
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
+   a carrot or circumflex accent (`U+005E` aka `^`) is encountered
+3. A carrot or circumflex accent (`U+005E` aka `^`)
+
+*Superscript text* is represented by the following:
+1. Two commas (`U+002C` aka `,`)
+2. One or more [[#link|links]], [[#keyword|keywords]], [[#non-repeated decorated text|non-repeated decorated text]], or [[#text|text]] until
+   two commas (`U+002C` aka `,`) are encountered
+3. Two commas (`U+002C` aka `,`)
+
+*Non-repeated decorated text* is represented as [[#decorated text|decorated text]]
+where no previous styling is seen again until that styling is closed. For
+example, if [[#bold text|bold text]] is first seen, there will not be another
+case of bold text until after the current one has ended
+(`*bold *inner bold* text*` is not allowed).
+
+==== Keyword ====
+
+Keywords are specific, case-sensitive words that have an alternative
+highlighting within vim as well as provide highlighting in generated HTML
+via classes.
+
+===== Syntax =====
+
+A *keyword* is represented as one of the following:
+* `DONE`
+* `FIXED`
+* `FIXME`
+* `STARTED`
+* `TODO`
+* `XXX`
+
+==== Text ====
+
+Text is a plain series of [[#character|characters]] that have no special stylings applied
+directly, but can be included in other [[#inline elements|inline elements]].
+
+===== Syntax =====
+
+A *text* is represented as one or more [[#character|characters]] until any of the following
+is encountered:
+* [[#inline math|inline math]]
+* [[#tags|tags]]
+* [[#link|link]]
+* [[#decorated text|decorated text]]
+* [[#keyword|keyword]]
+* [[#line ending|line ending]]
+
+==== Comments ====
+
+A special type of inline element is the comment. Compared to all other inline
+elements, comments are unique in that they do not render into any other
+format (HTML, PDF, etc) and - in the case of multi-line comments - can span
+across more than one line.
+
+There are two types of comments:
+
+1. Line comment in the form of `%%CONTENT`
+2. Multi-line comment in the form of `%%+CONTENT++%`
+
+===== Line Comment Syntax =====
+
+1. A *line comment* is represented by the following:
+   1. The sequence `%%`
+   2. Any character until [[#line ending|line ending]]
+
+*Extra Notes*: A line comment does not consume a [[#line ending|line ending]],
+only the [[#character|characters]] leading up to one. If a line comment is at the beginning of
+a line, it will leave a blank line in its place.
+
+===== Multi-line Comment Syntax =====
+
+1. A *multi-line comment* is represented by the following:
+   1. The sequence `%%+`
+   2. Any character until the sequence `+%%`
+   3. The sequence `+%%`
+
+*Extra Notes*: A multi-line comment consumes all [[#character|characters]] - including
+[[#line ending|line ending]] - between the surrounding character sequences. It
+can be used to join content in separate lines together. See example below.
+
+{{{vimwiki
+first line%%+
++%%second line
+
+would become
+
+first linesecond line
+}}}
+
+== Parser Details ==
+
+When building a parser for the vimwiki language, certain elements may overlap
+in the text that they can match. This means that the order in which elements
+are evaluated can affect how a page is perceived.
+
+Additionally, the inclusion of [[#comments|comments]] further complicates the
+process of parsing a file. Comments can be placed alongside inline elements,
+which enables them to be in most locations within vimwiki. Compared to any
+other element, comments yield empty text when rendered. This can result in
+shortening of lines and even removal of [[#line ending|line ending]] characters.
+
+Below is a breakdown of element categorization:
+
+{{{
+Comment =
+Page = (Block Element)+
+Block Element =
+   | Header
+   | Definition List
+   | List
+   | Table
+   | Math Block
+   | Blockquote
+   | Divider
+   | Placeholder
+   | Paragraph
+Inline Block Element =
+   | List Item
+   | Term
+   | Definition
+Inline Element =
+   | Multi Line Comment
+   | Line Comment
+   | Math Inline
+   | Tags
+   | Link
+   | Decorated Text
+   | Keyword
+   | Text
+}}}

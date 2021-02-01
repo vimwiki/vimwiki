@@ -118,14 +118,20 @@ endfunction
 
 
 function! s:template_full_name(name) abort
-  if a:name ==? ''
+  let name = a:name
+  if name ==? ''
     let name = vimwiki#vars#get_wikilocal('template_default')
-  else
-    let name = a:name
   endif
 
-  let fname = expand(vimwiki#vars#get_wikilocal('template_path').
-        \ name . vimwiki#vars#get_wikilocal('template_ext'))
+  " Suffix Path by a / is not
+  let path = vimwiki#vars#get_wikilocal('template_path')
+  if strridx(path, '/') +1 != len(path) 
+    let path .= '/'
+  endif
+
+  let ext = vimwiki#vars#get_wikilocal('template_ext')
+
+  let fname = expand(path . name . ext)
 
   if filereadable(fname)
     return fname
@@ -417,9 +423,9 @@ function! s:tag_code(value) abort
 endfunction
 
 
-"   match n-th ARG within {{URL[|ARG1|ARG2|...]}}
-" *c,d,e),...
 function! s:incl_match_arg(nn_index) abort
+  "   match n-th ARG within {{URL[|ARG1|ARG2|...]}}
+  " *c,d,e),...
   let rx = vimwiki#vars#get_global('rxWikiInclPrefix'). vimwiki#vars#get_global('rxWikiInclUrl')
   let rx = rx . repeat(vimwiki#vars#get_global('rxWikiInclSeparator') .
         \ vimwiki#vars#get_global('rxWikiInclArg'), a:nn_index-1)
@@ -1811,7 +1817,7 @@ function! s:convert_file_to_lines(wikifile, current_html_file) abort
 
   let result['template_name'] = template_name
   let result['title'] = s:process_title(placeholders, fnamemodify(a:wikifile, ':t:r'))
-  let result['date'] = s:process_date(placeholders, strftime('%Y-%m-%d'))
+  let result['date'] = s:process_date(placeholders, strftime(vimwiki#vars#get_wikilocal('template_date_format')))
   let result['wiki_path'] = strpart(s:current_wiki_file, strlen(vimwiki#vars#get_wikilocal('path')))
 
   return result
