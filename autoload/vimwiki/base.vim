@@ -1605,7 +1605,7 @@ function! vimwiki#base#follow_link(split, ...) abort
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxImage')),
           \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
     if lnk !=# ''
-      if lnk !~# '\%(\%('.vimwiki#vars#get_global('web_schemes1').'\):\%(\/\/\)\?\)\S\{-1,}'
+      if lnk !~# '\%(\%('.vimwiki#vars#get_global('schemes_web').'\):\%(\/\/\)\?\)\S\{-1,}'
         " prepend file: scheme so link is opened by sytem handler if it isn't a web url
         let lnk = 'file:'.lnk
       endif
