@@ -1679,26 +1679,34 @@ function! s:use_custom_wiki2html() abort
         \ (s:file_exists(custom_wiki2html) || s:binary_exists(custom_wiki2html))
 endfunction
 
+function! s:shellescape(str) abort
+  let result = a:str
+  "" This fix CustomWiki2HTML at root dir problem in Windows
+  if result[len(result) - 1] ==# '\'
+    let result = result[:-2]
+  endif
+  return shellescape(result)
+endfunction
 
-function! vimwiki#html#CustomWiki2HTML(path, wikifile, force) abort
+function! vimwiki#html#CustomWiki2HTML(root_path, path, wikifile, force) abort
   call vimwiki#path#mkdir(a:path)
   let output = system(vimwiki#vars#get_wikilocal('custom_wiki2html'). ' '.
       \ a:force. ' '.
       \ vimwiki#vars#get_wikilocal('syntax'). ' '.
       \ strpart(vimwiki#vars#get_wikilocal('ext'), 1). ' '.
-      \ shellescape(a:path). ' '.
-      \ shellescape(a:wikifile). ' '.
-      \ shellescape(s:default_CSS_full_name(a:path)). ' '.
+      \ s:shellescape(a:path). ' '.
+      \ s:shellescape(a:wikifile). ' '.
+      \ s:shellescape(s:default_CSS_full_name(a:root_path)). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_path')) > 1 ?
-      \     shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
+      \     s:shellescape(expand(vimwiki#vars#get_wikilocal('template_path'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_default')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_default') : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('template_ext')) > 0 ?
       \     vimwiki#vars#get_wikilocal('template_ext') : '-'). ' '.
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
-      \     shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
+      \     s:shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
+      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-')) 
   " Print if non void
   if output !~? '^\s*$'
     call vimwiki#u#echo(string(output))
@@ -1850,13 +1858,14 @@ endfunction
 
 function! s:convert_file(path_html, wikifile) abort
   let done = 0
+  let root_path_html = a:path_html
   let wikifile = fnamemodify(a:wikifile, ':p')
   let path_html = expand(a:path_html).vimwiki#vars#get_bufferlocal('subdir')
   let htmlfile = fnamemodify(wikifile, ':t:r').'.html'
 
   if s:use_custom_wiki2html()
     let force = 1
-    call vimwiki#html#CustomWiki2HTML(path_html, wikifile, force)
+    call vimwiki#html#CustomWiki2HTML(root_path_html, path_html, wikifile, force)
     let done = 1
     return path_html . htmlfile
   endif
