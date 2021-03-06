@@ -582,6 +582,12 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
   let g:vimwiki_syntax_variables[a:syntax].rxPreEnd =
         \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxPreEnd.'\s*$'
 
+  " markdown syntax highlighting
+  let g:vimwiki_syntax_variables[a:syntax].rxSyntaxStart =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxSyntaxStart
+  let g:vimwiki_syntax_variables[a:syntax].rxSyntaxEnd =
+        \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxSyntaxEnd.'\s*$'
+
   let g:vimwiki_syntax_variables[a:syntax].rxMathStart =
         \ '^\s*'.g:vimwiki_syntax_variables[a:syntax].rxMathStart
   let g:vimwiki_syntax_variables[a:syntax].rxMathEnd =

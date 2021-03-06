@@ -1911,6 +1911,10 @@ function! s:collect_headers() abort
       let is_inside_pre_or_math = 1
       continue
     endif
+    if line_content =~# vimwiki#vars#get_syntaxlocal('rxSyntaxStart')
+      let is_inside_pre_or_math = 1
+      continue
+    endif
     if line_content =~# vimwiki#vars#get_syntaxlocal('rxMathStart')
       let is_inside_pre_or_math = 2
       continue
@@ -2322,6 +2326,7 @@ endfunction
 
 function! vimwiki#base#detect_nested_syntax() abort
   let last_word = '\v.*<(\w+)\s*$'
+
   let lines = map(filter(getline(1, '$'), 'v:val =~# "\\%({{{\\|`\\{3,\}\\|\\~\\{3,\}\\)" && v:val =~# last_word'),
         \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
   let dict = {}

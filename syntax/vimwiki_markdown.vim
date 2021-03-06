@@ -91,6 +91,10 @@ let s:markdown_syntax.rxListDefine = '::\%(\s\|$\)'
 " Preformatted text (code blocks)
 let s:markdown_syntax.rxPreStart = '\%(`\{3,}\|\~\{3,}\)'
 let s:markdown_syntax.rxPreEnd = '\%(`\{3,}\|\~\{3,}\)'
+
+
+let s:markdown_syntax.rxSyntaxStart = '\%(`\{3,}\|\~\{3,}\)'
+let s:markdown_syntax.rxSyntaxEnd = '\%(`\{3,}\|\~\{3,}\)'
 " TODO see syntax/vimwiki_markdown_custom.vim for more info
 " let s:markdown_syntax.rxIndentedCodeBlock = '\%(^\n\)\@1<=\%(\%(\s\{4,}\|\t\+\).*\n\)\+'
 

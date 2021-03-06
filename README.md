@@ -187,6 +187,12 @@ For other syntax elements, see `:h vimwiki-syntax`
 
 
 ## Custom markup
+Syntax highlighting using markdown syntax ```
+```go
+foo := func() {
+  fmt.Println("woot")
+}
+```
 
 Use these if you want to add more colour/types of emphasis to your wiki
 

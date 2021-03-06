@@ -99,6 +99,10 @@ let s:default_syntax.rxListDefine = '::\(\s\|$\)'
 let s:default_syntax.rxPreStart = '{{{'
 let s:default_syntax.rxPreEnd = '}}}'
 
+" Syntax highlighting using markdown syntax
+let s:default_syntax.rxSyntaxStart = '```'
+let s:default_syntax.rxSyntaxEnd = '```'
+
 " Math block
 let s:default_syntax.rxMathStart = '{{\$'
 let s:default_syntax.rxMathEnd = '}}\$'

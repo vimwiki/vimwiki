@@ -330,6 +330,12 @@ let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
 execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxPreStart').
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxPreEnd').'/ contains=@NoSpell'.concealpre
 
+" syntax highlighting using markdown syntax
+let concealpre = vimwiki#vars#get_global('conceal_pre') ? ' concealends' : ''
+execute 'syntax region VimwikiPre matchgroup=VimwikiPreDelim start=/'.vimwiki#vars#get_syntaxlocal('rxSyntaxStart').
+      \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxSyntaxEnd').'/ contains=@NoSpell'.concealpre
+
+
 execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMathStart').
       \ '/ end=/'.vimwiki#vars#get_syntaxlocal('rxMathEnd').'/ contains=@NoSpell'
 
@@ -484,6 +490,11 @@ if !empty(s:nested)
           \ vimwiki#vars#get_syntaxlocal('rxPreStart').'\%(.*[[:blank:][:punct:]]\)\?'.
           \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
           \ vimwiki#vars#get_syntaxlocal('rxPreEnd'), 'VimwikiPre')
+
+    call vimwiki#base#nested_syntax(s:vim_syntax,
+          \ vimwiki#vars#get_syntaxlocal('rxSyntaxStart').'\%(.*[[:blank:][:punct:]]\)\?'.
+          \ s:hl_syntax.'\%([[:blank:][:punct:]].*\)\?',
+          \ vimwiki#vars#get_syntaxlocal('rxSyntaxEnd'), 'VimwikiPre')
   endfor
 endif
 
