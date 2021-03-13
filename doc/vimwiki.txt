@@ -3905,6 +3905,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #1104: Fix trailing closing brace and comma typo
     * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
     * Feature: PR #686: add a flag lists_return to disable mappings 
       to <CR> and <S-CR> in insert mode
