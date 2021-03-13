@@ -3004,7 +3004,7 @@ mapped with this option will instead use the mapped syntax.
 Default: >
     {'.md': 'markdown', '.mkdn': 'markdown',
     \  '.mdwn': 'markdown', '.mdown': 'markdown',
-    \  '.markdown': 'markdown', '.mw': 'media'}},
+    \  '.markdown': 'markdown', '.mw': 'media'}
 
 Note: setting this option will overwrite the default values so include them if
 desired.
