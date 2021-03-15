@@ -3004,7 +3004,7 @@ mapped with this option will instead use the mapped syntax.
 Default: >
     {'.md': 'markdown', '.mkdn': 'markdown',
     \  '.mdwn': 'markdown', '.mdown': 'markdown',
-    \  '.markdown': 'markdown', '.mw': 'media'}},
+    \  '.markdown': 'markdown', '.mw': 'media'}
 
 Note: setting this option will overwrite the default values so include them if
 desired.
@@ -3893,6 +3893,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Yuuy Wei
     - Yifan Hu (@yhu266)
     - Levi Rizki Saputra (@levirs565)
+    - Fergus Collins (@C-Fergus)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3904,6 +3905,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * PR #1106: Fix trailing closing brace and comma typo
     * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
     * Feature: PR #686: add a flag lists_return to disable mappings 
       to <CR> and <S-CR> in insert mode
