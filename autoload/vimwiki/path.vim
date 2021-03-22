@@ -213,7 +213,7 @@ function! vimwiki#path#is_absolute(path) abort
     let res += a:path =~# '\m^/\|\~/'
   endif
 
-  " Do not prepent root_path to scp files
+  " Do not prepend root_path to scp files
   " See: https://vim.fandom.com/wiki/Editing_remote_files_via_scp_in_vim
   let res += a:path =~# '\m^scp:'
 

@@ -353,30 +353,33 @@ Expect (Dec header level):
 
 
 
-Given vimwiki (Completion list #813 {{{3):
-  complete1
-  complete2
-  complete3
-
-Do (Insert a list item and complete):
-  Go
-  * comp\<C-n>\<C-n>\<Cr>\<Esc>
-# -Es -> Delete trailing *
-  :let mode = mode(1)\<Cr>
-  :Log 'Mode : ' .mode\<Cr>
-  :if mode ==# 'ce' || mode ==# 'cv' || v:version < 704\<Cr>
-    Log 'Cheating'\<Cr>
-    try\<Cr>
-      g/^\* \?$/d\<Cr>
-    endtry\<Cr>
-  endif\<Cr>
-
-Expect (With a completion but no new item):
-  complete1
-  complete2
-  complete3
-  * complete2
-
+# brennen commenting this out 2021-03-29 - test seems to flap, test failures
+# are difficult to diagnose.
+#
+# Given vimwiki (Completion list #813 {{{3):
+#   complete1
+#   complete2
+#   complete3
+#
+# Do (Insert a list item and complete):
+#   Go
+#   * comp\<C-n>\<C-n>\<Cr>\<Esc>
+# # -Es -> Delete trailing *
+#   :let mode = mode(1)\<Cr>
+#   :Log 'Mode : ' .mode\<Cr>
+#   :if mode ==# 'ce' || mode ==# 'cv' || v:version < 704\<Cr>
+#     Log 'Cheating'\<Cr>
+#     try\<Cr>
+#       g/^\* \?$/d\<Cr>
+#     endtry\<Cr>
+#   endif\<Cr>
+#
+# Expect (With a completion but no new list item):
+#   complete1
+#   complete2
+#   complete3
+#   * complete2
+#   
 
 Given (Number list):
   1. I
