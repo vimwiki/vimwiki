@@ -1,0 +1,10 @@
+# Test that %title values carry through when HTML is rendered
+
+Given vimwiki (Title value):
+  %title this is a title with some quotes in it: ' "
+
+  Some content.
+
+Execute(Check for title tag):
+  call ConvertWiki2Html()
+  Assert 0 != search('<title>this is a title with some quotes in it: '' "</title>')

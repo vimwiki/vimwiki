@@ -1831,25 +1831,25 @@ function! s:convert_file_to_lines_template(wikifile, current_html_file) abort
   let html_lines = s:get_html_template(converted['template_name'])
 
   " processing template variables (refactor to a function)
-  call map(html_lines, 'substitute(v:val, "%title%", "'. converted['title'] .'", "g")')
-  call map(html_lines, 'substitute(v:val, "%date%", "'. converted['date'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%title%", converted["title"], "g")')
+  call map(html_lines, 'substitute(v:val, "%date%", converted["date"], "g")')
   call map(html_lines, 'substitute(v:val, "%root_path%", "'.
         \ s:root_path(vimwiki#vars#get_bufferlocal('subdir')) .'", "g")')
-  call map(html_lines, 'substitute(v:val, "%wiki_path%", "'. converted['wiki_path'] .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%wiki_path%", converted["wiki_path"], "g")')
 
   let css_name = expand(vimwiki#vars#get_wikilocal('css_name'))
   let css_name = substitute(css_name, '\', '/', 'g')
-  call map(html_lines, 'substitute(v:val, "%css%", "'. css_name .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%css%", css_name, "g")')
 
   let rss_name = expand(vimwiki#vars#get_wikilocal('rss_name'))
   let rss_name = substitute(rss_name, '\', '/', 'g')
-  call map(html_lines, 'substitute(v:val, "%rss%", "'. rss_name .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%rss%", rss_name, "g")')
 
   let enc = &fileencoding
   if enc ==? ''
     let enc = &encoding
   endif
-  call map(html_lines, 'substitute(v:val, "%encoding%", "'. enc .'", "g")')
+  call map(html_lines, 'substitute(v:val, "%encoding%", enc, "g")')
 
   let html_lines = s:html_insert_contents(html_lines, converted['html']) " %contents%
 
