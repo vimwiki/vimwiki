@@ -3955,6 +3955,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Allow title values with quotes
     * Enable strikethrough for Neovim
     * Issue #1029: Fix: error loading plugin when lang uses comma instead of
       dot as decimal separator
