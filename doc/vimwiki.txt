@@ -3961,6 +3961,7 @@ Removed:~
 
 Fixed:~
     * PR #1108: Fix resolution of leading-slash page links, add link tests
+    * Allow title values with quotes
     * Enable strikethrough for Neovim
     * Issue #1029: Fix: error loading plugin when lang uses comma instead of
       dot as decimal separator
