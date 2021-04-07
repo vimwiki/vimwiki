@@ -3898,6 +3898,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Yifan Hu (@yhu266)
     - Levi Rizki Saputra (@levirs565)
     - Fergus Collins (@C-Fergus)
+    - Matthew Toohey (@mtoohey31)
     - Brennen Bearnes
 
 ==============================================================================
