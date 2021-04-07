@@ -29,6 +29,8 @@ Expect (The links with a header):
   = Generated Links =
           - [[buzz_bozz]]
           - [[index]]
+          - [[link_syntax]]
+          - [[link_syntax/nested]]
 
 Execute (VimwikiGenerateLinks x 2):
   edit $HOME/testwiki/Test.wiki
@@ -42,6 +44,8 @@ Expect (The links with a header (bis)):
   = Generated Links =
           - [[buzz_bozz]]
           - [[index]]
+          - [[link_syntax]]
+          - [[link_syntax/nested]]
 
   Last Line
 
@@ -75,6 +79,8 @@ Expect (The links with a header):
 
   - [Buzz Bozz](buzz_bozz)
   - [Test Wiki](index)
+  - [link_syntax](link_syntax)
+  - [link_syntax/nested](link_syntax/nested)
 
 Do (Save Test.md && Re-GenerateLinks):
   :edit $HOME/testmarkdown/Test.md\<CR>
@@ -90,6 +96,8 @@ Expect (The links with a header with file Test):
   - [Generated Links](Test)
   - [Buzz Bozz](buzz_bozz)
   - [Test Wiki](index)
+  - [link_syntax](link_syntax)
+  - [link_syntax/nested](link_syntax/nested)
 
 Execute (Clean: Remove Test.md):
   call DeleteFile('$HOME/testmarkdown/Test.md')
@@ -179,6 +187,12 @@ Do (Edit diary.md && GenerateDiaryLinks):
 
 Expect (diary index generated):
   # Diary
+
+  ## 2020
+
+  ### July
+
+  - [2020-07-22](2020-07-22)
 
   ## 2019
 

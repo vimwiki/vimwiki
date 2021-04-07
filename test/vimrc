@@ -341,18 +341,22 @@
   endfunc
 
   function! AssertIfVersion(version, one, two)
-    " Run Assert only if vim version higth enough
+    " Run Assert only if vim version is high enough
     if v:version < a:version | return | endif
     AssertEqual a:one, a:two
   endfunction
 
   function! GetHighlightTerm(group, term)
     " Get output of `hi group`
+    "
     " From: https://vi.stackexchange.com/a/12294/5026
     " Return list ['bold','underline']
-    " Warning: must be called if version > 704
-    " Clause
-    if v:version < 704 | return [] | endif
+    "
+    " Warning: must only be called if has("patch-7.4-2008")
+    " Or rather:  If execute() exists - it's not available for all 7.4
+    " versions.
+    " https://github.com/vim/vim/commit/79815f1ec77406f2f21a618c053e5793b597db7a
+    if has('patch-7.4-2008') != 1 | return [] | endif
 
     " Store output of group to variable
     let out = execute('hi ' . a:group)

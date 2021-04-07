@@ -187,19 +187,20 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
     endif
   endif
 
-  " Check if absolute or relative path
-  " TODO Clean that => just one call
-  let is_absolute = 0
   if vimwiki#path#is_absolute(link_text)
-    let is_absolute = 1
     let link_text = expand(link_text)
   endif
+
+  " This gets set for leading // links, which point to an absolute path to a
+  " wiki page (minus the .md or .wiki extension):
+  let is_absolute_wiki_link = 0
+
   if is_wiki_link && link_text[0] ==# '/'
     if link_text !=# '/'
       if link_text !=# '//' && link_text[0:1] ==# '//'
         let link_text = resolve(expand(link_text))
         let link_text = link_text[2:]
-        let is_absolute = 1
+        let is_absolute_wiki_link = 1
       else
         let link_text = link_text[1:]
       endif
@@ -246,7 +247,9 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
       endif
     endif
 
-    if is_absolute
+    if is_absolute_wiki_link
+      " Leading // link to the absolute path of a wiki page somewhere on the
+      " filesystem.
       let root_dir = ''
     elseif !is_relative || link_infos.index != source_wiki
       let root_dir = vimwiki#vars#get_wikilocal('path', link_infos.index)
