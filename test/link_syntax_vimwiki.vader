@@ -1,0 +1,122 @@
+# Test resolution of as many link types as possible in VimWiki syntax
+
+# This relies on the line numbers for each type of link in link_syntax.wiki and
+# link_syntax/nested.wiki, which seems primitive, but does seem to work.
+
+# Links in a top-level page {{{
+
+Execute (Assure link_syntax.wiki exists):
+  Log "Testing links in a top-level page with native syntax."
+  VimwikiIndex 1
+  VimwikiGoto link_syntax
+  AssertEqual $HOME . '/testwiki/link_syntax.wiki', expand('%')
+
+Do (Check plain wiki page link to index):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :1\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/index.wiki', expand('%')\<CR>
+
+Do (Check absolute-in-wiki page link to index with leading slash):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :2\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/index.wiki', expand('%')\<CR>
+
+# //foo "absolute" links - these are also checked in link_generation.vader:
+Do (Check absolute-on-filesystem page link to /tmp/some_page with 2 leading slashes):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :3\<CR>
+  \<CR>
+  :AssertEqual '/tmp/some_page.wiki', expand('%')\<CR>
+
+Do (Check absolute-on-filesystem page link to index using tilde for homedir):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :4\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/index.wiki', expand('%')\<CR>
+
+Do (Check diary link):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :5\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/diary/2020-07-22.wiki', expand('%')\<CR>
+
+Do (Check link to nested page):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :6\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', expand('%')\<CR>
+
+Do (Check relative link to nested page with ./link_syntax/nested):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax\<CR>
+  :7\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', expand('%')\<CR>
+
+# }}}
+
+# Links in a nested file {{{
+
+Execute (Assure link_syntax/nested.wiki exists):
+  Log "Testing links in a nested page with native syntax."
+  VimwikiIndex 1
+  VimwikiGoto link_syntax/nested
+  AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', expand('%')
+
+Do (Nested: Check plain wiki page link to self - link_syntax/nested.wiki):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :1\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', expand('%')\<CR>
+
+Do (Nested: Check absolute-in-wiki page link to index with leading slash):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :2\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/index.wiki', expand('%')\<CR>
+
+# //foo "absolute" links - these are also checked in link_generation.vader:
+Do (Nested: Check absolute-on-filesystem page link to /tmp/some_page with 2 leading slashes):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :3\<CR>
+  \<CR>
+  :AssertEqual '/tmp/some_page.wiki', expand('%')\<CR>
+
+Do (Nested: Check absolute-on-filesystem page link to index using tilde for homedir):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :4\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/index.wiki', expand('%')\<CR>
+
+Do (Nested: Check diary link):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :5\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/diary/2020-07-22.wiki', expand('%')\<CR>
+
+Do (Nested: Check relative link to page in parent directory):
+  :VimwikiIndex 1\<CR>
+  :VimwikiGoto link_syntax/nested\<CR>
+  :6\<CR>
+  \<CR>
+  :AssertEqual $HOME . '/testwiki/link_syntax.wiki', expand('%')\<CR>
+
+# }}}
+
+# To be perfectly honest I don't know why or if this is necessary, but without
+# it I was getting leftover tabs for the last file visited here. -- brennen
+Execute (Clean):
+  call ReloadVimwiki()

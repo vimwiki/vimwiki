@@ -1,0 +1,42 @@
+# Test vimwiki#base#resolve_link for various inputs.
+
+Execute (Resolve link for index):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('index')
+  AssertEqual 'wiki0', link_infos.scheme
+  AssertEqual $HOME . '/testwiki/index.wiki', link_infos.filename
+
+Execute (Resolve link for /index - absolute path from wiki root):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('/index')
+  AssertEqual 'wiki0', link_infos.scheme
+  AssertEqual '', link_infos.anchor
+  AssertEqual $HOME . '/testwiki/index.wiki', link_infos.filename
+
+Execute (Resolve link for ///tmp/some_page - absolute path to standalone page):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('///tmp/some_page')
+  AssertEqual '/tmp/some_page.wiki', link_infos.filename
+
+Execute (Resolve link for //~/testwiki/index - page in wiki under homedir):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('//~/testwiki/index')
+  AssertEqual $HOME . '/testwiki/index.wiki', expand(link_infos.filename)
+
+Execute (Resolve link for diary:2020-01-01 - diary page):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('diary:2020-01-01')
+  AssertEqual $HOME . '/testwiki/diary/2020-01-01.wiki', link_infos.filename
+
+Execute (Resolve link to link_syntax/nested - page in subdirectory):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('link_syntax/nested')
+  AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', link_infos.filename
+
+Execute (Resolve relative link to ./link_syntax/nested - page in subdirectory):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('link_syntax/nested')
+  AssertEqual $HOME . '/testwiki/link_syntax/nested.wiki', link_infos.filename
+
+Execute (Clean):
+  call ReloadVimwiki()

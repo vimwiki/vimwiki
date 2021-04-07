@@ -1,4 +1,4 @@
-# Conertion: Wiki -> Html
+# Conversion: Wiki -> Html
 
 #################################################
 Given vimwiki (Comments):
@@ -42,10 +42,6 @@ Expect (Comments Removed):
   </body>
   </html>
 
-
-Execute(Delete):
-  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
-  call DeleteFile('$HOME/html/default/test_html_table.html')
 
 #################################################
 Given vimwiki (Table no heading {{{1):
@@ -100,10 +96,6 @@ Expect (Table no heading):
 
   </body>
   </html>
-
-Execute(Delete):
-  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
-  call DeleteFile('$HOME/html/default/test_html_table.html')
 
 
 Given vimwiki (Table with heading {{{1):
@@ -164,10 +156,6 @@ Expect (Table with heading):
   </body>
   </html>
 
-
-Execute(Delete):
-  call DeleteFile('$HOME/testwiki/test_html_table.wiki')
-  call DeleteFile('$HOME/html/default/test_html_table.html')
 
 #################################################
 Execute (Log):

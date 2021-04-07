@@ -1,0 +1,7 @@
+[[index]]
+[[/index]]
+[[///tmp/some_page]]
+[[//~/testwiki/index]]
+[[diary:2020-07-22]]
+[[link_syntax/nested]]
+[[./link_syntax/nested]]

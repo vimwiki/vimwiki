@@ -1054,13 +1054,17 @@ absolute to the wiki root directory, that is, the link [[/index]] always opens
 the file /path/to/your/wiki/index.wiki, no matter in which subdirectory you
 are currently in.
 
-If you want an absolute path in your local box you can prefix the path
-with // >
+If you want to use an absolute path to a wiki page on your local filesystem,
+you can prefix the path with // >
   [[//absolute_path]]
 For example: >
   [[///tmp/in_root_tmp]]
   [[//~/in_home_dir]]
   [[//$HOME/in_home_dir]]
+In a wiki with the default wiki extension, this link: >
+  [[///tmp/foo]]
+Links to the file: >
+  /tmp/foo.wiki
 
 Links to subdirectories inside the wiki directory are also supported. They
 end with a "/": >
@@ -3895,6 +3899,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Levi Rizki Saputra (@levirs565)
     - Fergus Collins (@C-Fergus)
     - Matthew Toohey (@mtoohey31)
+    - Brennen Bearnes
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3956,6 +3961,8 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * PR #1108: Fix resolution of leading-slash page links, add link tests
+    * Allow title values with quotes
     * Enable strikethrough for Neovim
     * Issue #1029: Fix: error loading plugin when lang uses comma instead of
       dot as decimal separator

@@ -148,7 +148,7 @@ Expect (3 Words []()):
 ####################
 
 Execute (Log):
-  Log 'Absolute links'
+  Log 'Absolute links: full paths and in-wiki'
 
 # For markdown {{{2
 # ------------------
@@ -162,6 +162,7 @@ Given vimwiki(some wiki link):
   [test1](//$HOME/in_home1)
   [test2](//~/in_home2)
   [test3](///tmp/in_tmp)
+  [test4](/in_current_wiki)
 
 Do (Check in_home1):
   \<Cr>
@@ -175,6 +176,12 @@ Do (Check in_tmp):
   jj\<Cr>
   :AssertEqual expand('%'), '/tmp/in_tmp.md'\<Cr>
 
+# Here, assuming that "current wiki" means the working directory, since
+# no wiki is currently defined:
+Do (Check in_current_wiki):
+  jjj\<Cr>
+  :AssertEqual expand('%'), '/testplugin/in_current_wiki.md'\<Cr>
+
 # For Wiki {{{2
 # ------------------
 
@@ -187,6 +194,7 @@ Given vimwiki(some wiki link):
   [[//$HOME/in_home1]]
   [[//~/in_home2]]
   [[///tmp/in_tmp]]
+  [[/in_current_wiki]]
 
 Do (Check in_home1):
   \<Cr>
@@ -200,6 +208,12 @@ Do (Check in_tmp):
   jj\<Cr>
   :AssertEqual expand('%'), '/tmp/in_tmp.wiki'\<Cr>
 
+# Here, assuming that "current wiki" means the working directory, since
+# no wiki is currently defined:
+Do (Check in_current_wiki):
+  jjj\<Cr>
+  :AssertEqual expand('%'), '/testplugin/in_current_wiki.wiki'\<Cr>
+
 Execute(Clean: temporary):
   call ReloadVimwiki()
   call DeleteFile('$HOME/in_home1.md')
@@ -212,7 +226,7 @@ Execute(Clean: temporary):
 Execute (Log):
   Log 'Link  with dot'
 
-Given vimwiki (filnames with dots):
+Given vimwiki (filenames with dots):
   part1.part2.part3
   part1.part2.part3.md
   noext
