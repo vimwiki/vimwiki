@@ -437,12 +437,14 @@ function! vimwiki#base#generate_links(create, ...) abort
   function! GeneratorLinks.f() abort
     let lines = []
 
-    let links = vimwiki#base#get_wikilinks(vimwiki#vars#get_bufferlocal('wiki_nr'), 0, s:pattern)
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+    let links = vimwiki#base#get_wikilinks(wiki_nr, 0, s:pattern)
     call sort(links)
 
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()) . vimwiki#lst#default_symbol().' '
     let l:diary_file_paths = vimwiki#diary#get_diary_files()
 
+    let use_caption = vimwiki#vars#get_wikilocal('generated_links_caption', wiki_nr)
     for link in links
       let link_infos = vimwiki#base#resolve_link(link)
       if !vimwiki#base#is_diary_file(link_infos.filename, copy(l:diary_file_paths))
@@ -451,14 +453,18 @@ function! vimwiki#base#generate_links(create, ...) abort
         let link_caption = vimwiki#base#read_caption(link_infos.filename)
         if link_caption ==? '' " default to link if caption not found
           let link_caption = link
+        else
+          if use_caption
+            " switch to [[URL|DESCRIPTION]] if caption is not empty
+            " Link2 is the same for mardown syntax
+            let link_tpl = vimwiki#vars#get_syntaxlocal('Link2')
+          endif
         endif
-
         " Replace Url, Description
         let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link, '')
         let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
 
         " Replace Extension
-        let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
         let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
         let entry = substitute(entry, '__FileExtension__', extension, 'g')
 

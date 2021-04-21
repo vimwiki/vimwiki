@@ -507,6 +507,7 @@ function! s:get_default_wikilocal() abort
         \ 'bullet_types': {'type': type([]), 'default': []},
         \ 'cycle_bullets': {'type': type(0), 'default': 0},
         \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'generated_links_caption': {'type': type(0), 'default': 0 },
         \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
         \ 'links_space_char': {'type': type(''), 'default': ' ', 'min_length': 1},
         \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -1285,8 +1286,10 @@ function! s:normalize_syntax_settings(syntax) abort
   "   command generate link form file name (generate_link)
   if a:syntax ==# 'markdown'
     let syntax_dic.Link1 = syntax_dic.Weblink1Template
+    let syntax_dic.Link2 = syntax_dic.Weblink1Template
   else
     let syntax_dic.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
+    let syntax_dic.Link2 = vimwiki#vars#get_global('WikiLinkTemplate2')
   endif
 endfunction
 

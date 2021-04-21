@@ -1,6 +1,6 @@
 # Automatic link generation
 # Related to:
-#   - wiki file discovery 
+#   - wiki file discovery
 #   - buffer list insertion (see: vimwiki#base#update_listing_in_buffer)
 
 
@@ -9,11 +9,11 @@ Execute (Reset sw to default (due to batch)):
 
 # 1 VimwikiGenerateLinks {{{1
 ##########################
-# Wiki Syntax {{{2
+# Wiki Syntax (no caption, default) {{{2
 #################
 
 Execute (Log):
-  Log 'Wiki Syntax'
+  Log 'Wiki Syntax (no caption, default)'
   call ReloadVimwiki()
   AssertEqual '-1_margin', vimwiki#vars#get_wikilocal('list_margin') . '_margin'
 
@@ -52,6 +52,49 @@ Expect (The links with a header (bis)):
 Execute (Clean Test.wiki):
   call DeleteFile('$HOME/testwiki/Test.wiki')
 
+# Wiki Syntax (with caption)  {{{2
+#################
+
+Execute (Log):
+  Log 'Wiki Syntax (with caption)'
+  let vimwiki_default.generated_links_caption = 1
+  call ReloadVimwiki()
+  AssertEqual '-1_margin', vimwiki#vars#get_wikilocal('list_margin') . '_margin'
+
+Given (Void):
+
+Execute (VimwikiGenerateLinks):
+  edit $HOME/testwiki/Test.wiki
+  VimwikiGenerateLinks
+
+Expect (The links with a header):
+
+
+  = Generated Links =
+          - [[buzz_bozz|Buzz Bozz]]
+          - [[index|Test Wiki]]
+          - [[link_syntax]]
+          - [[link_syntax/nested]]
+
+Execute (VimwikiGenerateLinks x 2):
+  edit $HOME/testwiki/Test.wiki
+  VimwikiGenerateLinks
+  call append('$', 'Last Line')
+  VimwikiGenerateLinks
+
+Expect (The links with a header (bis)):
+
+
+  = Generated Links =
+          - [[buzz_bozz|Buzz Bozz]]
+          - [[index|Test Wiki]]
+          - [[link_syntax]]
+          - [[link_syntax/nested]]
+
+  Last Line
+
+Execute (Clean Test.wiki):
+  call DeleteFile('$HOME/testwiki/Test.wiki')
 
 # Markdown Syntax {{{2
 #################
