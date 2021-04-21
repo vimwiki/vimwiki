@@ -2672,6 +2672,18 @@ If set to 1 (true), cycle through |bullet_types| when changing list element
 identation
 
 
+*vimwiki-option-generated_links_caption*
+------------------------------------------------------------------------------
+Key                         Default value~
+generated_links_caption     0
+
+Default syntax only. If set to 1 (true), use the [[URL|DESCRIPTIOM]]  when
+calling |:VimwikiGenerateLinks|. DESCRIPTION will be the first header in the
+corresbonding file found in the first n lines, where n is set by
+|g:vimwiki_max_scan_for_caption| (Default 5). If no caption is found fallback
+to [[URL]] only.
+
+
 *vimwiki-option-listsyms*
 ------------------------------------------------------------------------------
 Key               Default value~
@@ -3900,6 +3912,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Fergus Collins (@C-Fergus)
     - Matthew Toohey (@mtoohey31)
     - Brennen Bearnes
+    - Stefan Schuhbäck (@stefanSchuhbaeck)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3911,6 +3924,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: Add option to use link Description in default syntax if 
+      caption is present. |generated_links_caption|
     * PR #1106: Fix trailing closing brace and comma typo
     * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
     * Feature: PR #686: add a flag lists_return to disable mappings 
