@@ -178,7 +178,7 @@ function! s:get_default_global() abort
         \     'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
         \     'git', 'ssh', 'fish', 'sftp',
         \   ]},
-        \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
+        \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'matrix', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'table_reduce_last_col': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'table_mappings': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
