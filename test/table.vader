@@ -1,6 +1,28 @@
 # Table autoformating
 # Very configurable: read doc/design_notes.md
 
+# Move <Tab> at end of row if next row is badly formated {{{1
+# See #1126
+##########################
+Given vimwiki (Header ok but 1 row bad):
+  | Service to be Build | Build Tag | Service to Deploy | Deploy Tag | Comments |
+  |---------------------|-----------|-------------------|------------|----------|
+  |||Provision/Core/Keycloak|release-3.8.0_RC9|This was done as part of release-3.7.0 hotfix and is not required if you are already on Keycloak 7|
+  |||Provision/DataPipeline/AnalyticsSpark|release-3.8.0_RC6||
+  |||OpsAdministration/Core/ESMapping|release-3.8.0_RC9|Choose `userv1,orgv2` for jenkins job parameter `indices_name`|
+
+Do (i<tab> at end of first line):
+  $i\<Tab>
+
+Expect(Crash (List required)):
+# E714: List required <= tbl#goto_next_col, line 9
+  | Service to be Build | Build Tag | Service to Deploy | Deploy Tag | Comments |
+  |---------------------|-----------|-------------------|------------|----------|
+  |||Provision/Core/Keycloak|release-3.8.0_RC9|This was done as part of release-3.7.0 hotfix and is not required if you are already on Keycloak 7|
+  |||Provision/DataPipeline/AnalyticsSpark|release-3.8.0_RC6||
+  |||OpsAdministration/Core/ESMapping|release-3.8.0_RC9|Choose `userv1,orgv2` for jenkins job parameter `indices_name`|
+
+
 # Move <Tab> and <S-Tab> map {{{1
 # See #1048
 ##########################

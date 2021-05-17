@@ -224,11 +224,11 @@ endfunction
 
 
 function! s:get_rows(lnum, ...) abort
-  if !s:is_table(getline(a:lnum))
-    return
-  endif
-
   let rows = []
+
+  if !s:is_table(getline(a:lnum))
+    return rows
+  endif
 
   let lnum = a:lnum - 1
   let depth = a:0 > 0 ? a:1 : 0
@@ -357,7 +357,7 @@ function! s:get_aligned_rows(lnum, col1, col2, depth) abort
   let check_all = 1
   if a:depth > 0
     let rows = s:get_rows(a:lnum, a:depth)
-    let startlnum = rows[0][0]
+    let startlnum = len(rows) > 0 ? rows[0][0] : 0
     let lrows = len(rows)
     if lrows == a:depth + 1
       let line = rows[-1][1]
@@ -388,7 +388,7 @@ function! s:get_aligned_rows(lnum, col1, col2, depth) abort
   if check_all
     " all the table must be re-formatted
     let rows = s:get_rows(a:lnum)
-    let startlnum = rows[0][0]
+    let startlnum = len(rows) > 0 ? rows[0][0] : 0
     let cells = []
     for [lnum, row] in rows
       call add(cells, vimwiki#tbl#get_cells(row))
@@ -548,7 +548,7 @@ function! vimwiki#tbl#goto_next_col() abort
   let depth = 2
   let newcol = s:get_indent(lnum, depth)
   let rows = s:get_rows(lnum, depth)
-  let startlnum = rows[0][0]
+  let startlnum = len(rows) > 0 ? rows[0][0] : 0
   let cells = []
   for [lnum, row] in rows
     call add(cells, vimwiki#tbl#get_cells(row, 1))
@@ -583,7 +583,7 @@ function! vimwiki#tbl#goto_prev_col() abort
   let depth = 2
   let newcol = s:get_indent(lnum, depth)
   let rows = s:get_rows(lnum, depth)
-  let startlnum = rows[0][0]
+  let startlnum = len(rows) > 0 ? rows[0][0] : 0
   let cells = []
   for [lnum, row] in rows
     call add(cells, vimwiki#tbl#get_cells(row, 1))
