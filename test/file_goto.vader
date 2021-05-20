@@ -10,6 +10,11 @@ Execute (VimwikiGoto buzz_bozz && Assert):
   VimwikiGoto buzz_bozz
   AssertEqual $HOME . '/testmarkdown/buzz_bozz.md', expand('%')
 
+Execute (VimwikiGoto buzz bozz && Assert):
+  VimwikiIndex 4
+  VimwikiGoto buzz bozz
+  AssertEqual $HOME . '/testwiki space/buzz bozz.wiki', expand('%')
+
 Do (VimwikiGoto <CR> buzz_bozz && Assert):
   :VimwikiIndex 2\<CR>
   :VimwikiGoto\<CR>
