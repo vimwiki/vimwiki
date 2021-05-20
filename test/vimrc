@@ -50,9 +50,19 @@
   let vimwiki_mediawiki.ext = '.mw'
   let vimwiki_mediawiki.name = 'MediaWikiSyntax'
 
-  " Register the 3 wikis
-  let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
-  let g:vimwiki_list_vimrc = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki]
+  " Declare default syntax with spaces
+  let vimwiki_default_space = {}
+  let vimwiki_default_space.path = $HOME . '/testwiki space'
+  let vimwiki_default_space.path_html = $HOME . '/html/testwiki space'
+  let vimwiki_default_space.template_path = $HOME . '/testwiki space/templates/'
+  let vimwiki_default_space.syntax = 'default'
+  let vimwiki_default_space.ext = '.wiki'
+  let vimwiki_default_space.name = 'DefaultSyntax'
+  let vimwiki_default_space.base_url = 'https://example.com/'
+
+  " Register the 4 wikis
+  let g:vimwiki_list = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki, vimwiki_default_space]
+  let g:vimwiki_list_vimrc = [vimwiki_default, vimwiki_markdown, vimwiki_mediawiki, vimwiki_default_space]
 
   " Test VimwikiColorize and ,wc
   let g:vimwiki_color_dic = {
