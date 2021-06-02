@@ -2736,14 +2736,14 @@ function! s:normalize_link_syntax_v() abort
   endif
 
   " Transform link:
-  " Replace description (used for markdown)
-  let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
   " Replace file extension
   let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
   let link = s:safesubstitute(link, '__FileExtension__', file_extension , '')
   " Replace space characters
   let sc = vimwiki#vars#get_wikilocal('links_space_char')
   let link = substitute(link, '\s', sc, 'g')
+  " Replace description (used for markdown)
+  let link = s:safesubstitute(link, '__LinkDescription__', visual_selection, '')
   " Remove newlines
   let link = substitute(link, '\n', '', '')
 
