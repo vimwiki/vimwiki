@@ -3913,6 +3913,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Matthew Toohey (@mtoohey31)
     - Brennen Bearnes
     - Stefan Schuhbäck (@stefanSchuhbaeck)
+    - Vinny Furia (@vinnyfuria)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3973,6 +3974,8 @@ Changed:~
     * VimwikiCheckLinks work on current wiki or on range
     * PR #1057: Change how resolve subdir work
       Change how shell escaping work when using CustomWiki2HTML
+    * PR #TBD: Spaces in link descriptions are no longer replaced with
+      links_space_char
 
 Removed:~
 
