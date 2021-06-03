@@ -3974,7 +3974,7 @@ Changed:~
     * VimwikiCheckLinks work on current wiki or on range
     * PR #1057: Change how resolve subdir work
       Change how shell escaping work when using CustomWiki2HTML
-    * PR #TBD: Spaces in link descriptions are no longer replaced with
+    * PR #1132: Spaces in link descriptions are no longer replaced with
       links_space_char
 
 Removed:~
