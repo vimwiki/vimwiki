@@ -1236,24 +1236,26 @@ function! s:process_tag_h(line, id) abort
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
       let h_part  = '<div id="'.h_complete_id.'">'
-      let h_part .= '<h'.h_level.' id="'.h_id.'" class="header">'
-      let h_part .= '<a href="#'.h_complete_id.'"'
+      let h_part .= '<h'.h_level.' id="'.h_id.'"'
+      let a_tag = '<a href="#'.h_complete_id.'">'
 
     else
 
-      let h_part = '<div id="'.h_id.'" class="toc"><h'.h_level.' id="'.h_id.'"'
+      let h_part = '<div id="'.h_id.'" class="toc">'
+      let h_part .= '<h'.h_level.' id="'.h_id.'"'
+      let a_tag = '<a href="#'.h_id.'">'
 
     endif
 
     if centered
-      let h_part .= ' class="justcenter">'
+      let h_part .= ' class="header justcenter">'
     else
-      let h_part .= '>'
+      let h_part .= ' class="header">'
     endif
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
-    let line = h_part.h_text.'</a></h'.h_level.'></div>'
+    let line = h_part.a_tag.h_text.'</a></h'.h_level.'></div>'
 
     let processed = 1
   endif
