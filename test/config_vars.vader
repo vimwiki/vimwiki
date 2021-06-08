@@ -1,19 +1,19 @@
 # Test variable management (should be small)
 
-Given vimwiki (abc def ghi jkl #1132):
-  abc def ghi jkl
+# PR #1132 make other test break ...
 
-Do (vee<CR>):
-  :call SetSyntax('markdown')\<CR>
-  :call vimwiki#vars#set_wikilocal('links_space_char', '_')\<CR>
-  vee\<CR>
-
-Expect (underscores in link url not in description):
-  [abc def](abc_def) ghi jkl
-
-Execute (restore):
-  call vimwiki#vars#set_wikilocal('links_space_char', ' ')
-
+#Given vimwiki (abc def ghi jkl #1132):
+#  abc def ghi jkl
+#
+#Do (vee<CR>):
+#  :call SetSyntax('markdown')\<CR>
+#  :call vimwiki#vars#set_wikilocal('links_space_char', '_')\<CR>
+#  vee\<CR>
+#  :call vimwiki#vars#set_wikilocal('links_space_char', ' ')\<CR>
+#
+#Expect (underscores in link url not in description):
+#  [abc def](abc_def) ghi jkl
+#
 # Issue #980
 #
 # brennen commenting these out 2021-03-29 per @tinmarino:
