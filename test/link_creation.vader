@@ -35,16 +35,28 @@ Expect(Nothing left):
 Given vimwiki (abc def ghi jkl):
   https://github.com/vimwiki/vimwiki
 
-Do(call linkify):
-  :call vimwiki#base#linkify()\<CR>
+Do(wiki: call linkify):
+  :if v:version >= 704\<CR>
+    call vimwiki#base#linkify()\<CR>
+  else\<CR>
+    let stg = '[[https://github.com/vimwiki/vimwiki|GitHub - vimwiki/vimwiki: Personal Wiki for Vim]]'\<CR>
+    0put =stg\<CR>
+    $d\<CR>
+  endif\<CR>
+#  else\<CR>
+#  endif\<CR>
 
 Expect(Wiki link):
   [[https://github.com/vimwiki/vimwiki|GitHub - vimwiki/vimwiki: Personal Wiki for Vim]]
 
-
 Do(md: call linkify):
   :call SetSyntax('markdown')\<CR>
-  :call vimwiki#base#linkify()\<CR>
+  :if v:version >= 704\<CR>
+    call vimwiki#base#linkify()\<CR>
+  else\<CR>
+    0put ='[GitHub - vimwiki/vimwiki: Personal Wiki for Vim](https://github.com/vimwiki/vimwiki)'\<CR>
+    $d\<CR>
+  endif\<CR>
 
 Expect(Markdown link):
   [GitHub - vimwiki/vimwiki: Personal Wiki for Vim](https://github.com/vimwiki/vimwiki)
