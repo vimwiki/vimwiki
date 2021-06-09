@@ -4,6 +4,26 @@
 #   in OS windows, linux
 # Seems easy but tests are reaaly needed here
 
+# Linkify function {{{1
+# Issue #994
+####################
+
+Given vimwiki (abc def ghi jkl):
+  https://github.com/vimwiki/vimwiki
+
+Do(call linkify):
+  :call vimwiki#base#linkify()\<CR>
+
+Expect():
+  [[https://github.com/vimwiki/vimwiki|GitHub - vimwiki/vimwiki: Personal Wiki for Vim]]
+
+
+Do(md: call linkify):
+  :call SetSyntax('markdown')\<CR>
+  :call vimwiki#base#linkify()\<CR>
+
+Expect():
+  [GitHub - vimwiki/vimwiki: Personal Wiki for Vim](https://github.com/vimwiki/vimwiki)
 
 # Link Normalisation {{{1
 # And configuration

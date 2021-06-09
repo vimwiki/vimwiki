@@ -2882,50 +2882,55 @@ endfunction
 
 function! vimwiki#base#linkify() abort
   " Transform: the url under the cursor to a wiki link
-    let g:page_title = ''
+  let g:page_title = ''
 
-    " save existing value of @u and delete url under the cursor into @u
-    let l:save_reg = @u
-    exe 'normal! "udiW'
+  " Save existing value of @u and delete url under the cursor into @u
+  let l:save_reg = @u
+  exe 'normal! "udiW'
 
-    " create a scratch buffer and switch to it
-    let current_buf = bufnr('')
-    let scratch_buf = bufnr('scratch',1)
-    exe 'sil! ' . scratch_buf . 'buffer'
+  " Create a scratch buffer and switch to it
+  let current_buf = bufnr('')
+  let scratch_buf = bufnr('scratch', 1)
+  exe 'sil! ' . scratch_buf . 'buffer'
 
-    " load web page into scratch buffer using Nread with mode=2
-    " FIXME: on Windows, with vim 7/8 (not with nvim), makes the cmd.exe window show up (annoying)
-    exe 'sil! :2Nread ' . @u
+  " Load web page into scratch buffer using Nread with mode=2
+  " FIXME: on Windows, with vim 7/8 (not with nvim), makes the cmd.exe window show up (annoying)
+  exe 'sil! :2Nread ' . @u
 
-    " extract title from html
-    " Note: if URL cannot be downloaded the buffer is empty or contains a single
-    " line: 'Not found'
-    let page_ok=0
-    if (wordcount().chars !=0 && getline(1) !=? 'Not found')
-        let page_ok=1
-        " regex seems to work fine, but may not cover all cases
-        exe 'sil! :keepp %s/\v\<title.{-}\>((.|\r)+)\<\/title\>/\=s:get_title(submatch(1))/n'
-    endif
+  " Extract title from html
+  " Note: if URL cannot be downloaded the buffer is empty or contains a single
+  " line: 'Not found'
+  let page_ok=0
+  if (wordcount().chars !=0 && getline(1) !=? 'Not found')
+    let page_ok=1
+    " regex seems to work fine, but may not cover all cases
+    exe 'sil! :keepp %s/\v\<title.{-}\>((.|\r)+)\<\/title\>/\=s:get_title(submatch(1))/n'
+  endif
 
-    " wipeout scratch buffer and switch to current
-    exe scratch_buf . 'bwipeout'
-    exe current_buf . 'buffer'
+  " wipeout scratch buffer and switch to current
+  exe scratch_buf . 'bwipeout'
+  exe current_buf . 'buffer'
 
-    if (page_ok)
-        " use template [[URL|DESCRIPTION]]
-        let template = g:vimwiki_global_vars.WikiLinkTemplate2
-        let link = substitute(template, '__LinkUrl__', @u, '')
-        let link = substitute(link, '__LinkDescription__', g:page_title==#'' ? @u : g:page_title, '')
-        exe 'normal! i' . link
+  if (page_ok)
+    if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+      " [DESC](URL)
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink2Template')
     else
-        "if URL could not be downloaded, undo and display message
-        "TODO: other behaviours may be possible (user options?)
-        exe 'normal! u'
-        echomsg 'Error downloading URL: ' . @u
+      " [[URL]]
+      let link_tpl = g:vimwiki_global_vars.WikiLinkTemplate2
     endif
+    let link = substitute(link_tpl, '__LinkUrl__', @u, '')
+    let link = substitute(link, '__LinkDescription__', g:page_title==#'' ? @u : g:page_title, '')
+    exe 'normal! i' . link
+  else
+    "if URL could not be downloaded, undo and display message
+    "TODO: other behaviours may be possible (user options?)
+    exe 'normal! u'
+    echomsg 'Error downloading URL: ' . @u
+  endif
 
-    " restore initial value of @u
-    let @u = l:save_reg
+  " restore initial value of @u
+  let @u = l:save_reg
 endfunction
 
 
