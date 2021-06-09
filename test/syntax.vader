@@ -1,5 +1,52 @@
 # Syntax and Highlight
 
+
+# 0 Escape {{{1
+#################
+
+Given vimwiki (Markdown typeface with escape sequence #1044: _ __ * ** {{{2):
+  This is 14   | 1
+  __bold from begining__ 2
+  \__not bold even from begin \__ 3
+  and __t \__ is still bold__ Bold 4
+  and _ita\_ alic continues and end_ Italic 5
+  *this\* \* is italic also* Italic 6
+  a ^t\^ is supperscrit^ Sup 7
+  ,,sub\,, subscript end,, Sub 8
+  a ~~st\~~ill deleted~~ Del 9
+  $$Eq\$$ uation follows$ Math 10
+  `code \` not finished inline` Code 11
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax of escape typeface):
+  AssertEqual '1'                  , SyntaxAt(1, 14) . 1
+  AssertEqual 'VimwikiBold2'       , SyntaxAt(2, 14) . 2
+  AssertEqual '3'                  , SyntaxAt(3, 14) . 3
+  AssertEqual 'VimwikiBold4'       , SyntaxAt(4, 14) . 4
+  AssertEqual 'VimwikiItalic5'     , SyntaxAt(5, 14) . 5
+  AssertEqual 'VimwikiItalic6'     , SyntaxAt(6, 14) . 6
+  AssertEqual 'VimwikiSuperScript7', SyntaxAt(7, 14) . 7
+  AssertEqual 'VimwikiSubScript8'  , SyntaxAt(8, 14) . 8
+  AssertEqual 'VimwikiDelText9'    , SyntaxAt(9, 14) . 9
+  AssertEqual 'VimwikiMath10'      , SyntaxAt(10, 14) . 10
+  AssertEqual 'textSnipTEX11'      , SyntaxAt(11, 14) . 11
+
+Given vimwiki (Markdown pre with escape sequence #1044: _ __ * ** {{{2):
+  ```
+  pre
+  \```
+  pre
+  ```
+
+Execute (Assert Syntax of escape pre):
+  AssertEqual 'VimwikiPreDelim1'   , SyntaxAt(1, 1) . 1
+  AssertEqual 'VimwikiPre2'        , SyntaxAt(2, 1) . 2
+  AssertEqual 'VimwikiPre3'        , SyntaxAt(3, 1) . 3
+  AssertEqual 'VimwikiPre4'        , SyntaxAt(4, 1) . 4
+  AssertEqual 'VimwikiPreDelim5'   , SyntaxAt(5, 1) . 5
+
 # 1 Typeface {{{1
 #################
 
@@ -15,17 +62,17 @@ Execute (Assert Syntax (alpha)):
 
 Given vimwiki (Markdown bad __this_not_it__ {{{2):
   See here  14 |
-  s2n_error
-  s*n*er_r_
-  n4rmal_aaaaaaaaaaaaaaaaaaaa_text_
-  n5t_italiccccccccccccccccccccc_no
-  n6t_italiccccccccccccccccccccccno
-  n7t*italiccccccccccccccccccccc_no
-  n8t*italiccccccccccccccccccccc*no
-  __not_italicccccccccc_but_boldd__
-  _a_asdasda_asdas_asdas_asdasda_a_
-  _jitaliccccccccccccccccccccccccc_
-  n12ormalllllllllllllllllllllllll_
+  s2n_error 2
+  s*n*er_r_ 3
+  n4rmal_aaaaaaaaaaaaaaaaaaaa_text_ 4
+  n5t_italiccccccccccccccccccccc_no 5
+  n6t_italiccccccccccccccccccccccno 6
+  n7t*italiccccccccccccccccccccc_no 7
+  n8t*italiccccccccccccccccccccc*no 8
+  __not_italicccccccccc_but_boldd__ 9
+  _a_asdasda_asdas_asdas_asdasda_a_ 10
+  _jitaliccccccccccccccccccccccccc_ 11
+  n12ormalllllllllllllllllllllllll_ 12
   _italic if at end of file unfortunately
   Note: The decision to start a region is only based on a matching start
   pattern.  There is no check for a matching end pattern.  This does NOT
@@ -63,19 +110,19 @@ Execute (Assert Syntax (charlie)):
 # Emphasis stricker {{{2
 # See: https://github.github.com/gfm/#emphasis-and-strong-emphasis
 Given vimwiki (Emphasis and not):
-  this __bold__ ok
-  this _italic_ ok
-  t__ no bold __ t
-  t_ no ital _ t
+  this __bold__ ok 1
+  this _italic_ ok 2
+  t__ no bold __ t 3
+  t_ no ital _ t 4
 
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax (delta)):
-  AssertEqual 'VimwikiBold'        , SyntaxAt(1, 9)
-  AssertEqual 'VimwikiItalic'      , SyntaxAt(2, 9)
-  AssertEqual ''                   , SyntaxAt(3, 9)
-  AssertEqual ''                   , SyntaxAt(4, 9)
+  AssertEqual 'VimwikiBold1'        , SyntaxAt(1, 9) . 1
+  AssertEqual 'VimwikiItalic2'      , SyntaxAt(2, 9) . 2
+  AssertEqual '3'                   , SyntaxAt(3, 9) . 3
+  AssertEqual '4'                   , SyntaxAt(4, 9) . 4
 
 # With vimwiki_hl_cb_checked {{{2
 Given vimwiki (task list with code):

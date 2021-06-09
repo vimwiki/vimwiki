@@ -308,9 +308,13 @@ function! vimwiki#u#hi_expand_regex(lst) abort
   let res = []
   let p = vimwiki#u#get_punctuation_string()
   for delimiters in a:lst
-    call add(res, [
-          \ delimiters[0] . '\S\@=',
-          \ '\S\@<=' . delimiters[1] . '\%(\_[[:space:]' . p . ']\)\@='])
+    let r_prefix = '\(^\|[[:space:]]\@<=\)'
+    " Regex Start: not preceded by backslash, not ended by space
+    let r_start = r_prefix . delimiters[0] . '\S\@='
+    " Regex End: not preceded by backslash or space, ended by punctuation or space
+    let r_prefix = '\(^\|[^[:space:]\\]\@<=\)'
+    let r_end = r_prefix . delimiters[1] . '\%(\_[[:space:]' . p . ']\)\@='
+    call add(res, [r_start, r_end])
   endfor
   return res
 endfunction
@@ -323,14 +327,19 @@ function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
   " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
   " :param: (1) <boolean> is contained
   " :param: (2) <string> more param ex:oneline
+
+  " Discriminate parameters
   let opt_is_contained = a:0 > 0 && a:1 > 0 ? 'contained ' : ''
   let opt_more = a:0 > 1  ? ' ' . a:2 : ''
   let opt_contains = ''
   if a:contains !=# ''
     let opt_contains = 'contains=' . a:contains . ' '
   endif
+
+  " Craft command
   let cmd = 'syn region ' . a:syntax_group . ' matchgroup=VimwikiDelimiter ' .
         \ opt_is_contained .
+        \ 'skip="\\' . a:tag_pre . '" ' .
         \ 'start="' . a:tag_pre . '" ' .
         \ 'end="' . a:tag_post . '" ' .
         \ 'keepend ' .
