@@ -295,12 +295,12 @@ command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
 command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
 command! -buffer VimwikiDeleteLink
-      \ call vimwiki#base#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
+      \ call vimwiki#u#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
 command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
       \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
 command! -buffer VimwikiRenameLink
-      \ call vimwiki#base#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
+      \ call vimwiki#u#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
       \ call vimwiki#base#rename_link()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
@@ -365,7 +365,7 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiGenerateTagLinks call vimwiki#tags#generate_tags(1, <f-args>)
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiGenerateTags
-      \ call vimwiki#base#deprecate("VimwikiGenerateTags", "VimwikiGenerateTagLinks") |
+      \ call vimwiki#u#deprecate("VimwikiGenerateTags", "VimwikiGenerateTagLinks") |
       \ call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))

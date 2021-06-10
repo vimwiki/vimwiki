@@ -217,7 +217,8 @@ function! s:internal_global_settings() abort
         \ join(vimwiki#vars#get_global('schemes_web'), '\|')
   let g:vimwiki_global_vars.schemes_any = 
         \ join(vimwiki#vars#get_global('schemes_any'), '\|')
-  let g:vimwiki_global_vars.schemes_local = join(['wiki\d\+', 'diary', 'local'], '\|')
+  let g:vimwiki_global_vars.schemes_local =
+        \ join(['wiki\d\+', 'diary', 'local'], '\|')
 
   " Concatenate known schemes => regex
   let g:vimwiki_global_vars.rxSchemes = '\%('.
