@@ -1117,7 +1117,7 @@ function! s:remove_done_in_list(item, recursive) abort
   if a:item.type == 0
     return
   endif
-  
+ 
   " Recurse self on list item
   let first_item = s:get_first_item_in_list(a:item, 0)
   let total_lines_removed = 0
@@ -1183,7 +1183,7 @@ function! vimwiki#lst#remove_done_in_range(first_line, last_line) abort
     endif
     let cur_ln = s:get_next_line(cur_ln)
   endwhile
-  
+ 
   " Update all parent state (percentage of done)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)

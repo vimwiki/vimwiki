@@ -125,7 +125,7 @@ function! s:template_full_name(name) abort
 
   " Suffix Path by a / is not
   let path = vimwiki#vars#get_wikilocal('template_path')
-  if strridx(path, '/') +1 != len(path) 
+  if strridx(path, '/') +1 != len(path)
     let path .= '/'
   endif
 
@@ -1708,7 +1708,7 @@ function! vimwiki#html#CustomWiki2HTML(root_path, path, wikifile, force) abort
       \ (len(vimwiki#vars#get_bufferlocal('subdir')) > 0 ?
       \     s:shellescape(s:root_path(vimwiki#vars#get_bufferlocal('subdir'))) : '-'). ' '.
       \ (len(vimwiki#vars#get_wikilocal('custom_wiki2html_args')) > 0 ?
-      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-')) 
+      \     vimwiki#vars#get_wikilocal('custom_wiki2html_args') : '-'))
   " Print if non void
   if output !~? '^\s*$'
     call vimwiki#u#echo(string(output))

@@ -152,7 +152,7 @@ call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 " Header Level: 1..6
 for s:i in range(1,6)
-  " WebLink are for markdown but putting them here avoidcode duplication 
+  " WebLink are for markdown but putting them here avoidcode duplication
   " -- and syntax folding Issue #1009
   execute 'syntax match VimwikiHeader'.s:i
       \ . ' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i, s:current_syntax)
@@ -283,7 +283,7 @@ syntax match VimwikiPlaceholderParam /.*/ contained
 if vimwiki#vars#get_global('valid_html_tags') !=? ''
   let s:html_tags = join(split(vimwiki#vars#get_global('valid_html_tags'), '\s*,\s*'), '\|')
   exe 'syntax match VimwikiHTMLtag #\c</\?\%('.s:html_tags.'\)\%(\s\{-1}\S\{-}\)\{-}\s*/\?>#'
-  
+
   " Html Typeface: <b>bold text</b>
   let html_typeface = {
     \ 'bold': [['<b>', '</b\_s*>'], ['<strong>', '</strong\_s*>']],

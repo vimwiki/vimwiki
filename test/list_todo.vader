@@ -230,7 +230,7 @@ Do (Go):
 Expect (Introduce new Number todo item):
   1. [ ] Chap1
   2. [ ] Chap2
-  3. [ ] 
+  3. [ ]
 
 Do (New item and ident):
   o\<C-t>Chap1.1

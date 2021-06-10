@@ -558,7 +558,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
       inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
     endif
   endif
-  
+ 
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
     if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')

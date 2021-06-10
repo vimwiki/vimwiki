@@ -213,9 +213,9 @@ function! s:internal_global_settings() abort
 
   " Know internal schemes
 
-  let g:vimwiki_global_vars.schemes_web = 
+  let g:vimwiki_global_vars.schemes_web =
         \ join(vimwiki#vars#get_global('schemes_web'), '\|')
-  let g:vimwiki_global_vars.schemes_any = 
+  let g:vimwiki_global_vars.schemes_any =
         \ join(vimwiki#vars#get_global('schemes_any'), '\|')
   let g:vimwiki_global_vars.schemes_local =
         \ join(['wiki\d\+', 'diary', 'local'], '\|')
@@ -463,8 +463,8 @@ function! s:get_default_wikilocal() abort
   " Must be coherent with VimwikiColorize
   let fg = 'color\s*:\s*__COLORFG__\s*;\s*'
   let bg = 'background\s*:\s*__COLORBG__\s*;\s*'
-  let color_tag_rx = '<span \s*style\s*=\s*"\s*\(' 
-        \ . fg . bg . '\|' . fg . '\|' . bg 
+  let color_tag_rx = '<span \s*style\s*=\s*"\s*\('
+        \ . fg . bg . '\|' . fg . '\|' . bg
         \ . '\)"\s*>__CONTENT__<\/span>'
   return {
         \ 'auto_diary_index': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
