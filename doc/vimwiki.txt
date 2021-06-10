@@ -3926,11 +3926,11 @@ https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
     * PR #1128: VimwikiGoto: Support wiki pages with spaces
-    * Feature: Add option to use link Description in default syntax if 
+    * Feature: Add option to use link Description in default syntax if
       caption is present. |generated_links_caption|
     * PR #1106: Fix trailing closing brace and comma typo
     * Feature: VimwikiColorize maps in visual and normal mode `<leader>wc`
-    * Feature: PR #686: add a flag lists_return to disable mappings 
+    * Feature: PR #686: add a flag lists_return to disable mappings
       to <CR> and <S-CR> in insert mode
     * Feature: enable re-mapping insert mode table mappings
     * Feature: configure expression for Todo words
