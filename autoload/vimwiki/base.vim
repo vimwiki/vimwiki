@@ -1270,7 +1270,7 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
   " Update link for all files in dir
   " Param: old_url, new_url: path of the old, new url relative to ...
   " Param: dir: directory of the files, relative to wiki_root
-  " Called: rename_link
+  " Called: rename_file
   " Get list of wiki files
   let wiki_root = vimwiki#vars#get_wikilocal('path', a:wiki_nr)
   let fsources = vimwiki#base#find_files(a:wiki_nr, 0)
@@ -1347,7 +1347,7 @@ endfunction
 
 function! s:get_wiki_buffers() abort
   " Get list of currently open buffer that are wiki files
-  " Called: by rename_link
+  " Called: by rename_file
   let blist = []
   let bcount = 1
   while bcount<=bufnr('$')
@@ -1368,7 +1368,7 @@ endfunction
 
 function! s:open_wiki_buffer(item) abort
   " Edit wiki file.
-  " Called: by rename_link: Usefull for buffer commands
+  " Called: by rename_file: Usefull for buffer commands
   call vimwiki#base#edit_file(':e', a:item[0], '')
   if !empty(a:item[1])
     call vimwiki#vars#set_bufferlocal('prev_links', a:item[1], a:item[0])
@@ -1770,10 +1770,10 @@ function! vimwiki#base#delete_link() abort
 endfunction
 
 
-function! s:input_rename_link() abort
+function! s:input_rename_file() abort
   " Ask user for a new filepath
   " Returns: '' if fails
-  " Called: rename_link
+  " Called: rename_file
   " Ask confirmation
   let val = input('Rename "'.expand('%:t:r').'" [y]es/[N]o? ')
   if val !~? '^y'
@@ -1803,7 +1803,7 @@ function! s:input_rename_link() abort
 endfunction
 
 
-function! vimwiki#base#rename_link(...) abort
+function! vimwiki#base#rename_file(...) abort
   " Rename current file, update all links to it
   " Param: [new_filepath <string>]
   " Exported: VimwikiRenameFile
@@ -1822,7 +1822,7 @@ function! vimwiki#base#rename_link(...) abort
   endif
 
   " Read new_link <- command line || input()
-  let new_link = a:0 > 0 ? a:1 : s:input_rename_link()
+  let new_link = a:0 > 0 ? a:1 : s:input_rename_file()
   if new_link ==# '' | return | endif
 
   let new_link = subdir.new_link
@@ -2794,7 +2794,7 @@ endfunction
 
 function! vimwiki#base#complete_file(ArgLead, CmdLine, CursorPos) abort
   " Complete filename relatie to current file
-  " Called: rename_link
+  " Called: rename_file
   " Start from current file
   let base_path = expand('%:h')
 

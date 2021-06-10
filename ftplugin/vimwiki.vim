@@ -298,10 +298,10 @@ command! -buffer VimwikiDeleteLink
       \ call vimwiki#u#deprecate("VimwikiDeleteLink", "VimwikiDeleteFile") |
       \ call vimwiki#base#delete_link()
 command! -buffer -nargs=? -complete=customlist,vimwiki#base#complete_file
-      \ VimwikiRenameFile call vimwiki#base#rename_link(<f-args>)
+      \ VimwikiRenameFile call vimwiki#base#rename_file(<f-args>)
 command! -buffer VimwikiRenameLink
       \ call vimwiki#u#deprecate("VimwikiRenameLink", "VimwikiRenameFile") |
-      \ call vimwiki#base#rename_link()
+      \ call vimwiki#base#rename_file()
 command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1)
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
 command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
