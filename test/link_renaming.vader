@@ -13,8 +13,24 @@ Execute (Mkdir dir1 dir2 dir11 dir12):
   call system("mkdir $HOME/testmarkdown/dir2")
 
 
-# Test Transdirectory and argument {{{1
-# New feature #926
+
+Do(Link with / are relative to root #617):
+  :edit $HOME/testmarkdown/test.md\<Cr>
+  :Log 'Is this wiki 2'\<Cr>
+  :AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')\<Cr>
+  :Log 'Editing'\<Cr>
+  i/dir1/old_name\<Esc>
+  \<CR>\<CR>
+  :AssertEqual 'old_name', expand('%:t:r')\<Cr>
+  :call WriteMe()\<Cr>
+  :VimwikiRenameFile new_name\<Cr>
+  :AssertEqual 'new_name', expand('%:t:r')\<Cr>
+  :edit $HOME/testmarkdown/test.md\<Cr>
+  :AssertEqual '[dir1 old_name](/dir1/new_name)', getline(1)\<Cr>
+
+
+# TEST TRANSDIRECTORY AND ARGUMENT {{{1
+# NEW FEATURE #926
 
 # Create smaller unit {{{2
 
@@ -83,9 +99,10 @@ Do (Testing transforward {{{2):
   0\<Cr>\<Cr>
 
 # Now in root
-  :AssertEqual expand('%'), $HOME . '/testmarkdown/Test-Rename-Completion.md'\<Cr>
+  :AssertEqual $HOME . '/testmarkdown/Test-Rename-Completion.md', expand('%')\<Cr>
   :VimwikiRenameFile dir1/Test-Rename-Completion-2\<Cr>
-  :AssertEqual expand('%'), $HOME . '/testmarkdown/dir1/Test-Rename-Completion-2.md'\<Cr>
+  :Log 'Rename -> dir1/Test...{{{3'\<Cr>
+  :AssertEqual $HOME . '/testmarkdown/dir1/Test-Rename-Completion-2.md', expand('%')\<Cr>
 
 
 Execute (Delete smaller unit changed {{{2):
@@ -239,7 +256,7 @@ Do (in_dir2 -> in_dir2_new):
 
 
 Expect (old and new filenames):
-  
+
   /home/vimtest/testmarkdown/dir2/in_dir2.md
   /home/vimtest/testmarkdown/dir2/in_dir2_new.md
 

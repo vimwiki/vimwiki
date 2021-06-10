@@ -62,7 +62,7 @@ function! vimwiki#base#subdir(path, filename) abort
     let filename = a:filename
   endif
   let idx = 0
-  let pathelement = split(path, '[/\\]') 
+  let pathelement = split(path, '[/\\]')
   let fileelement = split(filename, '[/\\]')
   let minlen = min([len(pathelement), len(fileelement)])
   let p = fileelement[:]
@@ -1285,10 +1285,11 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
   " Param: wiki_nr <int> to get the syntax template
   " Param: old_location <string> relative to the current wiki fsource
   function! s:compute_old_url_r(wiki_nr, old_location) abort
+    " TODO this may be helped by path_to_regex
     " Start, Read param
     let old_url_r = a:old_location
-    " Escape the '\\/'
-    let old_url_r = escape(old_url_r, '\/')
+    " Replace / -> [\\/]
+    let old_url_r = substitute(old_url_r, '/', '[\\\\/]', 'g')
     " Add potential  ./
     let old_url_r = '\%(\.[/\\]\)\?' . old_url_r
     " Compute old url regex with filename between \zs and \ze
@@ -1322,15 +1323,28 @@ function! s:update_wiki_links(wiki_nr, dir, old_url, new_url) abort
 
     " Old url
     " Avoid E713
-    let key = empty(dir_rel_fsource) ? 'NaF' : dir_rel_fsource
+    let old_rel_fsource = dir_rel_fsource . a:old_url
+    let key = empty(old_rel_fsource) ? 'NaF' : old_rel_fsource
     if index(keys(cache_dict), key) == -1
       let cache_dict[key] = s:compute_old_url_r(
-            \ a:wiki_nr, dir_rel_fsource . a:old_url)
+            \ a:wiki_nr,  old_rel_fsource)
     endif
-    let old_url_r = cache_dict[key]
+    let r_old_rel_fsource = cache_dict[key]
 
     " Update url in source file
-    call s:update_wiki_link(fsource, old_url_r, new_url)
+    call s:update_wiki_link(fsource, r_old_rel_fsource, new_url)
+
+    " Same job with absolute path (#617)
+    let old_rel_root = '/' . dir_rel_root . '/' . a:old_url
+    let key = empty(dir_rel_root) ? 'NaF' : dir_rel_root
+    if index(keys(cache_dict), key) == -1
+      let cache_dict[key] = s:compute_old_url_r(
+            \ a:wiki_nr, old_rel_root)
+    endif
+    let r_old_rel_root = cache_dict[key]
+    let new_rel_root = simplify('/' . dir_rel_root . '/' . a:new_url)
+
+    call s:update_wiki_link(fsource, r_old_rel_root, new_rel_root)
   endfor
 endfunction
 
@@ -2996,7 +3010,7 @@ function! vimwiki#base#colorize(...) range abort
   " Prepare
   " -- pre
   let [fg, bg] = color_dic[key]
-  let pre = '<span style="' 
+  let pre = '<span style="'
   if fg !=# ''
     let pre .= 'color:' . fg . ';'
   endif
