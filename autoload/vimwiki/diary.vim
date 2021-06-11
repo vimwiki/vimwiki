@@ -512,10 +512,14 @@ endfunction
 
 function! vimwiki#diary#calendar_sign(day, month, year) abort
   " Callback function for Calendar.vim
+  " Clause: no wiki no sign #290
+  if len(g:vimwiki_list) <= 0
+    return
+  endif
   let day = s:prefix_zero(a:day)
   let month = s:prefix_zero(a:month)
-  let sfile = vimwiki#vars#get_wikilocal('path').vimwiki#vars#get_wikilocal('diary_rel_path').
-        \ a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
+  let sfile = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path')
+        \ . a:year.'-'.month.'-'.day.vimwiki#vars#get_wikilocal('ext')
   return filereadable(expand(sfile))
 endfunction
 

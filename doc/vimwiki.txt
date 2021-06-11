@@ -3925,6 +3925,8 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #290: Calendar plugin, do not sign if no wiki
+    * Issue #281: Permit `\|` in tables
     * PR #1128: VimwikiGoto: Support wiki pages with spaces
     * Feature: Add option to use link Description in default syntax if
       caption is present. |generated_links_caption|
