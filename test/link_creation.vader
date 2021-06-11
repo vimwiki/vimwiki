@@ -4,6 +4,31 @@
 #   in OS windows, linux
 # Seems easy but tests are reaaly needed here
 
+# Links Renaming inside #1138 {{{1
+
+Given vimwiki (Link with toto):
+  [if nothing goes right, go left](www.the_bad_jokes.com)
+
+Do(Rename description):
+# Change in bracket
+  ci[
+  new description
+  \<Esc>
+
+Expect(New description):
+  [new description](www.the_bad_jokes.com)
+
+Do(Rename url):
+# Move to (
+  %l
+# Change in parenthesis
+  ci(
+  www.new_url.com
+
+Expect(New URL):
+  [if nothing goes right, go left](www.new_url.com)
+
+
 # Links with dot {{{1
 # Issue #924
 # See for spec: https://github.com/vimwiki/vimwiki/issues/924#issuecomment-672837685
