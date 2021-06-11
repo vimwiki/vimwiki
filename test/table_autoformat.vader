@@ -1,6 +1,29 @@
 # Table autoformating
 # Very configurable: read doc/design_notes.md
 
+# Do not consider \| {{{1
+##########################
+
+Given vimwiki (Table with \| #281):
+  | Head1 | Head2 |
+  | ---  | --- |
+  | l1_1 | l1_2 |
+  | l2_1 \| with escaped pipe | l2_2 |
+
+Execute (Rename file wiki_test.md for table expand):
+  file wiki_test.md
+  call SetSyntax('markdown')
+
+Do (A to trigger insertLeave #281):
+  A
+
+Expect(Table aligned with \| in cells):
+  | Head1                     | Head2 |
+  | ---                       | ---   |
+  | l1_1                      | l1_2  |
+  | l2_1 \| with escaped pipe | l2_2  |
+
+
 # Do not alter config {{{1
 ##########################
 

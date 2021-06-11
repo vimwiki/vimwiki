@@ -15,10 +15,18 @@ endif
 let g:loaded_vimwiki_tbl_auto = 1
 
 
-function! s:rxSep() abort
+function! s:s_sep() abort
+  " Return string column separator
   return vimwiki#vars#get_syntaxlocal('rxTableSep')
 endfunction
 
+function! s:r_sep() abort
+  " Return regex column separator
+  " Not prefixed with \
+  let res = '\(^\|[^\\]\)\@<='
+  let res .= vimwiki#vars#get_syntaxlocal('rxTableSep')
+  return res
+endfunction
 
 function! s:wide_len(str) abort
   " vim73 has new function that gives correct string width.
@@ -44,43 +52,43 @@ endfunction
 
 
 function! s:cell_splitter() abort
-  return '\s*'.s:rxSep().'\s*'
+  return '\s*'.s:r_sep().'\s*'
 endfunction
 
 
 function! s:sep_splitter() abort
-  return '-'.s:rxSep().'-'
+  return '-'.s:r_sep().'-'
 endfunction
 
 
 function! s:is_table(line) abort
   " Check if param:line is in a table
   return s:is_separator(a:line) ||
-        \ (a:line !~# s:rxSep().s:rxSep() && a:line =~# '^\s*'.s:rxSep().'.\+'.s:rxSep().'\s*$')
+        \ (a:line !~# s:r_sep().s:r_sep() && a:line =~# '^\s*'.s:r_sep().'.\+'.s:r_sep().'\s*$')
 endfunction
 
 
 function! s:is_separator(line) abort
   " Check if param:line is a separator (ex: | --- | --- |)
-  return a:line =~# '^\s*'.s:rxSep().'\(:\=--\+:\='.s:rxSep().'\)\+\s*$'
+  return a:line =~# '^\s*'.s:r_sep().'\(:\=--\+:\='.s:r_sep().'\)\+\s*$'
 endfunction
 
 
 function! s:is_separator_tail(line) abort
-  return a:line =~# '^\{-1}\%(\s*\|-*\)\%('.s:rxSep().'-\+\)\+'.s:rxSep().'\s*$'
+  return a:line =~# '^\{-1}\%(\s*\|-*\)\%('.s:r_sep().'-\+\)\+'.s:r_sep().'\s*$'
 endfunction
 
 
 function! s:is_last_column(lnum, cnum) abort
   let line = strpart(getline(a:lnum), a:cnum - 1)
-  return line =~# s:rxSep().'\s*$'  && line !~# s:rxSep().'.*'.s:rxSep().'\s*$'
+  return line =~# s:r_sep().'\s*$'  && line !~# s:r_sep().'.*'.s:r_sep().'\s*$'
 endfunction
 
 
 function! s:is_first_column(lnum, cnum) abort
   let line = strpart(getline(a:lnum), 0, a:cnum - 1)
   return line =~# '^\s*$' ||
-        \ (line =~# '^\s*'.s:rxSep() && line !~# '^\s*'.s:rxSep().'.*'.s:rxSep())
+        \ (line =~# '^\s*'.s:r_sep() && line !~# '^\s*'.s:r_sep().'.*'.s:r_sep())
 endfunction
 
 
@@ -111,8 +119,9 @@ endfunction
 
 
 function! s:create_empty_row(cols) abort
-  let row = s:rxSep()
-  let cell = '   '.s:rxSep()
+  " Create an empty row of a:cols columns
+  let row = s:s_sep()
+  let cell = '   '.s:s_sep()
 
   for c in range(a:cols)
     let row .= cell
@@ -123,8 +132,9 @@ endfunction
 
 
 function! s:create_row_sep(cols) abort
-  let row = s:rxSep()
-  let cell = '---'.s:rxSep()
+  " Create an empty separator row of a:cols columns
+  let row = s:s_sep()
+  let cell = '---'.s:s_sep()
 
   for c in range(a:cols)
     let row .= cell
@@ -150,7 +160,7 @@ function! vimwiki#tbl#get_cells(line, ...) abort
       " The only way I know Vim can do Unicode...
       let ch = a:line[idx]
       if state ==# 'NONE'
-        if ch ==# '|'
+        if ch ==# s:s_sep() && (idx < 1 || a:line[idx-1] !=# '\')
           let cell_start = idx + 1
           let state = 'CELL'
         endif
@@ -158,7 +168,7 @@ function! vimwiki#tbl#get_cells(line, ...) abort
         if ch ==# '[' || ch ==# '{'
           let state = 'BEFORE_QUOTE_START'
           let quote_start = idx
-        elseif ch ==# '|'
+        elseif ch ==# s:s_sep() && (idx < 1 || a:line[idx-1] !=# '\')
           let cell = strpart(a:line, cell_start, idx - cell_start)
           if a:0 && a:1
             let cell = substitute(cell, '^ \(.*\) $', '\1', '')
@@ -425,10 +435,10 @@ function! s:cur_column() abort
   " TODO: do we need conditional: if s:is_separator(line)
 
   let curs_pos = col('.')
-  let mpos = match(line, s:rxSep(), 0)
+  let mpos = match(line, s:r_sep(), 0)
   let col = -1
   while mpos < curs_pos && mpos != -1
-    let mpos = match(line, s:rxSep(), mpos+1)
+    let mpos = match(line, s:r_sep(), mpos+1)
     if mpos != -1
       let col += 1
     endif
@@ -456,7 +466,7 @@ endfunction
 
 
 function! s:fmt_row(cells, max_lens, aligns, col1, col2) abort
-  let new_line = s:rxSep()
+  let new_line = s:s_sep()
   for idx in range(len(a:cells))
     if idx == a:col1
       let idx = a:col2
@@ -464,12 +474,12 @@ function! s:fmt_row(cells, max_lens, aligns, col1, col2) abort
       let idx = a:col1
     endif
     let value = a:cells[idx]
-    let new_line .= s:fmt_cell(value, a:max_lens[idx], a:aligns[idx]).s:rxSep()
+    let new_line .= s:fmt_cell(value, a:max_lens[idx], a:aligns[idx]).s:s_sep()
   endfor
 
   let idx = len(a:cells)
   while idx < len(a:max_lens)
-    let new_line .= s:fmt_cell('', a:max_lens[idx], a:aligns[idx]).s:rxSep()
+    let new_line .= s:fmt_cell('', a:max_lens[idx], a:aligns[idx]).s:s_sep()
     let idx += 1
   endwhile
   return new_line
@@ -494,14 +504,14 @@ endfunction
 
 
 function! s:fmt_sep(max_lens, aligns, col1, col2) abort
-  let new_line = s:rxSep()
+  let new_line = s:s_sep()
   for idx in range(len(a:max_lens))
     if idx == a:col1
       let idx = a:col2
     elseif idx == a:col2
       let idx = a:col1
     endif
-    let new_line .= s:fmt_cell_sep(a:max_lens[idx], a:aligns[idx]).s:rxSep()
+    let new_line .= s:fmt_cell_sep(a:max_lens[idx], a:aligns[idx]).s:s_sep()
   endfor
   return new_line
 endfunction
@@ -512,10 +522,10 @@ function! s:kbd_create_new_row(cols, goto_first) abort
   let cmd .= "\<ESC>:call vimwiki#tbl#format(line('.'), 2)\<CR>"
   let cmd .= "\<ESC>0"
   if a:goto_first
-    let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'c', line('.'))\<CR>"
+    let cmd .= ":call search('\\(".s:r_sep()."\\)\\zs', 'c', line('.'))\<CR>"
   else
     let cmd .= (col('.')-1).'l'
-    let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'bc', line('.'))\<CR>"
+    let cmd .= ":call search('\\(".s:r_sep()."\\)\\zs', 'bc', line('.'))\<CR>"
   endif
   let cmd .= 'a'
 
@@ -525,8 +535,8 @@ endfunction
 
 function! s:kbd_goto_next_row() abort
   let cmd = "\<ESC>j"
-  let cmd .= ":call search('.\\(".s:rxSep()."\\)', 'c', line('.'))\<CR>"
-  let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'bc', line('.'))\<CR>"
+  let cmd .= ":call search('.\\(".s:r_sep()."\\)', 'c', line('.'))\<CR>"
+  let cmd .= ":call search('\\(".s:r_sep()."\\)\\zs', 'bc', line('.'))\<CR>"
   let cmd .= 'a'
   return cmd
 endfunction
@@ -534,8 +544,8 @@ endfunction
 
 function! s:kbd_goto_prev_row() abort
   let cmd = "\<ESC>k"
-  let cmd .= ":call search('.\\(".s:rxSep()."\\)', 'c', line('.'))\<CR>"
-  let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'bc', line('.'))\<CR>"
+  let cmd .= ":call search('.\\(".s:r_sep()."\\)', 'c', line('.'))\<CR>"
+  let cmd .= ":call search('\\(".s:r_sep()."\\)\\zs', 'bc', line('.'))\<CR>"
   let cmd .= 'a'
   return cmd
 endfunction
@@ -614,7 +624,7 @@ function! s:kbd_goto_prev_col(jumpup) abort
     let cmd .= '$'
   endif
   let cmd .= ":call vimwiki#tbl#goto_prev_col()\<CR>a"
-  " let cmd .= ":call search('\\(".s:rxSep()."\\)\\zs', 'b', line('.'))\<CR>"
+  " let cmd .= ":call search('\\(".s:r_sep()."\\)\\zs', 'b', line('.'))\<CR>"
   " let cmd .= "a"
   return cmd
 endfunction
@@ -774,7 +784,7 @@ function! vimwiki#tbl#move_column_left() abort
   call vimwiki#tbl#format(line('.'), cur_col-1, cur_col)
   call cursor(line('.'), 1)
 
-  let sep = '\('.s:rxSep().'\).\zs'
+  let sep = '\('.s:r_sep().'\).\zs'
   let mpos = -1
   let col = -1
   while col < cur_col-1
@@ -807,7 +817,7 @@ function! vimwiki#tbl#move_column_right() abort
   call cursor(line('.'), 1)
 
   " Change add one to all col
-  let sep = '\('.s:rxSep().'\).\zs'
+  let sep = '\('.s:r_sep().'\).\zs'
   let mpos = -1
   let col = -1
   while col < cur_col+1
