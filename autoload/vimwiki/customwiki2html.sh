@@ -13,14 +13,14 @@
 #
 #   http://www.pell.portland.or.us/~orc/Code/discount/
 #
-# To verify your installation, check that the commands markdown and mkd2text,
+# To verify your installation, check that the commands markdown and mkd2html,
 # are on your path.
 #
 # Also verify that this file is executable.
 #
 # Then, in your .vimrc file, set:
 #
-#   g:vimwiki_customwiki2html=$HOME.'/.vim/autoload/vimwiki/customwiki2html.sh'
+#   g:vimwiki_custom_wiki2html=$HOME.'/.vim/autoload/vimwiki/customwiki2html.sh'
 #
 # On your next restart, Vimwiki will run this script instead of using the
 # internal wiki2html converter.
