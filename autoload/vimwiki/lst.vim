@@ -328,8 +328,9 @@ endfunction
 function! s:is_closed(item) abort
   " Returns: Whether or not the checkbox of a list item is [X] or [-]
   let state = a:item.cb
-  return state ==# vimwiki#vars#get_wikilocal('listsyms_list')[-1]
-        \ || state ==# vimwiki#vars#get_global('listsym_rejected')
+  let completed_sym = flattennew([vimwiki#vars#get_wikilocal('listsyms_list')[-1]] + [vimwiki#vars#get_global('listsym_rejected')])
+
+  return index(completed_sym, state) != -1
 endfunction
 
 " ---------------------------------------------------------
@@ -772,8 +773,10 @@ function! s:get_rate(item) abort
   if state == vimwiki#vars#get_global('listsym_rejected')
     return -1
   endif
-  let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
-  return index(vimwiki#vars#get_wikilocal('listsyms_list'), state) * 100/(n-1)
+  let listsyms = map(deepcopy(vimwiki#vars#get_wikilocal('listsyms')), {_, val -> type(val) == type([]) ? index(val, state) > 0 : val == state })
+  let n = len(listsyms)
+
+  return index(listsyms, 1) * 100/(n-1)
 endfunction
 
 
@@ -865,6 +868,11 @@ function! s:rate_to_state(rate) abort
     let index = float2nr(ceil(a:rate/100.0*(n-2)))
     let state = listsyms_list[index]
   endif
+
+  if type(state) == type([])
+    let state = state[-1]
+  endif
+
   return state
 endfunction
 
