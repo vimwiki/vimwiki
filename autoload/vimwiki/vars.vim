@@ -167,7 +167,7 @@ function! s:get_default_global() abort
         \   }},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
-        \ 'listsyms': {'type': type([]), 'default': [' ', '.', 'o', 'X'], 'min_length': 2},
+        \ 'listsyms': {'type': type([]), 'default': [' ', '.', 'o', 'O', 'X'], 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
