@@ -780,10 +780,29 @@ function! s:get_rate(item) abort
   if state == vimwiki#vars#get_global('listsym_rejected')
     return -1
   endif
-  let listsyms = map(deepcopy(vimwiki#vars#get_wikilocal('listsyms')), {_, val -> type(val) == type([]) ? index(val, state) > 0 : val == state })
+  let listsyms = vimwiki#vars#get_wikilocal('listsyms')
+
+  let found = -1
+  let idx = 0
+  for item in listsyms
+    if type(item) == type([])
+      if index(item, state) >= 0
+        let found = idx
+        break
+      endif
+    else
+      if item == state
+        let found = idx
+        break
+      endif
+    endif
+
+    let idx = idx + 1
+  endfor
+
   let n = len(listsyms)
 
-  return index(listsyms, 1) * 100/(n-1)
+  return found * 100/(n-1)
 endfunction
 
 
