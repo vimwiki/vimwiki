@@ -1086,7 +1086,15 @@ function! s:populate_list_vars(wiki) abort
     let lastListSymReg = a:wiki.listsyms_list[-1]
   endif
 
-  let flattenedListSyms = flattennew(a:wiki.listsyms)
+  let flattenedListSyms = []
+
+  for sym in a:wiki.listsyms
+    if type(sym) == type([])
+      let flattenedListSyms = flattenedListSyms + sym
+    else
+      let flattenedListSyms = flattenedListSyms + [sym]
+    endif
+  endfor
 
   let a:wiki.rxListItemWithoutCB =
         \ '^\s*\%(\('.rxListBullet.'\)\|\('

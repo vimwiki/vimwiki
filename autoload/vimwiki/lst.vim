@@ -328,9 +328,16 @@ endfunction
 function! s:is_closed(item) abort
   " Returns: Whether or not the checkbox of a list item is [X] or [-]
   let state = a:item.cb
-  let completed_sym = flattennew([vimwiki#vars#get_wikilocal('listsyms_list')[-1]] + [vimwiki#vars#get_global('listsym_rejected')])
+  let completed_syms = vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+  let closed_syms = []
 
-  return index(completed_sym, state) != -1
+  if type(completed_syms) == type([])
+    let closed_syms =  completed_syms + [vimwiki#vars#get_global('listsym_rejected')]
+  else
+    let closed_syms =  [completed_syms, vimwiki#vars#get_global('listsym_rejected')]
+  endif
+
+  return index(closed_syms, state) != -1
 endfunction
 
 " ---------------------------------------------------------
@@ -810,6 +817,7 @@ function! s:set_state_plus_children(item, new_rate, ...) abort
 
   let all_children_are_done = 1
   let all_children_are_rejected = 1
+  let completed_syms = vimwiki#vars#get_wikilocal('listsyms_list')[-1]
 
   let child_item = s:get_first_child(a:item)
   while 1
