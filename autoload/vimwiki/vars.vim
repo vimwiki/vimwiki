@@ -167,7 +167,7 @@ function! s:get_default_global() abort
         \   }},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
-        \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
+        \ 'listsyms': {'type': type([]), 'default': [' ', '.', 'o', 'O', 'X'], 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
         \ 'markdown_header_style': {'type': type(0), 'default': 1, 'min':0, 'max': 2},
@@ -514,7 +514,7 @@ function! s:get_default_wikilocal() abort
         \ 'list_ignore_newline': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'list_margin': {'type': type(0), 'default': -1, 'min': -1},
         \ 'listsym_rejected': {'type': type(''), 'default': vimwiki#vars#get_global('listsym_rejected')},
-        \ 'listsyms': {'type': type(''), 'default': vimwiki#vars#get_global('listsyms')},
+        \ 'listsyms': {'type': type([]), 'default': vimwiki#vars#get_global('listsyms')},
         \ 'listsyms_propagate': {'type': type(0), 'default': 1},
         \ 'markdown_link_ext': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'maxhi': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
@@ -1071,34 +1071,49 @@ function! s:populate_list_vars(wiki) abort
     let rxListBullet = '$^'
   endif
 
-  " the user can set the listsyms as string, but vimwiki needs a list
-  let a:wiki.listsyms_list = split(a:wiki.listsyms, '\zs')
+  let a:wiki.listsyms_list = a:wiki.listsyms
 
   " Guard: Check if listym_rejected is in listsyms
-  if match(a:wiki.listsyms, '[' . a:wiki.listsym_rejected . ']') != -1
+  if index(a:wiki.listsyms, a:wiki.listsym_rejected) != -1
     call vimwiki#u#warn('the value of listsym_rejected ('''
           \ . a:wiki.listsym_rejected . ''') must not be a part of listsyms ('''
-          \ . a:wiki.listsyms . ''')')
+          \ . join(a:wiki.listsyms, '') . ''')')
   endif
+
+  if type(a:wiki.listsyms_list[-1]) == type([])
+    let lastListSymReg = '\[' . join(a:wiki.listsyms_list[-1], '\|') . '\]'
+  else
+    let lastListSymReg = a:wiki.listsyms_list[-1]
+  endif
+
+  let flattenedListSyms = []
+
+  for sym in a:wiki.listsyms
+    if type(sym) == type([])
+      let flattenedListSyms = flattenedListSyms + sym
+    else
+      let flattenedListSyms = flattenedListSyms + [sym]
+    endif
+  endfor
 
   let a:wiki.rxListItemWithoutCB =
         \ '^\s*\%(\('.rxListBullet.'\)\|\('
         \ .rxListNumber.'\)\)\s'
   let a:wiki.rxListItem =
         \ a:wiki.rxListItemWithoutCB
-        \ . '\+\%(\[\(['.a:wiki.listsyms
+        \ . '\+\%(\[\(['.join(flattenedListSyms, '\|')
         \ . a:wiki.listsym_rejected.']\)\]\s\)\?'
   if recurring_bullets
     let a:wiki.rxListItemAndChildren =
           \ '^\('.rxListBullet.'\)\s\+\[['
-          \ . a:wiki.listsyms_list[-1]
+          \ . lastListSymReg
           \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\%('
           \ .rxListBullet.'\).*\|^$\|\s.*\)\)*'
   else
     let a:wiki.rxListItemAndChildren =
           \ '^\(\s*\)\%('.rxListBullet.'\|'
           \ . rxListNumber.'\)\s\+\[['
-          \ . a:wiki.listsyms_list[-1]
+          \ . lastListSymReg
           \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
 endfunction

@@ -144,7 +144,11 @@ for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
   " task list
   for point in vimwiki#vars#get_wikilocal('listsyms_list')
         \ + [vimwiki#vars#get_wikilocal('listsym_rejected')]
-    let comments .= ',fb:' . bullet . ' [' . point . ']'
+    if type(point) == type([])
+      let comments .= ',fb:' . bullet . ' [' . join(point, '') . ']'
+    else
+      let comments .= ',fb:' . bullet . ' [' . point . ']'
+    endif
   endfor
   " list
   let comments .= ',fb:' . bullet

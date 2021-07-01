@@ -328,8 +328,16 @@ endfunction
 function! s:is_closed(item) abort
   " Returns: Whether or not the checkbox of a list item is [X] or [-]
   let state = a:item.cb
-  return state ==# vimwiki#vars#get_wikilocal('listsyms_list')[-1]
-        \ || state ==# vimwiki#vars#get_global('listsym_rejected')
+  let completed_syms = vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+  let closed_syms = []
+
+  if type(completed_syms) == type([])
+    let closed_syms =  completed_syms + [vimwiki#vars#get_global('listsym_rejected')]
+  else
+    let closed_syms =  [completed_syms, vimwiki#vars#get_global('listsym_rejected')]
+  endif
+
+  return index(closed_syms, state) != -1
 endfunction
 
 " ---------------------------------------------------------
@@ -772,8 +780,29 @@ function! s:get_rate(item) abort
   if state == vimwiki#vars#get_global('listsym_rejected')
     return -1
   endif
-  let n = len(vimwiki#vars#get_wikilocal('listsyms_list'))
-  return index(vimwiki#vars#get_wikilocal('listsyms_list'), state) * 100/(n-1)
+  let listsyms = vimwiki#vars#get_wikilocal('listsyms')
+
+  let found = -1
+  let idx = 0
+  for item in listsyms
+    if type(item) == type([])
+      if index(item, state) >= 0
+        let found = idx
+        break
+      endif
+    else
+      if item == state
+        let found = idx
+        break
+      endif
+    endif
+
+    let idx = idx + 1
+  endfor
+
+  let n = len(listsyms)
+
+  return found * 100/(n-1)
 endfunction
 
 
@@ -807,6 +836,7 @@ function! s:set_state_plus_children(item, new_rate, ...) abort
 
   let all_children_are_done = 1
   let all_children_are_rejected = 1
+  let completed_syms = vimwiki#vars#get_wikilocal('listsyms_list')[-1]
 
   let child_item = s:get_first_child(a:item)
   while 1
@@ -816,7 +846,10 @@ function! s:set_state_plus_children(item, new_rate, ...) abort
     if child_item.cb != vimwiki#vars#get_global('listsym_rejected')
       let all_children_are_rejected = 0
     endif
-    if child_item.cb != vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+
+    let is_child_item_completed = type(completed_syms) == type([]) ? index(completed_syms, child_item.cb) >= 0 : child_item.cb == completed_syms
+
+    if !is_child_item_completed
       let all_children_are_done = 0
     endif
     if !all_children_are_done && !all_children_are_rejected
@@ -865,6 +898,11 @@ function! s:rate_to_state(rate) abort
     let index = float2nr(ceil(a:rate/100.0*(n-2)))
     let state = listsyms_list[index]
   endif
+
+  if type(state) == type([])
+    let state = state[-1]
+  endif
+
   return state
 endfunction
 
