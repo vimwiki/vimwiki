@@ -1521,6 +1521,12 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     " them right back.
     let foldenable_save = &l:foldenable
     setlocal nofoldenable
+    
+    " don't update file if there are no changes
+    if (join(getline(start_lnum + 2, end_lnum - 1), "") == join(a:Generator.f(), ""))
+      return
+    endif
+
     silent exe 'keepjumps ' . start_lnum.','.string(end_lnum - 1).'delete _'
     let &l:foldenable = foldenable_save
     let lines_diff = 0 - (end_lnum - start_lnum)
