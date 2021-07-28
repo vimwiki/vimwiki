@@ -369,6 +369,7 @@ command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ call vimwiki#tags#generate_tags(1, <f-args>)
 
 command! -buffer VimwikiPasteUrl call vimwiki#html#PasteUrl(expand('%:p'))
+command! -buffer VimwikiPasteLink call vimwiki#path#PasteLink(expand('%:p'))
 command! -buffer VimwikiCatUrl call vimwiki#html#CatUrl(expand('%:p'))
 command! -buffer -nargs=* -range -complete=custom,vimwiki#base#complete_colorize
       \ VimwikiColorize <line1>,<line2>call vimwiki#base#colorize(<f-args>)

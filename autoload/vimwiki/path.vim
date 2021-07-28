@@ -221,6 +221,17 @@ function! vimwiki#path#is_absolute(path) abort
 endfunction
 
 
+
+function! s:get_wikifile_link(wikifile) abort
+  return vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), a:wikifile).
+    \ fnamemodify(a:wikifile, ':t:r')
+endfunction
+
+function! vimwiki#path#PasteLink(wikifile) abort
+  execute 'r !echo "[[/'.s:get_wikifile_link(a:wikifile).']]"'
+endfunction
+
+
 if vimwiki#u#is_windows()
   " Combine: a directory and a file into one path, doesn't generate duplicate
   " path separator in case the directory is also having an ending / or \. This

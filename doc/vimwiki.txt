@@ -974,6 +974,14 @@ Vimwiki file.
     colors are configured by |vimwiki-option-color_dic| and the format of the
     surrounding color tags by |vimwiki-option-color_tag_template|
 
+*:VimwikiPasteLink*
+    Pastes an absolute wiki link (relative to the wiki root) to the current
+    wiki file into the current buffer
+
+*:VimwikiPasteUrl*
+    Pastes the url to the html file corresponding to the current wiki file
+    into the current buffer
+
 
 ==============================================================================
 5. Wiki syntax                                                *vimwiki-syntax*
@@ -3914,6 +3922,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Brennen Bearnes
     - Stefan Schuhbäck (@stefanSchuhbaeck)
     - Vinny Furia (@vinnyfuria)
+    - paperbenni (@paperbenni)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3970,6 +3979,8 @@ New:~
     * PR #934: RSS feed generation for diary with :VimwikiRss.
     * Feature: Add option |vimwiki-option-template_date_format| to configure
       alternative date string format
+    * Feature: Add |VimwikiPasteLink| to paste an absolute wiki link to the
+      current file
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
