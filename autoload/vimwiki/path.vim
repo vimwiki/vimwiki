@@ -228,7 +228,7 @@ function! s:get_wikifile_link(wikifile) abort
 endfunction
 
 function! vimwiki#path#PasteLink(wikifile) abort
-  execute 'r !echo "[[/'.s:get_wikifile_link(a:wikifile).']]"'
+  call append(line('.'), '[[/'.s:get_wikifile_link(a:wikifile).']]')
 endfunction
 
 
