@@ -3923,6 +3923,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Stefan Schuhbäck (@stefanSchuhbaeck)
     - Vinny Furia (@vinnyfuria)
     - paperbenni (@paperbenni)
+    - Lily Foster (@lilyinstarlight)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -4024,6 +4025,7 @@ Fixed:~
     * PR #1030: Allow overwriting insert mode mappings
     * PR #1057: Fix renaming, updating link, and exporting HTML subdir wrong
       Fix resolve subdir return wrong path in Windows
+    * Issue #763: Links opening in qutebrowser multiple times on Linux
 
 
 2.5 (2020-05-26)~
