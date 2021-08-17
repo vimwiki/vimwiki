@@ -345,6 +345,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 
     let lines = []
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
+    let current_dir = vimwiki#base#current_subdir()
     for tagname in sort(keys(tags_entries))
       if need_all_tags || index(self.specific_tags, tagname) != -1
         if len(lines) > 0
@@ -361,6 +362,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
         endif
 
         for taglink in sort(tags_entries[tagname])
+          let taglink = vimwiki#path#relpath(current_dir, taglink)
           if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
             let link_infos = vimwiki#base#resolve_link(taglink)
