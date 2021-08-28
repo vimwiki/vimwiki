@@ -251,9 +251,12 @@ See [g:vimwiki_global_ext](https://github.com/vimwiki/vimwiki/blob/619f04f89861c
 [GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary
 method for raising bug reports or feature requests.
 
-Additional resources include the IRC channel [#vimwiki](https://webchat.freenode.net/?channels=#vimwiki) on Freenode
-([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#freenode_#vimwiki:matrix.org` and [Telegram](https://t.me/joinchat/JqBaKBfWs04qNVrp5oWcMg))
-or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
+Additional resources:
+
+  - The IRC channel [#vimwiki](irc:irc.libera.chat:6697/vimwiki) on irc.libera.chat
+    - [Connect via webchat](https://web.libera.chat/?channels=#vimwiki)
+    - Connect via Matrix/Element: [#vimwiki:libera.chat](https://matrix.to/#/#vimwiki:libera.chat)
+  - Post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
 
 ## Helping VimWiki
 
