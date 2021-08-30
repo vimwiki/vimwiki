@@ -253,7 +253,7 @@ method for raising bug reports or feature requests.
 
 Additional resources:
 
-  - The IRC channel [#vimwiki](irc:irc.libera.chat:6697/vimwiki) on irc.libera.chat
+  - The IRC channel [#vimwiki](ircs://irc.libera.chat:6697/vimwiki) on irc.libera.chat
     - [Connect via webchat](https://web.libera.chat/?channels=#vimwiki)
     - Connect via Matrix/Element: [#vimwiki:libera.chat](https://matrix.to/#/#vimwiki:libera.chat)
   - Post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
