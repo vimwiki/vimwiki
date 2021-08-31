@@ -103,7 +103,7 @@ Try this now by selecting 'Project Gutenberg' in visual mode and hitting
 
 By continuing this way and creating sub pages with links to even more sub
 pages, you can create an unlimited number of neatly structured, interconnected
-documents to help you organize your notes, documenation, and tasks.
+documents to help you organize your notes, documentation, and tasks.
 
 ==============================================================================
 2. Prerequisites                                       *vimwiki-prerequisites*
