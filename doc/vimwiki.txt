@@ -3782,8 +3782,8 @@ is only necessary to provide the values to change. For Example, to use a:
 For questions, discussions, praise or rants there is a mailing list:
 https://groups.google.com/forum/#!forum/vimwiki
 
-Also, there is the IRC channel #vimwiki on Freenode which can be accessed via
-webchat: https://webchat.freenode.net/?channels=#vimwiki
+Also, there is the IRC channel #vimwiki on irc.libera.chat which can be
+accessed via webchat: https://web.libera.chat/?channels=#vimwiki
 
 ==============================================================================
 14. Contributing & Bug reports                          *vimwiki-contributing*
