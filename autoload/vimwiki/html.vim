@@ -1879,7 +1879,7 @@ function! s:convert_file(path_html, wikifile) abort
     endif
     call vimwiki#path#mkdir(path_html)
 
-    if g:vimwiki_global_vars['listing_hl'] > 0
+    if g:vimwiki_global_vars['listing_hl'] > 0 && has("unix")
       let i = 0
       while i < len(html_lines)
         if html_lines[i] =~ '^<pre .*type=.\+>'
