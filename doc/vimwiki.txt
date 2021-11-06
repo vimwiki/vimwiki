@@ -359,6 +359,13 @@ MAP                MODE
                         Maps to |:VimwikiVSplitLink|.
                         Remap command: `<Plug>VimwikiVSplitLink`
 
+                                                              *vimwiki_<M-CR>*
+<M-CR>             n    Add to the buffer list, without loading, if it wasn't
+                        listed yet (create target wiki page if needed). May
+                        not work in some terminals. Remapping could help.
+                        Maps to |:VimwikiBaddLink|.
+                        Remap command: `<Plug>VimwikiBaddLink`
+
                                         *vimwiki_<C-S-CR>*    *vimwiki_<D-CR>*
 <C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
                         opening in a new tab.
@@ -795,6 +802,10 @@ Vimwiki file.
 
     If 'move_cursor' is given and nonzero, the cursor moves to the window with
     the opened link, otherwise, it stays in the window with the link.
+
+*:VimwikiBaddLink*
+    Add to the buffer list, without loading, if it wasn't listed yet (create
+    target wiki page if needed).
 
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
@@ -3924,6 +3935,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Vinny Furia (@vinnyfuria)
     - paperbenni (@paperbenni)
     - Lily Foster (@lilyinstarlight)
+    - Jean-Luc Bastarache (@jlbas)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3982,6 +3994,8 @@ New:~
       alternative date string format
     * Feature: Add |VimwikiPasteLink| to paste an absolute wiki link to the
       current file
+    * Feature: Add |VimwikiBaddLink| to add links to the buffer list, without
+      loading, if they weren't listed yet
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem

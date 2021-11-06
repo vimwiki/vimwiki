@@ -306,6 +306,7 @@ command! -buffer VimwikiFollowLink call vimwiki#base#follow_link('nosplit', 0, 1
 command! -buffer VimwikiGoBackLink call vimwiki#base#go_back_link()
 command! -buffer -nargs=* VimwikiSplitLink call vimwiki#base#follow_link('hsplit', <f-args>)
 command! -buffer -nargs=* VimwikiVSplitLink call vimwiki#base#follow_link('vsplit', <f-args>)
+command! -buffer VimwikiBaddLink call vimwiki#base#follow_link('badd', 0, 1)
 
 command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(<f-args>)
 
@@ -386,6 +387,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').mouse)
         \ :call vimwiki#base#follow_link('nosplit', 0, 1, "\<lt>2-LeftMouse>")<CR>
   nnoremap <silent><buffer> <S-2-LeftMouse> <LeftMouse>:VimwikiSplitLink<CR>
   nnoremap <silent><buffer> <C-2-LeftMouse> <LeftMouse>:VimwikiVSplitLink<CR>
+  nnoremap <silent><buffer> <MiddleMouse> <LeftMouse>:VimwikiBaddLink<CR>
   nnoremap <silent><buffer> <RightMouse><LeftMouse> :VimwikiGoBackLink<CR>
 endif
 
@@ -406,6 +408,8 @@ nnoremap <silent><script><buffer> <Plug>VimwikiSplitLink
     \ :VimwikiSplitLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiVSplitLink
     \ :VimwikiVSplitLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiBaddLink
+    \ :VimwikiBaddLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLink
     \ :VimwikiNormalizeLink 0<CR>
 vnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLinkVisual
@@ -440,6 +444,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '<CR>', '<Plug>VimwikiFollowLink')
   call vimwiki#u#map_key('n', '<S-CR>', '<Plug>VimwikiSplitLink')
   call vimwiki#u#map_key('n', '<C-CR>', '<Plug>VimwikiVSplitLink')
+  call vimwiki#u#map_key('n', '<M-CR>', '<Plug>VimwikiBaddLink')
   call vimwiki#u#map_key('n', '+', '<Plug>VimwikiNormalizeLink')
   call vimwiki#u#map_key('v', '+', '<Plug>VimwikiNormalizeLinkVisual')
   call vimwiki#u#map_key('v', '<CR>', '<Plug>VimwikiNormalizeLinkVisualCR')
