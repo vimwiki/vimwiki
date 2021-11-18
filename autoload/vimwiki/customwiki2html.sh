@@ -40,7 +40,7 @@ CSSFILE="$6"
 
 [[ "$SYNTAX" == "markdown" ]] || { echo "Error: Unsupported syntax"; exit 2; };
 
-OUTPUT="$OUTPUTDIR/$(basename "$INPUT" . "$EXTENSION").html"
+OUTPUT="$OUTPUTDIR/$(basename "$INPUT" ."$EXTENSION").html"
 
 # # Method 1:
 # FORCEFLAG=
