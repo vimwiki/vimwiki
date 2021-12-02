@@ -2376,8 +2376,6 @@ function! vimwiki#base#search(search_pattern) abort
   " If has Ripgrep
   if executable("rg")
     let cmd  = 'rg --vimgrep --type-not sql --smart-case '.pattern
-    echomsg 'cmd'
-    echomsg cmd
   endif
 
   " Catch E480 error from lvimgrep if there's no match and present
