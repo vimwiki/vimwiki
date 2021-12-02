@@ -2364,17 +2364,30 @@ function! vimwiki#base#search(search_pattern) abort
   " If the pattern does not start with a '/', then we'll assume that a
   " literal search is intended and enclose and escape it:
   if match(pattern, '^/') == -1
-    let pattern = '/'.escape(pattern, '\').'/'
+    if !executable("rg")
+      let pattern = '/'.escape(pattern, '\').'/'
+    endif
   endif
 
   let path = fnameescape(vimwiki#vars#get_wikilocal('path'))
   let ext  = vimwiki#vars#get_wikilocal('ext')
   let cmd  = 'lvimgrep '.pattern.' '.path.'**/*'.ext
 
+  " If has Ripgrep
+  if executable("rg")
+    let cmd  = 'rg --vimgrep --type-not sql --smart-case '.pattern
+    echomsg 'cmd'
+    echomsg cmd
+  endif
+
   " Catch E480 error from lvimgrep if there's no match and present
   " a friendlier error message.
   try
-    execute cmd
+     if executable("rg")
+      lexpr system(cmd)
+     else
+      execute cmd
+    endif
   catch
     echomsg 'VimwikiSearch: No match found.'
   endtry
