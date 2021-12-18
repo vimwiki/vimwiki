@@ -816,7 +816,7 @@ endfunction
 function! s:get_common_syntaxlocal() abort
   let res = {}
   let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
-  let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'}
+  let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUnderline,VimwikiDelText'}
   let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
   let res.rxTableSep = {'type': type(''), 'default': '|'}
   return res
