@@ -1660,6 +1660,8 @@ function! vimwiki#base#follow_link(split, ...) abort
       let cmd = ':split '
     elseif a:split ==# 'vsplit'
       let cmd = ':vsplit '
+    elseif a:split ==# 'badd'
+      let cmd = ':badd '
     elseif a:split ==# 'tab'
       let cmd = ':tabnew '
     else
