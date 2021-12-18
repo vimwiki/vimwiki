@@ -103,7 +103,7 @@ Try this now by selecting 'Project Gutenberg' in visual mode and hitting
 
 By continuing this way and creating sub pages with links to even more sub
 pages, you can create an unlimited number of neatly structured, interconnected
-documents to help you organize your notes, documenation, and tasks.
+documents to help you organize your notes, documentation, and tasks.
 
 ==============================================================================
 2. Prerequisites                                       *vimwiki-prerequisites*
@@ -358,6 +358,13 @@ MAP                MODE
                         could help.
                         Maps to |:VimwikiVSplitLink|.
                         Remap command: `<Plug>VimwikiVSplitLink`
+
+                                                              *vimwiki_<M-CR>*
+<M-CR>             n    Add to the buffer list, without loading, if it wasn't
+                        listed yet (create target wiki page if needed). May
+                        not work in some terminals. Remapping could help.
+                        Maps to |:VimwikiBaddLink|.
+                        Remap command: `<Plug>VimwikiBaddLink`
 
                                         *vimwiki_<C-S-CR>*    *vimwiki_<D-CR>*
 <C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
@@ -795,6 +802,10 @@ Vimwiki file.
 
     If 'move_cursor' is given and nonzero, the cursor moves to the window with
     the opened link, otherwise, it stays in the window with the link.
+
+*:VimwikiBaddLink*
+    Add to the buffer list, without loading, if it wasn't listed yet (create
+    target wiki page if needed).
 
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
@@ -3573,6 +3584,40 @@ The default is 1.
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_listing_hl*
+
+When set to 1, enables syntax highlighting in resulting HTML. Whenever a code
+block is encountered the *g:vimwiki_listing_hl_command* is invoked on the
+code block.
+
+
+Value           Description~
+0               Do not highlight code blocks in HTML.
+1               Highlight code blocks in HTML. see *g:vimwiki_listing_hl_command*
+
+Default: 0
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_listing_hl_command*
+
+A string specifying the command for highlighting code blocks in html. The
+argument is going to be a file with an extension specified by a
+type=extension. For example, a python listing would be written like s: >
+  {{{type=py
+  print("hello world")
+  }}}
+The argument in this case is going to be a `foo.py`. The result of the
+highlighting command is going to be enclosed in pre tags with the `type`
+attribute. >
+  <pre type=py>
+  %output of highlight command&
+  </pre>
+
+The default is 'pygmentize -f html'.
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_tags_header*
 
 A string with the magic header that tells Vimwiki where the generated tags
@@ -3782,8 +3827,8 @@ is only necessary to provide the values to change. For Example, to use a:
 For questions, discussions, praise or rants there is a mailing list:
 https://groups.google.com/forum/#!forum/vimwiki
 
-Also, there is the IRC channel #vimwiki on Freenode which can be accessed via
-webchat: https://webchat.freenode.net/?channels=#vimwiki
+Also, there is the IRC channel #vimwiki on irc.libera.chat which can be
+accessed via webchat: https://web.libera.chat/?channels=#vimwiki
 
 ==============================================================================
 14. Contributing & Bug reports                          *vimwiki-contributing*
@@ -3924,6 +3969,10 @@ Contributors and their Github usernames in roughly chronological order:
     - Vinny Furia (@vinnyfuria)
     - paperbenni (@paperbenni)
     - Philipp Oberdiek (@RonMcKay)
+    - Lily Foster (@lilyinstarlight)
+    - Jean-Luc Bastarache (@jlbas)
+    - Youssof Taha (@ysftaha)
+    - Thomas Leyh (@leyhline)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3935,6 +3984,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
     * Issue #281: Permit `\|` in tables
     * PR #1128: VimwikiGoto: Support wiki pages with spaces
@@ -3982,6 +4032,8 @@ New:~
       alternative date string format
     * Feature: Add |VimwikiPasteLink| to paste an absolute wiki link to the
       current file
+    * Feature: Add |VimwikiBaddLink| to add links to the buffer list, without
+      loading, if they weren't listed yet
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
@@ -3994,6 +4046,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #1193: Fix wildcard expansion in |find_autoload_file|
     * PR #1108: Fix resolution of leading-slash page links, add link tests
     * Allow title values with quotes
     * Enable strikethrough for Neovim
@@ -4026,6 +4079,7 @@ Fixed:~
     * PR #1057: Fix renaming, updating link, and exporting HTML subdir wrong
       Fix resolve subdir return wrong path in Windows
     * Issue #794: Fix: Generated tag links are build wrong
+    * Issue #763: Links opening in qutebrowser multiple times on Linux
 
 
 2.5 (2020-05-26)~

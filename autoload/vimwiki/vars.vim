@@ -167,6 +167,8 @@ function! s:get_default_global() abort
         \   }},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'listing_hl': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'listing_hl_command': {'type': type(''), 'default': 'pygmentize -f html'},
         \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
@@ -814,7 +816,7 @@ endfunction
 function! s:get_common_syntaxlocal() abort
   let res = {}
   let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
-  let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUmderline,VimwikiDelText'}
+  let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUnderline,VimwikiDelText'}
   let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
   let res.rxTableSep = {'type': type(''), 'default': '|'}
   return res
