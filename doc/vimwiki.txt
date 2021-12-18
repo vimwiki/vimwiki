@@ -3968,6 +3968,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Stefan Schuhbäck (@stefanSchuhbaeck)
     - Vinny Furia (@vinnyfuria)
     - paperbenni (@paperbenni)
+    - Philipp Oberdiek (@RonMcKay)
     - Lily Foster (@lilyinstarlight)
     - Jean-Luc Bastarache (@jlbas)
     - Youssof Taha (@ysftaha)
@@ -4077,6 +4078,7 @@ Fixed:~
     * PR #1030: Allow overwriting insert mode mappings
     * PR #1057: Fix renaming, updating link, and exporting HTML subdir wrong
       Fix resolve subdir return wrong path in Windows
+    * Issue #794: Fix: Generated tag links are build wrong
     * Issue #763: Links opening in qutebrowser multiple times on Linux
 
 

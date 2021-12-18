@@ -205,3 +205,77 @@ Execute (Clean Test-Tag and .vimwiki_tags -1 ):
   call DeleteHiddenBuffers()
 
 # vim: sw=2:foldlevel=30:foldmethod=marker:
+
+######################################################################
+Execute (Check first tags file):
+  call system("mkdir -p $HOME/testmarkdown/subdir1/subdir11")
+  edit $HOME/testmarkdown/Test-Tag-1.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-1.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Build first tags file):
+  :edit $HOME/testmarkdown/Test-Tag-1.md\<Cr>
+  ggI
+  # A Header\<Cr>
+  :header-tag-1:\<Cr>
+  \<Cr>
+  # Another Header\<Cr>
+  :header-tag-2:\<Cr>
+  \<Cr>
+  :standalone-tag-1:
+  \<Esc>
+  :write\<Cr>
+  :VimwikiRebuildTags!\<CR>
+
+Execute (Check second tags file):
+  edit $HOME/testmarkdown/subdir1/Test-Tag-2.md
+  AssertEqual $HOME . '/testmarkdown/subdir1/Test-Tag-2.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+Do (Build second tags file):
+  :edit $HOME/testmarkdown/subdir1/Test-Tag-2.md\<Cr>
+  ggI
+  # A Header\<Cr>
+  :header-tag-1:\<Cr>
+  \<Cr>
+  # Another Header\<Cr>
+  :header-tag-2:\<Cr>
+  \<Cr>
+  :standalone-tag-1:
+  \<Esc>
+  :write\<Cr>
+  :VimwikiRebuildTags!\<CR>
+
+Execute (Build tag links in third file):
+  edit $HOME/testmarkdown/subdir1/subdir11/Test-Tag-Links.md
+  AssertEqual $HOME . '/testmarkdown/subdir1/subdir11/Test-Tag-Links.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  VimwikiGenerateTagLinks
+  write
+
+Expect (Tag links relative to current file):
+  
+
+  # Generated Tags
+
+  ## header-tag-1
+  
+  - [a-header](../../Test-Tag-1#a-header)
+  - [a-header](../Test-Tag-2#a-header)
+
+  ## header-tag-2
+
+  - [another-header](../../Test-Tag-1#another-header)
+  - [another-header](../Test-Tag-2#another-header)
+
+  ## standalone-tag-1
+
+  - [standalone-tag-1](../../Test-Tag-1#standalone-tag-1)
+  - [standalone-tag-1](../Test-Tag-2#standalone-tag-1)
+
+Execute (Clean relative tag setup):
+  call system("rm -rf $HOME/testmarkdown/subdir1")
+  call system("rm $HOME/testmarkdown/Test-Tag-1.md")
