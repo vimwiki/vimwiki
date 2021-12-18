@@ -3584,6 +3584,40 @@ The default is 1.
 
 
 ------------------------------------------------------------------------------
+*g:vimwiki_listing_hl*
+
+When set to 1, enables syntax highlighting in resulting HTML. Whenever a code
+block is encountered the *g:vimwiki_listing_hl_command* is invoked on the
+code block.
+
+
+Value           Description~
+0               Do not highlight code blocks in HTML.
+1               Highlight code blocks in HTML. see *g:vimwiki_listing_hl_command*
+
+Default: 0
+
+
+------------------------------------------------------------------------------
+*g:vimwiki_listing_hl_command*
+
+A string specifying the command for highlighting code blocks in html. The
+argument is going to be a file with an extension specified by a
+type=extension. For example, a python listing would be written like s: >
+  {{{type=py
+  print("hello world")
+  }}}
+The argument in this case is going to be a `foo.py`. The result of the
+highlighting command is going to be enclosed in pre tags with the `type`
+attribute. >
+  <pre type=py>
+  %output of highlight command&
+  </pre>
+
+The default is 'pygmentize -f html'.
+
+
+------------------------------------------------------------------------------
 *g:vimwiki_tags_header*
 
 A string with the magic header that tells Vimwiki where the generated tags
@@ -3936,6 +3970,8 @@ Contributors and their Github usernames in roughly chronological order:
     - paperbenni (@paperbenni)
     - Lily Foster (@lilyinstarlight)
     - Jean-Luc Bastarache (@jlbas)
+    - Youssof Taha (@ysftaha)
+    - Thomas Leyh (@leyhline)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3947,6 +3983,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
     * Issue #281: Permit `\|` in tables
     * PR #1128: VimwikiGoto: Support wiki pages with spaces
@@ -4008,6 +4045,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #1193: Fix wildcard expansion in |find_autoload_file|
     * PR #1108: Fix resolution of leading-slash page links, add link tests
     * Allow title values with quotes
     * Enable strikethrough for Neovim
