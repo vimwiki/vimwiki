@@ -1476,12 +1476,12 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
 
   " Clause: Check if the listing is already there
   let already_there = 0
-
+  " -- Craft header regex to search for
   let header_level = 'rxH' . a:header_level . '_Template'
   let header_rx = '\m^\s*'.substitute(vimwiki#vars#get_syntaxlocal(header_level),
         \ '__Header__', a:start_header, '') .'\s*$'
-
   let start_lnum = 1
+  " -- Search fr the header in all file
   while start_lnum <= line('$')
     if getline(start_lnum) =~# header_rx
       let already_there = 1
@@ -1489,7 +1489,6 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     endif
     let start_lnum += 1
   endwhile
-
   if !already_there && !a:create
     return
   endif
@@ -1504,6 +1503,9 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
 
   let is_fold_closed = 1
   let lines_diff = 0
+
+  " Generate listing content
+  let a_list = a:Generator.f()
 
   " Set working range according to listing presence
   if already_there
@@ -1522,8 +1524,8 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     let foldenable_save = &l:foldenable
     setlocal nofoldenable
     
-    " don't update file if there are no changes
-    if (join(getline(start_lnum + 2, end_lnum - 1), "") == join(a:Generator.f(), ""))
+    " Clause: don't update file if there are no changes
+    if (join(getline(start_lnum + 2, end_lnum - 1), '') == join(a_list, ''))
       return
     endif
 
@@ -1558,7 +1560,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
       let lines_diff += 1
     endfor
   endif
-  for string in a:Generator.f()
+  for string in a_list
     keepjumps call append(start_lnum - 1, string)
     let start_lnum += 1
     let lines_diff += 1
