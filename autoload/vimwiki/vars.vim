@@ -167,6 +167,8 @@ function! s:get_default_global() abort
         \   }},
         \ 'links_header': {'type': type(''), 'default': 'Generated Links', 'min_length': 1},
         \ 'links_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'listing_hl': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
+        \ 'listing_hl_command': {'type': type(''), 'default': 'pygmentize -f html'},
         \ 'listsyms': {'type': type(''), 'default': ' .oOX', 'min_length': 2},
         \ 'listsym_rejected': {'type': type(''), 'default': '-', 'length': 1},
         \ 'map_prefix': {'type': type(''), 'default': '<Leader>w'},
