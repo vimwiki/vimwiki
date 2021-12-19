@@ -325,8 +325,33 @@ function! vimwiki#tags#generate_tags(create, ...) abort
   " Similar to vimwiki#base#generate_links.  In the current buffer, appends
   " tags and references to all their instances.  If no arguments (tags) are
   " specified, outputs all tags.
-  let specific_tags = a:000
   let header_level = vimwiki#vars#get_global('tags_header_level')
+  let tags_header_text = vimwiki#vars#get_global('tags_header')
+
+  " If tag headers should only be updated, search for already present tag headers
+  if !a:create
+    let headers = vimwiki#base#collect_headers()
+    let specific_tags = []
+    let inside_tag_headers = 0
+    for header in headers
+      " If we ran out of the headers containing the tags, stop
+      if inside_tag_headers && header[1] <= header_level
+        break
+      endif
+
+      " All headers in the tag headers section correspond to tag names. Collect all of them in a list.
+      if inside_tag_headers
+        call add(specific_tags, header[2])
+      endif
+
+      " If we found the start of the tag headers section, remember that the following headers are now inside of it
+      if header[1] == header_level && header[2] ==# tags_header_text
+        let inside_tag_headers = 1
+      endif
+    endfor
+  else
+    let specific_tags = a:000
+  endif
 
   " use a dictionary function for closure like capability
   " copy all local variables into dict (add a: if arguments are needed)
@@ -407,7 +432,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorTags,
-        \ vimwiki#vars#get_global('tags_header'),
+        \ tags_header_text,
         \ links_rx,
         \ line('$')+1,
         \ header_level,
