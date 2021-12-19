@@ -276,6 +276,30 @@ Expect (Tag links relative to current file):
   - [standalone-tag-1](../../Test-Tag-1#standalone-tag-1)
   - [standalone-tag-1](../Test-Tag-2#standalone-tag-1)
 
+Do (Delete some existing links to test updating generated tag links):
+  :edit $HOME/testmarkdown/subdir1/subdir11/Test-Tag-Links.md\<Cr>
+  7G
+  dd
+  12G
+  6dd
+  :write\<Cr>
+  :call vimwiki#tags#generate_tags(0)\<Cr>
+
+Expect (Only update generated tag links for tags already existing in the file):
+  
+
+  # Generated Tags
+
+  ## header-tag-1
+  
+  - [A Header](../../Test-Tag-1#a-header)
+  - [A Header](../Test-Tag-2#a-header)
+
+  ## header-tag-2
+
+  - [Another Header](../../Test-Tag-1#another-header)
+  - [Another Header](../Test-Tag-2#another-header)
+
 Execute (Clean relative tag setup):
   call system("rm -rf $HOME/testmarkdown/subdir1")
   call system("rm $HOME/testmarkdown/Test-Tag-1.md")
