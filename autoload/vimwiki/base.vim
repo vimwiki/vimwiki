@@ -1968,7 +1968,7 @@ endfunction
 
 function! vimwiki#base#TO_header(inner, including_subheaders, count) abort
   " Jump to next header (Exported for text object)
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   if empty(headers)
     return
   endif
@@ -2275,7 +2275,7 @@ function! vimwiki#base#RemoveHeaderLevel(...) abort
 endfunction
 
 
-function! s:collect_headers() abort
+function! vimwiki#base#collect_headers() abort
   " Returns: all the headers in the current buffer as a list of the form
   " [[line_number, header_level, header_text], [...], [...], ...]
   " Init loop variables
@@ -2392,7 +2392,7 @@ endfunction
 
 function! vimwiki#base#goto_parent_header() abort
   " Jump to parent header
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   let current_header_index = s:current_header(headers, line('.'))
   let parent_header = s:get_another_header(headers, current_header_index, -1, '<')
   if parent_header >= 0
@@ -2405,7 +2405,7 @@ endfunction
 
 function! vimwiki#base#goto_next_header() abort
   " Jump to next header
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   let current_header_index = s:current_header(headers, line('.'))
   if current_header_index >= 0 && current_header_index < len(headers) - 1
     call cursor(headers[current_header_index + 1][0], 1)
@@ -2419,7 +2419,7 @@ endfunction
 
 function! vimwiki#base#goto_prev_header() abort
   " Jump to previous header
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   let current_header_index = s:current_header(headers, line('.'))
   " if the cursor already was on a header, jump to the previous one
   if current_header_index >= 1 && headers[current_header_index][0] == line('.')
@@ -2435,7 +2435,7 @@ endfunction
 
 function! vimwiki#base#goto_sibling(direction) abort
   " Jump to sibling header, next or previous (with same level)
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   let current_header_index = s:current_header(headers, line('.'))
   let next_potential_sibling =
         \ s:get_another_header(headers, current_header_index, a:direction, '<=')
@@ -2453,7 +2453,7 @@ function! vimwiki#base#table_of_contents(create) abort
   " a:create == 1: creates or updates TOC in current file
   " a:create == 0: update if TOC exists
   " Gather heading
-  let headers = s:collect_headers()
+  let headers = vimwiki#base#collect_headers()
   let toc_header_text = vimwiki#vars#get_wikilocal('toc_header')
 
   if !a:create
