@@ -99,6 +99,7 @@ function! s:scan_tags(lines, page_name) abort
     if !empty(h_match) " got a header
       let header_line_nr = line_nr
       let header = vimwiki#base#normalize_anchor(h_match[2])
+      let current_header_description = vimwiki#u#trim(h_match[2])
       let level = len(h_match[1])
       let anchor_level[level-1] = header
       for l in range(level, 6)
@@ -138,12 +139,15 @@ function! s:scan_tags(lines, page_name) abort
           if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
             " Tag appeared at the top of the file
             let entry.link   = a:page_name
+            let entry.description = entry.link
           elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
             " Tag appeared right below a header
             let entry.link   = a:page_name . '#' . current_complete_anchor
+            let entry.description = current_header_description
           else
             " Tag stands on its own
             let entry.link   = a:page_name . '#' . tag
+            let entry.description = entry.link
           endif
           call add(entries, entry)
         endfor
@@ -195,7 +199,7 @@ function! s:load_tags_metadata() abort
     let vw_data = substitute(vw_data, '\\t', "\t", 'g')
     let vw_data = substitute(vw_data, '\\\\', "\\", 'g')
     let vw_fields = split(vw_data, "\t")
-    if len(vw_fields) != 2
+    if len(vw_fields) != 3
       throw 'VimwikiTags5: Metadata file corrupted'
     endif
     let pagename = vw_fields[0]
@@ -203,6 +207,7 @@ function! s:load_tags_metadata() abort
     let entry.tagname  = std_fields[0]
     let entry.lineno   = std_fields[2]
     let entry.link     = vw_fields[1]
+    let entry.description = vw_fields[2]
     if has_key(metadata, pagename)
       call add(metadata[pagename], entry)
     else
@@ -271,7 +276,7 @@ function! s:write_tags_metadata(metadata) abort
   let tags = []
   for pagename in keys(a:metadata)
     for entry in a:metadata[pagename]
-      let entry_data = pagename . "\t" . entry.link
+      let entry_data = pagename . "\t" . entry.link . "\t" . entry.description
       let entry_data = substitute(entry_data, "\\", '\\\\', 'g')
       let entry_data = substitute(entry_data, "\t", '\\t', 'g')
       let entry_data = substitute(entry_data, "\r", '\\r', 'g')
@@ -335,9 +340,9 @@ function! vimwiki#tags#generate_tags(create, ...) abort
     for entries in values(metadata)
       for entry in entries
         if has_key(tags_entries, entry.tagname)
-          call add(tags_entries[entry.tagname], entry.link)
+          call add(tags_entries[entry.tagname], [entry.link, entry.description])
         else
-          let tags_entries[entry.tagname] = [entry.link]
+          let tags_entries[entry.tagname] = [[entry.link, entry.description]]
         endif
       endfor
       unlet entry " needed for older vims with sticky type checking since name is reused
@@ -361,7 +366,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
           endfor
         endif
 
-        for taglink in sort(tags_entries[tagname])
+        for [taglink, tagdescription] in sort(tags_entries[tagname])
           let taglink = vimwiki#path#relpath(current_dir, taglink)
           if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
             let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
@@ -369,11 +374,11 @@ function! vimwiki#tags#generate_tags(create, ...) abort
             if empty(link_infos.anchor)
               let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
               let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
-              let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
+              let entry = s:safesubstitute(entry, '__LinkDescription__', tagdescription, '')
               let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
               let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
             else
-              let link_caption = split(link_infos.anchor, '#', 0)[-1]
+              let link_caption = split(tagdescription, '#', 0)[-1]
               let link_text = split(taglink, '#', 1)[0]
               let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
               let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
