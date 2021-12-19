@@ -59,11 +59,11 @@ Expect (Correctly generated tags section {{{3):
 
   ## tag-bar-2
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
   ## tag-bar-3
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
 
 Do (Write a quick tag for a quick jump):
@@ -160,9 +160,9 @@ Expect (Correctly formatted tags file):
   !_TAG_PROGRAM_NAME	Vimwiki Tags
   !_TAG_PROGRAM_URL	https://github.com/vimwiki/vimwiki
   !_TAG_PROGRAM_VERSION	2.5
-  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag
-  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header
-  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag\tTest-Tag#second-tag
+  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header\tA header
+  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag\tTest-Tag
 
 Execute (Generate tags):
   edit $HOME/testmarkdown/Test-Tag.md
@@ -192,7 +192,7 @@ Expect (Correctly generated tags section):
 
   ## test-tag
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
   ## top-tag
 
@@ -263,13 +263,13 @@ Expect (Tag links relative to current file):
 
   ## header-tag-1
   
-  - [a-header](../../Test-Tag-1#a-header)
-  - [a-header](../Test-Tag-2#a-header)
+  - [A Header](../../Test-Tag-1#a-header)
+  - [A Header](../Test-Tag-2#a-header)
 
   ## header-tag-2
 
-  - [another-header](../../Test-Tag-1#another-header)
-  - [another-header](../Test-Tag-2#another-header)
+  - [Another Header](../../Test-Tag-1#another-header)
+  - [Another Header](../Test-Tag-2#another-header)
 
   ## standalone-tag-1
 
