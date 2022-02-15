@@ -1181,7 +1181,7 @@ function! s:populate_extra_markdown_vars() abort
   let mkd_syntax.rxWeblinkMatchDescr0 = mkd_syntax.rxWeblinkMatchDescr
 
   let mkd_syntax.rxWeblink1Prefix = '['
-  let mkd_syntax.rxWeblink1Suffix = '>\=)'
+  let mkd_syntax.rxWeblink1Suffix = ')'
   let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\(>\=)\)'
   let mkd_syntax.rxWeblink1Separator = ']('
 
