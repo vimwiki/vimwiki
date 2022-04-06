@@ -717,7 +717,7 @@ function! s:get_default_syntaxlocal() abort
 endfunction
 
 function! s:get_markdown_syntaxlocal() abort
-  let atx_header_search = '^\s*\(#\{1,6}\)\([^#].*\)$'
+  let atx_header_search = '^\s*\(#\{1,6}\)\s\+\([^#].*\)$'
   let atx_header_match  = '^\s*\(#\{1,6}\)#\@!\s*__Header__\s*$'
 
   let setex_header_search = '^\s\{0,3}\zs[^>].*\ze\n'
@@ -932,18 +932,18 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
       let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__'
       let syntax_dic['rxH'.i] =
-            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+            \ '^\s*'.header_symbol.'\{'.i.'}\s\+.*$'
       let syntax_dic['rxH'.i.'_Text'] =
-            \ '^\s*'.header_symbol.'\{'.i.'}\zs[^'.header_symbol.'].*\ze$'
+            \ '^\s*'.header_symbol.'\{'.i.'}\s\+\zs.*\ze$'
       let syntax_dic['rxH'.i.'_Start'] =
-            \ '^\s*'.header_symbol.'\{'.i.'}[^'.header_symbol.'].*$'
+            \ '^\s*'.header_symbol.'\{'.i.'}\s\+.*$'
       let syntax_dic['rxH'.i.'_End'] =
-            \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$\|\%$'
+            \ '^\s*'.header_symbol.'\{1,'.i.'}\s\+.*$\|\%$'
     endfor
     " Define header regex
     " -- ATX heading := preceed by #*
     let atx_heading = '^\s*\%('.header_symbol.'\{1,6}\)'
-    let atx_heading .= '\zs[^'.header_symbol.'].*\ze$'
+    let atx_heading .= '\s\+\zs.*\ze$'
     let syntax_dic.rxHeader = atx_heading
   endif
 

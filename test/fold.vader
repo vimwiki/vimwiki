@@ -12,7 +12,8 @@ Given vimwiki (Markdown Headers):
   ### Header level 3  5
   # Header level 1    6
     Content           7
-  ## Just to end      8: Vader cannot match end-of-file
+  #notaheader         8
+  ## Just to end      9: Vader cannot match end-of-file
 
 Execute (Markdown and Fold Syntax):
   call SetSyntax('markdown')
@@ -27,6 +28,7 @@ Execute (Assert Markdown: Fold Syntax):
   AssertEqual 'line 5:2', 'line 5:' . foldlevel(5) 
   AssertEqual 'line 6:0', 'line 6:' . foldlevel(6) 
   AssertEqual 'line 7:0', 'line 7:' . foldlevel(7) 
+  AssertEqual 'line 8:0', 'line 8:' . foldlevel(8) 
 
 
 Given vimwiki (Wiki Headers):
