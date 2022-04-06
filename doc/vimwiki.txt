@@ -4036,6 +4036,7 @@ New:~
       loading, if they weren't listed yet
 
 Changed:~
+    * PR #1221: Force markdown headers to have a space between the #'s and text
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
     * VimwikiCheckLinks work on current wiki or on range
     * PR #1057: Change how resolve subdir work
