@@ -1670,8 +1670,17 @@ function! vimwiki#base#follow_link(split, ...) abort
       let cmd = ':badd '
     elseif a:split ==# 'tab'
       let cmd = ':tabnew '
+    elseif a:split ==# 'tabdrop'
+      " Use tab drop if we've already got the file open in an existing tab
+      let cmd = ':tab drop '
     else
+      " Same as above - doing this by default reduces incidence of multiple
+      " tabs with the same file.  We default to :e just in case :drop doesn't
+      " exist in the current build.
       let cmd = ':e '
+      if exists(':drop')
+        let cmd = ':drop '
+      endif
     endif
 
     " if we want to and can reuse a split window, jump to that window and open
@@ -1683,7 +1692,6 @@ function! vimwiki#base#follow_link(split, ...) abort
         let cmd = ':e'
       endif
     endif
-
 
     if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
       let processed_by_markdown_reflink = vimwiki#markdown_base#open_reflink(lnk)
