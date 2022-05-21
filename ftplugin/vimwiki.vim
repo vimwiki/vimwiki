@@ -312,6 +312,8 @@ command! -buffer -nargs=? VimwikiNormalizeLink call vimwiki#base#normalize_link(
 
 command! -buffer VimwikiTabnewLink call vimwiki#base#follow_link('tab', 0, 1)
 
+command! -buffer VimwikiTabDropLink call vimwiki#base#follow_link('tabdrop', 0, 1)
+
 command! -buffer -nargs=? VimwikiGenerateLinks call vimwiki#base#generate_links(1, <f-args>)
 
 command! -buffer -nargs=0 VimwikiBacklinks call vimwiki#base#backlinks()
@@ -418,6 +420,8 @@ vnoremap <silent><script><buffer> <Plug>VimwikiNormalizeLinkVisualCR
     \ :<C-U>VimwikiNormalizeLink 1<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiTabnewLink
     \ :VimwikiTabnewLink<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiTabDropLink
+    \ :VimwikiTabDropLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiGoBackLink
     \ :VimwikiGoBackLink<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiNextLink
@@ -448,8 +452,8 @@ if str2nr(vimwiki#vars#get_global('key_mappings').links)
   call vimwiki#u#map_key('n', '+', '<Plug>VimwikiNormalizeLink')
   call vimwiki#u#map_key('v', '+', '<Plug>VimwikiNormalizeLinkVisual')
   call vimwiki#u#map_key('v', '<CR>', '<Plug>VimwikiNormalizeLinkVisualCR')
-  call vimwiki#u#map_key('n', '<D-CR>', '<Plug>VimwikiTabnewLink')
-  call vimwiki#u#map_key('n', '<C-S-CR>', '<Plug>VimwikiTabnewLink', 1)
+  call vimwiki#u#map_key('n', '<D-CR>', '<Plug>VimwikiTabDropLink')
+  call vimwiki#u#map_key('n', '<C-S-CR>', '<Plug>VimwikiTabDropLink', 1)
   call vimwiki#u#map_key('n', '<BS>', '<Plug>VimwikiGoBackLink')
   call vimwiki#u#map_key('n', '<TAB>', '<Plug>VimwikiNextLink')
   call vimwiki#u#map_key('n', '<S-TAB>', '<Plug>VimwikiPrevLink')

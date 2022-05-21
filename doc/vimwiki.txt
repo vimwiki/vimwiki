@@ -370,8 +370,10 @@ MAP                MODE
 <C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
                         opening in a new tab.
                         May not work in some terminals. Remapping could help.
-                        Maps to |:VimwikiTabnewLink|.
-                        Remap command: `<Plug>VimwikiTabnewLink`
+                        Maps to |:VimwikiTabDropLink|.
+                        Remap command: `<Plug>VimwikiTabDropLink`
+                        See |:VimwikiTabnewLink| for old behavior which
+                        always opens a new tab.
 
                                                          *vimwiki_<Backspace>*
 <Backspace>        n    Go back to previously visited wiki page.
@@ -809,6 +811,11 @@ Vimwiki file.
 
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
+
+*:VimwikiTabDropLink*
+    Follow wiki link with tab drop, reusing any existing tabs with the page.
+    Creates a new tab if the page isn't already open (create target wiki page
+    if needed).
 
 *:VimwikiNextLink*
     Find next link on the current page.
@@ -3984,6 +3991,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: #238: Reuse existing tabs with tab drop
     * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
     * Issue #281: Permit `\|` in tables
