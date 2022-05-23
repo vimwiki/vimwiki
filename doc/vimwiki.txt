@@ -4046,6 +4046,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * Issue #950: Correctly follow links containing .
     * Issue #1193: Fix wildcard expansion in |find_autoload_file|
     * PR #1108: Fix resolution of leading-slash page links, add link tests
     * Allow title values with quotes
