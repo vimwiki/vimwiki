@@ -362,7 +362,7 @@ command! -count=0 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(<count>)
 
 command! -count=0 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(<count>)
+      \ call vimwiki#diary#make_note(<count>, 5)
 
 command! -count=0 VimwikiTabMakeDiaryNote
       \ call vimwiki#diary#make_note(<count>, 1)
@@ -397,7 +397,7 @@ nnoremap <silent><script> <Plug>VimwikiDiaryIndex
 nnoremap <silent><script> <Plug>VimwikiDiaryGenerateLinks
     \ :VimwikiDiaryGenerateLinks<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeDiaryNote
-    \ :<C-U>call vimwiki#diary#make_note(v:count)<CR>
+    \ :<C-U>call vimwiki#diary#make_note(v:count, 5)<CR>
 nnoremap <silent><script> <Plug>VimwikiTabMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 1)<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
