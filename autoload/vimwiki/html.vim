@@ -1870,7 +1870,11 @@ function! s:convert_file(path_html, wikifile) abort
     let force = 1
     call vimwiki#html#CustomWiki2HTML(root_path_html, path_html, wikifile, force)
     let done = 1
-    return path_html . htmlfile
+    if vimwiki#vars#get_wikilocal('html_filename_parameterization')
+      return path_html . s:parameterized_wikiname(htmlfile)
+    else
+      return path_html.htmlfile
+    endif
   endif
 
   if s:syntax_supported() && done == 0
