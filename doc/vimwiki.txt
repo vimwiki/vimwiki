@@ -2103,7 +2103,7 @@ If you want to keep the TOC up to date automatically, use the option
 Tagbar integration                                            *vimwiki-tagbar*
 
 As an alternative to the Table of Contents, you can use the Tagbar plugin
-(http://majutsushi.github.io/tagbar/) to show the headers of your wiki files
+(https://preservim.github.io/tagbar/) to show the headers of your wiki files
 in a side pane.
 Download the Python script from
 https://raw.githubusercontent.com/vimwiki/utils/master/vwtags.py and follow
