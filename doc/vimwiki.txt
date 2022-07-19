@@ -3981,6 +3981,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Youssof Taha (@ysftaha)
     - Thomas Leyh (@leyhline)
     - nebulaeandstars (@nebulaeandstars)
+    - dmitry kim (@jsn)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -4055,6 +4056,7 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * PR #1240 / issue #1241: Vimwiki2HTMLBrowse now works with Markdown
     * Issue #950: Correctly follow links containing .
     * PR #1245 / issue #1244: Fix VimwikiBacklinks handling of bracketed links
     * Issue #1193: Fix wildcard expansion in |find_autoload_file|
