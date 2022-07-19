@@ -307,6 +307,13 @@ function! vimwiki#diary#make_note(wnum, ...) abort
       let cmd = 'split'
     elseif a:1 == 3
       let cmd = 'vsplit'
+    elseif a:1 == 4
+      let cmd = 'tab drop'
+    elseif a:1 == 5
+      let cmd = 'drop'
+      if exists(':drop')
+        let cmd = 'drop'
+      endif
     endif
   endif
   if a:0>1

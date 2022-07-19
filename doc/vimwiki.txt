@@ -370,8 +370,10 @@ MAP                MODE
 <C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
                         opening in a new tab.
                         May not work in some terminals. Remapping could help.
-                        Maps to |:VimwikiTabnewLink|.
-                        Remap command: `<Plug>VimwikiTabnewLink`
+                        Maps to |:VimwikiTabDropLink|.
+                        Remap command: `<Plug>VimwikiTabDropLink`
+                        See |:VimwikiTabnewLink| for old behavior which
+                        always opens a new tab.
 
                                                          *vimwiki_<Backspace>*
 <Backspace>        n    Go back to previously visited wiki page.
@@ -809,6 +811,11 @@ Vimwiki file.
 
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
+
+*:VimwikiTabDropLink*
+    Follow wiki link with tab drop, reusing any existing tabs with the page.
+    Creates a new tab if the page isn't already open (create target wiki page
+    if needed).
 
 *:VimwikiNextLink*
     Find next link on the current page.
@@ -2103,7 +2110,7 @@ If you want to keep the TOC up to date automatically, use the option
 Tagbar integration                                            *vimwiki-tagbar*
 
 As an alternative to the Table of Contents, you can use the Tagbar plugin
-(http://majutsushi.github.io/tagbar/) to show the headers of your wiki files
+(https://preservim.github.io/tagbar/) to show the headers of your wiki files
 in a side pane.
 Download the Python script from
 https://raw.githubusercontent.com/vimwiki/utils/master/vwtags.py and follow
@@ -3973,6 +3980,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Jean-Luc Bastarache (@jlbas)
     - Youssof Taha (@ysftaha)
     - Thomas Leyh (@leyhline)
+    - nebulaeandstars (@nebulaeandstars)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3984,6 +3992,7 @@ http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 New:~
+    * Feature: #238: Reuse existing tabs with tab drop
     * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
     * Issue #281: Permit `\|` in tables
@@ -4047,6 +4056,7 @@ Removed:~
 
 Fixed:~
     * Issue #950: Correctly follow links containing .
+    * PR #1245 / issue #1244: Fix VimwikiBacklinks handling of bracketed links
     * Issue #1193: Fix wildcard expansion in |find_autoload_file|
     * PR #1108: Fix resolution of leading-slash page links, add link tests
     * Allow title values with quotes

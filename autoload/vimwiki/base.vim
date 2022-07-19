@@ -948,10 +948,10 @@ function! s:get_links(wikifile, idx) abort
   endif
 
   let syntax = vimwiki#vars#get_wikilocal('syntax', a:idx)
+  let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+
   if syntax ==# 'markdown'
-    let rx_link = vimwiki#vars#get_syntaxlocal('rxWeblink1MatchUrl', syntax)
-  else
-    let rx_link = vimwiki#vars#get_syntaxlocal('wikilink', syntax)
+    let md_rx_link = vimwiki#vars#get_syntaxlocal('rxWeblink1MatchUrl', syntax)
   endif
 
   let links = []
@@ -964,9 +964,15 @@ function! s:get_links(wikifile, idx) abort
     while 1
       let col = match(line, rx_link, 0, link_count)+1
       let link_text = matchstr(line, rx_link, 0, link_count)
+
+      " if a link wasn't found, also try markdown syntax (if enabled)
+      if link_text ==? '' && syntax ==# 'markdown'
+        let link_text = matchstr(line, md_rx_link, 0, link_count)
+      endif
       if link_text ==? ''
         break
       endif
+
       let link_count += 1
       let target = vimwiki#base#resolve_link(link_text, a:wikifile)
       if target.filename !=? '' && target.scheme =~# '\mwiki\d\+\|diary\|file\|local'
@@ -1524,7 +1530,7 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
     " them right back.
     let foldenable_save = &l:foldenable
     setlocal nofoldenable
-    
+
     " Clause: don't update file if there are no changes
     if (join(getline(start_lnum + 2, end_lnum - 1), '') == join(a_list, ''))
       return
@@ -1665,8 +1671,17 @@ function! vimwiki#base#follow_link(split, ...) abort
       let cmd = ':badd '
     elseif a:split ==# 'tab'
       let cmd = ':tabnew '
+    elseif a:split ==# 'tabdrop'
+      " Use tab drop if we've already got the file open in an existing tab
+      let cmd = ':tab drop '
     else
+      " Same as above - doing this by default reduces incidence of multiple
+      " tabs with the same file.  We default to :e just in case :drop doesn't
+      " exist in the current build.
       let cmd = ':e '
+      if exists(':drop')
+        let cmd = ':drop '
+      endif
     endif
 
     " if we want to and can reuse a split window, jump to that window and open
@@ -1678,7 +1693,6 @@ function! vimwiki#base#follow_link(split, ...) abort
         let cmd = ':e'
       endif
     endif
-
 
     if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
       let processed_by_markdown_reflink = vimwiki#markdown_base#open_reflink(lnk)
