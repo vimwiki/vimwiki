@@ -213,7 +213,6 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
     let root_dir = fnamemodify(source_file, ':p:h') . '/'
   endif
 
-
   " Extract the other items depending on the scheme
   if link_infos.scheme =~# '\mwiki\d\+'
 
@@ -263,8 +262,10 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
               \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     else
+      " append extension iff one not already present or it's not the targeted
+      " wiki extension - https://github.com/vimwiki/vimwiki/issues/950
       let ext = fnamemodify(link_text, ':e')
-      if ext ==? ''  " append ext iff one not already present
+      if ext ==? '' || ext !=? vimwiki#vars#get_wikilocal('ext', link_infos.index)
         let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     endif
