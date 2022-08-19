@@ -967,6 +967,9 @@ Vimwiki file.
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
     window.
+    
+    This can be used to find "Orphaned" wiki files/pages.
+    
     With range: the wiki number, by default current wiki
 
 
