@@ -913,7 +913,7 @@ Vimwiki file.
     Search through all wiki files and check if the targets of all wiki links
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
-    window.
+    window. This is one way to help search for "Orphaned" wiki pages.
 
 *:VimwikiRebuildTags*
     Rebuilds the tags metadata file for all wiki files newer than the metadata
