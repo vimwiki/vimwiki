@@ -10,8 +10,8 @@ if exists('g:loaded_vimwiki') || &compatible
 endif
 let g:loaded_vimwiki = 1
 
-" Set to version number for release, otherwise -1 for dev-branch
-let s:plugin_vers = 2.5
+" Set to version number for release:
+let s:plugin_vers = '2.6.0'
 
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
@@ -209,21 +209,18 @@ endfunction
 " Echo vimwiki version
 " Called by :VimwikiShowVersion
 function! s:get_version() abort
-  if s:plugin_vers != -1
-    echo 'Stable version: ' . string(s:plugin_vers)
+  echo 'Version: ' . s:plugin_vers
+  let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
+  let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
+  let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
+  if v:shell_error == 0
+    echo 'Os: ' . vimwiki#u#os_name()
+    echo 'Vim: ' . v:version
+    echo 'Branch: ' . l:plugin_branch
+    echo 'Revision: ' . l:plugin_rev
+    echo 'Date: ' . l:plugin_date
   else
-    let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
-    let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
-    let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')
-    if v:shell_error == 0
-      echo 'Os: ' . vimwiki#u#os_name()
-      echo 'Vim: ' . v:version
-      echo 'Branch: ' . l:plugin_branch
-      echo 'Revision: ' . l:plugin_rev
-      echo 'Date: ' . l:plugin_date
-    else
-      echo 'Unknown version'
-    endif
+    echo 'Unable to retrieve repository info'
   endif
 endfunction
 

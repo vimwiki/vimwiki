@@ -9,7 +9,7 @@
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
 
-                               Version: 2.5
+                               Version: 2.6.0
 
 ==============================================================================
 CONTENTS                                                             *vimwiki*
@@ -3995,7 +3995,14 @@ https://github.com/vimwiki/vimwiki/issues/, all others from
 http://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+From version 2.6.0, the VimWiki project has adopted a rolling release policy.
+Once changes are accepted, they will merge directly to dev, which is now the
+main branch.  master is retained as a legacy mirror of the dev branch.
+
+2.6.0 (2022-11-28)~
+
 New:~
+    * Policy: #1235: Move to semver and rolling release cadence
     * Feature: #238: Reuse existing tabs with tab drop
     * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
