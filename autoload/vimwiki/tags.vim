@@ -292,9 +292,8 @@ function! s:write_tags_metadata(metadata) abort
     endfor
   endfor
   call sort(tags, 's:tags_entry_cmp')
-  " TODO: VimWiki version probably shouldn't be hardcoded here:
   let tag_comments = [
-    \ "!_TAG_PROGRAM_VERSION\t2.6.0",
+    \ "!_TAG_PROGRAM_VERSION\t" . g:vimwiki_version,
     \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
     \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
     \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",

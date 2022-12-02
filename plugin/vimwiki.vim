@@ -11,7 +11,7 @@ endif
 let g:loaded_vimwiki = 1
 
 " Set to version number for release:
-let s:plugin_vers = '2.6.0'
+let g:vimwiki_version = '2022.12.02'
 
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
@@ -209,7 +209,7 @@ endfunction
 " Echo vimwiki version
 " Called by :VimwikiShowVersion
 function! s:get_version() abort
-  echo 'Version: ' . s:plugin_vers
+  echo 'Version: ' . g:vimwiki_version
   let l:plugin_rev    = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --short HEAD')
   let l:plugin_branch = system('git --git-dir ' . s:plugin_dir . '/.git rev-parse --abbrev-ref HEAD')
   let l:plugin_date   = system('git --git-dir ' . s:plugin_dir . '/.git show -s --format=%ci')

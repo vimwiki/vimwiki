@@ -10,10 +10,12 @@ Issues can be filed at https://github.com/vimwiki/vimwiki/issues/
 
 # Git branching model
 
-As of v2.6.0, VimWiki has adopted a rolling release model, while (for the
-moment) retaining specific version numbers.  A release should be
+As of v2022.12.02, VimWiki has adopted a rolling release model, along with
+[calendar versioning][calver].  A release should be
 [prepared][#preparing-a-release] for every change or set of changes which merge
 to `dev`.
+
+[calver]: https://calver.org/
 
 There are two permanent branches:
     1. `dev`: This is the default branch, and where changes are released. Tasks
@@ -34,11 +36,13 @@ not from the `master` branch.
 
 Version bureaucracy:
 
-1. Pick a new version number according to [semver][semver] rules:
-   `git tag vMAJOR.MINOR.PATCH`
-2. Update the version number at the top of `doc/vimwiki.txt`
-3. Update the version number at the top of `plugin/vimwiki.vim`
-4. Update the version number in `autoload/vimwiki/tags.vim`
+1. Pick a new version number according to the current date:
+   `YYYY.MM.DD` (if releasing a second version for the
+   current date, append a `_MICRO` version such as `_1`, `_2`, etc.
+   - Examples: `2022.12.22`, `2022.12.22_1`
+2. Update the version number at the top of `plugin/vimwiki.vim`
+3. Update the `!_TAG_PROGRAM_VERSION` expected in `test/tag.vader`
+   (this is a bit silly, will have to figure out how to get rid of it)
 
 Update `doc/vimwiki.txt` with the following information:
 
@@ -51,7 +55,9 @@ Update `doc/vimwiki.txt` with the following information:
 
 # Preparing a release
 
-1. Set a tag with the version number in Git.
+This section is primarily for maintainers.
+
+1. Set a tag with the version number in Git: `git tag -a v2022.12.02 -m 'Release v2022.12.02'`
 2. `git push --tags`
 3. In GitHub, go to _Releases_ -> _Draft a new release_ -> choose the tag,
    convert the changelog from the doc to Markdown and post it there. Make
