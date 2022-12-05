@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+      - 'dev'
+
+jobs:
+  mirror_job:
+    runs-on: ubuntu-latest
+    name: Mirror SOURCE_BRANCH_NAME branch to DESTINATION_BRANCH_NAME branch
+    steps:
+    - name: Mirror action step
+      id: mirror
+      uses: google/mirror-branch-action@v1.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        source: 'dev'
+        dest: 'master'
