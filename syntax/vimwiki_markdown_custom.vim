@@ -122,6 +122,12 @@ let s:target = vimwiki#base#apply_template(
       \ vimwiki#vars#get_syntaxlocal('rxWikiLink1Descr'), '', '')
 call s:add_target_syntax_ON(s:wrap_wikilink1_rx(s:target), 'VimwikiWikiLink1')
 
+" Header levels, 1-6
+for s:i in range(1,6)
+  execute 'syntax match VimwikiHeader'.s:i.' /'.vimwiki#vars#get_syntaxlocal('rxH'.s:i).
+              \ '/ contains=VimwikiTodo,VimwikiHeaderChar,VimwikiNoExistsLink,VimwikiCode,'.
+              \ 'VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+endfor
 
 " concealed chars
 if exists('+conceallevel')
