@@ -1,0 +1,168 @@
+# Github Favor Markdown Typeface
+# https://github.github.com/gfm
+# 6.4 Emphasis and strong emphasis
+
+
+# Rule 1 {{{1
+# A single * character can open emphasis iff (if and only if) it is part of a left-flanking delimiter run.'
+#################
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-360):
+  *foo bar*
+
+Execute (Log rule):
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 2)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-361):
+  a * foo bar*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, because the opening * is followed by whitespace, and hence not part of a left-flanking delimiter'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-362):
+  todo TODO
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-363):
+  * a *
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Unicode nonbreaking spaces count as whitespace, too'
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-364):
+  foo*bar*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword emphasis with * is permitted:'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-365):
+  5*6*78
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+# Rule 2 {{{1
+# A single _ character can open emphasis iff it is part of a left-flanking delimiter run and either (a) not part of a right-flanking delimiter run or (b) part of a right-flanking delimiter run preceded by punctuation.
+#################
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-366):
+  _foo bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-367):
+  _ foo bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, because the opening _ is followed by whitespace'
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-368):
+  a_"foo"_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual '', SyntaxAt(1, 4)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-369):
+  foo_bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Emphasis with _ is not allowed inside words'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-370):
+  * 5_6_78
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-371):
+  CommentLine 'Not emphasis in middle even if unicode alphanumeric before left delimiter'
+  пристаням_стремятся_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual '', SyntaxAt(1, 22)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-372):
+  * aa_"bb"_cc
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Here _ does not generate emphasis, because the first delimiter run is right-flanking and the second left-flanking'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-373):
+  foo-_(bar)_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is emphasis, even though the opening delimiter is both left- and right-flanking, because it is preceded by punctuation'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 7)
+
+
+# vim: foldmethod=marker foldlevel=30 sw=2

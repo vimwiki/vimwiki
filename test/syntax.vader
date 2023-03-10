@@ -11,9 +11,9 @@ Given vimwiki (Markdown typeface with escape sequence #1044: _ __ * ** {{{2):
   and __t \__ is still bold__ Bold 4
   and _ita\_ alic continues and end_ Italic 5
   *this\* \* is italic also* Italic 6
-  a ^t\^ is supperscrit^ Sup 7
-  ,,sub\,, subscript end,, Sub 8
-  a ~~st\~~ill deleted~~ Del 9
+  a ^taa is supperscrit^ Sup 7
+  ,,subaaa subscript end,, Sub 8
+  a ~~staaill deleted~~ Del 9
   $$Eq\$$ uation follows$ Math 10
   `code \` not finished inline` Code 11
 
@@ -26,7 +26,8 @@ Execute (Assert Syntax of escape typeface):
   AssertEqual '3'                  , SyntaxAt(3, 14) . 3
   AssertEqual 'VimwikiBold4'       , SyntaxAt(4, 14) . 4
   AssertEqual 'VimwikiItalic5'     , SyntaxAt(5, 14) . 5
-  AssertEqual 'VimwikiItalic6'     , SyntaxAt(6, 14) . 6
+  " See: #1303 where an escape start can close the region
+  AssertEqual '6'                  , SyntaxAt(6, 14) . 6
   AssertEqual 'VimwikiSuperScript7', SyntaxAt(7, 14) . 7
   AssertEqual 'VimwikiSubScript8'  , SyntaxAt(8, 14) . 8
   AssertEqual 'VimwikiDelText9'    , SyntaxAt(9, 14) . 9
@@ -67,8 +68,8 @@ Given vimwiki (Markdown bad __this_not_it__ {{{2):
   n4rmal_aaaaaaaaaaaaaaaaaaaa_text_ 4
   n5t_italiccccccccccccccccccccc_no 5
   n6t_italiccccccccccccccccccccccno 6
-  n7t*italiccccccccccccccccccccc_no 7
-  n8t*italiccccccccccccccccccccc*no 8
+  n7t*italiccccccccccccccccccccc*si 7
+  n8taitalicccccccccccccccccccccasi 8
   __not_italicccccccccc_but_boldd__ 9
   _a_asdasda_asdas_asdas_asdasda_a_ 10
   _jitaliccccccccccccccccccccccccc_ 11
@@ -83,16 +84,20 @@ Execute (Set syntax markdown):
 
 Execute (Assert Syntax (bravo)):
   AssertEqual 'VimwikiError2'     , SyntaxAt(2, 4) . 2
-  AssertEqual 'VimwikiError3'     , SyntaxAt(3, 4) . 3
+  " See: #1303 where the * is now accepted in the middle of the words
+  " So no more trick like in _
+  " syn match VimwikiError "\w\@<=_\w\@="  remove the *
+  AssertEqual 'VimwikiDelimiter3' , SyntaxAt(3, 4) . 3
   AssertEqual '4'                 , SyntaxAt(4, 14) . 4
   AssertEqual '5'                 , SyntaxAt(5, 14) . 5
   AssertEqual '6'                 , SyntaxAt(6, 14) . 6
-  AssertEqual '7'                 , SyntaxAt(7, 14) . 7
+  AssertEqual 'VimwikiItalic7'    , SyntaxAt(7, 14) . 7
   AssertEqual '8'                 , SyntaxAt(8, 14) . 8
   AssertEqual 'VimwikiBold9'      , SyntaxAt(9, 14) . 9
-  AssertEqual 'VimwikiItalic10'   , SyntaxAt(10, 14) . 10
+  AssertEqual '10'                , SyntaxAt(10, 14) . 10
   AssertEqual 'VimwikiItalic11'   , SyntaxAt(11, 14) . 11
   AssertEqual '12'                , SyntaxAt(12, 14) . 12
+  AssertEqual 'VimwikiItalic13'   , SyntaxAt(13, 14) . 13
 
 Given vimwiki (bold and pre {{{2):
   __startbold

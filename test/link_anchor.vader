@@ -36,13 +36,22 @@ Given vimwiki (VimwikiTOC with link and number {{{1):
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
 
+Expect('No change'):
+  [link1](#i-v-p-741528)
+  [link2](#i-v-p-741528-2)
+
+  # I [V p](h) (7.415.28)
+
+  # I [V p](h) 741.528
+
 Do (Enter link):
   gg\<Cr>
   A__HERE1__\<Esc>
   ggj\<Cr>
   A__HERE2__\<Esc>
+  :AssertEqual 'wiki_test.md', expand('%')\<Cr>
 
-Expect():
+Expect(Some suffix added after headings):
   [link1](#i-v-p-741528)
   [link2](#i-v-p-741528-2)
 
@@ -192,6 +201,9 @@ Given vimwiki (Internal links + one link to filenew):
 Execute (Set filename wiki_test.md):
   call SetSyntax('markdown')
 
+Execute (Set filename wiki_test.md):
+  file wiki_test.md
+
 Do (Navigate with <Tab>):
   A more Contents\<Esc>
   \<Tab>
@@ -201,6 +213,7 @@ Do (Navigate with <Tab>):
   \<Tab>
   \<Enter>
   A more Test2\<Esc>
+  :AssertEqual 'wiki_test.md', expand('%')\<Cr>
 
 Expect (Content added to titles):
   # Contents more Contents
@@ -231,9 +244,23 @@ Do (Navigate with <Tab> and <Enter> and come back with <Bs>):
   \<Tab>
   \<Tab>
   \<Tab>
+# Debugging
+  :redir @a\<Cr>
+  :nmap <Bs>\<Cr>
+  :redir END\<Cr>
+# :fixdel\<Cr>
+  :AssertEqual 'wiki_test.md', expand('%')\<Cr>
+#  :AssertEqual 'toto', @a\<Cr>
 # Cursor at Test2/filenew
-  A not yet\<Esc>
+  A not yet\<Esc>\<Esc>
+# Debug
+  :Log 'Debugging 1, cursor position list'\<Cr>
+  :Log vimwiki#vars#get_bufferlocal('prev_links')\<Cr>
+#  :VimwikiGoBackLink\<Cr>
+#  :call vimwiki#base#go_back_link()\<Cr>
   \<Bs>
+  :Log 'Debugging 2, cursor position list'\<Cr>
+  :Log vimwiki#vars#get_bufferlocal('prev_links')\<Cr>
 # Cursor at Test1/test2
   A near Test1/test2
   \<Esc>
@@ -260,51 +287,70 @@ Expect (Vimwiki links):
     - [Test2](#Test2)
     - [filenew](filenew) not yet
 
-Do (Navigate with <Tab> comeback with <Bs> from filenew):
-  \<Tab>
-  A first shot\<Esc>
-  0\<Tab>
-# Cursor at Contents/test1
-  \<Enter>
-  \<Tab>
-  \<Tab>
-  A first shot\<Esc>
-  0\<Tab>
-# Cursor at Test1/test2
-  \<Enter>
-  G
-# Cursor at Test2/filenew
-  A first shot\<Esc>
-  0\<Tab>
-# Cursor at Test2/filenew
-  \<Enter>
-# Cursor in filenew (a new file)
-  A anything in filenew: empirically it does not count\<Esc>
-  \<Bs>
-# Cursor at Test2/filenew
-  \<Bs>
-# Cursor at Test1/test2
-  \<Bs>
-# Cursor at Contents/test1
-  A second shot
 
-Expect (Just Contents/test1 got the second shot):
-  # Contents
+###################################
+###################################
+###################################
+###################################
+# Commented out as butsetvar of the var prev_links is removing the list info at change of file for old Vim
 
-    - [Test1](#Test1) first shot second shot
-    - [Test2](#Test2)
 
-  # Test1
 
-    - [Test1](#Test1)
-    - [Test2](#Test2) first shot
-    - [filenew](filenew)
 
-  # Test2
-
-    - [Test1](#Test1)
-    - [Test2](#Test2)
-    - [filenew](filenew) first shot
+#Do (Navigate with <Tab> comeback with <Bs> from filenew):
+#  \<Tab>
+#  A first shot\<Esc>
+#  0\<Tab>
+## Cursor at Contents/test1
+#  \<Cr>
+#  \<Tab>
+#  \<Tab>
+#  A first shot\<Esc>
+#  0\<Tab>
+## Cursor at Test1/test2
+#  \<Cr>
+#  G
+## Cursor at Test2/filenew
+#  A first shot\<Esc>
+#  0\<Tab>
+## Cursor at Test2/filenew
+#  \<Cr>
+## Cursor in filenew (a new file)
+#  A anything in filenew: empirically it does not count\<Esc>
+## Debug back
+#  :Log 'Debugging back 1, cursor position list'\<Cr>
+#  :Log vimwiki#vars#get_bufferlocal('prev_links')\<Cr>
+#  :Log expand('%:p')\<Cr>
+#  :Log expand('/tmp/vader_wiki/testplugin/wiki_test.md')\<Cr>
+#  :Log filereadable('/tmp/vader_wiki/testplugin/wiki_test.md')\<Cr>
+#  \<Bs>
+#  :Log 'Debugging back 2, cursor position list'\<Cr>
+#  :Log vimwiki#vars#get_bufferlocal('prev_links')\<Cr>
+#  :Log expand('%')\<Cr>
+## Cursor at Test2/filenew
+#  \<Bs>
+## Cursor at Test1/test2
+#  \<Bs>
+## Cursor at Contents/test1
+#  A second shot
+#
+#Expect (Just Contents/test1 got the second shot):
+#  # Contents
+#
+#    - [Test1](#Test1) first shot second shot
+#    - [Test2](#Test2)
+#
+#  # Test1
+#
+#    - [Test1](#Test1)
+#    - [Test2](#Test2) first shot
+#    - [filenew](filenew)
+#
+#  # Test2
+#
+#    - [Test1](#Test1)
+#    - [Test2](#Test2)
+#    - [filenew](filenew) first shot
 
 Execute (Delete filenew buffer):
   call DeleteFile('/testplugin/filenew.md')
@@ -312,22 +358,22 @@ Execute (Delete filenew buffer):
 Do (Navigate with <Tab> comeback with <Bs> too far):
   \<Tab>
 # Cursor at Contents/test1
-  \<Enter>
+  \<Cr>
   \<Tab>
   \<Tab>
 # Cursor at Test1/test2
-  \<Enter>
+  \<Cr>
   \<Tab>
 # Cursor at Test2/test1
-  \<Enter>
+  \<Cr>
   \<Tab>
   \<Tab>
 # Cursor at Test1/test2
-  \<Enter>
+  \<Cr>
   A first test2\<Esc>
   \<Tab>
 # Cursor at Test2/test1
-  \<Enter>
+  \<Cr>
   A first test1\<Esc>
 # Back
   \<Bs>
@@ -355,7 +401,7 @@ Do (Navigate with <Tab> comeback with <Bs> too far):
   \<Bs>
   A 4\<Esc>
 
-Expect (After too many <Bs>, cursor stays at the first <Enter> spot in first file: Contents/test1):
+Expect (After too many <Bs>, cursor stays at the first <Cr> spot in first file: Contents/test1):
   # Contents
 
     - [Test1](#Test1) 1 2 3 4
@@ -382,7 +428,7 @@ Given vimwiki (link to self):
 Do (Follow link to self and append chars):
   \<Tab>
   \<Tab>
-  \<Enter>
+  \<Cr>
   a this_is_18_chars \<Esc>
 
 Expect (Some chars appended at self link):
