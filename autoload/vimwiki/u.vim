@@ -304,18 +304,55 @@ function! vimwiki#u#hi_expand_regex(lst) abort
   " :param: list<list,delimiters>> with reduced regex
   " Return: list with extended regex delimiters (not inside a word)
   "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
+  " Note: For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
   " See: https://github.github.com/gfm/#left-flanking-delimiter-run
   let res = []
-  let p = vimwiki#u#get_punctuation_string()
-  for delimiters in a:lst
-    let r_prefix = '\(^\|[[:space:]]\@<=\)'
-    " Regex Start: not preceded by backslash, not ended by space
-    let r_start = r_prefix . delimiters[0] . '\S\@='
-    " Regex End: not preceded by backslash or space, ended by punctuation or space
-    let r_prefix = '\(^\|[^[:space:]\\]\@<=\)'
-    let r_end = r_prefix . delimiters[1] . '\%(\_[[:space:]' . p . ']\)\@='
+  let punctuation = vimwiki#u#get_punctuation_string()
+
+  " Iterate on (left delimiter, right delimiter pair)
+  for a_delimiter in a:lst
+    let r_left_del = a_delimiter[0]
+    let r_right_del = a_delimiter[1]
+
+    " Regex Start:
+    " Left-Flanking is not followed by space (or ned of line)
+    let r_left_prefix = '\%(^\|[[:space:]]\@<=\)'
+    let r_left_prefix = '\\\@<!'
+    " -- not followed by Unicode whitespace,
+    let r_left_suffix = '\%([^[:space:]]\@=\)'
+
+    " Left Case1: not followed by punctuation
+    let r_left_suffix1 = '\%(\%([^[:space:]' . punctuation . ']\)\@=\)'
+    " -- Can escape the leftflank
+    let r_left_prefix1 = '\%(^\|\\\@<!\)'
+
+    " Left Case2: followed by punctuation so must be preceded by Unicode whitespace or start of line or a punctuation character.
+    let r_left_suffix2 = '\%([' . punctuation . ']\@=\)'
+    let r_left_prefix2 = '\%(\%(^\|[[:space:]' . punctuation . ']\)\@<=\)'
+
+    " Left Concatenate
+    let r_start = '\%(' . r_left_prefix1 . r_left_del . r_left_suffix1
+    let r_start .= '\|' . r_left_prefix2 . r_left_del . r_left_suffix2 . '\)'
+
+    " Regex End:
+    " not preceded by Unicode whitespace
+    let r_right_prefix = '\(^\|[^[:space:]]\@<=\)'
+
+    " Right Case1: not preceded by a punctuation character (or start of line)
+    let r_right_prefix1 = '\%(\%(^\|[^[:space:]' . punctuation . ']\)\@<=\)'
+    let r_right_suffix1 = ''
+
+    " Right Case2: preceded by a punctuation character and followed by Unicode whitespace or end of line  or a punctuation character
+    let r_right_prefix2 = '\%([' . punctuation . ']\@<=\)'
+    let r_right_suffix2 = '\%(\%($\|[[:space:]' . punctuation . ']\)\@<=\)'
+
+    " Right Concatenate
+    let r_end = '\%(' . r_right_prefix1 . r_right_del . r_right_suffix1
+    let r_end .= '\|' . r_right_prefix2 . r_right_del . r_right_suffix2 . '\)'
+
     call add(res, [r_start, r_end])
   endfor
+
   return res
 endfunction
 
@@ -337,9 +374,9 @@ function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
   endif
 
   " Craft command
+  " \ 'skip="\\' . a:tag_pre . '" ' .
   let cmd = 'syn region ' . a:syntax_group . ' matchgroup=VimwikiDelimiter ' .
         \ opt_is_contained .
-        \ 'skip="\\' . a:tag_pre . '" ' .
         \ 'start="' . a:tag_pre . '" ' .
         \ 'end="' . a:tag_post . '" ' .
         \ 'keepend ' .
@@ -442,5 +479,7 @@ function! vimwiki#u#hi_typeface(dic) abort
 
   " Prevent var_with_underscore to trigger italic text
   " -- See $VIMRUNTIME/syntax/markdown.vim
-  syn match VimwikiError "\w\@<=[_*]\w\@="
+  " But leave
+  " -- See https://github.github.com/gfm/#example-364
+  syn match VimwikiError "\w\@<=_\w\@="
 endfunction

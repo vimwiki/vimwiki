@@ -500,7 +500,7 @@ function! vimwiki#base#goto(...) abort
   " Save current file pos
   let vimwiki_prev_link = [vimwiki#path#current_wiki_file(), getpos('.')]
 
-  call vimwiki#base#edit_file(':e',
+  call vimwiki#base#edit_file('edit',
         \ vimwiki#vars#get_wikilocal('path') . key . vimwiki#vars#get_wikilocal('ext'),
         \ anchor,
         \ vimwiki_prev_link,
@@ -1120,7 +1120,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
   " which happens if we jump to an achor in the current file.
   " This hack is necessary because apparently Vim messes up the result of
   " getpos() directly after this command. Strange.
-  if !(a:command ==# ':e ' && vimwiki#path#is_equal(a:filename, expand('%:p')))
+  if !(a:command =~# ':\?[ed].*' && vimwiki#path#is_equal(a:filename, expand('%:p')))
     try
       execute a:command fname
     catch /E37:/
@@ -1129,6 +1129,10 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
       return
     catch /E325:/
       call vimwiki#u#warn('Vim couldn''t open the file, probably because a swapfile already exists. See :h E325.')
+      return
+    catch /E319:/
+      call vimwiki#u#warn('Vim couldn''t open the file, cannot launch the drop command. See :h E319.')
+      execute 'edit' fname
       return
     endtry
     " If the opened file was not already loaded by Vim, an autocommand is
@@ -1391,7 +1395,7 @@ endfunction
 function! s:open_wiki_buffer(item) abort
   " Edit wiki file.
   " Called: by rename_file: Usefull for buffer commands
-  call vimwiki#base#edit_file(':e', a:item[0], '')
+  call vimwiki#base#edit_file('edit', a:item[0], '')
   if !empty(a:item[1])
     call vimwiki#vars#set_bufferlocal('prev_links', a:item[1], a:item[0])
   endif
@@ -1665,23 +1669,26 @@ function! vimwiki#base#follow_link(split, ...) abort
     endif
 
     if a:split ==# 'hsplit'
-      let cmd = ':split '
+      let cmd = 'split'
     elseif a:split ==# 'vsplit'
-      let cmd = ':vsplit '
+      let cmd = 'vsplit'
     elseif a:split ==# 'badd'
-      let cmd = ':badd '
+      let cmd = 'badd'
     elseif a:split ==# 'tab'
-      let cmd = ':tabnew '
+      let cmd = 'tabnew'
     elseif a:split ==# 'tabdrop'
       " Use tab drop if we've already got the file open in an existing tab
-      let cmd = ':tab drop '
+      let cmd = 'tab edit'
+      if exists(':drop') == 2
+        let cmd = 'tab drop'
+      endif
     else
       " Same as above - doing this by default reduces incidence of multiple
       " tabs with the same file.  We default to :e just in case :drop doesn't
       " exist in the current build.
-      let cmd = ':e '
-      if exists(':drop')
-        let cmd = ':drop '
+      let cmd = 'edit'
+      if exists(':drop') == 2 && has('windows')
+        let cmd = 'drop'
       endif
     endif
 
@@ -1691,7 +1698,7 @@ function! vimwiki#base#follow_link(split, ...) abort
       let previous_window_nr = winnr('#')
       if previous_window_nr > 0 && previous_window_nr != winnr()
         execute previous_window_nr . 'wincmd w'
-        let cmd = ':e'
+        let cmd = ':edit'
       endif
     endif
 
@@ -1739,8 +1746,14 @@ function! vimwiki#base#go_back_link() abort
   " Jump to target with edit_file
   if !empty(prev_link)
     " go back to saved wiki link
-    call vimwiki#base#edit_file(':e ', prev_link[0], '')
-    call setpos('.', prev_link[1])
+    " Change file if required lazy
+    let file = prev_link[0]
+    let pos = prev_link[1]
+    " Removed the filereadable check for Vader
+    if !(vimwiki#path#is_equal(file, expand('%:p')))
+      call vimwiki#base#edit_file('edit', file, '')
+    endif
+    call setpos('.', pos)
   else
     " maybe we came here by jumping to a tag -> pop from the tag stack
     silent! pop!

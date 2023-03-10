@@ -299,20 +299,23 @@ function! vimwiki#diary#make_note(wnum, ...) abort
   call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', wiki_nr).
         \ vimwiki#vars#get_wikilocal('diary_rel_path', wiki_nr))
 
-  let cmd = 'edit'
+  let cmd = ':edit'
   if a:0
     if a:1 == 1
-      let cmd = 'tabedit'
+      let cmd = ':tabedit'
     elseif a:1 == 2
-      let cmd = 'split'
+      let cmd = ':split'
     elseif a:1 == 3
-      let cmd = 'vsplit'
+      let cmd = ':vsplit'
     elseif a:1 == 4
-      let cmd = 'tab drop'
+      let cmd = ':tab edit'
+      if exists(':drop') == 2
+        let cmd = ':tab drop'
+      endif
     elseif a:1 == 5
-      let cmd = 'drop'
-      if exists(':drop')
-        let cmd = 'drop'
+      let cmd = ':edit'
+      if exists(':drop') == 2
+        let cmd = ':drop'
       endif
     endif
   endif
