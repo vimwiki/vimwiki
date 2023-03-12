@@ -4,7 +4,7 @@ name: Automatic regression test with Vim's Vader and Vint
 
 run-name: Vimwiki Automatic Regression Test
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   Check:
