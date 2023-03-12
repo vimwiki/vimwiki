@@ -1426,7 +1426,7 @@ Use {{{ and }}} to define a block of preformatted text:
   In what distant deeps or skies
    Burnt the fire of thine eyes?
     On what wings dare he aspire?
-     What the hand dare sieze the fire?
+     What the hand dare seize the fire?
 }}}
 
 
@@ -2695,7 +2695,7 @@ Key               Default value~
 cycle_bullets     0
 
 If set to 1 (true), cycle through |bullet_types| when changing list element
-identation
+indentation
 
 
 *vimwiki-option-generated_links_caption*
@@ -2703,7 +2703,7 @@ identation
 Key                         Default value~
 generated_links_caption     0
 
-Default syntax only. If set to 1 (true), use the [[URL|DESCRIPTIOM]]  when
+Default syntax only. If set to 1 (true), use the [[URL|DESCRIPTION]]  when
 calling |:VimwikiGenerateLinks|. DESCRIPTION will be the first header in the
 corresbonding file found in the first n lines, where n is set by
 |g:vimwiki_max_scan_for_caption| (Default 5). If no caption is found fallback
@@ -3291,8 +3291,8 @@ small screens.  If |g:vimwiki_table_auto_fmt| is set to 0, this option has no
 effect.
 
 Value           Description~
-0               Enable table auto formating for all columns.
-1               Disable table auto formating for the last column.
+0               Enable table auto formatting for all columns.
+1               Disable table auto formatting for the last column.
 
 Default: 0
 
@@ -3778,7 +3778,7 @@ The default is %%%s.
 
 Bitfield: Enable/disable emoji conceal and complete
 Note that the |completefunc| is only set if it does not exists already to keep
-other plugin works by default. It can be set it manualy with: >
+other plugin works by default. It can be set it manually with: >
   set completefunc=vimwiki#emoji#complete
 
 To replace emoji alias (like :cat:) by their value (like 🐱) in current file: >
@@ -4090,10 +4090,10 @@ Fixed:~
     * Issue #894: Make all appropriate settings wikilocal (many commits)
     * PR #902: Doc: Darken logo text
     * PR #895: Fix: File extension for markdown -> syntax wide
-      __FileExtention__ keyword appears
+      __FileExtension__ keyword appears
     * PR #963: Doc: Replace VimwikiListChangeLevel references in doc with
       VimwikiListChangeLvl as defined by command
-    * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * PR #900: conceallevel is now set locally for vimwiki buffers
     * Issue #942: Fixing wrong html link conversion in windows
     * PR #919: Fix duplicate helptag
     * PR #959: Fix :VimwikiNextTask
@@ -4151,7 +4151,7 @@ New:~
       sections. New option |g:vimwiki_links_header_level| and
       |g:vimwiki_tags_header_level| which allow the header level (1-6) of the
       generated links to be set. New option |g:vimwiki_markdown_header_style|
-      which specifies the nuber of newlines after the created header for
+      which specifies the number of newlines after the created header for
       generated sections.
     * PR #635: Wiki local options |vimwiki-option-auto_generate_links| and
       |vimwiki-option-auto_generate_tags|.
@@ -4198,7 +4198,7 @@ Fixed:~
     * Issue #90: |:VimwikiRenameFile| doesn't update links in diary.
     * Issue #790: Allow tags before a header with markdown syntax.
     * Issue #779: Vimwiki tags file meets ctags standard.
-    * Issue #781: Compatablity fixes for older versions of Vim.
+    * Issue #781: Compatibility fixes for older versions of Vim.
     * Issue #691: Allow |:VimwikiGoBackLink| to go back multiple times.
     * Update MathJax CDN loading instructions.
     * Issue #212: Don't treat comment characters within code blocks as

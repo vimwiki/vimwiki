@@ -1,19 +1,52 @@
 # Copied from previous .travis.yml by tinmarino the 2023-03-09
 
-name: Automatic regression test with Vim's Vader and Vint
+# Commented out to avoid verbosity on github commit status
+#name: Main
+#description: Vimwiki CI test bank
 
-run-name: Vimwiki Automatic Regression Test
-
-on: [push, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  Typos:
+    # Copyed from: https://github.com/junegunn/fzf/blob/master/.github/workflows/typos.yml
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: crate-ci/typos@v1.13.16
+        with:
+          config: ./test/resources/typos_config.toml
+
+
+  Vint:
+    # Copyed from: https://github.com/LudvigHz/vint-action
+    # And local test/run_test.sh
+    name: Vint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ludvighz/vint-action@v1
+        with:
+          path: .
+          args: --style-problem
+      - uses: ludvighz/vint-action@v1
+        with:
+          path: test/vimrc
+          args: --style-problem
+
+
   Check:
+    name: Check ${{ matrix.opt }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         opt: [
-          "vint",
+          #"vint",
 
           "-n vim_7.3.429",
           "-n vim_8.1.0519",
@@ -33,6 +66,8 @@ jobs:
     steps:
       # This action is required to fetch the code to test
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # This action is crafting the docker image from the root Docker file
       # or will use it is exists in cache

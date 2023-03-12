@@ -24,7 +24,7 @@ call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 let syntax_dic = g:vimwiki_syntaxlocal_vars[s:current_syntax]
 
 " Declare nesting capabilities
-" -- to be embeded in standard: bold, italic, underline
+" -- to be embedded in standard: bold, italic, underline
 
 " text: `code` or ``code`` only inline
 " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
@@ -316,7 +316,7 @@ for [color_key, color_value] in items(color_dic)
         \ . ' ' . b:vimwiki_syntax_concealends
   execute cmd
 
-  " Build hightlight command
+  " Build highlight command
   let cmd = 'hi Vimwiki' . color_key
   if fg !=# ''
     let cmd .= ' guifg=' . fg
@@ -471,7 +471,7 @@ hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
 hi def link VimwikiHeaderChar VimwikiMarkers
 
-" TODO remove unsued due to region refactoring
+" TODO remove unused due to region refactoring
 hi def link VimwikiEqInCharT VimwikiMarkers
 hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers

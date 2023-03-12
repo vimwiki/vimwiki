@@ -53,9 +53,9 @@ function! vimwiki#u#deprecate(old, new) abort
 endfunction
 
 function! vimwiki#u#get_selection(...) abort
-  " Get visual selection text content, optionaly replace its content
+  " Get visual selection text content, optionally replace its content
   " :param: Text to replace selection
-  " Copyed from DarkWiiPlayer at stackoverflow
+  " Copied from DarkWiiPlayer at stackoverflow
   " https://stackoverflow.com/a/47051271/2544873
   " Get selection extremity position,
   " Discriminate selection mode
@@ -271,7 +271,7 @@ endfunction
 
 function! vimwiki#u#get_syntax_dic(...) abort
   " Helper: Getter
-  " :param: syntax <string> to retrive, default to current
+  " :param: syntax <string> to retrieve, default to current
   let syntax = a:0 ? a:1 : vimwiki#vars#get_wikilocal('syntax')
   return g:vimwiki_syntaxlocal_vars[syntax]
 endfunction
@@ -315,7 +315,7 @@ function! vimwiki#u#hi_expand_regex(lst) abort
     let r_right_del = a_delimiter[1]
 
     " Regex Start:
-    " Left-Flanking is not followed by space (or ned of line)
+    " Left-Flanking is not followed by space (or need of line)
     let r_left_prefix = '\%(^\|[[:space:]]\@<=\)'
     let r_left_prefix = '\\\@<!'
     " -- not followed by Unicode whitespace,
@@ -398,7 +398,7 @@ function! vimwiki#u#hi_typeface(dic) abort
   " The last syntax defined take precedence so that user can change at runtime (:h :syn-define)
   " Some cases are contained by default:
   " -- ex: VimwikiCodeBoldUnderline is not defined in colorschemes -> VimwikiCode
-  " -- see: #709 asking for concealing quotes in bold, so it must be higlighted differently
+  " -- see: #709 asking for concealing quotes in bold, so it must be highlighted differently
   " -- -- for the user to understand what is concealed around
   " VimwikiCheckBoxDone and VimwikiDelText are as their are even when nested in bold or italic
   " -- This is because it would add a lot of code (as n**2) at startup and is not often used

@@ -10,7 +10,7 @@ endif
 let g:loaded_vimwiki_html_auto = 1
 
 " FIXME: Magics: Why not use the current syntax highlight
-" This is due to historical copy paste and lazyness of markdown user
+" This is due to historical copy paste and laziness of markdown user
 " text: *strong*
 " let s:default_syntax.rxBold = '\*[^*]\+\*'
 let s:rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
@@ -1081,7 +1081,7 @@ function! s:process_tag_list(line, lists, lstLeadingSpaces) abort
     return [processed, lines, lstLeadingSpaces]
   endif
 
-  " Can embeded indented code in list (Issue #55)
+  " Can embedded indented code in list (Issue #55)
   let b_permit = in_list
   let blockquoteRegExp = '^\s\{' . (lstLeadingSpaces + 2) . ',}[^[:space:]>*-]'
   let b_match = lstSym ==# '' && a:line =~# blockquoteRegExp

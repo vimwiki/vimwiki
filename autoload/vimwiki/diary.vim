@@ -184,7 +184,7 @@ endfunction
 
 
 function! s:read_captions(files) abort
-  " Read all cpation in 1. <List>files
+  " Read all caption in 1. <List>files
   " Return: <Dic>: key -> caption
   let result = {}
   let caption_level = vimwiki#vars#get_wikilocal('diary_caption_level')
@@ -452,7 +452,7 @@ function! vimwiki#diary#generate_diary_section() abort
           let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
           let entry = substitute(entry, '__FileExtension__', extension, 'g')
           " If single H1 then that will be used as the description for the link to the file
-          " if multple H1 then the filename will be used as the description for the link to the
+          " if multiple H1 then the filename will be used as the description for the link to the
           " file and multiple H1 headers will be indented by shiftwidth
           call add(lines, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
 

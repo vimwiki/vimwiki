@@ -165,4 +165,7 @@ Execute (Assert Syntax):
   AssertEqual 'VimwikiItalic', SyntaxAt(1, 7)
 
 
+# Rule 3 {{{1
+# TODO Test 3
+
 # vim: foldmethod=marker foldlevel=30 sw=2

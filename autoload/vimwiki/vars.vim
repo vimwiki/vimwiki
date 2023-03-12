@@ -43,7 +43,7 @@ endfunction
 function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
   " Helper: Check user setting
   " warn user with message if not good type
-  " Param: 1: key <string>: varaible name
+  " Param: 1: key <string>: variable name
   " Param: 2: vimwiki_key <obj>: user value
   " Param: 3: value_infod <dict>: type and default value
   " Param: 4: coming from a global variable <bool>
@@ -857,7 +857,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
     call s:extend_local(syntax_dic, default_dic, syntax_dic, g:vimwiki_syntax_list[a:syntax])
   endif
 
-  " TODO make that clean (i.e clearify what is local to syntax ot to buffer)
+  " TODO make that clean (i.e clarify what is local to syntax or to buffer)
   " Get from local vars
   let bullet_types = vimwiki#vars#get_wikilocal('bullet_types')
   if !empty(bullet_types)
@@ -927,7 +927,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
   else
     " asymmetric
-    " Note: For markdown rxH=# and asymetric
+    " Note: For markdown rxH=# and asymmetric
     for i in range(1,6)
       let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__'
@@ -941,7 +941,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$\|\%$'
     endfor
     " Define header regex
-    " -- ATX heading := preceed by #*
+    " -- ATX heading := preceded by #*
     let atx_heading = '^\s*\%('.header_symbol.'\{1,6}\)'
     let atx_heading .= '\zs[^'.header_symbol.'].*\ze$'
     let syntax_dic.rxHeader = atx_heading

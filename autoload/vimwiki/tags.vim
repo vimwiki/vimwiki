@@ -247,7 +247,7 @@ function! s:tags_entry_cmp(i1, i2) abort
   "
   " This function is needed for tags sorting, since plain sort() compares line
   " numbers as strings, not integers, and so, for example, tag at line 14
-  " preceeds the same tag on the same page at line 9.  (Because string "14" is
+  " precedes the same tags on the same page at line 9.  (Because string "14" is
   " alphabetically 'less than' string "9".)
   let items = []
   for orig_item in [a:i1, a:i2]

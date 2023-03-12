@@ -4,7 +4,7 @@
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
 
 
-" Clause: load only onces
+" Clause: load only once
 if exists('g:loaded_vimwiki') || &compatible
   finish
 endif
@@ -20,7 +20,7 @@ let s:plugin_dir = expand('<sfile>:p:h:h')
 let s:old_cpo = &cpoptions
 set cpoptions&vim
 
-" Save autowriteall varaible state
+" Save autowriteall variable state
 if exists('g:vimwiki_autowriteall')
   let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
 else
