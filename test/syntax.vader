@@ -172,7 +172,7 @@ Execute (Assert Done Syntax 2):
 Given vimwiki (Extended Types mono):
   `code          `
   ~~ strike     ~~
-  $ equation     $
+  $equation$
   ^superscript   ^
   ,, subscript   ,,
 
@@ -190,7 +190,7 @@ Execute (Assert Syntax extended types x 1):
 Given vimwiki (Extended Types nested in basic):
   From __bold   `code in bold  ` end of bold__ morF
   From _it and ~~ strieout in i~~ end of it_   morF
-  From __bold   $ equation     $ end bold        __
+  From __bold    $equation$      end bold        __
     **bold      ^superscript   ^ end of bold morF**
   From normal  ,, subscript    ,, still normal morF
 
@@ -207,7 +207,7 @@ Execute (Assert Syntax extended types x 2):
 Given vimwiki (Extended Types nested in extended):
   From ^super to`code this     ` is crazy but^  morF
   From ,,sub to~~ strike       ~~why not,,      morF
-  From ~~strike $ equation     $ end of strike~~morF
+  From ~~strike $eequationeeeee$ end of strike~~morF
   From $eq to   ^super         ^ Just inline   morF$
   From ^super t,,sub           ,, end super eol    ^
 
@@ -224,7 +224,7 @@ Execute (Assert Syntax extended types nested in extended):
 Given vimwiki (Basic Types nested in extended):
   From ^super  __bold          __ is crazy but^  morF
   From ,,sub    _italic with en_  aaaaaaa,,      morF
-  From $eq to  **boldboldboldbo** aaaaaaaaa         $
+  From $eq to  **boldboldboldbo** aaaaaaaaa$        $
   From ^super   *italic aaaaaaa*aaaaaaaaaaaaaaaaaaaaa
   From ~~strik __bbbbbbbbbbbbb__ssssssssssssssssss~~
 
@@ -721,7 +721,7 @@ Execute (Assert Code syntax):
 #######################
 
 Given vimwiki (Math markdown):
-  math inline: $ aaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
+  math inline: $aaaaaaaaaaaaaaa \sum_i a_i^2 = 1 end$
 
   math block:
   $$
@@ -751,7 +751,7 @@ Execute (Assert math syntax 1):
 ##############################
 
 Given vimwiki (Math wiki):
-  math inline: $aaaaaaaaaaaaaaaaaaaaaaaaaa \sum_i a_i^2 = 1 $
+  math inline: $aaaaaaaaaaaaaaaaaaaaaaaaaa \sum_i a_i^2 = 1$
 
   math block:
   {{$
