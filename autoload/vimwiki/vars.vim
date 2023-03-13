@@ -711,7 +711,7 @@ function! s:get_default_syntaxlocal() abort
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$\\]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$\\]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -764,7 +764,7 @@ function! s:get_markdown_syntaxlocal() abort
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -808,7 +808,7 @@ function! s:get_media_syntaxlocal() abort
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -833,6 +833,12 @@ function! s:get_common_syntaxlocal() abort
   let res.rxTableSep = {'type': type(''), 'default': '|'}
   " See issue #1287
   let res.yaml_metadata_block = {'type': type([]), 'default': a_yaml_region}
+
+
+  " Declare helper for inline math nested variable
+  let s:rx_inline_math_start = '\%(^\|[^$\\]\)\@<=\$\%($\|[^$[:space:]]\)\@='
+  let s:rx_inline_math_end   = '\%(^\|[^$\\[:space:]]\)\@<=\$\%($\|[^$0-9]\)\@='
+
   return res
 endfunction
 
