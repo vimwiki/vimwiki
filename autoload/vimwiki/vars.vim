@@ -673,6 +673,7 @@ endfunction
 function! s:get_default_syntaxlocal() abort
   " Get default syntaxlocal variable dictionary
   " type, default, min, max, possible_values, min_length
+
   return extend(s:get_common_syntaxlocal(), {
         \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
         \ 'bold_search': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='},
@@ -815,10 +816,23 @@ endfunction
 
 function! s:get_common_syntaxlocal() abort
   let res = {}
+
+  " Declare helper: a line with only --- or ...
+  let rx_yaml_start_pre = '\%(^\%(\%1l\|^$\n\)\@<=\)'
+  let rx_yaml_start_post = '\%(\%(\n^$\)\@!$\)'
+  let a_yaml_region = []
+  for rx_yaml_delimiter in ['---', '\.\.\.']
+    let rx_yaml_start = rx_yaml_start_pre . rx_yaml_delimiter . rx_yaml_start_post
+    let rx_yaml_stop = '^' . rx_yaml_delimiter . '$'
+    call add(a_yaml_region, [rx_yaml_start, rx_yaml_stop])
+  endfor
+
   let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
   let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUnderline,VimwikiDelText'}
   let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
   let res.rxTableSep = {'type': type(''), 'default': '|'}
+  " See issue #1287
+  let res.yaml_metadata_block = {'type': type([]), 'default': a_yaml_region}
   return res
 endfunction
 

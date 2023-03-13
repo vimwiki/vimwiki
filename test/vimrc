@@ -343,21 +343,37 @@
     0d
   endfunction
 
-  function! GetSyntaxGroup(line, col)
+  function! GetSyntaxGroup(...)
     " Get normalized syntax group: usefull for boldItalic Vs italicBold
+    " Arg1: line
+    " Arg2: column
     " -- Here, Vader's SyntaxAt is not enough
     " From: https://stackoverflow.com/questions/9464844
-    let l:s = synID(a:line, a:col, 1)
+    let line = a:0 >= 1 ? a:1 : '.'
+    let col = a:0 >= 2 ? a:2 : '.'
+
+    let l:s = synID(line, col, 1)
     return synIDattr(synIDtrans(l:s), 'name')
   endfun
 
-  function! GetSyntaxStack()
+  function! GetSyntaxStack(...)
     " Debug helper
+    " Arg1: line
+    " Arg2: column
+    let line = a:0 >= 1 ? a:1 : '.'
+    let col = a:0 >= 2 ? a:2 : '.'
     if !exists('*synstack')
-      return
+      return []
     endif
-    return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-  endfunc
+    let res = map(synstack(line, col), 'synIDattr(v:val, "name")')
+
+    " For old vim version returning 0
+    if type(res) == type(0) && res == 0
+      return []
+    endif
+
+    return res
+  endfunction
 
   function! AssertIfVersion(version, one, two)
     " Run Assert only if vim version is high enough

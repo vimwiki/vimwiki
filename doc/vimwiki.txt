@@ -2938,12 +2938,24 @@ color. (See autoload/vimwiki/vars.vim)
 
 Syntax options are configured using the following pattern: >
 
-    let g:vimwiki_syntax_list['markdown']['bullet_type'] = ['*', '-', '+']
+    let g:vimwiki_syntaxlocal_vars = {}
+    let g:vimwiki_syntaxlocal_vars['markdown'] = []
+    let g:vimwiki_syntaxlocal_vars['markdown']['bullet_type'] = ['*', '-', '+']
 
 Where:
 - `markdown` is the syntax name. It can be (`default`, `markdown` or `media`)
 - `bullet_type` is the option_name (see below)
 - `['*', '-', '+']` is the option value
+
+
+------------------------------------------------------------------------------
+*yaml_metadata_block*
+
+List of (start, end) regex region delimiters to define the YAML header
+More information in #1287 and https://pandoc.org/MANUAL.html#extension-yaml_metadata_block
+
+Default: [['^---$', '^---$'], ['^\.\.\.$', '^\.\.\.$']]
+or similar with stricter anchors
 
 
 ------------------------------------------------------------------------------
@@ -3998,6 +4010,11 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+New:~
+    * Issue #1287 Highlight YAML header with |yaml_metadata_block|
+      configuration variable holding region delimiters
+
 
 2022.12.02~
 

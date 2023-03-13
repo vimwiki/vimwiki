@@ -508,6 +508,17 @@ if !empty(s:nested)
   endfor
 endif
 
+" Include: Yaml metadata block for pandoc
+let a_yaml_delimiter = vimwiki#vars#get_syntaxlocal('yaml_metadata_block')
+for [rx_start, rx_end] in a_yaml_delimiter
+  call vimwiki#base#nested_syntax(
+        \ 'yaml',
+        \ rx_start,
+        \ rx_end,
+        \ 'VimwikiPre')
+endfor
+
+
 " LaTex: Load
 if !empty(globpath(&runtimepath, 'syntax/tex.vim'))
   execute 'syntax include @textGrouptex syntax/tex.vim'
