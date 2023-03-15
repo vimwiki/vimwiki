@@ -2236,7 +2236,7 @@ function! vimwiki#base#AddHeaderLevel(...) abort
   " Clause, argument must be <= 1
   " Actually argument is not used :-)
   if a:1 > 1
-    call vimwiki#base#AddHeaderLevel(1)
+    call vimwiki#base#AddHeaderLevel(a:1 - 1)
   endif
   let lnum = line('.')
   let line = getline(lnum)
@@ -2270,7 +2270,7 @@ function! vimwiki#base#RemoveHeaderLevel(...) abort
   " Clause, argument must be <= 1
   " Actually argument is not used :-)
   if a:1 > 1
-    call vimwiki#base#RemoveHeaderLevel(1)
+    call vimwiki#base#RemoveHeaderLevel(a:1 - 1)
   endif
   let lnum = line('.')
   let line = getline(lnum)

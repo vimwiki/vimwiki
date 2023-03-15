@@ -4011,6 +4011,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+Fixed:~
+    * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
+      refactoring commit
+
+
 2022.03.15~
 
 New:~
