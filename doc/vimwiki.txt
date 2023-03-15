@@ -4011,7 +4011,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2022.03.15~
+
 New:~
+    * Issue #150 Fix Math border cases
+      according to https://pandoc.org/MANUAL.html#math
     * Issue #1287 Highlight YAML header with |yaml_metadata_block|
       configuration variable holding region delimiters
 
