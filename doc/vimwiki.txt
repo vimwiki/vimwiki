@@ -2954,7 +2954,7 @@ Where:
 List of (start, end) regex region delimiters to define the YAML header
 More information in #1287 and https://pandoc.org/MANUAL.html#extension-yaml_metadata_block
 
-Default: [['^---$', '^---$'], ['^\.\.\.$', '^\.\.\.$']]
+Default: [['^---$', '^\%(---\|\.\.\.$']]
 or similar with stricter anchors
 
 

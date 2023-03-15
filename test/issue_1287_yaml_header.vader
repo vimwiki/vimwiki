@@ -25,13 +25,13 @@ Given vimwiki (Yaml with --- at top):
 Execute (Assert delimiter with --- at top):
   call Issue1287Yaml(1)
 
-Given vimwiki (Yaml with ... at top):
-  ...
+Given vimwiki (Yaml with --- at bottom):
+  ---
   title: my title
   description: my description
   ...
 
-Execute (Assert delimiter with ... at top):
+Execute (Assert delimiter with ... at bottom):
   call Issue1287Yaml(1)
 
 Given vimwiki (Yaml with --- after empty line):
@@ -63,10 +63,7 @@ Execute (Assert all is yaml except after the closing ---):
 
   AssertEqual 'textSnipYAML1', GetSyntaxStack(1, 2)[0] . 1
   AssertEqual 'textSnipYAML2', GetSyntaxStack(2, 2)[0] . 2
-  AssertEqual 'textSnipYAML3', GetSyntaxStack(3, 2)[0] . 3
-  AssertEqual 'textSnipYAML4', GetSyntaxStack(4, 2)[0] . 4
-  AssertEqual 'textSnipYAML5', GetSyntaxStack(5, 2)[0] . 5
-  AssertEqual 'textSnipYAML6', GetSyntaxStack(5, 2)[0] . 6
+  AssertEqual 'VimwikiPre3', GetSyntaxStack(3, 2)[0] . 3
 
   AssertEqual 0, len(GetSyntaxStack(7, 2))
   AssertEqual 0, len(GetSyntaxStack(8, 2))
