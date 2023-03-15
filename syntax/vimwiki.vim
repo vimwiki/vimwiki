@@ -150,6 +150,25 @@ let s:target = vimwiki#base#apply_template(
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
+" List:
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
+execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
+
+" Task List Done:
+if vimwiki#vars#get_global('hl_cb_checked') == 1
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+        \ . vimwiki#vars#get_global('listsym_rejected')
+        \ . ']\]\s\(.*\)$/ '
+        \ . 'contains=' . syntax_dic.nested . ',VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+elseif vimwiki#vars#get_global('hl_cb_checked') == 2
+  execute 'syntax match VimwikiCheckBoxDone /'
+        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
+        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+endif
+
+
 " Header Level: 1..6
 for s:i in range(1,6)
   " WebLink are for markdown but putting them here avoidcode duplication
@@ -235,24 +254,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
                            \ @Spell
 
 syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
-
-" List:
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
-execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
-
-" Task List Done:
-if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
-        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
-        \ . vimwiki#vars#get_global('listsym_rejected')
-        \ . ']\]\s\(.*\)$/ '
-        \ . 'contains=' . syntax_dic.nested . ',VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
-elseif vimwiki#vars#get_global('hl_cb_checked') == 2
-  execute 'syntax match VimwikiCheckBoxDone /'
-        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
-        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
-endif
 
 
 " Horizontal Rule: <hr>
