@@ -319,16 +319,16 @@ function! vimwiki#u#hi_expand_regex(lst) abort
     let r_left_prefix = '\%(^\|[[:space:]]\@<=\)'
     let r_left_prefix = '\\\@<!'
     " -- not followed by Unicode whitespace,
-    let r_left_suffix = '\%([^[:space:]]\@=\)'
+    let r_left_suffix = '\%([[:space:]\n]\@!\)'
 
     " Left Case1: not followed by punctuation
-    let r_left_suffix1 = '\%(\%([^[:space:]' . punctuation . ']\)\@=\)'
+    let r_left_suffix1 = '\%(\%([[:space:]\n' . punctuation . ']\)\@!\)'
     " -- Can escape the leftflank
     let r_left_prefix1 = '\%(^\|\\\@<!\)'
 
     " Left Case2: followed by punctuation so must be preceded by Unicode whitespace or start of line or a punctuation character.
     let r_left_suffix2 = '\%([' . punctuation . ']\@=\)'
-    let r_left_prefix2 = '\%(\%(^\|[[:space:]' . punctuation . ']\)\@<=\)'
+    let r_left_prefix2 = '\%(\%(^\|[[:space:]\n' . punctuation . ']\)\@<=\)'
 
     " Left Concatenate
     let r_start = '\%(' . r_left_prefix1 . r_left_del . r_left_suffix1

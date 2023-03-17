@@ -3825,7 +3825,7 @@ generate and follow_link
 ----------------------------------------------------- ReGeX
 | pre       | '^\|\s'  | Limitations to tag precedence
 | pre_mark  | ':'      | Tag list opener
-| in  | '[:space:]]\+' | Tag permitted characters
+| in        | '[[:space:]]\+' | Tag permitted characters
 | sep       | ':'      | Tag separators in a tag list
 | post_mark | ':'      | Tag list closer
 | post      | '\s\|$'  | Limitations to tag following
