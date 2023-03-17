@@ -1,7 +1,16 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
-" Vimwiki autoload plugin file
-" Description: Everything concerning lists and checkboxes
+" Title: Vimwiki list functions
+"
+" Description:
+"   Everything concerning lists and checkboxes
+"
+"   Also helpers for blockquotes as this file has intelligence and map (issue #1274)
+"     i <Cr>
+"     n o
+"     n O
+"   Which also got exploited for blocquotes
+"
 " Home: https://github.com/vimwiki/vimwiki/
+
 
 
 if exists('g:loaded_vimwiki_list_auto') || &compatible
@@ -145,11 +154,24 @@ function! s:line_has_marker(lnum) abort
   " Returns: 2 if there is a marker and text
   " 1 for a marker and no text
   " 0 for no marker at all (empty line or only text)
-  if getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*$'
+
+  " Concatenate regex list and blockquote item
+  let rx_list_or_blockquote =
+        \ '\%('
+        \ . vimwiki#vars#get_wikilocal('rxListItem')
+        \ . '\|'
+        \ . vimwiki#vars#get_wikilocal('rxBlockquoteItem')
+        \ . '\)'
+
+  " Search for marker
+  if getline(a:lnum) =~# rx_list_or_blockquote . '\s*$'
+    " Found without text
     return 1
-  elseif getline(a:lnum) =~# vimwiki#vars#get_wikilocal('rxListItem').'\s*\S'
+  elseif getline(a:lnum) =~# rx_list_or_blockquote . '\s*\S'
+    " Found with text
     return 2
   else
+    " Not found
     return 0
   endif
 endfunction
@@ -178,12 +200,17 @@ endfunction
 " ---------------------------------------------------------
 
 function! s:get_item(lnum) abort
-  " Returns: the mainly used data structure in this file
+  " Return: the mainly used data structure in this file
   " An item represents a single list item and is a dictionary with the keys
   " lnum - the line number of the list item
-  " type - 1 for bulleted item, 2 for numbered item, 0 for a regular line (default)
+  " type - the type of marker at current line
+  "      - 0 for a regular line (default)
+  "      - 1 for bulleted item
+  "      - 2 for numbered item
+  "      - 3 a blockquote item (see #1274 to add line-continuation trick to blockquotes)
   " mrkr - the concrete marker, e.g. '**' or 'b)' (default '')
   " cb   - the char in the checkbox or '' if there is no checkbox
+
   " Init default
   let item = {'lnum': a:lnum}
   let item.type = 0
@@ -195,7 +222,15 @@ function! s:get_item(lnum) abort
     return item
   endif
 
-  " Search for list on current line
+  " Clause: Search for blockquotes (#1274) and return it if found
+  let matches = matchlist(getline(a:lnum), vimwiki#vars#get_wikilocal('rxBlockquoteItem'))
+  if len(matches) >= 1 && matches[1] !=? ''
+    let item.type = 3
+    let item.mrkr = matches[1]
+    return item
+  endif
+
+  " List: Search for list on current line if no blockquotes
   let matches = matchlist(getline(a:lnum), vimwiki#vars#get_wikilocal('rxListItem'))
   " Clause: If not on a list line => do not work
   if matches == [] ||
@@ -205,6 +240,7 @@ function! s:get_item(lnum) abort
   endif
 
   " Fill item
+  " The checkbox inner is the last match
   let item.cb = matches[3]
   if matches[1] !=? ''
     let item.type = 1
@@ -1117,7 +1153,7 @@ function! s:remove_done_in_list(item, recursive) abort
   if a:item.type == 0
     return
   endif
- 
+
   " Recurse self on list item
   let first_item = s:get_first_item_in_list(a:item, 0)
   let total_lines_removed = 0
@@ -1183,7 +1219,7 @@ function! vimwiki#lst#remove_done_in_range(first_line, last_line) abort
     endif
     let cur_ln = s:get_next_line(cur_ln)
   endwhile
- 
+
   " Update all parent state (percentage of done)
   for parent_item in parent_items_of_lines
     call s:update_state(parent_item)
@@ -1842,3 +1878,5 @@ function! vimwiki#lst#fold_level(lnum) abort
   endif
   return '='
 endfunction
+
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
