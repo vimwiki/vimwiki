@@ -1367,7 +1367,6 @@ function! s:expand_delimiter(delim, b_can_mult) abort
   let rx_end = '\%($\|\%(\\\@<!' . c_end . '\)\@!\)'
 
   let res = '\%(' . rx_start . rx_middle . rx_end . '\)'
-  echom res
   return res
 endfunction
 
