@@ -4,6 +4,27 @@
 # 0 Escape {{{1
 #################
 
+Given vimwiki (Most easy typeface):
+  1. 567890123
+  2. __bold__
+  3. *Italic*
+  4. ***Bold Italic***
+  5. ~~Strikethrough~~
+  6. <sub>Subscript</sub>
+  7. <sup>Superscript</sup>
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax basic typeface):
+  AssertEqual '1'                  , SyntaxAt(1, 9) . 1
+  AssertEqual 'VimwikiBold2'       , SyntaxAt(2, 9) . 2
+  AssertEqual 'VimwikiItalic3'     , SyntaxAt(3, 9) . 3
+  AssertEqual 'VimwikiBoldItalic4' , SyntaxAt(4, 9) . 4
+  AssertEqual 'VimwikiDelText5'    , SyntaxAt(5, 9) . 5
+  AssertEqual 'VimwikiSubScript6'  , SyntaxAt(6, 9) . 6
+  AssertEqual 'VimwikiSuperScript7', SyntaxAt(7, 9) . 7
+
 Given vimwiki (Markdown typeface with escape sequence #1044: _ __ * ** {{{2):
   This is 14   | 1
   __bold from begining__ 2
