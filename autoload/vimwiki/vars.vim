@@ -1,6 +1,5 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
-" Vimwiki autoload plugin file
-" Description: Vimwiki variable definition and manipulation
+" Title: Vimwiki variable definition and manipulation functions
+"
 " Home: https://github.com/vimwiki/vimwiki/
 
 " ------------------------------------------------------------------------------------------------
@@ -610,6 +609,8 @@ function! s:normalize_wikilocal_settings() abort
     endif
     call s:populate_list_vars(wiki_settings)
 
+    call s:populate_blockquote_vars(wiki_settings)
+
     " Check nested syntax
     for keyword in keys(wiki_settings.nested_syntaxes)
       if type(keyword) != type('') || empty(keyword) || type(wiki_settings.nested_syntaxes[keyword]) != type('') ||
@@ -833,6 +834,10 @@ function! s:get_common_syntaxlocal() abort
   " Declare helper for inline math nested variable
   let s:rx_inline_math_start = '\%(^\|[^$\\]\)\@<=\$\%($\|[^$[:space:]]\)\@='
   let s:rx_inline_math_end   = '\%(^\|[^$\\[:space:]]\)\@<=\$\%($\|[^$0-9]\)\@='
+
+  " Blockquote marker (#1274)
+  " -- it should not be changed but let's avoid hardcoding
+  let res.blockquote_markers = {'type': type([]), 'default': ['>']}
 
   return res
 endfunction
@@ -1118,6 +1123,22 @@ function! s:populate_list_vars(wiki) abort
           \ . a:wiki.listsyms_list[-1]
           \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
+endfunction
+
+
+function! s:populate_blockquote_vars(wiki) abort
+  " Populate blockquote variable
+  " Start being more intelligent on blockquote line continuation
+  " See: issue #1274
+
+  " Start of line and spaces
+  let a:wiki.rxBlockquoteItem = '^\s*\('
+
+  " Content
+  let blockquote_markers =  vimwiki#vars#get_syntaxlocal('blockquote_markers')
+  let a:wiki.rxBlockquoteItem .= join(blockquote_markers, '\|')
+
+  let a:wiki.rxBlockquoteItem .= '\)'
 endfunction
 
 
@@ -1681,3 +1702,4 @@ function! vimwiki#vars#number_of_wikis() abort
   " Return: number of registered wikis + temporary
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99

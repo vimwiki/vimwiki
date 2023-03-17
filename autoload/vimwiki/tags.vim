@@ -117,7 +117,8 @@ function! s:scan_tags(lines, page_name) abort
         endfor
         let current_complete_anchor .= header
       endif
-      continue " tags are not allowed in headers
+      " See: issue #1316 to allow tags in header
+      " continue " tags are not allowed in headers
     endif
 
     " Scan line for tags.  There can be many of them.

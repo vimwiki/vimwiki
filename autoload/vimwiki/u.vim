@@ -359,7 +359,8 @@ endfunction
 
 function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
   " Helper: Create highlight region between two tags
-  " :param: tag <string> example '<b>'
+  " :param: tag_pre <string>: opening tag example '<b>'
+  " :param: tag_post <string>: closing tag example '</b>'
   " :param: syntax_group <string> example: VimwikiBold
   " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
   " :param: (1) <boolean> is contained

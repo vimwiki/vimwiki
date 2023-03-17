@@ -964,9 +964,9 @@ Vimwiki file.
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
     window.
-    
+
     This can be used to find "Orphaned" wiki files/pages.
-    
+
     With range: the wiki number, by default current wiki
 
 
@@ -1190,13 +1190,13 @@ in HTML: >
   alt="Vimwiki"/>
 
 Transclude image with alternate text and some style: >
-  {{http://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
+  {{https://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
 in HTML: >
   <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="cool stuff" style="width:150px; height:120px"/>
 
 Transclude image _without_ alternate text and with a CSS class: >
-  {{http://.../vimwiki_logo.png||class="center flow blabla"}}
+  {{https://.../vimwiki_logo.png||class="center flow blabla"}}
 in HTML: >
   <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="" class="center flow blabla"/>
@@ -1207,16 +1207,16 @@ See |VimwikiWikiIncludeHandler|.
 Thumbnail links~
 >
 Thumbnail links are constructed like this: >
-  [[http://someaddr.com/bigpicture.jpg|{{http://someaddr.com/thumbnail.jpg}}]]
+  [[https://someaddr.com/bigpicture.jpg|{{https://someaddr.com/thumbnail.jpg}}]]
 
 in HTML: >
-  <a href="http://someaddr.com/ ... /.jpg">
-  <img src="http://../thumbnail.jpg /></a>
+  <a href="https://someaddr.com/ ... /.jpg">
+  <img src="https://../thumbnail.jpg /></a>
 
 Markdown Links~
 
 These links are only available for Markdown syntax.  See
-http://daringfireball.net/projects/markdown/syntax#link.
+https://daringfireball.net/projects/markdown/syntax#link.
 
 Inline link: >
   [Looks like this](URL)
@@ -1456,7 +1456,7 @@ See |vimwiki-option-nested_syntaxes| and
 5.8. Mathematical formulae                              *vimwiki-syntax-math*
 
 Mathematical formulae are highlighted, and can be rendered in HTML using the
-powerful open source display engine MathJax (http://www.mathjax.org/).
+powerful open source display engine MathJax (https://www.mathjax.org/).
 
 There are three supported syntaxes, which are inline, block display and
 block environment.
@@ -2029,7 +2029,7 @@ If you have Calendar.vim installed you can use it to create diary notes.
 Just open calendar with :Calendar and tap <Enter> on the date. A wiki file
 will be created in the default wiki's diary.
 
-Get it from http://www.vim.org/scripts/script.php?script_id=52
+Get it from https://www.vim.org/scripts/script.php?script_id=52
 
 See |g:vimwiki_use_calendar| option to turn it off/on.
 
@@ -2949,6 +2949,14 @@ Where:
 
 
 ------------------------------------------------------------------------------
+*blockquote_markers*
+
+List of markers to define the blockquote regrion
+
+Default: ['>']
+
+
+------------------------------------------------------------------------------
 *yaml_metadata_block*
 
 List of (start, end) regex region delimiters to define the YAML header
@@ -3861,15 +3869,15 @@ See CONTRIBUTING.md for info about how to file bugs etc.
 ==============================================================================
 15. Development                                          *vimwiki-development*
 
-Homepage: http://vimwiki.github.io/
+Homepage: https://vimwiki.github.io/
 Github: https://github.com/vimwiki/vimwiki/
-Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
-Old homepage: http://code.google.com/p/vimwiki/
+Vim plugins: https://www.vim.org/scripts/script.php?script_id=2226
+Old homepage: https://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
     - Maxim Kim (@habamax) <habamax@gmail.com> as original author
-    - the people here: http://code.google.com/p/vimwiki/people/list
+    - the people here: https://code.google.com/p/vimwiki/people/list
     - Stuart Andrews (@tub78)
     - Tomas Pospichal
     - Daniel Schemala (@EinfachToll) as current maintainer
@@ -4001,7 +4009,7 @@ Contributors and their Github usernames in roughly chronological order:
 
 Issue numbers starting with '#' are issues from
 https://github.com/vimwiki/vimwiki/issues/, all others from
-http://code.google.com/p/vimwiki/issues/list. They may be accessible from
+https://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
 From version 2022.12.02, what would have been 2.6.0 under the prior versioning
@@ -4011,12 +4019,21 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+New:~
+    * Issue #1261: Feature: Support for <mark> in Markdown
+      highlighting with yellow background and back foreground
+    * Issue #1274: Feature: Continue blockquote when <CR>
+      is pressed in insert mode
+      Also add the |blockquote_markers| variable
+
 Fixed:~
+    * Issue #1229: Bug: VimwikiGoto without argument creates empty page
+    * Issue #1316: Permit tags in heading
     * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
       refactoring commit
 
 
-2022.03.15~
+2023.03.15~
 
 New:~
     * Issue #150 Fix Math border cases
@@ -4483,7 +4500,7 @@ Summary ~
     * Option to disable table mappings. See |g:vimwiki_table_mappings|.
 
 For detailed information see issues list on
-http://code.google.com/p/vimwiki/issues/list
+https://code.google.com/p/vimwiki/issues/list
 
 
 1.2~
@@ -4562,7 +4579,7 @@ http://code.google.com/p/vimwiki/issues/list
 17. License                                                  *vimwiki-license*
 
 The MIT License
-http://www.opensource.org/licenses/mit-license.php
+https://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2008-2010 Maxim Kim
               2013-2017 Daniel Schemala
