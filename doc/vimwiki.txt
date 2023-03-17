@@ -4011,9 +4011,6 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
-New:~
-    * Issue #309: Add basic GTD-style token highlighting
-
 Fixed:~
     * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
       refactoring commit
