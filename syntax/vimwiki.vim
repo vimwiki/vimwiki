@@ -328,6 +328,13 @@ for [color_key, color_value] in items(color_dic)
   execute cmd
 endfor
 
+" Html mark tag, feature request in issue #1261
+let cmd = 'syntax region VimwikiMarkTag matchgroup=VimwikiDelimiterColor'
+      \ . ' start=/<mark>/'
+      \ . ' end=+</mark>+'
+      \ . ' ' . b:vimwiki_syntax_concealends
+execute cmd
+
 
 " Comment: home made
 execute 'syntax match VimwikiComment /'.vimwiki#vars#get_syntaxlocal('comment_regex').
@@ -417,6 +424,8 @@ hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
 hi def link VimwikiCode PreProc
 hi def link VimwikiCodeT VimwikiCode
 
+" Mark
+hi def VimwikiMarkTag term=bold ctermbg=yellow ctermfg=black guibg=yellow guifg=black
 hi def link VimwikiPre PreProc
 hi def link VimwikiPreT VimwikiPre
 hi def link VimwikiPreDelim VimwikiPre

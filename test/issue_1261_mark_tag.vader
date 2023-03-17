@@ -1,0 +1,35 @@
+# Issue: #1261: Feature: Support for <mark> in Markdown
+
+
+Given vimwiki (Single line mark):
+  <mark>Single line</mark>
+  01234567890
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+
+Execute (Assert all is yaml except after the closing ---):
+  AssertEqual 'VimwikiMarkTag1', GetSyntaxStack(1, 7)[0] . 1
+  AssertEqual '02', len(GetSyntaxStack(2, 7)) . 2
+
+
+Given vimwiki (Multiple line mark):
+  <mark>Start
+  Multiple
+  Line
+  end</mark>
+  01234567890
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+
+Execute (Assert all is yaml except after the closing ---):
+  AssertEqual 'VimwikiMarkTag1', GetSyntaxStack(1, 7)[0] . 1
+  AssertEqual 'VimwikiMarkTag2', GetSyntaxStack(2, 2)[0] . 2
+  AssertEqual 'VimwikiMarkTag3', GetSyntaxStack(3, 2)[0] . 3
+  AssertEqual 'VimwikiMarkTag4', GetSyntaxStack(4, 2)[0] . 4
+  AssertEqual '05', len(GetSyntaxStack(5, 7)) . 5
