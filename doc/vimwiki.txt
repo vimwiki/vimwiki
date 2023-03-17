@@ -4019,12 +4019,15 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
-Fixed:~
+New:~
     * Issue #1261: Feature: Support for <mark> in Markdown
       highlighting with yellow background and back foreground
     * Issue #1274: Feature: Continue blockquote when <CR>
       is pressed in insert mode
       Also add the |blockquote_markers| variable
+
+Fixed:~
+    * Issue #1229: Bug: VimwikiGoto without argument creates empty page
     * Issue #1316: Permit tags in heading
     * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
       refactoring commit

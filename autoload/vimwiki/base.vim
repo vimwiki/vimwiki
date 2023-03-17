@@ -492,7 +492,7 @@ endfunction
 function! vimwiki#base#goto(...) abort
   " Jump: to other wikifile, specified on command mode
   " Called: by command VimwikiGoto (Exported)
-  let key = a:0 > 0 ? a:1 : input('Enter name: ', '',
+  let key = a:0 > 0 && a:1 !=# '' ? a:1 : input('Enter name: ', '',
         \ 'customlist,vimwiki#base#complete_links_escaped')
 
   let anchor = a:0 > 1 ? a:2 : ''
