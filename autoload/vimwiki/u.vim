@@ -408,6 +408,13 @@ function! vimwiki#u#hi_typeface(dic) abort
 
   let nested = vimwiki#u#get_syntax_dic().nested
 
+  " Bold Italic
+  if has_key(a:dic, 'bold_italic')
+    for bi in a:dic['bold_italic']
+      call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', nested . ',VimwikiBoldItalicUnderline')
+    endfor
+  endif
+
   " Italic
   for i in a:dic['italic']
     "  -- Italic 1
@@ -435,13 +442,6 @@ function! vimwiki#u#hi_typeface(dic) abort
     " -- Underline 3
     call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiUnderlineItalicBold', nested, 2)
   endfor
-
-  " Bold Italic
-  if has_key(a:dic, 'bold_italic')
-    for bi in a:dic['bold_italic']
-      call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', nested . ',VimwikiBoldItalicUnderline')
-    endfor
-  endif
 
   " Underline
   for u in a:dic['underline']

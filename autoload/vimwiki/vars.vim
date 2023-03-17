@@ -753,19 +753,19 @@ function! s:get_markdown_syntaxlocal() abort
         \ 'symH': {'type': type(0), 'default': 0},
         \ 'typeface': {'type': type({}), 'default': {
         \   'bold': vimwiki#u#hi_expand_regex([
-        \     ['\%(\\\@<!_\)\@<!__\%(\\\@<!_\)\@!', '\%(\\\@<!_\)\@<!__\%(\\\@<!_\)\@!'],
-        \     ['\%(\\\@<!\*\)\@<!\*\*\%(\\\@<!\*\)\@!', '\%(\\\@<!\*\)\@<!\*\*\%(\\\@<!\*\)\@!'],
+        \     [s:expand_delimiter('__', 1), s:expand_delimiter('__', 1)],
+        \     [s:expand_delimiter('\*\*', 1), s:expand_delimiter('\*\*', 1)],
         \     ]),
         \   'italic': vimwiki#u#hi_expand_regex([
-        \     ['\%(\\\@<!\*\)\@<!\*\%(\\\@<!\*\)\@!', '\%(\\\@<!\*\)\@<!\*\%(\\\@<!\*\)\@!'], 
-        \     ['\%(\\\@<!_\)\@<!_\%(\\\@<!_\)\@!', '\%(\\\@<!_\)\@<!_\%(\\\@<!_\)\@!'], 
+        \     [s:expand_delimiter('_', 0), s:expand_delimiter('_', 0)],
+        \     [s:expand_delimiter('\*', 0), s:expand_delimiter('\*', 0)],
+        \     [s:expand_delimiter('\*_', 1), s:expand_delimiter('_\*', 1)],
+        \     [s:expand_delimiter('_\*', 1), s:expand_delimiter('\*_', 1)],
         \     ]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
         \   'bold_italic': vimwiki#u#hi_expand_regex([
-        \     ['\*_', '_\*'],
-        \     ['_\*', '\*_'],
-        \     ['\%(\\\@<!\*\)\@<!\*\*\*\%(\\\@<!\*\)\@!', '\%(\\\@<!\*\)\@<!\*\*\*\%(\\\@<!\*\)\@!'],
-        \     ['\%(\\\@<!_\)\@<!___\%(\\\@<!_\)\@!', '\%(\\\@<!_\)\@<!___\%(\\\@<!_\)\@!']
+        \     [s:expand_delimiter('\*\*\*', 1), s:expand_delimiter('\*\*\*', 1)],
+        \     [s:expand_delimiter('___', 1), s:expand_delimiter('___', 1)],
         \     ]),
         \   'code': [
         \       ['\%(^\|[^`\\]\)\@<=`\%($\|[^`]\)\@=',
@@ -1341,6 +1341,34 @@ function! s:normalize_syntax_settings(syntax) abort
     let syntax_dic.Link1 = vimwiki#vars#get_global('WikiLinkTemplate1')
     let syntax_dic.Link2 = vimwiki#vars#get_global('WikiLinkTemplate2')
   endif
+endfunction
+
+
+function! s:expand_delimiter(delim, b_can_mult) abort
+  " Helper: From a delimiter to the lookhead defensive version
+  " See: also vimwiki#u#hi_expand_regex
+  " TODO: get some cache to avoid recrafting the same prefix always
+  
+  " Clause: if nothing, return nothing
+  if len(a:delim) == 0
+    return '\%(\)'
+  endif
+
+  " let c_start = a:delim[0] ==# '\' ? a:delim[0:1] : a:delim[0]
+  " let c_end = (len(a:delim) > 1 && a:delim[-2:-2] ==# '\') ? a:delim[-2:-1] : a:delim[-1:]
+  " Hardcode for markdown
+  let c_start = '[_*]'
+  let c_end = '[_*]'
+
+  let rx_mult = a:b_can_mult ? '\+' : ''
+
+  let rx_start = '\%(^\|\%(\\\@<!' . c_start . '\)\@<!\)'
+  let rx_middle = '\%(\%(' . a:delim . '\)' . rx_mult . '\)'
+  let rx_end = '\%($\|\%(\\\@<!' . c_end . '\)\@!\)'
+
+  let res = '\%(' . rx_start . rx_middle . rx_end . '\)'
+  echom res
+  return res
 endfunction
 
 

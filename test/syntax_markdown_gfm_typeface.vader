@@ -768,11 +768,9 @@ Execute (Set Markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax):
-  CommentLine 'TODO Change that, currently ItalicBold and shoul dbe only Italic'
-  AssertEqual 0, 0
-#  CommentLine 'Double italic (2)'
-#  AssertEqual 'VimwikiItalic', SyntaxAt(1, 4)
-#  AssertEqual '', SyntaxAt(2, 1)
+  CommentLine 'Double italic (2)'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 4)
 
 
 Given vimwiki (Typeface: https://github.github.com/gfm/#example-473):
@@ -783,11 +781,9 @@ Execute (Set Markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax):
-  CommentLine 'TODO, my lookaheads in typeface vars are too strict'
-  AssertEqual 0, 0
-#  CommentLine 'Double bold'
-#  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
-#  AssertEqual '', SyntaxAt(2, 1)
+  CommentLine 'Double bold with ****'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
+  AssertEqual '', SyntaxAt(2, 1)
 
 
 Given vimwiki (Typeface: https://github.github.com/gfm/#example-474):
@@ -798,16 +794,52 @@ Execute (Set Markdown):
   call SetSyntax('markdown')
 
 Execute (Assert Syntax):
-  CommentLine 'TODO, my lookaheads in typeface vars are too strict'
-  AssertEqual 0, 0
-#  CommentLine 'Double bold (2)'
-#  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
-#  AssertEqual '', SyntaxAt(2, 1)
+  CommentLine 'Double bold with ____'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
+  AssertEqual '', SyntaxAt(2, 1)
 
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-475):
+  ******foo******
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Triple bold with ******'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 8)
+  AssertEqual '', SyntaxAt(2, 1)
 
 
 # Rule 14 {{{1
 # An interpretation <em><strong>...</strong></em> is always preferred to <strong><em>...</em></strong>.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-476):
+  ***foo***
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Bold Italic normal, with 3 *'
+  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 5)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-477):
+  _____foo_____
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Bold Italic with 5 _'
+  CommentLine 'TODO Passed'
+#  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 7)
+#  AssertEqual '', SyntaxAt(2, 1)
 
 
 # Rule 15 {{{1
@@ -834,6 +866,18 @@ Execute (Assert Syntax):
 
 # Rule 17 {{{1
 # Inline code spans, links, images, and HTML tags group more tightly than emphasis. So, when there is a choice between an interpretation that contains one of these elements and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-485):
+  *a `*` b*
+  *a `a a*a a` b*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO with a * as unique code, a nice trap'
+  AssertEqual 0, 0
 
 
 # vim: foldmethod=marker foldlevel=30 sw=2
