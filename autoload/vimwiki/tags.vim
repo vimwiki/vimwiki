@@ -449,3 +449,21 @@ function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort
   let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
 endfunction
+
+
+function! vimwiki#tags#search_tags(tag_pattern) abort
+  " See #1316 and rxTags in vars.vim
+  let tf = vimwiki#vars#get_syntaxlocal('tag_format')
+
+  " Craft regex
+  let rx_this_tag = '/'
+  let rx_this_tag .= tf.pre . '\@<=' . tf.pre_mark
+  let rx_this_tag .= '\%(' . tf.in . tf.sep . '\)*'
+  let rx_this_tag .= a:tag_pattern
+  let rx_this_tag .= '\%(' . tf.sep . tf.in . '\)*'
+  let rx_this_tag .= tf.post_mark . tf.post . '\@='
+  let rx_this_tag .= '/'
+
+  " Search in current wiki folder
+  return vimwiki#base#search(rx_this_tag)
+endfunction

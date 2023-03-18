@@ -752,10 +752,21 @@ function! s:get_markdown_syntaxlocal() abort
         \   'post_mark': '\%(`\{3,}\|\~\{3,}\)'}},
         \ 'symH': {'type': type(0), 'default': 0},
         \ 'typeface': {'type': type({}), 'default': {
-        \   'bold': vimwiki#u#hi_expand_regex([['__', '__'], ['\*\*', '\*\*']]),
-        \   'italic': vimwiki#u#hi_expand_regex([['\*', '\*'], ['_', '_']]),
+        \   'bold': vimwiki#u#hi_expand_regex([
+        \     ['__', '__', '[_*]', 1],
+        \     ['\*\*', '\*\*', '[_*]', 1],
+        \     ]),
+        \   'italic': vimwiki#u#hi_expand_regex([
+        \     ['_', '_', '[_*]', 0],
+        \     ['\*', '\*', '[_*]', 0],
+        \     ['\*_', '_\*', '[_*]', 1],
+        \     ['_\*', '\*_', '[_*]', 1],
+        \     ]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
-        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([
+        \     ['___', '___', '[_*]', 1],
+        \     ['\*\*\*', '\*\*\*', '[_*]', 1],
+        \     ]),
         \   'code': [
         \       ['\%(^\|[^`\\]\)\@<=`\%($\|[^`]\)\@=',
         \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],

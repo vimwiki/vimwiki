@@ -3825,7 +3825,7 @@ generate and follow_link
 ----------------------------------------------------- ReGeX
 | pre       | '^\|\s'  | Limitations to tag precedence
 | pre_mark  | ':'      | Tag list opener
-| in  | '[:space:]]\+' | Tag permitted characters
+| in        | '[[:space:]]\+' | Tag permitted characters
 | sep       | ':'      | Tag separators in a tag list
 | post_mark | ':'      | Tag list closer
 | post      | '\s\|$'  | Limitations to tag following
@@ -4029,7 +4029,8 @@ New:~
 Fixed:~
     * Issue #1229: Bug: VimwikiGoto without argument creates empty page
     * Issue #1316: Permit tags in heading
-    * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
+      and improve |VimwikiSearchTags| and |VimwikiRebuildTags|
+    * Issue #1270: |VimwikiAddHeaderLevel| map (3=) was broken by a previous
       refactoring commit
 
 
