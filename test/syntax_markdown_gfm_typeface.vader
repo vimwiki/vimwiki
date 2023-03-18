@@ -623,8 +623,8 @@ Execute (Set Markdown):
 
 Execute (Assert Syntax):
   CommentLine 'Empty emphasis'
-  AssertEqual '', SyntaxAt(1, 1)
-  AssertEqual '', SyntaxAt(2, 1)
+  AssertEqual '1', SyntaxAt(1, 1) . 1
+  AssertEqual '2', SyntaxAt(2, 1) . 2
 
 
 Given vimwiki (Typeface: https://github.github.com/gfm/#example-446):

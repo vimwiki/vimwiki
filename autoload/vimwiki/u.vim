@@ -295,13 +295,19 @@ endfunction
 function! vimwiki#u#get_punctuation_string() abort
   " Faster
   " See: https://github.github.com/gfm/#ascii-punctuation-character
-  return '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
+  " res = '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
+  " But I removed the * as it is treated as a special case
+  return '!"#$%&''()+,-./:;<=>?@\[\\\]^`{}|~'
 endfunction
 
 
 function! vimwiki#u#hi_expand_regex(lst) abort
   " Helper: Expand regex from reduced typeface delimiters
   " :param: list<list,delimiters>> with reduced regex
+  "   1: Left delimiter
+  "   2: right delimiter
+  "   3: possible characters to ignore (default '$^' => never match)
+  "   4: can multiply delimiter (boolean) (default 0 => do not repeat)
   " Return: list with extended regex delimiters (not inside a word)
   "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
   " Note: For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
@@ -313,42 +319,46 @@ function! vimwiki#u#hi_expand_regex(lst) abort
   for a_delimiter in a:lst
     let r_left_del = a_delimiter[0]
     let r_right_del = a_delimiter[1]
+    let r_repeat_del = len(a_delimiter) >= 3 ? a_delimiter[2] : '$^'
+    let b_can_mult = len(a_delimiter) >= 4 ? a_delimiter[3] : 0
+
+    " Craft the repeatable middle
+    let r_mult = b_can_mult ? '\+' : ''
+    let r_left_repeat = '\%(\%(' . r_left_del . '\)' . r_mult . '\)'
+    let r_right_repeat = '\%(\%(' . r_right_del . '\)' . r_mult . '\)'
+    let r_unescaped_repeat = '\%(\\\|\\\@<!' . r_repeat_del . '\)'
 
     " Regex Start:
     " Left-Flanking is not followed by space (or need of line)
-    let r_left_prefix = '\%(^\|[[:space:]]\@<=\)'
-    let r_left_prefix = '\\\@<!'
-    " -- not followed by Unicode whitespace,
-    let r_left_suffix = '\%([[:space:]\n]\@!\)'
 
-    " Left Case1: not followed by punctuation
-    let r_left_suffix1 = '\%(\%([[:space:]\n' . punctuation . ']\)\@!\)'
+    " Left Case1: not followed by punctuation, start with blacklist
     " -- Can escape the leftflank
-    let r_left_prefix1 = '\%(^\|\\\@<!\)'
+    let r_left_prefix1 = '\%(^\|' . r_unescaped_repeat . '\@<!\)'
+    let r_left_suffix1 = '\%(\%([[:space:]\n' . punctuation . ']\|' . r_unescaped_repeat . '\)\@!\)'
 
-    " Left Case2: followed by punctuation so must be preceded by Unicode whitespace or start of line or a punctuation character.
-    let r_left_suffix2 = '\%([' . punctuation . ']\@=\)'
+    " Left Case2: followed by punctuation so must be preceded by whitelisted Unicode whitespace or start of line or a punctuation character.
     let r_left_prefix2 = '\%(\%(^\|[[:space:]\n' . punctuation . ']\)\@<=\)'
+    let r_left_suffix2 = '\%([' . punctuation . ']\@=\)'
 
     " Left Concatenate
-    let r_start = '\%(' . r_left_prefix1 . r_left_del . r_left_suffix1
-    let r_start .= '\|' . r_left_prefix2 . r_left_del . r_left_suffix2 . '\)'
+    let r_start = '\%(' . r_left_prefix1 . '\zs' . r_left_repeat . '\ze' . r_left_suffix1
+    let r_start .= '\|' . r_left_prefix2 . '\zs' . r_left_repeat . '\ze' . r_left_suffix2 . '\)'
 
     " Regex End:
     " not preceded by Unicode whitespace
     let r_right_prefix = '\(^\|[^[:space:]]\@<=\)'
 
     " Right Case1: not preceded by a punctuation character (or start of line)
-    let r_right_prefix1 = '\%(\%(^\|[^[:space:]' . punctuation . ']\)\@<=\)'
-    let r_right_suffix1 = ''
+    let r_right_prefix1 = '\%(^\|\%([[:space:]\n' . punctuation . ']\|' . r_unescaped_repeat . '\)\@<!\)'
+    let r_right_suffix1 = '\%($\|' . r_unescaped_repeat . '\@!\)'
 
-    " Right Case2: preceded by a punctuation character and followed by Unicode whitespace or end of line  or a punctuation character
+    " Right Case2: preceded by a punctuation character and followed by Unicode whitespace or end of line or a punctuation character
     let r_right_prefix2 = '\%([' . punctuation . ']\@<=\)'
     let r_right_suffix2 = '\%(\%($\|[[:space:]' . punctuation . ']\)\@<=\)'
 
     " Right Concatenate
-    let r_end = '\%(' . r_right_prefix1 . r_right_del . r_right_suffix1
-    let r_end .= '\|' . r_right_prefix2 . r_right_del . r_right_suffix2 . '\)'
+    let r_end = '\%(' . r_right_prefix1 . r_right_repeat . r_right_suffix1
+    let r_end .= '\|' . r_right_prefix2 . r_right_repeat . r_right_suffix2 . '\)'
 
     call add(res, [r_start, r_end])
   endfor

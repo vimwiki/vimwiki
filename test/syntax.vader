@@ -37,6 +37,7 @@ Given vimwiki (Markdown typeface with escape sequence #1044: _ __ * ** {{{2):
   a ~~staaill deleted~~ Del 9
   $$Eq\$$ uation follows$ Math 10
   `code \` not finished inline` Code 11
+  012345678901234567890
 
 Execute (Set syntax markdown):
   call SetSyntax('markdown')
@@ -48,7 +49,8 @@ Execute (Assert Syntax of escape typeface):
   AssertEqual 'VimwikiBold4'       , SyntaxAt(4, 14) . 4
   AssertEqual 'VimwikiItalic5'     , SyntaxAt(5, 14) . 5
   " See: #1303 where an escape start can close the region
-  AssertEqual '6'                  , SyntaxAt(6, 14) . 6
+  " Fixed removing vars.vim::expand_delimiter
+  AssertEqual 'VimwikiItalic6'     , SyntaxAt(6, 14) . 6
   AssertEqual 'VimwikiSuperScript7', SyntaxAt(7, 14) . 7
   AssertEqual 'VimwikiSubScript8'  , SyntaxAt(8, 14) . 8
   AssertEqual 'VimwikiDelText9'    , SyntaxAt(9, 14) . 9
