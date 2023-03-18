@@ -363,7 +363,7 @@ command! -buffer VimwikiDiaryPrevDay call vimwiki#diary#goto_prev_day()
 " tags commands
 command! -buffer -bang VimwikiRebuildTags call vimwiki#tags#update_tags(1, '<bang>')
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
-      \ VimwikiSearchTags VimwikiSearch /:<args>:/
+      \ VimwikiSearchTags call vimwiki#tags#search_tags(<q-args>)
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags
       \ VimwikiGenerateTagLinks call vimwiki#tags#generate_tags(1, <f-args>)
 command! -buffer -nargs=* -complete=custom,vimwiki#tags#complete_tags

@@ -4029,7 +4029,8 @@ New:~
 Fixed:~
     * Issue #1229: Bug: VimwikiGoto without argument creates empty page
     * Issue #1316: Permit tags in heading
-    * Issue #1270: VimwikiAddHeaderLevel map (3=) was broken by a previous
+      and improve |VimwikiSearchTags| and |VimwikiRebuildTags|
+    * Issue #1270: |VimwikiAddHeaderLevel| map (3=) was broken by a previous
       refactoring commit
 
 

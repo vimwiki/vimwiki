@@ -482,3 +482,74 @@ Expect (Single tags toc):
 Execute (Clean file for tag #1316):
   call system("rm $HOME/testmarkdown/.vimwiki_tags")
   call system("rm $HOME/testmarkdown/Test-Tag-issue-1316.md")
+
+
+Execute (Change delimiter #first_tag #vim #mo as for issue #1316 (2) {{{1):
+  let g:vimwiki_tag_format = {'pre_mark': '#\w\@=', 'post_mark': '', 'sep': '[#[:space:]]\+', 'in': '[^#:[:space:]]\+' }
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+  edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-issue-1316-bis.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+
+Do (Create File Content with #tag1 #tag2 as for issue #1316):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+  I
+# Line1: Heading
+  # A header\<CR>
+# Line2: Tag not in header
+  bla #first_tag\<Cr>
+# Line3: Tag in header
+  #vim #mono\<Cr>
+# Line4: empty
+  \<CR>
+# Line5: dummy content
+  Words here.
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  gg
+
+
+Execute (Assert some file info for #1316):
+  edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-issue-1316-bis.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  AssertEqual 'VimwikiTag', SyntaxAt(2, 6)
+
+
+Do (Append something at first_tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+# Some bug with loclist for vim7.3 and vim8.0
+  :if v:version > 810\<Cr>
+    VimwikiSearchTags first_tag\<Cr>
+  else\<Cr>
+    2\<Cr>
+  endif\<Cr>
+  A Content1\<Esc>
+
+
+Do (Append something at mono tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+  :if v:version > 810\<Cr>
+    VimwikiSearchTags mono\<Cr>
+  else\<Cr>
+    3\<Cr>
+  endif\<Cr>
+  A Content2\<Esc>
+
+
+Expect (Content appended at tags):
+  # A header
+  bla #first_tag Content1
+  #vim #mono Content2
+
+  Words here.
+
+
+Execute (Clean file for tag #1316):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-issue-1316-bis.md")
