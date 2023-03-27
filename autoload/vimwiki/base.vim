@@ -449,7 +449,7 @@ function! vimwiki#base#generate_links(create, ...) abort
     let use_caption = vimwiki#vars#get_wikilocal('generated_links_caption', wiki_nr)
     for link in links
       let link_infos = vimwiki#base#resolve_link(link)
-      if !vimwiki#base#is_diary_file(link_infos.filename, copy(l:diary_file_paths))
+      if !vimwiki#base#is_among_diary_files(link_infos.filename, copy(l:diary_file_paths))
         let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
 
         let link_caption = vimwiki#base#read_caption(link_infos.filename)
@@ -2639,18 +2639,41 @@ function! s:clean_url(url) abort
 endfunction
 
 
-function! vimwiki#base#is_diary_file(filename, ...) abort
-  " Check if 1.filename is a diary file
-  " An optional second argument allows you to pass in a list of diary files rather
-  " than generating a list on each call to the function.
-  let l:diary_file_paths = a:0 > 0 ? a:1 : vimwiki#diary#get_diary_files()
+function! vimwiki#base#is_among_diary_files(filename, diary_file_paths) abort
+  " Check if filename is in a list of diary files
   let l:normalised_file_paths =
-        \ map(l:diary_file_paths, 'vimwiki#path#normalize(v:val)')
+        \ map(a:diary_file_paths, 'vimwiki#path#normalize(v:val)')
   " Escape single quote (Issue #886)
   let filename = substitute(a:filename, "'", "''", 'g')
   let l:matching_files =
         \ filter(l:normalised_file_paths, "v:val ==# '" . filename . "'" )
   return len(l:matching_files) > 0 " filename is a diary file if match is found
+endfunction
+
+
+function! vimwiki#base#is_diary_file(filename, ...) abort
+  " Check if filename is a diary file.
+  "
+  " For our purposes, a diary file is any readable file with the current wiki
+  " extension in diary_rel_path.
+  "
+  " An optional second argument allows you to pass in a list of diary files
+  " rather than generating a list on each call to the function.  This is
+  " handled by passing off to is_among_diary_files().  This behavior is
+  " retained just in case anyone has scripted against is_diary_file(), but
+  " shouldn't be used internally by VimWiki code.  Call is_among_diary_files()
+  " directly instead.
+
+  " Handle the case with diary file paths passed in:
+  if a:0 > 0
+    return vimwiki#base#is_among_diary_files(a:filename, a:1)
+  endif
+
+  let l:readable = filereadable(a:filename)
+  let l:diary_path = vimwiki#vars#get_wikilocal('path') .
+        \ vimwiki#vars#get_wikilocal('diary_rel_path')
+  let l:in_diary_path = (0 == stridx(a:filename, l:diary_path))
+  return l:readable && l:in_diary_path
 endfunction
 
 

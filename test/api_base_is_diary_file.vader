@@ -1,0 +1,25 @@
+# Test vimwiki#base#is_diary_file() for various inputs.
+
+Execute (Check known good diary file):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('diary:2020-07-22')
+  Assert vimwiki#base#is_diary_file(link_infos.filename)
+
+Execute (Check known good diary file using is_diary_file, with list of all diary files - legacy interface):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('diary:2020-07-22')
+  let diary_file_paths = vimwiki#diary#get_diary_files()
+  Assert vimwiki#base#is_diary_file(link_infos.filename, diary_file_paths)
+
+Execute (Check known good diary file use is_among_diary_files, with list of all diary files):
+  VimwikiIndex 1
+  let link_infos = vimwiki#base#resolve_link('diary:2020-07-22')
+  let diary_file_paths = vimwiki#diary#get_diary_files()
+  Assert vimwiki#base#is_among_diary_files(link_infos.filename, diary_file_paths)
+
+Execute (Check for nonexistent diary file):
+  VimwikiIndex 1
+  Assert !vimwiki#base#is_diary_file('not-a-diary-file')
+
+Execute (Clean):
+  call ReloadVimwiki()
