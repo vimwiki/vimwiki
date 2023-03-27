@@ -125,10 +125,21 @@ endfunction
 
 function! vimwiki#base#resolve_link(link_text, ...) abort
   " Extract infos about the target from a link.
-  " THE central function of Vimwiki.
-  " If the second parameter is present, which should be an absolute file path, it
-  " is assumed that the link appears in that file. Without it, the current file
-  " is used.
+  "
+  " THE central function of Vimwiki.  Here be dragons!
+  "
+  " This has become confusing and extremely brittle.  Don't change it unless
+  " you know exactly what you're doing and test every code path.  It is safe
+  " to assume that at least one user relies on everything this does, whether
+  " it was intentional or not.  Do not make breaking changes here, or you will
+  " hear about it.  If you want to add extra link syntax or behavior, please
+  " consult with other maintainers first!
+  "
+  " See doc/specification.wiki for a draft spec that covers link syntax.
+
+  " a:0 is set to the number of extra arguments.  If the second parameter is
+  " present, which should be an absolute file path, it is assumed that the
+  " link appears in that file. Without it, the current file is used.
   if a:0
     let source_wiki = vimwiki#base#find_wiki(a:1)
     let source_file = a:1
@@ -298,8 +309,20 @@ endfunction
 
 
 function! vimwiki#base#system_open_link(url) abort
-  " Open Link with OS handler (like gx)
-  " handlers
+  " Open Link with OS handler (like gx).
+  "
+  " This handles all supported URI-like links, including http:, file:, etc.,
+  " unless a custom VimwikiLinkHandler() does something with them first.
+  "
+  " It can be a source of OS-specific bugs, since behavior differs across
+  " operating systems and this makes some fairly basic assumptions about
+  " what's available.
+  "
+  " TODO: The easiest way for a user to change this behavior at present is to
+  " write a VimwikiLinkHandler().  This is probably fine, but there might be a
+  " use case for being able to explicitly set a handler just for system links.
+
+  " Handlers
   function! s:win32_handler(url) abort
     "Disable shellslash for cmd and command.com, but enable for all other shells
     "See Issue #560
@@ -329,12 +352,15 @@ function! vimwiki#base#system_open_link(url) abort
 
     endif
   endfunction
+
   function! s:macunix_handler(url) abort
     call system('open ' . shellescape(a:url).' &')
   endfunction
+
   function! s:linux_handler(url) abort
     call system('xdg-open ' . shellescape(a:url).' >/dev/null 2>&1 &')
   endfunction
+
   try
     if vimwiki#u#is_windows()
       call s:win32_handler(a:url)
@@ -1639,16 +1665,19 @@ function! vimwiki#base#follow_link(split, ...) abort
   " Try WikiLink
   let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWikiLink')),
         \ vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
+
   " Try WikiIncl
   if lnk ==? ''
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_global('rxWikiIncl')),
           \ vimwiki#vars#get_global('rxWikiInclMatchUrl'))
   endif
+
   " Try Weblink
   if lnk ==? ''
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxWeblink')),
           \ vimwiki#vars#get_syntaxlocal('rxWeblinkMatchUrl'))
   endif
+
   " Try markdown image ![]()
   if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown' && lnk ==# ''
     let lnk = matchstr(vimwiki#base#matchstr_at_cursor(vimwiki#vars#get_syntaxlocal('rxImage')),

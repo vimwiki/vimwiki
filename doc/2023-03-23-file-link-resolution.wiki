@@ -1,0 +1,171 @@
+= Contents =
+  - [[#VimWiki file link resolution]]
+    - [[#context]]
+  - [[#possible solutions]]
+    - [[#revert to original behavior]]
+    - [[#check if a file exists on disk when following link]]
+    - [[#add a link scheme that means "open in vim"]]
+    - [[#add a configuration toggle for opening file: links in vim]]
+    - [[#add configuration for a set of filetypes to open in vim]]
+  - [[#open questions]]
+
+= VimWiki file link resolution =
+
+A decision document started by Brennen Bearnes on 2023-03-23.
+
+== context ==
+
+https://github.com/vimwiki/vimwiki/issues/950
+
+https://github.com/vimwiki/vimwiki/commit/d7ec12645a0460a7d200279c52915e6e080e9869
+
+Commit d7ec126 applies the wiki extension to files containing a `.`, thus
+allowing page names to contain a literal period.  This is correct behavior,
+insofar as pages like `Franklin D. Roosevelt` should be able to exist and get
+mapped to e.g. `Franklin D. Roosevelt.wiki`.
+
+Unfortunately, this broke behavior that a number of users rely on:
+
+https://github.com/vimwiki/vimwiki/issues/1271
+
+    I have some latex files stored and linked to in my wiki.
+
+    Before d7ec126 I could omit the file: part of a link to have vim open the file
+    directly.
+
+    After d7ec126 vimwiki adds a `md` extension when opening any file which
+    results in a `filename.tex.md` being created alongside the original tex
+    file. Using `file:` is not a solution since this can only be configured to
+    open a second instance of vim.
+
+It makes sense that this is useful.
+
+Sidebar: `file:` _can_ be configured to do just about anything with a custom
+handler, but that doesn't mean it's a very good user experience.
+
+= possible solutions =
+
+== revert to original behavior ==
+
+As a default, I personally think this is a non-starter.  Not being able to use
+`.` in page names is broken.  I also suspect other things break if you treat
+those files as wiki pages.
+
+We could make it configurable, though.
+
+*Pro:*
+
+  - People can go back to their expected behavior by setting one config
+    variable.
+
+*Con:*
+
+  - Adds an extra branch to link handling code.
+  - I haven't thought through the implications of treating it as fully
+    supported behavior.  What else will people expect to work right?
+
+== check if a file exists on disk when following link ==
+
+The idea is that if a link is `[[foo.txt]]` and `foo.txt` already exists, we
+should edit the existing file instead of creating a `foo.txt.md`.
+
+*Pro:*
+
+  - Might be the closest to expectations of people who rely on the old
+    behavior.
+  - Doesn't expand the language itself.
+
+*Con:*
+
+  - Complicates link handling code.
+  - Parsing a page requires knowing about external files.
+  - Might be surprising / confusing.  You can write `foo.txt` and wind up with
+    two different outcomes depending on whether `foo.txt` already exists.
+    - It's very Do What I Mean, which isn't necessarily bad.  But if I write a
+      link to `foo.txt` and wind up at `foo.txt.md`, it's not obvious that's
+      what I meant.
+
+== add a link scheme that means "open in vim" ==
+
+Something like `[[edit:foo.txt]]`.
+
+I vaguely think there's prior art for this in some older browsers?  I could
+swear Lynx had something like it, although I couldn't find anything under:
+
+  - [[https://en.wikipedia.org/wiki/List_of_URI_schemes|wp:List of URI schemes]]
+  - [[https://lynx.invisible-island.net/lynx_help/lynx_url_support.html|list of Lynx URL schemes]].
+
+I may just be thinking of `lynxexec:`.
+
+*Pro:*
+
+  - People want this anyway, and a `VimwikiLinkHandler()` for using `file:` or
+    some custom prefix to handle it is a common tweak to configurations which
+    we already document.
+  - It doesn't need a file existence check.
+
+*Con:*
+
+  - Expands the language.
+  - How is this converted to HTML?
+    - What will Markdown parsers do with it?
+  - Right now there are at least 3 high-level paths for opening a link:
+    - Open in VimWiki
+    - Hand off to custom link handler
+    - Open with `vimwiki#base#system_open_link()`
+    - ...this would introduce a 4th.
+  - Unless there is prior art, this would be something that _looks_ like a
+    URL/URI, but isn't recognized outside the wiki.  That seems fine for
+    custom prefixes, but is it ok to introduce here?
+
+== add a configuration toggle for opening file: links in vim ==
+
+Add a boolean that says "just open `file:` and `local:` links in the editor".
+
+*Pro:*
+
+  - Probably a relatively simple change.
+  - Might meet some users' needs.
+
+*Con:*
+
+  - Loses the utility in linking to binary filetypes which are best opened via
+    the system handler (images, PDFs, etc.).
+  - Users are explicitly already relying on `file:` links to be distinct from
+    `[[file.foo]]` links.
+
+== add configuration for a set of filetypes to open in vim ==
+
+A variation on the toggle for `file:` links would be to allow configuring a
+_list_ of file extensions which should be opened with Vim rather than passed on
+to the system handler.
+
+Something like:
+
+{{{vim
+  let wiki.file_link_edit_ext = ['txt', 'csv']
+}}}
+
+*Pro:*
+
+  - Doesn't expand the language.
+  - Doesn't have any implications for HTML rendering.
+  - A lot of `VimwikiLinkHandler()` boilerplate that is just used for making
+    links open in Vim could go away.
+    - I have this in my own config, so it's an appealing feature.
+
+*Con:*
+
+  - Does require people to rewrite existing link collections, but that's
+    true of other solutions as well.
+
+*Unanswered:*
+
+  - Would there be any sensible default for this besides an empty list?
+    My guess is not.
+
+= open questions =
+
+  - What is the actual current behavior with Markdown?
+    - Does it differ meaningfully from vimwiki syntax?
+    - If so, why?

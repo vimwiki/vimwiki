@@ -4,6 +4,9 @@ This file is meant to document design decisions and algorithms inside Vimwiki
 which are too large for code comments, and not necessarily interesting to
 users. Please create a new section to document each behavior.
 
+## Link resolution
+
+See [VimWiki file link resolution](./2023-03-23-file-link-resolution.wiki).
 
 ## Formatting tables
 
