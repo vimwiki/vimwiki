@@ -495,6 +495,11 @@ function! vimwiki#base#goto(...) abort
   let key = a:0 > 0 && a:1 !=# '' ? a:1 : input('Enter name: ', '',
         \ 'customlist,vimwiki#base#complete_links_escaped')
 
+  if key ==# ''
+    " Input cancelled
+    return
+  endif
+
   let anchor = a:0 > 1 ? a:2 : ''
 
   " Save current file pos
