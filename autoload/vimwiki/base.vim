@@ -394,7 +394,7 @@ function! vimwiki#base#open_link(cmd, link, ...) abort
 endfunction
 
 
-function! vimwiki#base#get_globlinks_escaped(...) abort
+function! vimwiki#base#get_globlinks(...) abort
   " Escape global link
   " Called by command completion
   let s_arg_lead = a:0 > 0 ? a:1 : ''
@@ -414,8 +414,6 @@ function! vimwiki#base#get_globlinks_escaped(...) abort
   " " use smart case matching
   let r_arg = substitute(s_arg_lead, '\u', '[\0\l\0]', 'g')
   call filter(lst, '-1 != match(v:val, r_arg)')
-  " Apply fnameescape() to each item
-  call map(lst, 'fnameescape(v:val)')
   " Return list (for customlist completion)
   return lst
 endfunction
@@ -493,7 +491,7 @@ function! vimwiki#base#goto(...) abort
   " Jump: to other wikifile, specified on command mode
   " Called: by command VimwikiGoto (Exported)
   let key = a:0 > 0 && a:1 !=# '' ? a:1 : input('Enter name: ', '',
-        \ 'customlist,vimwiki#base#complete_links_escaped')
+        \ 'customlist,vimwiki#base#complete_links')
 
   if key ==# ''
     " Input cancelled
@@ -2844,9 +2842,9 @@ function! vimwiki#base#detect_nested_syntax() abort
 endfunction
 
 
-function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
+function! vimwiki#base#complete_links(ArgLead, CmdLine, CursorPos) abort
   " Complete escaping globlinks
-  return vimwiki#base#get_globlinks_escaped(a:ArgLead)
+  return vimwiki#base#get_globlinks(a:ArgLead)
 endfunction
 
 
