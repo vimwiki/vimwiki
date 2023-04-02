@@ -1109,7 +1109,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
   " :param: anchor
   " :param: (1) vimwiki_prev_link
   " :param: (2) vimwiki#u#ft_is_vw()
-  let fname = escape(a:filename, '% *|#`')
+  let fname = fnameescape(a:filename)
   let dir = fnamemodify(a:filename, ':p:h')
 
   let ok = vimwiki#path#mkdir(dir, 1)
