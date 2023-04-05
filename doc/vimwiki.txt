@@ -4019,6 +4019,8 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2023.04.04~
+
 New:~
     * Issue #1261: Feature: Support for <mark> in Markdown
       highlighting with yellow background and back foreground
@@ -4027,6 +4029,8 @@ New:~
       Also add the |blockquote_markers| variable
 
 Fixed:~
+    * Issue #1267: Improve performance on link creation by speeding up
+      is_diary_file()
     * Issue #1229: Bug: VimwikiGoto without argument creates empty page
     * Issue #1316: Permit tags in heading
       and improve |VimwikiSearchTags| and |VimwikiRebuildTags|
