@@ -303,11 +303,11 @@ endfunction
 
 function! vimwiki#u#hi_expand_regex(lst) abort
   " Helper: Expand regex from reduced typeface delimiters
-  " :param: list<list,delimiters>> with reduced regex
-  "   1: Left delimiter
-  "   2: right delimiter
-  "   3: possible characters to ignore (default '$^' => never match)
-  "   4: can multiply delimiter (boolean) (default 0 => do not repeat)
+  " :param: list<list<delimiters>> with reduced regex
+  "   1: Left delimiter (regex)
+  "   2: Right delimiter (regex)
+  "   3: Possible characters to ignore (regex: default '$^' => never match)
+  "   4: Can multiply delimiter (boolean: default 0 => do not repeat)
   " Return: list with extended regex delimiters (not inside a word)
   "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
   " Note: For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
@@ -354,7 +354,7 @@ function! vimwiki#u#hi_expand_regex(lst) abort
 
     " Right Case2: preceded by a punctuation character and followed by Unicode whitespace or end of line or a punctuation character
     let r_right_prefix2 = '\%([' . punctuation . ']\@<=\)'
-    let r_right_suffix2 = '\%(\%($\|[[:space:]' . punctuation . ']\)\@<=\)'
+    let r_right_suffix2 = '\%(\%($\|[[:space:]\n' . punctuation . ']\)\@=\)'
 
     " Right Concatenate
     let r_end = '\%(' . r_right_prefix1 . r_right_repeat . r_right_suffix1

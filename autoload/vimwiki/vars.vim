@@ -684,7 +684,6 @@ function! s:get_default_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['-', '1.', '*', 'I)', 'a)']},
         \ 'number_types': {'type': type([]), 'default': ['1)', '1.', 'i)', 'I)', 'a)', 'A)']},
         \ 'recurring_bullets': {'type': type(0), 'default': 0},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
         \ 'header_symbol': {'type': type(''), 'default': '='},
         \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
         \ 'rxListDefine': {'type': type(''), 'default': '::\(\s\|$\)'},
@@ -699,10 +698,10 @@ function! s:get_default_syntaxlocal() abort
         \   'post_mark': '}}}'}},
         \ 'symH': {'type': type(1), 'default': 1},
         \ 'typeface': {'type': type({}), 'default': {
-        \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*']]),
-        \   'italic': vimwiki#u#hi_expand_regex([['_', '_']]),
+        \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*', '[*]', 0]]),
+        \   'italic': vimwiki#u#hi_expand_regex([['_', '_', '', 0]]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
-        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_']]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*', '[*_]', 1], ['_\*', '\*_', '[*_]', 1]]),
         \   'code': [
         \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
         \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
@@ -737,7 +736,6 @@ function! s:get_markdown_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['-', '*', '+', '1.']},
         \ 'number_types': {'type': type([]), 'default': ['1.']},
         \ 'recurring_bullets': {'type': type(0), 'default': 0},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$\|<!--[^>]*-->'},
         \ 'header_symbol': {'type': type(''), 'default': '#'},
         \ 'rxHR': {'type': type(''), 'default': '\(^---*$\|^___*$\|^\*\*\**$\)'},
         \ 'rxListDefine': {'type': type(''), 'default': '::\%(\s\|$\)'},
@@ -792,7 +790,6 @@ function! s:get_media_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['*', '#']},
         \ 'number_types': {'type': type([]), 'default': []},
         \ 'recurring_bullets': {'type': type(1), 'default': 1},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
         \ 'header_symbol': {'type': type(''), 'default': '='},
         \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
         \ 'rxListDefine': {'type': type(''), 'default': '^\%(;\|:\)\s'},
@@ -849,6 +846,9 @@ function! s:get_common_syntaxlocal() abort
   " Blockquote marker (#1274)
   " -- it should not be changed but let's avoid hardcoding
   let res.blockquote_markers = {'type': type([]), 'default': ['>']}
+
+  " HTML comment
+  let res.comment_regex = {'type': type(''), 'default': '\%(^\s*%%.*$\|<!--\%([^>]\|\n\)*-->\)'}
 
   return res
 endfunction
