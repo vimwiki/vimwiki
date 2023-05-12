@@ -4002,6 +4002,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Thomas Leyh (@leyhline)
     - nebulaeandstars (@nebulaeandstars)
     - dmitry kim (@jsn)
+    - Luke Atkinson (@LukeDAtkinson)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -4019,6 +4020,12 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2023.04.04~
+
+Fixed:~
+    * Issue #1336: vimwiki#diary#calendar_sign throws an error
+      when g:vimwiki_list is not set
+ 
 2023.04.04~
 
 New:~

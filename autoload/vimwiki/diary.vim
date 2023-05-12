@@ -523,7 +523,7 @@ endfunction
 function! vimwiki#diary#calendar_sign(day, month, year) abort
   " Callback function for Calendar.vim
   " Clause: no wiki no sign #290
-  if len(g:vimwiki_list) <= 0
+  if exists('g:vimwiki_list') && len(g:vimwiki_list) <= 0
     return
   endif
   let day = s:prefix_zero(a:day)
