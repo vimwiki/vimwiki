@@ -4003,6 +4003,7 @@ Contributors and their Github usernames in roughly chronological order:
     - nebulaeandstars (@nebulaeandstars)
     - dmitry kim (@jsn)
     - Luke Atkinson (@LukeDAtkinson)
+    - Kincaid Savoie (@Caid11)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -4019,6 +4020,12 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+2023.05.13~
+
+Fixed:~
+    * Opening links using the system handler fails with "command not found"
+      error on Windows under Vim 9
 
 2023.04.04~
 
