@@ -245,9 +245,24 @@ reasons for such a complex system is:
 TODO currently the typeface delimiters are customized that way:
 
 ```vim
-" Typeface: -> u.vim
+
+" 1/ Redraw: Typeface: -> u.vim
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('typeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
+
+
+" 2/ Clear typeface highlighting (see #1346)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Create a dic with no highlight but yes with all keys
+" -- So that they are effectivemly overwritten
+let typeface_dic = {'bold': [], 'italic': [], 'underline': [], 'bold_italic': [], 'code': [], 'del':  [], 'sup':  [], 'sub':  [], 'eq': []}
+
+" Just for consistency, this is an internal variable
+echo vimwiki#vars#set_syntaxlocal('typeface', typeface_dic)
+
+" Here is a Vim aware syntax highligthing big command
+verbose call vimwiki#u#hi_typeface(typeface_dic)
 ```
 
 
