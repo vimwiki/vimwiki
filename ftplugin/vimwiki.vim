@@ -149,6 +149,10 @@ for bullet in vimwiki#vars#get_syntaxlocal('bullet_types')
   " list
   let comments .= ',fb:' . bullet
 endfor
+" Add :: for vimwiki default syntax (#1279)
+if 'default' ==# vimwiki#vars#get_wikilocal('syntax')
+  let comments .= ',b:::'
+endif
 let &l:comments = comments
 
 " Set Format Options: (:h fo-table)

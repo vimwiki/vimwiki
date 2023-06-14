@@ -4020,6 +4020,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+New:~
+    * Issue #1279: Fix/Improvement: When re-wrap a long line in a definition
+      by 'gq' it should insert ':: ' at the new line 
+    
+
 2023.04.04~
 
 Fixed:~

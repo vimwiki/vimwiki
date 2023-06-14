@@ -1,0 +1,15 @@
+# Non regression tests for issue: #1279
+# Fix/Improvement: When re-wrap a long line in a definition by 'gq' it should insert ':: ' at the new line
+
+
+Given vimwiki (Dummy heading):
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+
+Do (gqq):
+  gqq
+
+Expect (Heading6):
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa
