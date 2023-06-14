@@ -177,7 +177,7 @@ function! s:get_default_global() abort
         \   [
         \     'http', 'https', 'file', 'ftp', 'gopher', 'telnet', 'nntp', 'ldap',
         \     'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
-        \     'git', 'ssh', 'fish', 'sftp', 'thunderlink'
+        \     'git', 'ssh', 'fish', 'sftp', 'thunderlink', 'message'
         \   ]},
         \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'matrix', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
