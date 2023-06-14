@@ -1587,7 +1587,7 @@ endfunction
 
 function! vimwiki#vars#get_syntaxlocal(key, ...) abort
   " Get syntax variable
-  " Param:   1: key (<string>)
+  " Param: 1: key (<string>)
   " Param: (2): syntax name (<string> ex:'markdown')
   " Retrieve desired syntax name
   if a:0
@@ -1603,6 +1603,28 @@ function! vimwiki#vars#get_syntaxlocal(key, ...) abort
 
   " Return d_syntax[a:key]
   return g:vimwiki_syntaxlocal_vars[syntax][a:key]
+endfunction
+
+
+function! vimwiki#vars#set_syntaxlocal(key, value, ...) abort
+  " Set syntax variable
+  " Param: 1: key (<string>)
+  " Param: 2: value (<any type>)
+  " Param: (3): syntax name (<string> ex:'markdown')
+  " Set desired syntax variable to value
+  if a:0
+    let syntax = a:1
+  else
+    let syntax = vimwiki#vars#get_wikilocal('syntax')
+  endif
+
+  " Create syntax variable dict if not exists (lazy)
+  if !exists('g:vimwiki_syntaxlocal_vars') || !has_key(g:vimwiki_syntaxlocal_vars, syntax)
+    call vimwiki#vars#populate_syntax_vars(syntax)
+  endif
+
+  " Set d_syntax[a:key]
+  let g:vimwiki_syntaxlocal_vars[syntax][a:key] = a:value
 endfunction
 
 
