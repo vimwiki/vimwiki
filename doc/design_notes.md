@@ -261,7 +261,7 @@ let typeface_dic = {'bold': [], 'italic': [], 'underline': [], 'bold_italic': []
 " Just for consistency, this is an internal variable
 echo vimwiki#vars#set_syntaxlocal('typeface', typeface_dic)
 
-" Here is a Vim aware syntax highligthing big command
+" Here is a Vim aware syntax highlighting big command
 verbose call vimwiki#u#hi_typeface(typeface_dic)
 ```
 
