@@ -322,7 +322,7 @@ command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 command! -buffer -nargs=* VimwikiSearch call vimwiki#base#search(<q-args>)
 command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 
-command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links_escaped
+command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links
       \ VimwikiGoto call vimwiki#base#goto(<q-args>)
 
 command! -buffer -range VimwikiCheckLinks call vimwiki#base#check_links(<range>, <line1>, <line2>)
@@ -568,7 +568,7 @@ if str2nr(vimwiki#vars#get_global('key_mappings').lists)
       inoremap <expr><silent><buffer> <S-CR> pumvisible() ? '<CR>' : '<Esc>:VimwikiReturn 2 2<CR>'
     endif
   endif
- 
+
   " change symbol for bulleted lists
   for s:char in vimwiki#vars#get_syntaxlocal('bullet_types')
     if !hasmapto(':VimwikiChangeSymbolTo '.s:char.'<CR>')
