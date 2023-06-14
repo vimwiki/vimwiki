@@ -699,7 +699,7 @@ function! s:get_default_syntaxlocal() abort
         \ 'symH': {'type': type(1), 'default': 1},
         \ 'typeface': {'type': type({}), 'default': {
         \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*', '[*]', 0]]),
-        \   'italic': vimwiki#u#hi_expand_regex([['_', '_', '', 0]]),
+        \   'italic': vimwiki#u#hi_expand_regex([['_', '_', '[_]', 0]]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
         \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*', '[*_]', 1], ['_\*', '\*_', '[*_]', 1]]),
         \   'code': [
