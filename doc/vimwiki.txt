@@ -4023,6 +4023,9 @@ This is somewhat experimental, and will probably be refined over time.
 2023.04.04~
 
 Fixed:~
+    * Issue #1229: VimwikiGoto completion with file with space
+      Must complete file unescaped as argument is then quoted
+    * PR #1324: Fix pressing escape in VimwikiGoto prompt (rddunphy)
     * Issue #1336: vimwiki#diary#calendar_sign throws an error
       when g:vimwiki_list is not set
  

@@ -394,9 +394,33 @@ function! vimwiki#base#open_link(cmd, link, ...) abort
 endfunction
 
 
-function! vimwiki#base#get_globlinks(...) abort
+function! vimwiki#base#nop1(stg) abort
+  " Nop with one arg, used if callback is required
+  return a:stg
+endfunction
+
+
+function! vimwiki#base#get_globlinks_escaped(...) abort
+  " Proxy: Called by command completion
+  let args = copy(a:000)
+  call insert(args, 'fnameescape')
+  return call('vimwiki#base#get_globlinks_callback', args)
+endfunction
+
+
+function! vimwiki#base#get_globlinks_raw(...) abort
+  " Proxy: Called by command completion
+  let args = copy(a:000)
+  call insert(args, 'vimwiki#base#nop1')
+  return call('vimwiki#base#get_globlinks_callback', args)
+endfunction
+
+
+function! vimwiki#base#get_globlinks_callback(callback, ...) abort
   " Escape global link
   " Called by command completion
+  " [1] callback <string> of a function converting file <string> => escaped file <string>
+  " -- ex: fnameescape
   let s_arg_lead = a:0 > 0 ? a:1 : ''
   " only get links from the current dir
   " change to the directory of the current file
@@ -414,6 +438,8 @@ function! vimwiki#base#get_globlinks(...) abort
   " " use smart case matching
   let r_arg = substitute(s_arg_lead, '\u', '[\0\l\0]', 'g')
   call filter(lst, '-1 != match(v:val, r_arg)')
+  " Apply callback to each item
+  call map(lst, a:callback . '(v:val)')
   " Return list (for customlist completion)
   return lst
 endfunction
@@ -491,7 +517,7 @@ function! vimwiki#base#goto(...) abort
   " Jump: to other wikifile, specified on command mode
   " Called: by command VimwikiGoto (Exported)
   let key = a:0 > 0 && a:1 !=# '' ? a:1 : input('Enter name: ', '',
-        \ 'customlist,vimwiki#base#complete_links')
+        \ 'customlist,vimwiki#base#complete_links_raw')
 
   if key ==# ''
     " Input cancelled
@@ -2865,9 +2891,15 @@ function! vimwiki#base#detect_nested_syntax() abort
 endfunction
 
 
-function! vimwiki#base#complete_links(ArgLead, CmdLine, CursorPos) abort
-  " Complete escaping globlinks
-  return vimwiki#base#get_globlinks(a:ArgLead)
+function! vimwiki#base#complete_links_escaped(ArgLead, CmdLine, CursorPos) abort
+  " Complete globlinks escaping
+  return vimwiki#base#get_globlinks_escaped(a:ArgLead)
+endfunction
+
+
+function! vimwiki#base#complete_links_raw(ArgLead, CmdLine, CursorPos) abort
+  " Complete globlinks as raw string (unescaped)
+  return vimwiki#base#get_globlinks_raw(a:ArgLead)
 endfunction
 
 
