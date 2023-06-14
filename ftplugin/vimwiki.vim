@@ -322,7 +322,7 @@ command! -buffer -nargs=0 VWB call vimwiki#base#backlinks()
 command! -buffer -nargs=* VimwikiSearch call vimwiki#base#search(<q-args>)
 command! -buffer -nargs=* VWS call vimwiki#base#search(<q-args>)
 
-command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links
+command! -buffer -nargs=* -complete=customlist,vimwiki#base#complete_links_raw
       \ VimwikiGoto call vimwiki#base#goto(<q-args>)
 
 command! -buffer -range VimwikiCheckLinks call vimwiki#base#check_links(<range>, <line1>, <line2>)
