@@ -830,14 +830,14 @@ function! s:get_common_syntaxlocal() abort
   let rx_yaml_start_pre = '\%(^\%(\%1l\|^$\n\)\@<=\)'
   let rx_yaml_start_post = '\%(\%(\n^$\)\@!$\)'
   let rx_yaml_start = rx_yaml_start_pre . '---' . rx_yaml_start_post
-  let rx_yaml_stop = '^' . '\%(---\|\.\.\.\)' . '$'
+  let rx_yaml_end = '^\%(---\|\.\.\.\)\s*$'
 
   let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
   let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUnderline,VimwikiDelText'}
   let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
   let res.rxTableSep = {'type': type(''), 'default': '|'}
   " See issue #1287
-  let res.yaml_metadata_block = {'type': type([]), 'default': [[rx_yaml_start, rx_yaml_stop]]}
+  let res.yaml_metadata_block = {'type': type([]), 'default': [[rx_yaml_start, rx_yaml_end]]}
 
   " Declare helper for inline math nested variable
   let s:rx_inline_math_start = '\%(^\|[^$\\]\)\@<=\$\%($\|[^$[:space:]]\)\@='
