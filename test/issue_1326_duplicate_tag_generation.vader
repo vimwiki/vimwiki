@@ -42,6 +42,6 @@ Execute (Examine .vimwiki_tags file for generated tag entries.):
   AssertEqual search('discrete2', 'we'), search('discrete2', 'we'), 'More than 1 instance of tag "discrete2" found'
     
 Execute (Remove content and tags files - End issue 1326 test):
-  call system("rm $HOME/testmarkdown/.vimwiki_tags")
-  call system("rm $HOME/testmarkdown/Test-Tag-issue-1326.wiki")
+  call system("rm $HOME/testwiki/.vimwiki_tags")
+  call system("rm $HOME/testwiki/Test-Tag-issue-1326.wiki")
 
