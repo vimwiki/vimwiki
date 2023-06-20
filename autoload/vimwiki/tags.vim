@@ -123,38 +123,34 @@ function! s:scan_tags(lines, page_name) abort
 
     " Scan line for tags.  There can be many of them.
     let str = line
-    while 1
-      " Get all matches
-      let tag_groups = []
-      call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
-      if tag_groups == []
-        break
-      endif
-      let tagend = matchend(str, tag_search_rx)
-      let str = str[(tagend):]
-      for tag_group in tag_groups
-        for tag in split(tag_group, tag_format.sep)
-          " Create metadata entry
-          let entry = {}
-          let entry.tagname  = tag
-          let entry.lineno   = line_nr
-          if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
-            " Tag appeared at the top of the file
-            let entry.link   = a:page_name
-            let entry.description = entry.link
-          elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-            " Tag appeared right below a header
-            let entry.link   = a:page_name . '#' . current_complete_anchor
-            let entry.description = current_header_description
-          else
-            " Tag stands on its own
-            let entry.link   = a:page_name . '#' . tag
-            let entry.description = entry.link
-          endif
-          call add(entries, entry)
-        endfor
+    " Get all matches
+    let tag_groups = []
+    call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
+    if tag_groups == []
+      continue
+    endif
+    for tag_group in tag_groups
+      for tag in split(tag_group, tag_format.sep)
+        " Create metadata entry
+        let entry = {}
+        let entry.tagname  = tag
+        let entry.lineno   = line_nr
+        if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
+          " Tag appeared at the top of the file
+          let entry.link   = a:page_name
+          let entry.description = entry.link
+        elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+          " Tag appeared right below a header
+          let entry.link   = a:page_name . '#' . current_complete_anchor
+          let entry.description = current_header_description
+        else
+          " Tag stands on its own
+          let entry.link   = a:page_name . '#' . tag
+          let entry.description = entry.link
+        endif
+        call add(entries, entry)
       endfor
-    endwhile
+    endfor
 
   endfor " loop over lines
   return entries
