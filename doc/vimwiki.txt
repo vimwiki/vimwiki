@@ -4003,6 +4003,7 @@ Contributors and their Github usernames in roughly chronological order:
     - nebulaeandstars (@nebulaeandstars)
     - dmitry kim (@jsn)
     - Luke Atkinson (@LukeDAtkinson)
+    - Joe Planisky (@jplanisky)
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
