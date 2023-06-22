@@ -1898,12 +1898,12 @@ function! s:convert_file(path_html, wikifile) abort
           endwhile
 
           let tmp = ('tmp'. split(system('mktemp -p . --suffix=.' . type, 'silent'), 'tmp')[-1])[:-2]
-          call system('echo ' . shellescape(join(html_lines[start : cur - 1], '\n')) . ' > ' . tmp)
+          call system('echo ' . shellescape(join(html_lines[start : cur - 1], "\n")) . ' > ' . tmp)
           call system(g:vimwiki_global_vars['listing_hl_command'] . ' ' . tmp  . ' > ' . tmp . '.html')
           let html_out = system('cat ' . tmp . '.html')
           call system('rm ' . tmp . ' ' . tmp . '.html')
           let i = cur
-          let html_lines = html_lines[0 : start - 1] + split(html_out, '\n') + html_lines[cur : ]
+          let html_lines = html_lines[0 : start - 1] + split(html_out, "\n") + html_lines[cur : ]
         endif
         let i += 1
       endwhile
