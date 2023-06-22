@@ -38,19 +38,19 @@ Given vimwiki (filename filename.dot):
   filename
   filename.dot
 
-Do():
+Do (Press filename):
   :call SetSyntax('default')\<CR>
   \<CR>\<CR>
   :AssertEqual 'filename.wiki', expand('%:t')\<CR>
   :call DeleteFile('%')\<CR>
 
-Do():
+Do (Press filename.dot):
   j
   \<CR>\<CR>
-  :AssertEqual 'filename.dot', expand('%:t')\<CR>
+  :AssertEqual 'filename.dot.wiki', expand('%:t')\<CR>
   :call DeleteFile('%')\<CR>
 
-Expect(Nothing left):
+Expect (Nothing left):
   
 
 # Linkify function {{{1
@@ -331,13 +331,14 @@ Given vimwiki (filnames with dots):
   part1.part2.part3.md
   noext
 
-Do (Fllow link witout markdown):
+Do (Follow link witout markdown):
   \<Cr>\<Cr>
-  :AssertEqual  expand('%:t'), 'part1.part2.part3'\<Cr>
+  " See issue #950 always adding the extension
+  :AssertEqual 'part1.part2.part3.md', expand('%:t')\<Cr>
 
-Do (j<Cr><Cr>):
+Do (Follow link with .md extension):
   j\<Cr>\<Cr>
-  :AssertEqual  expand('%:t'), 'part1.part2.part3.md'\<Cr>
+  :AssertEqual 'part1.part2.part3.md', expand('%:t')\<Cr>
 
 
 # Rest {{{1

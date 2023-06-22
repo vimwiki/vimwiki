@@ -117,43 +117,40 @@ function! s:scan_tags(lines, page_name) abort
         endfor
         let current_complete_anchor .= header
       endif
-      continue " tags are not allowed in headers
+      " See: issue #1316 to allow tags in header
+      " continue " tags are not allowed in headers
     endif
 
     " Scan line for tags.  There can be many of them.
     let str = line
-    while 1
-      " Get all matches
-      let tag_groups = []
-      call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
-      if tag_groups == []
-        break
-      endif
-      let tagend = matchend(str, tag_search_rx)
-      let str = str[(tagend):]
-      for tag_group in tag_groups
-        for tag in split(tag_group, tag_format.sep)
-          " Create metadata entry
-          let entry = {}
-          let entry.tagname  = tag
-          let entry.lineno   = line_nr
-          if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
-            " Tag appeared at the top of the file
-            let entry.link   = a:page_name
-            let entry.description = entry.link
-          elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-            " Tag appeared right below a header
-            let entry.link   = a:page_name . '#' . current_complete_anchor
-            let entry.description = current_header_description
-          else
-            " Tag stands on its own
-            let entry.link   = a:page_name . '#' . tag
-            let entry.description = entry.link
-          endif
-          call add(entries, entry)
-        endfor
+    " Get all matches
+    let tag_groups = []
+    call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
+    if tag_groups == []
+      continue
+    endif
+    for tag_group in tag_groups
+      for tag in split(tag_group, tag_format.sep)
+        " Create metadata entry
+        let entry = {}
+        let entry.tagname  = tag
+        let entry.lineno   = line_nr
+        if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
+          " Tag appeared at the top of the file
+          let entry.link   = a:page_name
+          let entry.description = entry.link
+        elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+          " Tag appeared right below a header
+          let entry.link   = a:page_name . '#' . current_complete_anchor
+          let entry.description = current_header_description
+        else
+          " Tag stands on its own
+          let entry.link   = a:page_name . '#' . tag
+          let entry.description = entry.link
+        endif
+        call add(entries, entry)
       endfor
-    endwhile
+    endfor
 
   endfor " loop over lines
   return entries
@@ -247,7 +244,7 @@ function! s:tags_entry_cmp(i1, i2) abort
   "
   " This function is needed for tags sorting, since plain sort() compares line
   " numbers as strings, not integers, and so, for example, tag at line 14
-  " preceeds the same tag on the same page at line 9.  (Because string "14" is
+  " precedes the same tags on the same page at line 9.  (Because string "14" is
   " alphabetically 'less than' string "9".)
   let items = []
   for orig_item in [a:i1, a:i2]
@@ -447,4 +444,22 @@ function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort
   " will do the job of filtering.
   let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
+endfunction
+
+
+function! vimwiki#tags#search_tags(tag_pattern) abort
+  " See #1316 and rxTags in vars.vim
+  let tf = vimwiki#vars#get_syntaxlocal('tag_format')
+
+  " Craft regex
+  let rx_this_tag = '/'
+  let rx_this_tag .= tf.pre . '\@<=' . tf.pre_mark
+  let rx_this_tag .= '\%(' . tf.in . tf.sep . '\)*'
+  let rx_this_tag .= a:tag_pattern
+  let rx_this_tag .= '\%(' . tf.sep . tf.in . '\)*'
+  let rx_this_tag .= tf.post_mark . tf.post . '\@='
+  let rx_this_tag .= '/'
+
+  " Search in current wiki folder
+  return vimwiki#base#search(rx_this_tag)
 endfunction

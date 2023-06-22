@@ -1,0 +1,27 @@
+# Non regression tests for issue: #1325
+# -- Bold syntax highlighting broken for default syntax since 72d0220 (tk Brennen)
+
+
+Given vimwiki (All math inline possible):
+  *foo:* bar  #1: Bold
+  <!-- exec-raw zsh -c 'grep --exclude-dir="*logscratch" -rino -- "- \[ \].*$" ~/notes/vimwiki' | perl -pe 's{^/home/brennen/notes/vimwiki/(.*?)\.wiki:(\d+):- \[ \] (.*?)$}{  - [[$1|$1]] - ($2) $3}' -->
+  # 2: Online comment # 3
+  <!--
+  multiple line  # 5
+  comment  # 6
+  -->
+  123456789
+
+
+Do (Set syntax wiki):
+  :call SetSyntax('default')\<CR>
+
+
+Execute (Assert syntax):
+# Bold
+  AssertEqual 'VimwikiBold1', GetSyntaxStack(1, 2)[0] . 1
+  AssertEqual '02', len(GetSyntaxStack(1, 8)) . 2
+# HTML Comment
+  AssertEqual 'VimwikiComment3', GetSyntaxStack(2, 6)[0] . 3
+# Multiline HTML Comment
+  AssertEqual 'VimwikiComment4', GetSyntaxStack(5, 2)[0] . 4

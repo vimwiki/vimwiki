@@ -7,10 +7,16 @@ Execute (Setup search testing wrapper):
       Log 'Cheating for old vim version, do not want to reverse bug'
       return
     endif
+
+    " Execute command and grab output
     redir => output
     silent execute a:search_command
     redir END
+
+    " The location list should not be empty
     Assert !empty(getloclist(0)), a:test_name.": no location list result"
+
+    " The location list should contains entries
     Assert match(output, '\d of \d') > -1, a:test_name.": no result message"
 
     " Tests that VimwikiSearch is quoting the pattern correctly.
@@ -29,7 +35,6 @@ Execute (Search test wiki):
   " title (first line) and filetype.
   AssertEqual "= Test Wiki =", getline(1)
   AssertEqual "vimwiki", &filetype
-
 
   call TestSearch('VimwikiSearch foo',        'pattern with no spaces')
   call TestSearch('VimwikiSearch foo bar',    'pattern with spaces')

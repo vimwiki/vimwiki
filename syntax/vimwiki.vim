@@ -24,7 +24,7 @@ call vimwiki#vars#populate_syntax_vars(s:current_syntax)
 let syntax_dic = g:vimwiki_syntaxlocal_vars[s:current_syntax]
 
 " Declare nesting capabilities
-" -- to be embeded in standard: bold, italic, underline
+" -- to be embedded in standard: bold, italic, underline
 
 " text: `code` or ``code`` only inline
 " Note: `\%(^\|[^`]\)\@<=` means after a new line or a non `
@@ -150,6 +150,31 @@ let s:target = vimwiki#base#apply_template(
 call s:add_target_syntax_ON(s:target, 'VimwikiLink')
 
 
+" List:
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
+execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
+execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
+
+" Task List Done:
+if vimwiki#vars#get_global('hl_cb_checked') == 1
+  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
+        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
+        \ . vimwiki#vars#get_global('listsym_rejected')
+        \ . ']\]\s\(.*\)$/ '
+        \ . 'contains=' . syntax_dic.nested . ',VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+elseif vimwiki#vars#get_global('hl_cb_checked') == 2
+  execute 'syntax match VimwikiCheckBoxDone /'
+        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
+        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
+endif
+
+" GTD-style token highlighting
+
+syntax match TodoDate       '\d\{2,4\}-\d\{2\}-\d\{2\}'       contains=VimwikiTodo
+syntax match TodoDueDate    'due:\d\{2,4\}-\d\{2\}-\d\{2\}'   contains=VimwikiTodo
+syntax match TodoProject    '\(^\|\W\)+[^[:blank:]]\+'        contains=VimwikiTodo
+syntax match TodoContext    '\(^\|\W\)@[^[:blank:]]\+'        contains=VimwikiTodo
+
 " Header Level: 1..6
 for s:i in range(1,6)
   " WebLink are for markdown but putting them here avoidcode duplication
@@ -236,24 +261,6 @@ syntax match VimwikiTableRow /^\s*|.\+|\s*$/
 
 syntax match VimwikiCellSeparator /\%(|\)\|\%(-\@<=+\-\@=\)\|\%([|+]\@<=-\+\)/ contained
 
-" List:
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB').'/'
-execute 'syntax match VimwikiList /'.vimwiki#vars#get_syntaxlocal('rxListDefine').'/'
-execute 'syntax match VimwikiListTodo /'.vimwiki#vars#get_wikilocal('rxListItem').'/'
-
-" Task List Done:
-if vimwiki#vars#get_global('hl_cb_checked') == 1
-  execute 'syntax match VimwikiCheckBoxDone /'.vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
-        \ . '\s*\[['.vimwiki#vars#get_wikilocal('listsyms_list')[-1]
-        \ . vimwiki#vars#get_global('listsym_rejected')
-        \ . ']\]\s\(.*\)$/ '
-        \ . 'contains=' . syntax_dic.nested . ',VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
-elseif vimwiki#vars#get_global('hl_cb_checked') == 2
-  execute 'syntax match VimwikiCheckBoxDone /'
-        \ . vimwiki#vars#get_wikilocal('rxListItemAndChildren')
-        \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
-endif
-
 
 " Horizontal Rule: <hr>
 execute 'syntax match VimwikiHR /'.vimwiki#vars#get_syntaxlocal('rxHR').'/'
@@ -316,7 +323,7 @@ for [color_key, color_value] in items(color_dic)
         \ . ' ' . b:vimwiki_syntax_concealends
   execute cmd
 
-  " Build hightlight command
+  " Build highlight command
   let cmd = 'hi Vimwiki' . color_key
   if fg !=# ''
     let cmd .= ' guifg=' . fg
@@ -326,6 +333,13 @@ for [color_key, color_value] in items(color_dic)
   endif
   execute cmd
 endfor
+
+" Html mark tag, feature request in issue #1261
+let cmd = 'syntax region VimwikiMarkTag matchgroup=VimwikiDelimiterColor'
+      \ . ' start=/<mark>/'
+      \ . ' end=+</mark>+'
+      \ . ' ' . b:vimwiki_syntax_concealends
+execute cmd
 
 
 " Comment: home made
@@ -416,6 +430,8 @@ hi def link VimwikiUnderlineItalicBold VimwikiBoldItalicUnderline
 hi def link VimwikiCode PreProc
 hi def link VimwikiCodeT VimwikiCode
 
+" Mark
+hi def VimwikiMarkTag term=bold ctermbg=yellow ctermfg=black guibg=yellow guifg=black
 hi def link VimwikiPre PreProc
 hi def link VimwikiPreT VimwikiPre
 hi def link VimwikiPreDelim VimwikiPre
@@ -471,7 +487,7 @@ hi def link VimwikiSubScriptChar VimwikiMarkers
 hi def link VimwikiCodeChar VimwikiMarkers
 hi def link VimwikiHeaderChar VimwikiMarkers
 
-" TODO remove unsued due to region refactoring
+" TODO remove unused due to region refactoring
 hi def link VimwikiEqInCharT VimwikiMarkers
 hi def link VimwikiBoldCharT VimwikiMarkers
 hi def link VimwikiItalicCharT VimwikiMarkers
@@ -485,6 +501,12 @@ hi def link VimwikiHeaderCharT VimwikiMarkers
 hi def link VimwikiLinkCharT VimwikiLinkT
 hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 
+" GTD-style token highlighting
+
+hi def link TodoDate PreProc
+hi def link TodoDueDate VimWikiBold
+hi def link TodoProject Constant
+hi def link TodoContext Statement
 
 " Load syntax-specific functionality
 call vimwiki#u#reload_regexes_custom()
@@ -507,6 +529,17 @@ if !empty(s:nested)
           \ vimwiki#vars#get_syntaxlocal('rxPreEnd'), 'VimwikiPre')
   endfor
 endif
+
+" Include: Yaml metadata block for pandoc
+let a_yaml_delimiter = vimwiki#vars#get_syntaxlocal('yaml_metadata_block')
+for [rx_start, rx_end] in a_yaml_delimiter
+  call vimwiki#base#nested_syntax(
+        \ 'yaml',
+        \ rx_start,
+        \ rx_end,
+        \ 'VimwikiPre')
+endfor
+
 
 " LaTex: Load
 if !empty(globpath(&runtimepath, 'syntax/tex.vim'))

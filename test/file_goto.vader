@@ -40,7 +40,7 @@ Do (,wn buzz_bo + Completion(input()) && Assert):
 Execute (:VimwikiGoto + Completion (API)):
   VimwikiIndex 2
   AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
-  let s_complete=string(vimwiki#base#get_globlinks_escaped())
+  let s_complete=string(vimwiki#base#get_globlinks_raw())
   Assert -1 != stridx(s_complete, 'buzz_bozz')
 
 Execute (Create dir1/dir2/test_goto_file.md):
@@ -55,23 +55,23 @@ Execute (:VimwikiGoto + Completion in directory):
   AssertEqual $HOME . '/testmarkdown/index.md', expand('%')
 
   " Complete without argment
-  let s_complete1=string(vimwiki#base#get_globlinks_escaped())
+  let s_complete1=string(vimwiki#base#get_globlinks_raw())
   Assert -1 != stridx(s_complete1, 'test_goto_file')
 
   " Complete with file argument
-  let s_complete2=string(vimwiki#base#get_globlinks_escaped('test_goto_file'))
+  let s_complete2=string(vimwiki#base#get_globlinks_raw('test_goto_file'))
   Assert -1 != stridx(s_complete2, 'test_goto_file')
 
   " Complete with start of file argument
-  let s_complete3=string(vimwiki#base#get_globlinks_escaped('test_got'))
+  let s_complete3=string(vimwiki#base#get_globlinks_raw('test_got'))
   Assert -1 != stridx(s_complete3, 'test_goto_file')
 
   " Complete with (nested) dir2 argument
-  let s_complete4=string(vimwiki#base#get_globlinks_escaped('dir2'))
+  let s_complete4=string(vimwiki#base#get_globlinks_raw('dir2'))
   Assert -1 != stridx(s_complete4, 'test_goto_file')
 
   " Complete with bad argument
-  let l_complete5=vimwiki#base#get_globlinks_escaped('this_string_is_nowhere')
+  let l_complete5=vimwiki#base#get_globlinks_raw('this_string_is_nowhere')
   let s_complete5=string(l_complete5)
   Assert -1 == stridx(s_complete5, 'test_goto_file')
   AssertEqual 0, len(l_complete5)

@@ -10,7 +10,7 @@ endif
 let g:loaded_vimwiki_html_auto = 1
 
 " FIXME: Magics: Why not use the current syntax highlight
-" This is due to historical copy paste and lazyness of markdown user
+" This is due to historical copy paste and laziness of markdown user
 " text: *strong*
 " let s:default_syntax.rxBold = '\*[^*]\+\*'
 let s:rxBold = '\%(^\|\s\|[[:punct:]]\)\@<='.
@@ -1081,7 +1081,7 @@ function! s:process_tag_list(line, lists, lstLeadingSpaces) abort
     return [processed, lines, lstLeadingSpaces]
   endif
 
-  " Can embeded indented code in list (Issue #55)
+  " Can embedded indented code in list (Issue #55)
   let b_permit = in_list
   let blockquoteRegExp = '^\s\{' . (lstLeadingSpaces + 2) . ',}[^[:space:]>*-]'
   let b_match = lstSym ==# '' && a:line =~# blockquoteRegExp
@@ -1884,26 +1884,26 @@ function! s:convert_file(path_html, wikifile) abort
     endif
     call vimwiki#path#mkdir(path_html)
 
-    if g:vimwiki_global_vars['listing_hl'] > 0 && has("unix")
+    if g:vimwiki_global_vars['listing_hl'] > 0 && has('unix')
       let i = 0
       while i < len(html_lines)
-        if html_lines[i] =~ '^<pre .*type=.\+>'
+        if html_lines[i] =~# '^<pre .*type=.\+>'
           let type = split(split(split(html_lines[i], 'type=')[1], '>')[0], '\s\+')[0]
           let attr = split(split(html_lines[i], '<pre ')[0], '>')[0]
           let start = i + 1
           let cur = start
 
-          while html_lines[cur] !~ '^<\/pre>'
+          while html_lines[cur] !~# '^<\/pre>'
             let cur += 1
           endwhile
 
           let tmp = ('tmp'. split(system('mktemp -p . --suffix=.' . type, 'silent'), 'tmp')[-1])[:-2]
-          call system('echo ' . shellescape(join(html_lines[start:cur - 1], '\n')) . ' > ' . tmp)
+          call system('echo ' . shellescape(join(html_lines[start : cur - 1], "\n")) . ' > ' . tmp)
           call system(g:vimwiki_global_vars['listing_hl_command'] . ' ' . tmp  . ' > ' . tmp . '.html')
           let html_out = system('cat ' . tmp . '.html')
           call system('rm ' . tmp . ' ' . tmp . '.html')
           let i = cur
-          let html_lines = html_lines[0:start - 1] + split(html_out, '\n') + html_lines[cur:]
+          let html_lines = html_lines[0 : start - 1] + split(html_out, "\n") + html_lines[cur : ]
         endif
         let i += 1
       endwhile

@@ -1,7 +1,6 @@
 " TODO treat if local (see $HOME in all tests)
 " TODO mutualise (to prettify output) mode(1) to check if in -Es or not
 " TODO test tabnext in at least one travis job (without -Es)
-" IDEA fasten travis difefrent job with the same vimwiki git (-8s)
 
 " Declare tipical Vim preambule
   " vint: -ProhibitSetNoCompatible
@@ -14,12 +13,14 @@
   let $THOME = $HOME
 
 " Set chrooted virtual runtime path
-  let rtp=$ROOT.'/rtp.vim'
-  exe 'source '.rtp
+  let rtp = $ROOT . '/rtp.vim'
+  if filereadable(rtp)
+    execute 'source ' . rtp
+  endif
 
 
 " Load Vader
-  let vader=$ROOT.'/vader'
+  let vader = $ROOT.'/vader'
   exe 'set runtimepath+='.vader
 
 
@@ -114,6 +115,14 @@
   endif
 
 " Define functions
+  function! CommentLine(msg)
+    " Log current line and argument message
+    " Called: in GFM copying like: https://github.github.com/gfm/#example-360 in syntax_markdown_gfm_typeface.vader
+    Log 'Content: `' . getline('.') . '`'
+    Log 'Comment: ' . a:msg
+  endfunction
+  command! -nargs=1 CommentLine call CommentLine(<args>)
+
   function! SetSyntax(vw_syn)
     " Change the syntax using a temporary wiki
     " Change extension and wiki_nr
@@ -334,21 +343,45 @@
     0d
   endfunction
 
-  function! GetSyntaxGroup(line, col)
+  function! GetSyntaxVimwiki(line, col)
+    let res = GetSyntaxStack(a:line, a:col)
+    if empty(res)
+      return 'normal'
+    endif
+    return res[0]
+  endfunction
+
+  function! GetSyntaxGroup(...)
     " Get normalized syntax group: usefull for boldItalic Vs italicBold
+    " Arg1: line
+    " Arg2: column
     " -- Here, Vader's SyntaxAt is not enough
     " From: https://stackoverflow.com/questions/9464844
-    let l:s = synID(a:line, a:col, 1)
+    let line = a:0 >= 1 ? a:1 : '.'
+    let col = a:0 >= 2 ? a:2 : '.'
+
+    let l:s = synID(line, col, 1)
     return synIDattr(synIDtrans(l:s), 'name')
   endfun
 
-  function! GetSyntaxStack()
+  function! GetSyntaxStack(...)
     " Debug helper
+    " Arg1: line
+    " Arg2: column
+    let line = a:0 >= 1 ? a:1 : '.'
+    let col = a:0 >= 2 ? a:2 : '.'
     if !exists('*synstack')
-      return
+      return []
     endif
-    return map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-  endfunc
+    let res = map(synstack(line, col), 'synIDattr(v:val, "name")')
+
+    " For old vim version returning 0
+    if type(res) == type(0) && res == 0
+      return []
+    endif
+
+    return res
+  endfunction
 
   function! AssertIfVersion(version, one, two)
     " Run Assert only if vim version is high enough
@@ -366,7 +399,9 @@
     " Or rather:  If execute() exists - it's not available for all 7.4
     " versions.
     " https://github.com/vim/vim/commit/79815f1ec77406f2f21a618c053e5793b597db7a
-    if has('patch-7.4-2008') != 1 | return [] | endif
+
+    " Clause: Dot not work if not able
+    if v:version < 800 && has('patch-7.4-2008') != 1 | return [] | endif
 
     " Store output of group to variable
     let out = execute('hi ' . a:group)
@@ -378,8 +413,8 @@
       return GetHighlightTerm(parent, a:term)
     endif
 
-      " Return the unique term we are looking for
-    let stg = matchstr(out, a:term.'=\zs[^ \t\n\r]*')
+    " Return the unique term we are looking for
+    let stg = matchstr(out, a:term . '=\zs[^[:space:]]*')
     return split(stg, ',')
   endfunction
 

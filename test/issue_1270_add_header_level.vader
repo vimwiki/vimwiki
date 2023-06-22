@@ -1,0 +1,41 @@
+# Non regression tests for issue: #1270
+
+
+Given vimwiki (Dummy heading):
+  # Test
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+Execute (call add header 1):
+  call vimwiki#base#AddHeaderLevel(1)
+
+Expect (Heading 2):
+  ## Test
+
+Execute (call add header 2):
+  call vimwiki#base#AddHeaderLevel(2)
+
+Expect (Heading 3):
+  ### Test
+
+Execute (call add header 5):
+  call vimwiki#base#AddHeaderLevel(5)
+
+Expect (Heading6):
+  ###### Test
+
+Do (5=):
+  5=
+
+Expect (Heading6):
+  ###### Test
+
+Given vimwiki (Dummy heading 6):
+  ###### Test
+
+Do (5-):
+  5-
+
+Expect (Heading decreased by 5):
+  # Test

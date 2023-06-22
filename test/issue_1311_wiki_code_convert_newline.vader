@@ -1,0 +1,36 @@
+# Non regression tests for issue #1311
+# -- Can't enable syntax highlighting for codes in HTML files when converting wiki to HTML
+
+#
+# Syntax: https://github.com/junegunn/vader.vim#syntax-of-vader-file
+# Run: bash run_tests.sh -v -t vader -n vim_7.3.429 -f issue_example.vader
+
+Given vimwiki (Input file with python code):
+  {{{type=py
+  if (a == 2):
+      print("2")
+  else:
+      print("other")
+  }}}
+
+Execute (Convert to HTML):
+  Log "HTML path: " . vimwiki#vars#get_wikilocal('path_html')
+
+  let g:bck_command = g:vimwiki_global_vars['listing_hl_command']
+  let g:vimwiki_global_vars['listing_hl_command'] = 'cat'
+
+  call ConvertWiki2Body()
+  
+  g/^\s*$/d
+
+Expect (Output with good newlines):
+  <pre type=py>
+  if (a == 2):
+      print("2")
+  else:
+      print("other")
+  </pre>
+
+
+Execute (restore):
+  let g:vimwiki_global_vars['listing_hl_command'] = g:bck_command

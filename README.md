@@ -246,6 +246,12 @@ to your `.vimrc` to restrict Vimwiki's operation to only those paths listed in `
 Other markdown files wouldn't be treated as wiki pages.
 See [g:vimwiki_global_ext](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2631).
 
+if you want to turn off support for other extension(for example, disabling accidently creating new wiki and link for normal markdown files), 
+set the following option in your `.vimrc` before packadd vimwiki: 
+```vim
+let g:vimwiki_ext2syntax = {}
+```
+See [g:vimiki_ext2syntax](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2652)
 ## Getting help
 
 [GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary

@@ -4,14 +4,14 @@
 " GetLatestVimScripts: 2226 1 :AutoInstall: vimwiki
 
 
-" Clause: load only onces
+" Clause: load only once
 if exists('g:loaded_vimwiki') || &compatible
   finish
 endif
 let g:loaded_vimwiki = 1
 
 " Set to version number for release:
-let g:vimwiki_version = '2022.12.02'
+let g:vimwiki_version = '2023.05.12'
 
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
@@ -20,7 +20,7 @@ let s:plugin_dir = expand('<sfile>:p:h:h')
 let s:old_cpo = &cpoptions
 set cpoptions&vim
 
-" Save autowriteall varaible state
+" Save autowriteall variable state
 if exists('g:vimwiki_autowriteall')
   let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
 else

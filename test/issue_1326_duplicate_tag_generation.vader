@@ -1,0 +1,65 @@
+# Tests for issue: 1326
+# Multiple discrete tags on one line 
+# cause duplicate entries in .vimwiki_tags
+# For example, this line: 
+#     :tag1:tag2: 
+# gives correct results in .vimwiki_tags when VimwikiRebuildTags is called.
+# This line
+#     :tag3: :tag4:
+# gives duplicate entries for tag4.
+
+Execute (Start with no content or .vimwiki_tags files - Start issue 1326 test):
+  call system("rm $HOME/testwiki/.vimwiki_tags")
+  call system("rm $HOME/testwiki/Test-Tag-issue-1326.wiki")
+
+Do (Create file with tags and rebuild all tags):
+  :edit! $HOME/testwiki/Test-Tag-issue-1326.wiki\<CR>
+  I
+  :discrete1: :discrete2:\<CR>
+  :concat1:concat2:\<CR>
+  :mixed1:mixed2: :mixed3: :mixed4:\<CR>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+
+Execute (Examine .vimwiki_tags file for generated tag entries.):
+  edit $HOME/testwiki/.vimwiki_tags
+  AssertEqual $HOME . '/testwiki/.vimwiki_tags', expand('%')
+  AssertEqual 'default', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 0, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+# For each tag, make sure it is found # once and ONLY once in 
+#     the .vimwiki_tags file.
+# The "AssertNotEqual" tests that the tag is present at least once.
+# The "AssertEqual" searches for the tag 2 times and checks that the
+#     line number where it was found is the same both times. 
+#     The 'w' flag tells search to wrap around at the end of the file. 
+#     The 'e' flag makes search position the cursor at the end of the match.
+  AssertNotEqual 0, search('concat1', 'we'), 'Expected tag "concat1" was not found.'
+  AssertEqual search('concat1', 'we'), search('concat1', 'we'), 'More than 1 instance of tag "concat1" found'
+
+  AssertNotEqual 0, search('concat2', 'we'), 'Expected tag "concat2" was not found.'
+  AssertEqual search('concat2', 'we'), search('concat2', 'we'), 'More than 1 instance of tag "concat2" found'
+
+  AssertNotEqual 0, search('discrete1', 'we'), 'Expected tag "discrete1" was not found.'
+  AssertEqual search('discrete1', 'we'), search('discrete1', 'we'), 'More than 1 instance of tag "discrete1" found'
+
+  AssertNotEqual 0, search('discrete2', 'we'), 'Expected tag "discrete2" was not found.'
+  AssertEqual search('discrete2', 'we'), search('discrete2', 'we'), 'More than 1 instance of tag "discrete2" found'
+    
+  AssertNotEqual 0, search('mixed1', 'we'), 'Expected tag "mixed1" was not found.'
+  AssertEqual search('mixed1', 'we'), search('mixed1', 'we'), 'More than 1 instance of tag "mixed1" found'
+
+  AssertNotEqual 0, search('mixed2', 'we'), 'Expected tag "mixed2" was not found.'
+  AssertEqual search('mixed2', 'we'), search('mixed2', 'we'), 'More than 1 instance of tag "mixed2" found'
+
+  AssertNotEqual 0, search('mixed3', 'we'), 'Expected tag "mixed3" was not found.'
+  AssertEqual search('mixed3', 'we'), search('mixed3', 'we'), 'More than 1 instance of tag "mixed3" found'
+
+  AssertNotEqual 0, search('mixed4', 'we'), 'Expected tag "mixed4" was not found.'
+  AssertEqual search('mixed4', 'we'), search('mixed4', 'we'), 'More than 1 instance of tag "mixed4" found'
+
+Execute (Remove content and tags files - End issue 1326 test):
+  call system("rm $HOME/testwiki/.vimwiki_tags")
+  call system("rm $HOME/testwiki/Test-Tag-issue-1326.wiki")
+
