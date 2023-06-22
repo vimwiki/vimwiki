@@ -343,6 +343,14 @@
     0d
   endfunction
 
+  function! GetSyntaxVimwiki(line, col)
+    let res = GetSyntaxStack(a:line, a:col)
+    if empty(res)
+      return 'normal'
+    endif
+    return res[0]
+  endfunction
+
   function! GetSyntaxGroup(...)
     " Get normalized syntax group: usefull for boldItalic Vs italicBold
     " Arg1: line

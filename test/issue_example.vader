@@ -1,0 +1,16 @@
+# Non regression tests for issue TODO
+# -- TODO copy-paste issue description
+#
+# Syntax: https://github.com/junegunn/vader.vim#syntax-of-vader-file
+# Run: bash run_tests.sh -v -t vader -n vim_7.3.429 -f issue_example.vader
+
+Given vimwiki (Input file):
+  test
+
+Execute (Call function to verify):
+  echo 'Dummy command, not displayed'
+  Log 'Debug message displayed in Vader output'
+  AssertEqual 'test', getline(1), 'Dummy assertion'
+
+Expect (Output file):
+  test
