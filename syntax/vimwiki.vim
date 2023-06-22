@@ -168,6 +168,12 @@ elseif vimwiki#vars#get_global('hl_cb_checked') == 2
         \ .'/ contains=VimwikiNoExistsLink,VimwikiLink,VimwikiWeblink1,VimwikiWikiLink1,@Spell'
 endif
 
+" GTD-style token highlighting
+
+syntax match TodoDate       '\d\{2,4\}-\d\{2\}-\d\{2\}'       contains=VimwikiTodo
+syntax match TodoDueDate    'due:\d\{2,4\}-\d\{2\}-\d\{2\}'   contains=VimwikiTodo
+syntax match TodoProject    '\(^\|\W\)+[^[:blank:]]\+'        contains=VimwikiTodo
+syntax match TodoContext    '\(^\|\W\)@[^[:blank:]]\+'        contains=VimwikiTodo
 
 " Header Level: 1..6
 for s:i in range(1,6)
@@ -495,6 +501,12 @@ hi def link VimwikiHeaderCharT VimwikiMarkers
 hi def link VimwikiLinkCharT VimwikiLinkT
 hi def link VimwikiNoExistsLinkCharT VimwikiNoExistsLinkT
 
+" GTD-style token highlighting
+
+hi def link TodoDate PreProc
+hi def link TodoDueDate VimWikiBold
+hi def link TodoProject Constant
+hi def link TodoContext Statement
 
 " Load syntax-specific functionality
 call vimwiki#u#reload_regexes_custom()
