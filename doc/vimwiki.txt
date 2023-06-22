@@ -4002,8 +4002,10 @@ Contributors and their Github usernames in roughly chronological order:
     - Thomas Leyh (@leyhline)
     - nebulaeandstars (@nebulaeandstars)
     - dmitry kim (@jsn)
+    - Julian Prein (@druckdev)
     - Luke Atkinson (@LukeDAtkinson)
     - Joe Planisky (@jplanisky)
+
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
