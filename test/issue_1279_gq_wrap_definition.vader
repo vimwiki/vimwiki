@@ -8,8 +8,18 @@ Given vimwiki (Dummy heading):
 Do (gqq):
   gqq
 
-Expect (Heading6):
+Expect (Wrapped with the :: prefix prepended):
   :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
   :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
   :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
   :: aaa aaa aaa
+
+Given vimwiki (Small heading):
+  :: aaa
+
+Do (A <CR>):
+  A\<CR>
+
+Expect (Bloquote prefix :: inserted):
+  :: aaa
+  :: 

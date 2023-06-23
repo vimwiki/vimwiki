@@ -676,6 +676,7 @@ function! s:get_default_syntaxlocal() abort
   " type, default, min, max, possible_values, min_length
 
   return extend(s:get_common_syntaxlocal(), {
+        \ 'blockquote_markers': {'type': type([]), 'default': ['>', '::']},
         \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
         \ 'bold_search': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='},
         \ 'bullet_types': {'type': type([]), 'default': ['-', '*', '#']},
