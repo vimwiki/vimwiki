@@ -553,3 +553,81 @@ Expect (Content appended at tags):
 Execute (Clean file for tag #1316):
   call system("rm $HOME/testmarkdown/.vimwiki_tags")
   call system("rm $HOME/testmarkdown/Test-Tag-issue-1316-bis.md")
+
+
+Execute (Clean):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  unlet g:vimwiki_tag_format
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+
+
+Do (Md: #1034: Create File with tag in code for issue #1034):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1034.md\<CR>
+  I
+# Line1: Heading
+  Some line\<Cr>
+# Line2: Tag not in header
+  ```bash\<Cr>
+# Line3: Tag in header
+  this is bash code with :tag1:\<Cr>
+# Line4: empty
+  ```\<Cr>
+# Line5: tag2
+  and :tag2:\<Cr>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+
+
+Do (Md: #1034: Append something at mono tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1034.md\<CR>
+  ggdG
+  :read $HOME/testmarkdown/.vimwiki_tags\<CR>
+  G
+  :g/^!/d\<CR>
+  oContent\<Esc>
+
+
+Expect (Md: #1034: Can see tag2 but not tag1 as in code):
+  tag2	Test-Tag-issue-1034.md	5;"	vimwiki:Test-Tag-issue-1034\tTest-Tag-issue-1034#tag2\tTest-Tag-issue-1034#tag2
+  Content
+
+
+Do (Wiki: #1034: Create File with tag in code for issue #1034):
+  :edit $HOME/testwiki/Test-Tag-issue-1034.wiki\<CR>
+  I
+# Line1: Heading
+  Some line\<Cr>
+# Line2: Tag not in header
+  {{{bash\<Cr>
+# Line3: Tag in header
+  this is bash code with :tag1:\<Cr>
+# Line4: empty
+  }}}\<Cr>
+# Line5: tag2
+  and :tag2:\<Cr>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+
+
+Do (Wiki: #1034: Append something at mono tag):
+  :edit $HOME/testwiki/Test-Tag-issue-1034.wiki\<CR>
+  ggdG
+  :read $HOME/testwiki/.vimwiki_tags\<CR>
+  G
+  :g/^!/d\<CR>
+  oContent\<Esc>
+
+
+Expect (Wiki: #1034: Can see tag2 but not tag1 as in code):
+  tag2	Test-Tag-issue-1034.wiki	5;"	vimwiki:Test-Tag-issue-1034\tTest-Tag-issue-1034#tag2\tTest-Tag-issue-1034#tag2
+  Content
+
+
+Execute (#1034: Clean file for tag #1034):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testwiki/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-issue-1013.md")
+  call system("rm $HOME/testwiki/Test-Tag-issue-1013.wiki")
