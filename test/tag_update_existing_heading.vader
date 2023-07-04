@@ -1,0 +1,63 @@
+# Test how vimwiki#tags#generate_tags behaves when updating existing tag link sections
+
+Before (Setup test wiki files):
+  call writefile([":usedtag:", ":othertag:"], expand("~/testmarkdown/Test-Tag-tagged.md"))
+  edit ~/testmarkdown/Test-Tag-links.md
+
+After (Cleanup files):
+  %delete
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-tagged.md")
+  call system("rm $HOME/testmarkdown/Test-Tag-links.md")
+
+
+Do (Create preexisting tag links with unused tag):
+  I
+  # Generated Tags\<CR>
+  \<CR>
+  ## unusedtag\<CR>
+  \<CR>
+  ## usedtag\<CR>
+  \<ESC>
+  :VimwikiRebuildTags!\<CR>
+  :call vimwiki#tags#generate_tags(0)\<CR>
+
+Expect (Keeps unused tag header):
+  # Generated Tags
+
+  ## unusedtag
+
+
+  ## usedtag
+
+  - [Test-Tag-tagged](Test-Tag-tagged)
+
+Do (Create preexisting tag subheadings out of alphabetical order):
+  I
+  # Generated Tags\<CR>
+  \<CR>
+  ## z\<CR>
+  \<CR>
+  ## usedtag\<CR>
+  \<CR>
+  ## a\<CR>
+  \<CR>
+  # Other Stuff
+  \<ESC>
+  :VimwikiRebuildTags!\<CR>
+  :call vimwiki#tags#generate_tags(0)\<CR>
+
+Expect (Existing tag subheading order is preserved):
+  # Generated Tags
+
+  ## z
+
+
+  ## usedtag
+
+  - [Test-Tag-tagged](Test-Tag-tagged)
+
+  ## a
+
+
+  # Other Stuff
