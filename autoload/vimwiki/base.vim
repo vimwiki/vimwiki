@@ -882,6 +882,9 @@ function! s:jump_to_anchor(anchor) abort
   let anchor = vimwiki#u#escape(a:anchor)
   let segments = split(anchor, '#', 0)
 
+  " Start at beginning => Independent of link position
+  call cursor(1, 1)
+
   " For markdown: there is only one segment
   for segment in segments
     " Craft segment pattern so that it is case insensitive and also matches dashes
@@ -902,7 +905,6 @@ function! s:jump_to_segment(segment, segment_norm_re, segment_nb) abort
   " Called: jump_to_anchor with suffix and withtou suffix
   " Save cursor %% Initialize at top of line
   let oldpos = getpos('.')
-  call cursor(1, 1)
 
   " Get anchor regex
   let anchor_header = s:safesubstitute(
@@ -959,9 +961,6 @@ function! s:jump_to_segment(segment, segment_norm_re, segment_nb) abort
   if success_nb == a:segment_nb
     return 0
   endif
-
-  " Or keep on (i.e more than once segment)
-  let oldpos = getpos('.')
 
   " Said 'fail' to caller
   return 1

@@ -1,0 +1,148 @@
+# Non regression tests for issue TODO
+# -- TODO copy-paste issue description
+#
+# Syntax: https://github.com/junegunn/vader.vim#syntax-of-vader-file
+# Run: bash run_tests.sh -v -t vader -n vim_7.3.429 -f issue_example.vader
+
+Given vimwiki (Input file):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+  
+  # TopCategoryOne
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  
+  
+  # TopCategoryTwo
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  ## SubCategoryThree
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+  file issue1356.md
+  Log 'Initial file:' . resolve(expand('%:p'))
+  
+
+Do (Jump1):
+  1G
+  \<Cr>
+  A--Link1\<Esc>
+
+
+Expect(Link1):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+
+  # TopCategoryOne--Link1
+  ## SubCategoryOne
+  ## SubCategoryTwo
+
+
+  # TopCategoryTwo
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  ## SubCategoryThree
+
+
+Do (Jump2):
+  2G
+  \<Cr>
+  A--Link2\<Esc>
+
+
+Expect (Link2):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+
+  # TopCategoryOne
+  ## SubCategoryOne
+  ## SubCategoryTwo
+
+
+  # TopCategoryTwo--Link2
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  ## SubCategoryThree
+
+
+Do (Jump3):
+  3G
+  \<Cr>
+  A--Link3\<Esc>
+
+
+Expect (Link3):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+
+  # TopCategoryOne
+  ## SubCategoryOne
+  ## SubCategoryTwo--Link3
+
+
+  # TopCategoryTwo
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  ## SubCategoryThree
+
+
+Do (Jump4):
+  4G
+  \<Cr>
+  A--Link4\<Esc>
+
+
+Expect (Link4):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+
+  # TopCategoryOne
+  ## SubCategoryOne
+  ## SubCategoryTwo
+
+
+  # TopCategoryTwo
+  ## SubCategoryOne
+  ## SubCategoryTwo--Link4
+  ## SubCategoryThree
+
+
+Do (Jump5):
+  5G
+  \<Cr>
+  A--Link5\<Esc>
+
+
+Expect (Link5):
+  [this](#TopCategoryOne)
+  [that](#TopCategoryTwo)
+  [Here, we correctly jump to T1-S2](#TopCategoryOne#SubCategoryTwo)
+  [Here, however, we incorrectly land at T1-S2](#TopCategoryTwo#SubCategoryTwo)
+  [T2-S3 works, likely because T1-S3 doesn't exist](#TopCategoryTwo#SubCategoryThree)
+
+  # TopCategoryOne
+  ## SubCategoryOne
+  ## SubCategoryTwo
+
+
+  # TopCategoryTwo
+  ## SubCategoryOne
+  ## SubCategoryTwo
+  ## SubCategoryThree--Link5
