@@ -2724,7 +2724,7 @@ The last is for 100% done items.
 
 You can set it to some more fancy symbols like this:
 >
-   let g:vimwiki_list = [{'path': '~/path/', 'listsyms' = '✗○◐●✓'}]
+   let g:vimwiki_list = [{'path': '~/path/', 'listsyms': '✗○◐●✓'}]
 
 
 *vimwiki-option-listsym_rejected*
