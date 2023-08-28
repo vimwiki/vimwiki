@@ -366,11 +366,11 @@ command! -count=0 VimwikiTabMakeDiaryNote
 
 command! -count=0 VimwikiMakeYesterdayDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime(), -1))
+      \ vimwiki#diary#diary_date_link(localtime(), -1, <count>))
 
 command! -count=0 VimwikiMakeTomorrowDiaryNote
       \ call vimwiki#diary#make_note(<count>, 0,
-      \ vimwiki#diary#diary_date_link(localtime(), 1))
+      \ vimwiki#diary#diary_date_link(localtime(), 1, <count>))
 
 command! VimwikiDiaryGenerateLinks
       \ call vimwiki#diary#generate_diary_section()
@@ -399,10 +399,10 @@ nnoremap <silent><script> <Plug>VimwikiTabMakeDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 1)<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime(), -1))<CR>
+    \ vimwiki#diary#diary_date_link(localtime(), -1, v:count))<CR>
 nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
-    \ vimwiki#diary#diary_date_link(localtime(), 1))<CR>
+    \ vimwiki#diary#diary_date_link(localtime(), 1, v:count))<CR>
 
 
 " Set default global key mappings
