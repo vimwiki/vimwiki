@@ -37,8 +37,12 @@ endfunction
 
 function! vimwiki#diary#diary_date_link(...) abort
   " Return: <String> date
-
-  let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  if a:0 > 2
+    " user supply wiki number as 1 indexed, not 0 indexed
+    let wiki_nr = a:3 - 1
+  else
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  endif
   if wiki_nr < 0  " this happens when called outside a wiki buffer
     let wiki_nr = 0
   endif

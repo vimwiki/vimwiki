@@ -4005,6 +4005,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Julian Prein (@druckdev)
     - Luke Atkinson (@LukeDAtkinson)
     - Joe Planisky (@jplanisky)
+    - Bence Ferdinandy (@ferdinandyb)
 
 
 ==============================================================================
@@ -4025,8 +4026,11 @@ This is somewhat experimental, and will probably be refined over time.
 
 New:~
     * Issue #1279: Fix/Improvement: When re-wrap a long line in a definition
-      by 'gq' it should insert ':: ' at the new line 
-    
+      by 'gq' it should insert ':: ' at the new line
+
+Fixed:~
+    * Issue #1365: Fix: count ignored when looking up diary frequency
+
 
 2023.04.04~
 
@@ -4036,7 +4040,7 @@ Fixed:~
     * PR #1324: Fix pressing escape in VimwikiGoto prompt (rddunphy)
     * Issue #1336: vimwiki#diary#calendar_sign throws an error
       when g:vimwiki_list is not set
- 
+
 2023.04.04~
 
 New:~
