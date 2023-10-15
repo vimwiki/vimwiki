@@ -234,7 +234,7 @@ following option in your `.vimrc`:
 ```vim
 
 let g:vimwiki_list = [{'path': '~/vimwiki/',
-                      \ 'syntax': 'markdown', 'ext': '.md'}]
+                      \ 'syntax': 'markdown', 'ext': 'md'}]
 
 ```
 
