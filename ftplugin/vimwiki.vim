@@ -196,9 +196,15 @@ function! VimwikiFoldLevel(lnum) abort
   endif
 
   " Code block folding...
-  if line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
+  " -- previously it would always increment when it saw a ```, so we never left the code block. (See #1323)
+  let prevline = getline(v:lnum - 1)
+  let nextline = getline(v:lnum + 1)
+
+  " -- Start: assumes empty line before
+  if line =~# vimwiki#vars#get_syntaxlocal('rxPreStart') && prevline =~ '^\s*$'
     return 'a1'
-  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
+  " -- End: assumes empty line after
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd') && nextline =~ '^\s*$'
     return 's1'
   endif
 
