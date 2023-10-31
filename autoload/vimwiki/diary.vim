@@ -37,8 +37,12 @@ endfunction
 
 function! vimwiki#diary#diary_date_link(...) abort
   " Return: <String> date
-
-  let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  if a:0 > 2
+    " user supply wiki number as 1 indexed, not 0 indexed
+    let wiki_nr = a:3 - 1
+  else
+    let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
+  endif
   if wiki_nr < 0  " this happens when called outside a wiki buffer
     let wiki_nr = 0
   endif
@@ -184,7 +188,7 @@ endfunction
 
 
 function! s:read_captions(files) abort
-  " Read all cpation in 1. <List>files
+  " Read all caption in 1. <List>files
   " Return: <Dic>: key -> caption
   let result = {}
   let caption_level = vimwiki#vars#get_wikilocal('diary_caption_level')
@@ -299,14 +303,24 @@ function! vimwiki#diary#make_note(wnum, ...) abort
   call vimwiki#path#mkdir(vimwiki#vars#get_wikilocal('path', wiki_nr).
         \ vimwiki#vars#get_wikilocal('diary_rel_path', wiki_nr))
 
-  let cmd = 'edit'
+  let cmd = ':edit'
   if a:0
     if a:1 == 1
-      let cmd = 'tabedit'
+      let cmd = ':tabedit'
     elseif a:1 == 2
-      let cmd = 'split'
+      let cmd = ':split'
     elseif a:1 == 3
-      let cmd = 'vsplit'
+      let cmd = ':vsplit'
+    elseif a:1 == 4
+      let cmd = ':tab edit'
+      if exists(':drop') == 2
+        let cmd = ':tab drop'
+      endif
+    elseif a:1 == 5
+      let cmd = ':edit'
+      if exists(':drop') == 2
+        let cmd = ':drop'
+      endif
     endif
   endif
   if a:0>1
@@ -442,7 +456,7 @@ function! vimwiki#diary#generate_diary_section() abort
           let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
           let entry = substitute(entry, '__FileExtension__', extension, 'g')
           " If single H1 then that will be used as the description for the link to the file
-          " if multple H1 then the filename will be used as the description for the link to the
+          " if multiple H1 then the filename will be used as the description for the link to the
           " file and multiple H1 headers will be indented by shiftwidth
           call add(lines, repeat(' ', vimwiki#lst#get_list_margin()).bullet.entry)
 
@@ -513,7 +527,7 @@ endfunction
 function! vimwiki#diary#calendar_sign(day, month, year) abort
   " Callback function for Calendar.vim
   " Clause: no wiki no sign #290
-  if len(g:vimwiki_list) <= 0
+  if exists('g:vimwiki_list') && len(g:vimwiki_list) <= 0
     return
   endif
   let day = s:prefix_zero(a:day)

@@ -8,9 +8,6 @@
              |     | |   | | ||_|| ||   _   ||   | |    _  ||   |            ~
               |___|  |___| |_|   |_||__| |__||___| |___| |_||___|            ~
 
-
-                               Version: 2.5
-
 ==============================================================================
 CONTENTS                                                             *vimwiki*
 
@@ -370,8 +367,10 @@ MAP                MODE
 <C-S-CR>, <D-CR>   n    Follow wiki link (create target wiki page if needed),
                         opening in a new tab.
                         May not work in some terminals. Remapping could help.
-                        Maps to |:VimwikiTabnewLink|.
-                        Remap command: `<Plug>VimwikiTabnewLink`
+                        Maps to |:VimwikiTabDropLink|.
+                        Remap command: `<Plug>VimwikiTabDropLink`
+                        See |:VimwikiTabnewLink| for old behavior which
+                        always opens a new tab.
 
                                                          *vimwiki_<Backspace>*
 <Backspace>        n    Go back to previously visited wiki page.
@@ -810,6 +809,11 @@ Vimwiki file.
 *:VimwikiTabnewLink*
     Follow wiki link in a new tab (create target wiki page if needed).
 
+*:VimwikiTabDropLink*
+    Follow wiki link with tab drop, reusing any existing tabs with the page.
+    Creates a new tab if the page isn't already open (create target wiki page
+    if needed).
+
 *:VimwikiNextLink*
     Find next link on the current page.
 
@@ -960,6 +964,9 @@ Vimwiki file.
     and links to external files actually exist.  Check also if all wiki files
     are reachable from the index file.  The results are shown in the quickfix
     window.
+
+    This can be used to find "Orphaned" wiki files/pages.
+
     With range: the wiki number, by default current wiki
 
 
@@ -1183,13 +1190,13 @@ in HTML: >
   alt="Vimwiki"/>
 
 Transclude image with alternate text and some style: >
-  {{http://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
+  {{https://.../vimwiki_logo.png|cool stuff|style="width:150px;height:120px;"}}
 in HTML: >
   <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="cool stuff" style="width:150px; height:120px"/>
 
 Transclude image _without_ alternate text and with a CSS class: >
-  {{http://.../vimwiki_logo.png||class="center flow blabla"}}
+  {{https://.../vimwiki_logo.png||class="center flow blabla"}}
 in HTML: >
   <img src="https://raw.githubusercontent.com/vimwiki/vimwiki/master/doc/splash.png"
   alt="" class="center flow blabla"/>
@@ -1200,16 +1207,16 @@ See |VimwikiWikiIncludeHandler|.
 Thumbnail links~
 >
 Thumbnail links are constructed like this: >
-  [[http://someaddr.com/bigpicture.jpg|{{http://someaddr.com/thumbnail.jpg}}]]
+  [[https://someaddr.com/bigpicture.jpg|{{https://someaddr.com/thumbnail.jpg}}]]
 
 in HTML: >
-  <a href="http://someaddr.com/ ... /.jpg">
-  <img src="http://../thumbnail.jpg /></a>
+  <a href="https://someaddr.com/ ... /.jpg">
+  <img src="https://../thumbnail.jpg /></a>
 
 Markdown Links~
 
 These links are only available for Markdown syntax.  See
-http://daringfireball.net/projects/markdown/syntax#link.
+https://daringfireball.net/projects/markdown/syntax#link.
 
 Inline link: >
   [Looks like this](URL)
@@ -1419,7 +1426,7 @@ Use {{{ and }}} to define a block of preformatted text:
   In what distant deeps or skies
    Burnt the fire of thine eyes?
     On what wings dare he aspire?
-     What the hand dare sieze the fire?
+     What the hand dare seize the fire?
 }}}
 
 
@@ -1449,7 +1456,7 @@ See |vimwiki-option-nested_syntaxes| and
 5.8. Mathematical formulae                              *vimwiki-syntax-math*
 
 Mathematical formulae are highlighted, and can be rendered in HTML using the
-powerful open source display engine MathJax (http://www.mathjax.org/).
+powerful open source display engine MathJax (https://www.mathjax.org/).
 
 There are three supported syntaxes, which are inline, block display and
 block environment.
@@ -2022,7 +2029,7 @@ If you have Calendar.vim installed you can use it to create diary notes.
 Just open calendar with :Calendar and tap <Enter> on the date. A wiki file
 will be created in the default wiki's diary.
 
-Get it from http://www.vim.org/scripts/script.php?script_id=52
+Get it from https://www.vim.org/scripts/script.php?script_id=52
 
 See |g:vimwiki_use_calendar| option to turn it off/on.
 
@@ -2103,7 +2110,7 @@ If you want to keep the TOC up to date automatically, use the option
 Tagbar integration                                            *vimwiki-tagbar*
 
 As an alternative to the Table of Contents, you can use the Tagbar plugin
-(http://majutsushi.github.io/tagbar/) to show the headers of your wiki files
+(https://preservim.github.io/tagbar/) to show the headers of your wiki files
 in a side pane.
 Download the Python script from
 https://raw.githubusercontent.com/vimwiki/utils/master/vwtags.py and follow
@@ -2688,7 +2695,7 @@ Key               Default value~
 cycle_bullets     0
 
 If set to 1 (true), cycle through |bullet_types| when changing list element
-identation
+indentation
 
 
 *vimwiki-option-generated_links_caption*
@@ -2696,7 +2703,7 @@ identation
 Key                         Default value~
 generated_links_caption     0
 
-Default syntax only. If set to 1 (true), use the [[URL|DESCRIPTIOM]]  when
+Default syntax only. If set to 1 (true), use the [[URL|DESCRIPTION]]  when
 calling |:VimwikiGenerateLinks|. DESCRIPTION will be the first header in the
 corresbonding file found in the first n lines, where n is set by
 |g:vimwiki_max_scan_for_caption| (Default 5). If no caption is found fallback
@@ -2717,7 +2724,7 @@ The last is for 100% done items.
 
 You can set it to some more fancy symbols like this:
 >
-   let g:vimwiki_list = [{'path': '~/path/', 'listsyms' = '✗○◐●✓'}]
+   let g:vimwiki_list = [{'path': '~/path/', 'listsyms': '✗○◐●✓'}]
 
 
 *vimwiki-option-listsym_rejected*
@@ -2931,12 +2938,32 @@ color. (See autoload/vimwiki/vars.vim)
 
 Syntax options are configured using the following pattern: >
 
-    let g:vimwiki_syntax_list['markdown']['bullet_type'] = ['*', '-', '+']
+    let g:vimwiki_syntaxlocal_vars = {}
+    let g:vimwiki_syntaxlocal_vars['markdown'] = []
+    let g:vimwiki_syntaxlocal_vars['markdown']['bullet_type'] = ['*', '-', '+']
 
 Where:
 - `markdown` is the syntax name. It can be (`default`, `markdown` or `media`)
 - `bullet_type` is the option_name (see below)
 - `['*', '-', '+']` is the option value
+
+
+------------------------------------------------------------------------------
+*blockquote_markers*
+
+List of markers to define the blockquote regrion
+
+Default: ['>']
+
+
+------------------------------------------------------------------------------
+*yaml_metadata_block*
+
+List of (start, end) regex region delimiters to define the YAML header
+More information in #1287 and https://pandoc.org/MANUAL.html#extension-yaml_metadata_block
+
+Default: [['^---$', '^\%(---\|\.\.\.$']]
+or similar with stricter anchors
 
 
 ------------------------------------------------------------------------------
@@ -3284,8 +3311,8 @@ small screens.  If |g:vimwiki_table_auto_fmt| is set to 0, this option has no
 effect.
 
 Value           Description~
-0               Enable table auto formating for all columns.
-1               Disable table auto formating for the last column.
+0               Enable table auto formatting for all columns.
+1               Disable table auto formatting for the last column.
 
 Default: 0
 
@@ -3771,7 +3798,7 @@ The default is %%%s.
 
 Bitfield: Enable/disable emoji conceal and complete
 Note that the |completefunc| is only set if it does not exists already to keep
-other plugin works by default. It can be set it manualy with: >
+other plugin works by default. It can be set it manually with: >
   set completefunc=vimwiki#emoji#complete
 
 To replace emoji alias (like :cat:) by their value (like 🐱) in current file: >
@@ -3798,7 +3825,7 @@ generate and follow_link
 ----------------------------------------------------- ReGeX
 | pre       | '^\|\s'  | Limitations to tag precedence
 | pre_mark  | ':'      | Tag list opener
-| in  | '[:space:]]\+' | Tag permitted characters
+| in        | '[[:space:]]\+' | Tag permitted characters
 | sep       | ':'      | Tag separators in a tag list
 | post_mark | ':'      | Tag list closer
 | post      | '\s\|$'  | Limitations to tag following
@@ -3842,15 +3869,15 @@ See CONTRIBUTING.md for info about how to file bugs etc.
 ==============================================================================
 15. Development                                          *vimwiki-development*
 
-Homepage: http://vimwiki.github.io/
+Homepage: https://vimwiki.github.io/
 Github: https://github.com/vimwiki/vimwiki/
-Vim plugins: http://www.vim.org/scripts/script.php?script_id=2226
-Old homepage: http://code.google.com/p/vimwiki/
+Vim plugins: https://www.vim.org/scripts/script.php?script_id=2226
+Old homepage: https://code.google.com/p/vimwiki/
 
 Contributors and their Github usernames in roughly chronological order:
 
     - Maxim Kim (@habamax) <habamax@gmail.com> as original author
-    - the people here: http://code.google.com/p/vimwiki/people/list
+    - the people here: https://code.google.com/p/vimwiki/people/list
     - Stuart Andrews (@tub78)
     - Tomas Pospichal
     - Daniel Schemala (@EinfachToll) as current maintainer
@@ -3974,6 +4001,13 @@ Contributors and their Github usernames in roughly chronological order:
     - Youssof Taha (@ysftaha)
     - Thomas Leyh (@leyhline)
     - Charles Schimmelpfennig (@charlesschimmel)
+    - nebulaeandstars (@nebulaeandstars)
+    - dmitry kim (@jsn)
+    - Julian Prein (@druckdev)
+    - Luke Atkinson (@LukeDAtkinson)
+    - Joe Planisky (@jplanisky)
+    - Bence Ferdinandy (@ferdinandyb)
+
 
 ==============================================================================
 16. Changelog                                              *vimwiki-changelog*
@@ -3981,10 +4015,66 @@ Contributors and their Github usernames in roughly chronological order:
 
 Issue numbers starting with '#' are issues from
 https://github.com/vimwiki/vimwiki/issues/, all others from
-http://code.google.com/p/vimwiki/issues/list. They may be accessible from
+https://code.google.com/p/vimwiki/issues/list. They may be accessible from
 https://github.com/vimwiki-backup/vimwiki/issues.
 
+From version 2022.12.02, what would have been 2.6.0 under the prior versioning
+scheme, the VimWiki project has adopted a rolling release policy.  Once changes
+are accepted, they will merge directly to dev, which is now the main branch.
+master is retained as a legacy mirror of the dev branch.
+
+This is somewhat experimental, and will probably be refined over time.
+
 New:~
+    * Issue #1279: Fix/Improvement: When re-wrap a long line in a definition
+      by 'gq' it should insert ':: ' at the new line
+
+Fixed:~
+    * Issue #1365: Fix: count ignored when looking up diary frequency
+
+
+2023.04.04~
+
+Fixed:~
+    * Issue #1229: VimwikiGoto completion with file with space
+      Must complete file unescaped as argument is then quoted
+    * PR #1324: Fix pressing escape in VimwikiGoto prompt (rddunphy)
+    * Issue #1336: vimwiki#diary#calendar_sign throws an error
+      when g:vimwiki_list is not set
+
+2023.04.04~
+
+New:~
+    * Issue #1261: Feature: Support for <mark> in Markdown
+      highlighting with yellow background and back foreground
+    * Issue #1274: Feature: Continue blockquote when <CR>
+      is pressed in insert mode
+      Also add the |blockquote_markers| variable
+
+Fixed:~
+    * Issue #1267: Improve performance on link creation by speeding up
+      is_diary_file()
+    * Issue #1229: Bug: VimwikiGoto without argument creates empty page
+    * Issue #1316: Permit tags in heading
+      and improve |VimwikiSearchTags| and |VimwikiRebuildTags|
+    * Issue #1270: |VimwikiAddHeaderLevel| map (3=) was broken by a previous
+      refactoring commit
+
+
+2023.03.15~
+
+New:~
+    * Issue #150 Fix Math border cases
+      according to https://pandoc.org/MANUAL.html#math
+    * Issue #1287 Highlight YAML header with |yaml_metadata_block|
+      configuration variable holding region delimiters
+
+
+2022.12.02~
+
+New:~
+    * Policy: #1235: Move to calendar versioning and rolling release cadence
+    * Feature: #238: Reuse existing tabs with tab drop
     * Issue #621: Feature request: Highlight code listings in HTML
     * Issue #290: Calendar plugin, do not sign if no wiki
     * Issue #281: Permit `\|` in tables
@@ -4035,7 +4125,7 @@ New:~
       current file
     * Feature: Add |VimwikiBaddLink| to add links to the buffer list, without
       loading, if they weren't listed yet
-    * PR #XXX: Enable parsing Markdown links escaped with angle brackets
+    * PR 1211: Enable parsing Markdown links escaped with angle brackets
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
@@ -4048,6 +4138,9 @@ Changed:~
 Removed:~
 
 Fixed:~
+    * PR #1240 / issue #1241: Vimwiki2HTMLBrowse now works with Markdown
+    * Issue #950: Correctly follow links containing .
+    * PR #1245 / issue #1244: Fix VimwikiBacklinks handling of bracketed links
     * Issue #1193: Fix wildcard expansion in |find_autoload_file|
     * PR #1108: Fix resolution of leading-slash page links, add link tests
     * Allow title values with quotes
@@ -4069,10 +4162,10 @@ Fixed:~
     * Issue #894: Make all appropriate settings wikilocal (many commits)
     * PR #902: Doc: Darken logo text
     * PR #895: Fix: File extension for markdown -> syntax wide
-      __FileExtention__ keyword appears
+      __FileExtension__ keyword appears
     * PR #963: Doc: Replace VimwikiListChangeLevel references in doc with
       VimwikiListChangeLvl as defined by command
-    * PR #900: conceallevel is now setted locally for vimwiki buffers
+    * PR #900: conceallevel is now set locally for vimwiki buffers
     * Issue #942: Fixing wrong html link conversion in windows
     * PR #919: Fix duplicate helptag
     * PR #959: Fix :VimwikiNextTask
@@ -4130,7 +4223,7 @@ New:~
       sections. New option |g:vimwiki_links_header_level| and
       |g:vimwiki_tags_header_level| which allow the header level (1-6) of the
       generated links to be set. New option |g:vimwiki_markdown_header_style|
-      which specifies the nuber of newlines after the created header for
+      which specifies the number of newlines after the created header for
       generated sections.
     * PR #635: Wiki local options |vimwiki-option-auto_generate_links| and
       |vimwiki-option-auto_generate_tags|.
@@ -4177,7 +4270,7 @@ Fixed:~
     * Issue #90: |:VimwikiRenameFile| doesn't update links in diary.
     * Issue #790: Allow tags before a header with markdown syntax.
     * Issue #779: Vimwiki tags file meets ctags standard.
-    * Issue #781: Compatablity fixes for older versions of Vim.
+    * Issue #781: Compatibility fixes for older versions of Vim.
     * Issue #691: Allow |:VimwikiGoBackLink| to go back multiple times.
     * Update MathJax CDN loading instructions.
     * Issue #212: Don't treat comment characters within code blocks as
@@ -4436,7 +4529,7 @@ Summary ~
     * Option to disable table mappings. See |g:vimwiki_table_mappings|.
 
 For detailed information see issues list on
-http://code.google.com/p/vimwiki/issues/list
+https://code.google.com/p/vimwiki/issues/list
 
 
 1.2~
@@ -4515,7 +4608,7 @@ http://code.google.com/p/vimwiki/issues/list
 17. License                                                  *vimwiki-license*
 
 The MIT License
-http://www.opensource.org/licenses/mit-license.php
+https://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2008-2010 Maxim Kim
               2013-2017 Daniel Schemala

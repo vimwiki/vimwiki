@@ -1,6 +1,5 @@
-" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99
-" Vimwiki autoload plugin file
-" Description: Vimwiki variable definition and manipulation
+" Title: Vimwiki variable definition and manipulation functions
+"
 " Home: https://github.com/vimwiki/vimwiki/
 
 " ------------------------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ endfunction
 function! s:check_users_value(key, users_value, value_infos, comes_from_global_variable) abort
   " Helper: Check user setting
   " warn user with message if not good type
-  " Param: 1: key <string>: varaible name
+  " Param: 1: key <string>: variable name
   " Param: 2: vimwiki_key <obj>: user value
   " Param: 3: value_infod <dict>: type and default value
   " Param: 4: coming from a global variable <bool>
@@ -178,7 +177,7 @@ function! s:get_default_global() abort
         \   [
         \     'http', 'https', 'file', 'ftp', 'gopher', 'telnet', 'nntp', 'ldap',
         \     'rsync', 'imap', 'pop', 'irc', 'ircs', 'cvs', 'svn', 'svn+ssh',
-        \     'git', 'ssh', 'fish', 'sftp', 'thunderlink'
+        \     'git', 'ssh', 'fish', 'sftp', 'thunderlink', 'message'
         \   ]},
         \ 'schemes_any': {'type': type([]), 'default': ['mailto', 'matrix', 'news', 'xmpp', 'sip', 'sips', 'doi', 'urn', 'tel', 'data']},
         \ 'table_auto_fmt': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
@@ -477,6 +476,7 @@ function! s:get_default_wikilocal() abort
         \ 'auto_toc': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'automatic_nested_syntaxes': {'type': type(0), 'default': 1, 'min': 0, 'max': 1},
         \ 'base_url': {'type': type(''), 'default': '', 'min_length': 1},
+        \ 'bullet_types': {'type': type([]), 'default': []},
         \ 'color_dic': {'type': type({}), 'default': {
         \   'default': ['', '#d79921'],
         \   'red': ['#cc241d', ''],
@@ -498,6 +498,7 @@ function! s:get_default_wikilocal() abort
         \ 'css_name': {'type': type(''), 'default': 'style.css', 'min_length': 1},
         \ 'custom_wiki2html': {'type': type(''), 'default': ''},
         \ 'custom_wiki2html_args': {'type': type(''), 'default': ''},
+        \ 'cycle_bullets': {'type': type(0), 'default': 0},
         \ 'diary_frequency': {'type': type(''), 'default': 'daily', 'possible_values': ['daily', 'weekly', 'monthly', 'yearly']},
         \ 'diary_start_week_day': {'type': type(''), 'default': 'monday', 'possible_values': ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']},
         \ 'diary_header': {'type': type(''), 'default': 'Diary', 'min_length': 1},
@@ -507,8 +508,6 @@ function! s:get_default_wikilocal() abort
         \ 'diary_sort': {'type': type(''), 'default': 'desc', 'possible_values': ['asc', 'desc']},
         \ 'exclude_files': {'type': type([]), 'default': []},
         \ 'ext': {'type': type(''), 'default': '.wiki', 'min_length': 1},
-        \ 'bullet_types': {'type': type([]), 'default': []},
-        \ 'cycle_bullets': {'type': type(0), 'default': 0},
         \ 'html_filename_parameterization': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'generated_links_caption': {'type': type(0), 'default': 0 },
         \ 'index': {'type': type(''), 'default': 'index', 'min_length': 1},
@@ -610,6 +609,8 @@ function! s:normalize_wikilocal_settings() abort
     endif
     call s:populate_list_vars(wiki_settings)
 
+    call s:populate_blockquote_vars(wiki_settings)
+
     " Check nested syntax
     for keyword in keys(wiki_settings.nested_syntaxes)
       if type(keyword) != type('') || empty(keyword) || type(wiki_settings.nested_syntaxes[keyword]) != type('') ||
@@ -673,7 +674,9 @@ endfunction
 function! s:get_default_syntaxlocal() abort
   " Get default syntaxlocal variable dictionary
   " type, default, min, max, possible_values, min_length
+
   return extend(s:get_common_syntaxlocal(), {
+        \ 'blockquote_markers': {'type': type([]), 'default': ['>', '::']},
         \ 'bold_match': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*__Text__\*\%([[:punct:]]\|\s\|$\)\@='},
         \ 'bold_search': {'type': type(''), 'default': '\%(^\|\s\|[[:punct:]]\)\@<=\*\zs\%([^*`[:space:]][^*`]*[^*`[:space:]]\|[^*`[:space:]]\)\ze\*\%([[:punct:]]\|\s\|$\)\@='},
         \ 'bullet_types': {'type': type([]), 'default': ['-', '*', '#']},
@@ -682,7 +685,6 @@ function! s:get_default_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['-', '1.', '*', 'I)', 'a)']},
         \ 'number_types': {'type': type([]), 'default': ['1)', '1.', 'i)', 'I)', 'a)', 'A)']},
         \ 'recurring_bullets': {'type': type(0), 'default': 0},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
         \ 'header_symbol': {'type': type(''), 'default': '='},
         \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
         \ 'rxListDefine': {'type': type(''), 'default': '::\(\s\|$\)'},
@@ -697,10 +699,10 @@ function! s:get_default_syntaxlocal() abort
         \   'post_mark': '}}}'}},
         \ 'symH': {'type': type(1), 'default': 1},
         \ 'typeface': {'type': type({}), 'default': {
-        \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*']]),
-        \   'italic': vimwiki#u#hi_expand_regex([['_', '_']]),
+        \   'bold': vimwiki#u#hi_expand_regex([['\*', '\*', '[*]', 0]]),
+        \   'italic': vimwiki#u#hi_expand_regex([['_', '_', '[_]', 0]]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
-        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_']]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*', '[*_]', 1], ['_\*', '\*_', '[*_]', 1]]),
         \   'code': [
         \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
         \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
@@ -710,7 +712,7 @@ function! s:get_default_syntaxlocal() abort
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$\\]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$\\]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -735,7 +737,6 @@ function! s:get_markdown_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['-', '*', '+', '1.']},
         \ 'number_types': {'type': type([]), 'default': ['1.']},
         \ 'recurring_bullets': {'type': type(0), 'default': 0},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$\|<!--[^>]*-->'},
         \ 'header_symbol': {'type': type(''), 'default': '#'},
         \ 'rxHR': {'type': type(''), 'default': '\(^---*$\|^___*$\|^\*\*\**$\)'},
         \ 'rxListDefine': {'type': type(''), 'default': '::\%(\s\|$\)'},
@@ -750,20 +751,31 @@ function! s:get_markdown_syntaxlocal() abort
         \   'post_mark': '\%(`\{3,}\|\~\{3,}\)'}},
         \ 'symH': {'type': type(0), 'default': 0},
         \ 'typeface': {'type': type({}), 'default': {
-        \   'bold': vimwiki#u#hi_expand_regex([['__', '__'], ['\*\*', '\*\*']]),
-        \   'italic': vimwiki#u#hi_expand_regex([['\*', '\*'], ['_', '_']]),
+        \   'bold': vimwiki#u#hi_expand_regex([
+        \     ['__', '__', '[_*]', 1],
+        \     ['\*\*', '\*\*', '[_*]', 1],
+        \     ]),
+        \   'italic': vimwiki#u#hi_expand_regex([
+        \     ['_', '_', '[_*]', 0],
+        \     ['\*', '\*', '[_*]', 0],
+        \     ['\*_', '_\*', '[_*]', 1],
+        \     ['_\*', '\*_', '[_*]', 1],
+        \     ]),
         \   'underline': vimwiki#u#hi_expand_regex([]),
-        \   'bold_italic': vimwiki#u#hi_expand_regex([['\*_', '_\*'], ['_\*', '\*_'], ['\*\*\*', '\*\*\*'], ['___', '___']]),
+        \   'bold_italic': vimwiki#u#hi_expand_regex([
+        \     ['___', '___', '[_*]', 1],
+        \     ['\*\*\*', '\*\*\*', '[_*]', 1],
+        \     ]),
         \   'code': [
-        \       ['\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@=',
+        \       ['\%(^\|[^`\\]\)\@<=`\%($\|[^`]\)\@=',
         \        '\%(^\|[^`]\)\@<=`\%($\|[^`]\)\@='],
-        \       ['\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@=',
+        \       ['\%(^\|[^`\\]\)\@<=``\%($\|[^`]\)\@=',
         \        '\%(^\|[^`]\)\@<=``\%($\|[^`]\)\@='],
         \       ],
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -779,7 +791,6 @@ function! s:get_media_syntaxlocal() abort
         \ 'list_markers': {'type': type([]), 'default': ['*', '#']},
         \ 'number_types': {'type': type([]), 'default': []},
         \ 'recurring_bullets': {'type': type(1), 'default': 1},
-        \ 'comment_regex': {'type': type(''), 'default': '^\s*%%.*$'},
         \ 'header_symbol': {'type': type(''), 'default': '='},
         \ 'rxHR': {'type': type(''), 'default': '^-----*$'},
         \ 'rxListDefine': {'type': type(''), 'default': '^\%(;\|:\)\s'},
@@ -807,7 +818,7 @@ function! s:get_media_syntaxlocal() abort
         \   'del': [['\~\~', '\~\~']],
         \   'sup': [['\^', '\^']],
         \   'sub': [[',,', ',,']],
-        \   'eq': [['\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=', '\%(^\|[^$]\)\@<=\$\%($\|[^$]\)\@=']],
+        \   'eq': [[s:rx_inline_math_start, s:rx_inline_math_end]],
         \   }},
         \ 'wikilink': {'type': type(''), 'default': '\[\[\zs[^\\\]|]\+\ze\%(|[^\\\]]\+\)\?\]\]'},
         \ })
@@ -815,10 +826,31 @@ endfunction
 
 function! s:get_common_syntaxlocal() abort
   let res = {}
+
+  " Declare helper: a line with only --- or ...
+  let rx_yaml_start_pre = '\%(^\%(\%1l\|^$\n\)\@<=\)'
+  let rx_yaml_start_post = '\%(\%(\n^$\)\@!$\)'
+  let rx_yaml_start = rx_yaml_start_pre . '---' . rx_yaml_start_post
+  let rx_yaml_end = '^\%(---\|\.\.\.\)\s*$'
+
   let res.nested_extended = {'type': type(''), 'default': 'VimwikiError,VimwikiPre,VimwikiCode,VimwikiEqIn,VimwikiSuperScript,VimwikiSubScript,textSnipTEX'}
   let res.nested_typeface = {'type': type(''), 'default': 'VimwikiBold,VimwikiItalic,VimwikiUnderline,VimwikiDelText'}
   let res.nested = {'type': type(''), 'default': res.nested_extended.default . ',' . res.nested_typeface.default}
   let res.rxTableSep = {'type': type(''), 'default': '|'}
+  " See issue #1287
+  let res.yaml_metadata_block = {'type': type([]), 'default': [[rx_yaml_start, rx_yaml_end]]}
+
+  " Declare helper for inline math nested variable
+  let s:rx_inline_math_start = '\%(^\|[^$\\]\)\@<=\$\%($\|[^$[:space:]]\)\@='
+  let s:rx_inline_math_end   = '\%(^\|[^$\\[:space:]]\)\@<=\$\%($\|[^$0-9]\)\@='
+
+  " Blockquote marker (#1274)
+  " -- it should not be changed but let's avoid hardcoding
+  let res.blockquote_markers = {'type': type([]), 'default': ['>']}
+
+  " HTML comment
+  let res.comment_regex = {'type': type(''), 'default': '\%(^\s*%%.*$\|<!--\%([^>]\|\n\)*-->\)'}
+
   return res
 endfunction
 
@@ -857,7 +889,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
     call s:extend_local(syntax_dic, default_dic, syntax_dic, g:vimwiki_syntax_list[a:syntax])
   endif
 
-  " TODO make that clean (i.e clearify what is local to syntax ot to buffer)
+  " TODO make that clean (i.e clarify what is local to syntax or to buffer)
   " Get from local vars
   let bullet_types = vimwiki#vars#get_wikilocal('bullet_types')
   if !empty(bullet_types)
@@ -927,7 +959,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
           \ '^\s*\('.header_symbol.'\{1,6}\)\zs[^'.header_symbol.'].*[^'.header_symbol.']\ze\1\s*$'
   else
     " asymmetric
-    " Note: For markdown rxH=# and asymetric
+    " Note: For markdown rxH=# and asymmetric
     for i in range(1,6)
       let syntax_dic['rxH'.i.'_Template'] =
             \ repeat(header_symbol, i).' __Header__'
@@ -941,7 +973,7 @@ function! vimwiki#vars#populate_syntax_vars(syntax) abort
             \ '^\s*'.header_symbol.'\{1,'.i.'}[^'.header_symbol.'].*$\|\%$'
     endfor
     " Define header regex
-    " -- ATX heading := preceed by #*
+    " -- ATX heading := preceded by #*
     let atx_heading = '^\s*\%('.header_symbol.'\{1,6}\)'
     let atx_heading .= '\zs[^'.header_symbol.'].*\ze$'
     let syntax_dic.rxHeader = atx_heading
@@ -1103,6 +1135,22 @@ function! s:populate_list_vars(wiki) abort
           \ . a:wiki.listsyms_list[-1]
           \ . a:wiki.listsym_rejected . ']\]\s.*\%(\n\%(\1\s.*\|^$\)\)*'
   endif
+endfunction
+
+
+function! s:populate_blockquote_vars(wiki) abort
+  " Populate blockquote variable
+  " Start being more intelligent on blockquote line continuation
+  " See: issue #1274
+
+  " Start of line and spaces
+  let a:wiki.rxBlockquoteItem = '^\s*\('
+
+  " Content
+  let blockquote_markers =  vimwiki#vars#get_syntaxlocal('blockquote_markers')
+  let a:wiki.rxBlockquoteItem .= join(blockquote_markers, '\|')
+
+  let a:wiki.rxBlockquoteItem .= '\)'
 endfunction
 
 
@@ -1540,7 +1588,7 @@ endfunction
 
 function! vimwiki#vars#get_syntaxlocal(key, ...) abort
   " Get syntax variable
-  " Param:   1: key (<string>)
+  " Param: 1: key (<string>)
   " Param: (2): syntax name (<string> ex:'markdown')
   " Retrieve desired syntax name
   if a:0
@@ -1556,6 +1604,28 @@ function! vimwiki#vars#get_syntaxlocal(key, ...) abort
 
   " Return d_syntax[a:key]
   return g:vimwiki_syntaxlocal_vars[syntax][a:key]
+endfunction
+
+
+function! vimwiki#vars#set_syntaxlocal(key, value, ...) abort
+  " Set syntax variable
+  " Param: 1: key (<string>)
+  " Param: 2: value (<any type>)
+  " Param: (3): syntax name (<string> ex:'markdown')
+  " Set desired syntax variable to value
+  if a:0
+    let syntax = a:1
+  else
+    let syntax = vimwiki#vars#get_wikilocal('syntax')
+  endif
+
+  " Create syntax variable dict if not exists (lazy)
+  if !exists('g:vimwiki_syntaxlocal_vars') || !has_key(g:vimwiki_syntaxlocal_vars, syntax)
+    call vimwiki#vars#populate_syntax_vars(syntax)
+  endif
+
+  " Set d_syntax[a:key]
+  let g:vimwiki_syntaxlocal_vars[syntax][a:key] = a:value
 endfunction
 
 
@@ -1666,3 +1736,4 @@ function! vimwiki#vars#number_of_wikis() abort
   " Return: number of registered wikis + temporary
   return len(g:vimwiki_wikilocal_vars) - 1
 endfunction
+" vim:tabstop=2:shiftwidth=2:expandtab:textwidth=99

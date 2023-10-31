@@ -9,7 +9,8 @@
 
 " Tags metadata in-file format:
 "
-" Is based on CTags format (see |tags-file-format|).
+" Is based on CTags format (see |tags-file-format|) and
+" https://ctags.sourceforge.net/FORMAT
 "
 " {tagaddress} is set to lineno.  We'll let vim search by exact line number; we
 " can afford that, we assume metadata file is always updated before use.
@@ -99,6 +100,7 @@ function! s:scan_tags(lines, page_name) abort
     if !empty(h_match) " got a header
       let header_line_nr = line_nr
       let header = vimwiki#base#normalize_anchor(h_match[2])
+      let current_header_description = vimwiki#u#trim(h_match[2])
       let level = len(h_match[1])
       let anchor_level[level-1] = header
       for l in range(level, 6)
@@ -115,40 +117,40 @@ function! s:scan_tags(lines, page_name) abort
         endfor
         let current_complete_anchor .= header
       endif
-      continue " tags are not allowed in headers
+      " See: issue #1316 to allow tags in header
+      " continue " tags are not allowed in headers
     endif
 
     " Scan line for tags.  There can be many of them.
     let str = line
-    while 1
-      " Get all matches
-      let tag_groups = []
-      call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
-      if tag_groups == []
-        break
-      endif
-      let tagend = matchend(str, tag_search_rx)
-      let str = str[(tagend):]
-      for tag_group in tag_groups
-        for tag in split(tag_group, tag_format.sep)
-          " Create metadata entry
-          let entry = {}
-          let entry.tagname  = tag
-          let entry.lineno   = line_nr
-          if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
-            " Tag appeared at the top of the file
-            let entry.link   = a:page_name
-          elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
-            " Tag appeared right below a header
-            let entry.link   = a:page_name . '#' . current_complete_anchor
-          else
-            " Tag stands on its own
-            let entry.link   = a:page_name . '#' . tag
-          endif
-          call add(entries, entry)
-        endfor
+    " Get all matches
+    let tag_groups = []
+    call substitute(str, tag_search_rx, '\=add(tag_groups, submatch(0))', 'g')
+    if tag_groups == []
+      continue
+    endif
+    for tag_group in tag_groups
+      for tag in split(tag_group, tag_format.sep)
+        " Create metadata entry
+        let entry = {}
+        let entry.tagname  = tag
+        let entry.lineno   = line_nr
+        if line_nr <= PROXIMITY_LINES_NR && header_line_nr < 0
+          " Tag appeared at the top of the file
+          let entry.link   = a:page_name
+          let entry.description = entry.link
+        elseif line_nr <= (header_line_nr + PROXIMITY_LINES_NR)
+          " Tag appeared right below a header
+          let entry.link   = a:page_name . '#' . current_complete_anchor
+          let entry.description = current_header_description
+        else
+          " Tag stands on its own
+          let entry.link   = a:page_name . '#' . tag
+          let entry.description = entry.link
+        endif
+        call add(entries, entry)
       endfor
-    endwhile
+    endfor
 
   endfor " loop over lines
   return entries
@@ -195,7 +197,7 @@ function! s:load_tags_metadata() abort
     let vw_data = substitute(vw_data, '\\t', "\t", 'g')
     let vw_data = substitute(vw_data, '\\\\', "\\", 'g')
     let vw_fields = split(vw_data, "\t")
-    if len(vw_fields) != 2
+    if len(vw_fields) != 3
       throw 'VimwikiTags5: Metadata file corrupted'
     endif
     let pagename = vw_fields[0]
@@ -203,6 +205,7 @@ function! s:load_tags_metadata() abort
     let entry.tagname  = std_fields[0]
     let entry.lineno   = std_fields[2]
     let entry.link     = vw_fields[1]
+    let entry.description = vw_fields[2]
     if has_key(metadata, pagename)
       call add(metadata[pagename], entry)
     else
@@ -241,7 +244,7 @@ function! s:tags_entry_cmp(i1, i2) abort
   "
   " This function is needed for tags sorting, since plain sort() compares line
   " numbers as strings, not integers, and so, for example, tag at line 14
-  " preceeds the same tag on the same page at line 9.  (Because string "14" is
+  " precedes the same tags on the same page at line 9.  (Because string "14" is
   " alphabetically 'less than' string "9".)
   let items = []
   for orig_item in [a:i1, a:i2]
@@ -271,7 +274,7 @@ function! s:write_tags_metadata(metadata) abort
   let tags = []
   for pagename in keys(a:metadata)
     for entry in a:metadata[pagename]
-      let entry_data = pagename . "\t" . entry.link
+      let entry_data = pagename . "\t" . entry.link . "\t" . entry.description
       let entry_data = substitute(entry_data, "\\", '\\\\', 'g')
       let entry_data = substitute(entry_data, "\t", '\\t', 'g')
       let entry_data = substitute(entry_data, "\r", '\\r', 'g')
@@ -287,7 +290,7 @@ function! s:write_tags_metadata(metadata) abort
   endfor
   call sort(tags, 's:tags_entry_cmp')
   let tag_comments = [
-    \ "!_TAG_PROGRAM_VERSION\t2.5",
+    \ "!_TAG_PROGRAM_VERSION\t" . g:vimwiki_version,
     \ "!_TAG_PROGRAM_URL\thttps://github.com/vimwiki/vimwiki",
     \ "!_TAG_PROGRAM_NAME\tVimwiki Tags",
     \ "!_TAG_PROGRAM_AUTHOR\tVimwiki",
@@ -320,8 +323,33 @@ function! vimwiki#tags#generate_tags(create, ...) abort
   " Similar to vimwiki#base#generate_links.  In the current buffer, appends
   " tags and references to all their instances.  If no arguments (tags) are
   " specified, outputs all tags.
-  let specific_tags = a:000
   let header_level = vimwiki#vars#get_global('tags_header_level')
+  let tags_header_text = vimwiki#vars#get_global('tags_header')
+
+  " If tag headers should only be updated, search for already present tag headers
+  if !a:create
+    let headers = vimwiki#base#collect_headers()
+    let specific_tags = []
+    let inside_tag_headers = 0
+    for header in headers
+      " If we ran out of the headers containing the tags, stop
+      if inside_tag_headers && header[1] <= header_level
+        break
+      endif
+
+      " All headers in the tag headers section correspond to tag names. Collect all of them in a list.
+      if inside_tag_headers
+        call add(specific_tags, header[2])
+      endif
+
+      " If we found the start of the tag headers section, remember that the following headers are now inside of it
+      if header[1] == header_level && header[2] ==# tags_header_text
+        let inside_tag_headers = 1
+      endif
+    endfor
+  else
+    let specific_tags = a:000
+  endif
 
   " use a dictionary function for closure like capability
   " copy all local variables into dict (add a: if arguments are needed)
@@ -332,65 +360,70 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 
     " make a dictionary { tag_name: [tag_links, ...] }
     let tags_entries = {}
+    for tagname in self.specific_tags
+      let tags_entries[tagname] = []
+    endfor
+
     for entries in values(metadata)
       for entry in entries
         if has_key(tags_entries, entry.tagname)
-          call add(tags_entries[entry.tagname], entry.link)
+          call add(tags_entries[entry.tagname], [entry.link, entry.description])
         else
-          let tags_entries[entry.tagname] = [entry.link]
+          if need_all_tags
+            let tags_entries[entry.tagname] = [[entry.link, entry.description]]
+          endif
         endif
       endfor
       unlet entry " needed for older vims with sticky type checking since name is reused
     endfor
 
+    let tagnames = need_all_tags ? sort(keys(tags_entries)) : self.specific_tags
     let lines = []
     let bullet = repeat(' ', vimwiki#lst#get_list_margin()).vimwiki#lst#default_symbol().' '
     let current_dir = vimwiki#base#current_subdir()
-    for tagname in sort(keys(tags_entries))
-      if need_all_tags || index(self.specific_tags, tagname) != -1
-        if len(lines) > 0
+    for tagname in tagnames
+      if len(lines) > 0
+        call add(lines, '')
+      endif
+
+      let tag_tpl = printf('rxH%d_Template', self.header_level + 1)
+      call add(lines, s:safesubstitute(vimwiki#vars#get_syntaxlocal(tag_tpl), '__Header__', tagname, ''))
+
+      if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+        for _ in range(vimwiki#vars#get_global('markdown_header_style'))
           call add(lines, '')
-        endif
-
-        let tag_tpl = printf('rxH%d_Template', self.header_level + 1)
-        call add(lines, s:safesubstitute(vimwiki#vars#get_syntaxlocal(tag_tpl), '__Header__', tagname, ''))
-
-        if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-          for _ in range(vimwiki#vars#get_global('markdown_header_style'))
-            call add(lines, '')
-          endfor
-        endif
-
-        for taglink in sort(tags_entries[tagname])
-          let taglink = vimwiki#path#relpath(current_dir, taglink)
-          if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
-            let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
-            let link_infos = vimwiki#base#resolve_link(taglink)
-            if empty(link_infos.anchor)
-              let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
-              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
-              let entry = s:safesubstitute(entry, '__LinkDescription__', taglink, '')
-              let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
-              let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
-            else
-              let link_caption = split(link_infos.anchor, '#', 0)[-1]
-              let link_text = split(taglink, '#', 1)[0]
-              let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
-              let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
-              let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
-              let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
-              let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
-            endif
-
-            call add(lines, bullet . entry)
-          else
-            let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
-            let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
-            let link_tpl = s:safesubstitute(link_tpl, '__FileExtension__', file_extension , '')
-            call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
-          endif
         endfor
       endif
+
+      for [taglink, tagdescription] in sort(tags_entries[tagname])
+        let taglink = vimwiki#path#relpath(current_dir, taglink)
+        if vimwiki#vars#get_wikilocal('syntax') ==# 'markdown'
+          let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink3Template')
+          let link_infos = vimwiki#base#resolve_link(taglink)
+          if empty(link_infos.anchor)
+            let link_tpl = vimwiki#vars#get_syntaxlocal('Link1')
+            let entry = s:safesubstitute(link_tpl, '__LinkUrl__', taglink, '')
+            let entry = s:safesubstitute(entry, '__LinkDescription__', tagdescription, '')
+            let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+            let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
+          else
+            let link_caption = split(tagdescription, '#', 0)[-1]
+            let link_text = split(taglink, '#', 1)[0]
+            let entry = s:safesubstitute(link_tpl, '__LinkUrl__', link_text, '')
+            let entry = s:safesubstitute(entry, '__LinkAnchor__', link_infos.anchor, '')
+            let entry = s:safesubstitute(entry, '__LinkDescription__', link_caption, '')
+            let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+            let entry = s:safesubstitute(entry, '__FileExtension__', file_extension , '')
+          endif
+
+          call add(lines, bullet . entry)
+        else
+          let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate1')
+          let file_extension = vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr'))
+          let link_tpl = s:safesubstitute(link_tpl, '__FileExtension__', file_extension , '')
+          call add(lines, bullet . substitute(link_tpl, '__LinkUrl__', taglink, ''))
+        endif
+      endfor
     endfor
 
     return lines
@@ -402,7 +435,7 @@ function! vimwiki#tags#generate_tags(create, ...) abort
 
   call vimwiki#base#update_listing_in_buffer(
         \ GeneratorTags,
-        \ vimwiki#vars#get_global('tags_header'),
+        \ tags_header_text,
         \ links_rx,
         \ line('$')+1,
         \ header_level,
@@ -416,4 +449,22 @@ function! vimwiki#tags#complete_tags(ArgLead, CmdLine, CursorPos) abort
   " will do the job of filtering.
   let taglist = vimwiki#tags#get_tags()
   return join(taglist, "\n")
+endfunction
+
+
+function! vimwiki#tags#search_tags(tag_pattern) abort
+  " See #1316 and rxTags in vars.vim
+  let tf = vimwiki#vars#get_syntaxlocal('tag_format')
+
+  " Craft regex
+  let rx_this_tag = '/'
+  let rx_this_tag .= tf.pre . '\@<=' . tf.pre_mark
+  let rx_this_tag .= '\%(' . tf.in . tf.sep . '\)*'
+  let rx_this_tag .= a:tag_pattern
+  let rx_this_tag .= '\%(' . tf.sep . tf.in . '\)*'
+  let rx_this_tag .= tf.post_mark . tf.post . '\@='
+  let rx_this_tag .= '/'
+
+  " Search in current wiki folder
+  return vimwiki#base#search(rx_this_tag)
 endfunction

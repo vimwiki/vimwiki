@@ -1,0 +1,32 @@
+# Non regression tests for issue: #1279
+# Fix/Improvement: When re-wrap a long line in a definition by 'gq' it should insert ':: ' at the new line
+
+
+Given vimwiki (Dummy heading):
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+
+Do (gqq):
+  gqq
+
+Expect (Wrapped with the :: prefix prepended):
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa
+  :: aaa aaa aaa
+
+Given vimwiki (Small heading):
+  :: aaa
+
+Execute (Log):
+  call SetSyntax("default")
+  Log 'Comments: ' . &comments
+  Log 'Formatoptions: ' . &formatoptions
+  Log 'Blockquote_markers: ' . string(vimwiki#vars#get_syntaxlocal('blockquote_markers'))
+  Log 'Syntax: ' . vimwiki#vars#get_wikilocal('syntax')
+
+Do (A <CR>):
+  A\<CR>
+
+Expect (Bloquote prefix :: inserted):
+  :: aaa
+  :: 

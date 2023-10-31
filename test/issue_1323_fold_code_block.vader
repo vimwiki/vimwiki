@@ -1,0 +1,46 @@
+# Non regression tests for issue 1323
+# -- Folding code blocks using markdown syntax folds the entire rest of the file #1323
+#
+# Syntax: https://github.com/junegunn/vader.vim#syntax-of-vader-file
+# Run: bash run_tests.sh -v -t vader -n vim_7.3.429 -f issue_example.vader
+
+Given vimwiki (Input file):
+  # Header
+  
+  ```sql
+  SELECT blah FROM bleh;
+  ```
+  
+  More text in session one
+  
+  # Header two
+
+  More text in session two
+
+
+Execute (Cheat vars):
+  call SetSyntax('markdown')
+  let old_foldexpr = &foldexpr
+  let old_foldmethod = &foldmethod
+  set foldexpr=VimwikiFoldLevel(v:lnum)
+  set foldmethod=expr
+
+
+Execute (Call function to verify):
+  AssertEqual 'line 1 => 1', 'line 1 => ' . foldlevel(1)
+  AssertEqual 'line 2 => 1', 'line 2 => ' . foldlevel(2)
+  AssertEqual 'line 3 => 2', 'line 3 => ' . foldlevel(3)
+  AssertEqual 'line 4 => 2', 'line 4 => ' . foldlevel(4)
+  AssertEqual 'line 5 => 2', 'line 5 => ' . foldlevel(5)
+  AssertEqual 'line 6 => 1', 'line 6 => ' . foldlevel(6)
+  AssertEqual 'line 7 => 1', 'line 7 => ' . foldlevel(7)
+  AssertEqual 'line 8 => 1', 'line 8 => ' . foldlevel(8)
+  AssertEqual 'line 9 => 0', 'line 9 => ' . foldlevel(9)
+#  AssertEqual 'line 10 => 1', 'line 10 => ' . foldlevel(10)
+#  AssertEqual 'line 11 => 1', 'line 11 => ' . foldlevel(11)
+
+
+Execute (Restore vars):
+#  call SetSyntax('default')
+  let &foldexpr = old_foldexpr
+  let &foldmethod = old_foldmethod

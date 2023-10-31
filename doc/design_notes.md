@@ -53,7 +53,7 @@ random edit.
 
 The lowest row gets aligned when leaving the Insert mode. Let's copy _Data1_
 (using `viwy` or another keystroke) and paste it (using `p`) in the second data
-row of the first column. Now the table looks mis-aligned (as we did not enter
+row of the first column. Now the table looks misaligned (as we did not enter
 the Insert mode).
 
 ```
@@ -123,7 +123,7 @@ Let's take the table from the previous example in an intermediate state.
 ```
 
 Then move the cursor to the first data row, copy it with `yy`, go down to the
-mis-aligned line, and press `5p`. Now we have a slightly bigger mis-aligned
+misaligned line, and press `5p`. Now we have a slightly bigger misaligned
 table.
 
 ```
@@ -178,8 +178,8 @@ row by row from the top to the bottom, dynamic formatting should be both fast
 (watching only three rows in a table, re-formatting only when the shrunk
 current row gets longer than any of the two rows above) and eager (a table
 should look formatted on every press on _Tab_ and _Enter_). However, the newer
-algorithm differs from the older algorithm when starting editing a mis-aligned
-table in an area where mis-aligned rows do not get into the viewport: in this
+algorithm differs from the older algorithm when starting editing a misaligned
+table in an area where misaligned rows do not get into the viewport: in this
 case the newer algorithm will format the table partly (in the rows of the
 viewport) until one of the being edited cells grows in length to a value big
 enough to trigger the older algorithm and the whole table gets aligned. When
@@ -245,9 +245,24 @@ reasons for such a complex system is:
 TODO currently the typeface delimiters are customized that way:
 
 ```vim
-" Typeface: -> u.vim
+
+" 1/ Redraw: Typeface: -> u.vim
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:typeface_dic = vimwiki#vars#get_syntaxlocal('typeface')
 call vimwiki#u#hi_typeface(s:typeface_dic)
+
+
+" 2/ Clear typeface highlighting (see #1346)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Create a dic with no highlight but yes with all keys
+" -- So that they are effectivemly overwritten
+let typeface_dic = {'bold': [], 'italic': [], 'underline': [], 'bold_italic': [], 'code': [], 'del':  [], 'sup':  [], 'sub':  [], 'eq': []}
+
+" Just for consistency, this is an internal variable
+echo vimwiki#vars#set_syntaxlocal('typeface', typeface_dic)
+
+" Here is a Vim aware syntax highlighting big command
+verbose call vimwiki#u#hi_typeface(typeface_dic)
 ```
 
 

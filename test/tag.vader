@@ -4,6 +4,95 @@
 Execute (Setup):
   set sw=4
   AssertEqual 4, &sw
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+
+
+######################################################################
+Do (Create File Content with default tags {{{1):
+  :edit $HOME/testmarkdown/Test-Tag-default.md\<CR>
+  I
+  :tag1:tag2:\<CR>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  :VimwikiGenerateTagLinks\<CR>
+  gg
+
+
+Execute (Generate tags for default):
+  edit $HOME/testmarkdown/Test-Tag-default.md
+  AssertEqual 'VimwikiTag', SyntaxAt(1, 2)
+  1
+  VimwikiGenerateTagLinks
+  write
+
+
+Expect (Tags default):
+  :tag1:tag2:
+
+
+  # Generated Tags
+
+  ## tag1
+
+  - [Test-Tag-default](Test-Tag-default)
+
+  ## tag2
+
+  - [Test-Tag-default](Test-Tag-default)
+
+
+Execute (Clean tag file for default):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+
+
+Do (Create File Content with default tags):
+  :edit $HOME/testmarkdown/Test-Tag-default.md\<CR>
+  ggdG
+  I
+  # Generated Tags\<Cr>
+  \<Cr>
+  # Heading with my tags\<Cr>
+  \<Cr>
+  :tag1:tag2:\<CR>
+  \<Cr>
+  Dummy content 1
+  \<Cr>
+  # Another heading\<Cr>
+  \<Cr>
+  Dummy content 2
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  :VimwikiGenerateTagLinks\<CR>
+  gg
+
+
+Expect (Tags default with Generated Tags heading):
+  # Generated Tags
+
+  ## tag1
+
+  - [Heading with my tags](Test-Tag-default#heading-with-my-tags)
+
+  ## tag2
+
+  - [Heading with my tags](Test-Tag-default#heading-with-my-tags)
+
+  # Heading with my tags
+
+  :tag1:tag2:
+
+  Dummy content 1
+  # Another heading
+
+  Dummy content 2
+
+
+Execute (Clean file for tag default):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-default.md")
+
 
 
 ######################################################################
@@ -15,6 +104,7 @@ Execute (Change delimiter <tag1|tag2> {{{1):
   AssertEqual $HOME . '/testmarkdown/Test-Tag.md', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
 
 Do (Create File Content with <>):
   :edit $HOME/testmarkdown/Test-Tag.md\<CR>
@@ -40,6 +130,7 @@ Execute (Generate tags):
   VimwikiGenerateTagLinks
   set tw=200
 
+
 Expect (Correctly generated tags section {{{3):
   <tag-bar-1>
 
@@ -59,11 +150,11 @@ Expect (Correctly generated tags section {{{3):
 
   ## tag-bar-2
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
   ## tag-bar-3
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
 
 Do (Write a quick tag for a quick jump):
@@ -77,11 +168,13 @@ Do (Write a quick tag for a quick jump):
   ggl\<Cr>A __HERE1__\<Esc>
   ggjl\<Cr>A __HERE2__\<Esc>
 
+
 Expect (Good jump {{{3):
   [go1](Test-Tag#tag-bar-1)
   [go2](#tag-bar-1)
   bla
   <tag-bar-1> __HERE1__ __HERE2__
+
 
 Execute (Clean Test-Tag and .vimwiki_tags -2):
   let g:vimwiki_tag_format = {}
@@ -101,6 +194,7 @@ Execute (Default tag generation {{{1):
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
   set tw=200
 
+
 Do (Single file Part1):
   :edit $HOME/testmarkdown/Test-Tag.md\<Cr>
   ggdGO
@@ -108,11 +202,13 @@ Do (Single file Part1):
   :write\<Cr>
   :VimwikiRebuildTags!\<Cr>
 
+
 Execute (Generate tags):
   edit $HOME/testmarkdown/Test-Tag.md
   AssertEqual 'VimwikiTag', SyntaxAt(1, 1)
   VimwikiGenerateTagLinks
   write
+
 
 Expect (Single tags toc):
   :single-tag:
@@ -145,11 +241,13 @@ Do (Create File Content):
   :write\<CR>
   :VimwikiRebuildTags\<CR>
 
+
 Execute (Edit tags file):
   edit $HOME/testmarkdown/.vimwiki_tags
   AssertEqual $HOME . '/testmarkdown/.vimwiki_tags', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
 
 # Note: tags file uses tabs
 Expect (Correctly formatted tags file):
@@ -159,14 +257,16 @@ Expect (Correctly formatted tags file):
   !_TAG_PROGRAM_AUTHOR	Vimwiki
   !_TAG_PROGRAM_NAME	Vimwiki Tags
   !_TAG_PROGRAM_URL	https://github.com/vimwiki/vimwiki
-  !_TAG_PROGRAM_VERSION	2.5
-  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag
-  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header
-  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag
+  !_TAG_PROGRAM_VERSION	2023.05.12
+  second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag\tTest-Tag#second-tag
+  test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header\tA header
+  top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag\tTest-Tag
+
 
 Execute (Generate tags):
   edit $HOME/testmarkdown/Test-Tag.md
   VimwikiGenerateTagLinks
+
 
 Expect (Correctly generated tags section):
   :top-tag:
@@ -192,11 +292,12 @@ Expect (Correctly generated tags section):
 
   ## test-tag
 
-  - [a-header](Test-Tag#a-header)
+  - [A header](Test-Tag#a-header)
 
   ## top-tag
 
   - [Test-Tag](Test-Tag)
+
 
 Execute (Clean Test-Tag and .vimwiki_tags -1 ):
   call system("rm $HOME/testmarkdown/Test.md")
@@ -214,6 +315,7 @@ Execute (Check first tags file):
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
 
+
 Do (Build first tags file):
   :edit $HOME/testmarkdown/Test-Tag-1.md\<Cr>
   ggI
@@ -228,11 +330,13 @@ Do (Build first tags file):
   :write\<Cr>
   :VimwikiRebuildTags!\<CR>
 
+
 Execute (Check second tags file):
   edit $HOME/testmarkdown/subdir1/Test-Tag-2.md
   AssertEqual $HOME . '/testmarkdown/subdir1/Test-Tag-2.md', expand('%')
   AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
   AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
 
 Do (Build second tags file):
   :edit $HOME/testmarkdown/subdir1/Test-Tag-2.md\<Cr>
@@ -248,6 +352,7 @@ Do (Build second tags file):
   :write\<Cr>
   :VimwikiRebuildTags!\<CR>
 
+
 Execute (Build tag links in third file):
   edit $HOME/testmarkdown/subdir1/subdir11/Test-Tag-Links.md
   AssertEqual $HOME . '/testmarkdown/subdir1/subdir11/Test-Tag-Links.md', expand('%')
@@ -256,6 +361,7 @@ Execute (Build tag links in third file):
   VimwikiGenerateTagLinks
   write
 
+
 Expect (Tag links relative to current file):
   
 
@@ -263,19 +369,265 @@ Expect (Tag links relative to current file):
 
   ## header-tag-1
   
-  - [a-header](../../Test-Tag-1#a-header)
-  - [a-header](../Test-Tag-2#a-header)
+  - [A Header](../../Test-Tag-1#a-header)
+  - [A Header](../Test-Tag-2#a-header)
 
   ## header-tag-2
 
-  - [another-header](../../Test-Tag-1#another-header)
-  - [another-header](../Test-Tag-2#another-header)
+  - [Another Header](../../Test-Tag-1#another-header)
+  - [Another Header](../Test-Tag-2#another-header)
 
   ## standalone-tag-1
 
   - [standalone-tag-1](../../Test-Tag-1#standalone-tag-1)
   - [standalone-tag-1](../Test-Tag-2#standalone-tag-1)
 
+
+Do (Delete some existing links to test updating generated tag links):
+  :edit $HOME/testmarkdown/subdir1/subdir11/Test-Tag-Links.md\<Cr>
+  7G
+  dd
+  12G
+  6dd
+  :write\<Cr>
+  :call vimwiki#tags#generate_tags(0)\<Cr>
+
+
+Expect (Only update generated tag links for tags already existing in the file):
+  
+
+  # Generated Tags
+
+  ## header-tag-1
+  
+  - [A Header](../../Test-Tag-1#a-header)
+  - [A Header](../Test-Tag-2#a-header)
+
+  ## header-tag-2
+
+  - [Another Header](../../Test-Tag-1#another-header)
+  - [Another Header](../Test-Tag-2#another-header)
+
+
 Execute (Clean relative tag setup):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
   call system("rm -rf $HOME/testmarkdown/subdir1")
   call system("rm $HOME/testmarkdown/Test-Tag-1.md")
+
+
+######################################################################
+Execute (Change delimiter #tag1content1|content2#tag2 as for issue #1316 {{{1):
+  let g:vimwiki_tag_format = {'pre_mark': '#tag1', 'post_mark': '#tag2', 'sep': '|'}
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+  edit $HOME/testmarkdown/Test-Tag-1316.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-1316.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+
+Do (Create File Content with #tag1 #tag2 as for issue #1316):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316.md\<CR>
+  I
+# Line1: Heading
+  # A header\<CR>
+# Line2: Tag not in header
+  bla #tag1content01|content02#tag2\<CR>
+# Line3: Tag in header
+  #tag1content11|content12#tag2\<CR>
+# Line4: empty
+  \<CR>
+# Line5: dummy content
+  Words here.
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  gg
+
+
+Execute (Generate tags for issue #1316):
+  edit $HOME/testmarkdown/Test-Tag-issue-1316.md
+  AssertEqual 'VimwikiTag', SyntaxAt(2, 5)
+  1
+  VimwikiGenerateTagLinks
+  write
+
+
+Expect (Single tags toc):
+  # A header
+  bla #tag1content01|content02#tag2
+  #tag1content11|content12#tag2
+
+  Words here.
+
+  # Generated Tags
+
+  ## content01
+
+  - [A header](Test-Tag-issue-1316#a-header)
+
+  ## content02
+
+  - [A header](Test-Tag-issue-1316#a-header)
+
+  ## content11
+
+  - [tag2](Test-Tag-issue-1316#tag1content11content12tag2)
+
+  ## content12
+
+  - [tag2](Test-Tag-issue-1316#tag1content11content12tag2)
+
+
+Execute (Clean file for tag #1316):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-issue-1316.md")
+
+
+Execute (Change delimiter #first_tag #vim #mo as for issue #1316 (2) {{{1):
+  let g:vimwiki_tag_format = {'pre_mark': '#\w\@=', 'post_mark': '', 'sep': '[#[:space:]]\+', 'in': '[^#:[:space:]]\+' }
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+  edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-issue-1316-bis.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+
+
+Do (Create File Content with #tag1 #tag2 as for issue #1316):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+  I
+# Line1: Heading
+  # A header\<CR>
+# Line2: Tag not in header
+  bla #first_tag\<Cr>
+# Line3: Tag in header
+  #vim #mono\<Cr>
+# Line4: empty
+  \<CR>
+# Line5: dummy content
+  Words here.
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+  gg
+
+
+Execute (Assert some file info for #1316):
+  edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md
+  AssertEqual $HOME . '/testmarkdown/Test-Tag-issue-1316-bis.md', expand('%')
+  AssertEqual 'markdown', vimwiki#vars#get_wikilocal('syntax')
+  AssertEqual 1, vimwiki#vars#get_bufferlocal('wiki_nr')
+  AssertEqual 'VimwikiTag', SyntaxAt(2, 6)
+
+
+Do (Append something at first_tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+# Some bug with loclist for vim7.3 and vim8.0
+  :if v:version > 810\<Cr>
+    VimwikiSearchTags first_tag\<Cr>
+  else\<Cr>
+    2\<Cr>
+  endif\<Cr>
+  A Content1\<Esc>
+
+
+Do (Append something at mono tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1316-bis.md\<CR>
+  :if v:version > 810\<Cr>
+    VimwikiSearchTags mono\<Cr>
+  else\<Cr>
+    3\<Cr>
+  endif\<Cr>
+  A Content2\<Esc>
+
+
+Expect (Content appended at tags):
+  # A header
+  bla #first_tag Content1
+  #vim #mono Content2
+
+  Words here.
+
+
+Execute (Clean file for tag #1316):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-issue-1316-bis.md")
+
+
+Execute (Clean):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  unlet g:vimwiki_tag_format
+  unlet g:vimwiki_syntaxlocal_vars
+  call vimwiki#vars#init()
+
+
+Do (Md: #1034: Create File with tag in code for issue #1034):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1034.md\<CR>
+  I
+# Line1: Heading
+  Some line\<Cr>
+# Line2: Tag not in header
+  ```bash\<Cr>
+# Line3: Tag in header
+  this is bash code with :tag1:\<Cr>
+# Line4: empty
+  ```\<Cr>
+# Line5: tag2
+  and :tag2:\<Cr>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+
+
+Do (Md: #1034: Append something at mono tag):
+  :edit $HOME/testmarkdown/Test-Tag-issue-1034.md\<CR>
+  ggdG
+  :read $HOME/testmarkdown/.vimwiki_tags\<CR>
+  G
+  :g/^!/d\<CR>
+  oContent\<Esc>
+
+
+Expect (Md: #1034: Can see tag2 but not tag1 as in code):
+  tag2	Test-Tag-issue-1034.md	5;"	vimwiki:Test-Tag-issue-1034\tTest-Tag-issue-1034#tag2\tTest-Tag-issue-1034#tag2
+  Content
+
+
+Do (Wiki: #1034: Create File with tag in code for issue #1034):
+  :edit $HOME/testwiki/Test-Tag-issue-1034.wiki\<CR>
+  I
+# Line1: Heading
+  Some line\<Cr>
+# Line2: Tag not in header
+  {{{bash\<Cr>
+# Line3: Tag in header
+  this is bash code with :tag1:\<Cr>
+# Line4: empty
+  }}}\<Cr>
+# Line5: tag2
+  and :tag2:\<Cr>
+  \<Esc>
+  :write\<CR>
+  :VimwikiRebuildTags!\<CR>
+
+
+Do (Wiki: #1034: Append something at mono tag):
+  :edit $HOME/testwiki/Test-Tag-issue-1034.wiki\<CR>
+  ggdG
+  :read $HOME/testwiki/.vimwiki_tags\<CR>
+  G
+  :g/^!/d\<CR>
+  oContent\<Esc>
+
+
+Expect (Wiki: #1034: Can see tag2 but not tag1 as in code):
+  tag2	Test-Tag-issue-1034.wiki	5;"	vimwiki:Test-Tag-issue-1034\tTest-Tag-issue-1034#tag2\tTest-Tag-issue-1034#tag2
+  Content
+
+
+Execute (#1034: Clean file for tag #1034):
+  call system("rm $HOME/testmarkdown/.vimwiki_tags")
+  call system("rm $HOME/testwiki/.vimwiki_tags")
+  call system("rm $HOME/testmarkdown/Test-Tag-issue-1013.md")
+  call system("rm $HOME/testwiki/Test-Tag-issue-1013.wiki")

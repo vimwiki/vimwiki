@@ -1,4 +1,9 @@
 # No language: we download vim and compile it oursselves
+# WARNING: This file is OBSOLETE since travis CI is making us pay
+# to get execution.
+# See Github Actions at .github/workflows/test-vader-action.yml
+
+
 language: generic
 
 cache:

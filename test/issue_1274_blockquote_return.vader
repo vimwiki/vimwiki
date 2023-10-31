@@ -1,0 +1,75 @@
+# Issue: #1274
+# Feature: Markdown -- Continue blockquote when <CR> is pressed in insert mode.
+
+
+Given vimwiki (Blockquote with test {{{1):
+  > Dummy text 1
+
+
+Execute (Set syntax markdown):
+  call SetSyntax('markdown')
+
+
+Do (Press insert, enter and type):
+  A
+  \<Cr>
+  Dummy text 2
+
+
+Expect(Marker added 1):
+  > Dummy text 1
+  > Dummy text 2
+
+
+Do (Press o and type):
+  o
+  Dummy text 2
+
+
+Expect(Marker added 2):
+  > Dummy text 1
+  > Dummy text 2
+
+
+Do (Press O and type):
+  O
+  Dummy text 2
+
+
+Expect(Marker added 3, above):
+  > Dummy text 2
+  > Dummy text 1
+
+
+Given vimwiki (Blockquote without test {{{1):
+  >
+
+
+Do (Press insert, enter and type):
+  A
+  \<Cr>
+  Dummy text 2
+
+
+Expect(Marker removed):
+  Dummy text 2
+
+
+Do (Press o):
+  o
+  Dummy text 2
+
+
+Expect(Marker appended, below):
+  >
+  > Dummy text 2
+
+
+Do (Press O):
+  O
+  Dummy text 2
+
+
+Expect(Marker appended, above):
+  > Dummy text 2
+  >

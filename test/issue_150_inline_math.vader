@@ -1,0 +1,35 @@
+# Non regression tests for issue: #150
+# -- How to turn off inline math highlights?
+
+# From: https://pandoc.org/MANUAL.html#math
+# Anything between two $ characters will be treated as TeX math. The opening $ must have a non-space character immediately to its right, while the closing $ must have a non-space character immediately to its left, and must not be followed immediately by a digit. Thus, $20,000 and $30,000 won’t parse as math. If for some reason you need to enclose text in literal $ characters, backslash-escape them and they won’t be treated as math delimiters.
+
+
+Given vimwiki (All math inline possible):
+  12345678901234567890                   # 01 Just a counter
+  This $math \sum{2, 3}$                 # 02 Math no trap
+  $This math 3 \times 4 = 12$            # 03 Math all line
+  This $3 and $4 is not math             # 04 Not math as the last $ is followed by 4
+  This 3$ and 4$ is not math             # 05 Not math as the first $ is folowed by space
+  This \$3 and $4 is not math at all     # 06 Not math as first escaped
+  This $3 and \$4 is not math at all     # 07 Not math as last escaped
+  This \$3 and \$4 is not math at all    # 08 Not math as both escaped
+  This $is not math either $320          # 09 Not math as last followd by number (bis)
+
+Execute (Assert all lines):
+# Hi
+  Log 'Normal: ' . string(GetSyntaxStack(1, 10))
+  Log 'Math: ' . string(GetSyntaxStack(2, 10))
+  AssertEqual '01', len(GetSyntaxStack(1, 10)) . 1
+
+# Math
+  AssertEqual 'textSnipTEX2', GetSyntaxStack(2, 10)[0] . 2
+  AssertEqual 'textSnipTEX3', GetSyntaxStack(3, 10)[0] . 3
+
+# Not Math
+  AssertEqual '04', len(GetSyntaxStack(10, 4)) . 4
+  AssertEqual '05', len(GetSyntaxStack(10, 5)) . 5
+  AssertEqual '06', len(GetSyntaxStack(10, 6)) . 6
+  AssertEqual '07', len(GetSyntaxStack(10, 7)) . 7
+  AssertEqual '08', len(GetSyntaxStack(10, 8)) . 8
+  AssertEqual '09', len(GetSyntaxStack(10, 9)) . 9

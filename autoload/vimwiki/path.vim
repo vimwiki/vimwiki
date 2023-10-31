@@ -17,7 +17,7 @@ function! s:windowsify(path) abort
 endfunction
 
 
-" Define: os specific path convertion
+" Define: os specific path conversion
 if vimwiki#u#is_windows()
   function! s:osxify(path) abort
     return s:windowsify(a:path)

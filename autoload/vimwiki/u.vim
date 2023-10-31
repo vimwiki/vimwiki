@@ -53,9 +53,9 @@ function! vimwiki#u#deprecate(old, new) abort
 endfunction
 
 function! vimwiki#u#get_selection(...) abort
-  " Get visual selection text content, optionaly replace its content
+  " Get visual selection text content, optionally replace its content
   " :param: Text to replace selection
-  " Copyed from DarkWiiPlayer at stackoverflow
+  " Copied from DarkWiiPlayer at stackoverflow
   " https://stackoverflow.com/a/47051271/2544873
   " Get selection extremity position,
   " Discriminate selection mode
@@ -271,7 +271,7 @@ endfunction
 
 function! vimwiki#u#get_syntax_dic(...) abort
   " Helper: Getter
-  " :param: syntax <string> to retrive, default to current
+  " :param: syntax <string> to retrieve, default to current
   let syntax = a:0 ? a:1 : vimwiki#vars#get_wikilocal('syntax')
   return g:vimwiki_syntaxlocal_vars[syntax]
 endfunction
@@ -295,34 +295,82 @@ endfunction
 function! vimwiki#u#get_punctuation_string() abort
   " Faster
   " See: https://github.github.com/gfm/#ascii-punctuation-character
-  return '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
+  " res = '!"#$%&''()*+,-./:;<=>?@\[\\\]^`{}|~'
+  " But I removed the * as it is treated as a special case
+  return '!"#$%&''()+,-./:;<=>?@\[\\\]^`{}|~'
 endfunction
 
 
 function! vimwiki#u#hi_expand_regex(lst) abort
   " Helper: Expand regex from reduced typeface delimiters
-  " :param: list<list,delimiters>> with reduced regex
+  " :param: list<list<delimiters>> with reduced regex
+  "   1: Left delimiter (regex)
+  "   2: Right delimiter (regex)
+  "   3: Possible characters to ignore (regex: default '$^' => never match)
+  "   4: Can multiply delimiter (boolean: default 0 => do not repeat)
   " Return: list with extended regex delimiters (not inside a word)
   "   -- [['\*_', '_\*']] -> [['\*_\S\@=', '\S\@<=_\*\%(\s\|$\)\@=']]
+  " Note: For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
   " See: https://github.github.com/gfm/#left-flanking-delimiter-run
   let res = []
-  let p = vimwiki#u#get_punctuation_string()
-  for delimiters in a:lst
-    let r_prefix = '\(^\|[[:space:]]\@<=\)'
-    " Regex Start: not preceded by backslash, not ended by space
-    let r_start = r_prefix . delimiters[0] . '\S\@='
-    " Regex End: not preceded by backslash or space, ended by punctuation or space
-    let r_prefix = '\(^\|[^[:space:]\\]\@<=\)'
-    let r_end = r_prefix . delimiters[1] . '\%(\_[[:space:]' . p . ']\)\@='
+  let punctuation = vimwiki#u#get_punctuation_string()
+
+  " Iterate on (left delimiter, right delimiter pair)
+  for a_delimiter in a:lst
+    let r_left_del = a_delimiter[0]
+    let r_right_del = a_delimiter[1]
+    let r_repeat_del = len(a_delimiter) >= 3 ? a_delimiter[2] : '$^'
+    let b_can_mult = len(a_delimiter) >= 4 ? a_delimiter[3] : 0
+
+    " Craft the repeatable middle
+    let r_mult = b_can_mult ? '\+' : ''
+    let r_left_repeat = '\%(\%(' . r_left_del . '\)' . r_mult . '\)'
+    let r_right_repeat = '\%(\%(' . r_right_del . '\)' . r_mult . '\)'
+    let r_unescaped_repeat = '\%(\\\|\\\@<!' . r_repeat_del . '\)'
+
+    " Regex Start:
+    " Left-Flanking is not followed by space (or need of line)
+
+    " Left Case1: not followed by punctuation, start with blacklist
+    " -- Can escape the leftflank
+    let r_left_prefix1 = '\%(^\|' . r_unescaped_repeat . '\@<!\)'
+    let r_left_suffix1 = '\%(\%([[:space:]\n' . punctuation . ']\|' . r_unescaped_repeat . '\)\@!\)'
+
+    " Left Case2: followed by punctuation so must be preceded by whitelisted Unicode whitespace or start of line or a punctuation character.
+    let r_left_prefix2 = '\%(\%(^\|[[:space:]\n' . punctuation . ']\)\@<=\)'
+    let r_left_suffix2 = '\%([' . punctuation . ']\@=\)'
+
+    " Left Concatenate
+    let r_start = '\%(' . r_left_prefix1 . '\zs' . r_left_repeat . '\ze' . r_left_suffix1
+    let r_start .= '\|' . r_left_prefix2 . '\zs' . r_left_repeat . '\ze' . r_left_suffix2 . '\)'
+
+    " Regex End:
+    " not preceded by Unicode whitespace
+    let r_right_prefix = '\(^\|[^[:space:]]\@<=\)'
+
+    " Right Case1: not preceded by a punctuation character (or start of line)
+    let r_right_prefix1 = '\%(^\|\%([[:space:]\n' . punctuation . ']\|' . r_unescaped_repeat . '\)\@<!\)'
+    let r_right_suffix1 = '\%($\|' . r_unescaped_repeat . '\@!\)'
+
+    " Right Case2: preceded by a punctuation character and followed by Unicode whitespace or end of line or a punctuation character
+    let r_right_prefix2 = '\%([' . punctuation . ']\@<=\)'
+    let r_right_suffix2 = '\%(\%($\|[[:space:]\n' . punctuation . ']\)\@=\)'
+
+    " Right Concatenate
+    let r_end = '\%(' . r_right_prefix1 . r_right_repeat . r_right_suffix1
+    let r_end .= '\|' . r_right_prefix2 . r_right_repeat . r_right_suffix2 . '\)'
+
     call add(res, [r_start, r_end])
   endfor
+
   return res
 endfunction
 
 
 function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
   " Helper: Create highlight region between two tags
-  " :param: tag <string> example '<b>'
+  " :param: tag_pre <string>: opening tag example '<b>'
+  " :param: tag_post <string>: closing tag example '</b>'
   " :param: syntax_group <string> example: VimwikiBold
   " :param: contains <string> coma separated and prefixed, default VimwikiHTMLTag
   " :param: (1) <boolean> is contained
@@ -337,9 +385,9 @@ function! vimwiki#u#hi_tag(tag_pre, tag_post, syntax_group, contains, ...) abort
   endif
 
   " Craft command
+  " \ 'skip="\\' . a:tag_pre . '" ' .
   let cmd = 'syn region ' . a:syntax_group . ' matchgroup=VimwikiDelimiter ' .
         \ opt_is_contained .
-        \ 'skip="\\' . a:tag_pre . '" ' .
         \ 'start="' . a:tag_pre . '" ' .
         \ 'end="' . a:tag_post . '" ' .
         \ 'keepend ' .
@@ -361,7 +409,7 @@ function! vimwiki#u#hi_typeface(dic) abort
   " The last syntax defined take precedence so that user can change at runtime (:h :syn-define)
   " Some cases are contained by default:
   " -- ex: VimwikiCodeBoldUnderline is not defined in colorschemes -> VimwikiCode
-  " -- see: #709 asking for concealing quotes in bold, so it must be higlighted differently
+  " -- see: #709 asking for concealing quotes in bold, so it must be highlighted differently
   " -- -- for the user to understand what is concealed around
   " VimwikiCheckBoxDone and VimwikiDelText are as their are even when nested in bold or italic
   " -- This is because it would add a lot of code (as n**2) at startup and is not often used
@@ -369,6 +417,13 @@ function! vimwiki#u#hi_typeface(dic) abort
   " Bold > Italic > Underline
 
   let nested = vimwiki#u#get_syntax_dic().nested
+
+  " Bold Italic
+  if has_key(a:dic, 'bold_italic')
+    for bi in a:dic['bold_italic']
+      call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', nested . ',VimwikiBoldItalicUnderline')
+    endfor
+  endif
 
   " Italic
   for i in a:dic['italic']
@@ -397,13 +452,6 @@ function! vimwiki#u#hi_typeface(dic) abort
     " -- Underline 3
     call vimwiki#u#hi_tag(b[0], b[1], 'VimwikiUnderlineItalicBold', nested, 2)
   endfor
-
-  " Bold Italic
-  if has_key(a:dic, 'bold_italic')
-    for bi in a:dic['bold_italic']
-      call vimwiki#u#hi_tag(bi[0], bi[1], 'VimwikiBoldItalic', nested . ',VimwikiBoldItalicUnderline')
-    endfor
-  endif
 
   " Underline
   for u in a:dic['underline']
@@ -442,5 +490,7 @@ function! vimwiki#u#hi_typeface(dic) abort
 
   " Prevent var_with_underscore to trigger italic text
   " -- See $VIMRUNTIME/syntax/markdown.vim
-  syn match VimwikiError "\w\@<=[_*]\w\@="
+  " But leave
+  " -- See https://github.github.com/gfm/#example-364
+  syn match VimwikiError "\w\@<=_\w\@="
 endfunction

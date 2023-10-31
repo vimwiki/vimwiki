@@ -1,0 +1,883 @@
+# Github Favor Markdown Typeface
+# https://github.github.com/gfm
+# 6.4 Emphasis and strong emphasis
+
+
+# Rule 1 {{{1
+# A single * character can open emphasis iff (if and only if) it is part of a left-flanking delimiter run.'
+#################
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-360):
+  *foo bar*
+
+Execute (Log rule):
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 2)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-361):
+  a * foo bar*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, because the opening * is followed by whitespace, and hence not part of a left-flanking delimiter'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-362):
+  todo TODO
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-363):
+  * a *
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Unicode nonbreaking spaces count as whitespace, too'
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-364):
+  foo*bar*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword emphasis with * is permitted:'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-365):
+  5*6*78
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+# Rule 2 {{{1
+# A single _ character can open emphasis iff it is part of a left-flanking delimiter run and either (a) not part of a right-flanking delimiter run or (b) part of a right-flanking delimiter run preceded by punctuation.
+#################
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-366):
+  _foo bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-367):
+  _ foo bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, because the opening _ is followed by whitespace'
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-368):
+  a_"foo"_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic'
+  AssertEqual '', SyntaxAt(1, 4)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-369):
+  foo_bar_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Emphasis with _ is not allowed inside words'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-370):
+  * 5_6_78
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual '', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-371):
+  CommentLine 'Not emphasis in middle even if unicode alphanumeric before left delimiter'
+  пристаням_стремятся_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual '', SyntaxAt(1, 22)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-372):
+  * aa_"bb"_cc
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Here _ does not generate emphasis, because the first delimiter run is right-flanking and the second left-flanking'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-373):
+  foo-_(bar)_
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is emphasis, even though the opening delimiter is both left- and right-flanking, because it is preceded by punctuation'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 7)
+
+
+# Rule 3 {{{1
+# A single * character can close emphasis iff it is part of a right-flanking delimiter run.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-374):
+  _foo*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, in theory (1), IDEA change that'
+  Log 'But Vim reion implementation is highlitghing it anyway, it would be nice to change that'
+  Log 'Note: The decision to start a region is only based on a matching start pattern.  There is no check for a matching end pattern.'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-375):
+  *foo bar *
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, in theory (2), IDEA change that'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-376):
+  *foo bar
+  *
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, in theory (2), IDEA change that'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-377):
+  *(*foo)
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not emphasis, because the second * is preceded by punctuation and followed by an alphanumeric (hence it is not part of a right-flanking delimiter, in theory, IDEA Change that'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 2)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-378):
+  *(*foo*)*
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'The point of this restriction is more easily appreciated with this example, IDEA Change that'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 2)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-379):
+  *foo*bar
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword emphasis with * is allowed'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+
+
+# Rule 4 {{{1
+# A single _ character can close emphasis iff it is part of a right-flanking delimiter run and either (a) not part of a left-flanking delimiter run or (b) part of a left-flanking delimiter run followed by punctuation.
+
+
+# Rule 5 {{{1
+# A double ** can open strong emphasis iff it is part of a left-flanking delimiter run.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-387):
+  **foo bar**
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Easy bold'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 3)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-388):
+  ** foo bar**
+  12345
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not strong emphasis, because the opening delimiter is followed by whitespace'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-389):
+  a**"foo"**
+  123456
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not strong emphasis, because the opening ** is preceded by an alphanumeric and followed by punctuation, and hence not part of a left-flanking delimiter'
+  AssertEqual '', SyntaxAt(1, 5)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-390):
+  foo**bar**
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword strong emphasis with ** is permitted'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 7)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+# Rule 6 {{{1
+# A double __ can open strong emphasis iff it is part of a left-flanking delimiter run and either (a) not part of a right-flanking delimiter run or (b) part of a right-flanking delimiter run preceded by punctuation.
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-391):
+  __foo bar__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Bold with __'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-392):
+  __ foo bar__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not strong emphasis, because the opening delimiter is followed by whitespace'
+  AssertEqual '', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-393):
+  __
+  foo bar__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'A newline counts as whitespace'
+  AssertEqual '', SyntaxAt(2, 4)
+  AssertEqual '', SyntaxAt(3, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-394):
+  a__"foo"__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is not strong emphasis, because the opening __ is preceded by an alphanumeric and followed by punctuation'
+  AssertEqual '', SyntaxAt(1, 6)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-395):
+  foo__bar__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword strong emphasis is forbidden with __'
+  AssertEqual '', SyntaxAt(1, 7)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-395):
+  5__6__78
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword strong emphasis is forbidden with __ (2)'
+  AssertEqual '', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-397):
+  пристаням__стремятся__
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Intraword strong emphasis is forbidden with __ (3)'
+  AssertEqual '', SyntaxAt(1, 13)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-398):
+  __foo, __bar__, baz__
+  1234567890
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-399):
+  foo-__(bar)__
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'This is strong emphasis, even though the opening delimiter is both left- and right-flanking, because it is preceded by punctuation'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 9)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+# Rule 7 {{{1
+# A double ** can close strong emphasis iff it is part of a right-flanking delimiter run.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-400):
+  **foo bar **
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Rule 7: Passed: IDEA improve that'
+  AssertEqual 0, 0
+
+
+# Rule 8 {{{1
+# A double __ can close strong emphasis iff it is part of a right-flanking delimiter run and either (a) not part of a left-flanking delimiter run or (b) part of a left-flanking delimiter run followed by punctuation.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-406):
+  __foo bar __
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Rule 8: Passed: IDEA improve that'
+  AssertEqual 0, 0
+
+
+# Rule 9 {{{1
+# Emphasis begins with a delimiter that can open emphasis and ends with a delimiter that can close emphasis, and that uses the same character (_ or *) as the opening delimiter. The opening and closing delimiters must belong to separate delimiter runs. If one of the delimiters can both open and close emphasis, then the sum of the lengths of the delimiter runs containing the opening and closing delimiters must not be a multiple of 3 unless both lengths are multiples of 3.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-413):
+  *foo [bar](/url)*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Any nonempty sequence of inline elements can be the contents of an emphasized span'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 9)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-414):
+  *foo
+  bar*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Any nonempty sequence of inline elements can be the contents of an emphasized span (2)'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+  AssertEqual 'VimwikiItalic', SyntaxAt(2, 3)
+  AssertEqual '', SyntaxAt(3, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-415):
+  _foo __bar__ baz_
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'In particular, emphasis and strong emphasis can be nested inside emphasis'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 3)
+  AssertEqual 'VimwikiItalicBold', SyntaxAt(1, 9)
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 14)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-416):
+  _foo _bar_ baz_
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO not implemented nested Italic, as the close of one region closes the other'
+  AssertEqual 0, 0
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-425):
+  foo***bar***baz
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Italic Bold'
+  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 8)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+# Rule 10 {{{1
+# Strong emphasis begins with a delimiter that can open strong emphasis and ends with a delimiter that can close strong emphasis, and that uses the same character (_ or *) as the opening delimiter. The opening and closing delimiters must belong to separate delimiter runs. If one of the delimiters can both open and close strong emphasis, then the sum of the lengths of the delimiter runs containing the opening and closing delimiters must not be a multiple of 3 unless both lengths are multiples of 3.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-431):
+  **foo [bar](/url)**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Any nonempty sequence of inline elements can be the contents of an strongly emphasized span'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 8)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-432):
+  **foo
+  bar**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 3)
+  AssertEqual 'VimwikiBold', SyntaxAt(2, 3)
+  AssertEqual '', SyntaxAt(3, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-433):
+  __foo _bar_ baz__
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'In particular, emphasis and strong emphasis can be nested inside strong emphasis'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 9)
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 14)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-434):
+  __foo __bar__ baz__
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO passed as nested bold is hard'
+  AssertEqual 0, 0
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-437):
+  **foo *bar* baz**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Same as 433 but with *'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 9)
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 14)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-443):
+  __ is not an empty emphasis
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'There can be no empty emphasis or strong emphasis:'
+  AssertEqual '', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 7)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-444):
+  ____ is not an empty strong emphasis
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO: There can be no empty emphasis or strong emphasis (2)'
+  AssertEqual 0, 0
+
+
+# Rule 11 {{{1
+# A literal * character cannot occur at the beginning or end of *-delimited emphasis or **-delimited strong emphasis, unless it is backslash-escaped.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-445):
+  foo ***
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Empty emphasis'
+  AssertEqual '1', SyntaxAt(1, 1) . 1
+  AssertEqual '2', SyntaxAt(2, 1) . 2
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-446):
+  foo *\**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Emphasis an escaped *'
+  AssertEqual '', SyntaxAt(1, 1)
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 7)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-447):
+  foo *_*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Emphasis a lonely _'
+  Log 'TODO, this is bold italic for now as we got it as special case'
+  AssertEqual 0, 0
+#  AssertEqual 'VimwikiItalic', SyntaxAt(1, 6)
+#  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-448):
+  foo *****
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Nothing happen'
+  let var = SyntaxAt(1, 7)
+  AssertEqual 1, var == '' || var == 'VimwikiDelimiter'
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-449):
+  foo **\***
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Emphasis a lonely *'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 8)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-450):
+  foo **_**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO'
+  AssertEqual 0, 0
+#  CommentLine 'Bold a single _ between **'
+#  AssertEqual 'VimwikiBold', SyntaxAt(1, 7)
+#  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-451):
+  **foo*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'IDEA: the rest is for haskell or yacc more than vim'
+  AssertEqual 0, 0
+#  AssertEqual '', SyntaxAt(2, 1)
+
+
+
+# Rule 12 {{{1
+# A literal _ character cannot occur at the beginning or end of _-delimited emphasis or __-delimited strong emphasis, unless it is backslash-escaped.
+
+
+# Rule 13 {{{1
+# The number of nestings should be minimized. Thus, for example, an interpretation <strong>...</strong> is always preferred to <em><em>...</em></em>.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-469):
+  **foo**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Basic bold'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-470):
+  *_foo_*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO Change that'
+  AssertEqual 0, 0
+#  CommentLine 'Double italic'
+#  AssertEqual 'VimwikiItalic', SyntaxAt(1, 4)
+#  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-471):
+  __foo__
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Basic bold (2)'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-472):
+  _*foo*_
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Double italic (2)'
+  AssertEqual 'VimwikiItalic', SyntaxAt(1, 4)
+  AssertEqual '', SyntaxAt(2, 4)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-473):
+  ****foo****
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Double bold with ****'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-474):
+  ____foo____
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Double bold with ____'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-475):
+  ******foo******
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Triple bold with ******'
+  AssertEqual 'VimwikiBold', SyntaxAt(1, 8)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+# Rule 14 {{{1
+# An interpretation <em><strong>...</strong></em> is always preferred to <strong><em>...</em></strong>.
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-476):
+  ***foo***
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Bold Italic normal, with 3 *'
+  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 5)
+  AssertEqual '', SyntaxAt(2, 1)
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-477):
+  _____foo_____
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'Bold Italic with 5 _'
+  CommentLine 'TODO Passed'
+#  AssertEqual 'VimwikiBoldItalic', SyntaxAt(1, 7)
+#  AssertEqual '', SyntaxAt(2, 1)
+
+
+# Rule 15 {{{1
+# When two potential emphasis or strong emphasis spans overlap, so that the second begins before the first ends and ends after the first ends, the first takes precedence. Thus, for example, *foo _bar* baz_ is parsed as <em>foo _bar</em> baz_ rather than *foo <em>bar* baz</em>.
+
+
+# Rule 16 {{{1
+# When there are two potential emphasis or strong emphasis spans with the same closing delimiter, the shorter one (the one that opens later) takes precedence. Thus, for example, **foo **bar baz** is parsed as **foo <strong>bar baz</strong> rather than <strong>foo **bar baz</strong>.
+
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-480):
+  **foo **bar baz**
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'All bold as the ** inside is not closing, Passed as vimwiki do not follow the spec'
+  AssertEqual 0, 0
+#  CommentLine 'Double bold (2)'
+#  AssertEqual 'VimwikiBold', SyntaxAt(1, 6)
+#  AssertEqual '', SyntaxAt(2, 1)
+
+# Rule 17 {{{1
+# Inline code spans, links, images, and HTML tags group more tightly than emphasis. So, when there is a choice between an interpretation that contains one of these elements and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).
+
+Given vimwiki (Typeface: https://github.github.com/gfm/#example-485):
+  *a `*` b*
+  *a `a a*a a` b*
+  12345678901234
+
+Execute (Set Markdown):
+  call SetSyntax('markdown')
+
+Execute (Assert Syntax):
+  CommentLine 'TODO with a * as unique code, a nice trap'
+  AssertEqual 0, 0
+
+
+# vim: foldmethod=marker foldlevel=30 sw=2

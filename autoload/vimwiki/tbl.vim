@@ -149,7 +149,9 @@ function! vimwiki#tbl#get_cells(line, ...) abort
   let state = 'NONE'
   let cell_start = 0
   let quote_start = 0
-  let len = strlen(a:line) - 1
+  " Split byte string into list of character to properly handle multibyte chars
+  let chars = split(a:line, '\zs')
+  let len = len(chars) - 1
 
   " 'Simple' FSM
   while state !=# 'CELL'
@@ -157,10 +159,9 @@ function! vimwiki#tbl#get_cells(line, ...) abort
       let state = 'CELL'
     endif
     for idx in range(quote_start, len)
-      " The only way I know Vim can do Unicode...
-      let ch = a:line[idx]
+      let ch = chars[idx]
       if state ==# 'NONE'
-        if ch ==# s:s_sep() && (idx < 1 || a:line[idx-1] !=# '\')
+        if ch ==# s:s_sep() && (idx < 1 || chars[idx-1] !=# '\')
           let cell_start = idx + 1
           let state = 'CELL'
         endif
@@ -168,8 +169,8 @@ function! vimwiki#tbl#get_cells(line, ...) abort
         if ch ==# '[' || ch ==# '{'
           let state = 'BEFORE_QUOTE_START'
           let quote_start = idx
-        elseif ch ==# s:s_sep() && (idx < 1 || a:line[idx-1] !=# '\')
-          let cell = strpart(a:line, cell_start, idx - cell_start)
+        elseif ch ==# s:s_sep() && (idx < 1 || chars[idx-1] !=# '\')
+          let cell = join(chars[cell_start : idx-1], '')
           if a:0 && a:1
             let cell = substitute(cell, '^ \(.*\) $', '\1', '')
           else

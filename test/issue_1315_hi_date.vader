@@ -1,0 +1,36 @@
+# Non regression tests for issue: 
+# -- How to turn off inline math highlights?
+
+
+
+Given vimwiki (All math inline possible):
+  12345678901234567890123456789
+  2023-06-22
+  23-06-22
+  due:2023-06-22
+  
+  +ProjectName project description
+  @ContextName context description
+  
+  Other +ProjectName and desc
+  Other @ContectName and desc
+
+Execute (Assert all lines):
+# Math
+  AssertEqual 'normal', GetSyntaxVimwiki(1, 1)
+
+  AssertEqual 'TodoDate', GetSyntaxVimwiki(2, 1)
+  AssertEqual 'TodoDate', GetSyntaxVimwiki(3, 1)
+  AssertEqual 'TodoDueDate', GetSyntaxVimwiki(4, 1)
+
+  AssertEqual 'TodoProject', GetSyntaxVimwiki(6, 1)
+  AssertEqual 'normal', GetSyntaxVimwiki(6, 15)
+  AssertEqual 'TodoContext', GetSyntaxVimwiki(7, 1)
+  AssertEqual 'normal', GetSyntaxVimwiki(7, 15)
+
+  AssertEqual 'normal', GetSyntaxVimwiki(9, 1)
+  AssertEqual 'TodoProject', GetSyntaxVimwiki(9, 10)
+  AssertEqual 'normal', GetSyntaxVimwiki(9, 20)
+  AssertEqual 'normal', GetSyntaxVimwiki(10, 1)
+  AssertEqual 'TodoContext', GetSyntaxVimwiki(10, 10)
+  AssertEqual 'normal', GetSyntaxVimwiki(10, 20)

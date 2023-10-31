@@ -1,0 +1,99 @@
+# Non regression tests for issue: #1287
+
+
+Before(Define function for yaml inspection):
+  function! Issue1287Yaml(line)
+    " The line where the yaml delimiter is: 1 if at top
+    let l = a:line
+
+    Log "1: " .  string(GetSyntaxStack(l + 0, 2))
+    AssertEqual 'textSnipYAML', GetSyntaxStack(l + 0, 2)[0]
+    Log '2: ' .  string(GetSyntaxStack(l + 0, 2))
+    AssertEqual 'VimwikiPre', GetSyntaxStack(l + 0, 2)[1]
+
+    Log '3: ' . string(GetSyntaxStack(l + 1, 2))
+    AssertEqual 'textSnipYAML', GetSyntaxStack(l + 1, 2)[0]
+    Log '4: ' . string(GetSyntaxStack(l + 2, 2))
+    AssertEqual 'textSnipYAML', GetSyntaxStack(l + 2, 2)[0]
+    Log '5: ' . string(GetSyntaxStack(l + 2, 20))
+    AssertEqual 'textSnipYAML', GetSyntaxStack(l + 2, 20)[0]
+
+    Log '6: ' . string(GetSyntaxStack(l + 3, 2))
+    AssertEqual 'VimwikiPre', GetSyntaxStack(l + 3, 2)[-1]
+  endfunction
+
+
+Given vimwiki (Yaml with --- at top):
+  ---
+  title: my title
+  description: my description
+  ---
+
+Execute (Assert delimiter with --- at top):
+  call Issue1287Yaml(1)
+
+Given vimwiki (Yaml with --- at bottom):
+  ---
+  title: my title
+  description: my description
+  ...
+
+Execute (Assert delimiter with ... at bottom):
+  call Issue1287Yaml(1)
+
+Given vimwiki (Yaml with --- after empty line):
+  A stupid block
+  of 2 lines
+  
+  ---
+  title: my title
+  description: my description
+  ---
+
+Execute (Assert delimiter with --- after empty line):
+  call Issue1287Yaml(4)
+
+
+Given vimwiki (Yaml with --- mixed with ...):
+  ---
+  title: my title
+  ...
+  comment: my comment
+  description: my description
+  ---
+  
+  And a text follows
+
+Execute (Assert all is yaml except after the closing ---):
+  AssertEqual 'textSnipYAML1', GetSyntaxStack(1, 2)[0] . 1
+  AssertEqual 'VimwikiPre1', GetSyntaxStack(1, 2)[1] . 1
+
+  AssertEqual 'textSnipYAML1', GetSyntaxStack(1, 2)[0] . 1
+  AssertEqual 'textSnipYAML2', GetSyntaxStack(2, 2)[0] . 2
+  AssertEqual 'VimwikiPre3', GetSyntaxStack(3, 2)[0] . 3
+
+  AssertEqual 0, len(GetSyntaxStack(7, 2))
+  AssertEqual 0, len(GetSyntaxStack(8, 2))
+
+
+Given vimwiki (Yaml with --- with a --- not a start of line):
+  ---
+  title: my title
+  comment: my comment ---
+  description: my description
+  ---
+  
+  And a text follows
+
+Execute (Assert all is yaml except after the closing ---):
+  AssertEqual 'textSnipYAML1', GetSyntaxStack(1, 2)[0] . 1
+  AssertEqual 'VimwikiPre1', GetSyntaxStack(1, 2)[1] . 1
+
+  AssertEqual 'textSnipYAML1', GetSyntaxStack(1, 2)[0] . 1
+  AssertEqual 'textSnipYAML2', GetSyntaxStack(2, 2)[0] . 2
+  AssertEqual 'textSnipYAML3', GetSyntaxStack(3, 2)[0] . 3
+  AssertEqual 'textSnipYAML4', GetSyntaxStack(4, 2)[0] . 4
+  AssertEqual 'VimwikiPre5', GetSyntaxStack(5, 2)[-1] . 5
+
+  AssertEqual 0, len(GetSyntaxStack(6, 2))
+  AssertEqual 0, len(GetSyntaxStack(7, 2))
