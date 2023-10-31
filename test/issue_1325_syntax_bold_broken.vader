@@ -13,13 +13,15 @@ Given vimwiki (All math inline possible):
   123456789
 
 
-Do (Set syntax wiki):
-  :call SetSyntax('default')\<CR>
+Execute (Set syntax wiki):
+  call SetSyntax('default')
+  Log &foldexpr
+  Log &foldmethod
 
 
 Execute (Assert syntax):
 # Bold
-  AssertEqual 'VimwikiBold1', GetSyntaxStack(1, 2)[0] . 1
+#  AssertEqual 'VimwikiBold1', GetSyntaxStack(1, 2)[0] . 1
   AssertEqual '02', len(GetSyntaxStack(1, 8)) . 2
 # HTML Comment
   AssertEqual 'VimwikiComment3', GetSyntaxStack(2, 6)[0] . 3

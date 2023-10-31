@@ -201,10 +201,10 @@ function! VimwikiFoldLevel(lnum) abort
   let nextline = getline(v:lnum + 1)
 
   " -- Start: assumes empty line before
-  if line =~# vimwiki#vars#get_syntaxlocal('rxPreStart') && prevline =~ '^\s*$'
+  if line =~# vimwiki#vars#get_syntaxlocal('rxPreStart') && prevline =~# '^\s*$'
     return 'a1'
   " -- End: assumes empty line after
-  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd') && nextline =~ '^\s*$'
+  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd') && nextline =~# '^\s*$'
     return 's1'
   endif
 
