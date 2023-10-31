@@ -193,14 +193,16 @@ function! VimwikiFoldLevel(lnum) abort
   " Header/section folding...
   if line =~# vimwiki#vars#get_syntaxlocal('rxHeader') && !vimwiki#u#is_codeblock(a:lnum)
     return '>'.vimwiki#u#count_first_sym(line)
+  endif
+
   " Code block folding...
-  elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
+  if line =~# vimwiki#vars#get_syntaxlocal('rxPreStart')
     return 'a1'
   elseif line =~# vimwiki#vars#get_syntaxlocal('rxPreEnd')
     return 's1'
-  else
-    return '='
   endif
+
+  return '='
 endfunction
 
 
