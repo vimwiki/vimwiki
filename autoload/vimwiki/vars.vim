@@ -1230,7 +1230,7 @@ function! s:populate_extra_markdown_vars() abort
 
   let mkd_syntax.rxWeblink1Prefix = '['
   let mkd_syntax.rxWeblink1Suffix = ')'
-  let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\()\)'
+  let mkd_syntax.rxWeblink1EscapeCharsSuffix = '\(\\\)\@<!\(>\=)\)'
   let mkd_syntax.rxWeblink1Separator = ']('
 
   let rxWeblink1Ext = ''
@@ -1255,7 +1255,7 @@ function! s:populate_extra_markdown_vars() abort
   let valid_chars_url = '[^[:cntrl:]]'
 
   let mkd_syntax.rxWeblink1Prefix = vimwiki#u#escape(mkd_syntax.rxWeblink1Prefix)
-  let mkd_syntax.rxWeblink1Separator = vimwiki#u#escape(mkd_syntax.rxWeblink1Separator)
+  let mkd_syntax.rxWeblink1Separator = '\](<\='
   let mkd_syntax.rxWeblink1Url = valid_chars_url.'\{-}'
   let mkd_syntax.rxWeblink1Descr = valid_chars.'\{-}'
   let mkd_syntax.WikiLinkMatchUrlTemplate =

@@ -4000,6 +4000,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Jean-Luc Bastarache (@jlbas)
     - Youssof Taha (@ysftaha)
     - Thomas Leyh (@leyhline)
+    - Charles Schimmelpfennig (@charlesschimmel)
     - nebulaeandstars (@nebulaeandstars)
     - dmitry kim (@jsn)
     - Julian Prein (@druckdev)
@@ -4124,6 +4125,7 @@ New:~
       current file
     * Feature: Add |VimwikiBaddLink| to add links to the buffer list, without
       loading, if they weren't listed yet
+    * PR 1211: Enable parsing Markdown links escaped with angle brackets
 
 Changed:~
     * PR #1047: Allow to replace default mapping of VimwikiToggleListItem
