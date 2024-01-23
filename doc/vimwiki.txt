@@ -4007,6 +4007,10 @@ Contributors and their Github usernames in roughly chronological order:
     - Luke Atkinson (@LukeDAtkinson)
     - Joe Planisky (@jplanisky)
     - Bence Ferdinandy (@ferdinandyb)
+    - R. David Dunphy (@rdunphy)
+    - Aarón Fas (@aaronfc)
+    - @jiamingc
+    - Alex Claman (@claman)
 
 
 ==============================================================================
@@ -4025,12 +4029,32 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+
+2024.01.22~
+
 New:~
     * Issue #1279: Fix/Improvement: When re-wrap a long line in a definition
       by 'gq' it should insert ':: ' at the new line
+    * Issue #1211: Support angle bracket escaped markdown urls
+    * Make auto_tags preserve existing tag section structure
+    * Issue #1315: GTD-style token highlighting
+    * Issue #1279: gqq autowrap leading :: definition as &l:comments
+    * Issue #1332: message URLs on Mac
+    * Util: add vimwiki#vars#set_syntaxlocal function for consistency
 
 Fixed:~
-    * Issue #1365: Fix: count ignored when looking up diary frequency
+    * Issue #1365: Fix: count ignored when looking up diary frequency Issue
+    * Issue #1323: Folding code blocks using markdown syntax folds the entire rest of
+      the file
+    * Issue #1365: Jumping to nested anchor with markdown
+    * Issue #1297: Handle multibyte chars properly in table separators
+    * Issue #1311: Newlines in HTML conversion of codeblocks
+    * Issue #1326: Duplicate tag generation
+    * Issue #1324: File name prompt fixes
+    * Fix vimwiki#diary#calendar_sign when g:vimwiki_list is not set
+    * Use fnameescape() instead of escape() in edit_file()
+    * Admit trailing spaces for YAML delimiters
+    * Minor documentation fixes and CI improvements
 
 
 2023.04.04~
@@ -4041,6 +4065,7 @@ Fixed:~
     * PR #1324: Fix pressing escape in VimwikiGoto prompt (rddunphy)
     * Issue #1336: vimwiki#diary#calendar_sign throws an error
       when g:vimwiki_list is not set
+
 
 2023.04.04~
 
