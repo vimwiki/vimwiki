@@ -4018,6 +4018,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Aarón Fas (@aaronfc)
     - @jiamingc
     - Alex Claman (@claman)
+    - @qadzek
 
 
 ==============================================================================
@@ -4035,6 +4036,14 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+
+2024.01.24~
+
+New:~
+    * PR #1389: Document gLH, gl+, and gL+ mappings
+    * Tidy some aspects of README.md, remove pointers to defunct Matrix
+      channel and Google Group, add wikis.world Mastodon account.
 
 
 2024.01.22~
