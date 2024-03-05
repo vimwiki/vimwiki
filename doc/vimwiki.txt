@@ -4019,6 +4019,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @jiamingc
     - Alex Claman (@claman)
     - @qadzek
+    - John D. Fisher (@jfishe)
 
 
 ==============================================================================
@@ -4037,6 +4038,12 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+
+2024.03.08~
+
+Fixed:~
+    * Issue #1343: Fix/Improvement: Following HTML link on Windows PowerShell
+      or cmd.exe was broken by change to |:!start| behavior.
 
 2024.01.24~
 
