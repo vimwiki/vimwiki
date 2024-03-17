@@ -313,19 +313,12 @@ function! vimwiki#base#system_open_link(url) abort
       else
         let url = shellescape(a:url, 1)
       endif
-      execute 'silent !start ' .. url
+      execute 'silent !start ' . url
 
     else
 
-      if exists('+shellslash')
-        let old_ssl = &shellslash
-        set shellslash
-        let url = shellescape(a:url, 1)
-        let &shellslash = old_ssl
-      else
-        let url = shellescape(a:url, 1)
-      endif
-      execute 'silent !start ' .. eval(url)
+      let url = escape(a:url, '%|*#')
+      execute 'silent !start ' . url
 
     endif
   endfunction
