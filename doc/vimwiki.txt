@@ -3282,7 +3282,7 @@ cannot otherwise convert the link.  A customized handler might look like this: >
     let str = a:value
 
     " complete URL
-    let url_0 = matchstr(str, g:vimwiki_rxWikiInclMatchUrl)
+    let url_0 = matchstr(str, g:vimwiki_global_vars.rxWikiInclMatchUrl)
     " URL parts
     let link_infos = vimwiki#base#resolve_link(url_0)
     let arg1 = matchstr(str, VimwikiWikiInclMatchArg(1))
