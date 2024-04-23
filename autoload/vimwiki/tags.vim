@@ -31,7 +31,8 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) abort
   let all_files = a:all_files !=? ''
   if !a:full_rebuild
     " Updating for one page (current)
-    let page_name = vimwiki#vars#get_bufferlocal('subdir') . expand('%:t:r')
+    let page_name = vimwiki#vars#get_bufferlocal('subdir') . substitute(expand('%:t'), vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr')) . '$' , '', '')
+
     " Collect tags in current file
     let tags = s:scan_tags(getline(1, '$'), page_name)
     " Load metadata file
@@ -50,7 +51,7 @@ function! vimwiki#tags#update_tags(full_rebuild, all_files) abort
     for file in files
       if all_files || getftime(file) >= tags_file_last_modification
         let subdir = vimwiki#base#subdir(wiki_base_dir, file)
-        let page_name = subdir . fnamemodify(file, ':t:r')
+        let page_name = subdir . substitute(file, vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr')). '$' , '', '')
         let tags = s:scan_tags(readfile(file), page_name)
         let metadata = s:remove_page_from_tags(metadata, page_name)
         let metadata = s:merge_tags(metadata, page_name, tags)
