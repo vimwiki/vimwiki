@@ -4018,6 +4018,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Aarón Fas (@aaronfc)
     - @jiamingc
     - Alex Claman (@claman)
+    - Edward Barbu (@zadirion)
     - @qadzek
 
 
@@ -4037,6 +4038,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2024.05.27~
+
+New:~
+    * Commit be866af: Fixed :VimwikiPasteLink to use markdown link format when
+      using markdown style
 
 2024.01.24~
 
