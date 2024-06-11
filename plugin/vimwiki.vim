@@ -380,6 +380,8 @@ command! VimwikiShowVersion call s:get_version()
 command! -nargs=* -complete=customlist,vimwiki#vars#complete
       \ VimwikiVar call vimwiki#vars#cmd(<q-args>)
 
+command! VimwikiTodoGrep
+      \ call vimwiki#todo#grep()
 
 " Declare global maps
 " <Plug> global definitions
