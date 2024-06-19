@@ -262,11 +262,20 @@ function! vimwiki#base#resolve_link(link_text, ...) abort
               \ vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     else
-      " append extension iff one not already present or it's not the targeted
+      " append extension if one not already present or it's not the targeted
       " wiki extension - https://github.com/vimwiki/vimwiki/issues/950
       let ext = fnamemodify(link_text, ':e')
       let ext_with_dot = '.' . ext
-      if ext ==? '' || ext_with_dot !=? vimwiki#vars#get_wikilocal('ext', link_infos.index)
+
+      " Check if a .md must be added
+      " See #1271 to modify files with a "."
+      let do_add_ext = ext ==? ''
+      if vimwiki#vars#get_syntaxlocal('open_link_add_ext')
+        let do_add_ext = do_add_ext || ext_with_dot !=? vimwiki#vars#get_wikilocal('ext', link_infos.index)
+      endif
+
+      " Add the dot
+      if do_add_ext
         let link_infos.filename .= vimwiki#vars#get_wikilocal('ext', link_infos.index)
       endif
     endif
