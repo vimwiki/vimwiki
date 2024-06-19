@@ -851,6 +851,10 @@ function! s:get_common_syntaxlocal() abort
   " HTML comment
   let res.comment_regex = {'type': type(''), 'default': '\%(^\s*%%.*$\|<!--\%([^>]\|\n\)*-->\)'}
 
+  " Opening link with dot in the ref, see #1271 and ref and Brennen comment:
+  " -- https://github.com/vimwiki/vimwiki/issues/1271#issuecomment-1482207680
+  let res.open_link_add_ext = {'type': type(1), 'default': 1}
+
   return res
 endfunction
 
