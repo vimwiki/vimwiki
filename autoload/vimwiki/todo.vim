@@ -26,4 +26,17 @@ function! vimwiki#todo#list()
   setlocal nomodifiable
 
   " normal! gg
+  nnoremap <buffer> <C-Space> :call vimwiki#todo#toggle()<CR>
+endfunction
+
+function! vimwiki#todo#toggle()
+  execute ":normal \<C-W>\<CR>"
+  execute ":normal \<C-Space>"
+  execute ":normal y$"
+  wincmd q
+  wincmd p
+  setlocal modifiable
+  execute ":normal ^W\"_Dp"
+  setlocal nomodified
+  setlocal nomodifiable
 endfunction
