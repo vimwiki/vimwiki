@@ -1,5 +1,9 @@
 function! vimwiki#todo#list()
-  let files = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path') . '*.md'
+  let path = vimwiki#vars#get_wikilocal('path')
+  let rel_path = substitute(path, '^' . getcwd() . '/', '', '')
+  let diary_rel_path = vimwiki#vars#get_wikilocal('diary_rel_path')
+
+  let files = path . diary_rel_path . '*.md'
 
   call setqflist([])
 
@@ -15,7 +19,8 @@ function! vimwiki#todo#list()
 
   for i in range(1, line('$'))
     let line = getline(i)
-    let line = substitute(line, '^\([^\/]*\/\)*', '', '')
+    let line = substitute(line, '^' . rel_path, '', '')
+    let line = substitute(line, '^' . diary_rel_path, 'diary:', '')
     let line = substitute(line, '.md|', '|', '')
     let line = substitute(line, '|\([0-9]\+\) col [0-9-]*|', '|\1|', '')
     let line = substitute(line, '^|| ', '', '')
