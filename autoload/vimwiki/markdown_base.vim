@@ -100,7 +100,8 @@ function! s:normalize_link_syntax_n() abort
       let sub = vimwiki#base#normalize_link_in_diary(lnk)
     else
       let sub = vimwiki#base#normalize_link_helper(lnk,
-            \ vimwiki#vars#get_global('rxWord'), '',
+            \ vimwiki#vars#get_global('rxWord'),
+            \ vimwiki#vars#get_global('rxWord'),
             \ vimwiki#vars#get_syntaxlocal('Link1'))
     endif
     call vimwiki#base#replacestr_at_cursor('\V'.lnk, sub)
