@@ -36,6 +36,7 @@ endfunction
 
 function! vimwiki#todo#toggle()
   execute ":normal \<C-W>\<CR>"
+  execute ":normal zR"
   execute ":normal \<C-Space>"
   execute ":normal y$"
   wincmd q
