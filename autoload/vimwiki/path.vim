@@ -228,7 +228,13 @@ function! s:get_wikifile_link(wikifile) abort
 endfunction
 
 function! vimwiki#path#PasteLink(wikifile) abort
-  call append(line('.'), '[[/'.s:get_wikifile_link(a:wikifile).']]')
+  let pastedLink = s:get_wikifile_link(a:wikifile)
+
+  if vimwiki#vars#get_wikilocal('syntax') ==? 'markdown'
+    call append(line('.'), '['.pastedLink.'](/'.pastedLink.')')
+  else
+    call append(line('.'), '[[/'.pastedLink.']]')
+  endif
 endfunction
 
 
