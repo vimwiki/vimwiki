@@ -3038,8 +3038,8 @@ function! vimwiki#base#linkify() abort
       " [[URL]]
       let link_tpl = g:vimwiki_global_vars.WikiLinkTemplate2
     endif
-    let link = substitute(link_tpl, '__LinkUrl__', @u, '')
-    let link = substitute(link, '__LinkDescription__', g:page_title==#'' ? @u : g:page_title, '')
+    let link = s:safesubstitute(link_tpl, '__LinkUrl__', @u, '')
+    let link = s:safesubstitute(link, '__LinkDescription__', g:page_title==#'' ? @u : g:page_title, '')
     exe 'normal! i' . link
   else
     "if URL could not be downloaded, undo and display message
