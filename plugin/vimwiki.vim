@@ -11,7 +11,7 @@ endif
 let g:loaded_vimwiki = 1
 
 " Set to version number for release:
-let g:vimwiki_version = '2024.01.24'
+let g:vimwiki_version = '2024.08.22'
 
 " Get the directory the script is installed in
 let s:plugin_dir = expand('<sfile>:p:h:h')
