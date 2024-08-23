@@ -4019,6 +4019,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @jiamingc
     - Alex Claman (@claman)
     - @qadzek
+    - Daniel Fancsali (@fancsali)
 
 
 ==============================================================================
@@ -4038,7 +4039,15 @@ master is retained as a legacy mirror of the dev branch.
 This is somewhat experimental, and will probably be refined over time.
 
 
+2024.08.22
+
+
 2024.01.24~
+
+Fixed:
+    * PR #1436 / Issue #1409: Ampersand in diary headings breaks autoatic
+      diary index generation, as it is unescaped.
+
 
 New:~
     * PR #1389: Document gLH, gl+, and gL+ mappings
@@ -4653,6 +4662,7 @@ https://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2008-2010 Maxim Kim
               2013-2017 Daniel Schemala
+              2024      Daniel Fancsali
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

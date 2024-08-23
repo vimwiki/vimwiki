@@ -4,6 +4,14 @@
 " Home: https://github.com/vimwiki/vimwiki/
 
 
+function! s:safesubstitute(text, search, replace, mode) abort
+  " Substitute regexp but do not interpret replace
+  " TODO mutualize with same function in base
+  let escaped = escape(a:replace, '\&')
+  return substitute(a:text, a:search, escaped, a:mode)
+endfunction
+
+
 " Clause: load only once
 if exists('g:loaded_vimwiki_diary_auto') || &compatible
   finish
@@ -450,8 +458,8 @@ function! vimwiki#diary#generate_diary_section() abort
           endif
 
           let bullet = vimwiki#lst#default_symbol().' '
-          let entry = substitute(top_link_tpl, '__LinkUrl__', fl, '')
-          let entry = substitute(entry, '__LinkDescription__', topcap, '')
+          let entry = s:safesubstitute(top_link_tpl, '__LinkUrl__', fl, '')
+          let entry = s:safesubstitute(entry, '__LinkDescription__', topcap, '')
           let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
           let extension = vimwiki#vars#get_wikilocal('ext', wiki_nr)
           let entry = substitute(entry, '__FileExtension__', extension, 'g')
@@ -467,8 +475,8 @@ function! vimwiki#diary#generate_diary_section() abort
             if empty(subcap)
               continue
             endif
-            let entry = substitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
-            let entry = substitute(entry, '__LinkDescription__', subcap, '')
+            let entry = s:safesubstitute(link_tpl, '__LinkUrl__', fl.'#'.subcap, '')
+            let entry = s:safesubstitute(entry, '__LinkDescription__', subcap, '')
             " if single H1 then depth H2=0, H3=1, H4=2, H5=3, H6=4
             " if multiple H1 then depth H1= 0, H2=1, H3=2, H4=3, H5=4, H6=5
             " indent subsequent headers levels by shiftwidth
