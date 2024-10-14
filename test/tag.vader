@@ -257,7 +257,7 @@ Expect (Correctly formatted tags file):
   !_TAG_PROGRAM_AUTHOR	Vimwiki
   !_TAG_PROGRAM_NAME	Vimwiki Tags
   !_TAG_PROGRAM_URL	https://github.com/vimwiki/vimwiki
-  !_TAG_PROGRAM_VERSION	2023.05.12
+  !_TAG_PROGRAM_VERSION	2024.01.24
   second-tag	Test-Tag.md	13;"	vimwiki:Test-Tag\tTest-Tag#second-tag\tTest-Tag#second-tag
   test-tag	Test-Tag.md	5;"	vimwiki:Test-Tag\tTest-Tag#a-header\tA header
   top-tag	Test-Tag.md	1;"	vimwiki:Test-Tag\tTest-Tag\tTest-Tag
