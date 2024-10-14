@@ -363,12 +363,12 @@ Execute (Build tag links in third file):
 
 
 Expect (Tag links relative to current file):
-  
+
 
   # Generated Tags
 
   ## header-tag-1
-  
+
   - [A Header](../../Test-Tag-1#a-header)
   - [A Header](../Test-Tag-2#a-header)
 
@@ -394,12 +394,12 @@ Do (Delete some existing links to test updating generated tag links):
 
 
 Expect (Only update generated tag links for tags already existing in the file):
-  
+
 
   # Generated Tags
 
   ## header-tag-1
-  
+
   - [A Header](../../Test-Tag-1#a-header)
   - [A Header](../Test-Tag-2#a-header)
 
