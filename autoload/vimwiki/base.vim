@@ -637,7 +637,7 @@ function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links, pattern) abor
   endif
   let result = []
   for wikifile in files
-    let wikifile = fnamemodify(wikifile, ':r') " strip extension
+    let wikifile = substitute(wikifile, vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr')) . '$' , '', '') " strip extension
     let wikifile = vimwiki#path#relpath(cwd, wikifile)
     call add(result, wikifile)
   endfor
@@ -648,7 +648,8 @@ function! vimwiki#base#get_wikilinks(wiki_nr, also_absolute_links, pattern) abor
       elseif a:wiki_nr < 0
         let cwd = vimwiki#vars#get_wikilocal('path') . vimwiki#vars#get_wikilocal('diary_rel_path')
       endif
-      let wikifile = fnamemodify(wikifile, ':r') " strip extension
+      let wikifile = substitute(wikifile, vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr')) . '$' , '', '')
+ " strip extension
       let wikifile = '/'.vimwiki#path#relpath(cwd, wikifile)
       call add(result, wikifile)
     endfor
