@@ -1159,7 +1159,7 @@ function! vimwiki#base#edit_file(command, filename, anchor, ...) abort
   " getpos() directly after this command. Strange.
   if !(a:command =~# ':\?[ed].*' && vimwiki#path#is_equal(a:filename, expand('%:p')))
     try
-      execute a:command fname
+      execute a:command ﻿﻿fnamemodify(fname, ':.')
     catch /E37:/
       call vimwiki#u#warn('Can''t leave the current buffer, because it is modified. Hint: Take a look at'
             \ . ''':h g:vimwiki_autowriteall'' to see how to save automatically.')
