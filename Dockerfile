@@ -17,10 +17,11 @@ RUN git checkout de8a976f1eae2c2b680604205c3e8b5c8882493c
 # Build vim and neovim versions we want to test
 WORKDIR /
 
-RUN install_vim -tag v7.3.429 -name vim_7.3.429 -build
-RUN install_vim -tag v7.4.1099 -name vim_7.4.1099 -build
-RUN install_vim -tag v7.4.1546 -name vim_7.4.1546 -build
-RUN install_vim -tag v8.0.0027 -name vim_8.0.0027 -build
-RUN install_vim -tag v8.1.0519 -name vim_8.1.0519 -build
-RUN install_vim -tag v9.0.1396 -name v9.0.1396 -build
-RUN install_vim -tag neovim:v0.3.8 -name nvim_0.3.8 -build
+RUN install_vim -tag v7.4.2367 -name vim_7.4.2367 -build
+RUN install_vim -tag v8.2.5172 -name vim_8.2.5172 -build
+RUN install_vim -tag v9.0.2190 -name v9.0.2190 -build
+RUN install_vim -tag v9.1.0786 -name v9.1.0786 -build
+
+# TODO: This one doesn't build - vim-testbed seems way out of date:
+# TODO: tag neovim:v0.10.2, name nvim_0.10.2
+# (Format as install_vim instances above.)
