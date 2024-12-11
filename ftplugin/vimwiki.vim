@@ -303,6 +303,7 @@ command! -buffer VimwikiRss call vimwiki#html#diary_rss()
 command! -buffer VimwikiTOC call vimwiki#base#table_of_contents(1)
 
 command! -buffer VimwikiNextTask call vimwiki#base#find_next_task()
+command! -buffer VimwikiPreviousTask call vimwiki#base#find_previous_task()
 command! -buffer VimwikiNextLink call vimwiki#base#find_next_link()
 command! -buffer VimwikiPrevLink call vimwiki#base#find_prev_link()
 command! -buffer VimwikiDeleteFile call vimwiki#base#delete_link()
@@ -481,6 +482,8 @@ endif
 " Map: <Plug> lists definitions
 nnoremap <silent><script><buffer> <Plug>VimwikiNextTask
     \ :VimwikiNextTask<CR>
+nnoremap <silent><script><buffer> <Plug>VimwikiPreviousTask
+    \ :VimwikiPreviousTask<CR>
 nnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem
     \ :VimwikiToggleListItem<CR>
 vnoremap <silent><script><buffer> <Plug>VimwikiToggleListItem
@@ -531,6 +534,7 @@ nnoremap <silent><buffer> <Plug>VimwikiListO
 " Declare Map: default lists key mappings (again)
 if str2nr(vimwiki#vars#get_global('key_mappings').lists)
   call vimwiki#u#map_key('n', 'gnt', '<Plug>VimwikiNextTask')
+  call vimwiki#u#map_key('n', 'gpt', '<Plug>VimwikiPreviousTask')
   if !hasmapto('<Plug>VimwikiToggleListItem')
     call vimwiki#u#map_key('n', '<C-Space>', '<Plug>VimwikiToggleListItem')
     call vimwiki#u#map_key('v', '<C-Space>', '<Plug>VimwikiToggleListItem', 1)
