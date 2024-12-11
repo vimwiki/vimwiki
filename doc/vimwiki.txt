@@ -4047,7 +4047,7 @@ This is somewhat experimental, and will probably be refined over time.
 2024.12.11~
 
 New:~
-    * PR #TBD: Add FindPreviousTask and gpt binding
+    * PR #1453: Add FindPreviousTask and gpt binding
 
 
 2024.01.24~
