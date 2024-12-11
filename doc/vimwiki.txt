@@ -458,10 +458,13 @@ MAP                MODE
                         See |vimwiki-todo-lists|.
                         Remap command: `<Plug>VimwikiToggleListItem`
 
-                                                                *vimwiki_gnt*
+                                                  *vimwiki_gnt* *vimwiki_gpt*
 gnt               n     Find next unfinished task in the current page.
                         Maps to |:VimwikiNextTask|
                         Remap command: `<Plug>VimwikiNextTask`
+gpt                     Find previous unfinished task in the current page.
+                        Maps to |:VimwikiPreviousTask|
+                        Remap command: `<Plug>VimwikiPreviousTask`
 
                                       *vimwiki_gl<Space>* *vimwiki_gL<Space>*
 gl<Space>         n     Remove checkbox from list item.
@@ -855,6 +858,9 @@ Vimwiki file.
 <
 *:VimwikiNextTask*
     Jump to the next unfinished task in the current wiki page.
+
+*:VimwikiPreviousTask*
+    Jump to the previous unfinished task in the current wiki page.
 
 *:Vimwiki2HTML*
     Convert current wiki page to HTML using Vimwiki's own converter or a
@@ -4036,6 +4042,12 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+
+2024.12.11~
+
+New:~
+    * PR #TBD: Add FindPreviousTask and gpt binding
 
 
 2024.01.24~

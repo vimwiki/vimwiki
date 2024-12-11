@@ -1640,11 +1640,24 @@ function! vimwiki#base#update_listing_in_buffer(Generator, start_header,
 endfunction
 
 
-function! vimwiki#base#find_next_task() abort
-  " Find next task (Exported)
+function! vimwiki#base#find_task() abort
   let taskRegex = vimwiki#vars#get_wikilocal('rxListItemWithoutCB')
     \ . '\+\(\[ \]\s\+\)\zs'
+  return taskRegex
+endfunction
+
+
+function! vimwiki#base#find_next_task() abort
+  " Find next task (Exported)
+  let taskRegex = vimwiki#base#find_task()
   call vimwiki#base#search_word(taskRegex, '')
+endfunction
+
+
+function! vimwiki#base#find_previous_task() abort
+  " Find previous task (Exported)
+  let taskRegex = vimwiki#base#find_task()
+  call vimwiki#base#search_word(taskRegex, 'b')
 endfunction
 
 
