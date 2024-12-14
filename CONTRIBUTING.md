@@ -12,10 +12,11 @@ Issues can be filed at https://github.com/vimwiki/vimwiki/issues/
 
 As of v2022.12.02, VimWiki has adopted a rolling release model, along with
 [calendar versioning][calver].  A release should be
-[prepared][#preparing-a-release] for every change or set of changes which merge
+[prepared][prep] for every change or set of changes which merge
 to `dev`.
 
 [calver]: https://calver.org/
+[prep]: #preparing-a-release
 
 There are two permanent branches:
     1. `dev`: This is the default branch, and where changes are released. Tasks
