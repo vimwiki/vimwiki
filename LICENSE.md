@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2008-2010 Maxim Kim
+Copyright (c) 2008-2025 Maxim Kim
               2013-2017 Daniel Schemala
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
