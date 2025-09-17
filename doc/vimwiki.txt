@@ -4019,6 +4019,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @jiamingc
     - Alex Claman (@claman)
     - @qadzek
+    - Filip Úradník (@furadnik)
 
 
 ==============================================================================
@@ -4036,6 +4037,12 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+
+2025.09.17
+
+Fixed:~
+    * Issue #1475: Restore the previous quickfix list after markdown reflink scan
 
 
 2024.01.24~

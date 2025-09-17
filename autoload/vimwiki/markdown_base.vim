@@ -12,6 +12,9 @@ endfunction
 
 
 function! vimwiki#markdown_base#scan_reflinks() abort
+  " get id of the current quickfix list (we are about to override it with vimgrep)
+  let qfixlist_id = getqflist({"id": 0}).id
+
   let mkd_refs = {}
   " construct list of references using vimgrep
   try
@@ -30,6 +33,12 @@ function! vimwiki#markdown_base#scan_reflinks() abort
     endif
   endfor
   call vimwiki#vars#set_bufferlocal('markdown_refs', mkd_refs)
+
+  " if there was a previous quickfix list, restore it
+  if qfixlist_id
+    silent colder
+  endif
+
   return mkd_refs
 endfunction
 
