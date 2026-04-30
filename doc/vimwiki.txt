@@ -4019,6 +4019,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @jiamingc
     - Alex Claman (@claman)
     - @qadzek
+    - @jpmor
 
 
 ==============================================================================
@@ -4036,6 +4037,12 @@ are accepted, they will merge directly to dev, which is now the main branch.
 master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
+
+
+2026.03.11~
+
+Fix:~
+    * PR #1450: Use relative filename modifier when opening wiki files
 
 
 2024.01.24~
