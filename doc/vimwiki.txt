@@ -4019,6 +4019,7 @@ Contributors and their Github usernames in roughly chronological order:
     - @jiamingc
     - Alex Claman (@claman)
     - @qadzek
+    - Ben Winston (@winsbe01)
 
 
 ==============================================================================
@@ -4037,6 +4038,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2025.10.26
+
+New:
+    * PR #1479: Fix: check for and handle legacy regexpengine (Issues #1002
+      and #1386)
 
 2024.01.24~
 

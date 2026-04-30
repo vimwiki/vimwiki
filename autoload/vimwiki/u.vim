@@ -283,7 +283,7 @@ function! vimwiki#u#get_punctuation_regex() abort
   " From: https://gist.github.com/asabaylus/3071099#gistcomment-2563127
   " Faster
   " Unused now
-  if v:version <= 703
+  if v:version <= 703 || &regexpengine == 1
     " Retrocompatibility: Get invalid range for vim 7.03
     return '[^0-9a-zA-Z_ \-]'
   else
