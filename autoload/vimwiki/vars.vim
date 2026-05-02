@@ -1339,7 +1339,7 @@ function! s:normalize_syntax_settings(syntax) abort
   " Link1: used when:
   "   user press enter on a non-link (normalize_link)
   "   command generate link form file name (generate_link)
-  if a:syntax ==# 'markdown'
+  if a:syntax ==# 'markdown' && (!exists('g:vimwiki_wikilink_override') || !g:vimwiki_wikilink_override)
     let syntax_dic.Link1 = syntax_dic.Weblink1Template
     let syntax_dic.Link2 = syntax_dic.Weblink1Template
   else

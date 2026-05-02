@@ -3188,6 +3188,16 @@ Value           Description~
 
 Default: 0
 
+------------------------------------------------------------------------------
+*g:vimwiki_wikilink_override
+
+Always use wiki-style links, even when markdown syntax is selected.
+
+Value           Description~
+0               Use link syntax matching selected syntax.
+1               Use wiki-style links always.
+
+Default: 0
 
 ------------------------------------------------------------------------------
 *VimwikiLinkHandler*
@@ -4039,6 +4049,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2025.03.20
+
+New:~
+    * Add a new configuration option allowing the wiki link syntax to be used
+      even when configured for markdown syntax.
 
 2026.04.08~
 
