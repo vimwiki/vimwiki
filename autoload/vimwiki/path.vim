@@ -224,7 +224,7 @@ endfunction
 
 function! s:get_wikifile_link(wikifile) abort
   return vimwiki#base#subdir(vimwiki#vars#get_wikilocal('path'), a:wikifile).
-    \ fnamemodify(a:wikifile, ':t:r')
+    \ substitute(fnamemodify(a:wikifile, ':t'), vimwiki#vars#get_wikilocal('ext', vimwiki#vars#get_bufferlocal('wiki_nr')) . '$' , '', '')
 endfunction
 
 function! vimwiki#path#PasteLink(wikifile) abort
