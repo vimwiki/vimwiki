@@ -987,27 +987,23 @@ function! s:process_tag_arrow_quote(line, arrow_quote) abort
     " Increase arrow_quote
     while line =~# '^' . repeat('\s*&gt;', arrow_quote + 1)
       call add(lines, '<blockquote>')
-      call add(lines, '<p>')
-      let arrow_quote .= 1
+      let arrow_quote += 1
     endwhile
-
-    " Treat & Add line
-    let stripped_line = substitute(a:line, '^\%(\s*&gt;\)\+', '', '')
-    if stripped_line =~# '^\s*$'
-      call add(lines, '</p>')
-      call add(lines, '<p>')
-    endif
-    call add(lines, stripped_line)
-    let processed = 1
-
   " Check if must decrease level
   elseif arrow_quote > 0
-    while line !~# '^' . repeat('\s*&gt;', arrow_quote - 1)
-      call add(lines, '</p>')
+    while line !~# '^' . repeat('\s*&gt;', arrow_quote)
       call add(lines, '</blockquote>')
       let arrow_quote -= 1
     endwhile
   endif
+
+  " Treat & Add line
+  let stripped_line = substitute(a:line, '^\%(\s*&gt;\)\+', '', '')
+  call add(lines, '<p>')
+  call add(lines, stripped_line)
+  call add(lines, '</p>')
+  let processed = 1
+
   return [processed, lines, arrow_quote]
 endfunction
 
@@ -1645,8 +1641,8 @@ function! s:parse_line(line, state) abort
     if processed && len(state.lists)
       call s:close_tag_list(state.lists, lines)
     endif
-    if processed && (state.quote || state.arrow_quote)
-      let state.quote = s:close_tag_precode(state.quote || state.arrow_quote, lines)
+    if processed && state.quote
+      let state.quote = s:close_tag_precode(state.quote, lines)
     endif
     if processed && state.arrow_quote
       let state.arrow_quote = s:close_tag_arrow_quote(state.arrow_quote, lines)
