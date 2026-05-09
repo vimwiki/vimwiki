@@ -74,12 +74,10 @@ function! vimwiki#diary#diary_date_link(...) abort
   let l:frequency = vimwiki#vars#get_wikilocal('diary_frequency', wiki_nr)
 
   if l:frequency ==? 'weekly'
-    let l:start_week_day = vimwiki#vars#get_wikilocal('diary_start_week_day', wiki_nr)
-    let l:weekday_num = str2nr(strftime('%w', l:timestamp))
-    let l:days_to_end_of_week = (7-l:weekday_number[l:start_week_day]+weekday_num) % 7
-    let l:computed_timestamp = l:timestamp
-          \ + 7*l:day_s*l:delta_periods
-          \ - l:day_s*l:days_to_end_of_week
+    " ISO 8601 year and week - always starts on Monday and belongs to the year where >=4 days fall
+    " Also see %U %W and %Y
+    let l:computed_timestamp = localtime() + l:delta_periods*l:day_s
+    return strftime("%G-W%V", l:computed_timestamp) . "#" . strftime("%Y-%m-%d", l:computed_timestamp)
 
   elseif l:frequency ==? 'monthly'
     let l:day_of_month = str2nr(strftime('%d', l:timestamp))
