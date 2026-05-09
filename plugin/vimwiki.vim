@@ -380,6 +380,8 @@ command! VimwikiShowVersion call s:get_version()
 command! -nargs=* -complete=customlist,vimwiki#vars#complete
       \ VimwikiVar call vimwiki#vars#cmd(<q-args>)
 
+command! VimwikiTodoList
+      \ call vimwiki#todo#list()
 
 " Declare global maps
 " <Plug> global definitions
@@ -403,6 +405,8 @@ nnoremap <silent><script> <Plug>VimwikiMakeYesterdayDiaryNote
 nnoremap <silent><script> <Plug>VimwikiMakeTomorrowDiaryNote
     \ :<C-U>call vimwiki#diary#make_note(v:count, 0,
     \ vimwiki#diary#diary_date_link(localtime(), 1, v:count))<CR>
+nnoremap <silent><script> <Plug>VimwikiTodoGrep
+    \ :<C-U>call vimwiki#todo#grep()<CR>
 
 
 " Set default global key mappings
