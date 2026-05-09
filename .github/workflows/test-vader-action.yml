@@ -64,20 +64,24 @@ jobs:
         opt: [
           # "vint",
 
-          "-n vim_7.3.429",
-          "-n vim_8.1.0519",
+          "-n vim_7.4.2367",
+          "-n vim_8.2.5172",
+          "-n vim_9.0.2190",
+          "-n vim_9.1.0786",
+
           # TODO add me when test works on Vim, 9.0
           # -- Currently I experienced some surprised due to defaults
           # -- tinmarino 2023-03-10
           # "-n v9.0.1396",
 
-          "-n nvim_0.3.8",
+          # This build isn't currently working with vim-testbed:
+          # "-n nvim_0.10.2",
 
           # Cannot quote as it is expanded from $OPT after quote removal
           # So I decided to escape the *
-          "-n vim_7.4.1099 -f '[a-k]*.vader'",
-          "-n vim_7.4.1546 -f 'l*.vader'",
-          "-n vim_8.0.0027 -f '[m-z]*.vader'",
+          # "-n vim_7.4.1099 -f '[a-k]*.vader'",
+          # "-n vim_7.4.1546 -f 'l*.vader'",
+          # "-n vim_8.0.0027 -f '[m-z]*.vader'",
         ]
     steps:
       # This action is required to fetch the code to test
