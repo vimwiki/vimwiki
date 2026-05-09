@@ -40,7 +40,9 @@ function! vimwiki#diary#diary_date_link(...) abort
   if a:0 > 2
     " user supply wiki number as 1 indexed, not 0 indexed
     let wiki_nr = a:3 - 1
-  else
+  endif
+
+  if a:0 <= 2 || wiki_nr == -1
     let wiki_nr = vimwiki#vars#get_bufferlocal('wiki_nr')
   endif
   if wiki_nr < 0  " this happens when called outside a wiki buffer
