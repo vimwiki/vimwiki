@@ -1957,6 +1957,11 @@ cursor is in.
 You can mark an item as rejected ("won't do") with
 |vimwiki_glx|. A rejected item will not influence the status of its parents.
 
+List items can also be tagged with GTD-style tokens: >
+    @project
+    +context
+    due:YYYYMMDD
+
 
 ==============================================================================
 9. Tables                                                     *vimwiki-tables*
