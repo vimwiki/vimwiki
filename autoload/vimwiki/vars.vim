@@ -542,6 +542,7 @@ function! s:get_default_wikilocal() abort
         \   'conceal': 0, 'cchar':''}},
         \ 'toc_header': {'type': type(''), 'default': 'Contents', 'min_length': 1},
         \ 'toc_header_level': {'type': type(0), 'default': 1, 'min': 1, 'max': 6},
+        \ 'toc_max_depth': {'type': type(0), 'default': 6, 'min': 1, 'max': 6},
         \ 'toc_link_format': {'type': type(0), 'default': 0, 'min': 0, 'max': 1},
         \ 'rx_todo': {'type': type(''), 'default': '\C\<\%(TODO\|DONE\|STARTED\|FIXME\|FIXED\|XXX\)\>'},
         \ }

@@ -2545,21 +2545,27 @@ function! vimwiki#base#table_of_contents(create) abort
     " Clean heading information
     let numbering = vimwiki#vars#get_global('html_header_numbering')
     " TODO numbering not used !
-    let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
+    let max_depth = vimwiki#vars#get_wikilocal('toc_max_depth')
+    let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]][:max_depth-1]
     let complete_header_infos = []
     for header in self.headers
       let h_text = header[2]
       let h_level = header[1]
+
+      " Skip if this is beyond the max TOC level
+      if h_level > max_depth
+        continue
+      endif
 
       " Don't include the TOC's header itself
       if h_text ==# self.toc_header_text
         continue
       endif
 
-       " Clean text
-       let h_text = s:clean_header_text(h_text)
+      " Clean text
+      let h_text = s:clean_header_text(h_text)
 
-       " Treat levels
+      " Treat levels
       let headers_levels[h_level-1] = [h_text, headers_levels[h_level-1][1]+1]
       for idx in range(h_level, 5) | let headers_levels[idx] = ['', 0] | endfor
 

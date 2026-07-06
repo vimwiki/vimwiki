@@ -2289,6 +2289,16 @@ current wiki page is saved: >
   let g:vimwiki_list = [{'path': '~/my_site/', 'auto_toc': 1}]
 
 
+*vimwiki-option-toc_max_depth*
+------------------------------------------------------------------------------
+Key             Default value     Values~
+toc_max_depth   6                 1, 2, 3, 4, 5, 6
+
+Description~
+Headers deeper than the specified level will be skipped when generating the
+table of contents.
+
+
 *vimwiki-option-index*
 ------------------------------------------------------------------------------
 Key             Default value~
@@ -4021,6 +4031,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Alex Claman (@claman)
     - @qadzek
     - Nathan Giard (@giardn)
+    - Tyler (@tyler000000)
 
 
 ==============================================================================
@@ -4039,6 +4050,11 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2026.07.06
+
+New:~
+    * Add a toc_max_depth option to remove subheaders beyond a certain depth
+      from the TOC
 
 2026.04.08~
 
