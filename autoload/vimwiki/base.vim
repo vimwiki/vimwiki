@@ -2546,7 +2546,7 @@ function! vimwiki#base#table_of_contents(create) abort
     let numbering = vimwiki#vars#get_global('html_header_numbering')
     " TODO numbering not used !
     let max_depth = vimwiki#vars#get_wikilocal('toc_max_depth')
-    let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]][:max_depth-1]
+    let headers_levels = [['', 0], ['', 0], ['', 0], ['', 0], ['', 0], ['', 0]]
     let complete_header_infos = []
     for header in self.headers
       let h_text = header[2]
