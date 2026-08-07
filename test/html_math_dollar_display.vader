@@ -1,0 +1,36 @@
+# Conversion: Wiki -> Html for $$ display-math blocks.
+# A line containing only $$ opens a display-math block whose content must
+# pass through untouched: in particular the ^superscript^ typeface rule must
+# not fire inside it (that corruption destroys TeX superscripts before
+# MathJax sees them).
+
+#################################################
+Given vimwiki (Display math with caret pairs):
+  * _Abstract_: inline $L^2(\Omega)$ math.
+  $$
+  Lu = v^{-1} \operatorname{Div}(Q\nabla u) + v^{-1} Z
+  $$
+
+Do (Convert):
+  :call ConvertWiki2Html()\<Cr>
+
+Execute ($$ block passes through untouched):
+  let html = join(getline(1, '$'), "\n")
+  Assert html =~# '\$\$', '$$ delimiters emitted verbatim'
+  Assert html =~# 'v\^{-1} \\operatorname{Div}(Q\\nabla u) + v\^{-1} Z', 'carets preserved inside $$ block'
+  Assert html !~# '<sup>', 'no <sup> corruption inside $$ block'
+
+#################################################
+Given vimwiki (Native block display regression):
+  {{$
+  \sum_i a_i^2 = 1
+  }}$
+
+Do (Convert):
+  :call ConvertWiki2Html()\<Cr>
+
+Execute ({{$ block still emits bracket display math):
+  let html = join(getline(1, '$'), "\n")
+  Assert html =~# '\\\[', '{{$ opener emits \['
+  Assert html =~# '\\\]', '}}$ closer emits \]'
+  Assert html =~# '\\sum_i a_i\^2 = 1', '{{$ content preserved'
