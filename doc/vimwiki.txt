@@ -1487,6 +1487,15 @@ E.g.:
 Note: no matter how many lines are used in the text file, the HTML will
 compress it to one line only.
 
+Alternatively, display math can be delimited by a line containing only $$
+before and after the formula, which is the convention used by many TeX
+authors and by Markdown+MathJax documents. The $$ delimiters are emitted
+verbatim into the HTML and the block content is passed through untouched.
+E.g.:
+ $$
+ \sum_i a_i^2 = 1
+ $$
+
 Block environment is similar to block display, but is able to use specific
 LaTeX environments, such as 'align'. The syntax is the same as for block
 display, except for the first line which is {{$%environment%.

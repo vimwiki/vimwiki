@@ -690,7 +690,12 @@ endfunction
 
 function! s:close_tag_math(math, ldest) abort
   if a:math[0]
-    call insert(a:ldest, "\\\]")
+    if get(s:, 'math_block_dollar_delimited', 0)
+      call insert(a:ldest, '$$')
+      let s:math_block_dollar_delimited = 0
+    else
+      call insert(a:ldest, "\\\]")
+    endif
     return 0
   endif
   return a:math
@@ -917,7 +922,17 @@ function! s:process_tag_math(line, math) abort
   let lines = []
   let math = a:math
   let processed = 0
-  if !math[0] && a:line =~# '^\s*{{\$[^\(}}$\)]*\s*$'
+  if !math[0] && a:line =~# '^\s*\$\$\s*$'
+    " A line containing only $$ opens a display-math block. The $$ delimiters
+    " are emitted verbatim and the content lines pass through untouched, so
+    " typeface substitutions (e.g. ^superscript^) never corrupt the TeX.
+    let s:current_math_env = ''
+    let s:math_block_dollar_delimited = 1
+    call add(lines, '$$')
+    let math = [1, len(matchstr(a:line, '^\s*\ze\$\$'))]
+    let processed = 1
+  elseif !math[0] && a:line =~# '^\s*{{\$[^\(}}$\)]*\s*$'
+    let s:math_block_dollar_delimited = 0
     let class = matchstr(a:line, '{{$\zs.*$')
     "FIXME class cannot be any string!
     let class = substitute(class, '\s\+$', '', 'g')
@@ -932,6 +947,11 @@ function! s:process_tag_math(line, math) abort
       call add(lines, "\\\[")
     endif
     let math = [1, len(matchstr(a:line, '^\s*\ze{{\$'))]
+    let processed = 1
+  elseif math[0] && get(s:, 'math_block_dollar_delimited', 0) && a:line =~# '^\s*\$\$\s*$'
+    let math = [0, 0]
+    let s:math_block_dollar_delimited = 0
+    call add(lines, '$$')
     let processed = 1
   elseif math[0] && a:line =~# '^\s*}}\$\s*$'
     let math = [0, 0]
