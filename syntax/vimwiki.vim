@@ -276,13 +276,13 @@ execute 'syntax region VimwikiMath start=/'.vimwiki#vars#get_syntaxlocal('rxMath
 
 
 " Placeholder:
-syntax match VimwikiPlaceholder /^\s*%nohtml\s*$/
+syntax match VimwikiPlaceholder /^%nohtml\s*$/
 syntax match VimwikiPlaceholder
-      \ /^\s*%title\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
+      \ /^%title\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
 syntax match VimwikiPlaceholder
-      \ /^\s*%date\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
+      \ /^%date\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
 syntax match VimwikiPlaceholder
-      \ /^\s*%template\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
+      \ /^%template\ze\%(\s.*\)\?$/ nextgroup=VimwikiPlaceholderParam skipwhite
 syntax match VimwikiPlaceholderParam /.*/ contained
 
 
