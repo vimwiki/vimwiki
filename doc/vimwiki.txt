@@ -4021,6 +4021,7 @@ Contributors and their Github usernames in roughly chronological order:
     - Alex Claman (@claman)
     - @qadzek
     - Nathan Giard (@giardn)
+    - @tyler000000
 
 
 ==============================================================================
