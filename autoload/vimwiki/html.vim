@@ -1466,7 +1466,7 @@ function! s:parse_line(line, state) abort
 
   " nohtml -- placeholder
   if !processed
-    if line =~# '\m^\s*%nohtml\s*$'
+    if line =~# '\m^%nohtml\s*$'
       let processed = 1
       let state.placeholder = ['nohtml']
     endif
@@ -1474,27 +1474,27 @@ function! s:parse_line(line, state) abort
 
   " title -- placeholder
   if !processed
-    if line =~# '\m^\s*%title\%(\s.*\)\?$'
+    if line =~# '\m^%title\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '\m^\s*%title\s\+\zs.*')
+      let param = matchstr(line, '\m^%title\s\+\zs.*')
       let state.placeholder = ['title', param]
     endif
   endif
 
   " date -- placeholder
   if !processed
-    if line =~# '\m^\s*%date\%(\s.*\)\?$'
+    if line =~# '\m^%date\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '\m^\s*%date\s\+\zs.*')
+      let param = matchstr(line, '\m^%date\s\+\zs.*')
       let state.placeholder = ['date', param]
     endif
   endif
 
   " html template -- placeholder
   if !processed
-    if line =~# '\m^\s*%template\%(\s.*\)\?$'
+    if line =~# '\m^%template\%(\s.*\)\?$'
       let processed = 1
-      let param = matchstr(line, '\m^\s*%template\s\+\zs.*')
+      let param = matchstr(line, '\m^%template\s\+\zs.*')
       let state.placeholder = ['template', param]
     endif
   endif
