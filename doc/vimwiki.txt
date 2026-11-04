@@ -4039,6 +4039,12 @@ master is retained as a legacy mirror of the dev branch.
 
 This is somewhat experimental, and will probably be refined over time.
 
+2026.11.03
+
+Fixed:~
+    * Regex for placeholders made more restrictive to match the spec.
+     Placeholders begin at the beginning of the line and should not have
+     whitespace before the %.
 
 2026.04.08~
 
